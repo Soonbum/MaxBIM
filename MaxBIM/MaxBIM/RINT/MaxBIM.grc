@@ -1,0 +1,34 @@
+﻿/****************************************************************************/
+/*                                                                          */
+/*            TODO: write some descriptive text about your project          */
+/*                               (GRC resources)                            */
+/*                                                                          */
+/****************************************************************************/
+
+@#define	INT__APP
+@#define	INTERNAL_NAME	"MaxBIM"
+@#define	ORIGINAL_NAME	"MaxBIM.apx"
+@
+@#define	COMPANY_STR		"MaxBIM"
+@#define	COPYRIGHT_STR	"Copyright © MaxBIM 2010"
+@#define	FILEDESC_STR	"MaxBIM Add-on"
+@
+
+'STR#' 32000 "Add-on Name and Description" {
+/* [   ] */		"MaxBIM"
+/* [  1] */		"MaxBIM 사내 애드온입니다."
+}
+
+
+'STR#' 32001 "Menu strings" {
+/* [   ] */		"MaxBIM"
+/* [   ] */		"가설재"
+/* [  1] */			"벽에 유로폼 배치 (3D)^E3"
+}
+
+
+'STR#' 32002 "Status bar strings" {
+/* [   ] */		"MaxBIM"
+/* [   ] */		"가설재"
+/* [  1] */			"모프(Morph)로 영역(벽/간섭보) 선택 후 벽 앞/뒷면에 유로폼을 배치합니다."
+}

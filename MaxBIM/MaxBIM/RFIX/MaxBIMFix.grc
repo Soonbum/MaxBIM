@@ -1,0 +1,58 @@
+﻿/****************************************************************************/
+/*                                                                          */
+/*            TODO: write some descriptive text about your project          */
+/*                       (non-localized GRC resources)                      */
+/*                                                                          */
+/****************************************************************************/
+
+@#include "GSLocalization.h"
+@
+
+/* TODO: replace the first ID with your developer ID and the second ID with */
+/*       your local ID                                                      */
+
+'MDID' 32500 "Add-On Identifier" {
+	829517673
+	3588511626
+}
+
+
+'GICN' 32502 "Layers" {
+           0  128  128
+}
+
+
+/* ---------------------------------------------------------- place Euroform/In-corner/etc on Wall */
+'GDLG'  32500  Modal | grow	  0		  0		300		300		"유로폼/인코너/기타 배치" {
+/* [  1] */	Button			 70		260		 70		 25		LargePlain		"Place"
+/* [  2] */	Button			160		260		 70		 25		LargePlain		"Cancel"
+
+/* [  3] */ LeftText		 10		 10		200		 23		LargePlain		"Incorner Settings"
+/* [  4] */ CheckBox		 10		 33		 70		 25		LargePlain		"Left"
+/* [  5] */ LengthEdit		 80		 33		 50		 25		LargePlain		"0.080"	"0.5"
+/* [  6] */ CheckBox		150		 33		 70		 25		LargePlain		"Right"
+/* [  7] */ LengthEdit		220		 33		 50		 25		LargePlain		"0.080"	"0.5"
+/* [  8] */ Separator		  5		 65		290		  1
+
+/* [  9] */ LeftText		 10		 85		200		 23		LargePlain		"Euroform Settings"
+/* [ 10] */ RightText		 50		115		 70		 23		LargePlain		"Width"
+/* [ 11] */	PopupControl	140		108		100		 25		200		10		/* 너비 */
+							NoIcon	"600"
+							NoIcon	"500"
+							NoIcon	"450"
+							NoIcon	"400"
+							NoIcon	"300"
+							NoIcon	"200"
+/* [ 12] */ RightText		 50		145		 70		 23		LargePlain		"Height"
+/* [ 13] */	PopupControl	140		138		100		 25		100		10		/* 높이 */
+							NoIcon	"1200"
+							NoIcon	"900"
+							NoIcon	"600"
+/* [ 14] */ RightText		 50		175		 70		 23		LargePlain		"Orientation"
+/* [ 15] */	PopupControl	140		168		100		 25		100		10		/* 설치방향 */
+							NoIcon	"벽세우기"
+							NoIcon	"벽눕히기"
+/* [ 16] */ Separator		  5		205		290		  1
+/* [ 17] */ Icon			 36		218		 29		 14  	32502
+/* [ 18] */ UserControl		 70		213		160		 25		257	0x0006 0x0000 0		/* Layer Control */
+}

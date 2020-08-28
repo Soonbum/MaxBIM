@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{dc58ba9d-0983-438b-b49c-8e0278a535f4}</UniqueIdentifier>
+      <Extensions>c;cpp;cc;cxx;cp</Extensions>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{cef67c3b-82d5-4d6d-afed-d657acfaa169}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hp</Extensions>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{ab566e92-8d5d-4d6d-9e23-da415cd075f7}</UniqueIdentifier>
+      <Extensions>r;res;rc;rc2;grc;ico;cur;bmp;gif;jpg;jpeg</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Src\MaxBIM.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\APICommon.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\APIEnvir.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\ACAPinc.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\ACAPinc_dll.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Src\MaxBIM.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\APICommon.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\UtilityFunctions.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\EuroformPlacer.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="RINT\MaxBIM.grc">
+      <Filter>Resources</Filter>
+    </CustomBuild>
+    <CustomBuild Include="RFIX\MaxBIMFix.grc">
+      <Filter>Resources</Filter>
+    </CustomBuild>
+    <CustomBuild Include="RFIX.WIN\MaxBIM.rc2">
+      <Filter>Resources</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Lib\Win\ACAP_STAT.lib" />
+    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSRoot\Win\GSRootImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSUtils\Win\GSUtilsImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\InputOutput\Win\InputOutputImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib\Win\DGImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGGraphix\Win\DGGraphixImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UCLib\Win\UCImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\TextEngine\Win\TextEngineImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\Geometry\Win\GeometryImp.lib" />
+  </ItemGroup>
+</Project>

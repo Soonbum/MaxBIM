@@ -1,0 +1,88 @@
+
+/*---- This file was created by GRC compiler --------------------------------------------*/
+/*                                                                                       */
+/*     Source file: c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\RFIX\MaxBIMFix.grc        Code table: NUL              */
+/*                                                                                       */
+/*---- Version 2.0 - Windows ------------------------------ (c) 1996-2013 by Graphisoft -*/
+
+/*------------------ Includes ----------------------------------------------*/
+
+#include "DGDefs.h"
+
+/*------------------ Resources ---------------------------------------------*/
+
+
+#include "GSLocalization.h"
+
+32500 MDID
+BEGIN
+	8, 0,
+	0L + 829517673,
+	0L + 3588511626
+END
+
+32502	ICON 32502.ico
+
+32500 GSDG
+BEGIN
+	554, 0,
+	DG_DT_MODAL, DG_DLG_HGROW | DG_DLG_VGROW,
+	0, 0, 300, 300,
+	0x9CEC,0xEBA0,0x9CA1,0x8FED,0x2FBC,0x9DEC,0xECB8,0x94BD,
+	0x84EB,0x2F88,0xB8EA,0xEDB0,0x8083,0xEB20,0xB0B0,0xB9EC,
+	0x0098,
+	18,
+	  1, DG_ITM_BUTTON, DG_BT_ICONTEXT,  70, 258,  70,  29, DG_IS_LARGE | DG_IS_PLAIN,
+			0x6C50,0x6361,0x0065,
+	  2, DG_ITM_BUTTON, DG_BT_ICONTEXT, 160, 258,  70,  29, DG_IS_LARGE | DG_IS_PLAIN,
+			0x6143,0x636E,0x6C65,"\x00",
+	  3, DG_ITM_STATICTEXT, DG_IS_LEFT | DG_IS_VTOP | DG_IS_NOTRUNC,  10,  10, 200,  23, 0, DG_IS_LARGE | DG_IS_PLAIN,
+			0x6E49,0x6F63,0x6E72,0x7265,0x5320,0x7465,0x6974,0x676E,
+			0x0073,
+	  4, DG_ITM_CHECKBOX, DG_BT_TEXT,  10,  33,  70,  25, DG_IS_LARGE | DG_IS_PLAIN,
+			0x654C,0x7466,"\x00",
+	  5, DG_ITM_EDITTEXT, DG_ET_LENGTH | DG_ET_FRAME | DG_ET_ABSOLUTE | DG_ET_CHANGEFONT | DG_ET_UPDATE | DG_ET_EDITABLE,  80,  33,  50,  25, DG_IS_LARGE | DG_IS_PLAIN, "0.080\0", "0.5\0",
+	  6, DG_ITM_CHECKBOX, DG_BT_TEXT, 150,  33,  70,  25, DG_IS_LARGE | DG_IS_PLAIN,
+			0x6952,0x6867,0x0074,
+	  7, DG_ITM_EDITTEXT, DG_ET_LENGTH | DG_ET_FRAME | DG_ET_ABSOLUTE | DG_ET_CHANGEFONT | DG_ET_UPDATE | DG_ET_EDITABLE, 220,  33,  50,  25, DG_IS_LARGE | DG_IS_PLAIN, "0.080\0", "0.5\0",
+	  8, DG_ITM_SEPARATOR, DG_SP_HORIZONTAL,   5,  65, 290,   1,
+	  9, DG_ITM_STATICTEXT, DG_IS_LEFT | DG_IS_VTOP | DG_IS_NOTRUNC,  10,  85, 200,  23, 0, DG_IS_LARGE | DG_IS_PLAIN,
+			0x7545,0x6F72,0x6F66,0x6D72,0x5320,0x7465,0x6974,0x676E,
+			0x0073,
+	 10, DG_ITM_STATICTEXT, DG_IS_RIGHT | DG_IS_VTOP | DG_IS_NOTRUNC,  50, 115,  70,  23, 0, DG_IS_LARGE | DG_IS_PLAIN,
+			0x6957,0x7464,0x0068,
+	 11, DG_ITM_POPUPCONTROL, 0, 140, 108, 100, 200, 25, 10, 6,
+		     65535,
+				0x3036,0x0030,
+		     65535,
+				0x3035,0x0030,
+		     65535,
+				0x3534,0x0030,
+		     65535,
+				0x3034,0x0030,
+		     65535,
+				0x3033,0x0030,
+		     65535,
+				0x3032,0x0030,
+	 12, DG_ITM_STATICTEXT, DG_IS_RIGHT | DG_IS_VTOP | DG_IS_NOTRUNC,  50, 145,  70,  23, 0, DG_IS_LARGE | DG_IS_PLAIN,
+			0x6548,0x6769,0x7468,"\x00",
+	 13, DG_ITM_POPUPCONTROL, 0, 140, 138, 100, 100, 25, 10, 3,
+		     65535,
+				0x3231,0x3030,"\x00",
+		     65535,
+				0x3039,0x0030,
+		     65535,
+				0x3036,0x0030,
+	 14, DG_ITM_STATICTEXT, DG_IS_RIGHT | DG_IS_VTOP | DG_IS_NOTRUNC,  50, 175,  70,  23, 0, DG_IS_LARGE | DG_IS_PLAIN,
+			0x724F,0x6569,0x746E,0x7461,0x6F69,0x006E,
+	 15, DG_ITM_POPUPCONTROL, 0, 140, 168, 100, 100, 25, 10, 2,
+		     65535,
+				0xB2EB,0xECBD,0xB884,0x9AEC,0xEAB0,0xB0B8,"\x00",
+		     65535,
+				0xB2EB,0xEBBD,0x9588,0x9EED,0xEA88,0xB0B8,"\x00",
+	 16, DG_ITM_SEPARATOR, DG_SP_HORIZONTAL,   5, 205, 290,   1,
+	 17, DG_ITM_ICONITEM, 0,  36, 218,  29,  14, 0, 32502,
+	 18, DG_ITM_USERCONTROL, 0,  70, 213, 160,  25, 257, 3,
+			 6, 0, 0,
+END
+
