@@ -113,7 +113,6 @@ GSErrCode	placeEuroformOnWall (void)
 	infoWall.wallThk		= elem.wall.thickness;
 	infoWall.bottomOffset	= elem.wall.bottomOffset;
 	infoWall.floorInd		= elem.header.floorInd;
-	infoWall.ang			= RadToDegree (elem.wall.angle);
 	infoWall.begX			= elem.wall.begC.x;
 	infoWall.begY			= elem.wall.begC.y;
 	infoWall.endX			= elem.wall.endC.x;
@@ -136,18 +135,13 @@ GSErrCode	placeEuroformOnWall (void)
 		// 모프의 GUID 저장
 		infoMorph [xx].guid = elem.header.guid;
 
-		// 모프의 좌하단, 우상단 좌표 저장
+		// 모프의 좌하단, 우상단 좌표 저장	!!! direction에 따라 순서를 바꾸어야 할 수도 있다. findDirection 함수 이용
 		infoMorph [xx].leftBottomX = info3D.bounds.xMin;
 		infoMorph [xx].leftBottomY = info3D.bounds.yMin;
 		infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
 		infoMorph [xx].rightTopX = info3D.bounds.xMax;
 		infoMorph [xx].rightTopY = info3D.bounds.yMax;
 		infoMorph [xx].rightTopZ = info3D.bounds.zMax;
-
-		// !!! 각도, 벽과의 관계가 매번 달라짐 (방향에 따라 맞춰야 함)
-		char msg [200];
-		sprintf (msg, "direction: %ld", findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY));
-		ACAPI_WriteReport (msg, true);
 
 		// 모프의 가로 길이
 		infoMorph [xx].horLen = GetDistance (info3D.bounds.xMin, info3D.bounds.yMin, info3D.bounds.xMax, info3D.bounds.yMax);
@@ -156,9 +150,23 @@ GSErrCode	placeEuroformOnWall (void)
 		infoMorph [xx].verLen = info3D.bounds.zMax - info3D.bounds.zMin;
 
 		// 모프의 Z축 회전 각도
-		dx = infoMorph [xx].rightTopX - infoMorph [xx].leftBottomX;
-		dy = infoMorph [xx].rightTopY - infoMorph [xx].leftBottomY;
+		dx = infoWall.endX - infoWall.begX;
+		dy = infoWall.endY - infoWall.begY;
 		infoMorph [xx].ang = RadToDegree (atan2 (dy, dx));
+
+		// !!! 각도, 벽과의 관계가 매번 달라짐 (방향에 따라 맞춰야 함)
+		/*
+		char msg [200];
+		sprintf (msg, "wall direction: %ld\nmorph direction: %ld, angle: %.0f\nlevel: %.4f\n[%.4f, %.4f, %.4f, %.4f]\n[%.4f, %.4f, %.4f, %.4f]\n[%.4f, %.4f, %.4f, %.4f]",
+			findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY),
+			findDirection (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY), infoMorph [xx].ang,
+			elem.morph.level, elem.morph.tranmat.tmx [0], elem.morph.tranmat.tmx [1], elem.morph.tranmat.tmx [2], elem.morph.tranmat.tmx [3],
+			elem.morph.tranmat.tmx [4], elem.morph.tranmat.tmx [5], elem.morph.tranmat.tmx [6], elem.morph.tranmat.tmx [7],
+			elem.morph.tranmat.tmx [8], elem.morph.tranmat.tmx [9], elem.morph.tranmat.tmx [10], elem.morph.tranmat.tmx [11]);
+		ACAPI_WriteReport (msg, true);
+		sprintf (msg, "X(%.4f, %.4f)\nY(%.4f, %.4f)\nZ(%.4f, %.4f)", info3D.bounds.xMin, info3D.bounds.xMax, info3D.bounds.yMin, info3D.bounds.yMax, info3D.bounds.zMin, info3D.bounds.zMax);
+		ACAPI_WriteReport (msg, true);
+		*/
 	}
 
 	// 벽면/간섭보/후면기둥 모프 판정 (Assertion 시행)

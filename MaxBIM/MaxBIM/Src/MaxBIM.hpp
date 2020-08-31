@@ -161,7 +161,6 @@ struct InfoWall
 {
 	double	wallThk;			// 벽 두께
 	double	bottomOffset;		// 하부 오프셋
-	double	ang;				// 벽 회전 각도 (단위: Degree, 회전축: Z축)
 	short	floorInd;			// 층 인덱스
 
 	double	begX;				// 시작점 X
