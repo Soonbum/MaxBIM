@@ -160,7 +160,6 @@ enum	libPartObjType {
 struct InfoWall
 {
 	double	wallThk;			// 벽 두께
-	double	bottomOffset;		// 하부 오프셋
 	short	floorInd;			// 층 인덱스
 
 	double	begX;				// 시작점 X

@@ -110,17 +110,31 @@ void	exchangeDoubles (double* a, double* b)
 long	findDirection (const double begX, const double begY, const double endX, const double endY)
 {
 	double deltaX = endX - begX;
+	double deltaX_abs = abs (deltaX);
 	double deltaY = endY - begY;
+	double deltaY_abs = abs (deltaY);
 
-	if ( deltaX == 0 && deltaY == 0 )	return 0;	// Point
-	if ( deltaX >  0 && deltaY == 0 )	return 1;	// East-ward
-	if ( deltaX >  0 && deltaY >  0 )	return 2;	// Northeast-ward
-	if ( deltaX == 0 && deltaY >  0 )	return 3;	// North-ward
-	if ( deltaX <  0 && deltaY >  0 )	return 4;	// Northwest-ward
-	if ( deltaX <  0 && deltaY == 0 )	return 5;	// West-ward
-	if ( deltaX <  0 && deltaY <  0 )	return 6;	// Southwest-ward
-	if ( deltaX == 0 && deltaY <  0 )	return 7;	// South-ward
-	if ( deltaX >  0 && deltaY <  0 )	return 8;	// Southeast-ward
+	/*
+	if ( deltaX == 0 && deltaY == 0 )	return 0;
+	if ( deltaX >  0 && deltaY == 0 )	return 1;
+	if ( deltaX >  0 && deltaY >  0 )	return 2;
+	if ( deltaX == 0 && deltaY >  0 )	return 3;
+	if ( deltaX <  0 && deltaY >  0 )	return 4;
+	if ( deltaX <  0 && deltaY == 0 )	return 5;
+	if ( deltaX <  0 && deltaY <  0 )	return 6;
+	if ( deltaX == 0 && deltaY <  0 )	return 7;
+	if ( deltaX >  0 && deltaY <  0 )	return 8;
+	*/
+
+	if ((deltaX_abs	< EPS)	&&	(deltaY_abs	< EPS))		return 0;	// Point
+	if ((deltaX		> EPS)	&&	(deltaY_abs	< EPS))		return 1;	// East-ward
+	if ((deltaX		> EPS)	&&	(deltaY		> EPS))		return 2;	// Northeast-ward
+	if ((deltaX_abs	< EPS)	&&	(deltaY		> EPS))		return 3;	// North-ward
+	if ((deltaX		< -EPS)	&&	(deltaY		> EPS))		return 4;	// Northwest-ward
+	if ((deltaX		< -EPS)	&&	(deltaY_abs	< EPS))		return 5;	// West-ward
+	if ((deltaX		< -EPS)	&&	(deltaY		< -EPS))	return 6;	// Southwest-ward
+	if ((deltaX_abs	< EPS)	&&	(deltaY		< -EPS))	return 7;	// South-ward
+	if ((deltaX		> EPS)	&&	(deltaY		< -EPS))	return 8;	// Southeast-ward
 
 	return -1;
 }
