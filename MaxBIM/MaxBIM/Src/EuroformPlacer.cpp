@@ -157,6 +157,24 @@ GSErrCode	placeEuroformOnWall (void)
 		// 모프의 X, Y 양 끝점을 연결하는 벡터들의 각도를 다 계산해보고 infoMorph [xx].ang과 근사한 값이 있는지 찾아본다.
 		// 일치하는 값을 찾으면 leftBottom, rightTop 좌표를 지정한다.
 
+		infoMorph [xx].leftBottomX = info3D.bounds.xMin;
+		infoMorph [xx].leftBottomY = info3D.bounds.yMin;
+		infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
+		infoMorph [xx].rightTopX = info3D.bounds.xMax;
+		infoMorph [xx].rightTopY = info3D.bounds.yMax;
+		infoMorph [xx].rightTopZ = info3D.bounds.zMax;
+
+		/*
+		char msg [200];
+		sprintf (msg, "wall dir: %ld\nmorph dir: %ld, angle: %.0f\n\nTMX:\n[%.4f, %.4f, %.4f]\n\ninfo3D:\nX(%.4f, %.4f)\nY(%.4f, %.4f)\nZ(%.4f, %.4f)\n\ninfo: (%.4f, %.4f) - (%.4f, %.4f)",
+			findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY),
+			findDirection (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY), infoMorph [xx].ang,
+			elem.morph.tranmat.tmx [3], elem.morph.tranmat.tmx [7], elem.morph.tranmat.tmx [11],
+			info3D.bounds.xMin, info3D.bounds.xMax, info3D.bounds.yMin, info3D.bounds.yMax, info3D.bounds.zMin, info3D.bounds.zMax,
+			infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY);
+		ACAPI_WriteReport (msg, true);
+		*/
+
 		// (xMin, yMin) -> (xMax, yMax)
 		dx_arr [0]	= info3D.bounds.xMax - info3D.bounds.xMin;
 		dy_arr [0]	= info3D.bounds.yMax - info3D.bounds.yMin;
@@ -219,17 +237,9 @@ GSErrCode	placeEuroformOnWall (void)
 						break;
 				}
 				break;
-			} else {
-				infoMorph [xx].leftBottomX = info3D.bounds.xMin;
-				infoMorph [xx].leftBottomY = info3D.bounds.yMin;
-				infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
-				infoMorph [xx].rightTopX = info3D.bounds.xMax;
-				infoMorph [xx].rightTopY = info3D.bounds.yMax;
-				infoMorph [xx].rightTopZ = info3D.bounds.zMax;
 			}
 		}
 
-		// !!! 어떤 조건에 또 적용해야 하는가?
 		// 만약 벽 그리기 방향과 모프 그리기 방향이 반대라면,
 		wall_direction	= findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY);
 		morph_direction	= findDirection (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY);
@@ -241,14 +251,16 @@ GSErrCode	placeEuroformOnWall (void)
 			inverted = true;
 		}
 
-		char msg [200];
-		sprintf (msg, "inverted: %d\nwall dir: %ld\nmorph dir: %ld, angle: %.0f\n\nTMX:\n[%.4f, %.4f, %.4f]\n\ninfo3D:\nX(%.4f, %.4f)\nY(%.4f, %.4f)\nZ(%.4f, %.4f)",
+		/*
+		sprintf (msg, "inverted: %d\nwall dir: %ld\nmorph dir: %ld, angle: %.0f\n\nTMX:\n[%.4f, %.4f, %.4f]\n\ninfo3D:\nX(%.4f, %.4f)\nY(%.4f, %.4f)\nZ(%.4f, %.4f)\n\ninfo: (%.4f, %.4f) - (%.4f, %.4f)",
 			inverted,
 			findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY),
 			findDirection (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY), infoMorph [xx].ang,
 			elem.morph.tranmat.tmx [3], elem.morph.tranmat.tmx [7], elem.morph.tranmat.tmx [11],
-			info3D.bounds.xMin, info3D.bounds.xMax, info3D.bounds.yMin, info3D.bounds.yMax, info3D.bounds.zMin, info3D.bounds.zMax);
+			info3D.bounds.xMin, info3D.bounds.xMax, info3D.bounds.yMin, info3D.bounds.yMax, info3D.bounds.zMin, info3D.bounds.zMax,
+			infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY);
 		ACAPI_WriteReport (msg, true);
+		*/
 
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
