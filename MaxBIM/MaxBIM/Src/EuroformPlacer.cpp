@@ -54,6 +54,10 @@ GSErrCode	placeEuroformOnWall (void)
 	// 방향 정보
 	long	wall_direction;
 	long	morph_direction;
+	bool	bInverted = false;	// 모프 영역을 180도 회전시켰는가? (벽 그리기 방향과 모프 그리기 방향이 다른 경우)
+
+	// 디버깅
+	char msg [200];
 
 
 	//////////////////////////////////////////////////////////// Morph를 이용하여 영역 추출
@@ -165,7 +169,6 @@ GSErrCode	placeEuroformOnWall (void)
 		infoMorph [xx].rightTopZ = info3D.bounds.zMax;
 
 		/*
-		char msg [200];
 		sprintf (msg, "wall dir: %ld\nmorph dir: %ld, angle: %.0f\n\nTMX:\n[%.4f, %.4f, %.4f]\n\ninfo3D:\nX(%.4f, %.4f)\nY(%.4f, %.4f)\nZ(%.4f, %.4f)\n\ninfo: (%.4f, %.4f) - (%.4f, %.4f)",
 			findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY),
 			findDirection (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY), infoMorph [xx].ang,
@@ -206,61 +209,52 @@ GSErrCode	placeEuroformOnWall (void)
 					case 0:
 						infoMorph [xx].leftBottomX = info3D.bounds.xMin;
 						infoMorph [xx].leftBottomY = info3D.bounds.yMin;
-						infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
 						infoMorph [xx].rightTopX = info3D.bounds.xMax;
 						infoMorph [xx].rightTopY = info3D.bounds.yMax;
-						infoMorph [xx].rightTopZ = info3D.bounds.zMax;
 						break;
 					case 1:
 						infoMorph [xx].leftBottomX = info3D.bounds.xMax;
 						infoMorph [xx].leftBottomY = info3D.bounds.yMin;
-						infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
 						infoMorph [xx].rightTopX = info3D.bounds.xMin;
 						infoMorph [xx].rightTopY = info3D.bounds.yMax;
-						infoMorph [xx].rightTopZ = info3D.bounds.zMax;
 						break;
 					case 2:
 						infoMorph [xx].leftBottomX = info3D.bounds.xMin;
 						infoMorph [xx].leftBottomY = info3D.bounds.yMax;
-						infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
 						infoMorph [xx].rightTopX = info3D.bounds.xMax;
 						infoMorph [xx].rightTopY = info3D.bounds.yMin;
-						infoMorph [xx].rightTopZ = info3D.bounds.zMax;
 						break;
 					case 3:
 						infoMorph [xx].leftBottomX = info3D.bounds.xMax;
 						infoMorph [xx].leftBottomY = info3D.bounds.yMax;
-						infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
 						infoMorph [xx].rightTopX = info3D.bounds.xMin;
 						infoMorph [xx].rightTopY = info3D.bounds.yMin;
-						infoMorph [xx].rightTopZ = info3D.bounds.zMax;
 						break;
 				}
 				break;
 			}
+			infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
+			infoMorph [xx].rightTopZ = info3D.bounds.zMax;
 		}
 
 		// 만약 벽 그리기 방향과 모프 그리기 방향이 반대라면,
 		wall_direction	= findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY);
 		morph_direction	= findDirection (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY);
-		bool	inverted = false;
 		if ( (abs (elem.morph.tranmat.tmx [11] - info3D.bounds.zMax) < EPS) || (abs (wall_direction - morph_direction) > 1) || (abs (wall_direction - morph_direction) == 8) ) {
 			exchangeDoubles (&infoMorph [xx].leftBottomX, &infoMorph [xx].rightTopX);
 			exchangeDoubles (&infoMorph [xx].leftBottomY, &infoMorph [xx].rightTopY);
 			infoMorph [xx].ang = infoMorph [xx].ang + 180.0;
-			inverted = true;
+			bInverted = true;
 		}
 
-		/*
 		sprintf (msg, "inverted: %d\nwall dir: %ld\nmorph dir: %ld, angle: %.0f\n\nTMX:\n[%.4f, %.4f, %.4f]\n\ninfo3D:\nX(%.4f, %.4f)\nY(%.4f, %.4f)\nZ(%.4f, %.4f)\n\ninfo: (%.4f, %.4f) - (%.4f, %.4f)",
-			inverted,
+			bInverted,
 			findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY),
 			findDirection (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY), infoMorph [xx].ang,
 			elem.morph.tranmat.tmx [3], elem.morph.tranmat.tmx [7], elem.morph.tranmat.tmx [11],
 			info3D.bounds.xMin, info3D.bounds.xMax, info3D.bounds.yMin, info3D.bounds.yMax, info3D.bounds.zMin, info3D.bounds.zMax,
 			infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY);
 		ACAPI_WriteReport (msg, true);
-		*/
 
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
@@ -293,6 +287,7 @@ GSErrCode	placeEuroformOnWall (void)
 				// 가로축 범위 비교
 				result_compare_x = compareRanges (	infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomX + infoMorph [xx].horLen,
 													infoMorph [yy].leftBottomX, infoMorph [yy].leftBottomX + infoMorph [yy].horLen );
+				
 				// 세로축 범위 비교
 				result_compare_y = compareRanges (	infoMorph [xx].leftBottomZ, infoMorph [xx].leftBottomZ + infoMorph [xx].verLen,
 													infoMorph [yy].leftBottomZ, infoMorph [yy].leftBottomZ + infoMorph [yy].verLen );
@@ -408,6 +403,7 @@ GSErrCode	placeEuroformOnWall (void)
 				placingZone.remain_ver_wo_beams = placingZone.beams [xx].leftBottomZ;
 		}
 	}
+	placingZone.remain_ver_wo_beams = placingZone.remain_ver_wo_beams - 0.063;	// 보에 설치하는 폼 두께도 감안할 것
 	placingZone.remain_ver = placingZone.remain_ver_wo_beams;
 
 	// 유로폼 가로/세로 방향 개수 세기
