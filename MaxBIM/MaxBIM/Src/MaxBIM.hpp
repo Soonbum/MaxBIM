@@ -76,6 +76,7 @@ void	firstPlacingSettings (PlacingZone* placingZone);												// 1차 배치: 인
 void	copyPlacingZoneSymmetric (PlacingZone* src_zone, PlacingZone* dst_zone, InfoWall* infoWall);	// 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
 void	alignPlacingZone (PlacingZone* target_zone);													// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 std::string	format_string(const std::string fmt, ...);													// std::string 변수 값에 formatted string을 입력 받음
+GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, std::string comment, short layerInd, short floorInd);			// 좌표 라벨을 배치함
 
 // 유로폼/인코너 배치 관련 함수
 GSErrCode	placeEuroformOnWall (void);		// 1번 메뉴: 유로폼/인코너 등을 배치하는 통합 루틴

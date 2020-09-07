@@ -56,9 +56,6 @@ GSErrCode	placeEuroformOnWall (void)
 	long	morph_direction;
 	bool	bInverted = false;	// 모프 영역을 180도 회전시켰는가? (벽 그리기 방향과 모프 그리기 방향이 다른 경우)
 
-	// 디버깅
-	char msg [200];
-
 
 	//////////////////////////////////////////////////////////// Morph를 이용하여 영역 추출
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);	// 선택한 요소 가져오기
@@ -168,15 +165,10 @@ GSErrCode	placeEuroformOnWall (void)
 		infoMorph [xx].rightTopY = info3D.bounds.yMax;
 		infoMorph [xx].rightTopZ = info3D.bounds.zMax;
 
-		/*
-		sprintf (msg, "wall dir: %ld\nmorph dir: %ld, angle: %.0f\n\nTMX:\n[%.4f, %.4f, %.4f]\n\ninfo3D:\nX(%.4f, %.4f)\nY(%.4f, %.4f)\nZ(%.4f, %.4f)\n\ninfo: (%.4f, %.4f) - (%.4f, %.4f)",
-			findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY),
-			findDirection (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY), infoMorph [xx].ang,
-			elem.morph.tranmat.tmx [3], elem.morph.tranmat.tmx [7], elem.morph.tranmat.tmx [11],
-			info3D.bounds.xMin, info3D.bounds.xMax, info3D.bounds.yMin, info3D.bounds.yMax, info3D.bounds.zMin, info3D.bounds.zMax,
-			infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY);
-		ACAPI_WriteReport (msg, true);
-		*/
+		// !!!
+		err = ACAPI_CallUndoableCommand ("라벨 배치 (테스트)", [&] () -> GSErrCode {
+			return err = placeCoordinateLabel (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].leftBottomZ, "xMin, yMin, zMin", 1, infoWall.floorInd);
+		});
 
 		// (xMin, yMin) -> (xMax, yMax)
 		dx_arr [0]	= info3D.bounds.xMax - info3D.bounds.xMin;
@@ -246,15 +238,6 @@ GSErrCode	placeEuroformOnWall (void)
 			infoMorph [xx].ang = infoMorph [xx].ang + 180.0;
 			bInverted = true;
 		}
-
-		sprintf (msg, "inverted: %d\nwall dir: %ld\nmorph dir: %ld, angle: %.0f\n\nTMX:\n[%.4f, %.4f, %.4f]\n\ninfo3D:\nX(%.4f, %.4f)\nY(%.4f, %.4f)\nZ(%.4f, %.4f)\n\ninfo: (%.4f, %.4f) - (%.4f, %.4f)",
-			bInverted,
-			findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY),
-			findDirection (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY), infoMorph [xx].ang,
-			elem.morph.tranmat.tmx [3], elem.morph.tranmat.tmx [7], elem.morph.tranmat.tmx [11],
-			info3D.bounds.xMin, info3D.bounds.xMax, info3D.bounds.yMin, info3D.bounds.yMax, info3D.bounds.zMin, info3D.bounds.zMax,
-			infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY);
-		ACAPI_WriteReport (msg, true);
 
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
@@ -552,7 +535,7 @@ API_Guid	placeLibPart (Cell objInfo)
 	if (err != NoError)
 		return element.header.guid;
 	if (libPart.location != NULL)
-	delete libPart.location;
+		delete libPart.location;
 
 	ACAPI_LibPart_Get (&libPart);
 

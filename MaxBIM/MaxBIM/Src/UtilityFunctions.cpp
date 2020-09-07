@@ -139,6 +139,62 @@ long	findDirection (const double begX, const double begY, const double endX, con
 	return -1;
 }
 
+// 좌표 라벨을 배치함
+GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, std::string comment, short layerInd, short floorInd)
+{
+	GSErrCode	err = NoError;
+
+	API_Element			element;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const	GS::uchar_t* gsmName = NULL;
+	double	aParam;
+	double	bParam;
+	Int32	addParNum;
+
+	// 라이브러리 이름 선택
+	gsmName = L("좌표 19.gsm");
+
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return err;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&element, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	element.header.typeID = API_ObjectID;
+	element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&element, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	element.object.libInd = libPart.index;
+	element.object.pos.x = xPos;
+	element.object.pos.y = yPos;
+	element.object.level = zPos;
+	element.object.xRatio = aParam;
+	element.object.yRatio = bParam;
+	element.header.layer = layerInd;
+	element.header.floorInd = floorInd;
+	memo.params [0][15].value.real = TRUE;
+	GS::ucscpy (memo.params [0][16].value.uStr, GS::UniString (comment.c_str ()).ToUStr ().Get ());
+
+	// 객체 배치
+	ACAPI_Element_Create (&element, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	err;
+}
+
 // std::string 변수 값에 formatted string을 입력 받음
 std::string	format_string (const std::string fmt, ...)
 {
