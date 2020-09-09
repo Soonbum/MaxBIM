@@ -140,7 +140,7 @@ long	findDirection (const double begX, const double begY, const double endX, con
 }
 
 // 좌표 라벨을 배치함
-GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, std::string comment, short layerInd, short floorInd)
+GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd)
 {
 	GSErrCode	err = NoError;
 
@@ -185,7 +185,7 @@ GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, std::stri
 	element.object.yRatio = bParam;
 	element.header.layer = layerInd;
 	element.header.floorInd = floorInd;
-	memo.params [0][15].value.real = TRUE;
+	memo.params [0][15].value.real = bComment;
 	GS::ucscpy (memo.params [0][16].value.uStr, GS::UniString (comment.c_str ()).ToUStr ().Get ());
 
 	// 객체 배치

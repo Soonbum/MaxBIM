@@ -21,7 +21,6 @@ GSErrCode	placeEuroformOnWall (void)
 	short		xx, yy;
 	long		result_compare_x = 0, result_compare_y = 0;
 	double		dx, dy;
-	double		dx_arr [4], dy_arr [4], ang_arr [4], dir_arr [4];
 
 	// Selection Manager 관련 변수
 	API_SelectionInfo		selectionInfo;
@@ -50,11 +49,6 @@ GSErrCode	placeEuroformOnWall (void)
 	// 작업 층 정보
 	API_StoryInfo	storyInfo;
 	double			minusLevel;
-
-	// 방향 정보
-	long	wall_direction;
-	long	morph_direction;
-	bool	bInverted = false;	// 모프 영역을 180도 회전시켰는가? (벽 그리기 방향과 모프 그리기 방향이 다른 경우)
 
 
 	//////////////////////////////////////////////////////////// Morph를 이용하여 영역 추출
@@ -150,94 +144,51 @@ GSErrCode	placeEuroformOnWall (void)
 		// 모프의 세로 길이
 		infoMorph [xx].verLen = info3D.bounds.zMax - info3D.bounds.zMin;
 
+		// 모프의 좌하단, 우상단 점 지정
+		if (abs (elem.morph.tranmat.tmx [11] - info3D.bounds.zMin) < EPS) {
+			// 좌상단 좌표 결정
+			infoMorph [xx].leftBottomX = elem.morph.tranmat.tmx [3];
+			infoMorph [xx].leftBottomY = elem.morph.tranmat.tmx [7];
+			infoMorph [xx].leftBottomZ = elem.morph.tranmat.tmx [11];
+
+			// 우상단 좌표는?
+			if (abs (infoMorph [xx].leftBottomX - info3D.bounds.xMin) < EPS)
+				infoMorph [xx].rightTopX = info3D.bounds.xMax;
+			else
+				infoMorph [xx].rightTopX = info3D.bounds.xMin;
+			if (abs (infoMorph [xx].leftBottomY - info3D.bounds.yMin) < EPS)
+				infoMorph [xx].rightTopY = info3D.bounds.yMax;
+			else
+				infoMorph [xx].rightTopY = info3D.bounds.yMin;
+			if (abs (infoMorph [xx].leftBottomZ - info3D.bounds.zMin) < EPS)
+				infoMorph [xx].rightTopZ = info3D.bounds.zMax;
+			else
+				infoMorph [xx].rightTopZ = info3D.bounds.zMin;
+		} else {
+			// 우상단 좌표 결정
+			infoMorph [xx].rightTopX = elem.morph.tranmat.tmx [3];
+			infoMorph [xx].rightTopY = elem.morph.tranmat.tmx [7];
+			infoMorph [xx].rightTopZ = elem.morph.tranmat.tmx [11];
+
+			// 좌하단 좌표는?
+			if (abs (infoMorph [xx].rightTopX - info3D.bounds.xMin) < EPS)
+				infoMorph [xx].leftBottomX = info3D.bounds.xMax;
+			else
+				infoMorph [xx].leftBottomX = info3D.bounds.xMin;
+			if (abs (infoMorph [xx].rightTopY - info3D.bounds.yMin) < EPS)
+				infoMorph [xx].leftBottomY = info3D.bounds.yMax;
+			else
+				infoMorph [xx].leftBottomY = info3D.bounds.yMin;
+			if (abs (infoMorph [xx].rightTopZ - info3D.bounds.zMin) < EPS)
+				infoMorph [xx].leftBottomZ = info3D.bounds.zMax;
+			else
+				infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
+		}
+
 		// 모프의 Z축 회전 각도 (벽의 설치 각도)
-		dx = infoWall.endX - infoWall.begX;
-		dy = infoWall.endY - infoWall.begY;
+		dx = infoMorph [xx].rightTopX - infoMorph [xx].leftBottomX;
+		dy = infoMorph [xx].rightTopY - infoMorph [xx].leftBottomY;
 		infoMorph [xx].ang = RadToDegree (atan2 (dy, dx));
-
-		// 모프의 X, Y 양 끝점을 연결하는 벡터들의 각도를 다 계산해보고 infoMorph [xx].ang과 근사한 값이 있는지 찾아본다.
-		// 일치하는 값을 찾으면 leftBottom, rightTop 좌표를 지정한다.
-
-		infoMorph [xx].leftBottomX = info3D.bounds.xMin;
-		infoMorph [xx].leftBottomY = info3D.bounds.yMin;
-		infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
-		infoMorph [xx].rightTopX = info3D.bounds.xMax;
-		infoMorph [xx].rightTopY = info3D.bounds.yMax;
-		infoMorph [xx].rightTopZ = info3D.bounds.zMax;
-
-		// !!!
-		err = ACAPI_CallUndoableCommand ("라벨 배치 (테스트)", [&] () -> GSErrCode {
-			return err = placeCoordinateLabel (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].leftBottomZ, "xMin, yMin, zMin", 1, infoWall.floorInd);
-		});
-
-		// (xMin, yMin) -> (xMax, yMax)
-		dx_arr [0]	= info3D.bounds.xMax - info3D.bounds.xMin;
-		dy_arr [0]	= info3D.bounds.yMax - info3D.bounds.yMin;
-		ang_arr [0]	= RadToDegree (atan2 (dy_arr [0], dx_arr [0]));
-		dir_arr [0]	= findDirection (info3D.bounds.xMin, info3D.bounds.yMin, info3D.bounds.xMax, info3D.bounds.yMax);
-
-		// (xMax, yMin) -> (xMin, yMax)
-		dx_arr [1]	= info3D.bounds.xMin - info3D.bounds.xMax;
-		dy_arr [1]	= info3D.bounds.yMax - info3D.bounds.yMin;
-		ang_arr [1]	= RadToDegree (atan2 (dy_arr [1], dx_arr [1]));
-		dir_arr [1]	= findDirection (info3D.bounds.xMax, info3D.bounds.yMin, info3D.bounds.xMin, info3D.bounds.yMax);
-
-		// (xMin, yMax) -> (xMax, yMin)
-		dx_arr [2]	= info3D.bounds.xMax - info3D.bounds.xMin;
-		dy_arr [2]	= info3D.bounds.yMin - info3D.bounds.yMax;
-		ang_arr [2]	= RadToDegree (atan2 (dy_arr [2], dx_arr [2]));
-		dir_arr [2]	= findDirection (info3D.bounds.xMin, info3D.bounds.yMax, info3D.bounds.xMax, info3D.bounds.yMin);
-
-		// (xMax, yMax) -> (xMin, yMin)
-		dx_arr [3]	= info3D.bounds.xMin - info3D.bounds.xMax;
-		dy_arr [3]	= info3D.bounds.yMin - info3D.bounds.yMax;
-		ang_arr [3]	= RadToDegree (atan2 (dy_arr [3], dx_arr [3]));
-		dir_arr [3]	= findDirection (info3D.bounds.xMax, info3D.bounds.yMax, info3D.bounds.xMin, info3D.bounds.yMin);
-
-		// 모프의 좌하단, 우상단 좌표 저장
-		for (yy = 0 ; yy < 4 ; ++yy) {
-			if (abs (infoMorph [xx].ang - ang_arr [yy]) < EPS) {
-				switch (yy) {
-					case 0:
-						infoMorph [xx].leftBottomX = info3D.bounds.xMin;
-						infoMorph [xx].leftBottomY = info3D.bounds.yMin;
-						infoMorph [xx].rightTopX = info3D.bounds.xMax;
-						infoMorph [xx].rightTopY = info3D.bounds.yMax;
-						break;
-					case 1:
-						infoMorph [xx].leftBottomX = info3D.bounds.xMax;
-						infoMorph [xx].leftBottomY = info3D.bounds.yMin;
-						infoMorph [xx].rightTopX = info3D.bounds.xMin;
-						infoMorph [xx].rightTopY = info3D.bounds.yMax;
-						break;
-					case 2:
-						infoMorph [xx].leftBottomX = info3D.bounds.xMin;
-						infoMorph [xx].leftBottomY = info3D.bounds.yMax;
-						infoMorph [xx].rightTopX = info3D.bounds.xMax;
-						infoMorph [xx].rightTopY = info3D.bounds.yMin;
-						break;
-					case 3:
-						infoMorph [xx].leftBottomX = info3D.bounds.xMax;
-						infoMorph [xx].leftBottomY = info3D.bounds.yMax;
-						infoMorph [xx].rightTopX = info3D.bounds.xMin;
-						infoMorph [xx].rightTopY = info3D.bounds.yMin;
-						break;
-				}
-				break;
-			}
-			infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
-			infoMorph [xx].rightTopZ = info3D.bounds.zMax;
-		}
-
-		// 만약 벽 그리기 방향과 모프 그리기 방향이 반대라면,
-		wall_direction	= findDirection (infoWall.begX, infoWall.begY, infoWall.endX, infoWall.endY);
-		morph_direction	= findDirection (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].rightTopX, infoMorph [xx].rightTopY);
-		if ( (abs (elem.morph.tranmat.tmx [11] - info3D.bounds.zMax) < EPS) || (abs (wall_direction - morph_direction) > 1) || (abs (wall_direction - morph_direction) == 8) ) {
-			exchangeDoubles (&infoMorph [xx].leftBottomX, &infoMorph [xx].rightTopX);
-			exchangeDoubles (&infoMorph [xx].leftBottomY, &infoMorph [xx].rightTopY);
-			infoMorph [xx].ang = infoMorph [xx].ang + 180.0;
-			bInverted = true;
-		}
 
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
@@ -342,7 +293,7 @@ GSErrCode	placeEuroformOnWall (void)
 		return err;
 	}
 
-	// 작업 층 높이만큼 낮춤
+	// 작업 층 높이 반영
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	minusLevel = 0.0;
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
