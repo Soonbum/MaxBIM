@@ -439,6 +439,7 @@ GSErrCode	placeEuroformOnWall (void)
 	result = DGBlankModalDialog (185, 250, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, placerHandlerSecondary, 0);
 
 	// 세로 영역 채우기 ???
+	//placingZone.remain_ver_wo_beams
 
 	return	err;
 }
@@ -1031,7 +1032,9 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 	short	btnPosX = 220, btnPosY = (btnSizeY * placingZone.eu_count_ver);
 	short	xx, yy;
 	short	idxBtn;
+	short	lastIdxBtn;
 	short	idxCell;
+	short	idxCell_prev = -1, idxCell_next = -1;
 	std::string		txtButton = "";
 	API_Element		elem;
 	GSErrCode		err;
@@ -1068,7 +1071,7 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated);
 
 			// 그룹박스: 유로폼/휠러스페이서 배치 설정
-			groupboxSizeX = 40 + (btnSizeX * placingZone.nCells);
+			groupboxSizeX = 40 + (btnSizeX * (placingZone.eu_count_hor + 3));
 			groupboxSizeY = 70 + (btnSizeY * placingZone.eu_count_ver);
 			DGAppendDialogItem (dialogID, DG_ITM_GROUPBOX, DG_GT_PRIMARY, 0, 200, 10, groupboxSizeX, groupboxSizeY);
 			DGSetItemFont (dialogID, GROUPBOX_GRID_EUROFORM_FILLERSPACER, DG_IS_LARGE | DG_IS_PLAIN);
@@ -1082,17 +1085,18 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 			DGShowItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
 
 			// 메인 창 크기를 변경
-			dialogSizeX = 270 + (btnSizeX * placingZone.nCells);
+			dialogSizeX = 270 + (btnSizeX * (placingZone.eu_count_hor + 3));
 			dialogSizeY = max<short>(300, 150 + (btnSizeY * placingZone.eu_count_ver));
 			DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_CENTER, true);
 
 			// 그리드 구조체에 따라서 버튼을 동적으로 배치함
 			for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
-				for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
+				for (yy = 0 ; yy < placingZone.nCells ; yy += 2) {
 					idxBtn = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
-					DGSetItemFont (dialogID, idxBtn, DG_IS_EXTRASMALL);
+					lastIdxBtn = idxBtn;
+					DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
 
-					idxCell = (idxBtn - itemInitIdx) - (xx * placingZone.nCells);		// 버튼 인덱스로 셀 인덱스를 구함
+					idxCell = ((idxBtn - itemInitIdx) * 2) - (xx * (placingZone.eu_count_hor + 2)) * 2;		// 버튼 인덱스로 셀 인덱스를 구함
 
 					txtButton = "";
 					if (placingZone.cells [0][idxCell].objType == NONE) {
@@ -1136,12 +1140,15 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 					alignPlacingZone (&placingZone);
 					copyPlacingZoneSymmetric (&placingZone, &placingZoneBackside, &infoWall);
 
+					// 버튼 인덱스 iteration 준비
+					idxBtn = itemInitIdx;
+					
 					// 그리드 버튼 텍스트 업데이트
 					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
-						for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
+						for (yy = 0 ; yy < placingZone.nCells ; yy += 2) {
 
 							// 셀 인덱스로 버튼 인덱스를 구함
-							idxBtn = yy + (xx * placingZone.nCells) + itemInitIdx;
+							idxCell = ((idxBtn - itemInitIdx) * 2) - (xx * (placingZone.eu_count_hor + 2)) * 2;		// 버튼 인덱스로 셀 인덱스를 구함
 
 							txtButton = "";
 							if (placingZone.cells [0][yy].objType == NONE) {
@@ -1162,6 +1169,33 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 									txtButton = format_string ("합판\n(눕힘)\n↔%.0f\n↕%.0f", placingZone.cells [0][yy].horLen * 1000, placingZone.cells [0][yy].verLen * 1000);
 							}
 							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
+							
+							// 만약 버튼 인접 셀이 '없음'이 아니라면 해당 셀의 글꼴을 변경함
+							if ( (idxCell > 0) && (idxCell < (placingZone.nCells - 1)) ) {
+								idxCell_prev = idxCell - 1;
+								idxCell_next = idxCell + 1;
+							} else if (idxCell == 0) {
+								idxCell_prev = -1;
+								idxCell_next = idxCell + 1;
+							} else if (idxCell == (placingZone.nCells - 1)) {
+								idxCell_prev = idxCell - 1;
+								idxCell_next = -1;
+							}
+
+							// 인접 셀의 객체 종류가 NONE이 아니면 버튼 글꼴 변경
+							DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_PLAIN);
+							if (yy == 0) {
+								if (placingZone.cells [0][yy+1].objType != NONE)
+									DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_BOLD);
+							} else if ( (yy > 0) && (yy < (placingZone.nCells - 2)) ) {
+								if ( (placingZone.cells [0][yy-1].objType != NONE) || (placingZone.cells [0][yy+1].objType != NONE) )
+									DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_BOLD);
+							} else if ( yy == (placingZone.nCells - 1) ) {
+								if (placingZone.cells [0][yy-1].objType != NONE)
+									DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_BOLD);
+							}
+
+							++idxBtn;
 						}
 					}
 
@@ -1178,12 +1212,15 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 					alignPlacingZone (&placingZone);
 					copyPlacingZoneSymmetric (&placingZone, &placingZoneBackside, &infoWall);
 
+					// 버튼 인덱스 iteration 준비
+					idxBtn = itemInitIdx;
+
 					// 그리드 버튼 텍스트 업데이트
 					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
-						for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
+						for (yy = 0 ; yy < placingZone.nCells ; yy += 2) {
 
 							// 셀 인덱스로 버튼 인덱스를 구함
-							idxBtn = yy + (xx * placingZone.nCells) + itemInitIdx;
+							idxCell = ((idxBtn - itemInitIdx) * 2) - (xx * (placingZone.eu_count_hor + 2)) * 2;		// 버튼 인덱스로 셀 인덱스를 구함
 
 							txtButton = "";
 							if (placingZone.cells [0][yy].objType == NONE) {
@@ -1204,6 +1241,33 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 									txtButton = format_string ("합판\n(눕힘)\n↔%.0f\n↕%.0f", placingZone.cells [0][yy].horLen * 1000, placingZone.cells [0][yy].verLen * 1000);
 							}
 							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
+
+							// 만약 버튼 인접 셀이 '없음'이 아니라면 해당 셀의 글꼴을 변경함
+							if ( (idxCell > 0) && (idxCell < (placingZone.nCells - 1)) ) {
+								idxCell_prev = idxCell - 1;
+								idxCell_next = idxCell + 1;
+							} else if (idxCell == 0) {
+								idxCell_prev = -1;
+								idxCell_next = idxCell + 1;
+							} else if (idxCell == (placingZone.nCells - 1)) {
+								idxCell_prev = idxCell - 1;
+								idxCell_next = -1;
+							}
+
+							// 인접 셀의 객체 종류가 NONE이 아니면 버튼 글꼴 변경
+							DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_PLAIN);
+							if (yy == 0) {
+								if (placingZone.cells [0][yy+1].objType != NONE)
+									DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_BOLD);
+							} else if ( (yy > 0) && (yy < (placingZone.nCells - 2)) ) {
+								if ( (placingZone.cells [0][yy-1].objType != NONE) || (placingZone.cells [0][yy+1].objType != NONE) )
+									DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_BOLD);
+							} else if ( yy == (placingZone.nCells - 1) ) {
+								if (placingZone.cells [0][yy-1].objType != NONE)
+									DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_BOLD);
+							}
+
+							++idxBtn;
 						}
 					}
 
@@ -1283,7 +1347,7 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 				default:
 					// [DIALOG] 그리드 버튼을 누르면 Cell을 설정하기 위한 작은 창이 나옴
 					clickedBtnItemIdx = item;
-					result = DGBlankModalDialog (240, 260, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, placerHandlerThird, 0);
+					result = DGBlankModalDialog (240*3, 260, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, placerHandlerThird, 0);
 
 					item = 0;	// 그리드 버튼을 눌렀을 때 창이 닫히지 않게 함
 
@@ -1306,41 +1370,58 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 {
 	short	result;
 	short	idxItem;
-	long	idxCell;
+	short	idxCell;
+	short	idxCell_prev = -1, idxCell_next = -1;
 	short	popupSelectedIdx = 0;
 	double	temp;
 
 	switch (message) {
 		case DG_MSG_INIT:
+
 			// placerHandlerSecondary 에서 클릭한 그리드 버튼의 인덱스 값을 이용하여 셀 인덱스 값 로드
-			idxCell = clickedBtnItemIdx - itemInitIdx;
-			while (idxCell >= placingZone.nCells)
-				idxCell -= placingZone.nCells;
+			idxCell = (clickedBtnItemIdx - itemInitIdx) * 2;
+			while (idxCell >= ((placingZone.eu_count_hor + 2) * 2))
+				idxCell -= ((placingZone.eu_count_hor + 2) * 2);
+
+			// 현재 셀이 중간 셀이면,
+			if ( (idxCell > 0) && (idxCell < (placingZone.nCells - 1)) ) {
+				idxCell_prev = idxCell - 1;
+				idxCell_next = idxCell + 1;
+			// 현재 셀이 맨 처음 셀이면,
+			} else if (idxCell == 0) {
+				idxCell_prev = -1;
+				idxCell_next = idxCell + 1;
+			// 현재 셀이 맨 끝 셀이면,
+			} else if (idxCell == (placingZone.nCells - 1)) {
+				idxCell_prev = idxCell - 1;
+				idxCell_next = -1;
+			}
 
 			// 다이얼로그 타이틀
 			DGSetDialogTitle (dialogID, "Cell 값 설정");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 적용 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 215, 70, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40+240, 215, 70, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "저장");
 			DGShowItem (dialogID, DG_OK);
 
 			// 종료 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 130, 215, 70, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 130+240, 215, 70, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_CANCEL, "취소");
 			DGShowItem (dialogID, DG_CANCEL);
 
+			//////////////////////////////////////////////////////////// 필드 생성 (클릭한 셀)
 			// 라벨: 객체 타입
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 20, 70, 23);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+240, 15, 70, 23);
 			DGSetItemFont (dialogID, LABEL_OBJ_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_OBJ_TYPE, "객체 타입");
-			DGShowItem (dialogID, idxItem);
+			DGSetItemText (dialogID, LABEL_OBJ_TYPE, "객체 타입\n[클릭한 셀]");
+			DGShowItem (dialogID, LABEL_OBJ_TYPE);
 
 			// 팝업컨트롤: 객체 타입을 바꿀 수 있는 콤보박스가 맨 위에 나옴
-			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100, 20-7, 120, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100+240, 20-7, 120, 25);
 			DGSetItemFont (dialogID, POPUP_OBJ_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "없음");
@@ -1354,51 +1435,50 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "합판");
 			DGShowItem (dialogID, POPUP_OBJ_TYPE);
 
-			//////////////////////////////////////////////////////////// 필드 생성
 			// 라벨: 너비
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 50, 70, 23);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+240, 50, 70, 23);
 			DGSetItemFont (dialogID, LABEL_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_WIDTH, "너비");
 
 			// Edit 컨트롤: 너비
-			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100, 50-6, 50, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+240, 50-6, 50, 25);
 			DGSetItemFont (dialogID, EDITCONTROL_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
 
 			// 라벨 높이
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 80, 70, 23);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+240, 80, 70, 23);
 			DGSetItemFont (dialogID, LABEL_HEIGHT, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_HEIGHT, "높이");
 
 			// Edit 컨트롤: 높이
-			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100, 80-6, 50, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+240, 80-6, 50, 25);
 			DGSetItemFont (dialogID, EDITCONTROL_HEIGHT, DG_IS_LARGE | DG_IS_PLAIN);
 
 			// 라벨: 설치방향
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 110, 70, 23);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+240, 110, 70, 23);
 			DGSetItemFont (dialogID, LABEL_ORIENTATION, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_ORIENTATION, "설치방향");
 				
 			// 라디오 버튼: 설치방향 (벽세우기)
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 777, 100, 110-6, 70, 25);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 777, 100+240, 110-6, 70, 25);
 			DGSetItemFont (dialogID, RADIO_ORIENTATION_1_PLYWOOD, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, RADIO_ORIENTATION_1_PLYWOOD, "벽세우기");
 			// 라디오 버튼: 설치방향 (벽눕히기)
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 777, 100, 140-6, 70, 25);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 777, 100+240, 140-6, 70, 25);
 			DGSetItemFont (dialogID, RADIO_ORIENTATION_2_PLYWOOD, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, RADIO_ORIENTATION_2_PLYWOOD, "벽눕히기");
 
 			// 체크박스: 규격폼
-			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 20, 50, 70, 25-5);
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 20+240, 50, 70, 25-5);
 			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD, "규격폼");
 
 			// 라벨: 너비
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 80, 70, 23);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+240, 80, 70, 23);
 			DGSetItemFont (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS, "너비");
 
 			// 팝업 컨트롤: 너비
-			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100, 80-7, 100, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100+240, 80-7, 100, 25);
 			DGSetItemFont (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM, "600");
@@ -1414,16 +1494,16 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM, "200");
 
 			// Edit 컨트롤: 너비
-			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100, 80-6, 50, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+240, 80-6, 50, 25);
 			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS, DG_IS_LARGE | DG_IS_PLAIN);
 
 			// 라벨: 높이
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 110, 70, 23);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+240, 110, 70, 23);
 			DGSetItemFont (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS, "높이");
 
 			// 팝업 컨트롤: 높이
-			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100, 110-7, 100, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100+240, 110-7, 100, 25);
 			DGSetItemFont (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS, DG_POPUP_BOTTOM, "1200");
@@ -1433,20 +1513,20 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS, DG_POPUP_BOTTOM, "600");
 
 			// Edit 컨트롤: 높이
-			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100, 110-6, 50, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+240, 110-6, 50, 25);
 			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS, DG_IS_LARGE | DG_IS_PLAIN);
 			
 			// 라벨: 설치방향
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 140, 70, 23);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+240, 140, 70, 23);
 			DGSetItemFont (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS, "설치방향");
 			
 			// 라디오 버튼: 설치방향 (벽세우기)
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 778, 100, 140-6, 70, 25);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 778, 100+240, 140-6, 70, 25);
 			DGSetItemFont (dialogID, RADIO_ORIENTATION_1_EUROFORM, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, RADIO_ORIENTATION_1_EUROFORM, "벽세우기");
 			// 라디오 버튼: 설치방향 (벽눕히기)
-			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 778, 100, 170-6, 70, 25);
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 778, 100+240, 170-6, 70, 25);
 			DGSetItemFont (dialogID, RADIO_ORIENTATION_2_EUROFORM, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, RADIO_ORIENTATION_2_EUROFORM, "벽눕히기");
 
@@ -1461,7 +1541,7 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 				DGShowItem (dialogID, EDITCONTROL_WIDTH);
 				if (idxCell == 0)
 					DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, placingZone.cells [0][idxCell].libPart.incorner.leng_s);
-				else
+				else if (idxCell > 0)
 					DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, placingZone.cells [0][idxCell].libPart.incorner.wid_s);
 				DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH, 0.080);
 				DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 0.500);
@@ -1482,7 +1562,7 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 				DGShowItem (dialogID, CHECKBOX_SET_STANDARD);
 				DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, placingZone.cells [0][idxCell].libPart.form.eu_stan_onoff);
 
-				if (placingZone.cells [0][idxCell].libPart.form.eu_stan_onoff) {
+				if (placingZone.cells [0][idxCell].libPart.form.eu_stan_onoff == true) {
 					// 라벨: 너비
 					DGShowItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS);
 
@@ -1505,7 +1585,7 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 					if (abs(placingZone.cells [0][idxCell].libPart.form.eu_hei - 0.900) < EPS)		popupSelectedIdx = 2;
 					if (abs(placingZone.cells [0][idxCell].libPart.form.eu_hei - 0.600) < EPS)		popupSelectedIdx = 3;
 					DGPopUpSelectItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS, popupSelectedIdx);
-				} else {
+				} else if (placingZone.cells [0][idxCell].libPart.form.eu_stan_onoff == false) {
 					// 라벨: 너비
 					DGShowItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS);
 
@@ -1533,10 +1613,10 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 				// 라디오 버튼: 설치방향 (벽눕히기)
 				DGShowItem (dialogID, RADIO_ORIENTATION_2_EUROFORM);
 
-				if (placingZone.cells [0][idxCell].libPart.form.u_ins_wall) {
+				if (placingZone.cells [0][idxCell].libPart.form.u_ins_wall == true) {
 					DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM, true);
 					DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_EUROFORM, false);
-				} else {
+				} else if (placingZone.cells [0][idxCell].libPart.form.u_ins_wall == false) {
 					DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM, false);
 					DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_EUROFORM, true);
 				}
@@ -1590,12 +1670,548 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 				// 라디오 버튼: 설치방향 (벽눕히기)
 				DGShowItem (dialogID, RADIO_ORIENTATION_2_PLYWOOD);
 
-				if (placingZone.cells [0][idxCell].libPart.plywood.w_dir_wall) {
+				if (placingZone.cells [0][idxCell].libPart.plywood.w_dir_wall == true) {
 					DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD, true);
 					DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_PLYWOOD, false);
-				} else {
+				} else if (placingZone.cells [0][idxCell].libPart.plywood.w_dir_wall == false) {
 					DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD, false);
 					DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_PLYWOOD, true);
+				}
+			}
+
+			//////////////////////////////////////////////////////////// 필드 생성 (예전 셀)
+			// 라벨: 객체 타입
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+0, 15, 70, 23);
+			DGSetItemFont (dialogID, LABEL_OBJ_TYPE_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_OBJ_TYPE_PREV, "객체 타입\n[예전 셀]");
+			if (idxCell_prev != -1)	DGShowItem (dialogID, LABEL_OBJ_TYPE_PREV);
+
+			// 팝업컨트롤: 객체 타입을 바꿀 수 있는 콤보박스가 맨 위에 나옴
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100+0, 20-7, 120, 25);
+			DGSetItemFont (dialogID, POPUP_OBJ_TYPE_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE_PREV, DG_POPUP_BOTTOM, "없음");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE_PREV, DG_POPUP_BOTTOM, "인코너판넬");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE_PREV, DG_POPUP_BOTTOM, "유로폼");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE_PREV, DG_POPUP_BOTTOM, "휠러스페이서");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE_PREV, DG_POPUP_BOTTOM, "합판");
+			if (idxCell_prev != -1)	DGShowItem (dialogID, POPUP_OBJ_TYPE_PREV);
+
+			// 라벨: 너비
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+0, 50, 70, 23);
+			DGSetItemFont (dialogID, LABEL_WIDTH_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_WIDTH_PREV, "너비");
+
+			// Edit 컨트롤: 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+0, 50-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_WIDTH_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+
+			// 라벨 높이
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+0, 80, 70, 23);
+			DGSetItemFont (dialogID, LABEL_HEIGHT_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_HEIGHT_PREV, "높이");
+
+			// Edit 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+0, 80-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_HEIGHT_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			
+			// 라벨: 설치방향
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+0, 110, 70, 23);
+			DGSetItemFont (dialogID, LABEL_ORIENTATION_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_ORIENTATION_PREV, "설치방향");
+				
+			// 라디오 버튼: 설치방향 (벽세우기)
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 779, 100+0, 110-6, 70, 25);
+			DGSetItemFont (dialogID, RADIO_ORIENTATION_1_PLYWOOD_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, RADIO_ORIENTATION_1_PLYWOOD_PREV, "벽세우기");
+			// 라디오 버튼: 설치방향 (벽눕히기)
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 779, 100+0, 140-6, 70, 25);
+			DGSetItemFont (dialogID, RADIO_ORIENTATION_2_PLYWOOD_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, RADIO_ORIENTATION_2_PLYWOOD_PREV, "벽눕히기");
+
+			// 체크박스: 규격폼
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 20+0, 50, 70, 25-5);
+			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD_PREV, "규격폼");
+
+			// 라벨: 너비
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+0, 80, 70, 23);
+			DGSetItemFont (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_PREV, "너비");
+
+			// 팝업 컨트롤: 너비
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100+0, 80-7, 100, 25);
+			DGSetItemFont (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM, "600");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM, "500");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM, "450");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM, "400");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM, "300");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DG_POPUP_BOTTOM, "200");
+
+			// Edit 컨트롤: 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+0, 80-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+
+			// 라벨: 높이
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+0, 110, 70, 23);
+			DGSetItemFont (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_PREV, "높이");
+
+			// 팝업 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100+0, 110-7, 100, 25);
+			DGSetItemFont (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV, DG_POPUP_BOTTOM, "1200");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV, DG_POPUP_BOTTOM, "900");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV, DG_POPUP_BOTTOM, "600");
+
+			// Edit 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+0, 110-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			
+			// 라벨: 설치방향
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+0, 140, 70, 23);
+			DGSetItemFont (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_PREV, "설치방향");
+			
+			// 라디오 버튼: 설치방향 (벽세우기)
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 780, 100+0, 140-6, 70, 25);
+			DGSetItemFont (dialogID, RADIO_ORIENTATION_1_EUROFORM_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, RADIO_ORIENTATION_1_EUROFORM_PREV, "벽세우기");
+			// 라디오 버튼: 설치방향 (벽눕히기)
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 780, 100+0, 170-6, 70, 25);
+			DGSetItemFont (dialogID, RADIO_ORIENTATION_2_EUROFORM_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, RADIO_ORIENTATION_2_EUROFORM_PREV, "벽눕히기");
+
+			// 초기 입력 필드 표시
+			if (idxCell_prev != -1) {
+				if (placingZone.cells [0][idxCell_prev].objType == INCORNER) {
+					DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE_PREV, INCORNER + 1);
+
+					// 라벨: 너비
+					DGShowItem (dialogID, LABEL_WIDTH_PREV);
+
+					// Edit 컨트롤: 너비
+					DGShowItem (dialogID, EDITCONTROL_WIDTH_PREV);
+					if (idxCell_prev == 0)
+						DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV, placingZone.cells [0][idxCell_prev].libPart.incorner.leng_s);
+					else if (idxCell_prev > 0)
+						DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV, placingZone.cells [0][idxCell_prev].libPart.incorner.wid_s);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_PREV, 0.080);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_PREV, 0.500);
+
+					// 라벨 높이
+					DGShowItem (dialogID, LABEL_HEIGHT_PREV);
+
+					// Edit 컨트롤: 높이
+					DGShowItem (dialogID, EDITCONTROL_HEIGHT_PREV);
+					DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT_PREV, placingZone.cells [0][idxCell_prev].libPart.incorner.hei_s);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 0.050);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 1.500);
+
+				} else if (placingZone.cells [0][idxCell_prev].objType == EUROFORM) {
+					DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE_PREV, EUROFORM + 1);
+
+					// 체크박스: 규격폼
+					DGShowItem (dialogID, CHECKBOX_SET_STANDARD_PREV);
+					DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_PREV, placingZone.cells [0][idxCell_prev].libPart.form.eu_stan_onoff);
+
+					if (placingZone.cells [0][idxCell_prev].libPart.form.eu_stan_onoff == true) {
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_PREV);
+
+						// 팝업 컨트롤: 너비
+						DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV);
+						if (abs(placingZone.cells [0][idxCell_prev].libPart.form.eu_wid - 0.600) < EPS)		popupSelectedIdx = 1;
+						if (abs(placingZone.cells [0][idxCell_prev].libPart.form.eu_wid - 0.500) < EPS)		popupSelectedIdx = 2;
+						if (abs(placingZone.cells [0][idxCell_prev].libPart.form.eu_wid - 0.450) < EPS)		popupSelectedIdx = 3;
+						if (abs(placingZone.cells [0][idxCell_prev].libPart.form.eu_wid - 0.400) < EPS)		popupSelectedIdx = 4;
+						if (abs(placingZone.cells [0][idxCell_prev].libPart.form.eu_wid - 0.300) < EPS)		popupSelectedIdx = 5;
+						if (abs(placingZone.cells [0][idxCell_prev].libPart.form.eu_wid - 0.200) < EPS)		popupSelectedIdx = 6;
+						DGPopUpSelectItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, popupSelectedIdx);
+
+						// 라벨: 높이
+						DGShowItem (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_PREV);
+
+						// 팝업 컨트롤: 높이
+						DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV);
+						if (abs(placingZone.cells [0][idxCell_prev].libPart.form.eu_hei - 1.200) < EPS)		popupSelectedIdx = 1;
+						if (abs(placingZone.cells [0][idxCell_prev].libPart.form.eu_hei - 0.900) < EPS)		popupSelectedIdx = 2;
+						if (abs(placingZone.cells [0][idxCell_prev].libPart.form.eu_hei - 0.600) < EPS)		popupSelectedIdx = 3;
+						DGPopUpSelectItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV, popupSelectedIdx);
+					} else if (placingZone.cells [0][idxCell_prev].libPart.form.eu_stan_onoff == false) {
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_PREV);
+
+						// Edit 컨트롤: 너비
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV);
+						DGSetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV, placingZone.cells [0][idxCell_prev].libPart.form.eu_wid2);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV, 0.900);
+
+						// 라벨: 높이
+						DGShowItem (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_PREV);
+
+						// Edit 컨트롤: 높이
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV);
+						DGSetItemValDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV, placingZone.cells [0][idxCell_prev].libPart.form.eu_hei2);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV, 1.500);
+					}
+
+					// 라벨: 설치방향
+					DGShowItem (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_PREV);
+				
+					// 라디오 버튼: 설치방향 (벽세우기)
+					DGShowItem (dialogID, RADIO_ORIENTATION_1_EUROFORM_PREV);
+					// 라디오 버튼: 설치방향 (벽눕히기)
+					DGShowItem (dialogID, RADIO_ORIENTATION_2_EUROFORM_PREV);
+
+					if (placingZone.cells [0][idxCell_prev].libPart.form.u_ins_wall == true) {
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_PREV, true);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_EUROFORM_PREV, false);
+					} else if (placingZone.cells [0][idxCell_prev].libPart.form.u_ins_wall == false) {
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_PREV, false);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_EUROFORM_PREV, true);
+					}
+				} else if (placingZone.cells [0][idxCell_prev].objType == FILLERSPACER) {
+					DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE_PREV, FILLERSPACER + 1);
+
+					// 라벨: 너비
+					DGShowItem (dialogID, LABEL_WIDTH_PREV);
+
+					// Edit 컨트롤: 너비
+					DGShowItem (dialogID, EDITCONTROL_WIDTH_PREV);
+					DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV, placingZone.cells [0][idxCell_prev].libPart.fillersp.f_thk);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_PREV, 0.010);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_PREV, 0.050);
+
+					// 라벨 높이
+					DGShowItem (dialogID, LABEL_HEIGHT_PREV);
+
+					// Edit 컨트롤: 높이
+					DGShowItem (dialogID, EDITCONTROL_HEIGHT_PREV);
+					DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT_PREV, placingZone.cells [0][idxCell_prev].libPart.fillersp.f_leng);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 0.150);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 2.400);
+
+				} else if (placingZone.cells [0][idxCell_prev].objType == PLYWOOD) {
+					DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE_PREV, PLYWOOD + 1);
+
+					// 라벨: 너비
+					DGShowItem (dialogID, LABEL_WIDTH_PREV);
+
+					// Edit 컨트롤: 너비
+					DGShowItem (dialogID, EDITCONTROL_WIDTH_PREV);
+					DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV, placingZone.cells [0][idxCell_prev].libPart.plywood.p_wid);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_PREV, 0.110);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_PREV, 1.220);
+
+					// 라벨: 높이
+					DGShowItem (dialogID, LABEL_HEIGHT_PREV);
+
+					// Edit 컨트롤: 높이
+					DGShowItem (dialogID, EDITCONTROL_HEIGHT_PREV);
+					DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT_PREV, placingZone.cells [0][idxCell_prev].libPart.plywood.p_leng);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 0.110);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 2.440);
+
+					// 라벨: 설치방향
+					DGShowItem (dialogID, LABEL_ORIENTATION_PREV);
+				
+					// 라디오 버튼: 설치방향 (벽세우기)
+					DGShowItem (dialogID, RADIO_ORIENTATION_1_PLYWOOD_PREV);
+					// 라디오 버튼: 설치방향 (벽눕히기)
+					DGShowItem (dialogID, RADIO_ORIENTATION_2_PLYWOOD_PREV);
+
+					if (placingZone.cells [0][idxCell_prev].libPart.plywood.w_dir_wall == true) {
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD_PREV, true);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_PLYWOOD_PREV, false);
+					} else if (placingZone.cells [0][idxCell_prev].libPart.plywood.w_dir_wall == false) {
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD_PREV, false);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_PLYWOOD_PREV, true);
+					}
+				}
+			}
+
+			//////////////////////////////////////////////////////////// 필드 생성 (다음 셀)
+			// 라벨: 객체 타입
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+480, 15, 70, 23);
+			DGSetItemFont (dialogID, LABEL_OBJ_TYPE_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_OBJ_TYPE_NEXT, "객체 타입\n[다음 셀]");
+			if (idxCell_next != -1)	DGShowItem (dialogID, LABEL_OBJ_TYPE_NEXT);
+
+			// 팝업컨트롤: 객체 타입을 바꿀 수 있는 콤보박스가 맨 위에 나옴
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100+480, 20-7, 120, 25);
+			DGSetItemFont (dialogID, POPUP_OBJ_TYPE_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE_NEXT, DG_POPUP_BOTTOM, "없음");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE_NEXT, DG_POPUP_BOTTOM, "인코너판넬");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE_NEXT, DG_POPUP_BOTTOM, "유로폼");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE_NEXT, DG_POPUP_BOTTOM, "휠러스페이서");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE_NEXT, DG_POPUP_BOTTOM, "합판");
+			if (idxCell_next != -1)	DGShowItem (dialogID, POPUP_OBJ_TYPE_NEXT);
+
+			// 라벨: 너비
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+480, 50, 70, 23);
+			DGSetItemFont (dialogID, LABEL_WIDTH_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_WIDTH_NEXT, "너비");
+
+			// Edit 컨트롤: 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+480, 50-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_WIDTH_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+
+			// 라벨 높이
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+480, 80, 70, 23);
+			DGSetItemFont (dialogID, LABEL_HEIGHT_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_HEIGHT_NEXT, "높이");
+
+			// Edit 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+480, 80-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_HEIGHT_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			
+			// 라벨: 설치방향
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+480, 110, 70, 23);
+			DGSetItemFont (dialogID, LABEL_ORIENTATION_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_ORIENTATION_NEXT, "설치방향");
+				
+			// 라디오 버튼: 설치방향 (벽세우기)
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 781, 100+480, 110-6, 70, 25);
+			DGSetItemFont (dialogID, RADIO_ORIENTATION_1_PLYWOOD_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, RADIO_ORIENTATION_1_PLYWOOD_NEXT, "벽세우기");
+			// 라디오 버튼: 설치방향 (벽눕히기)
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 781, 100+480, 140-6, 70, 25);
+			DGSetItemFont (dialogID, RADIO_ORIENTATION_2_PLYWOOD_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, RADIO_ORIENTATION_2_PLYWOOD_NEXT, "벽눕히기");
+
+			// 체크박스: 규격폼
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 20+480, 50, 70, 25-5);
+			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD_NEXT, "규격폼");
+
+			// 라벨: 너비
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+480, 80, 70, 23);
+			DGSetItemFont (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_NEXT, "너비");
+
+			// 팝업 컨트롤: 너비
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100+480, 80-7, 100, 25);
+			DGSetItemFont (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM, "600");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM, "500");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM, "450");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM, "400");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM, "300");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DG_POPUP_BOTTOM, "200");
+
+			// Edit 컨트롤: 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+480, 80-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+
+			// 라벨: 높이
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+480, 110, 70, 23);
+			DGSetItemFont (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_NEXT, "높이");
+
+			// 팝업 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100+480, 110-7, 100, 25);
+			DGSetItemFont (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT, DG_POPUP_BOTTOM, "1200");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT, DG_POPUP_BOTTOM, "900");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT, DG_POPUP_BOTTOM, "600");
+
+			// Edit 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100+480, 110-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			
+			// 라벨: 설치방향
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20+480, 140, 70, 23);
+			DGSetItemFont (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_NEXT, "설치방향");
+			
+			// 라디오 버튼: 설치방향 (벽세우기)
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 782, 100+480, 140-6, 70, 25);
+			DGSetItemFont (dialogID, RADIO_ORIENTATION_1_EUROFORM_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, RADIO_ORIENTATION_1_EUROFORM_NEXT, "벽세우기");
+			// 라디오 버튼: 설치방향 (벽눕히기)
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 782, 100+480, 170-6, 70, 25);
+			DGSetItemFont (dialogID, RADIO_ORIENTATION_2_EUROFORM_NEXT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, RADIO_ORIENTATION_2_EUROFORM_NEXT, "벽눕히기");
+
+			// 초기 입력 필드 표시
+			if (idxCell_next != -1) {
+				if (placingZone.cells [0][idxCell_next].objType == INCORNER) {
+					DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE_NEXT, INCORNER + 1);
+
+					// 라벨: 너비
+					DGShowItem (dialogID, LABEL_WIDTH_NEXT);
+
+					// Edit 컨트롤: 너비
+					DGShowItem (dialogID, EDITCONTROL_WIDTH_NEXT);
+					if (idxCell_next == 0)
+						DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT, placingZone.cells [0][idxCell_next].libPart.incorner.leng_s);
+					else if (idxCell_next > 0)
+						DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT, placingZone.cells [0][idxCell_next].libPart.incorner.wid_s);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 0.080);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 0.500);
+
+					// 라벨 높이
+					DGShowItem (dialogID, LABEL_HEIGHT_NEXT);
+
+					// Edit 컨트롤: 높이
+					DGShowItem (dialogID, EDITCONTROL_HEIGHT_NEXT);
+					DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, placingZone.cells [0][idxCell_next].libPart.incorner.hei_s);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 0.050);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 1.500);
+
+				} else if (placingZone.cells [0][idxCell_next].objType == EUROFORM) {
+					DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE_NEXT, EUROFORM + 1);
+
+					// 체크박스: 규격폼
+					DGShowItem (dialogID, CHECKBOX_SET_STANDARD_NEXT);
+					DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_NEXT, placingZone.cells [0][idxCell_next].libPart.form.eu_stan_onoff);
+
+					if (placingZone.cells [0][idxCell_next].libPart.form.eu_stan_onoff == true) {
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_NEXT);
+
+						// 팝업 컨트롤: 너비
+						DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT);
+						if (abs(placingZone.cells [0][idxCell_next].libPart.form.eu_wid - 0.600) < EPS)		popupSelectedIdx = 1;
+						if (abs(placingZone.cells [0][idxCell_next].libPart.form.eu_wid - 0.500) < EPS)		popupSelectedIdx = 2;
+						if (abs(placingZone.cells [0][idxCell_next].libPart.form.eu_wid - 0.450) < EPS)		popupSelectedIdx = 3;
+						if (abs(placingZone.cells [0][idxCell_next].libPart.form.eu_wid - 0.400) < EPS)		popupSelectedIdx = 4;
+						if (abs(placingZone.cells [0][idxCell_next].libPart.form.eu_wid - 0.300) < EPS)		popupSelectedIdx = 5;
+						if (abs(placingZone.cells [0][idxCell_next].libPart.form.eu_wid - 0.200) < EPS)		popupSelectedIdx = 6;
+						DGPopUpSelectItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, popupSelectedIdx);
+
+						// 라벨: 높이
+						DGShowItem (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+
+						// 팝업 컨트롤: 높이
+						DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT);
+						if (abs(placingZone.cells [0][idxCell_next].libPart.form.eu_hei - 1.200) < EPS)		popupSelectedIdx = 1;
+						if (abs(placingZone.cells [0][idxCell_next].libPart.form.eu_hei - 0.900) < EPS)		popupSelectedIdx = 2;
+						if (abs(placingZone.cells [0][idxCell_next].libPart.form.eu_hei - 0.600) < EPS)		popupSelectedIdx = 3;
+						DGPopUpSelectItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT, popupSelectedIdx);
+					} else if (placingZone.cells [0][idxCell_next].libPart.form.eu_stan_onoff == false) {
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_NEXT);
+
+						// Edit 컨트롤: 너비
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT);
+						DGSetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT, placingZone.cells [0][idxCell_next].libPart.form.eu_wid2);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT, 0.900);
+
+						// 라벨: 높이
+						DGShowItem (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+
+						// Edit 컨트롤: 높이
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+						DGSetItemValDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT, placingZone.cells [0][idxCell_next].libPart.form.eu_hei2);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT, 1.500);
+					}
+
+					// 라벨: 설치방향
+					DGShowItem (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_NEXT);
+				
+					// 라디오 버튼: 설치방향 (벽세우기)
+					DGShowItem (dialogID, RADIO_ORIENTATION_1_EUROFORM_NEXT);
+					// 라디오 버튼: 설치방향 (벽눕히기)
+					DGShowItem (dialogID, RADIO_ORIENTATION_2_EUROFORM_NEXT);
+
+					if (placingZone.cells [0][idxCell_next].libPart.form.u_ins_wall == true) {
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_NEXT, true);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_EUROFORM_NEXT, false);
+					} else if (placingZone.cells [0][idxCell_next].libPart.form.u_ins_wall == false) {
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_NEXT, false);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_EUROFORM_NEXT, true);
+					}
+				} else if (placingZone.cells [0][idxCell_next].objType == FILLERSPACER) {
+					DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE_NEXT, FILLERSPACER + 1);
+
+					// 라벨: 너비
+					DGShowItem (dialogID, LABEL_WIDTH_NEXT);
+
+					// Edit 컨트롤: 너비
+					DGShowItem (dialogID, EDITCONTROL_WIDTH_NEXT);
+					DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT, placingZone.cells [0][idxCell_next].libPart.fillersp.f_thk);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 0.010);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 0.050);
+
+					// 라벨 높이
+					DGShowItem (dialogID, LABEL_HEIGHT_NEXT);
+
+					// Edit 컨트롤: 높이
+					DGShowItem (dialogID, EDITCONTROL_HEIGHT_NEXT);
+					DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, placingZone.cells [0][idxCell_next].libPart.fillersp.f_leng);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 0.150);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 2.400);
+
+				} else if (placingZone.cells [0][idxCell_next].objType == PLYWOOD) {
+					DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE_NEXT, PLYWOOD + 1);
+
+					// 라벨: 너비
+					DGShowItem (dialogID, LABEL_WIDTH_NEXT);
+
+					// Edit 컨트롤: 너비
+					DGShowItem (dialogID, EDITCONTROL_WIDTH_NEXT);
+					DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT, placingZone.cells [0][idxCell_next].libPart.plywood.p_wid);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 0.110);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 1.220);
+
+					// 라벨: 높이
+					DGShowItem (dialogID, LABEL_HEIGHT_NEXT);
+
+					// Edit 컨트롤: 높이
+					DGShowItem (dialogID, EDITCONTROL_HEIGHT_NEXT);
+					DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, placingZone.cells [0][idxCell_next].libPart.plywood.p_leng);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 0.110);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 2.440);
+
+					// 라벨: 설치방향
+					DGShowItem (dialogID, LABEL_ORIENTATION_NEXT);
+				
+					// 라디오 버튼: 설치방향 (벽세우기)
+					DGShowItem (dialogID, RADIO_ORIENTATION_1_PLYWOOD_NEXT);
+					// 라디오 버튼: 설치방향 (벽눕히기)
+					DGShowItem (dialogID, RADIO_ORIENTATION_2_PLYWOOD_NEXT);
+
+					if (placingZone.cells [0][idxCell_next].libPart.plywood.w_dir_wall == true) {
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD_NEXT, true);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_PLYWOOD_NEXT, false);
+					} else if (placingZone.cells [0][idxCell_next].libPart.plywood.w_dir_wall == false) {
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD_NEXT, false);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_PLYWOOD_NEXT, true);
+					}
 				}
 			}
 
@@ -1604,16 +2220,26 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 		case DG_MSG_CHANGE:
 			switch (item) {
 				case POPUP_OBJ_TYPE:	// 객체 타입 콤보박스 값을 변경할 때마다 입력 필드가 달라짐 (변경해야 하므로 Cell 값을 불러오지 않음)
+					//////////////////////////////////////////////////////////// 필드 생성 (클릭한 셀)
+					// 일단 항목을 숨기고, 객체 타입 관련 항목만 표시함
+					DGHideItem (dialogID, LABEL_WIDTH);
+					DGHideItem (dialogID, EDITCONTROL_WIDTH);
+					DGHideItem (dialogID, LABEL_HEIGHT);
+					DGHideItem (dialogID, EDITCONTROL_HEIGHT);
+					DGHideItem (dialogID, LABEL_ORIENTATION);
+					DGHideItem (dialogID, RADIO_ORIENTATION_1_PLYWOOD);
+					DGHideItem (dialogID, RADIO_ORIENTATION_2_PLYWOOD);
+					DGHideItem (dialogID, CHECKBOX_SET_STANDARD);
+					DGHideItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS);
+					DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS);
+					DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS);
+					DGHideItem (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS);
+					DGHideItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS);
+					DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS);
+					DGHideItem (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS);
+					DGHideItem (dialogID, RADIO_ORIENTATION_1_EUROFORM);
+					DGHideItem (dialogID, RADIO_ORIENTATION_2_EUROFORM);
 
-					// placerHandlerSecondary 에서 클릭한 그리드 버튼의 인덱스 값을 이용하여 셀 인덱스 값 로드
-					idxCell = clickedBtnItemIdx - itemInitIdx;
-					while (idxCell >= placingZone.nCells)
-						idxCell -= placingZone.nCells;
-
-					// 일단 항목을 숨기고, 객체 타입 관련 항목과 버튼만 표시함
-					DGHideItem (dialogID, DG_ALL_ITEMS);
-					DGShowItem (dialogID, DG_OK);
-					DGShowItem (dialogID, DG_CANCEL);
 					DGShowItem (dialogID, LABEL_OBJ_TYPE);
 					DGShowItem (dialogID, POPUP_OBJ_TYPE);
 
@@ -1654,7 +2280,7 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 							// 팝업 컨트롤: 높이
 							DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS);
 							DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS);
-						} else {
+						} else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == FALSE) {
 							// Edit 컨트롤: 너비
 							DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS);
 							DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS);
@@ -1727,26 +2353,343 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 
 					break;
 
-				case CHECKBOX_SET_STANDARD:	// 유로폼의 경우, 규격폼 체크박스 값을 바꿀 때마다 너비, 높이 입력 필드 타입이 바뀜
-						if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
+				case POPUP_OBJ_TYPE_PREV:	// 객체 타입 콤보박스 값을 변경할 때마다 입력 필드가 달라짐 (변경해야 하므로 Cell 값을 불러오지 않음)
+					//////////////////////////////////////////////////////////// 필드 생성 (예전 셀)
+					// 일단 항목을 숨기고, 객체 타입 관련 항목만 표시함
+					DGHideItem (dialogID, LABEL_WIDTH_PREV);
+					DGHideItem (dialogID, EDITCONTROL_WIDTH_PREV);
+					DGHideItem (dialogID, LABEL_HEIGHT_PREV);
+					DGHideItem (dialogID, EDITCONTROL_HEIGHT_PREV);
+					DGHideItem (dialogID, LABEL_ORIENTATION_PREV);
+					DGHideItem (dialogID, RADIO_ORIENTATION_1_PLYWOOD_PREV);
+					DGHideItem (dialogID, RADIO_ORIENTATION_2_PLYWOOD_PREV);
+					DGHideItem (dialogID, CHECKBOX_SET_STANDARD_PREV);
+					DGHideItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_PREV);
+					DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV);
+					DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV);
+					DGHideItem (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_PREV);
+					DGHideItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV);
+					DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV);
+					DGHideItem (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_PREV);
+					DGHideItem (dialogID, RADIO_ORIENTATION_1_EUROFORM_PREV);
+					DGHideItem (dialogID, RADIO_ORIENTATION_2_EUROFORM_PREV);
+
+					DGShowItem (dialogID, LABEL_OBJ_TYPE_PREV);
+					DGShowItem (dialogID, POPUP_OBJ_TYPE_PREV);
+
+					if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_PREV) == INCORNER + 1) {
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_WIDTH_PREV);
+
+						// Edit 컨트롤: 너비
+						DGShowItem (dialogID, EDITCONTROL_WIDTH_PREV);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_PREV, 0.080);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_PREV, 0.500);
+
+						// 라벨 높이
+						DGShowItem (dialogID, LABEL_HEIGHT_PREV);
+
+						// Edit 컨트롤: 높이
+						DGShowItem (dialogID, EDITCONTROL_HEIGHT_PREV);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 1.500);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_PREV) == EUROFORM + 1) {
+						// 체크박스: 규격폼
+						DGShowItem (dialogID, CHECKBOX_SET_STANDARD_PREV);
+						DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_PREV, true);
+
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_PREV);
+
+						// 라벨: 높이
+						DGShowItem (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_PREV);
+
+						// 규격폼이면,
+						if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_PREV) == TRUE) {
 							// 팝업 컨트롤: 너비
-							DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS);
-							DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS);
+							DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV);
+							DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV);
+
 							// 팝업 컨트롤: 높이
-							DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS);
-							DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS);
-						} else {
+							DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV);
+							DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV);
+						} else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_PREV) == FALSE) {
 							// Edit 컨트롤: 너비
-							DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS);
-							DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS);
-							DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS, 0.050);
-							DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS, 0.900);
+							DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV);
+							DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV, 0.050);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV, 0.900);
+
 							// Edit 컨트롤: 높이
-							DGHideItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS);
-							DGShowItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS);
-							DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS, 0.050);
-							DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS, 1.500);
+							DGHideItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV);
+							DGShowItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV, 0.050);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV, 1.500);
 						}
+
+						// 라벨: 설치방향
+						DGShowItem (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_PREV);
+				
+						// 라디오 버튼: 설치방향 (벽세우기)
+						DGShowItem (dialogID, RADIO_ORIENTATION_1_EUROFORM_PREV);
+						// 라디오 버튼: 설치방향 (벽눕히기)
+						DGShowItem (dialogID, RADIO_ORIENTATION_2_EUROFORM_PREV);
+
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_PREV, true);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_EUROFORM_PREV, false);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_PREV) == FILLERSPACER + 1) {
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_WIDTH_PREV);
+
+						// Edit 컨트롤: 너비
+						DGShowItem (dialogID, EDITCONTROL_WIDTH_PREV);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_PREV, 0.010);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_PREV, 0.050);
+
+						// 라벨 높이
+						DGShowItem (dialogID, LABEL_HEIGHT_PREV);
+
+						// Edit 컨트롤: 높이
+						DGShowItem (dialogID, EDITCONTROL_HEIGHT_PREV);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 0.150);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 2.400);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_PREV) == PLYWOOD + 1) {
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_WIDTH_PREV);
+
+						// Edit 컨트롤: 너비
+						DGShowItem (dialogID, EDITCONTROL_WIDTH_PREV);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_PREV, 0.110);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_PREV, 1.220);
+
+						// 라벨: 높이
+						DGShowItem (dialogID, LABEL_HEIGHT_PREV);
+
+						// Edit 컨트롤: 높이
+						DGShowItem (dialogID, EDITCONTROL_HEIGHT_PREV);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 0.110);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_PREV, 2.440);
+
+						// 라벨: 설치방향
+						DGShowItem (dialogID, LABEL_ORIENTATION_PREV);
+				
+						// 라디오 버튼: 설치방향 (벽세우기)
+						DGShowItem (dialogID, RADIO_ORIENTATION_1_PLYWOOD_PREV);
+						// 라디오 버튼: 설치방향 (벽눕히기)
+						DGShowItem (dialogID, RADIO_ORIENTATION_2_PLYWOOD_PREV);
+
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD_PREV, true);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_PLYWOOD_PREV, false);
+					}
+
+					break;
+
+				case POPUP_OBJ_TYPE_NEXT:	// 객체 타입 콤보박스 값을 변경할 때마다 입력 필드가 달라짐 (변경해야 하므로 Cell 값을 불러오지 않음)
+					//////////////////////////////////////////////////////////// 필드 생성 (다음 셀)
+					// 일단 항목을 숨기고, 객체 타입 관련 항목만 표시함
+					DGHideItem (dialogID, LABEL_WIDTH_NEXT);
+					DGHideItem (dialogID, EDITCONTROL_WIDTH_NEXT);
+					DGHideItem (dialogID, LABEL_HEIGHT_NEXT);
+					DGHideItem (dialogID, EDITCONTROL_HEIGHT_NEXT);
+					DGHideItem (dialogID, LABEL_ORIENTATION_NEXT);
+					DGHideItem (dialogID, RADIO_ORIENTATION_1_PLYWOOD_NEXT);
+					DGHideItem (dialogID, RADIO_ORIENTATION_2_PLYWOOD_NEXT);
+					DGHideItem (dialogID, CHECKBOX_SET_STANDARD_NEXT);
+					DGHideItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_NEXT);
+					DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT);
+					DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT);
+					DGHideItem (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+					DGHideItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT);
+					DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+					DGHideItem (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_NEXT);
+					DGHideItem (dialogID, RADIO_ORIENTATION_1_EUROFORM_NEXT);
+					DGHideItem (dialogID, RADIO_ORIENTATION_2_EUROFORM_NEXT);
+
+					DGShowItem (dialogID, LABEL_OBJ_TYPE_NEXT);
+					DGShowItem (dialogID, POPUP_OBJ_TYPE_NEXT);
+
+					if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_NEXT) == INCORNER + 1) {
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_WIDTH_NEXT);
+
+						// Edit 컨트롤: 너비
+						DGShowItem (dialogID, EDITCONTROL_WIDTH_NEXT);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 0.080);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 0.500);
+
+						// 라벨 높이
+						DGShowItem (dialogID, LABEL_HEIGHT_NEXT);
+
+						// Edit 컨트롤: 높이
+						DGShowItem (dialogID, EDITCONTROL_HEIGHT_NEXT);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 1.500);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_NEXT) == EUROFORM + 1) {
+						// 체크박스: 규격폼
+						DGShowItem (dialogID, CHECKBOX_SET_STANDARD_NEXT);
+						DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_NEXT, true);
+
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_NEXT);
+
+						// 라벨: 높이
+						DGShowItem (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+
+						// 규격폼이면,
+						if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_NEXT) == TRUE) {
+							// 팝업 컨트롤: 너비
+							DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT);
+							DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT);
+
+							// 팝업 컨트롤: 높이
+							DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT);
+							DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+						} else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_NEXT) == FALSE) {
+							// Edit 컨트롤: 너비
+							DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT);
+							DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT, 0.050);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT, 0.900);
+
+							// Edit 컨트롤: 높이
+							DGHideItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT);
+							DGShowItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT, 0.050);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT, 1.500);
+						}
+
+						// 라벨: 설치방향
+						DGShowItem (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_NEXT);
+				
+						// 라디오 버튼: 설치방향 (벽세우기)
+						DGShowItem (dialogID, RADIO_ORIENTATION_1_EUROFORM_NEXT);
+						// 라디오 버튼: 설치방향 (벽눕히기)
+						DGShowItem (dialogID, RADIO_ORIENTATION_2_EUROFORM_NEXT);
+
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_NEXT, true);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_EUROFORM_NEXT, false);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_NEXT) == FILLERSPACER + 1) {
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_WIDTH_NEXT);
+
+						// Edit 컨트롤: 너비
+						DGShowItem (dialogID, EDITCONTROL_WIDTH_NEXT);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 0.010);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 0.050);
+
+						// 라벨 높이
+						DGShowItem (dialogID, LABEL_HEIGHT_NEXT);
+
+						// Edit 컨트롤: 높이
+						DGShowItem (dialogID, EDITCONTROL_HEIGHT_NEXT);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 0.150);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 2.400);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_NEXT) == PLYWOOD + 1) {
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_WIDTH_NEXT);
+
+						// Edit 컨트롤: 너비
+						DGShowItem (dialogID, EDITCONTROL_WIDTH_NEXT);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 0.110);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH_NEXT, 1.220);
+
+						// 라벨: 높이
+						DGShowItem (dialogID, LABEL_HEIGHT_NEXT);
+
+						// Edit 컨트롤: 높이
+						DGShowItem (dialogID, EDITCONTROL_HEIGHT_NEXT);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 0.110);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT_NEXT, 2.440);
+
+						// 라벨: 설치방향
+						DGShowItem (dialogID, LABEL_ORIENTATION_NEXT);
+				
+						// 라디오 버튼: 설치방향 (벽세우기)
+						DGShowItem (dialogID, RADIO_ORIENTATION_1_PLYWOOD_NEXT);
+						// 라디오 버튼: 설치방향 (벽눕히기)
+						DGShowItem (dialogID, RADIO_ORIENTATION_2_PLYWOOD_NEXT);
+
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD_NEXT, true);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_PLYWOOD_NEXT, false);
+					}
+
+					break;
+
+				case CHECKBOX_SET_STANDARD:	// 유로폼의 경우, 규격폼 체크박스 값을 바꿀 때마다 너비, 높이 입력 필드 타입이 바뀜
+					//////////////////////////////////////////////////////////// 필드 생성 (클릭한 셀)
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
+						// 팝업 컨트롤: 너비
+						DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS);
+						// 팝업 컨트롤: 높이
+						DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS);
+					} else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == FALSE) {
+						// Edit 컨트롤: 너비
+						DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS, 0.900);
+						// Edit 컨트롤: 높이
+						DGHideItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS, 1.500);
+					}
+
+					break;
+
+				case CHECKBOX_SET_STANDARD_PREV:	// 유로폼의 경우, 규격폼 체크박스 값을 바꿀 때마다 너비, 높이 입력 필드 타입이 바뀜
+					//////////////////////////////////////////////////////////// 필드 생성 (예전 셀)
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_PREV) == TRUE) {
+						// 팝업 컨트롤: 너비
+						DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV);
+						// 팝업 컨트롤: 높이
+						DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV);
+					} else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_PREV) == FALSE) {
+						// Edit 컨트롤: 너비
+						DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV, 0.900);
+						// Edit 컨트롤: 높이
+						DGHideItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV, 1.500);
+					}
+
+					break;
+
+				case CHECKBOX_SET_STANDARD_NEXT:	// 유로폼의 경우, 규격폼 체크박스 값을 바꿀 때마다 너비, 높이 입력 필드 타입이 바뀜
+					//////////////////////////////////////////////////////////// 필드 생성 (다음 셀)
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_NEXT) == TRUE) {
+						// 팝업 컨트롤: 너비
+						DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT);
+						// 팝업 컨트롤: 높이
+						DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+					} else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_NEXT) == FALSE) {
+						// Edit 컨트롤: 너비
+						DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT, 0.900);
+						// Edit 컨트롤: 높이
+						DGHideItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT, 0.050);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT, 1.500);
+					}
 
 					break;
 			}
@@ -1754,11 +2697,27 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
-					// placerHandlerSecondary 에서 클릭한 그리드 버튼의 인덱스 값을 이용하여 셀 인덱스 값 로드
-					idxCell = clickedBtnItemIdx - itemInitIdx;
-					while (idxCell >= placingZone.nCells)
-						idxCell -= placingZone.nCells;
 
+					// placerHandlerSecondary 에서 클릭한 그리드 버튼의 인덱스 값을 이용하여 셀 인덱스 값 로드
+					idxCell = (clickedBtnItemIdx - itemInitIdx) * 2;
+					while (idxCell >= ((placingZone.eu_count_hor + 2) * 2))
+						idxCell -= ((placingZone.eu_count_hor + 2) * 2);
+
+					// 현재 셀이 중간 셀이면,
+					if ( (idxCell > 0) && (idxCell < (placingZone.nCells - 1)) ) {
+						idxCell_prev = idxCell - 1;
+						idxCell_next = idxCell + 1;
+					// 현재 셀이 맨 처음 셀이면,
+					} else if (idxCell == 0) {
+						idxCell_prev = -1;
+						idxCell_next = idxCell + 1;
+					// 현재 셀이 맨 끝 셀이면,
+					} else if (idxCell == (placingZone.nCells - 1)) {
+						idxCell_prev = idxCell - 1;
+						idxCell_next = -1;
+					}
+
+					//////////////////////////////////////////////////////////// 필드 생성 (클릭한 셀)
 					// 입력한 값을 다시 셀에 저장
 					if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == NONE + 1) {
 						placingZone.cells [0][idxCell].objType = NONE;
@@ -1770,7 +2729,7 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 						if (idxCell == 0) {
 							placingZone.cells [0][idxCell].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH);
 							placingZone.cells [0][idxCell].libPart.incorner.wid_s = 0.100;
-						} else {
+						} else if (idxCell > 0) {
 							placingZone.cells [0][idxCell].libPart.incorner.leng_s = 0.100;
 							placingZone.cells [0][idxCell].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH);
 						}
@@ -1785,7 +2744,7 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 						// 규격폼
 						if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE)
 							placingZone.cells [0][idxCell].libPart.form.eu_stan_onoff = true;
-						else
+						else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == FALSE)
 							placingZone.cells [0][idxCell].libPart.form.eu_stan_onoff = false;
 
 						if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
@@ -1795,7 +2754,7 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 							// 높이
 							placingZone.cells [0][idxCell].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS)).ToCStr ()) / 1000.0;
 							placingZone.cells [0][idxCell].verLen = placingZone.cells [0][idxCell].libPart.form.eu_hei;
-						} else {
+						} else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == FALSE) {
 							// 너비
 							placingZone.cells [0][idxCell].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS);
 							placingZone.cells [0][idxCell].horLen = placingZone.cells [0][idxCell].libPart.form.eu_wid2;
@@ -1807,7 +2766,7 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 						// 설치방향
 						if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM) == TRUE)
 							placingZone.cells [0][idxCell].libPart.form.u_ins_wall = true;
-						else {
+						else if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM) == FALSE) {
 							placingZone.cells [0][idxCell].libPart.form.u_ins_wall = false;
 							// 가로, 세로 길이 교환
 							temp = placingZone.cells [0][idxCell].horLen;
@@ -1838,7 +2797,7 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 						// 설치방향
 						if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD) == TRUE)
 							placingZone.cells [0][idxCell].libPart.plywood.w_dir_wall = true;
-						else {
+						else if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD) == FALSE) {
 							placingZone.cells [0][idxCell].libPart.plywood.w_dir_wall = false;
 							// 가로, 세로 길이 교환
 							temp = placingZone.cells [0][idxCell].horLen;
@@ -1846,6 +2805,189 @@ short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, 
 							placingZone.cells [0][idxCell].verLen = temp;
 						}
 					}
+
+					//////////////////////////////////////////////////////////// 필드 생성 (예전 셀)
+					if (idxCell_prev != -1) {
+						// 입력한 값을 다시 셀에 저장
+						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_PREV) == NONE + 1) {
+							placingZone.cells [0][idxCell_prev].objType = NONE;
+
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_PREV) == INCORNER + 1) {
+							placingZone.cells [0][idxCell_prev].objType = INCORNER;
+
+							// 너비
+							if (idxCell_prev == 0) {
+								placingZone.cells [0][idxCell_prev].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV);
+								placingZone.cells [0][idxCell_prev].libPart.incorner.wid_s = 0.100;
+							} else if (idxCell_prev > 0) {
+								placingZone.cells [0][idxCell_prev].libPart.incorner.leng_s = 0.100;
+								placingZone.cells [0][idxCell_prev].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV);
+							}
+							placingZone.cells [0][idxCell_prev].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV);
+
+							// 높이
+							placingZone.cells [0][idxCell_prev].libPart.incorner.hei_s = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_PREV);
+							placingZone.cells [0][idxCell_prev].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_PREV);
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_PREV) == EUROFORM + 1) {
+							placingZone.cells [0][idxCell_prev].objType = EUROFORM;
+
+							// 규격폼
+							if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_PREV) == TRUE)
+								placingZone.cells [0][idxCell_prev].libPart.form.eu_stan_onoff = true;
+							else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_PREV) == FALSE)
+								placingZone.cells [0][idxCell_prev].libPart.form.eu_stan_onoff = false;
+
+							if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_PREV) == TRUE) {
+								// 너비
+								placingZone.cells [0][idxCell_prev].libPart.form.eu_wid = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_PREV)).ToCStr ()) / 1000.0;
+								placingZone.cells [0][idxCell_prev].horLen = placingZone.cells [0][idxCell_prev].libPart.form.eu_wid;
+								// 높이
+								placingZone.cells [0][idxCell_prev].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_PREV)).ToCStr ()) / 1000.0;
+								placingZone.cells [0][idxCell_prev].verLen = placingZone.cells [0][idxCell_prev].libPart.form.eu_hei;
+							} else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_PREV) == FALSE) {
+								// 너비
+								placingZone.cells [0][idxCell_prev].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_PREV);
+								placingZone.cells [0][idxCell_prev].horLen = placingZone.cells [0][idxCell_prev].libPart.form.eu_wid2;
+								// 높이
+								placingZone.cells [0][idxCell_prev].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_PREV);
+								placingZone.cells [0][idxCell_prev].verLen = placingZone.cells [0][idxCell_prev].libPart.form.eu_hei2;
+							}
+
+							// 설치방향
+							if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_PREV) == TRUE)
+								placingZone.cells [0][idxCell_prev].libPart.form.u_ins_wall = true;
+							else if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_PREV) == FALSE) {
+								placingZone.cells [0][idxCell_prev].libPart.form.u_ins_wall = false;
+								// 가로, 세로 길이 교환
+								temp = placingZone.cells [0][idxCell_prev].horLen;
+								placingZone.cells [0][idxCell_prev].horLen = placingZone.cells [0][idxCell_prev].verLen;
+								placingZone.cells [0][idxCell_prev].verLen = temp;
+							}
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_PREV) == FILLERSPACER + 1) {
+							placingZone.cells [0][idxCell_prev].objType = FILLERSPACER;
+
+							// 너비
+							placingZone.cells [0][idxCell_prev].libPart.fillersp.f_thk = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV);
+							placingZone.cells [0][idxCell_prev].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV);
+
+							// 높이
+							placingZone.cells [0][idxCell_prev].libPart.fillersp.f_leng = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_PREV);
+							placingZone.cells [0][idxCell_prev].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_PREV);
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_PREV) == PLYWOOD + 1) {
+							placingZone.cells [0][idxCell_prev].objType = PLYWOOD;
+
+							// 너비
+							placingZone.cells [0][idxCell_prev].libPart.plywood.p_wid = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV);
+							placingZone.cells [0][idxCell_prev].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_PREV);
+
+							// 높이
+							placingZone.cells [0][idxCell_prev].libPart.plywood.p_leng = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_PREV);
+							placingZone.cells [0][idxCell_prev].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_PREV);
+
+							// 설치방향
+							if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD_PREV) == TRUE)
+								placingZone.cells [0][idxCell_prev].libPart.plywood.w_dir_wall = true;
+							else if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD_PREV) == FALSE) {
+								placingZone.cells [0][idxCell_prev].libPart.plywood.w_dir_wall = false;
+								// 가로, 세로 길이 교환
+								temp = placingZone.cells [0][idxCell_prev].horLen;
+								placingZone.cells [0][idxCell_prev].horLen = placingZone.cells [0][idxCell_prev].verLen;
+								placingZone.cells [0][idxCell_prev].verLen = temp;
+							}
+						}
+					}
+
+					//////////////////////////////////////////////////////////// 필드 생성 (다음 셀)
+					if (idxCell_next != -1) {
+						// 입력한 값을 다시 셀에 저장
+						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_NEXT) == NONE + 1) {
+							placingZone.cells [0][idxCell_next].objType = NONE;
+
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_NEXT) == INCORNER + 1) {
+							placingZone.cells [0][idxCell_next].objType = INCORNER;
+
+							// 너비
+							if (idxCell_next == 0) {
+								placingZone.cells [0][idxCell_next].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT);
+								placingZone.cells [0][idxCell_next].libPart.incorner.wid_s = 0.100;
+							} else if (idxCell_next > 0) {
+								placingZone.cells [0][idxCell_next].libPart.incorner.leng_s = 0.100;
+								placingZone.cells [0][idxCell_next].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT);
+							}
+							placingZone.cells [0][idxCell_next].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT);
+
+							// 높이
+							placingZone.cells [0][idxCell_next].libPart.incorner.hei_s = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_NEXT);
+							placingZone.cells [0][idxCell_next].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_NEXT);
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_NEXT) == EUROFORM + 1) {
+							placingZone.cells [0][idxCell_next].objType = EUROFORM;
+
+							// 규격폼
+							if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_NEXT) == TRUE)
+								placingZone.cells [0][idxCell_next].libPart.form.eu_stan_onoff = true;
+							else
+								placingZone.cells [0][idxCell_next].libPart.form.eu_stan_onoff = false;
+
+							if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_NEXT) == TRUE) {
+								// 너비
+								placingZone.cells [0][idxCell_next].libPart.form.eu_wid = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_NEXT)).ToCStr ()) / 1000.0;
+								placingZone.cells [0][idxCell_next].horLen = placingZone.cells [0][idxCell_next].libPart.form.eu_wid;
+								// 높이
+								placingZone.cells [0][idxCell_next].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_NEXT)).ToCStr ()) / 1000.0;
+								placingZone.cells [0][idxCell_next].verLen = placingZone.cells [0][idxCell_next].libPart.form.eu_hei;
+							} else {
+								// 너비
+								placingZone.cells [0][idxCell_next].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_NEXT);
+								placingZone.cells [0][idxCell_next].horLen = placingZone.cells [0][idxCell_next].libPart.form.eu_wid2;
+								// 높이
+								placingZone.cells [0][idxCell_next].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_NEXT);
+								placingZone.cells [0][idxCell_next].verLen = placingZone.cells [0][idxCell_next].libPart.form.eu_hei2;
+							}
+
+							// 설치방향
+							if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_NEXT) == TRUE)
+								placingZone.cells [0][idxCell_next].libPart.form.u_ins_wall = true;
+							else if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_NEXT) == FALSE) {
+								placingZone.cells [0][idxCell_next].libPart.form.u_ins_wall = false;
+								// 가로, 세로 길이 교환
+								temp = placingZone.cells [0][idxCell_next].horLen;
+								placingZone.cells [0][idxCell_next].horLen = placingZone.cells [0][idxCell_next].verLen;
+								placingZone.cells [0][idxCell_next].verLen = temp;
+							}
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_NEXT) == FILLERSPACER + 1) {
+							placingZone.cells [0][idxCell_next].objType = FILLERSPACER;
+
+							// 너비
+							placingZone.cells [0][idxCell_next].libPart.fillersp.f_thk = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT);
+							placingZone.cells [0][idxCell_next].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT);
+
+							// 높이
+							placingZone.cells [0][idxCell_next].libPart.fillersp.f_leng = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_NEXT);
+							placingZone.cells [0][idxCell_next].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_NEXT);
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE_NEXT) == PLYWOOD + 1) {
+							placingZone.cells [0][idxCell_next].objType = PLYWOOD;
+
+							// 너비
+							placingZone.cells [0][idxCell_next].libPart.plywood.p_wid = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT);
+							placingZone.cells [0][idxCell_next].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH_NEXT);
+
+							// 높이
+							placingZone.cells [0][idxCell_next].libPart.plywood.p_leng = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_NEXT);
+							placingZone.cells [0][idxCell_next].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT_NEXT);
+
+							// 설치방향
+							if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD_NEXT) == TRUE)
+								placingZone.cells [0][idxCell_next].libPart.plywood.w_dir_wall = true;
+							else if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_PLYWOOD_NEXT) == FALSE){
+								placingZone.cells [0][idxCell_next].libPart.plywood.w_dir_wall = false;
+								// 가로, 세로 길이 교환
+								temp = placingZone.cells [0][idxCell_next].horLen;
+								placingZone.cells [0][idxCell_next].horLen = placingZone.cells [0][idxCell_next].verLen;
+								placingZone.cells [0][idxCell_next].verLen = temp;
+							}
+						}
+					}
+
 					break;
 				case DG_CANCEL:
 					break;
