@@ -75,6 +75,7 @@ void	initCells (PlacingZone* placingZone);															// Cell 배열을 초기화함
 void	firstPlacingSettings (PlacingZone* placingZone);												// 1차 배치: 인코너, 유로폼
 void	copyPlacingZoneSymmetric (PlacingZone* src_zone, PlacingZone* dst_zone, InfoWall* infoWall);	// 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
 void	alignPlacingZone (PlacingZone* target_zone);													// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+void	fillRestAreas (void);																			// 가로 채우기까지 완료된 후 자투리 공간 채우기
 std::string	format_string(const std::string fmt, ...);													// std::string 변수 값에 formatted string을 입력 받음
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd);		// 좌표 라벨을 배치함
 

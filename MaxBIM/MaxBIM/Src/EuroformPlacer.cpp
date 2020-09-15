@@ -337,7 +337,8 @@ GSErrCode	placeEuroformOnWall (void)
 				placingZone.remain_ver_wo_beams = placingZone.beams [xx].leftBottomZ;
 		}
 	}
-	placingZone.remain_ver_wo_beams = placingZone.remain_ver_wo_beams - 0.063;	// 보에 설치하는 폼 두께도 감안할 것
+	// placingZone.remain_ver_wo_beams = placingZone.remain_ver_wo_beams - 0.063;	// 슬래브 또는 보에 설치하는 폼 두께도 감안할 것 (63mm 간격 남길 것)
+	placingZone.remain_ver_wo_beams = placingZone.remain_ver_wo_beams;		// 63mm 간격 두지 않기로 함
 	placingZone.remain_ver = placingZone.remain_ver_wo_beams;
 
 	// 유로폼 가로/세로 방향 개수 세기
@@ -438,10 +439,23 @@ GSErrCode	placeEuroformOnWall (void)
 	// [DIALOG] 2번째 다이얼로그에서 유로폼/인코너 배치를 수정하거나 휠러스페이서를 삽입합니다.
 	result = DGBlankModalDialog (185, 250, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, placerHandlerSecondary, 0);
 
-	// 세로 영역 채우기 ???
-	//placingZone.remain_ver_wo_beams
+	// 자투리 공간 채우기
+	fillRestAreas ();
 
 	return	err;
+}
+
+// 가로 채우기까지 완료된 후 자투리 공간 채우기
+void	fillRestAreas (void)
+{
+	// remain_ver_wo_beams 이상 verLen 이하 영역에서 작업 실시
+	// placingZone의 cells 배열 [행][열] 검색
+	//	- 아래쪽 행부터 탐색.. guid가 0인 행을 발견하면 아래쪽 행에서 객체 정보를 불러와서 배치 시도
+	//	- (1) 조건: 보 및 기둥 영역과 겹치지 않을 때 && placingZone의 verLen을 초과하지 않을 때				-- 아래 셀과 동일한 종류의 객체를 배치
+	//																										-- 그 위 공간이 40, 50, 80 등 110mm 미만이면 목재로 채우고 110mm 초과하면 합판으로 채울 것
+	//	- (2) 조건: 보가 겹칠 때 && placingZone의 verLen을 초과하지 않을 때 && 겹치는 보가 오른쪽에 있으면	-- 아래 셀과 동일한 종류의 객체를 눕혀서 배치 시도, 안 되면 pass
+	//																										-- 위에서 성공하든 실패하든 상관없이, 보와 겹치지 않게 보 좌측면과 보 하부에 합판 설치 (단 너비가 110mm 미만이면 목재로 채울 것)
+	//	- (3) 조건: 보가 겹칠 때 && placingZone의 verLen을 초과하지 않을 때 && 겹치는 보가 왼쪽에 있으면	-- 앞 열 셀에서 추가한 객체가 있는지 확인해보고, 그에 따라 보 우측면에 합판 설치 (단 너비가 110mm 미만이면 목재로 채울 것)
 }
 
 // 해당 셀 정보를 기반으로 라이브러리 배치
@@ -566,6 +580,23 @@ API_Guid	placeLibPart (Cell objInfo)
 			tempString = "벽눕히기";
 		GS::ucscpy (memo.params [0][33].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
 	}
+
+	// !!!
+	//GSPtr		drawingData = NULL;
+	//memo.drawingData = drawingData;
+
+	//BMGetPtrSize ((GSPtr) drawingData) / sizeof (API_DrawingType);
+	//((API_DrawingType)(memo.drawingData)).manualUpdate = false;
+	//BMKillPtr ((GSPtr *) &memo.drawingData);
+
+	element.drawing.manualUpdate = false;
+	/*
+	int status;
+	char msg [100];
+	ACAPI_Database (APIDb_CheckDrawingStatusID, &element.header.guid, &status);
+	sprintf (msg, "%d", status);
+	ACAPI_WriteReport (msg, "true");
+	*/
 
 	// 객체 배치
 	ACAPI_Element_Create (&element, &memo);
@@ -1054,7 +1085,7 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 			// 종료 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 140, 100, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "종  료");
+			DGSetItemText (dialogID, DG_CANCEL, "다  음");
 			DGShowItem (dialogID, DG_CANCEL);
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (인코너 관련)
