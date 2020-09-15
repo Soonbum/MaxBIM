@@ -446,16 +446,52 @@ GSErrCode	placeEuroformOnWall (void)
 }
 
 // 가로 채우기까지 완료된 후 자투리 공간 채우기
-void	fillRestAreas (void)
+GSErrCode	fillRestAreas (void)
 {
-	// remain_ver_wo_beams 이상 verLen 이하 영역에서 작업 실시
-	// placingZone의 cells 배열 [행][열] 검색
-	//	- 아래쪽 행부터 탐색.. guid가 0인 행을 발견하면 아래쪽 행에서 객체 정보를 불러와서 배치 시도
-	//	- (1) 조건: 보 및 기둥 영역과 겹치지 않을 때 && placingZone의 verLen을 초과하지 않을 때				-- 아래 셀과 동일한 종류의 객체를 배치
-	//																										-- 그 위 공간이 40, 50, 80 등 110mm 미만이면 목재로 채우고 110mm 초과하면 합판으로 채울 것
-	//	- (2) 조건: 보가 겹칠 때 && placingZone의 verLen을 초과하지 않을 때 && 겹치는 보가 오른쪽에 있으면	-- 아래 셀과 동일한 종류의 객체를 눕혀서 배치 시도, 안 되면 pass
-	//																										-- 위에서 성공하든 실패하든 상관없이, 보와 겹치지 않게 보 좌측면과 보 하부에 합판 설치 (단 너비가 110mm 미만이면 목재로 채울 것)
-	//	- (3) 조건: 보가 겹칠 때 && placingZone의 verLen을 초과하지 않을 때 && 겹치는 보가 왼쪽에 있으면	-- 앞 열 셀에서 추가한 객체가 있는지 확인해보고, 그에 따라 보 우측면에 합판 설치 (단 너비가 110mm 미만이면 목재로 채울 것)
+	GSErrCode	err = NoError;
+	short	xx, yy;
+	Cell	insCell;
+
+	err = ACAPI_CallUndoableCommand ("자투리 공간 채우기", [&] () -> GSErrCode {
+		for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
+			for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
+				// 위 셀에 객체가 더 이상 없으면,
+				if ((placingZone.cells [xx][yy].objType != NONE) && (placingZone.cells [xx+1][yy].objType == NONE)) {
+					// 일단 위 셀의 정보는 아래 셀의 정보를 가져온다.
+					insCell.objType			= placingZone.cells [0][yy].objType;
+					insCell.ang				= placingZone.cells [0][yy].ang;
+					insCell.horLen			= placingZone.cells [0][yy].horLen;
+					insCell.verLen			= placingZone.cells [0][yy].verLen;
+					insCell.leftBottomX		= placingZone.cells [0][yy].leftBottomX;
+					insCell.leftBottomY		= placingZone.cells [0][yy].leftBottomY;
+					insCell.leftBottomZ		= placingZone.cells [0][yy].leftBottomZ + (placingZone.cells [0][yy].verLen * (yy+1));
+
+					// * 보의 중첩 관계 확인
+					//	- (셀의 오른쪽 끝 X 좌표 <= 보의 왼쪽 끝 X 좌표) || (보의 오른쪽 끝 X 좌표 <= 셀의 왼쪽 끝 X 좌표) : 셀이 간섭하지 않는 경우
+					//		- 위 셀의 높이가 현재 셀의 높이 이상이면, 위 셀에도 현재 셀과 동일한 객체를 설치할 것
+					//		- 위 셀의 높이가 현재 셀의 높이보다 낮으면, (위 셀의 높이가 110mm 이상이면 합판, 그렇지 않으면 목재)
+					//	- **(보의 왼쪽 끝 X 좌표 < 셀의 오른쪽 끝 X 좌표) && (셀의 왼쪽 끝 X 좌표 < 보의 왼쪽 끝 X 좌표) && (셀의 오른쪽 끝 X 좌표 <= 보의 오른쪽 끝 X 좌표) : 보가 셀의 오른쪽으로 침범한 경우
+					//		- 위 셀의 높이가 현재 셀의 높이 이상이면, (현재 셀의 타입이 유로폼일 경우에 한해 회전시켜 배치했을 때 겹치는지 검토해 보고 안 겹치면 그냥 놓고, 현재 셀이 유로폼이 아니거나 겹칠 것 같으면 보 좌측과 보 하부에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만)
+					//		- 위 셀의 높이가 현재 셀의 높이보다 낮으면, 보 좌측과 보 하부에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
+					//	- (셀의 왼쪽 끝 X 좌표 < 보의 오른쪽 끝 X 좌표) && (보의 오른쪽 끝 X 좌표 < 셀의 오른쪽 끝 X 좌표) && (보의 왼쪽 끝 X 좌표 <= 셀의 왼쪽 끝 X 좌표) : 보가 셀의 왼쪽으로 침범한 경우
+					//		- 현재 셀의 오른쪽 라인에 붙여서 보 우측면에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
+					//	- *(셀의 왼쪽 끝 X 좌표 < 보의 왼쪽 끝 X 좌표) && (보의 오른쪽 끝 X 좌표 < 셀의 오른쪽 끝 X 좌표) : 보가 셀 안에 들어오는 경우
+					//		- 보의 좌측면/하부/우측면에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
+					//	- (보의 왼쪽 끝 X 좌표 <= 셀의 왼쪽 끝 X 좌표) && (셀의 오른쪽 끝 X 좌표 <= 보의 오른쪽 끝 X 좌표) : 보가 셀보다 크거나 같은 경우
+					//		- 보 아래에 위치 맞춰서 셀 너비만큼의 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
+
+					// !!!
+
+					// 벽 뒷면도 설치해야 함 ***
+					// 배치 함수의 예시 -- placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+				}
+			}
+		}
+
+		return NoError;
+	});
+
+	return err;
 }
 
 // 해당 셀 정보를 기반으로 라이브러리 배치
@@ -581,23 +617,6 @@ API_Guid	placeLibPart (Cell objInfo)
 		GS::ucscpy (memo.params [0][33].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
 	}
 
-	// !!!
-	//GSPtr		drawingData = NULL;
-	//memo.drawingData = drawingData;
-
-	//BMGetPtrSize ((GSPtr) drawingData) / sizeof (API_DrawingType);
-	//((API_DrawingType)(memo.drawingData)).manualUpdate = false;
-	//BMKillPtr ((GSPtr *) &memo.drawingData);
-
-	element.drawing.manualUpdate = false;
-	/*
-	int status;
-	char msg [100];
-	ACAPI_Database (APIDb_CheckDrawingStatusID, &element.header.guid, &status);
-	sprintf (msg, "%d", status);
-	ACAPI_WriteReport (msg, "true");
-	*/
-
 	// 객체 배치
 	ACAPI_Element_Create (&element, &memo);
 	ACAPI_DisposeElemMemoHdls (&memo);
@@ -633,10 +652,11 @@ void	setCellPositionLeftBottomZ (PlacingZone *src_zone, double new_hei)
 // Cell 배열을 초기화함
 void	initCells (PlacingZone* placingZone)
 {
-	short xx;
+	short xx, yy;
 
-	for (xx = 0 ; xx < placingZone->nCells ; ++xx)
-		placingZone->cells [0][xx].objType = NONE;
+	for (xx = 0 ; xx < 50 ; ++xx)
+		for (yy = 0 ; yy < 100 ; ++yy)
+			placingZone->cells [xx][yy].objType = NONE;
 }
 
 // 1차 배치: 인코너, 유로폼
