@@ -403,7 +403,7 @@ GSErrCode	placeEuroformOnWall (void)
 	copyPlacingZoneSymmetric (&placingZone, &placingZoneBackside, &infoWall);
 
 	// 1번째 다이얼로그에서 입력한 대로 유로폼/인코너 배치
-	err = ACAPI_CallUndoableCommand ("유로폼/인코너 1차 배치", [&] () -> GSErrCode {
+	err = ACAPI_CallUndoableCommand ("유로폼/인코너 초기 배치", [&] () -> GSErrCode {
 
 		//////////////////////////////////////////////////////////// 벽 앞쪽
 		for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
@@ -449,41 +449,108 @@ GSErrCode	placeEuroformOnWall (void)
 GSErrCode	fillRestAreas (void)
 {
 	GSErrCode	err = NoError;
-	short	xx, yy;
-	Cell	insCell;
+	short	xx, yy, zz;
+	short	indInterfereBeam;	// 중첩되는 보의 인덱스 (-1은 중첩 없음)
+	double	cellLeftX, cellRightX;	// 셀의 L/R측 X 좌표
+	double	beamLeftX, beamRightX;	// 보의 L/R측 X 좌표
+
 
 	err = ACAPI_CallUndoableCommand ("자투리 공간 채우기", [&] () -> GSErrCode {
-		for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
-			for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
-				// 위 셀에 객체가 더 이상 없으면,
-				if ((placingZone.cells [xx][yy].objType != NONE) && (placingZone.cells [xx+1][yy].objType == NONE)) {
-					// 일단 위 셀의 정보는 아래 셀의 정보를 가져온다.
-					insCell.objType			= placingZone.cells [0][yy].objType;
-					insCell.ang				= placingZone.cells [0][yy].ang;
-					insCell.horLen			= placingZone.cells [0][yy].horLen;
-					insCell.verLen			= placingZone.cells [0][yy].verLen;
-					insCell.leftBottomX		= placingZone.cells [0][yy].leftBottomX;
-					insCell.leftBottomY		= placingZone.cells [0][yy].leftBottomY;
-					insCell.leftBottomZ		= placingZone.cells [0][yy].leftBottomZ + (placingZone.cells [0][yy].verLen * (yy+1));
 
-					// * 보의 중첩 관계 확인
-					//	- (셀의 오른쪽 끝 X 좌표 <= 보의 왼쪽 끝 X 좌표) || (보의 오른쪽 끝 X 좌표 <= 셀의 왼쪽 끝 X 좌표) : 셀이 간섭하지 않는 경우
-					//		- 위 셀의 높이가 현재 셀의 높이 이상이면, 위 셀에도 현재 셀과 동일한 객체를 설치할 것
-					//		- 위 셀의 높이가 현재 셀의 높이보다 낮으면, (위 셀의 높이가 110mm 이상이면 합판, 그렇지 않으면 목재)
-					//	- **(보의 왼쪽 끝 X 좌표 < 셀의 오른쪽 끝 X 좌표) && (셀의 왼쪽 끝 X 좌표 < 보의 왼쪽 끝 X 좌표) && (셀의 오른쪽 끝 X 좌표 <= 보의 오른쪽 끝 X 좌표) : 보가 셀의 오른쪽으로 침범한 경우
-					//		- 위 셀의 높이가 현재 셀의 높이 이상이면, (현재 셀의 타입이 유로폼일 경우에 한해 회전시켜 배치했을 때 겹치는지 검토해 보고 안 겹치면 그냥 놓고, 현재 셀이 유로폼이 아니거나 겹칠 것 같으면 보 좌측과 보 하부에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만)
-					//		- 위 셀의 높이가 현재 셀의 높이보다 낮으면, 보 좌측과 보 하부에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
-					//	- (셀의 왼쪽 끝 X 좌표 < 보의 오른쪽 끝 X 좌표) && (보의 오른쪽 끝 X 좌표 < 셀의 오른쪽 끝 X 좌표) && (보의 왼쪽 끝 X 좌표 <= 셀의 왼쪽 끝 X 좌표) : 보가 셀의 왼쪽으로 침범한 경우
-					//		- 현재 셀의 오른쪽 라인에 붙여서 보 우측면에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
-					//	- *(셀의 왼쪽 끝 X 좌표 < 보의 왼쪽 끝 X 좌표) && (보의 오른쪽 끝 X 좌표 < 셀의 오른쪽 끝 X 좌표) : 보가 셀 안에 들어오는 경우
-					//		- 보의 좌측면/하부/우측면에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
-					//	- (보의 왼쪽 끝 X 좌표 <= 셀의 왼쪽 끝 X 좌표) && (셀의 오른쪽 끝 X 좌표 <= 보의 오른쪽 끝 X 좌표) : 보가 셀보다 크거나 같은 경우
-					//		- 보 아래에 위치 맞춰서 셀 너비만큼의 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
+		xx = placingZone.eu_count_ver;
 
-					// !!!
+		for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
 
-					// 벽 뒷면도 설치해야 함 ***
-					// 배치 함수의 예시 -- placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+			// Cell 정보 업데이트: 다음 높이로 상승시킴 - 선택 면
+			if (placingZone.eu_ori.compare (std::string ("벽세우기")) == 0)
+				setCellPositionLeftBottomZ (&placingZone, placingZone.leftBottomZ + (placingZone.eu_hei_numeric * xx));
+			else
+				setCellPositionLeftBottomZ (&placingZone, placingZone.leftBottomZ + (placingZone.eu_wid_numeric * xx));
+
+			// Cell 정보 업데이트: 다음 높이로 상승시킴 - 반대 면
+			if (placingZoneBackside.eu_ori.compare (std::string ("벽세우기")) == 0)
+				setCellPositionLeftBottomZ (&placingZoneBackside, placingZoneBackside.leftBottomZ + (placingZoneBackside.eu_hei_numeric * xx));
+			else
+				setCellPositionLeftBottomZ (&placingZoneBackside, placingZoneBackside.leftBottomZ + (placingZoneBackside.eu_wid_numeric * xx));
+
+
+			// 보의 중첩 관계 확인 - 중첩되는 보의 인덱스를 먼저 추출
+			indInterfereBeam = -1;
+			for (zz = 0 ; zz < placingZone.nInterfereBeams ; ++zz) {
+				
+				// 간섭을 찾을 때까지만 확인
+				if (indInterfereBeam == -1) {
+					cellLeftX	= placingZone.cells [0][yy].leftBottomX;
+					cellRightX	= placingZone.cells [0][yy].leftBottomX + placingZone.cells [0][yy].horLen;
+					beamLeftX	= placingZone.beams [zz].leftBottomX;
+					beamRightX	= placingZone.beams [zz].leftBottomX + placingZone.beams [zz].horLen;
+
+					// 보가 셀의 오른쪽으로 침범한 경우
+					if ( (beamLeftX < cellRightX) && (cellLeftX < beamLeftX) && (cellRightX <= beamRightX) )
+						indInterfereBeam = zz;
+
+					// 보가 셀의 왼쪽으로 침범한 경우
+					if ( (cellLeftX < beamRightX) && (beamRightX < cellRightX) && (beamLeftX <= cellLeftX) )
+						indInterfereBeam = zz;
+
+					// 보가 셀 안에 들어오는 경우
+					if ( (cellLeftX < beamLeftX) && (beamRightX < cellRightX) )
+						indInterfereBeam = zz;
+
+					// 보가 셀 영역을 다 침범한 경우
+					if ( (beamLeftX <= cellLeftX) && (cellRightX <= beamRightX) )
+						indInterfereBeam = zz;
+				}
+			}
+
+			// 보가 셀에 간섭하는 경우
+			if (indInterfereBeam != -1) {
+				cellLeftX	= placingZone.cells [0][yy].leftBottomX;
+				cellRightX	= placingZone.cells [0][yy].leftBottomX + placingZone.cells [0][yy].horLen;
+				beamLeftX	= placingZone.beams [indInterfereBeam].leftBottomX;
+				beamRightX	= placingZone.beams [indInterfereBeam].leftBottomX + placingZone.beams [indInterfereBeam].horLen;
+
+				// 보가 셀의 오른쪽으로 침범한 경우
+				if ( (beamLeftX < cellRightX) && (cellLeftX < beamLeftX) && (cellRightX <= beamRightX) ) {
+					// 위 공간이 셀에 배치될 객체 높이보다 크면,
+					// 현재 셀의 타입이 유로폼일 경우에 한해 회전시켜 배치했을 때 겹치는지 검토해 보고 안 겹치면 그냥 놓고,
+					// 현재 셀이 유로폼이 아니거나 겹칠 것 같으면 보 좌측과 보 하부에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
+					// ...
+
+					// 위 셀의 높이가 현재 셀의 높이보다 낮으면, 보 좌측과 보 하부에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
+					// ...
+				}
+
+				// 보가 셀의 왼쪽으로 침범한 경우
+				if ( (cellLeftX < beamRightX) && (beamRightX < cellRightX) && (beamLeftX <= cellLeftX) ) {
+					// 현재 셀의 오른쪽 라인에 붙여서 보 우측면에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
+					// ...
+				}
+
+				// 보가 셀 안에 들어오는 경우
+				if ( (cellLeftX < beamLeftX) && (beamRightX < cellRightX) ) {
+					// 보의 좌측면/하부/우측면에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
+					// ...
+				}
+
+				// 보가 셀 영역을 다 침범한 경우
+				if ( (beamLeftX <= cellLeftX) && (cellRightX <= beamRightX) ) {
+					// 보 아래에 위치 맞춰서 셀 너비만큼의 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
+					// ...
+				}
+			
+			// 보가 셀에 간섭하지 않는 경우
+			} else {
+				if ((placingZone.cells [0][yy].leftBottomZ + placingZone.cells [0][yy].verLen) < placingZone.verLen) {
+					// 위 공간이 셀에 배치될 객체 높이보다 크면, 위 셀에도 현재 셀과 동일한 객체를 설치할 것
+					placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+					placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+
+				} else {
+					// 위 셀의 높이가 현재 셀의 높이보다 낮으면, (위 셀의 높이가 110mm 이상이면 합판, 그렇지 않으면 목재)
+					// ...
+					// setCellPositionLeftBottomZ 함수로 고도를 높임
+					// placeLibPart 함수로 합판, 또는 목재 설치 (목재 설치 기능 추가할 것)
 				}
 			}
 		}
@@ -1105,7 +1172,7 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 			// 종료 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 140, 100, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "다  음");
+			DGSetItemText (dialogID, DG_CANCEL, "종  료");
 			DGShowItem (dialogID, DG_CANCEL);
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (인코너 관련)
@@ -1325,8 +1392,8 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 					// 남은 가로 길이 업데이트
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated);
 
-					// 기존 배치된 객체 전부 삭제
-					err = ACAPI_CallUndoableCommand ("예전에 배치된 객체 제거", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand ("유로폼/인코너 재배치", [&] () -> GSErrCode {
+						// 기존 배치된 객체 전부 삭제
 						for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
 							for (yy = 0 ; yy < placingZone.nCells ; ++ yy) {
 								elem.header.guid = placingZone.cells [xx][yy].guid;
@@ -1353,12 +1420,7 @@ short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short it
 							}
 						}
 
-						return err;
-					});
-
-					// 업데이트된 셀 정보대로 객체 재배치
-					err = ACAPI_CallUndoableCommand ("유로폼/인코너 재배치", [&] () -> GSErrCode {
-
+						// 업데이트된 셀 정보대로 객체 재배치
 						//////////////////////////////////////////////////////////// 벽 앞쪽
 						for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
 							for (yy = 0 ; yy < placingZone.nCells ; ++yy)
