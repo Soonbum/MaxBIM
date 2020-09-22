@@ -55,7 +55,6 @@ enum	libPartObjType;
 struct	InfoWall;
 struct	InfoMorph;
 struct	InterfereBeam;
-struct	BacksideColumn;
 struct	Euroform;
 struct	FillerSpacer;
 struct	IncornerPanel;
@@ -68,7 +67,7 @@ double	degreeToRad (double degree);																	// degree 각도를 radian 각도
 double	RadToDegree (double rad);																		// radian 각도를 degree 각도로 변환
 double	GetDistance (const double begX, const double begY, const double endX, const double endY);		// 2차원에서 2점 간의 거리를 알려줌
 long	compareDoubles (const double a, const double b);												// 어떤 수가 더 큰지 비교함
-long	compareRanges (const double aMin, const double aMax, const double bMin, const double bMax);		// a와 b의 각 값 범위의 관계를 알려줌
+long	compareRanges (double aMin, double aMax, double bMin, double bMax);								// a와 b의 각 값 범위의 관계를 알려줌
 void	exchangeDoubles (double* a, double* b);															// a와 b 값을 교환함
 long	findDirection (const double begX, const double begY, const double endX, const double endY);		// 시작점에서 끝점으로 향하는 벡터의 방향을 확인
 void	initCells (PlacingZone* placingZone);															// Cell 배열을 초기화함
@@ -246,16 +245,7 @@ struct InfoMorph
 struct InterfereBeam
 {
 	double	leftBottomX;
-	double	leftBottomZ;
-
-	double	horLen;
-	double	verLen;
-};
-
-// 후면기둥 정보
-struct BacksideColumn
-{
-	double	leftBottomX;
+	double	leftBottomY;
 	double	leftBottomZ;
 
 	double	horLen;
@@ -355,10 +345,6 @@ struct PlacingZone
 	// 간섭보 (0개 이상)
 	short	nInterfereBeams;	// 간섭보 개수
 	InterfereBeam	beams [30];
-
-	// 후면기둥 (0개 이상)
-	short	nBacksideColumn;	// 후면기둥 개수
-	BacksideColumn	columns [30];
 
 	// 검토할 사항 (1. 기본 채우기)
 	double	remain_hor;				// 가로 방향 남은 길이

@@ -40,7 +40,7 @@ long	compareDoubles (const double a, const double b)
 }
 
 // a와 b의 각 값 범위의 관계를 알려줌 (0~13 중 하나)
-long	compareRanges (const double aMin, const double aMax, const double bMin, const double bMax)
+long	compareRanges (double aMin, double aMax, double bMin, double bMax)
 {
 	/*
 	 *			 Min  Max
@@ -65,11 +65,16 @@ long	compareRanges (const double aMin, const double aMax, const double bMin, con
 	
 	long	result = 0;
 	long	ab, aB, Ab, AB;
+	bool	invertedA = false, invertedB = false;
 
-	// min, max 범위가 잘못되면 오류
-	if ( (aMin > aMax) || (bMin > bMax) ) {
-		result = 0;
-		return result;
+	// a, b의 min, max 범위가 반대이면 뒤집어줌
+	if ( aMin > aMax ) {
+		exchangeDoubles (&aMin, &aMax);
+		invertedA = true;
+	}
+	if ( bMin > bMax ) {
+		exchangeDoubles (&bMin, &bMax);
+		invertedB = true;
 	}
 
 	ab = compareDoubles (aMin, bMin);
@@ -90,6 +95,10 @@ long	compareRanges (const double aMin, const double aMax, const double bMin, con
 	if ( (ab == 0) && (aB  < 0) && (Ab  > 0) && (AB  < 0) )		return 11;
 	if ( (ab == 0) && (aB  < 0) && (Ab  > 0) && (AB == 0) )		return 12;
 	if ( (ab  > 0) && (aB  < 0) && (Ab  > 0) && (AB  < 0) )		return 13;
+
+	// 뒤집어준 값은 원래 상태로 복구
+	if (invertedA == true)	exchangeDoubles (&aMin, &aMax);
+	if (invertedB == true)	exchangeDoubles (&bMin, &bMax);
 
 	return	result;
 }
@@ -143,7 +152,6 @@ long	findDirection (const double begX, const double begY, const double endX, con
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd)
 {
 	GSErrCode	err = NoError;
-
 	API_Element			element;
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
