@@ -418,7 +418,7 @@ GSErrCode	fillRestAreas (void)
 	double	cellLeftX, cellRightX;	// 셀의 L/R측 X 좌표
 	double	cellRightX2;			// 셀 우측 R측 X 좌표
 	double	beamLeftX, beamRightX;	// 보의 L/R측 X 좌표
-	//double	nextHeight = -1.0;		// 자투리를 채우기 위한 라인 높이
+	double	currentHeight;			// 현재 라인 높이
 	double	dist;
 
 	err = ACAPI_CallUndoableCommand ("자투리 공간 채우기", [&] () -> GSErrCode {
@@ -428,7 +428,7 @@ GSErrCode	fillRestAreas (void)
 
 			xx = placingZone.eu_count_ver;
 
-			// Cell 정보 업데이트: 다음 높이로 상승시킴 - 선택 면
+			// Cell 정보 업데이트: 다음 높이로 상승시킴
 			setCellPositionLeftBottomZ (&placingZone, placingZone.leftBottomZ + (placingZone.eu_hei_numeric * xx));
 			setCellPositionLeftBottomZ (&placingZoneBackside, placingZoneBackside.leftBottomZ + (placingZoneBackside.eu_hei_numeric * xx));
 
@@ -510,7 +510,87 @@ GSErrCode	fillRestAreas (void)
 								placingZoneBackside.cells [0][yy].leftBottomX -= (placingZoneBackside.cells [0][yy].horLen * cos(placingZoneBackside.cells [0][yy].ang));
 								placingZoneBackside.cells [0][yy].leftBottomY -= (placingZoneBackside.cells [0][yy].horLen * sin(placingZoneBackside.cells [0][yy].ang));
 
-								// ... 나머지 공간 채울 것
+								// 나머지 공간 채울 것 (잠시 고도를 높였다가 나중에 복귀)
+								currentHeight = placingZoneBackside.cells [0][yy].leftBottomZ;
+
+								// Cell 정보 업데이트: 누운 유로폼 높이 위로 상승시킴
+								setCellPositionLeftBottomZ (&placingZone, currentHeight + placingZone.eu_wid_numeric);
+								setCellPositionLeftBottomZ (&placingZoneBackside, currentHeight + placingZone.eu_wid_numeric);
+
+								// 보 좌측면
+								placingZone.cells [0][yy].objType = PLYWOOD;
+								placingZone.cells [0][yy].horLen = beamLeftX - cellLeftX;
+								placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.plywood.p_wid = beamLeftX - cellLeftX;
+								placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+								placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+
+								placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+								placingZoneBackside.cells [0][yy].horLen = beamLeftX - cellLeftX;
+								placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = beamLeftX - cellLeftX;
+								placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+								placingZoneBackside.cells [0][yy].leftBottomX += ((beamLeftX - cellLeftX) - placingZoneBackside.eu_wid_numeric) * cos(placingZoneBackside.ang);
+								placingZoneBackside.cells [0][yy].leftBottomY += ((beamLeftX - cellLeftX) - placingZoneBackside.eu_wid_numeric) * sin(placingZoneBackside.ang);
+								placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+								placingZoneBackside.cells [0][yy].leftBottomX -= ((beamLeftX - cellLeftX) - placingZoneBackside.eu_wid_numeric) * cos(placingZoneBackside.ang);
+								placingZoneBackside.cells [0][yy].leftBottomY -= ((beamLeftX - cellLeftX) - placingZoneBackside.eu_wid_numeric) * sin(placingZoneBackside.ang);
+
+								// 보의 아래면
+								placingZone.cells [0][yy].objType = PLYWOOD;
+								placingZone.cells [0][yy].horLen = beamRightX - beamLeftX;
+								placingZone.cells [0][yy].verLen = placingZone.beams [indInterfereBeam].leftBottomZ;
+								placingZone.cells [0][yy].libPart.plywood.p_wid = beamRightX - beamLeftX;
+								placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.beams [indInterfereBeam].leftBottomZ - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+								placingZone.cells [0][yy].leftBottomX += (beamLeftX - cellLeftX) * cos(placingZone.ang);
+								placingZone.cells [0][yy].leftBottomY += (beamLeftX - cellLeftX) * sin(placingZone.ang);
+								placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+								placingZone.cells [0][yy].leftBottomX -= (beamLeftX - cellLeftX) * cos(placingZone.ang);
+								placingZone.cells [0][yy].leftBottomY -= (beamLeftX - cellLeftX) * sin(placingZone.ang);
+
+								placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+								placingZoneBackside.cells [0][yy].horLen = beamRightX - beamLeftX;
+								placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.beams [indInterfereBeam].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = beamRightX - beamLeftX;
+								placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.beams [indInterfereBeam].leftBottomZ - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+								placingZoneBackside.cells [0][yy].leftBottomX += (((beamLeftX - cellLeftX + beamRightX - beamLeftX) - placingZoneBackside.eu_wid_numeric) * cos(placingZoneBackside.ang));
+								placingZoneBackside.cells [0][yy].leftBottomY += (((beamLeftX - cellLeftX + beamRightX - beamLeftX) - placingZoneBackside.eu_wid_numeric) * sin(placingZoneBackside.ang));
+								placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+								placingZoneBackside.cells [0][yy].leftBottomX -= (((beamLeftX - cellLeftX + beamRightX - beamLeftX) - placingZoneBackside.eu_wid_numeric) * cos(placingZoneBackside.ang));
+								placingZoneBackside.cells [0][yy].leftBottomY -= (((beamLeftX - cellLeftX + beamRightX - beamLeftX) - placingZoneBackside.eu_wid_numeric) * sin(placingZoneBackside.ang));
+
+								// 보의 우측면
+								placingZone.cells [0][yy].objType = PLYWOOD;
+								placingZone.cells [0][yy].horLen = cellRightX2 - beamRightX;
+								placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.plywood.p_wid = cellRightX2 - beamRightX;
+								placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+								placingZone.cells [0][yy].leftBottomX += (beamRightX - cellLeftX) * cos(placingZone.ang);
+								placingZone.cells [0][yy].leftBottomY += (beamRightX - cellLeftX) * sin(placingZone.ang);
+								placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+								placingZone.cells [0][yy].leftBottomX -= (beamRightX - cellLeftX) * cos(placingZone.ang);
+								placingZone.cells [0][yy].leftBottomY -= (beamRightX - cellLeftX) * sin(placingZone.ang);
+
+								placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+								placingZoneBackside.cells [0][yy].horLen = cellRightX2 - beamRightX;
+								placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = cellRightX2 - beamRightX;
+								placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+								placingZoneBackside.cells [0][yy].leftBottomX += (placingZoneBackside.eu_wid_numeric) * cos(placingZoneBackside.ang);
+								placingZoneBackside.cells [0][yy].leftBottomY += (placingZoneBackside.eu_wid_numeric) * sin(placingZoneBackside.ang);
+								placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+								placingZoneBackside.cells [0][yy].leftBottomX -= (placingZoneBackside.eu_wid_numeric) * cos(placingZoneBackside.ang);
+								placingZoneBackside.cells [0][yy].leftBottomY -= (placingZoneBackside.eu_wid_numeric) * sin(placingZoneBackside.ang);
+
+								// Cell 정보 업데이트: 원래 높이로 복귀
+								setCellPositionLeftBottomZ (&placingZone, currentHeight);
+								setCellPositionLeftBottomZ (&placingZoneBackside, currentHeight);
 
 							// 눕힌 유로폼도 들어가지 않으면 합판이나 목재 배치
 							} else {
