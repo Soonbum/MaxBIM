@@ -421,6 +421,9 @@ GSErrCode	fillRestAreas (void)
 	double	currentHeight;			// 현재 라인 높이
 	double	dist;
 
+	short	kk, moveCountLimit;
+	double	newXPosOffset, newXSizeOffset;		// 합판의 새로운 위치, 크기 차이
+
 	err = ACAPI_CallUndoableCommand ("자투리 공간 채우기", [&] () -> GSErrCode {
 
 		// 유로폼 설치 방향: 벽세우기
@@ -432,7 +435,7 @@ GSErrCode	fillRestAreas (void)
 			setCellPositionLeftBottomZ (&placingZone, placingZone.leftBottomZ + (placingZone.eu_hei_numeric * xx));
 			setCellPositionLeftBottomZ (&placingZoneBackside, placingZoneBackside.leftBottomZ + (placingZoneBackside.eu_hei_numeric * xx));
 
-			// 1차 스캔: 높이 - 기본 채우기 라인 상단
+			// 기본 채우기 라인 상단
 			for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
 
 				// 보의 중첩 관계 확인 - 중첩되는 보의 인덱스를 먼저 추출
@@ -474,9 +477,137 @@ GSErrCode	fillRestAreas (void)
 						placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
 						placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
 
-					// 공간이 부족하면 합판이나 목재 배치
+						// 어중간하게 남는 영역 채우기 (110mm 이상은 합판으로)
+						if ( (placingZone.verLen - placingZone.cells [0][yy].leftBottomZ - placingZone.cells [0][yy].verLen) >= 0.110) {
+							if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER) || (placingZone.cells [0][yy].objType == NONE)) ) {
+								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
+								moveCountLimit = 0;
+								newXPosOffset = 0.0;
+								newXSizeOffset = 0.0;
+								for (kk = yy-1 ; 0 <= kk ; --kk) {
+
+									++moveCountLimit;
+
+									// 인코너, 휠러스페이서 영역까지 덮음
+									if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+										// 합판 크기 확장
+										newXSizeOffset += placingZone.cells [0][kk].horLen;
+
+										// 위치 앞으로 이동
+										newXPosOffset -= placingZone.cells [0][kk].horLen;
+									}
+
+									if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+								}
+
+								placingZone.cells [0][yy].objType = PLYWOOD;
+								placingZone.cells [0][yy].leftBottomX += (newXPosOffset * cos(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomY += (newXPosOffset * sin(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomZ += placingZone.cells [0][yy].verLen;
+								placingZone.cells [0][yy].horLen += newXSizeOffset;
+								placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.plywood.p_wid = placingZone.cells [0][yy].horLen;
+								placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+								placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+
+								placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+								placingZoneBackside.cells [0][yy].leftBottomZ += placingZoneBackside.cells [0][yy].verLen;
+								placingZoneBackside.cells [0][yy].horLen += newXSizeOffset;
+								placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = placingZoneBackside.cells [0][yy].horLen;
+								placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+								placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+							}
+						
+						// 어중간하게 남는 영역 채우기 (110mm 미만은 목재로)
+						} else {
+							if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER) || (placingZone.cells [0][yy].objType == NONE)) ) {
+								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 목재로 덮음
+								moveCountLimit = 0;
+								newXPosOffset = 0.0;
+								newXSizeOffset = 0.0;
+								for (kk = yy-1 ; 0 <= kk ; --kk) {
+
+									++moveCountLimit;
+
+									// 인코너, 휠러스페이서 영역까지 덮음
+									if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+										// 합판 크기 확장
+										newXSizeOffset += placingZone.cells [0][kk].horLen;
+
+										// 위치 앞으로 이동
+										newXPosOffset -= placingZone.cells [0][kk].horLen;
+									}
+
+									if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+								}
+
+								placingZone.cells [0][yy].objType = WOOD;
+								placingZone.cells [0][yy].leftBottomX += (newXPosOffset * cos(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomY += (newXPosOffset * sin(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomZ += placingZone.cells [0][yy].verLen;
+								placingZone.cells [0][yy].horLen += newXSizeOffset;
+								placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.wood.w_w = 0.080;
+								placingZone.cells [0][yy].libPart.wood.w_leng = placingZone.cells [0][yy].horLen;
+								placingZone.cells [0][yy].libPart.wood.w_h = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+
+								placingZoneBackside.cells [0][yy].objType = WOOD;
+								placingZoneBackside.cells [0][yy].leftBottomZ += placingZoneBackside.cells [0][yy].verLen;
+								placingZoneBackside.cells [0][yy].horLen += newXSizeOffset;
+								placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.wood.w_w = 0.080;
+								placingZoneBackside.cells [0][yy].libPart.wood.w_leng = placingZoneBackside.cells [0][yy].horLen;
+								placingZoneBackside.cells [0][yy].libPart.wood.w_h = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+							}
+						}
+
+					// 공간이 부족하면 합판 배치
 					} else {
-						// ...
+
+						if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER)) ) {
+							// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
+							moveCountLimit = 0;
+							newXPosOffset = 0.0;
+							newXSizeOffset = 0.0;
+							for (kk = yy-1 ; 0 <= kk ; --kk) {
+
+								++moveCountLimit;
+
+								// 인코너, 휠러스페이서 영역까지 덮음
+								if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+									// 합판 크기 확장
+									newXSizeOffset += placingZone.cells [0][kk].horLen;
+
+									// 위치 앞으로 이동
+									newXPosOffset -= placingZone.cells [0][kk].horLen;
+								}
+
+								if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+							}
+
+							placingZone.cells [0][yy].objType = PLYWOOD;
+							placingZone.cells [0][yy].leftBottomX += (newXPosOffset * cos(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].leftBottomY += (newXPosOffset * sin(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].horLen += newXSizeOffset;
+							placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.p_wid = placingZone.cells [0][yy].horLen;
+							placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+
+							placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+							placingZoneBackside.cells [0][yy].horLen += newXSizeOffset;
+							placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = placingZoneBackside.cells [0][yy].horLen;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+						}
 					}
 			
 				// 보가 셀에 간섭하는 경우
@@ -745,29 +876,27 @@ GSErrCode	fillRestAreas (void)
 				}
 			}
 
-			/*
-			// 2차 스캔: 높이 - 보 주변의 합판 높이
-			xx = placingZone.eu_count_ver + 1;
+		// 유로폼 설치 방향: 벽눕히기
+		} else {
+
+			xx = placingZone.eu_count_ver;
+
+			// Cell 정보 업데이트: 다음 높이로 상승시킴
+			setCellPositionLeftBottomZ (&placingZone, placingZone.leftBottomZ + (placingZone.eu_wid_numeric * xx));
+			setCellPositionLeftBottomZ (&placingZoneBackside, placingZoneBackside.leftBottomZ + (placingZoneBackside.eu_wid_numeric * xx));
+
+			// 기본 채우기 라인 상단
 			for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
 
-				// 1차 스캔에서 간섭한 보가 없으면 통과
-				if (nextHeight < 0.0) break;
-
-				// Cell 정보 업데이트: 다음 높이로 상승시킴 - 선택 면
-				setCellPositionLeftBottomZ (&placingZone, nextHeight);
-
-				// Cell 정보 업데이트: 다음 높이로 상승시킴 - 반대 면
-				setCellPositionLeftBottomZ (&placingZoneBackside, nextHeight);
-
-				// 보의 중첩 관계 확인 - 중첩되는 보의 인덱스를 먼저 추출
+			// 보의 중첩 관계 확인 - 중첩되는 보의 인덱스를 먼저 추출
 				indInterfereBeam = -1;
 				for (zz = 0 ; zz < placingZone.nInterfereBeams ; ++zz) {
-
+				
 					// 간섭을 찾을 때까지만 확인
 					if (indInterfereBeam == -1) {
 						dist = GetDistance (placingZone.leftBottomX, placingZone.leftBottomY, placingZone.cells [0][yy].leftBottomX, placingZone.cells [0][yy].leftBottomY);
-						cellLeftX	= dist;
-						cellRightX	= dist + placingZone.cells [0][yy].horLen;
+						cellLeftX	= dist - placingZone.cells [0][yy].horLen;
+						cellRightX	= dist;
 						dist = GetDistance (placingZone.leftBottomX, placingZone.leftBottomY, placingZone.beams [zz].leftBottomX, placingZone.beams [zz].leftBottomY);
 						beamLeftX	= dist;
 						beamRightX	= dist + placingZone.beams [zz].horLen;
@@ -790,79 +919,337 @@ GSErrCode	fillRestAreas (void)
 					}
 				}
 
+				// 보가 셀에 간섭하지 않는 영역까지 일단 채움
+				if (indInterfereBeam == -1) {
+					// 위 공간이 셀에 배치될 객체 높이 이상이면, 위 셀에도 현재 셀과 동일한 객체를 설치할 것
+					if ( ((placingZone.cells [0][yy].leftBottomZ + placingZone.cells [0][yy].verLen) <= placingZone.verLen) ||
+						 (abs (placingZone.verLen - (placingZone.cells [0][yy].leftBottomZ + placingZone.cells [0][yy].verLen)) < EPS) ) {
+						placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+						placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+
+						// 어중간하게 남는 영역 채우기 (110mm 이상은 합판으로)
+						if ( (placingZone.verLen - placingZone.cells [0][yy].leftBottomZ - placingZone.cells [0][yy].verLen) >= 0.110) {
+							if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER) || (placingZone.cells [0][yy].objType == NONE)) ) {
+								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
+								moveCountLimit = 0;
+								newXPosOffset = 0.0;
+								newXSizeOffset = 0.0;
+								for (kk = yy-1 ; 0 <= kk ; --kk) {
+
+									++moveCountLimit;
+
+									// 인코너, 휠러스페이서 영역까지 덮음
+									if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+										// 합판 크기 확장
+										newXSizeOffset += placingZone.cells [0][kk].horLen;
+
+										// 위치 앞으로 이동
+										newXPosOffset -= placingZone.cells [0][kk].horLen;
+									}
+
+									if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+								}
+
+								placingZone.cells [0][yy].objType = PLYWOOD;
+								placingZone.cells [0][yy].leftBottomX += ((newXPosOffset - placingZone.cells [0][yy].horLen) * cos(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomY += ((newXPosOffset - placingZone.cells [0][yy].horLen) * sin(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomZ += placingZone.cells [0][yy].verLen;
+								placingZone.cells [0][yy].horLen += newXSizeOffset;
+								placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.plywood.p_wid = placingZone.cells [0][yy].horLen;
+								placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+								placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+								placingZone.cells [0][yy].leftBottomX -= ((newXPosOffset - placingZone.cells [0][yy].horLen) * cos(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomY -= ((newXPosOffset - placingZone.cells [0][yy].horLen) * sin(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomZ -= placingZone.cells [0][yy].verLen;
+
+								placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+								placingZoneBackside.cells [0][yy].leftBottomX += ((- placingZoneBackside.cells [0][yy].horLen) * cos(placingZoneBackside.cells [0][yy].ang));
+								placingZoneBackside.cells [0][yy].leftBottomY += ((- placingZoneBackside.cells [0][yy].horLen) * sin(placingZoneBackside.cells [0][yy].ang));
+								placingZoneBackside.cells [0][yy].leftBottomZ += placingZoneBackside.cells [0][yy].verLen;
+								placingZoneBackside.cells [0][yy].horLen += newXSizeOffset;
+								placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = placingZoneBackside.cells [0][yy].horLen;
+								placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+								placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+								placingZoneBackside.cells [0][yy].leftBottomX -= ((- placingZoneBackside.cells [0][yy].horLen) * cos(placingZoneBackside.cells [0][yy].ang));
+								placingZoneBackside.cells [0][yy].leftBottomY -= ((- placingZoneBackside.cells [0][yy].horLen) * sin(placingZoneBackside.cells [0][yy].ang));
+								placingZoneBackside.cells [0][yy].leftBottomZ -= placingZoneBackside.cells [0][yy].verLen;
+							}
+						
+						// 어중간하게 남는 영역 채우기 (110mm 미만은 목재로)
+						} else {
+							if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER) || (placingZone.cells [0][yy].objType == NONE)) ) {
+								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 목재로 덮음
+								moveCountLimit = 0;
+								newXPosOffset = 0.0;
+								newXSizeOffset = 0.0;
+								for (kk = yy-1 ; 0 <= kk ; --kk) {
+
+									++moveCountLimit;
+
+									// 인코너, 휠러스페이서 영역까지 덮음
+									if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+										// 합판 크기 확장
+										newXSizeOffset += placingZone.cells [0][kk].horLen;
+
+										// 위치 앞으로 이동
+										newXPosOffset -= placingZone.cells [0][kk].horLen;
+									}
+
+									if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+								}
+
+								placingZone.cells [0][yy].objType = WOOD;
+								placingZone.cells [0][yy].leftBottomX += ((newXPosOffset - placingZone.cells [0][yy].horLen) * cos(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomY += ((newXPosOffset - placingZone.cells [0][yy].horLen) * sin(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomZ += placingZone.cells [0][yy].verLen;
+								placingZone.cells [0][yy].horLen += newXSizeOffset;
+								placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [0][yy].libPart.wood.w_w = 0.080;
+								placingZone.cells [0][yy].libPart.wood.w_leng = placingZone.cells [0][yy].horLen;
+								placingZone.cells [0][yy].libPart.wood.w_h = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+								placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+								placingZone.cells [0][yy].leftBottomX -= ((newXPosOffset - placingZone.cells [0][yy].horLen) * cos(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomY -= ((newXPosOffset - placingZone.cells [0][yy].horLen) * sin(placingZone.cells [0][yy].ang));
+								placingZone.cells [0][yy].leftBottomZ -= placingZone.cells [0][yy].verLen;
+
+								placingZoneBackside.cells [0][yy].objType = WOOD;
+								placingZoneBackside.cells [0][yy].leftBottomX += ((- placingZoneBackside.cells [0][yy].horLen) * cos(placingZoneBackside.cells [0][yy].ang));
+								placingZoneBackside.cells [0][yy].leftBottomY += ((- placingZoneBackside.cells [0][yy].horLen) * sin(placingZoneBackside.cells [0][yy].ang));
+								placingZoneBackside.cells [0][yy].leftBottomZ += placingZoneBackside.cells [0][yy].verLen;
+								placingZoneBackside.cells [0][yy].horLen += newXSizeOffset;
+								placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [0][yy].libPart.wood.w_w = 0.080;
+								placingZoneBackside.cells [0][yy].libPart.wood.w_leng = placingZoneBackside.cells [0][yy].horLen;
+								placingZoneBackside.cells [0][yy].libPart.wood.w_h = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+								placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+								placingZoneBackside.cells [0][yy].leftBottomX -= ((- placingZoneBackside.cells [0][yy].horLen) * cos(placingZoneBackside.cells [0][yy].ang));
+								placingZoneBackside.cells [0][yy].leftBottomY -= ((- placingZoneBackside.cells [0][yy].horLen) * sin(placingZoneBackside.cells [0][yy].ang));
+								placingZoneBackside.cells [0][yy].leftBottomZ -= placingZoneBackside.cells [0][yy].verLen;
+							}
+						}
+
+					// 공간이 부족하면 합판 배치
+					} else {
+
+						if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER)) ) {
+							// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
+							moveCountLimit = 0;
+							newXPosOffset = 0.0;
+							newXSizeOffset = 0.0;
+							for (kk = yy-1 ; 0 <= kk ; --kk) {
+
+								++moveCountLimit;
+
+								// 인코너, 휠러스페이서 영역까지 덮음
+								if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+									// 합판 크기 확장
+									newXSizeOffset += placingZone.cells [0][kk].horLen;
+
+									// 위치 앞으로 이동
+									newXPosOffset -= placingZone.cells [0][kk].horLen;
+								}
+
+								if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+							}
+
+							placingZone.cells [0][yy].objType = PLYWOOD;
+							placingZone.cells [0][yy].leftBottomX += ((newXPosOffset - placingZone.cells [0][yy].horLen) * cos(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].leftBottomY += ((newXPosOffset - placingZone.cells [0][yy].horLen) * sin(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].horLen += newXSizeOffset;
+							placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.p_wid = placingZone.cells [0][yy].horLen;
+							placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+							placingZone.cells [0][yy].leftBottomX -= ((newXPosOffset - placingZone.cells [0][yy].horLen) * cos(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].leftBottomY -= ((newXPosOffset - placingZone.cells [0][yy].horLen) * sin(placingZone.cells [0][yy].ang));
+
+							placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+							placingZoneBackside.cells [0][yy].leftBottomX += (( - placingZoneBackside.cells [0][yy].horLen) * cos(placingZoneBackside.cells [0][yy].ang));
+							placingZoneBackside.cells [0][yy].leftBottomY += (( - placingZoneBackside.cells [0][yy].horLen) * sin(placingZoneBackside.cells [0][yy].ang));
+							placingZoneBackside.cells [0][yy].horLen += newXSizeOffset;
+							placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = placingZoneBackside.cells [0][yy].horLen;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+							placingZoneBackside.cells [0][yy].leftBottomX -= (( - placingZoneBackside.cells [0][yy].horLen) * cos(placingZoneBackside.cells [0][yy].ang));
+							placingZoneBackside.cells [0][yy].leftBottomY -= (( - placingZoneBackside.cells [0][yy].horLen) * sin(placingZoneBackside.cells [0][yy].ang));
+						}
+					}
+			
 				// 보가 셀에 간섭하는 경우
-				if (indInterfereBeam != -1) {
+				} else {
 					dist = GetDistance (placingZone.leftBottomX, placingZone.leftBottomY, placingZone.cells [0][yy].leftBottomX, placingZone.cells [0][yy].leftBottomY);
-					cellLeftX	= dist;
-					cellRightX	= dist + placingZone.cells [0][yy].horLen;
+					cellLeftX	= dist - placingZone.cells [0][yy].horLen;
+					cellRightX	= dist;
+					cellRightX2	= dist + placingZone.cells [0][yy].horLen;
 					dist = GetDistance (placingZone.leftBottomX, placingZone.leftBottomY, placingZone.beams [indInterfereBeam].leftBottomX, placingZone.beams [indInterfereBeam].leftBottomY);
 					beamLeftX	= dist;
 					beamRightX	= dist + placingZone.beams [indInterfereBeam].horLen;
 
-					// 보가 셀의 오른쪽으로 침범한 경우
-					if ( (cellLeftX < beamLeftX) && (beamLeftX < cellRightX) && (cellRightX <= beamRightX) ) {
-						// !!!
-						// 보의 왼쪽 면에 합판 배치
-						placingZone.cells [0][yy].objType = PLYWOOD;
-						placingZone.cells [0][yy].horLen = beamLeftX - cellLeftX;
-						placingZone.cells [0][yy].verLen = placingZone.verLen - nextHeight;
-						placingZone.cells [0][yy].libPart.plywood.p_wid = beamLeftX - cellLeftX;
-						placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - nextHeight;
-						placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
-						placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+					// 기본 유로폼 배치가 벽눕히기 방식일 경우에만
+					if ((placingZone.cells [0][yy].objType == EUROFORM) && (placingZone.cells [0][yy].libPart.form.u_ins_wall == false)) {
+						// 보가 셀의 오른쪽으로 침범한 경우
+						if ( (cellLeftX < beamLeftX) && (beamLeftX < cellRightX) && (cellRightX <= beamRightX) ) {
+							// 보 좌측면
+							placingZone.cells [0][yy].objType = PLYWOOD;
+							placingZone.cells [0][yy].leftBottomX += ((- placingZone.cells [0][yy].horLen) * cos(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].leftBottomY += ((- placingZone.cells [0][yy].horLen) * sin(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].horLen = beamLeftX - cellLeftX;
+							placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.p_wid = beamLeftX - cellLeftX;
+							placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+							placingZone.cells [0][yy].leftBottomX -= ((- placingZone.cells [0][yy].horLen) * cos(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].leftBottomY -= ((- placingZone.cells [0][yy].horLen) * sin(placingZone.cells [0][yy].ang));
 
-						placingZoneBackside.cells [0][yy].objType = PLYWOOD;
-						placingZoneBackside.cells [0][yy].horLen = beamLeftX - cellLeftX;
-						placingZoneBackside.cells [0][yy].verLen = placingZone.verLen - nextHeight;
-						placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = beamLeftX - cellLeftX;
-						placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - nextHeight;
-						placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
-						//placingZoneBackside.cells [0][yy].leftBottomX += (placingZoneBackside.cells [0][yy].horLen * cos(placingZoneBackside.cells [0][yy].ang));
-						//placingZoneBackside.cells [0][yy].leftBottomY += (placingZoneBackside.cells [0][yy].horLen * sin(placingZoneBackside.cells [0][yy].ang));
-						placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
-						//placingZoneBackside.cells [0][yy].leftBottomX -= (placingZoneBackside.cells [0][yy].horLen * cos(placingZoneBackside.cells [0][yy].ang));
-						//placingZoneBackside.cells [0][yy].leftBottomY -= (placingZoneBackside.cells [0][yy].horLen * sin(placingZoneBackside.cells [0][yy].ang));
+							placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+							placingZoneBackside.cells [0][yy].leftBottomX += ((beamLeftX - cellLeftX)) * cos(placingZoneBackside.ang);
+							placingZoneBackside.cells [0][yy].leftBottomY += ((beamLeftX - cellLeftX)) * sin(placingZoneBackside.ang);
+							placingZoneBackside.cells [0][yy].horLen = beamLeftX - cellLeftX;
+							placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = beamLeftX - cellLeftX;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+							placingZoneBackside.cells [0][yy].leftBottomX -= ((beamLeftX - cellLeftX)) * cos(placingZoneBackside.ang);
+							placingZoneBackside.cells [0][yy].leftBottomY -= ((beamLeftX - cellLeftX)) * sin(placingZoneBackside.ang);
 
-						// !!!
-						// 보의 아래 면에 합판 배치
-						//placingZone.cells [0][yy].objType = PLYWOOD;
-						//placingZone.cells [0][yy].leftBottomX += (beamLeftX - cellLeftX);
-						//placingZone.cells [0][yy].horLen = beamRightX - beamLeftX;
-						//placingZone.cells [0][yy].verLen = placingZone.beams [indInterfereBeam].leftBottomZ - nextHeight;
-						//placingZone.cells [0][yy].libPart.plywood.p_wid = beamRightX - beamLeftX;
-						//placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.beams [indInterfereBeam].leftBottomZ - nextHeight;
-						//placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
-						//placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+							// 보의 아래면
+							placingZone.cells [0][yy].objType = PLYWOOD;
+							placingZone.cells [0][yy].horLen = beamRightX - beamLeftX;
+							placingZone.cells [0][yy].verLen = placingZone.beams [indInterfereBeam].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.p_wid = beamRightX - beamLeftX;
+							placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.beams [indInterfereBeam].leftBottomZ - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
 
-						// !!!
-						// 보의 오른쪽 면에 합판 배치
-					}
+							placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+							placingZoneBackside.cells [0][yy].leftBottomX += ((- (beamLeftX - cellLeftX + beamRightX - beamLeftX)) * cos(placingZoneBackside.cells [0][yy].ang));
+							placingZoneBackside.cells [0][yy].leftBottomY += ((- (beamLeftX - cellLeftX + beamRightX - beamLeftX)) * sin(placingZoneBackside.cells [0][yy].ang));
+							placingZoneBackside.cells [0][yy].horLen = beamRightX - beamLeftX;
+							placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.beams [indInterfereBeam].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = beamRightX - beamLeftX;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.beams [indInterfereBeam].leftBottomZ - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+							placingZoneBackside.cells [0][yy].leftBottomX -= ((- (beamLeftX - cellLeftX + beamRightX - beamLeftX)) * cos(placingZoneBackside.cells [0][yy].ang));
+							placingZoneBackside.cells [0][yy].leftBottomY -= ((- (beamLeftX - cellLeftX + beamRightX - beamLeftX)) * sin(placingZoneBackside.cells [0][yy].ang));
 
-					// 보가 셀 안에 들어오는 경우
-					if ( (cellLeftX < beamLeftX) && (beamRightX < cellRightX) ) {
-						// 보의 좌측면/하부/우측면에 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
-						// ...
-					}
+							// 보의 우측면
+							placingZone.cells [0][yy].objType = PLYWOOD;
+							placingZone.cells [0][yy].leftBottomX += (beamRightX - beamLeftX) * cos(placingZone.ang);
+							placingZone.cells [0][yy].leftBottomY += (beamRightX - beamLeftX) * sin(placingZone.ang);
+							placingZone.cells [0][yy].horLen = cellRightX2 - beamRightX;
+							placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.p_wid = cellRightX2 - beamRightX;
+							placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+							placingZone.cells [0][yy].leftBottomX -= (beamRightX - beamLeftX) * cos(placingZone.ang);
+							placingZone.cells [0][yy].leftBottomY -= (beamRightX - beamLeftX) * sin(placingZone.ang);
 
-					// 보가 셀 영역을 다 침범한 경우
-					if ( (beamLeftX <= cellLeftX) && (cellRightX <= beamRightX) ) {
-						// 보 아래에 위치 맞춰서 셀 너비만큼의 합판 설치 - 단 가로/세로 길이가 110mm 이상일 때에만
-						// ...
+							placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+							placingZoneBackside.cells [0][yy].leftBottomX += (placingZoneBackside.eu_hei_numeric * 2) * cos(placingZoneBackside.ang);
+							placingZoneBackside.cells [0][yy].leftBottomY += (placingZoneBackside.eu_hei_numeric * 2) * sin(placingZoneBackside.ang);
+							placingZoneBackside.cells [0][yy].horLen = cellRightX2 - beamRightX;
+							placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = cellRightX2 - beamRightX;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+							placingZoneBackside.cells [0][yy].leftBottomX -= (placingZoneBackside.eu_hei_numeric * 2) * cos(placingZoneBackside.ang);
+							placingZoneBackside.cells [0][yy].leftBottomY -= (placingZoneBackside.eu_hei_numeric * 2) * sin(placingZoneBackside.ang);
+						}
+
+						// 보가 셀의 왼쪽으로 침범한 경우
+						if ( (cellLeftX < beamRightX) && (beamRightX < cellRightX) && (beamLeftX <= cellLeftX) ) {
+							// 비어 있음
+						}
+
+						// 보가 셀 안에 들어오는 경우
+						if ( (cellLeftX < beamLeftX) && (beamRightX < cellRightX) ) {
+							// 보 좌측면
+							placingZone.cells [0][yy].objType = PLYWOOD;
+							placingZone.cells [0][yy].leftBottomX += ((- placingZone.cells [0][yy].horLen) * cos(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].leftBottomY += ((- placingZone.cells [0][yy].horLen) * sin(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].horLen = beamLeftX - cellLeftX;
+							placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.p_wid = beamLeftX - cellLeftX;
+							placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+							placingZone.cells [0][yy].leftBottomX -= ((- placingZone.cells [0][yy].horLen) * cos(placingZone.cells [0][yy].ang));
+							placingZone.cells [0][yy].leftBottomY -= ((- placingZone.cells [0][yy].horLen) * sin(placingZone.cells [0][yy].ang));
+
+							placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+							placingZoneBackside.cells [0][yy].leftBottomX += ((beamLeftX - cellLeftX)) * cos(placingZoneBackside.ang);
+							placingZoneBackside.cells [0][yy].leftBottomY += ((beamLeftX - cellLeftX)) * sin(placingZoneBackside.ang);
+							placingZoneBackside.cells [0][yy].horLen = beamLeftX - cellLeftX;
+							placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = beamLeftX - cellLeftX;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+							placingZoneBackside.cells [0][yy].leftBottomX -= ((beamLeftX - cellLeftX)) * cos(placingZoneBackside.ang);
+							placingZoneBackside.cells [0][yy].leftBottomY -= ((beamLeftX - cellLeftX)) * sin(placingZoneBackside.ang);
+
+							// 보의 아래면
+							placingZone.cells [0][yy].objType = PLYWOOD;
+							placingZone.cells [0][yy].horLen = beamRightX - beamLeftX;
+							placingZone.cells [0][yy].verLen = placingZone.beams [indInterfereBeam].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.p_wid = beamRightX - beamLeftX;
+							placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.beams [indInterfereBeam].leftBottomZ - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+
+							placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+							placingZoneBackside.cells [0][yy].leftBottomX += ((beamLeftX - cellLeftX + beamRightX - beamLeftX) * cos(placingZoneBackside.ang));
+							placingZoneBackside.cells [0][yy].leftBottomY += ((beamLeftX - cellLeftX + beamRightX - beamLeftX) * sin(placingZoneBackside.ang));
+							placingZoneBackside.cells [0][yy].horLen = beamRightX - beamLeftX;
+							placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.beams [indInterfereBeam].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = beamRightX - beamLeftX;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.beams [indInterfereBeam].leftBottomZ - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+							placingZoneBackside.cells [0][yy].leftBottomX -= ((beamLeftX - cellLeftX + beamRightX - beamLeftX) * cos(placingZoneBackside.ang));
+							placingZoneBackside.cells [0][yy].leftBottomY -= ((beamLeftX - cellLeftX + beamRightX - beamLeftX) * sin(placingZoneBackside.ang));
+
+							// 보의 우측면
+							placingZone.cells [0][yy].objType = PLYWOOD;
+							placingZone.cells [0][yy].leftBottomX += (beamRightX - beamLeftX) * cos(placingZone.ang);
+							placingZone.cells [0][yy].leftBottomY += (beamRightX - beamLeftX) * sin(placingZone.ang);
+							placingZone.cells [0][yy].horLen = cellRightX - beamRightX;
+							placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.p_wid = cellRightX - beamRightX;
+							placingZone.cells [0][yy].libPart.plywood.p_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+							placingZone.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+							placingZone.cells [0][yy].leftBottomX -= (beamRightX - beamLeftX) * cos(placingZone.ang);
+							placingZone.cells [0][yy].leftBottomY -= (beamRightX - beamLeftX) * sin(placingZone.ang);
+
+							placingZoneBackside.cells [0][yy].objType = PLYWOOD;
+							placingZoneBackside.cells [0][yy].leftBottomX += ((- placingZoneBackside.eu_hei_numeric) * cos(placingZoneBackside.cells [0][yy].ang));
+							placingZoneBackside.cells [0][yy].leftBottomY += ((- placingZoneBackside.eu_hei_numeric) * sin(placingZoneBackside.cells [0][yy].ang));
+							placingZoneBackside.cells [0][yy].horLen = cellRightX - beamRightX;
+							placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_wid = cellRightX - beamRightX;
+							placingZoneBackside.cells [0][yy].libPart.plywood.p_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+							placingZoneBackside.cells [0][yy].libPart.plywood.w_dir_wall = true;
+							placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+							placingZoneBackside.cells [0][yy].leftBottomX -= ((- placingZoneBackside.eu_hei_numeric) * cos(placingZoneBackside.cells [0][yy].ang));
+							placingZoneBackside.cells [0][yy].leftBottomY -= ((- placingZoneBackside.eu_hei_numeric) * sin(placingZoneBackside.cells [0][yy].ang));
+						}
 					}
 				}
 			}
-			*/
-
-		// 유로폼 설치 방향: 벽눕히기
-		} else {
-
-			// Cell 정보 업데이트: 다음 높이로 상승시킴 - 선택 면
-			//setCellPositionLeftBottomZ (&placingZone, placingZone.leftBottomZ + (placingZone.eu_wid_numeric * xx));
-			//setCellPositionLeftBottomZ (&placingZoneBackside, placingZoneBackside.leftBottomZ + (placingZoneBackside.eu_wid_numeric * xx));
 		}
-
-		// ... 높이 변경
-		// ... 폼 최상단 높이, 슬래프 하단 높이만큼
 
 		return NoError;
 	});
@@ -905,6 +1292,7 @@ API_Guid	placeLibPart (Cell objInfo)
 	if (objInfo.objType == EUROFORM)		gsmName = L("유로폼v2.0.gsm");
 	if (objInfo.objType == FILLERSPACER)	gsmName = L("휠러스페이서v1.0.gsm");
 	if (objInfo.objType == PLYWOOD)			gsmName = L("합판v1.0.gsm");
+	if (objInfo.objType == WOOD)			gsmName = L("목재v1.0.gsm");
 
 	// 객체 로드
 	BNZeroMemory (&libPart, sizeof (libPart));
@@ -991,6 +1379,12 @@ API_Guid	placeLibPart (Cell objInfo)
 		else
 			tempString = "벽눕히기";
 		GS::ucscpy (memo.params [0][33].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+	} else if (objInfo.objType == WOOD) {
+		GS::ucscpy (memo.params [0][27].value.uStr, L("벽세우기"));		// 설치방향
+		memo.params [0][28].value.real = objInfo.libPart.wood.w_w;		// 두께
+		memo.params [0][29].value.real = objInfo.libPart.wood.w_h;		// 너비
+		memo.params [0][30].value.real = objInfo.libPart.wood.w_leng;	// 길이
+		memo.params [0][31].value.real = 0;								// 각도
 	}
 
 	// 객체 배치

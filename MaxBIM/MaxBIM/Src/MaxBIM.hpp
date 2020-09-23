@@ -59,6 +59,7 @@ struct	Euroform;
 struct	FillerSpacer;
 struct	IncornerPanel;
 struct	Plywood;
+struct	Wood;
 struct	Cell;
 struct	PlacingZone;
 
@@ -207,7 +208,8 @@ enum	libPartObjType {
 	INCORNER,		// 인코너판넬v1.0
 	EUROFORM,		// 유로폼v2.0
 	FILLERSPACER,	// 휠러스페이서v1.0
-	PLYWOOD			// 합판v1.0
+	PLYWOOD,		// 합판v1.0
+	WOOD			// 목재v1.0
 };
 
 
@@ -308,6 +310,20 @@ struct Plywood
 	*/
 };
 
+// 목재 정보
+struct Wood
+{
+	/*
+	std::string		w_ins;			// 설치방향 : *벽세우기, 바닥눕히기, 바닥덮기
+	*/
+	double			w_w;			// 두께
+	double			w_h;			// 너비
+	double			w_leng;			// 길이
+	/*
+	double			w_ang;			// 각도 (90도로 할 것)
+	*/
+};
+
 // 그리드 각 셀 정보
 struct Cell
 {
@@ -328,6 +344,7 @@ struct Cell
 		FillerSpacer	fillersp;
 		IncornerPanel	incorner;
 		Plywood			plywood;
+		Wood			wood;
 	} libPart;
 };
 
