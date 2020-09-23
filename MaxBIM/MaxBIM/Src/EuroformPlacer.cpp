@@ -469,6 +469,28 @@ GSErrCode	fillRestAreas (void)
 					}
 				}
 
+				// 인코너는 무조건 벽 위까지 붙임
+				if (placingZone.cells [0][yy].objType == INCORNER) {
+					placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+					placingZone.cells [0][yy].libPart.incorner.hei_s = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;;
+					placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+
+					placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+					placingZoneBackside.cells [0][yy].libPart.incorner.hei_s = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+					placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+				}
+
+				// 인코너 옆에 붙은 휠러스페이서도 벽 위까지 붙임
+				if ((placingZone.cells [0][yy].objType == FILLERSPACER) && ( (yy == 1) || (yy == (placingZone.nCells - 2)) )) {
+					placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+					placingZone.cells [0][yy].libPart.fillersp.f_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;;
+					placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+
+					placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+					placingZoneBackside.cells [0][yy].libPart.fillersp.f_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+					placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+				}
+
 				// 보가 셀에 간섭하지 않는 영역까지 일단 채움
 				if (indInterfereBeam == -1) {
 					// 위 공간이 셀에 배치될 객체 높이 이상이면, 위 셀에도 현재 셀과 동일한 객체를 설치할 것
@@ -479,17 +501,17 @@ GSErrCode	fillRestAreas (void)
 
 						// 어중간하게 남는 영역 채우기 (110mm 이상은 합판으로)
 						if ( (placingZone.verLen - placingZone.cells [0][yy].leftBottomZ - placingZone.cells [0][yy].verLen) >= 0.110) {
-							if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER) || (placingZone.cells [0][yy].objType == NONE)) ) {
-								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
+							if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER) || (placingZone.cells [0][yy].objType == WOOD) || (placingZone.cells [0][yy].objType == NONE)) ) {
+								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, WOOD와 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
 								moveCountLimit = 0;
 								newXPosOffset = 0.0;
 								newXSizeOffset = 0.0;
-								for (kk = yy-1 ; 0 <= kk ; --kk) {
+								for (kk = yy-1 ; 2 <= kk ; --kk) {
 
 									++moveCountLimit;
 
-									// 인코너, 휠러스페이서 영역까지 덮음
-									if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+									// 목재, 휠러스페이서 영역까지 덮음 (단, 인코너 옆의 휠러스페이서는 덮지 않음)
+									if ((placingZone.cells [0][kk].objType == WOOD) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
 										// 합판 크기 확장
 										newXSizeOffset += placingZone.cells [0][kk].horLen;
 
@@ -497,7 +519,7 @@ GSErrCode	fillRestAreas (void)
 										newXPosOffset -= placingZone.cells [0][kk].horLen;
 									}
 
-									if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+									if (moveCountLimit == 1) break;		// 이동 횟수는 최대 1회까지 제한
 								}
 
 								placingZone.cells [0][yy].objType = PLYWOOD;
@@ -524,16 +546,16 @@ GSErrCode	fillRestAreas (void)
 						// 어중간하게 남는 영역 채우기 (110mm 미만은 목재로)
 						} else {
 							if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER) || (placingZone.cells [0][yy].objType == NONE)) ) {
-								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 목재로 덮음
+								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, WOOD와 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 목재로 덮음
 								moveCountLimit = 0;
 								newXPosOffset = 0.0;
 								newXSizeOffset = 0.0;
-								for (kk = yy-1 ; 0 <= kk ; --kk) {
+								for (kk = yy-1 ; 2 <= kk ; --kk) {
 
 									++moveCountLimit;
 
-									// 인코너, 휠러스페이서 영역까지 덮음
-									if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+									// 목재, 휠러스페이서 영역까지 덮음 (단, 인코너 옆의 휠러스페이서는 덮지 않음)
+									if ((placingZone.cells [0][kk].objType == WOOD) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
 										// 합판 크기 확장
 										newXSizeOffset += placingZone.cells [0][kk].horLen;
 
@@ -541,7 +563,7 @@ GSErrCode	fillRestAreas (void)
 										newXPosOffset -= placingZone.cells [0][kk].horLen;
 									}
 
-									if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+									if (moveCountLimit == 1) break;		// 이동 횟수는 최대 1회까지 제한
 								}
 
 								placingZone.cells [0][yy].objType = WOOD;
@@ -570,16 +592,16 @@ GSErrCode	fillRestAreas (void)
 					} else {
 
 						if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER)) ) {
-							// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
+							// 왼쪽으로 NONE이 아닌 영역을 확인해보고, WOOD와 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
 							moveCountLimit = 0;
 							newXPosOffset = 0.0;
 							newXSizeOffset = 0.0;
-							for (kk = yy-1 ; 0 <= kk ; --kk) {
+							for (kk = yy-1 ; 2 <= kk ; --kk) {
 
 								++moveCountLimit;
 
-								// 인코너, 휠러스페이서 영역까지 덮음
-								if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+								// 목재, 휠러스페이서 영역까지 덮음 (단, 인코너 옆의 휠러스페이서는 덮지 않음)
+								if ((placingZone.cells [0][kk].objType == WOOD) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
 									// 합판 크기 확장
 									newXSizeOffset += placingZone.cells [0][kk].horLen;
 
@@ -587,7 +609,7 @@ GSErrCode	fillRestAreas (void)
 									newXPosOffset -= placingZone.cells [0][kk].horLen;
 								}
 
-								if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+								if (moveCountLimit == 1) break;		// 이동 횟수는 최대 1회까지 제한
 							}
 
 							placingZone.cells [0][yy].objType = PLYWOOD;
@@ -919,6 +941,28 @@ GSErrCode	fillRestAreas (void)
 					}
 				}
 
+				// 인코너는 무조건 벽 위까지 붙임
+				if (placingZone.cells [0][yy].objType == INCORNER) {
+					placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+					placingZone.cells [0][yy].libPart.incorner.hei_s = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;;
+					placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+
+					placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+					placingZoneBackside.cells [0][yy].libPart.incorner.hei_s = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+					placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+				}
+
+				// 인코너 옆에 붙은 휠러스페이서도 벽 위까지 붙임
+				if ((placingZone.cells [0][yy].objType == FILLERSPACER) && ( (yy == 1) || (yy == (placingZone.nCells - 2)) )) {
+					placingZone.cells [0][yy].verLen = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;
+					placingZone.cells [0][yy].libPart.fillersp.f_leng = placingZone.verLen - placingZone.cells [0][yy].leftBottomZ;;
+					placingZone.cells [xx][yy].guid = placeLibPart (placingZone.cells [0][yy]);
+
+					placingZoneBackside.cells [0][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+					placingZoneBackside.cells [0][yy].libPart.fillersp.f_leng = placingZoneBackside.verLen - placingZoneBackside.cells [0][yy].leftBottomZ;
+					placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [0][yy]);
+				}
+
 				// 보가 셀에 간섭하지 않는 영역까지 일단 채움
 				if (indInterfereBeam == -1) {
 					// 위 공간이 셀에 배치될 객체 높이 이상이면, 위 셀에도 현재 셀과 동일한 객체를 설치할 것
@@ -930,16 +974,16 @@ GSErrCode	fillRestAreas (void)
 						// 어중간하게 남는 영역 채우기 (110mm 이상은 합판으로)
 						if ( (placingZone.verLen - placingZone.cells [0][yy].leftBottomZ - placingZone.cells [0][yy].verLen) >= 0.110) {
 							if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER) || (placingZone.cells [0][yy].objType == NONE)) ) {
-								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
+								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, WOOD와 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
 								moveCountLimit = 0;
 								newXPosOffset = 0.0;
 								newXSizeOffset = 0.0;
-								for (kk = yy-1 ; 0 <= kk ; --kk) {
+								for (kk = yy-1 ; 2 <= kk ; --kk) {
 
 									++moveCountLimit;
 
-									// 인코너, 휠러스페이서 영역까지 덮음
-									if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+									// 목재, 휠러스페이서 영역까지 덮음 (단, 인코너 옆의 휠러스페이서는 덮지 않음)
+									if ((placingZone.cells [0][kk].objType == WOOD) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
 										// 합판 크기 확장
 										newXSizeOffset += placingZone.cells [0][kk].horLen;
 
@@ -947,7 +991,7 @@ GSErrCode	fillRestAreas (void)
 										newXPosOffset -= placingZone.cells [0][kk].horLen;
 									}
 
-									if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+									if (moveCountLimit == 1) break;		// 이동 횟수는 최대 1회까지 제한
 								}
 
 								placingZone.cells [0][yy].objType = PLYWOOD;
@@ -982,16 +1026,16 @@ GSErrCode	fillRestAreas (void)
 						// 어중간하게 남는 영역 채우기 (110mm 미만은 목재로)
 						} else {
 							if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER) || (placingZone.cells [0][yy].objType == NONE)) ) {
-								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 목재로 덮음
+								// 왼쪽으로 NONE이 아닌 영역을 확인해보고, WOOD와 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
 								moveCountLimit = 0;
 								newXPosOffset = 0.0;
 								newXSizeOffset = 0.0;
-								for (kk = yy-1 ; 0 <= kk ; --kk) {
+								for (kk = yy-1 ; 2 <= kk ; --kk) {
 
 									++moveCountLimit;
 
-									// 인코너, 휠러스페이서 영역까지 덮음
-									if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+									// 목재, 휠러스페이서 영역까지 덮음 (단, 인코너 옆의 휠러스페이서는 덮지 않음)
+									if ((placingZone.cells [0][kk].objType == WOOD) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
 										// 합판 크기 확장
 										newXSizeOffset += placingZone.cells [0][kk].horLen;
 
@@ -999,7 +1043,7 @@ GSErrCode	fillRestAreas (void)
 										newXPosOffset -= placingZone.cells [0][kk].horLen;
 									}
 
-									if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+									if (moveCountLimit == 1) break;		// 이동 횟수는 최대 1회까지 제한
 								}
 
 								placingZone.cells [0][yy].objType = WOOD;
@@ -1036,16 +1080,16 @@ GSErrCode	fillRestAreas (void)
 					} else {
 
 						if ( !((placingZone.cells [0][yy].objType == INCORNER) || (placingZone.cells [0][yy].objType == FILLERSPACER)) ) {
-							// 왼쪽으로 NONE이 아닌 영역을 확인해보고, INCORNER 또는 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
+							// 왼쪽으로 NONE이 아닌 영역을 확인해보고, WOOD와 FILLERSPACER를 만나면 NONE으로 바꾸고 그 영역들까지 합판으로 덮음
 							moveCountLimit = 0;
 							newXPosOffset = 0.0;
 							newXSizeOffset = 0.0;
-							for (kk = yy-1 ; 0 <= kk ; --kk) {
+							for (kk = yy-1 ; 2 <= kk ; --kk) {
 
 								++moveCountLimit;
 
-								// 인코너, 휠러스페이서 영역까지 덮음
-								if ((placingZone.cells [0][kk].objType == INCORNER) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
+								// 목재, 휠러스페이서 영역까지 덮음 (단, 인코너 옆의 휠러스페이서는 덮지 않음)
+								if ((placingZone.cells [0][kk].objType == WOOD) || (placingZone.cells [0][kk].objType == FILLERSPACER)) {
 									// 합판 크기 확장
 									newXSizeOffset += placingZone.cells [0][kk].horLen;
 
@@ -1053,7 +1097,7 @@ GSErrCode	fillRestAreas (void)
 									newXPosOffset -= placingZone.cells [0][kk].horLen;
 								}
 
-								if (moveCountLimit == 2) break;		// 이동 횟수는 최대 2회까지 제한
+								if (moveCountLimit == 1) break;		// 이동 횟수는 최대 1회까지 제한
 							}
 
 							placingZone.cells [0][yy].objType = PLYWOOD;
