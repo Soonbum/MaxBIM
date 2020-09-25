@@ -328,8 +328,6 @@ GSErrCode	placeEuroformOnWall (void)
 	placingZone.remain_hor_updated = placingZone.remain_hor;
 
 	// 선택된 모프 전부 제거
-	// !!!
-	/*
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);	// 선택한 요소 가져오기
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
 	if (err != NoError) {
@@ -355,7 +353,6 @@ GSErrCode	placeEuroformOnWall (void)
 
 		return err;
 	});
-	*/
 
 	// placingZone의 Cell 정보 초기화
 	placingZone.nCells = (placingZone.eu_count_hor * 2) + 3;
