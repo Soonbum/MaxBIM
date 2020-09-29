@@ -51,6 +51,7 @@
 // 변수 선언
 enum	idxItems_1;
 enum	idxItems_2;
+enum	idxItems_3;
 enum	libPartObjType;
 struct	InfoWall;
 struct	InfoMorph;
@@ -63,31 +64,33 @@ struct	Wood;
 struct	Cell;
 struct	PlacingZone;
 
-// 함수 선언
-double	degreeToRad (double degree);																	// degree 각도를 radian 각도로 변환
-double	RadToDegree (double rad);																		// radian 각도를 degree 각도로 변환
-double	GetDistance (const double begX, const double begY, const double endX, const double endY);		// 2차원에서 2점 간의 거리를 알려줌
-long	compareDoubles (const double a, const double b);												// 어떤 수가 더 큰지 비교함
-long	compareRanges (double aMin, double aMax, double bMin, double bMax);								// a와 b의 각 값 범위의 관계를 알려줌
-void	exchangeDoubles (double* a, double* b);															// a와 b 값을 교환함
-long	findDirection (const double begX, const double begY, const double endX, const double endY);		// 시작점에서 끝점으로 향하는 벡터의 방향을 확인
-void	initCells (PlacingZone* placingZone);															// Cell 배열을 초기화함
-void	firstPlacingSettings (PlacingZone* placingZone);												// 1차 배치: 인코너, 유로폼
-void	copyPlacingZoneSymmetric (PlacingZone* src_zone, PlacingZone* dst_zone, InfoWall* infoWall);	// 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
-void	alignPlacingZone (PlacingZone* target_zone);													// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-std::string	format_string(const std::string fmt, ...);													// std::string 변수 값에 formatted string을 입력 받음
-GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd);		// 좌표 라벨을 배치함
-GSErrCode	fillRestAreas (void);																		// 가로 채우기까지 완료된 후 자투리 공간 채우기
+// 유틸리티 함수
+double	DegreeToRad (double degree);																		// degree 각도를 radian 각도로 변환
+double	RadToDegree (double rad);																			// radian 각도를 degree 각도로 변환
+double	GetDistance (const double begX, const double begY, const double endX, const double endY);			// 2차원에서 2점 간의 거리를 알려줌
+long	compareDoubles (const double a, const double b);													// 어떤 수가 더 큰지 비교함
+long	compareRanges (double aMin, double aMax, double bMin, double bMax);									// a와 b의 각 값 범위의 관계를 알려줌
+void	exchangeDoubles (double* a, double* b);																// a와 b 값을 교환함
+long	findDirection (const double begX, const double begY, const double endX, const double endY);			// 시작점에서 끝점으로 향하는 벡터의 방향을 확인
 
-// 유로폼/인코너 배치 관련 함수
+// 유로폼 벽 배치 함수
+void	initCellsForWall (PlacingZone* placingZone);														// Cell 배열을 초기화함
+void	firstPlacingSettingsForWall (PlacingZone* placingZone);												// 1차 배치: 인코너, 유로폼
+void	copyPlacingZoneSymmetricForWall (PlacingZone* src_zone, PlacingZone* dst_zone, InfoWall* infoWall);	// 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
+void	alignPlacingZoneForWall (PlacingZone* target_zone);													// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 GSErrCode	placeEuroformOnWall (void);		// 1번 메뉴: 유로폼/인코너 등을 배치하는 통합 루틴
-short DGCALLBACK placerHandlerPrimary (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
-short DGCALLBACK placerHandlerSecondary (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
-short DGCALLBACK placerHandlerThird (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
+GSErrCode	fillRestAreasForWall (void);																	// 가로 채우기까지 완료된 후 자투리 공간 채우기
+short DGCALLBACK wallPlacerHandlerPrimary (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
+short DGCALLBACK wallPlacerHandlerThird (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
 
-API_Guid	placeLibPart (Cell objInfo);											// 해당 셀 정보를 기반으로 라이브러리 배치
-double		getCellPositionLeftBottomX (PlacingZone *src_zone, short idx);			// [0]행 - 해당 셀의 좌하단 좌표X 위치를 리턴
-void		setCellPositionLeftBottomZ (PlacingZone *src_zone, double new_hei);		// [0]행 - 전체 셀의 최하단 좌표Z 위치를 설정
+// 공통 함수
+void	copyCellsToAnotherLine (PlacingZone* target_zone, short src_row, short dst_row);					// src행의 Cell 전체 라인을 dst행으로 복사
+std::string	format_string(const std::string fmt, ...);														// std::string 변수 값에 formatted string을 입력 받음
+GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd);		// 좌표 라벨을 배치함
+API_Guid	placeLibPart (Cell objInfo);																	// 해당 셀 정보를 기반으로 라이브러리 배치
+double		getCellPositionLeftBottomX (PlacingZone *src_zone, short arr1, short idx);						// [arr1]행 - 해당 셀의 좌하단 좌표X 위치를 리턴
+void		setCellPositionLeftBottomZ (PlacingZone *src_zone, short arr1, double new_hei);					// [arr1]행 - 전체 셀의 최하단 좌표Z 위치를 설정
 
 
 // 다이얼로그 항목 인덱스
@@ -388,6 +391,6 @@ struct PlacingZone
 
 	// 검토할 사항 (2. 배치된 객체 정보를 그리드로 관리)
 	// 인코너[0] | 예비[홀수] | 폼[짝수] | ... | 인코너[n-1]
-	Cell	cells [50][100];		// 주로 [0][n] 만 사용됨, 다른 행들은 guid 저장용
+	Cell	cells [50][100];		// 마지막 인덱스: [eu_count_ver-1][nCells-1]
 	short	nCells;
 };

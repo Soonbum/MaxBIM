@@ -4,7 +4,7 @@
 
 
 // degree 각도를 radian 각도로 변환
-double	degreeToRad (double degree)
+double	DegreeToRad (double degree)
 {
 	return degree * M_PI / 180;
 }
