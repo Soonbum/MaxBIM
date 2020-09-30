@@ -148,6 +148,36 @@ long	findDirection (const double begX, const double begY, const double endX, con
 	return -1;
 }
 
+// (p1, p2)를 이은 직선과 (p3, p4)를 이은 직선의 교차점을 구하는 함수
+// Function to get intersection point with line connecting points (p1, p2) and another line (p3, p4).
+API_Coord	IntersectionPoint1 (const API_Coord* p1, const API_Coord* p2, const API_Coord* p3, const API_Coord* p4)
+{
+	API_Coord ret;
+	ret.x = ((p1->x*p2->y - p1->y*p2->x)*(p3->x - p4->x) - (p1->x - p2->x)*(p3->x*p4->y - p3->y*p4->x))/( (p1->x - p2->x)*(p3->y - p4->y) - (p1->y - p2->y)*(p3->x - p4->x) );
+	ret.y = ((p1->x*p2->y - p1->y*p2->x)*(p3->y - p4->y) - (p1->y - p2->y)*(p3->x*p4->y - p3->y*p4->x)) / ( (p1->x - p2->x)*(p3->y - p4->y) - (p1->y - p2->y)*(p3->x - p4->x) );
+	return	ret;
+}
+
+// y = m1*x + b1, y = m2*x + b2 두 직선의 교차점을 구하는 함수
+// Function to get intersection point of two lines y = m1*x + b1, y = m2*x + b2
+API_Coord	IntersectionPoint2 (double m1, double b1, double m2, double b2)
+{
+	API_Coord ret;
+	ret.x = (b2 - b1) / (m1 - m2);
+	ret.y = m1*(b2 - b1)/(m1 - m2) + b1;    
+	return	ret;
+}
+
+// a1*x + b1*y + c1 = 0, a2*x + b2*y + c2 = 0 두 직선의 교차점을 구하는 함수
+// Function to get intersection point of two lines a1*x + b1*y + c1 = 0, a2*x + b2*y + c2 = 0
+API_Coord	IntersectionPoint3 (double a1, double b1, double c1, double a2, double b2, double c2)
+{
+	API_Coord ret;
+	ret.x = (b1*c2 - b2*c1)/(a1*b2 - a2*b1);
+	ret.y = -a1/b1*(b1*c2-b2*c1)/(a1*b2-a2*b1)-c1/b1;
+	return	ret;
+}
+
 // 좌표 라벨을 배치함
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd)
 {
