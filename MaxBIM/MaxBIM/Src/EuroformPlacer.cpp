@@ -23,7 +23,7 @@ GSErrCode	placeEuroformOnWall (void)
 	double		dx, dy, ang1, ang2;
 	double		xPosLB, yPosLB, zPosLB;
 	double		xPosRT, yPosRT, zPosRT;
-	//API_Coord	p1, p2, p3, p4, pi;
+	API_Coord	p1, p2, p3, p4, pi;
 
 	// Selection Manager 관련 변수
 	API_SelectionInfo		selectionInfo;
@@ -228,7 +228,7 @@ GSErrCode	placeEuroformOnWall (void)
 			xPosRT = elem.beam.begC.x + elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosRT = elem.beam.begC.y + elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosRT = elem.beam.level;
-		} else {
+		} else if (abs (infoMorph.ang - ang2) < EPS) {
 			// 보의 LeftBottom 좌표
 			xPosLB = elem.beam.endC.x - elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosLB = elem.beam.endC.y - elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
@@ -238,29 +238,25 @@ GSErrCode	placeEuroformOnWall (void)
 			xPosRT = elem.beam.endC.x + elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosRT = elem.beam.endC.y + elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosRT = elem.beam.level;
+		} else {
+			p1 = elem.beam.begC;
+			p2 = elem.beam.endC;
+			p3.x = infoMorph.leftBottomX;
+			p3.y = infoMorph.leftBottomY;
+			p4.x = infoMorph.rightTopX;
+			p4.y = infoMorph.rightTopY;
+			pi = IntersectionPoint1 (&p1, &p2, &p3, &p4);
+
+			// 보의 LeftBottom 좌표
+			xPosLB = pi.x - elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
+			yPosLB = pi.y - elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
+			zPosLB = elem.beam.level - elem.beam.height;
+
+			// 보의 RightTop 좌표
+			xPosRT = pi.x + elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
+			yPosRT = pi.y + elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
+			zPosRT = elem.beam.level;
 		}
-
-		//p1 = elem.beam.begC;
-		//p2 = elem.beam.endC;
-		//p3.x = infoMorph.leftBottomX;
-		//p3.y = infoMorph.leftBottomY;
-		//p4.x = infoMorph.rightTopX;
-		//p4.y = infoMorph.rightTopY;
-		//pi = IntersectionPoint1 (&p1, &p2, &p3, &p4);
-
-		//// 보의 LeftBottom 좌표
-		//xPosLB = pi.x - elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
-		//yPosLB = pi.y - elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
-		//zPosLB = elem.beam.level - elem.beam.height;
-
-		//// 보의 RightTop 좌표
-		//xPosRT = pi.x + elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
-		//yPosRT = pi.y + elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
-		//zPosRT = elem.beam.level;
-
-		//err = ACAPI_CallUndoableCommand ("좌표 위치 표시", [&] () -> GSErrCode {
-		//	return placeCoordinateLabel (pi.x - elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang)), pi.y - elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang)), elem.beam.level - elem.beam.height, false, "", layerInd, infoWall.floorInd);
-		//});
 
 		for (yy = 0 ; yy < 2 ; ++yy) {
 			// X축 범위 비교
@@ -397,6 +393,14 @@ GSErrCode	placeEuroformOnWall (void)
 
 	// [DIALOG] 4번째 다이얼로그에서 채워진 자투리 공간 중에서 합판 영역을 다른 규격의 유로폼으로 대체할 것인지 묻습니다.
 	//result = DGModalDialog (ACAPI_GetOwnResModule (), 32504, ACAPI_GetOwnResModule (), wallPlacerHandlerFourth, 0);
+	
+ // * 보 주변 합판/목재:
+ //   - 채우기 전에 최대한 좌/우측면을 기본 폼으로 채워본다
+ //   - 그래도 보 아래와 좌우측면에 남는 영역이
+ //      200*600 이상이면 사용자에게 질의
+ // * 상단 자투리: 이형 폼으로 채움
+ //   (1열 또는 2열까지 폼? 나머지 영역(합판/목재)이 50이냐 0이냐에 따라
+ //    목재가 위로 붙거나 앞으로 튀어나올 수 있음
 
 	return	err;
 }
@@ -980,16 +984,6 @@ GSErrCode	fillRestAreasForWall (void)
 
 		return NoError;
 	});
-
- // * 보 주변 합판/목재:
- //   - 채우기 전에 최대한 좌/우측면을 기본 폼으로 채워본다
- //   - 그래도 보 아래와 좌우측면에 남는 영역이
- //      200*600 이상이면 사용자에게 질의
- // * 상단 자투리: 이형 폼으로 채움
- //   (1열 또는 2열까지 폼? 나머지 영역(합판/목재)이 50이냐 0이냐에 따라
- //    목재가 위로 붙거나 앞으로 튀어나올 수 있음
-
- // 보가 관통하는 경우?
 
 	return err;
 }
