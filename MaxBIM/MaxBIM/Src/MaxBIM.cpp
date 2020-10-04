@@ -3,6 +3,7 @@
  */
 
 #include "MaxBIM.hpp"
+#include "WallEuroformPlacer.hpp"
 
 #define	MDID_DEVELOPER_ID	829517673
 #define	MDID_LOCAL_ID		3588511626

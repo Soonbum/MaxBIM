@@ -30,6 +30,12 @@
     <ClInclude Include="Src\ACAPinc_dll.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Src\UtilityFunctions.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\WallEuroformPlacer.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\MaxBIM.cpp">
@@ -41,7 +47,7 @@
     <ClCompile Include="Src\UtilityFunctions.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Src\EuroformPlacer.cpp">
+    <ClCompile Include="Src\WallEuroformPlacer.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

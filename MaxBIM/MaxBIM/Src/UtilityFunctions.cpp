@@ -1,6 +1,4 @@
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include "MaxBIM.hpp"
+#include "UtilityFunctions.hpp"
 
 
 // degree 각도를 radian 각도로 변환
