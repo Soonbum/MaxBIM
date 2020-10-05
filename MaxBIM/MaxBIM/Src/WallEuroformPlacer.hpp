@@ -19,6 +19,7 @@ struct	Plywood;
 struct	Wood;
 struct	Cell;
 struct	PlacingZone;
+class	WallPlacingZone;
 
 // 유로폼 벽 배치 함수
 void	initCellsForWall (PlacingZone* placingZone);														// Cell 배열을 초기화함
@@ -30,6 +31,7 @@ GSErrCode	fillRestAreasForWall (void);																	// 가로 채우기까지 완료된
 short DGCALLBACK wallPlacerHandlerPrimary (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK wallPlacerHandlerThird (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
+short DGCALLBACK wallPlacerHandlerFourth (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 보 하부의 합판/목재 영역을 유로폼으로 채울지 물어보는 4차 다이얼로그
 
 // 공통 함수
 void	copyCellsToAnotherLine (PlacingZone* target_zone, short src_row, short dst_row);					// src행의 Cell 전체 라인을 dst행으로 복사
@@ -154,6 +156,25 @@ enum	idxItem_3 {
 	LABEL_EUROFORM_ORIENTATION_OPTIONS_NEXT,
 	RADIO_ORIENTATION_1_EUROFORM_NEXT,
 	RADIO_ORIENTATION_2_EUROFORM_NEXT
+};
+
+enum	idxItem_4 {
+	LABEL_DESC1_BEAMAROUND	= 3,
+	LABEL_WIDTH_BEAMAROUND,
+	EDITCONTROL_WIDTH_BEAMAROUND,
+	LABEL_HEIGHT_BEAMAROUND,
+	EDITCONTROL_HEIGHT_BEAMAROUND,
+	LABEL_DESC2_BEAMAROUND,
+	CHECKBOX_SET_STANDARD_BEAMAROUND,
+	LABEL_EUROFORM_WIDTH_OPTIONS_BEAMAROUND,
+	POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND,
+	EDITCONTROL_EUROFORM_WIDTH_OPTIONS_BEAMAROUND,
+	LABEL_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND,
+	POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND,
+	EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND,
+	LABEL_EUROFORM_ORIENTATION_OPTIONS_BEAMAROUND,
+	RADIO_ORIENTATION_1_EUROFORM_BEAMAROUND,
+	RADIO_ORIENTATION_2_EUROFORM_BEAMAROUND
 };
 
 // 객체 번호
@@ -314,106 +335,7 @@ struct PlacingZone
 	// 간섭보 (0개 이상)
 	short	nInterfereBeams;	// 간섭보 개수
 	InterfereBeam	beams [30];
-
-	// 검토할 사항 (1. 기본 채우기)
-	double	remain_hor;				// 가로 방향 남은 길이
-	double	remain_hor_updated;		// 가로 방향 남은 길이 (업데이트 후)
-	double	remain_ver;				// 세로 방향 남은 길이
-	double	remain_ver_wo_beams;	// 간섭보의 영향을 받지 않는 세로 길이
-
-	bool	bLIncorner;				// 인코너 왼쪽 배치
-	double	lenLIncorner;			// 인코너 왼쪽 너비
-	bool	bRIncorner;				// 인코너 오른쪽 배치
-	double	lenRIncorner;			// 인코너 오른쪽 너비
-
-	std::string		eu_wid;			// 유로폼 너비
-	std::string		eu_hei;			// 유로폼 높이
-	std::string		eu_ori;			// 유로폼 방향
-	double	eu_wid_numeric;			// 유로폼 너비 (실수형)
-	double	eu_hei_numeric;			// 유로폼 높이 (실수형)
-	short	eu_count_hor;			// 가로 방향 유로폼 개수
-	short	eu_count_ver;			// 세로 방향 유로폼 개수
-
-	// 검토할 사항 (2. 배치된 객체 정보를 그리드로 관리)
-	// 인코너[0] | 예비[홀수] | 폼[짝수] | ... | 인코너[n-1]
-	Cell	cells [50][100];		// 마지막 인덱스: [eu_count_ver-1][nCells-1]
-	short	nCells;
-};
-
-class WallPlacingZone
-{
-public:
-	WallPlacingZone ();
-	~WallPlacingZone ();
-
-	void	setLeftBottomX (double leftBottomX);
-	void	setLeftBottomY (double leftBottomY);
-	void	setLeftBottomZ (double leftBottomZ);
-	double	getLeftBottomX (void);
-	double	getLeftBottomY (void);
-	double	getLeftBottomZ (void);
-
-	void	setHorizontalLength (double horLen);
-	void	setVerticalLength (double verLen);
-	void	setAngle (double ang);
-	double	getHorizontalLength (void);
-	double	getVerticalLength (void);
-	double	getAngle (void);
-
-	void	setNumberOfInterfereBeams (short nInterfereBeams);
-	void	setInterfereBeam (short index, double leftBottomX, double leftBottomY, double leftBottomZ, double horLen, double verLen);
-	short	getNumberOfInterfereBeams (void);
-	InterfereBeam	getInterfereBeam (short index);
-
-	void	setRemainHorizontalLength (double remain_hor);
-	void	setRemainHorizontalLengthUpdated (double remain_hor_updated);
-	void	setRemainVerticalLength (double remain_ver);
-	void	setRemainVerticalLengthWithoutBeams (double remain_ver_wo_beams);
-	double	getRemainHorizontalLength (void);
-	double	getRemainHorizontalLengthUpdated (void);
-	double	getRemainVerticalLength (void);
-	double	getRemainVerticalLengthWithoutBeams (void);
-
-	void	setLeftIncorner (bool bLIncorner);
-	void	setLeftIncornerLength (double lenLIncorner);
-	void	setRightIncorner (bool bRIncorner);
-	void	setRightIncornerLength (double lenRIncorner);
-	bool	getLeftIncorner (void);
-	double	getLeftIncornerLength (void);
-	bool	getRightIncorner (void);
-	double	getRightIncornerLength (void);
-
-	void	setEuroformWidthString (std::string eu_wid);
-	void	setEuroformHeightString (std::string eu_hei);
-	void	setEuroformOrientationString (std::string eu_ori);
-	void	setEuroformWidth (double eu_wid_numeric);
-	void	setEuroformHeight (double eu_hei_numeric);
-	void	setEuroformHorizontalCount (short eu_count_hor);
-	void	setEuroformVerticalCount (short eu_count_ver);
-	std::string		getEuroformWidthString (void);
-	std::string		getEuroformHeightString (void);
-	std::string		getEuroformOrientationString (void);
-	double	getEuroformWidth (void);
-	double	getEuroformHeight (void);
-	short	getEuroformHorizontalCount (void);
-	short	getEuroformVerticalCount (void);
-
-	void	setCellCount (short nCells);
-	short	getCellCount (void);
-	void	setCell (short row, short col, Cell cell);
-	Cell	getCell (short row, short col);
-private:
-	double	leftBottomX;	// 좌하단 좌표 X
-	double	leftBottomY;	// 좌하단 좌표 Y
-	double	leftBottomZ;	// 좌하단 좌표 Z
-
-	double	horLen;			// 가로 길이
-	double	verLen;			// 세로 길이
-	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
-
-	// 간섭보 (0개 이상)
-	short	nInterfereBeams;	// 간섭보 개수
-	InterfereBeam	beams [30];
+	Cell			woods [30][3];		// 보 주변 합판/목재 셀
 
 	// 검토할 사항 (1. 기본 채우기)
 	double	remain_hor;				// 가로 방향 남은 길이

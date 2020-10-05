@@ -12,6 +12,7 @@ static InfoWall			infoWall;				// 벽 객체 정보
 static short			clickedBtnItemIdx;		// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static short			layerInd;				// 객체를 배치할 레이어 인덱스
 static short			itemInitIdx = GRIDBUTTON_IDX_START;		// 그리드 버튼 항목 인덱스 시작번호
+static short			numberOfinterfereBeam;	// 몇 번째 간섭 보인가?
 
 
 // 1번 메뉴: 유로폼/인코너 등을 배치하는 통합 루틴
@@ -395,15 +396,17 @@ GSErrCode	placeEuroformOnWall (void)
 	err = fillRestAreasForWall ();
 
 	// [DIALOG] 4번째 다이얼로그에서 채워진 자투리 공간 중에서 합판 영역을 다른 규격의 유로폼으로 대체할 것인지 묻습니다.
-	//result = DGModalDialog (ACAPI_GetOwnResModule (), 32504, ACAPI_GetOwnResModule (), wallPlacerHandlerFourth, 0);
+	for (xx = 0 ; xx < placingZone.nInterfereBeams ; ++xx) {
+		numberOfinterfereBeam = xx;
+		result = DGBlankModalDialog (300, 320, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallPlacerHandlerFourth, 0);
+	}
 	
- // * 보 주변 합판/목재:
- //   - 채우기 전에 최대한 좌/우측면을 기본 폼으로 채워본다
- //   - 그래도 보 아래와 좌우측면에 남는 영역이
- //      200*600 이상이면 사용자에게 질의
- // * 상단 자투리: 이형 폼으로 채움
- //   (1열 또는 2열까지 폼? 나머지 영역(합판/목재)이 50이냐 0이냐에 따라
- //    목재가 위로 붙거나 앞으로 튀어나올 수 있음
+	// [DIALOG] 5번째 다이얼로그에서 벽 상단의 자투리 공간을 다른 규격의 유로폼으로 대체할 것인지 묻습니다.
+	// ...
+
+	// * 상단 자투리: 이형 폼으로 채움
+	//   (1열 또는 2열까지 폼? 나머지 영역(합판/목재)이 50이냐 0이냐에 따라
+	//    목재가 위로 붙거나 앞으로 튀어나올 수 있음
 
 	return	err;
 }
@@ -587,7 +590,6 @@ GSErrCode	fillRestAreasForWall (void)
 								if ( (placingZone.verLen >= (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + placingZone.cells [xx-1][yy].horLen)) ) {
 									// 보 좌측면 너비가 유로폼 짧은쪽 길이 이상이면,
 									if ( (beamRightX - cellLeftX) >= placingZone.cells [xx-1][yy].verLen ) {
-										
 										// 유로폼을 세워서 배치
 										insCell = placingZone.cells [xx-1][yy];
 										insCell.objType = EUROFORM;
@@ -671,26 +673,36 @@ GSErrCode	fillRestAreasForWall (void)
 								insCell.libPart.wood.w_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + insertedHeight);
 								insCell.libPart.wood.w_h = beamLeftX - cellLeftX - insertedLeft;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCell.horLen = insCell.libPart.wood.w_h;
+								insCell.verLen = insCell.libPart.wood.w_leng;
 
 								insCellB.objType = WOOD;
 								insCellB.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCellB.libPart.wood.w_leng = placingZoneBackside.verLen - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen + insertedHeight);
 								insCellB.libPart.wood.w_h = beamLeftX - cellLeftX - insertedLeft;
 								insCellB.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCellB.horLen = insCellB.libPart.wood.w_h;
+								insCellB.verLen = insCellB.libPart.wood.w_leng;
 							} else {
 								// 폭이 110mm 이상이면 합판
 								insCell.objType = PLYWOOD;
 								insCell.libPart.plywood.p_wid = beamLeftX - cellLeftX - insertedLeft;
 								insCell.libPart.plywood.p_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + insertedHeight);
 								insCell.libPart.plywood.w_dir_wall = true;
+								insCell.horLen = insCell.libPart.plywood.p_wid;
+								insCell.verLen = insCell.libPart.plywood.p_leng;
 
 								insCellB.objType = PLYWOOD;
 								insCellB.libPart.plywood.p_wid = beamLeftX - cellLeftX - insertedLeft;
 								insCellB.libPart.plywood.p_leng = placingZoneBackside.verLen - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen + insertedHeight);
 								insCellB.libPart.plywood.w_dir_wall = true;
+								insCellB.horLen = insCellB.libPart.plywood.p_wid;
+								insCellB.verLen = insCellB.libPart.plywood.p_leng;
 							}
-							placeLibPart (insCell);
-							placeLibPart (insCellB);
+							insCell.guid = placeLibPart (insCell);
+							insCellB.guid = placeLibPart (insCellB);
+							placingZone.woods [indInterfereBeam][0] = insCell;
+							placingZoneBackside.woods [indInterfereBeam][0] = insCellB;
 
 							// 보 아래면
 							insCell.leftBottomX = placingZone.cells [xx-1][yy].leftBottomX - ((beamLeftX - cellLeftX) * cos(placingZoneBackside.cells [xx-1][yy].ang));
@@ -710,26 +722,36 @@ GSErrCode	fillRestAreasForWall (void)
 								insCell.libPart.wood.w_leng = placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen + insertedHeight);
 								insCell.libPart.wood.w_h = beamRightX - beamLeftX;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCell.horLen = insCell.libPart.wood.w_h;
+								insCell.verLen = insCell.libPart.wood.w_leng;
 
 								insCellB.objType = WOOD;
 								insCellB.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCellB.libPart.wood.w_leng = placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen + insertedHeight);
 								insCellB.libPart.wood.w_h = beamRightX - beamLeftX;
 								insCellB.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCellB.horLen = insCellB.libPart.wood.w_h;
+								insCellB.verLen = insCellB.libPart.wood.w_leng;
 							} else {
 								// 폭이 110mm 이상이면 합판
 								insCell.objType = PLYWOOD;
 								insCell.libPart.plywood.p_wid = beamRightX - beamLeftX;
 								insCell.libPart.plywood.p_leng = placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen + insertedHeight);
 								insCell.libPart.plywood.w_dir_wall = true;
+								insCell.horLen = insCell.libPart.plywood.p_wid;
+								insCell.verLen = insCell.libPart.plywood.p_leng;
 
 								insCellB.objType = PLYWOOD;
 								insCellB.libPart.plywood.p_wid = beamRightX - beamLeftX;
 								insCellB.libPart.plywood.p_leng = placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen + insertedHeight);
 								insCellB.libPart.plywood.w_dir_wall = true;
+								insCellB.horLen = insCellB.libPart.plywood.p_wid;
+								insCellB.verLen = insCellB.libPart.plywood.p_leng;
 							}
-							placeLibPart (insCell);
-							placeLibPart (insCellB);
+							insCell.guid = placeLibPart (insCell);
+							insCellB.guid = placeLibPart (insCellB);
+							placingZone.woods [indInterfereBeam][1] = insCell;
+							placingZoneBackside.woods [indInterfereBeam][1] = insCellB;
 						}
 
 						// 보가 셀의 왼쪽으로 침범한 경우
@@ -749,7 +771,6 @@ GSErrCode	fillRestAreasForWall (void)
 								if ( (placingZone.verLen >= (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + placingZone.cells [xx-1][yy].horLen)) ) {
 									// 보 우측면 너비가 유로폼 짧은쪽 길이 이상이면,
 									if ( (cellRightX - beamRightX) >= placingZone.cells [xx-1][yy].verLen ) {
-										
 										// 유로폼을 세워서 배치
 										insCell = placingZone.cells [xx-1][yy];
 										insCell.objType = EUROFORM;
@@ -833,26 +854,36 @@ GSErrCode	fillRestAreasForWall (void)
 								insCell.libPart.wood.w_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + insertedHeight);
 								insCell.libPart.wood.w_h = cellRightX - beamRightX - insertedRight;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCell.horLen = insCell.libPart.wood.w_h;
+								insCell.verLen = insCell.libPart.wood.w_leng;
 
 								insCellB.objType = WOOD;
 								insCellB.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCellB.libPart.wood.w_leng = placingZoneBackside.verLen - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen + insertedHeight);
 								insCellB.libPart.wood.w_h = cellRightX - beamRightX - insertedRight;
 								insCellB.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCellB.horLen = insCellB.libPart.wood.w_h;
+								insCellB.verLen = insCellB.libPart.wood.w_leng;
 							} else {
 								// 폭이 110mm 이상이면 합판
 								insCell.objType = PLYWOOD;
 								insCell.libPart.plywood.p_wid = cellRightX - beamRightX - insertedRight;
 								insCell.libPart.plywood.p_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + insertedHeight);
 								insCell.libPart.plywood.w_dir_wall = true;
+								insCell.horLen = insCell.libPart.plywood.p_wid;
+								insCell.verLen = insCell.libPart.plywood.p_leng;
 
 								insCellB.objType = PLYWOOD;
 								insCellB.libPart.plywood.p_wid = cellRightX - beamRightX - insertedRight;
 								insCellB.libPart.plywood.p_leng = placingZoneBackside.verLen - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen + insertedHeight);
 								insCellB.libPart.plywood.w_dir_wall = true;
+								insCellB.horLen = insCellB.libPart.plywood.p_wid;
+								insCellB.verLen = insCellB.libPart.plywood.p_leng;
 							}
-							placeLibPart (insCell);
-							placeLibPart (insCellB);
+							insCell.guid = placeLibPart (insCell);
+							insCellB.guid = placeLibPart (insCellB);
+							placingZone.woods [indInterfereBeam][2] = insCell;
+							placingZoneBackside.woods [indInterfereBeam][2] = insCellB;
 						}
 
 						// 보가 셀 안에 들어오는 경우
@@ -876,26 +907,36 @@ GSErrCode	fillRestAreasForWall (void)
 								insCell.libPart.wood.w_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen);
 								insCell.libPart.wood.w_h = beamLeftX - cellLeftX;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCell.horLen = insCell.libPart.wood.w_h;
+								insCell.verLen = insCell.libPart.wood.w_leng;
 
 								insCellB.objType = WOOD;
 								insCellB.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCellB.libPart.wood.w_leng = placingZoneBackside.verLen - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen);
 								insCellB.libPart.wood.w_h = beamLeftX - cellLeftX;
 								insCellB.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCellB.horLen = insCellB.libPart.wood.w_h;
+								insCellB.verLen = insCellB.libPart.wood.w_leng;
 							} else {
 								// 폭이 110mm 이상이면 합판
 								insCell.objType = PLYWOOD;
 								insCell.libPart.plywood.p_wid = beamLeftX - cellLeftX;
 								insCell.libPart.plywood.p_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen);
 								insCell.libPart.plywood.w_dir_wall = true;
+								insCell.horLen = insCell.libPart.plywood.p_wid;
+								insCell.verLen = insCell.libPart.plywood.p_leng;
 
 								insCellB.objType = PLYWOOD;
 								insCellB.libPart.plywood.p_wid = beamLeftX - cellLeftX;
 								insCellB.libPart.plywood.p_leng = placingZoneBackside.verLen - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen);
 								insCellB.libPart.plywood.w_dir_wall = true;
+								insCellB.horLen = insCellB.libPart.plywood.p_wid;
+								insCellB.verLen = insCellB.libPart.plywood.p_leng;
 							}
-							placeLibPart (insCell);
-							placeLibPart (insCellB);
+							insCell.guid = placeLibPart (insCell);
+							insCellB.guid = placeLibPart (insCellB);
+							placingZone.woods [indInterfereBeam][0] = insCell;
+							placingZoneBackside.woods [indInterfereBeam][0] = insCellB;
 
 							// 보 아래면
 							insCell.leftBottomX = placingZone.cells [xx-1][yy].leftBottomX - ((beamLeftX - cellLeftX) * cos(placingZoneBackside.cells [xx-1][yy].ang));
@@ -915,26 +956,36 @@ GSErrCode	fillRestAreasForWall (void)
 								insCell.libPart.wood.w_leng = placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen);
 								insCell.libPart.wood.w_h = beamRightX - beamLeftX;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCell.horLen = insCell.libPart.wood.w_h;
+								insCell.verLen = insCell.libPart.wood.w_leng;
 
 								insCellB.objType = WOOD;
 								insCellB.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCellB.libPart.wood.w_leng = placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen);
 								insCellB.libPart.wood.w_h = beamRightX - beamLeftX;
 								insCellB.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCellB.horLen = insCellB.libPart.wood.w_h;
+								insCellB.verLen = insCellB.libPart.wood.w_leng;
 							} else {
 								// 폭이 110mm 이상이면 합판
 								insCell.objType = PLYWOOD;
 								insCell.libPart.plywood.p_wid = beamRightX - beamLeftX;
 								insCell.libPart.plywood.p_leng = placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen);
 								insCell.libPart.plywood.w_dir_wall = true;
+								insCell.horLen = insCell.libPart.plywood.p_wid;
+								insCell.verLen = insCell.libPart.plywood.p_leng;
 
 								insCellB.objType = PLYWOOD;
 								insCellB.libPart.plywood.p_wid = beamRightX - beamLeftX;
 								insCellB.libPart.plywood.p_leng = placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen);
 								insCellB.libPart.plywood.w_dir_wall = true;
+								insCellB.horLen = insCellB.libPart.plywood.p_wid;
+								insCellB.verLen = insCellB.libPart.plywood.p_leng;
 							}
-							placeLibPart (insCell);
-							placeLibPart (insCellB);
+							insCell.guid = placeLibPart (insCell);
+							insCellB.guid = placeLibPart (insCellB);
+							placingZone.woods [indInterfereBeam][1] = insCell;
+							placingZoneBackside.woods [indInterfereBeam][1] = insCellB;
 
 							// 보 우측면
 							insCell.leftBottomX = placingZone.cells [xx-1][yy].leftBottomX - ((beamRightX - cellLeftX) * cos(placingZoneBackside.cells [xx-1][yy].ang));
@@ -954,26 +1005,36 @@ GSErrCode	fillRestAreasForWall (void)
 								insCell.libPart.wood.w_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen);
 								insCell.libPart.wood.w_h = cellRightX - beamRightX;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCell.horLen = insCell.libPart.wood.w_h;
+								insCell.verLen = insCell.libPart.wood.w_leng;
 
 								insCellB.objType = WOOD;
 								insCellB.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCellB.libPart.wood.w_leng = placingZoneBackside.verLen - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen);
 								insCellB.libPart.wood.w_h = cellRightX - beamRightX;
 								insCellB.libPart.wood.w_ang = DegreeToRad (90.0);
+								insCellB.horLen = insCellB.libPart.wood.w_h;
+								insCellB.verLen = insCellB.libPart.wood.w_leng;
 							} else {
 								// 폭이 110mm 이상이면 합판
 								insCell.objType = PLYWOOD;
 								insCell.libPart.plywood.p_wid = cellRightX - beamRightX;
 								insCell.libPart.plywood.p_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen);
 								insCell.libPart.plywood.w_dir_wall = true;
+								insCell.horLen = insCell.libPart.plywood.p_wid;
+								insCell.verLen = insCell.libPart.plywood.p_leng;
 
 								insCellB.objType = PLYWOOD;
 								insCellB.libPart.plywood.p_wid = cellRightX - beamRightX;
 								insCellB.libPart.plywood.p_leng = placingZoneBackside.verLen - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen);
 								insCellB.libPart.plywood.w_dir_wall = true;
+								insCellB.horLen = insCellB.libPart.plywood.p_wid;
+								insCellB.verLen = insCellB.libPart.plywood.p_leng;
 							}
-							placeLibPart (insCell);
-							placeLibPart (insCellB);
+							insCell.guid = placeLibPart (insCell);
+							insCellB.guid = placeLibPart (insCellB);
+							placingZone.woods [indInterfereBeam][2] = insCell;
+							placingZoneBackside.woods [indInterfereBeam][2] = insCellB;
 						}
 
 						// 보가 셀 영역을 다 침범한 경우
@@ -1641,7 +1702,7 @@ short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, shor
 
 			// 남은 거리 확인 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 60, 130, 25);
-			DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+			DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, "1. 남은 길이 확인");
 			DGShowItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
 
@@ -1766,6 +1827,7 @@ short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, shor
 
 					// 남은 가로 길이 업데이트
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated);
+					DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
 
 					break;
 
@@ -1840,6 +1902,7 @@ short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, shor
 
 					// 남은 가로 길이 업데이트
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated);
+					DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_BOLD);
 
 					err = ACAPI_CallUndoableCommand ("유로폼/인코너 재배치", [&] () -> GSErrCode {
 						// 기존 배치된 객체 전부 삭제
@@ -3781,6 +3844,348 @@ short DGCALLBACK wallPlacerHandlerThird (short message, short dialogID, short it
 							}
 						}
 					}
+
+					break;
+				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
+}
+
+// 보 하부의 합판/목재 영역을 유로폼으로 채울지 물어보는 4차 다이얼로그
+short DGCALLBACK wallPlacerHandlerFourth (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	GSErrCode	err = NoError;
+	API_Element	elem;
+	short	result;
+	short	idxItem;
+	Cell	insCell, insCellB;	// 삽입할 임시 셀
+	double	spWidth = 0.0;		// 보 하부 합판/목재가 차지한 총 너비
+	double	spHeight = 0.0;		// 보 하부 합판/목재가 차지한 총 높이
+	double	temp;
+	double	remainHeight;
+	short	xx;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "보 하부 채우기");
+
+			// 적용 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 70, 280, 70, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "예");
+			DGShowItem (dialogID, DG_OK);
+
+			// 종료 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 160, 280, 70, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "아니오");
+			DGShowItem (dialogID, DG_CANCEL);
+
+			// 라벨: 설명
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 50, 10, 230, 23);
+			DGSetItemFont (dialogID, LABEL_DESC1_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_DESC1_BEAMAROUND, "보 하부에 다음 크기의 공간이 있습니다.");
+			DGShowItem (dialogID, LABEL_DESC1_BEAMAROUND);
+
+			// 라벨: 너비
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 40, 50, 23);
+			DGSetItemFont (dialogID, LABEL_WIDTH_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_WIDTH_BEAMAROUND, "너비");
+			DGShowItem (dialogID, LABEL_WIDTH_BEAMAROUND);
+
+			// Edit 컨트롤: 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 140, 40-6, 70, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_WIDTH_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, EDITCONTROL_WIDTH_BEAMAROUND);
+
+			// 라벨: 높이
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 65, 50, 23);
+			DGSetItemFont (dialogID, LABEL_HEIGHT_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_HEIGHT_BEAMAROUND, "높이");
+			DGShowItem (dialogID, LABEL_HEIGHT_BEAMAROUND);
+
+			// Edit 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 140, 65-6, 70, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_HEIGHT_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, EDITCONTROL_HEIGHT_BEAMAROUND);
+
+			// 라벨: 설명
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 50, 100, 200, 23);
+			DGSetItemFont (dialogID, LABEL_DESC2_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_DESC2_BEAMAROUND, "유로폼으로 채우시겠습니까?");
+			DGShowItem (dialogID, LABEL_DESC2_BEAMAROUND);
+
+			// 체크박스: 규격폼
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 50, 120, 70, 25);
+			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD_BEAMAROUND, "규격폼");
+			DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_BEAMAROUND, TRUE);
+			DGShowItem (dialogID, CHECKBOX_SET_STANDARD_BEAMAROUND);
+
+			// 라벨: 너비
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 155, 50, 23);
+			DGSetItemFont (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, "너비");
+			DGShowItem (dialogID, LABEL_EUROFORM_WIDTH_OPTIONS_BEAMAROUND);
+
+			// 팝업 컨트롤: 너비
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 140, 155-6, 100, 25);
+			DGSetItemFont (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM, "600");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM, "500");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM, "450");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM, "400");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM, "300");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM, "200");
+			DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND);
+
+			// Edit 컨트롤: 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 140, 155-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+
+			// 라벨: 높이
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 180, 50, 23);
+			DGSetItemFont (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, "높이");
+			DGShowItem (dialogID, LABEL_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND);
+
+			// 팝업 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 140, 180-6, 100, 25);
+			DGSetItemFont (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM, "1200");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM, "900");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DG_POPUP_BOTTOM, "600");
+			DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND);
+
+			// Edit 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 140, 180-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			
+			// 라벨: 설치방향
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 210, 70, 23);
+			DGSetItemFont (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_BEAMAROUND, "설치방향");
+			DGShowItem (dialogID, LABEL_EUROFORM_ORIENTATION_OPTIONS_BEAMAROUND);
+			
+			// 라디오 버튼: 설치방향 (벽세우기)
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 780, 140, 205, 70, 25);
+			DGSetItemFont (dialogID, RADIO_ORIENTATION_1_EUROFORM_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, RADIO_ORIENTATION_1_EUROFORM_BEAMAROUND, "벽세우기");
+			DGShowItem (dialogID, RADIO_ORIENTATION_1_EUROFORM_BEAMAROUND);
+			// 라디오 버튼: 설치방향 (벽눕히기)
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 780, 140, 230, 70, 25);
+			DGSetItemFont (dialogID, RADIO_ORIENTATION_2_EUROFORM_BEAMAROUND, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, RADIO_ORIENTATION_2_EUROFORM_BEAMAROUND, "벽눕히기");
+			DGShowItem (dialogID, RADIO_ORIENTATION_2_EUROFORM_BEAMAROUND);
+			DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_EUROFORM_BEAMAROUND, TRUE);
+
+			// 간섭 보(numberOfinterfereBeam) 하부의 합판/목재가 차지하는 공간
+			spWidth = placingZone.woods [numberOfinterfereBeam][0].horLen + placingZone.woods [numberOfinterfereBeam][1].horLen + placingZone.woods [numberOfinterfereBeam][2].horLen;
+			spHeight = placingZone.woods [numberOfinterfereBeam][1].verLen;
+			DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH_BEAMAROUND, spWidth);
+			DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT_BEAMAROUND, spHeight);
+			DGDisableItem (dialogID, EDITCONTROL_WIDTH_BEAMAROUND);
+			DGDisableItem (dialogID, EDITCONTROL_HEIGHT_BEAMAROUND);
+
+			break;
+
+		case DG_MSG_CHANGE:
+			switch (item) {
+				case CHECKBOX_SET_STANDARD_BEAMAROUND:
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_BEAMAROUND) == TRUE) {
+						DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND);
+						DGShowItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_BEAMAROUND);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND);
+					} else {
+						DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND);
+						DGHideItem (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_BEAMAROUND);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND);
+					}
+					break;
+			}
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					// 지정한 규격, 크기의 유로폼 정보 입력
+					spWidth = placingZone.woods [numberOfinterfereBeam][0].horLen + placingZone.woods [numberOfinterfereBeam][1].horLen + placingZone.woods [numberOfinterfereBeam][2].horLen;
+					spHeight = placingZone.woods [numberOfinterfereBeam][1].verLen;
+
+					insCell.objType = EUROFORM;
+					insCell.leftBottomX = placingZone.woods [numberOfinterfereBeam][0].leftBottomX;
+					insCell.leftBottomY = placingZone.woods [numberOfinterfereBeam][0].leftBottomY;
+					insCell.leftBottomZ = placingZone.woods [numberOfinterfereBeam][0].leftBottomZ;
+					insCell.ang = placingZone.woods [numberOfinterfereBeam][0].ang;
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_BEAMAROUND) == TRUE)
+						insCell.libPart.form.eu_stan_onoff = true;
+					else
+						insCell.libPart.form.eu_stan_onoff = false;
+					if (insCell.libPart.form.eu_stan_onoff == true) {
+						insCell.libPart.form.eu_wid = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND)).ToCStr ()) / 1000.0;
+						insCell.libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND)).ToCStr ()) / 1000.0;
+						insCell.horLen = insCell.libPart.form.eu_wid;
+						insCell.verLen = insCell.libPart.form.eu_hei;
+					} else {
+						insCell.libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_BEAMAROUND);
+						insCell.libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND);
+						insCell.horLen = insCell.libPart.form.eu_wid2;
+						insCell.verLen = insCell.libPart.form.eu_hei2;
+					}
+					if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_BEAMAROUND) == TRUE) {
+						insCell.libPart.form.u_ins_wall = true;
+					} else {
+						insCell.libPart.form.u_ins_wall = false;
+						temp = insCell.horLen;
+						insCell.horLen = insCell.verLen;
+						insCell.verLen = temp;
+					}
+
+					insCellB.objType = EUROFORM;
+					insCellB.leftBottomX = placingZoneBackside.woods [numberOfinterfereBeam][0].leftBottomX + (placingZoneBackside.woods [numberOfinterfereBeam][0].horLen - spWidth) * cos(placingZoneBackside.woods [numberOfinterfereBeam][0].ang);
+					insCellB.leftBottomY = placingZoneBackside.woods [numberOfinterfereBeam][0].leftBottomY + (placingZoneBackside.woods [numberOfinterfereBeam][0].horLen - spWidth) * sin(placingZoneBackside.woods [numberOfinterfereBeam][0].ang);
+					insCellB.leftBottomZ = placingZoneBackside.woods [numberOfinterfereBeam][0].leftBottomZ;
+					insCellB.ang = placingZoneBackside.woods [numberOfinterfereBeam][0].ang;
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_BEAMAROUND) == TRUE)
+						insCellB.libPart.form.eu_stan_onoff = true;
+					else
+						insCellB.libPart.form.eu_stan_onoff = false;
+					if (insCellB.libPart.form.eu_stan_onoff == true) {
+						insCellB.libPart.form.eu_wid = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_BEAMAROUND)).ToCStr ()) / 1000.0;
+						insCellB.libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND)).ToCStr ()) / 1000.0;
+						insCellB.horLen = insCellB.libPart.form.eu_wid;
+						insCellB.verLen = insCellB.libPart.form.eu_hei;
+					} else {
+						insCellB.libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_BEAMAROUND);
+						insCellB.libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_HEIGHT_OPTIONS_BEAMAROUND);
+						insCellB.horLen = insCellB.libPart.form.eu_wid2;
+						insCellB.verLen = insCellB.libPart.form.eu_hei2;
+					}
+					if (DGGetItemValLong (dialogID, RADIO_ORIENTATION_1_EUROFORM_BEAMAROUND) == TRUE) {
+						insCellB.libPart.form.u_ins_wall = true;
+					} else {
+						insCellB.libPart.form.u_ins_wall = false;
+						temp = insCellB.horLen;
+						insCellB.horLen = insCellB.verLen;
+						insCellB.verLen = temp;
+					}
+
+					// 유로폼 배치 후 남는 보 하부의 여유공간 높이
+					remainHeight = placingZone.beams [numberOfinterfereBeam].leftBottomZ - placingZone.woods [numberOfinterfereBeam][0].leftBottomZ - insCell.verLen;
+
+					err = ACAPI_CallUndoableCommand ("합판/목재를 유로폼으로 채우기", [&] () -> GSErrCode {
+						// 기존 보 주변 합판/목재 제거
+						for (xx = 0 ; xx < 3 ; ++xx) {
+							elem.header.guid = placingZone.woods [numberOfinterfereBeam][xx].guid;
+							if (ACAPI_Element_Get (&elem) != NoError)
+								continue;
+
+							API_Elem_Head* headList = new API_Elem_Head [1];
+							headList [0] = elem.header;
+							err = ACAPI_Element_Delete (&headList, 1);
+							delete headList;
+						}
+
+						for (xx = 0 ; xx < 3 ; ++xx) {
+							elem.header.guid = placingZoneBackside.woods [numberOfinterfereBeam][xx].guid;
+							if (ACAPI_Element_Get (&elem) != NoError)
+								continue;
+
+							API_Elem_Head* headList = new API_Elem_Head [1];
+							headList [0] = elem.header;
+							err = ACAPI_Element_Delete (&headList, 1);
+							delete headList;
+						}
+						
+						// 사용자가 입력한 추가 유로폼 삽입
+						placeLibPart (insCell);
+						placeLibPart (insCellB);
+
+						// 유로폼 크기에 의해 기존 합판/목재의 크기를 변경하고 위로 올림
+						// 보 좌측면
+						if (placingZone.woods [numberOfinterfereBeam][0].objType == WOOD) {
+							placingZone.woods [numberOfinterfereBeam][0].libPart.wood.w_h -= insCell.verLen;
+							placingZoneBackside.woods [numberOfinterfereBeam][0].libPart.wood.w_h -= insCellB.verLen;
+						} else {
+							placingZone.woods [numberOfinterfereBeam][0].libPart.plywood.p_leng -= insCell.verLen;
+							placingZoneBackside.woods [numberOfinterfereBeam][0].libPart.plywood.p_leng -= insCellB.verLen;
+						}
+						placingZone.woods [numberOfinterfereBeam][0].leftBottomZ += insCell.verLen;
+						placingZoneBackside.woods [numberOfinterfereBeam][0].leftBottomZ += insCellB.verLen;
+						placeLibPart (placingZone.woods [numberOfinterfereBeam][0]);
+						placeLibPart (placingZoneBackside.woods [numberOfinterfereBeam][0]);
+
+						// 보 아래면
+						if (remainHeight > EPS) {
+							// 높이가 110mm 미만이면 목재
+							if (remainHeight < 0.110) {
+								placingZone.woods [numberOfinterfereBeam][1].objType = WOOD;
+								placingZone.woods [numberOfinterfereBeam][1].libPart.wood.w_ang = 0;
+								placingZone.woods [numberOfinterfereBeam][1].libPart.wood.w_h = remainHeight;
+								placingZone.woods [numberOfinterfereBeam][1].libPart.wood.w_leng = placingZone.beams [numberOfinterfereBeam].horLen;
+								placingZone.woods [numberOfinterfereBeam][1].libPart.wood.w_w = 0.080;		// 두께: 80mm
+							
+								placingZoneBackside.woods [numberOfinterfereBeam][1].objType = WOOD;
+								placingZoneBackside.woods [numberOfinterfereBeam][1].libPart.wood.w_ang = 0;
+								placingZoneBackside.woods [numberOfinterfereBeam][1].libPart.wood.w_h = remainHeight;
+								placingZoneBackside.woods [numberOfinterfereBeam][1].libPart.wood.w_leng = placingZone.beams [numberOfinterfereBeam].horLen;
+								placingZoneBackside.woods [numberOfinterfereBeam][1].libPart.wood.w_w = 0.080;		// 두께: 80mm
+							// 높이가 110mm 이상이면 합판
+							} else {
+								placingZone.woods [numberOfinterfereBeam][1].objType = PLYWOOD;
+								placingZone.woods [numberOfinterfereBeam][1].libPart.plywood.p_leng = remainHeight;
+								placingZone.woods [numberOfinterfereBeam][1].libPart.plywood.p_wid = placingZone.beams [numberOfinterfereBeam].horLen;
+								placingZone.woods [numberOfinterfereBeam][1].libPart.plywood.w_dir_wall = true;
+
+								placingZoneBackside.woods [numberOfinterfereBeam][1].objType = PLYWOOD;
+								placingZoneBackside.woods [numberOfinterfereBeam][1].libPart.plywood.p_leng = remainHeight;
+								placingZoneBackside.woods [numberOfinterfereBeam][1].libPart.plywood.p_wid = placingZone.beams [numberOfinterfereBeam].horLen;
+								placingZoneBackside.woods [numberOfinterfereBeam][1].libPart.plywood.w_dir_wall = true;
+							}
+							placingZone.woods [numberOfinterfereBeam][1].leftBottomZ += insCell.verLen;
+							placingZoneBackside.woods [numberOfinterfereBeam][1].leftBottomZ += insCell.verLen;
+
+							placeLibPart (placingZone.woods [numberOfinterfereBeam][1]);
+							placeLibPart (placingZoneBackside.woods [numberOfinterfereBeam][1]);
+						}
+
+						// 보 우측면
+						if (placingZone.woods [numberOfinterfereBeam][2].objType == WOOD) {
+							placingZone.woods [numberOfinterfereBeam][2].libPart.wood.w_h -= insCell.verLen;
+							placingZoneBackside.woods [numberOfinterfereBeam][2].libPart.wood.w_h -= insCellB.verLen;
+						} else {
+							placingZone.woods [numberOfinterfereBeam][2].libPart.plywood.p_leng -= insCell.verLen;
+							placingZoneBackside.woods [numberOfinterfereBeam][2].libPart.plywood.p_leng -= insCellB.verLen;
+						}
+						placingZone.woods [numberOfinterfereBeam][2].leftBottomZ += insCell.verLen;
+						placingZoneBackside.woods [numberOfinterfereBeam][2].leftBottomZ += insCellB.verLen;
+						placeLibPart (placingZone.woods [numberOfinterfereBeam][2]);
+						placeLibPart (placingZoneBackside.woods [numberOfinterfereBeam][2]);
+
+						return err;
+					});
 
 					break;
 				case DG_CANCEL:
