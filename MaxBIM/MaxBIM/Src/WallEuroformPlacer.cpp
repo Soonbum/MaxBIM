@@ -408,6 +408,8 @@ GSErrCode	placeEuroformOnWall (void)
 	//   (1열 또는 2열까지 폼? 나머지 영역(합판/목재)이 50이냐 0이냐에 따라
 	//    목재가 위로 붙거나 앞으로 튀어나올 수 있음
 
+	// 관통하는 보는 어떻게 처리할까?
+
 	return	err;
 }
 
@@ -546,6 +548,10 @@ GSErrCode	fillRestAreasForWall (void)
 						placingZoneBackside.cells [xx][yy].horLen = placingZoneBackside.cells [xx-1][yy].horLen;
 						placingZoneBackside.cells [xx][yy].verLen = placingZoneBackside.verLen - placingZoneBackside.cells [xx][yy].leftBottomZ;
 						placingZoneBackside.cells [xx][yy].guid = placeLibPart (placingZoneBackside.cells [xx][yy]);
+
+						// 상단 자투리 공간 셀 - 정보 저장
+						placingZone.topRestCells [yy] = placingZone.cells [xx][yy];
+						placingZoneBackside.topRestCells [yy] = placingZoneBackside.cells [xx][yy];
 					}
 
 				// 간섭이 있으면, 보 주변에 합판이나 목재로 채움
@@ -4126,8 +4132,8 @@ short DGCALLBACK wallPlacerHandlerFourth (short message, short dialogID, short i
 						// 유로폼 크기에 의해 기존 합판/목재의 크기를 변경하고 위로 올림
 						// 보 좌측면
 						if (placingZone.woods [numberOfinterfereBeam][0].objType == WOOD) {
-							placingZone.woods [numberOfinterfereBeam][0].libPart.wood.w_h -= insCell.verLen;
-							placingZoneBackside.woods [numberOfinterfereBeam][0].libPart.wood.w_h -= insCellB.verLen;
+							placingZone.woods [numberOfinterfereBeam][0].libPart.wood.w_leng -= insCell.verLen;
+							placingZoneBackside.woods [numberOfinterfereBeam][0].libPart.wood.w_leng -= insCellB.verLen;
 						} else {
 							placingZone.woods [numberOfinterfereBeam][0].libPart.plywood.p_leng -= insCell.verLen;
 							placingZoneBackside.woods [numberOfinterfereBeam][0].libPart.plywood.p_leng -= insCellB.verLen;
@@ -4173,8 +4179,8 @@ short DGCALLBACK wallPlacerHandlerFourth (short message, short dialogID, short i
 
 						// 보 우측면
 						if (placingZone.woods [numberOfinterfereBeam][2].objType == WOOD) {
-							placingZone.woods [numberOfinterfereBeam][2].libPart.wood.w_h -= insCell.verLen;
-							placingZoneBackside.woods [numberOfinterfereBeam][2].libPart.wood.w_h -= insCellB.verLen;
+							placingZone.woods [numberOfinterfereBeam][2].libPart.wood.w_leng -= insCell.verLen;
+							placingZoneBackside.woods [numberOfinterfereBeam][2].libPart.wood.w_leng -= insCellB.verLen;
 						} else {
 							placingZone.woods [numberOfinterfereBeam][2].libPart.plywood.p_leng -= insCell.verLen;
 							placingZoneBackside.woods [numberOfinterfereBeam][2].libPart.plywood.p_leng -= insCellB.verLen;

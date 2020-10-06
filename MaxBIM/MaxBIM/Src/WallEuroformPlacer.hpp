@@ -332,11 +332,6 @@ struct PlacingZone
 	double	verLen;			// 세로 길이
 	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
 
-	// 간섭보 (0개 이상)
-	short	nInterfereBeams;	// 간섭보 개수
-	InterfereBeam	beams [30];
-	Cell			woods [30][3];		// 보 주변 합판/목재 셀
-
 	// 검토할 사항 (1. 기본 채우기)
 	double	remain_hor;				// 가로 방향 남은 길이
 	double	remain_hor_updated;		// 가로 방향 남은 길이 (업데이트 후)
@@ -360,4 +355,12 @@ struct PlacingZone
 	// 인코너[0] | 예비[홀수] | 폼[짝수] | ... | 인코너[n-1]
 	Cell	cells [50][100];		// 마지막 인덱스: [eu_count_ver-1][nCells-1]
 	short	nCells;
+	
+	// 간섭보 (0개 이상)
+	short	nInterfereBeams;		// 간섭보 개수
+	InterfereBeam	beams [30];		// 간섭보 정보
+	Cell			woods [30][3];	// 보 주변 합판/목재 셀
+
+	// 상단 합판/목재 셀 정보
+	Cell	topRestCells [100];		// 상단 자투리 공간 셀
 };
