@@ -23,7 +23,7 @@
 
 
 /* ---------------------------------------------------------- place Euroform/In-corner/etc on Wall */
-'GDLG'  32501  Modal | grow	  0		  0		300		300		"유로폼/인코너/기타 배치" {
+'GDLG'  32501  Modal | grow	  0		  0		300		300		"유로폼 벽에 배치" {
 /* [  1] */	Button			 70		260		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			160		260		 70		 25		LargePlain		"Cancel"
 

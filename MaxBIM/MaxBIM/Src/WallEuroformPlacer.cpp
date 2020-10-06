@@ -10,6 +10,7 @@ static PlacingZone		placingZone;			// 기본 벽면 영역 정보
 static PlacingZone		placingZoneBackside;	// 반대쪽 벽면에도 벽면 영역 정보 부여, 벽 기준으로 대칭됨 (placingZone과 달리 오른쪽부터 객체를 설치함)
 static InfoWall			infoWall;				// 벽 객체 정보
 static short			clickedBtnItemIdx;		// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
+static bool				clickedOKButton;		// OK 버튼을 눌렀습니까?
 static short			layerInd;				// 객체를 배치할 레이어 인덱스
 static short			itemInitIdx = GRIDBUTTON_IDX_START;		// 그리드 버튼 항목 인덱스 시작번호
 static short			numberOfinterfereBeam;	// 몇 번째 간섭 보인가?
@@ -26,7 +27,6 @@ GSErrCode	placeEuroformOnWall (void)
 	double		dx, dy, ang1, ang2;
 	double		xPosLB, yPosLB, zPosLB;
 	double		xPosRT, yPosRT, zPosRT;
-	//API_Coord	p1, p2, p3, p4, pi;
 
 	// Selection Manager 관련 변수
 	API_SelectionInfo		selectionInfo;
@@ -242,25 +242,6 @@ GSErrCode	placeEuroformOnWall (void)
 			yPosRT = elem.beam.endC.y + elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosRT = elem.beam.level;
 		}
-		//} else {
-		//	p1 = elem.beam.begC;
-		//	p2 = elem.beam.endC;
-		//	p3.x = infoMorph.leftBottomX;
-		//	p3.y = infoMorph.leftBottomY;
-		//	p4.x = infoMorph.rightTopX;
-		//	p4.y = infoMorph.rightTopY;
-		//	pi = IntersectionPoint1 (&p1, &p2, &p3, &p4);
-
-		//	// 보의 LeftBottom 좌표
-		//	xPosLB = pi.x - elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
-		//	yPosLB = pi.y - elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
-		//	zPosLB = elem.beam.level - elem.beam.height;
-
-		//	// 보의 RightTop 좌표
-		//	xPosRT = pi.x + elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
-		//	yPosRT = pi.y + elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
-		//	zPosRT = elem.beam.level;
-		//}
 
 		for (yy = 0 ; yy < 2 ; ++yy) {
 			// X축 범위 비교
@@ -303,7 +284,7 @@ GSErrCode	placeEuroformOnWall (void)
 
 	//////////////////////////////////////////////////////////// 1차 유로폼/인코너 배치
 	// [DIALOG] 1번째 다이얼로그에서 인코너, 유로폼 정보 입력 받음
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32501, ACAPI_GetOwnResModule (), wallPlacerHandlerPrimary, 0);
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32501, ACAPI_GetOwnResModule (), wallPlacerHandler1, 0);
 
 	// 문자열로 된 유로폼의 너비/높이를 실수형으로도 저장
 	placingZone.eu_wid_numeric = atof (placingZone.eu_wid.c_str ()) / 1000.0;
@@ -390,7 +371,11 @@ GSErrCode	placeEuroformOnWall (void)
 	copyPlacingZoneSymmetricForWall (&placingZone, &placingZoneBackside, &infoWall);
 
 	// [DIALOG] 2번째 다이얼로그에서 유로폼/인코너 배치를 수정하거나 휠러스페이서를 삽입합니다.
-	result = DGBlankModalDialog (185, 250, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallPlacerHandlerSecondary, 0);
+	clickedOKButton = false;
+	result = DGBlankModalDialog (185, 250, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallPlacerHandler2, 0);
+
+	if (clickedOKButton == false)
+		return err;
 
 	// 자투리 공간 채우기
 	err = fillRestAreasForWall ();
@@ -398,17 +383,11 @@ GSErrCode	placeEuroformOnWall (void)
 	// [DIALOG] 4번째 다이얼로그에서 채워진 자투리 공간 중에서 합판 영역을 다른 규격의 유로폼으로 대체할 것인지 묻습니다.
 	for (xx = 0 ; xx < placingZone.nInterfereBeams ; ++xx) {
 		numberOfinterfereBeam = xx;
-		result = DGBlankModalDialog (300, 320, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallPlacerHandlerFourth, 0);
+		result = DGBlankModalDialog (300, 320, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallPlacerHandler4, 0);
 	}
 	
 	// [DIALOG] 5번째 다이얼로그에서 벽 상단의 자투리 공간을 다른 규격의 유로폼으로 대체할 것인지 묻습니다.
-	// ...
-
-	// * 상단 자투리: 이형 폼으로 채움
-	//   (1열 또는 2열까지 폼? 나머지 영역(합판/목재)이 50이냐 0이냐에 따라
-	//    목재가 위로 붙거나 앞으로 튀어나올 수 있음
-
-	// 관통하는 보는 어떻게 처리할까?
+	result = DGBlankModalDialog (300, 280, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallPlacerHandler5, 0);
 
 	return	err;
 }
@@ -440,7 +419,7 @@ GSErrCode	fillRestAreasForWall (void)
 				insertedRight = 0.0;
 
 				// 세로 공간으로 남는 길이가 아예 없으면 루프 종료
-				if ( (placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen)) < 0)
+				if ( abs (placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen)) < EPS)
 					break;
 
 				// 보의 중첩 관계 확인 - 중첩되는 보의 인덱스를 먼저 추출
@@ -552,6 +531,8 @@ GSErrCode	fillRestAreasForWall (void)
 						// 상단 자투리 공간 셀 - 정보 저장
 						placingZone.topRestCells [yy] = placingZone.cells [xx][yy];
 						placingZoneBackside.topRestCells [yy] = placingZoneBackside.cells [xx][yy];
+						placingZone.underFormRowIndex = xx - 1;
+						placingZoneBackside.underFormRowIndex = xx - 1;
 					}
 
 				// 간섭이 있으면, 보 주변에 합판이나 목재로 채움
@@ -596,7 +577,7 @@ GSErrCode	fillRestAreasForWall (void)
 								if ( (placingZone.verLen >= (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + placingZone.cells [xx-1][yy].horLen)) ) {
 									// 보 좌측면 너비가 유로폼 짧은쪽 길이 이상이면,
 									if ( (beamRightX - cellLeftX) >= placingZone.cells [xx-1][yy].verLen ) {
-										// 유로폼을 세워서 배치
+										// 유로폼 세워서 배치
 										insCell = placingZone.cells [xx-1][yy];
 										insCell.objType = EUROFORM;
 										insCell.leftBottomX = placingZone.cells [xx-1][yy].leftBottomX;
@@ -1537,7 +1518,7 @@ void	copyCellsToAnotherLine (PlacingZone* target_zone, short src_row, short dst_
 }
 
 // 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
-short DGCALLBACK wallPlacerHandlerPrimary (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short		result;
 	API_UCCallbackType	ucb;
@@ -1545,14 +1526,14 @@ short DGCALLBACK wallPlacerHandlerPrimary (short message, short dialogID, short 
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "유로폼/인코너/기타 배치 - 기본 배치");
+			DGSetDialogTitle (dialogID, "유로폼 벽에 배치");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 적용 버튼
-			DGSetItemText (dialogID, DG_OK, "확  인");
+			DGSetItemText (dialogID, DG_OK, "확 인");
 
 			// 종료 버튼
-			DGSetItemText (dialogID, DG_CANCEL, "취  소");
+			DGSetItemText (dialogID, DG_CANCEL, "취 소");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (인코너 관련)
 			// 라벨: 인코너 배치 설정
@@ -1650,7 +1631,7 @@ short DGCALLBACK wallPlacerHandlerPrimary (short message, short dialogID, short 
 }
 
 // 1차 배치 후 수정을 요청하는 2차 다이얼로그
-short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short	result;
 	short	btnSizeX = 50, btnSizeY = 50;
@@ -1670,7 +1651,7 @@ short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, shor
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "유로폼/인코너/기타 배치 - 가로 채우기");
+			DGSetDialogTitle (dialogID, "유로폼 벽에 배치 - 가로 채우기");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 업데이트 버튼
@@ -1952,6 +1933,8 @@ short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, shor
 						return err;
 					});
 
+					clickedOKButton = true;
+
 					break;
 				case DG_CANCEL:
 
@@ -1960,7 +1943,7 @@ short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, shor
 				default:
 					// [DIALOG] 그리드 버튼을 누르면 Cell을 설정하기 위한 작은 창(3번째 다이얼로그)이 나옴
 					clickedBtnItemIdx = item;
-					result = DGBlankModalDialog (240*3, 260, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, wallPlacerHandlerThird, 0);
+					result = DGBlankModalDialog (240*3, 260, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, wallPlacerHandler3, 0);
 
 					item = 0;	// 그리드 버튼을 눌렀을 때 창이 닫히지 않게 함
 
@@ -1979,7 +1962,7 @@ short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, shor
 }
 
 // 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
-short DGCALLBACK wallPlacerHandlerThird (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+short DGCALLBACK wallPlacerHandler3 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short	result;
 	short	idxItem;
@@ -1992,7 +1975,7 @@ short DGCALLBACK wallPlacerHandlerThird (short message, short dialogID, short it
 	switch (message) {
 		case DG_MSG_INIT:
 
-			// wallPlacerHandlerSecondary 에서 클릭한 그리드 버튼의 인덱스 값을 이용하여 셀 인덱스 값 로드
+			// wallPlacerHandler2 에서 클릭한 그리드 버튼의 인덱스 값을 이용하여 셀 인덱스 값 로드
 			idxCell = (clickedBtnItemIdx - itemInitIdx) * 2;
 			while (idxCell >= ((placingZone.eu_count_hor + 2) * 2))
 				idxCell -= ((placingZone.eu_count_hor + 2) * 2);
@@ -3510,7 +3493,7 @@ short DGCALLBACK wallPlacerHandlerThird (short message, short dialogID, short it
 			switch (item) {
 				case DG_OK:
 
-					// wallPlacerHandlerSecondary 에서 클릭한 그리드 버튼의 인덱스 값을 이용하여 셀 인덱스 값 로드
+					// wallPlacerHandler2 에서 클릭한 그리드 버튼의 인덱스 값을 이용하여 셀 인덱스 값 로드
 					idxCell = (clickedBtnItemIdx - itemInitIdx) * 2;
 					while (idxCell >= ((placingZone.eu_count_hor + 2) * 2))
 						idxCell -= ((placingZone.eu_count_hor + 2) * 2);
@@ -3868,7 +3851,7 @@ short DGCALLBACK wallPlacerHandlerThird (short message, short dialogID, short it
 }
 
 // 보 하부의 합판/목재 영역을 유로폼으로 채울지 물어보는 4차 다이얼로그
-short DGCALLBACK wallPlacerHandlerFourth (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	GSErrCode	err = NoError;
 	API_Element	elem;
@@ -4192,6 +4175,442 @@ short DGCALLBACK wallPlacerHandlerFourth (short message, short dialogID, short i
 
 						return err;
 					});
+
+					break;
+				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
+}
+
+// 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 5차 다이얼로그
+short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	GSErrCode	err = NoError;
+	API_Element	elem;
+	short	result;
+	short	idxItem;
+	short	xx;
+	short	processedIndex = 0;
+
+	double	initPlywoodHeight = 0.0;
+	double	changedPlywoodHeight = 0.0;
+
+	bool	bEuroform1, bEuroform2;
+	bool	bEufoformStandard1, bEufoformStandard2;
+	double	euroformWidth1 = 0.0, euroformWidth2 = 0.0;
+
+	bool	bValid3Window, bValid2Window, bValid1Window;
+	double	width3Window, width2Window, width1Window;
+	bool	bFindWidth;
+	double	totalWidth;
+	Cell	insCell, insCellB;
+
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "벽 상단 채우기");
+
+			// 적용 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 70, 240, 70, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "예");
+			DGShowItem (dialogID, DG_OK);
+
+			// 종료 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 160, 240, 70, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "아니오");
+			DGShowItem (dialogID, DG_CANCEL);
+
+			// 라벨: 설명
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 10, 260, 23);
+			DGSetItemFont (dialogID, LABEL_DESC1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_DESC1_TOPREST, "보 상부에 다음 높이 만큼의 공간이 있습니다.");
+			DGShowItem (dialogID, LABEL_DESC1_TOPREST);
+
+			// 라벨: 높이
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 40, 50, 23);
+			DGSetItemFont (dialogID, LABEL_HEIGHT_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_HEIGHT_TOPREST, "높이");
+			DGShowItem (dialogID, LABEL_HEIGHT_TOPREST);
+
+			// Edit 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 140, 40-6, 70, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_HEIGHT_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, EDITCONTROL_HEIGHT_TOPREST);
+			for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
+				if (placingZone.topRestCells [xx].objType == PLYWOOD) {
+					initPlywoodHeight = placingZone.topRestCells [xx].verLen;
+					break;
+				}
+			}
+			DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT_TOPREST, initPlywoodHeight);
+			DGDisableItem (dialogID, EDITCONTROL_HEIGHT_TOPREST);
+
+			// 라벨: 설명
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 50, 80, 200, 23);
+			DGSetItemFont (dialogID, LABEL_DESC2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_DESC2_TOPREST, "유로폼으로 채우시겠습니까?");
+			DGShowItem (dialogID, LABEL_DESC2_TOPREST);
+
+			// 라벨: '위'
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 20, 120, 30, 23);
+			DGSetItemFont (dialogID, LABEL_UP_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_UP_TOPREST, "위");
+			DGShowItem (dialogID, LABEL_UP_TOPREST);
+
+			// 라벨: '↑'
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 20, 150, 30, 23);
+			DGSetItemFont (dialogID, LABEL_ARROWUP_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_ARROWUP_TOPREST, "↑");
+			DGShowItem (dialogID, LABEL_ARROWUP_TOPREST);
+
+			// 라벨: '아래'
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 20, 180, 30, 23);
+			DGSetItemFont (dialogID, LABEL_DOWN_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_DOWN_TOPREST, "아래");
+			DGShowItem (dialogID, LABEL_DOWN_TOPREST);
+
+			// 체크박스: 폼 On/Off (1단 - 맨 아래)
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 70, 180-6, 70, 25);
+			DGSetItemFont (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST, "유로폼");
+			DGShowItem (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST);
+
+			// 체크박스: 폼 On/Off (2단 - 중간)
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 70, 150-6, 70, 25);
+			DGSetItemFont (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST, "유로폼");
+			DGShowItem (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST);
+
+			// 라벨: 합판
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 120, 70, 23);
+			DGSetItemFont (dialogID, LABEL_PLYWOOD_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
+			DGShowItem (dialogID, LABEL_PLYWOOD_TOPREST);
+
+			// 체크박스: 규격폼 (1단 - 맨 아래)
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 150, 180-6, 70, 25);
+			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST, "규격폼");
+			DGShowItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
+			DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST, TRUE);
+
+			// 체크박스: 규격폼 (2단 - 중간)
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 150, 150-6, 70, 25);
+			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST, "규격폼");
+			DGShowItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
+			DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST, TRUE);
+
+			// 팝업 컨트롤: 유로폼 (1단) 너비
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 220, 180-6, 70, 25);
+			DGSetItemFont (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "600");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "500");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "450");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "400");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "300");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "200");
+			DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+
+			// 팝업 컨트롤: 유로폼 (2단) 너비
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 220, 150-6, 70, 25);
+			DGSetItemFont (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "600");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "500");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "450");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "400");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "300");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "200");
+			DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+
+			// Edit 컨트롤: 유로폼 (1단) 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 180-6, 60, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+
+			// Edit 컨트롤: 유로폼 (2단) 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 150-6, 60, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+
+			// Edit 컨트롤: 합판 또는 목재 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 120-6, 60, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_PLYWOOD_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, EDITCONTROL_PLYWOOD_TOPREST);
+			DGDisableItem (dialogID, EDITCONTROL_PLYWOOD_TOPREST);
+
+			break;
+
+		case DG_MSG_CHANGE:
+			switch (item) {
+				case CHECKBOX_SET_STANDARD_1_TOPREST:
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST) == TRUE) {
+						DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+					} else {
+						DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+					}
+					break;
+				
+				case CHECKBOX_SET_STANDARD_2_TOPREST:
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST) == TRUE) {
+						DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+					} else {
+						DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+					}
+					break;
+			}
+
+			// 폼의 너비에 따라 합판/목재 영역의 높이가 달라짐
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST) == TRUE)
+				bEuroform1 = true;
+			else
+				bEuroform1 = false;
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST) == TRUE)
+				bEuroform2 = true;
+			else
+				bEuroform2 = false;
+			if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST) == TRUE)
+				bEufoformStandard1 = true;
+			else
+				bEufoformStandard1 = false;
+			if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST) == TRUE)
+				bEufoformStandard2 = true;
+			else
+				bEufoformStandard2 = false;
+
+			for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
+				if (placingZone.topRestCells [xx].objType == PLYWOOD) {
+					initPlywoodHeight = placingZone.topRestCells [xx].verLen;
+					break;
+				}
+			}
+			
+			changedPlywoodHeight = initPlywoodHeight;
+			euroformWidth1 = 0.0;
+			euroformWidth2 = 0.0;
+
+			if (bEuroform1) {
+				if (bEufoformStandard1)
+					euroformWidth1 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST)).ToCStr ()) / 1000.0;
+				else
+					euroformWidth1 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			}
+
+			if (bEuroform2) {
+				if (bEufoformStandard2)
+					euroformWidth2 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST)).ToCStr ()) / 1000.0;
+				else
+					euroformWidth2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			}
+
+			changedPlywoodHeight -= (euroformWidth1 + euroformWidth2);
+
+			if (changedPlywoodHeight < EPS) {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
+			} else if (changedPlywoodHeight < 0.110) {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
+			} else {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
+			}
+			DGSetItemValDouble (dialogID, EDITCONTROL_PLYWOOD_TOPREST, changedPlywoodHeight);
+
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					// 각 유로폼 및 합판 영역의 높이를 계산함
+					if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST) == TRUE)
+						bEuroform1 = true;
+					else
+						bEuroform1 = false;
+					if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST) == TRUE)
+						bEuroform2 = true;
+					else
+						bEuroform2 = false;
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST) == TRUE)
+						bEufoformStandard1 = true;
+					else
+						bEufoformStandard1 = false;
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST) == TRUE)
+						bEufoformStandard2 = true;
+					else
+						bEufoformStandard2 = false;
+
+					for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
+						if (placingZone.topRestCells [xx].objType == PLYWOOD) {
+							initPlywoodHeight = placingZone.topRestCells [xx].verLen;
+							break;
+						}
+					}
+			
+					changedPlywoodHeight = initPlywoodHeight;
+					euroformWidth1 = 0.0;
+					euroformWidth2 = 0.0;
+
+					if (bEuroform1) {
+						if (bEufoformStandard1)
+							euroformWidth1 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST)).ToCStr ()) / 1000.0;
+						else
+							euroformWidth1 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+					}
+
+					if (bEuroform2) {
+						if (bEufoformStandard2)
+							euroformWidth2 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST)).ToCStr ()) / 1000.0;
+						else
+							euroformWidth2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+					}
+
+					changedPlywoodHeight -= (euroformWidth1 + euroformWidth2);
+
+					if (bEuroform1 || bEuroform2) {
+						//err = ACAPI_CallUndoableCommand ("벽 상단 합판 영역을 유로폼으로 채우기", [&] () -> GSErrCode {
+							for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
+								// 합판 영역이라면,
+								if (placingZone.topRestCells [xx].objType == PLYWOOD) {
+									// 합판 영역 아래 유로폼이 연속으로 있는지, 만약 연속으로 있다면 차지하는 너비가 얼마나 되는지 확인함
+									bValid3Window = false;
+									bValid2Window = false;
+									bValid1Window = false;
+
+									if ( (placingZone.cells [placingZone.underFormRowIndex][xx].objType == EUROFORM) && (placingZone.cells [placingZone.underFormRowIndex][xx+1].objType == EUROFORM) && (placingZone.cells [placingZone.underFormRowIndex][xx+2].objType == EUROFORM) ) {
+										bValid3Window = true;
+										width3Window = placingZone.cells [placingZone.underFormRowIndex][xx].horLen + placingZone.cells [placingZone.underFormRowIndex][xx+1].horLen + placingZone.cells [placingZone.underFormRowIndex][xx+2].horLen;
+									}
+
+									if ( (placingZone.cells [placingZone.underFormRowIndex][xx].objType == EUROFORM) && (placingZone.cells [placingZone.underFormRowIndex][xx+1].objType == EUROFORM) ) {
+										bValid2Window = true;
+										width2Window = placingZone.cells [placingZone.underFormRowIndex][xx].horLen + placingZone.cells [placingZone.underFormRowIndex][xx+1].horLen;
+									}
+
+									if ( (placingZone.cells [placingZone.underFormRowIndex][xx].objType == EUROFORM) ) {
+										bValid1Window = true;
+										width1Window = placingZone.cells [placingZone.underFormRowIndex][xx].horLen;
+									}
+
+									// 유로폼 너비의 합이 1200/900/600 중 하나인가?
+									bFindWidth = false;
+
+									if (bValid3Window == true) {
+										if ( (abs (width3Window - 1.200) < EPS) || (abs (width3Window - 0.900) < EPS) || (abs (width3Window - 0.600) < EPS) ) {
+											bFindWidth = true;
+											totalWidth = width3Window;
+											processedIndex = 2;
+										}
+									}
+
+									if ((bValid2Window == true) && (bFindWidth == false)) {
+										if ( (abs (width2Window - 1.200) < EPS) || (abs (width2Window - 0.900) < EPS) || (abs (width2Window - 0.600) < EPS) ) {
+											bFindWidth = true;
+											totalWidth = width2Window;
+											processedIndex = 1;
+										}
+									}
+
+									if ((bValid1Window == true) && (bFindWidth == false)) {
+										if ( (abs (width1Window - 1.200) < EPS) || (abs (width1Window - 0.900) < EPS) || (abs (width1Window - 0.600) < EPS) ) {
+											bFindWidth = true;
+											totalWidth = width1Window;
+											processedIndex = 0;
+										}
+									}
+
+									// ...
+									char msg [100];
+									sprintf (msg, "창 여부: %d / %d / %d\n아래셀 각 너비: %.4f / %.4f / %.4f", bValid1Window, bValid2Window, bValid3Window, placingZone.cells [placingZone.underFormRowIndex][xx].horLen, placingZone.cells [placingZone.underFormRowIndex][xx+1].horLen, placingZone.cells [placingZone.underFormRowIndex][xx+2].horLen);
+									ACAPI_WriteReport (msg, true);
+
+									// 유로폼 너비의 합이 1200/900/600 중 하나인 것을 발견하지 못하면 통과
+									if (bFindWidth == false)
+										break;
+
+									// 사용자가 입력한 대로 유로폼(벽눕히기) 및 합판 또는 목재를 배치함
+
+									/*
+									// 유로폼 (1단)
+									if (bEuroform1) {
+										insCell.objType = EUROFORM;
+										insCell.leftBottomX = placingZone.topRestCells [xx].leftBottomX;
+										insCell.leftBottomY = placingZone.topRestCells [xx].leftBottomY;
+										insCell.leftBottomZ = placingZone.topRestCells [xx].leftBottomZ;
+										insCell.ang = placingZone.topRestCells [xx].ang;
+										insCell.libPart.form.u_ins_wall = false;
+
+										if (bEufoformStandard1) {
+											insCell.libPart.form.eu_stan_onoff = true;
+											insCell.libPart.form.eu_wid = euroformWidth1;
+											insCell.libPart.form.eu_hei = totalWidth;
+										} else {
+											insCell.libPart.form.eu_stan_onoff = false;
+											insCell.libPart.form.eu_wid2 = euroformWidth1;
+											insCell.libPart.form.eu_hei2 = totalWidth;
+										}
+
+										insCellB.objType = EUROFORM;
+										insCellB.leftBottomX = placingZoneBackside.topRestCells [xx].leftBottomX + (totalWidth * cos(placingZoneBackside.topRestCells [xx].ang));
+										insCellB.leftBottomY = placingZoneBackside.topRestCells [xx].leftBottomY + (totalWidth * sin(placingZoneBackside.topRestCells [xx].ang));
+										insCellB.leftBottomZ = placingZoneBackside.topRestCells [xx].leftBottomZ;
+										insCellB.ang = placingZoneBackside.topRestCells [xx].ang;
+										insCellB.libPart.form.u_ins_wall = false;
+
+										if (bEufoformStandard1) {
+											insCellB.libPart.form.eu_stan_onoff = true;
+											insCellB.libPart.form.eu_wid = euroformWidth1;
+											insCellB.libPart.form.eu_hei = totalWidth;
+										} else {
+											insCellB.libPart.form.eu_stan_onoff = false;
+											insCellB.libPart.form.eu_wid2 = euroformWidth1;
+											insCellB.libPart.form.eu_hei2 = totalWidth;
+										}
+
+										placeLibPart (insCell);
+										placeLibPart (insCellB);
+									}
+								
+									// 유로폼 (2단)
+									// ... 2 유로폼 (규격/비규격? 너비: euroformWidth2, 높이: totalWidth)
+									if (bEuroform2) {
+									}
+
+									// 합판 또는 목재
+									// ... 3 합판/목재 (너비: changedPlywoodHeight, 높이: totalWidth)
+									*/
+
+									xx += processedIndex;
+								}
+							}
+
+							return err;
+						//});
+					}
 
 					break;
 				case DG_CANCEL:

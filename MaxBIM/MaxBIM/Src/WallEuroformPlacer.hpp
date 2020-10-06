@@ -28,10 +28,11 @@ void	copyPlacingZoneSymmetricForWall (PlacingZone* src_zone, PlacingZone* dst_zo
 void	alignPlacingZoneForWall (PlacingZone* target_zone);													// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 GSErrCode	placeEuroformOnWall (void);																		// 1번 메뉴: 유로폼/인코너 등을 배치하는 통합 루틴
 GSErrCode	fillRestAreasForWall (void);																	// 가로 채우기까지 완료된 후 자투리 공간 채우기
-short DGCALLBACK wallPlacerHandlerPrimary (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
-short DGCALLBACK wallPlacerHandlerSecondary (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
-short DGCALLBACK wallPlacerHandlerThird (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
-short DGCALLBACK wallPlacerHandlerFourth (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 보 하부의 합판/목재 영역을 유로폼으로 채울지 물어보는 4차 다이얼로그
+short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
+short DGCALLBACK wallPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
+short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 보 하부의 합판/목재 영역을 유로폼으로 채울지 물어보는 4차 다이얼로그
+short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 5차 다이얼로그
 
 // 공통 함수
 void	copyCellsToAnotherLine (PlacingZone* target_zone, short src_row, short dst_row);					// src행의 Cell 전체 라인을 dst행으로 복사
@@ -175,6 +176,26 @@ enum	idxItem_4 {
 	LABEL_EUROFORM_ORIENTATION_OPTIONS_BEAMAROUND,
 	RADIO_ORIENTATION_1_EUROFORM_BEAMAROUND,
 	RADIO_ORIENTATION_2_EUROFORM_BEAMAROUND
+};
+
+enum	idxItem_5 {
+	LABEL_DESC1_TOPREST		= 3,
+	LABEL_HEIGHT_TOPREST,
+	EDITCONTROL_HEIGHT_TOPREST,
+	LABEL_DESC2_TOPREST,
+	LABEL_UP_TOPREST,
+	LABEL_ARROWUP_TOPREST,
+	LABEL_DOWN_TOPREST,
+	CHECKBOX_FORM_ONOFF_1_TOPREST,
+	CHECKBOX_FORM_ONOFF_2_TOPREST,
+	LABEL_PLYWOOD_TOPREST,
+	CHECKBOX_SET_STANDARD_1_TOPREST,
+	CHECKBOX_SET_STANDARD_2_TOPREST,
+	POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST,
+	POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST,
+	EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST,
+	EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST,
+	EDITCONTROL_PLYWOOD_TOPREST
 };
 
 // 객체 번호
@@ -362,5 +383,6 @@ struct PlacingZone
 	Cell			woods [30][3];	// 보 주변 합판/목재 셀
 
 	// 상단 합판/목재 셀 정보
-	Cell	topRestCells [100];		// 상단 자투리 공간 셀
+	Cell	topRestCells [100];		// 상단 자투리 공간 합판/목재 셀
+	short	underFormRowIndex;		// 합판/목재 셀 밑 라인의 유로폼들의 행 인덱스 번호
 };
