@@ -23,9 +23,9 @@
 
 
 /* ---------------------------------------------------------- place Euroform/In-corner/etc on Wall */
-'GDLG'  32501  Modal | grow	  0		  0		300		300		"유로폼 벽에 배치" {
-/* [  1] */	Button			 70		260		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		260		 70		 25		LargePlain		"Cancel"
+'GDLG'  32501  Modal | grow	  0		  0		300		440		"유로폼 벽에 배치" {
+/* [  1] */	Button			 70		400		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		400		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */ LeftText		 10		 10		200		 23		LargePlain		"Incorner Settings"
 /* [  4] */ CheckBox		 10		 33		 70		 25		LargePlain		"Left"
@@ -53,6 +53,17 @@
 							NoIcon	"벽세우기"
 							NoIcon	"벽눕히기"
 /* [ 16] */ Separator		  5		205		290		  1
-/* [ 17] */ Icon			 36		218		 29		 14  	32502
-/* [ 18] */ UserControl		 70		213		160		 25		257	0x0006 0x0000 0		/* Layer Control */
+
+/* [ 17] */ Icon			 85		218		 29		 14  	32502
+/* [ 18] */ LeftText		120		220		200		 23		LargePlain		"Layer Settings"
+/* [ 19] */ RightText		 10		250		100		 23		LargePlain		"Incorner"
+/* [ 20] */ RightText		 10		280		100		 23		LargePlain		"Euroform"
+/* [ 21] */ RightText		 10		310		100		 23		LargePlain		"Fillerspacer"
+/* [ 22] */ RightText		 10		340		100		 23		LargePlain		"Plywood"
+/* [ 23] */ RightText		 10		370		100		 23		LargePlain		"Wood"
+/* [ 24] */ UserControl		120		244		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER		*/
+/* [ 25] */ UserControl		120		274		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
+/* [ 26] */ UserControl		120		304		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER	*/
+/* [ 27] */ UserControl		120		334		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
+/* [ 28] */ UserControl		120		364		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
 }

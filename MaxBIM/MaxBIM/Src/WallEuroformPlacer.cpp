@@ -11,7 +11,11 @@ static PlacingZone		placingZoneBackside;	// 반대쪽 벽면에도 벽면 영역 정보 부여,
 static InfoWall			infoWall;				// 벽 객체 정보
 static short			clickedBtnItemIdx;		// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool				clickedOKButton;		// OK 버튼을 눌렀습니까?
-static short			layerInd;				// 객체를 배치할 레이어 인덱스
+static short			layerInd_Incorner;		// 레이어 번호: 인코너
+static short			layerInd_Euroform;		// 레이어 번호: 유로폼
+static short			layerInd_Fillerspacer;	// 레이어 번호: 휠러스페이서
+static short			layerInd_Plywood;		// 레이어 번호: 합판
+static short			layerInd_Wood;			// 레이어 번호: 목재
 static short			itemInitIdx = GRIDBUTTON_IDX_START;		// 그리드 버튼 항목 인덱스 시작번호
 static short			numberOfinterfereBeam;	// 몇 번째 간섭 보인가?
 
@@ -1102,16 +1106,18 @@ API_Guid	placeLibPart (Cell objInfo)
 	element.object.xRatio = aParam;
 	element.object.yRatio = bParam;
 	element.object.angle = objInfo.ang;
-	element.header.layer = layerInd;
 	element.header.floorInd = infoWall.floorInd;
 
 	if (objInfo.objType == INCORNER) {
+		element.header.layer = layerInd_Incorner;
 		memo.params [0][27].value.real = objInfo.libPart.incorner.wid_s;	// 가로(빨강)
 		memo.params [0][28].value.real = objInfo.libPart.incorner.leng_s;	// 세로(파랑)
 		memo.params [0][29].value.real = objInfo.libPart.incorner.hei_s;	// 높이
 		GS::ucscpy (memo.params [0][30].value.uStr, L("세우기"));			// 설치방향
 
 	} else if (objInfo.objType == EUROFORM) {
+		element.header.layer = layerInd_Euroform;
+
 		// 규격품일 경우,
 		if (objInfo.libPart.form.eu_stan_onoff == true) {
 			// 규격폼 On/Off
@@ -1148,12 +1154,14 @@ API_Guid	placeLibPart (Cell objInfo)
 		GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
 
 	} else if (objInfo.objType == FILLERSPACER) {
+		element.header.layer = layerInd_Fillerspacer;
 		memo.params [0][27].value.real = objInfo.libPart.fillersp.f_thk;	// 두께
 		memo.params [0][28].value.real = objInfo.libPart.fillersp.f_leng;	// 길이
 		element.object.pos.x += ( objInfo.libPart.fillersp.f_thk * cos(objInfo.ang) );
 		element.object.pos.y += ( objInfo.libPart.fillersp.f_thk * sin(objInfo.ang) );
 
 	} else if (objInfo.objType == PLYWOOD) {
+		element.header.layer = layerInd_Plywood;
 		GS::ucscpy (memo.params [0][32].value.uStr, L("비규격"));
 		memo.params [0][35].value.real = objInfo.libPart.fillersp.f_thk;	// 가로
 		memo.params [0][36].value.real = objInfo.libPart.fillersp.f_leng;	// 세로
@@ -1165,6 +1173,7 @@ API_Guid	placeLibPart (Cell objInfo)
 			tempString = "벽눕히기";
 		GS::ucscpy (memo.params [0][33].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
 	} else if (objInfo.objType == WOOD) {
+		element.header.layer = layerInd_Wood;
 		GS::ucscpy (memo.params [0][27].value.uStr, L("벽세우기"));		// 설치방향
 		memo.params [0][28].value.real = objInfo.libPart.wood.w_w;		// 두께
 		memo.params [0][29].value.real = objInfo.libPart.wood.w_h;		// 너비
@@ -1564,13 +1573,47 @@ short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, 
 			// 라벨: 설치방향
 			DGSetItemText (dialogID, LABEL_EUROFORM_ORIENTATION, "설치방향");
 
+			// 라벨: 레이어 설정
+			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
+
+			// 라벨: 레이어 - 인코너
+			DGSetItemText (dialogID, LABEL_LAYER_INCORNER, "인코너");
+
+			// 라벨: 레이어 - 유로폼
+			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
+
+			// 라벨: 레이어 - 휠러스페이서
+			DGSetItemText (dialogID, LABEL_LAYER_FILLERSPACER, "휠러스페이서");
+
+			// 라벨: 레이어 - 목재
+			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "목재");
+
+			// 라벨: 레이어 - 합판
+			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "합판");
+
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
 			ucb.dialogID = dialogID;
 			ucb.type	 = APIUserControlType_Layer;
-			ucb.itemID	 = USERCONTROL_LAYER;
+			ucb.itemID	 = USERCONTROL_LAYER_INCORNER;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-			DGSetItemValLong (dialogID, USERCONTROL_LAYER, 1);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_EUROFORM;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_FILLERSPACER;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_PLYWOOD;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_WOOD;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, 1);
 
 			break;
 
@@ -1610,7 +1653,11 @@ short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, 
 					placingZone.lenRIncorner = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_INCORNER);
 
 					// 레이어 번호 저장
-					layerInd = (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER);
+					layerInd_Incorner		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER);
+					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
+					layerInd_Fillerspacer	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER);
+					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
+					layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
 
 					break;
 				case DG_CANCEL:
