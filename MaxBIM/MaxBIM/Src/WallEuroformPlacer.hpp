@@ -384,5 +384,4 @@ struct PlacingZone
 
 	// 상단 합판/목재 셀 정보
 	Cell	topRestCells [100];		// 상단 자투리 공간 합판/목재 셀
-	short	underFormRowIndex;		// 합판/목재 셀 밑 라인의 유로폼들의 행 인덱스 번호
 };
