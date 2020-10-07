@@ -4285,7 +4285,7 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 			// 라벨: 설명
 			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 10, 260, 23);
 			DGSetItemFont (dialogID, LABEL_DESC1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_DESC1_TOPREST, "보 상부에 다음 높이 만큼의 공간이 있습니다.");
+			DGSetItemText (dialogID, LABEL_DESC1_TOPREST, "벽 상부에 다음 높이 만큼의 공간이 있습니다.");
 			DGShowItem (dialogID, LABEL_DESC1_TOPREST);
 
 			// 라벨: 높이
