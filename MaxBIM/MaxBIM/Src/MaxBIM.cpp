@@ -4,6 +4,7 @@
 
 #include "MaxBIM.hpp"
 #include "WallEuroformPlacer.hpp"
+#include "SlabEuroformPlacer.hpp"
 
 #define	MDID_DEVELOPER_ID	829517673
 #define	MDID_LOCAL_ID		3588511626
@@ -53,7 +54,8 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 	switch (menuParams->menuItemRef.menuResID) {
 		case 32001:
 			switch (menuParams->menuItemRef.itemIndex) {
-				case 1:		err = placeEuroformOnWall ();		break;	// place Euroform/In-corner/etc on Wall
+				case 1:		err = placeEuroformOnWall ();			break;	// place Euroform on Wall
+				case 2:		err = placeEuroformOnSlabBottom ();		break;	// place Euroform on Slab Bottom
 			}
 	}
 

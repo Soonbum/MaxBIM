@@ -26,19 +26,17 @@ void	initCellsForWall (PlacingZone* placingZone);														// Cell 배열을 초
 void	firstPlacingSettingsForWall (PlacingZone* placingZone);												// 1차 배치: 인코너, 유로폼
 void	copyPlacingZoneSymmetricForWall (PlacingZone* src_zone, PlacingZone* dst_zone, InfoWall* infoWall);	// 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
 void	alignPlacingZoneForWall (PlacingZone* target_zone);													// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-GSErrCode	placeEuroformOnWall (void);																		// 1번 메뉴: 유로폼/인코너 등을 배치하는 통합 루틴
+void	copyCellsToAnotherLineForWall (PlacingZone* target_zone, short src_row, short dst_row);				// src행의 Cell 전체 라인을 dst행으로 복사
+void	setCellPositionLeftBottomZForWall (PlacingZone *src_zone, short arr1, double new_hei);				// [arr1]행 - 전체 셀의 최하단 좌표Z 위치를 설정
+double	getCellPositionLeftBottomXForWall (PlacingZone *src_zone, short arr1, short idx);					// [arr1]행 - 해당 셀의 좌하단 좌표X 위치를 리턴
+API_Guid	placeLibPartForWall (Cell objInfo);																// 해당 셀 정보를 기반으로 라이브러리 배치
+GSErrCode	placeEuroformOnWall (void);																		// 1번 메뉴: 벽에 유로폼을 배치하는 통합 루틴
 GSErrCode	fillRestAreasForWall (void);																	// 가로 채우기까지 완료된 후 자투리 공간 채우기
 short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK wallPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
 short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 보 하부의 합판/목재 영역을 유로폼으로 채울지 물어보는 4차 다이얼로그
 short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 5차 다이얼로그
-
-// 공통 함수
-void	copyCellsToAnotherLine (PlacingZone* target_zone, short src_row, short dst_row);					// src행의 Cell 전체 라인을 dst행으로 복사
-API_Guid	placeLibPart (Cell objInfo);																	// 해당 셀 정보를 기반으로 라이브러리 배치
-double		getCellPositionLeftBottomX (PlacingZone *src_zone, short arr1, short idx);						// [arr1]행 - 해당 셀의 좌하단 좌표X 위치를 리턴
-void		setCellPositionLeftBottomZ (PlacingZone *src_zone, short arr1, double new_hei);					// [arr1]행 - 전체 셀의 최하단 좌표Z 위치를 설정
 
 
 // 다이얼로그 항목 인덱스

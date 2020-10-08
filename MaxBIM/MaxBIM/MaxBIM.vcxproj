@@ -130,11 +130,13 @@
     <ClInclude Include="Src\APICommon.h" />
     <ClInclude Include="Src\APIEnvir.h" />
     <ClInclude Include="Src\MaxBIM.hpp" />
+    <ClInclude Include="Src\SlabEuroformPlacer.hpp" />
     <ClInclude Include="Src\UtilityFunctions.hpp" />
     <ClInclude Include="Src\WallEuroformPlacer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\APICommon.c" />
+    <ClCompile Include="Src\SlabEuroformPlacer.cpp" />
     <ClCompile Include="Src\WallEuroformPlacer.cpp" />
     <ClCompile Include="Src\MaxBIM.cpp" />
     <ClCompile Include="Src\UtilityFunctions.cpp" />

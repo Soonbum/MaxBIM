@@ -36,6 +36,9 @@
     <ClInclude Include="Src\WallEuroformPlacer.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Src\SlabEuroformPlacer.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\MaxBIM.cpp">
@@ -48,6 +51,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Src\WallEuroformPlacer.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\SlabEuroformPlacer.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
