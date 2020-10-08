@@ -4771,9 +4771,35 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 										placeLibPart (insCellB);
 									}
 
-									// 합판 또는 목재
+									// 합판 또는 목재 (공간이 없으면 폼 위에 높이 50mm의 목재를 붙임)
 									if (changedPlywoodHeight < EPS) {
-										// 공간이 없음
+										insCell.objType = WOOD;
+										insCell.leftBottomX = placingZone.topRestCells [xx].leftBottomX + (0.064 * sin(placingZone.topRestCells [xx].ang));
+										insCell.leftBottomY = placingZone.topRestCells [xx].leftBottomY - (0.064 * cos(placingZone.topRestCells [xx].ang));
+										insCell.leftBottomZ = placingZone.topRestCells [xx].leftBottomZ + (bEuroform1 * euroformWidth1) + (bEuroform2 * euroformWidth2) - 0.050;
+										insCell.ang = placingZone.topRestCells [xx].ang;
+										insCell.libPart.wood.w_ang = 0.0;
+										insCell.libPart.wood.w_w = 0.080;	// 두께: 80mm
+										insCell.libPart.wood.w_h = 0.050;	// 높이: 50mm
+										insCell.libPart.wood.w_leng = totalWidth;
+										insCell.horLen = totalWidth;
+										insCell.verLen = 0.050;
+
+										insCellB.objType = WOOD;
+										insCellB.leftBottomX = placingZoneBackside.topRestCells [xx].leftBottomX - (backsideDistance * cos(placingZoneBackside.topRestCells [xx].ang)) - (0.064 * sin(placingZone.topRestCells [xx].ang));
+										insCellB.leftBottomY = placingZoneBackside.topRestCells [xx].leftBottomY - (backsideDistance * sin(placingZoneBackside.topRestCells [xx].ang)) + (0.064 * cos(placingZone.topRestCells [xx].ang));
+										insCellB.leftBottomZ = placingZoneBackside.topRestCells [xx].leftBottomZ + (bEuroform1 * euroformWidth1) + (bEuroform2 * euroformWidth2) - 0.050;
+										insCellB.ang = placingZoneBackside.topRestCells [xx].ang;
+										insCellB.libPart.wood.w_ang = 0.0;
+										insCellB.libPart.wood.w_w = 0.080;	// 두께: 80mm
+										insCellB.libPart.wood.w_h = 0.050;	// 높이: 50mm
+										insCellB.libPart.wood.w_leng = totalWidth;
+										insCellB.horLen = totalWidth;
+										insCellB.verLen = 0.050;
+
+										placeLibPart (insCell);
+										placeLibPart (insCellB);
+
 									} else if (changedPlywoodHeight < 0.110) {
 										insCell.objType = WOOD;
 										insCell.leftBottomX = placingZone.topRestCells [xx].leftBottomX;
