@@ -3,34 +3,6 @@
 
 #include "MaxBIM.hpp"
 
-// 변수 선언
-enum	idxItems_1;
-enum	idxItems_2;
-enum	idxItems_3;
-struct	InfoWall;
-struct	InfoMorphForWall;
-struct	InterfereBeamForWall;
-struct	CellForWall;
-struct	WallPlacingZone;
-
-// 유로폼 벽 배치 함수
-void	initCellsForWall (WallPlacingZone* placingZone);															// Cell 배열을 초기화함
-void	firstPlacingSettingsForWall (WallPlacingZone* placingZone);													// 1차 배치: 인코너, 유로폼
-void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone* dst_zone, InfoWall* infoWall);	// 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
-void	alignPlacingZoneForWall (WallPlacingZone* target_zone);														// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-void	copyCellsToAnotherLineForWall (WallPlacingZone* target_zone, short src_row, short dst_row);					// src행의 Cell 전체 라인을 dst행으로 복사
-void	setCellPositionLeftBottomZForWall (WallPlacingZone *src_zone, short arr1, double new_hei);					// [arr1]행 - 전체 셀의 최하단 좌표Z 위치를 설정
-double	getCellPositionLeftBottomXForWall (WallPlacingZone *src_zone, short arr1, short idx);						// [arr1]행 - 해당 셀의 좌하단 좌표X 위치를 리턴
-API_Guid	placeLibPartForWall (CellForWall objInfo);																// 해당 셀 정보를 기반으로 라이브러리 배치
-GSErrCode	placeEuroformOnWall (void);																				// 1번 메뉴: 벽에 유로폼을 배치하는 통합 루틴
-GSErrCode	fillRestAreasForWall (void);																			// 가로 채우기까지 완료된 후 자투리 공간 채우기
-short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
-short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
-short DGCALLBACK wallPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
-short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 보 하부의 합판/목재 영역을 유로폼으로 채울지 물어보는 4차 다이얼로그
-short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 5차 다이얼로그
-
-
 // 다이얼로그 항목 인덱스
 enum	idxItems_1 {
 	LABEL_INCORNER				= 3,
@@ -199,7 +171,6 @@ enum	idxItem_5 {
 	EDITCONTROL_PLYWOOD_TOPREST
 };
 
-
 // 벽 관련 정보
 struct InfoWall
 {
@@ -265,7 +236,7 @@ struct CellForWall
 	} libPart;
 };
 
-// 벽면 영역 정보 (가장 중요한 정보)
+// 벽면 영역 정보
 struct WallPlacingZone
 {
 	double	leftBottomX;	// 좌하단 좌표 X
@@ -308,5 +279,22 @@ struct WallPlacingZone
 	// 상단 합판/목재 셀 정보
 	CellForWall		topRestCells [100];		// 상단 자투리 공간 합판/목재 셀
 };
+
+// 유로폼 벽 배치 함수
+void	initCellsForWall (WallPlacingZone* placingZone);															// Cell 배열을 초기화함
+void	firstPlacingSettingsForWall (WallPlacingZone* placingZone);													// 1차 배치: 인코너, 유로폼
+void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone* dst_zone, InfoWall* infoWall);	// 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
+void	alignPlacingZoneForWall (WallPlacingZone* target_zone);														// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+void	copyCellsToAnotherLineForWall (WallPlacingZone* target_zone, short src_row, short dst_row);					// src행의 Cell 전체 라인을 dst행으로 복사
+void	setCellPositionLeftBottomZForWall (WallPlacingZone *src_zone, short arr1, double new_hei);					// [arr1]행 - 전체 셀의 최하단 좌표Z 위치를 설정
+double	getCellPositionLeftBottomXForWall (WallPlacingZone *src_zone, short arr1, short idx);						// [arr1]행 - 해당 셀의 좌하단 좌표X 위치를 리턴
+API_Guid	placeLibPartForWall (CellForWall objInfo);																// 해당 셀 정보를 기반으로 라이브러리 배치
+GSErrCode	placeEuroformOnWall (void);																				// 1번 메뉴: 벽에 유로폼을 배치하는 통합 루틴
+GSErrCode	fillRestAreasForWall (void);																			// 가로 채우기까지 완료된 후 자투리 공간 채우기
+short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
+short DGCALLBACK wallPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
+short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 보 하부의 합판/목재 영역을 유로폼으로 채울지 물어보는 4차 다이얼로그
+short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 5차 다이얼로그
 
 #endif

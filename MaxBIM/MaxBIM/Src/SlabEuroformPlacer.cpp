@@ -11,13 +11,141 @@
 GSErrCode	placeEuroformOnSlabBottom (void)
 {
 	GSErrCode	err = NoError;
+	long		nSel;
+	short		xx, yy;
+
+	// Selection Manager 관련 변수
+	API_SelectionInfo		selectionInfo;
+	API_Element				tElem;
+	API_Neig				**selNeigs;
+	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
+	long					nMorphs = 0;
+
+	// 객체 정보 가져오기
+	API_Element				elem;
+	API_ElemInfo3D			info3D;
+
+	// 모프 객체 정보
+	InfoMorphForSlab		infoMorph;
+
+	// 작업 층 정보
+	API_StoryInfo	storyInfo;
+	double			minusLevel;
+
+
+	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);	// 선택한 요소 가져오기
+	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	if (err == APIERR_NOPLAN) {
+		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
+		return err;
+	}
+	if (err == APIERR_NOSEL) {
+		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 슬래브 하부를 덮는 모프 (1개)", true);
+		return err;
+	}
+	if (err != NoError) {
+		BMKillHandle ((GSHandle *) &selNeigs);
+		return err;
+	}
+
+	// 모프 1개 선택해야 함
+	if (selectionInfo.typeID != API_SelEmpty) {
+		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
+		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
+			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
+
+			tElem.header.guid = (*selNeigs)[xx].guid;
+			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
+				continue;
+
+			if (tElem.header.typeID == API_MorphID)		// 모프인가?
+				morphs.Push (tElem.header.guid);
+		}
+	}
+	BMKillHandle ((GSHandle *) &selNeigs);
+	nMorphs = morphs.GetSize ();
+
+	// 모프가 1개인가?
+	if (nMorphs != 1) {
+		ACAPI_WriteReport ("슬래브 하부를 덮는 모프를 1개 선택하셔야 합니다.", true);
+		err = APIERR_GENERAL;
+		return err;
+	}
+
+	// 모프 정보를 가져옴
+	BNZeroMemory (&elem, sizeof (API_Element));
+	elem.header.guid = morphs.Pop ();
+	err = ACAPI_Element_Get (&elem);
+	err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
+
+	// 만약 모프가 누워 있어야 함
+	if (abs (info3D.bounds.zMax - info3D.bounds.zMin) > EPS) {
+		ACAPI_WriteReport ("모프가 누워 있지 않습니다.", true);
+		err = APIERR_GENERAL;
+		return err;
+	}
+
+	// 모프의 GUID 저장
+	infoMorph.guid = elem.header.guid;
+
+
+
+
+	// ... 모프의 3D 바디를 먼저 가져옴
+	API_Component3D		component;
+	API_Tranmat			tm;
+	short				j;
+	Int32				nVert, nEdge, nPgon;
+	Int32				elemIdx, bodyIdx;
+
+	BNZeroMemory (&component, sizeof (API_Component3D));
+	component.header.typeID = API_BodyID;
+	component.header.index = info3D.fbody;
+	err = ACAPI_3D_GetComponent (&component);
+
+	if (err != NoError)
+		return err;
+
+	nVert = component.body.nVert;
+	nEdge = component.body.nEdge;
+	nPgon = component.body.nPgon;
+	tm = component.body.tranmat;
+	elemIdx = component.body.head.elemIndex - 1;
+	bodyIdx = component.body.head.bodyIndex - 1;
+	std::string	tempString;
+	
+	err = ACAPI_CallUndoableCommand ("테스트", [&] () -> GSErrCode {
+		for (j = 1; j <= nVert; j++) {
+			component.header.typeID = API_VertID;
+			component.header.index  = j;
+			err = ACAPI_3D_GetComponent (&component);
+			if (err == NoError) {
+				API_Coord3D	trCoord;	// world coordinates
+				tempString = format_string ("%d", j);
+				trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
+				trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
+				trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
+				if (abs (trCoord.z - elem.morph.level) < EPS)
+					placeCoordinateLabel (trCoord.x, trCoord.y, trCoord.z, true, tempString, 1, 0);
+			}
+		}
+		
+		return NoError;
+	});
+
+	// ... 좌하단을 찾아야 한다. 위 반복문의 순서는 폴리곤 정점 순서랑 무관함
+	// ... 영역의 너비, 높이를 구해야 한다.
+
+
+
 
 	/*
 		* 사용 부재(3가지): 유로폼(회전X: 0도, 벽세우기로 고정), 합판(각도: 90도), 목재(설치방향: 바닥눕히기)
 		
 		1. 모프를 1개 그려야 함 (실행 전 사전 작업할 부분)
-			- 직사각형이 아님 (마법봉 안됨, 좌하단 점부터 시작해서 직접 하나씩 점을 찍어서 그려야 함)
+			- 직사각형이 아님 (마법봉 또는 하나씩 점을 찍어서 그려야 함)
 		2. 모프 영역 설정
+			- 좌하단 점을 찍으라고 사용자에게 요청함
 			- 모프의 폴리곤 좌표를 가져와야 함
 		3. 작업 층 높이 반영
 		4. 모든 영역 정보의 Z 정보를 수정
