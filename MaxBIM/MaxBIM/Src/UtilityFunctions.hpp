@@ -1,6 +1,5 @@
 #ifndef	__UTILITY_FUNCTIONS__
 #define __UTILITY_FUNCTIONS__
-#endif
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -19,3 +18,5 @@ API_Coord	IntersectionPoint3 (double a1, double b1, double c1, double a2, double
 
 std::string	format_string(const std::string fmt, ...);														// std::string 변수 값에 formatted string을 입력 받음
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd);		// 좌표 라벨을 배치함
+
+#endif

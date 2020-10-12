@@ -1,6 +1,5 @@
 #ifndef	__WALL_EUROFORM_PLACER__
 #define __WALL_EUROFORM_PLACER__
-#endif
 
 #include "MaxBIM.hpp"
 
@@ -8,30 +7,23 @@
 enum	idxItems_1;
 enum	idxItems_2;
 enum	idxItems_3;
-enum	libPartObjType;
 struct	InfoWall;
-struct	InfoMorph;
-struct	InterfereBeam;
-struct	Euroform;
-struct	FillerSpacer;
-struct	IncornerPanel;
-struct	Plywood;
-struct	Wood;
-struct	Cell;
-struct	PlacingZone;
-class	WallPlacingZone;
+struct	InfoMorphForWall;
+struct	InterfereBeamForWall;
+struct	CellForWall;
+struct	WallPlacingZone;
 
 // 유로폼 벽 배치 함수
-void	initCellsForWall (PlacingZone* placingZone);														// Cell 배열을 초기화함
-void	firstPlacingSettingsForWall (PlacingZone* placingZone);												// 1차 배치: 인코너, 유로폼
-void	copyPlacingZoneSymmetricForWall (PlacingZone* src_zone, PlacingZone* dst_zone, InfoWall* infoWall);	// 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
-void	alignPlacingZoneForWall (PlacingZone* target_zone);													// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-void	copyCellsToAnotherLineForWall (PlacingZone* target_zone, short src_row, short dst_row);				// src행의 Cell 전체 라인을 dst행으로 복사
-void	setCellPositionLeftBottomZForWall (PlacingZone *src_zone, short arr1, double new_hei);				// [arr1]행 - 전체 셀의 최하단 좌표Z 위치를 설정
-double	getCellPositionLeftBottomXForWall (PlacingZone *src_zone, short arr1, short idx);					// [arr1]행 - 해당 셀의 좌하단 좌표X 위치를 리턴
-API_Guid	placeLibPartForWall (Cell objInfo);																// 해당 셀 정보를 기반으로 라이브러리 배치
-GSErrCode	placeEuroformOnWall (void);																		// 1번 메뉴: 벽에 유로폼을 배치하는 통합 루틴
-GSErrCode	fillRestAreasForWall (void);																	// 가로 채우기까지 완료된 후 자투리 공간 채우기
+void	initCellsForWall (WallPlacingZone* placingZone);															// Cell 배열을 초기화함
+void	firstPlacingSettingsForWall (WallPlacingZone* placingZone);													// 1차 배치: 인코너, 유로폼
+void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone* dst_zone, InfoWall* infoWall);	// 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
+void	alignPlacingZoneForWall (WallPlacingZone* target_zone);														// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+void	copyCellsToAnotherLineForWall (WallPlacingZone* target_zone, short src_row, short dst_row);					// src행의 Cell 전체 라인을 dst행으로 복사
+void	setCellPositionLeftBottomZForWall (WallPlacingZone *src_zone, short arr1, double new_hei);					// [arr1]행 - 전체 셀의 최하단 좌표Z 위치를 설정
+double	getCellPositionLeftBottomXForWall (WallPlacingZone *src_zone, short arr1, short idx);						// [arr1]행 - 해당 셀의 좌하단 좌표X 위치를 리턴
+API_Guid	placeLibPartForWall (CellForWall objInfo);																// 해당 셀 정보를 기반으로 라이브러리 배치
+GSErrCode	placeEuroformOnWall (void);																				// 1번 메뉴: 벽에 유로폼을 배치하는 통합 루틴
+GSErrCode	fillRestAreasForWall (void);																			// 가로 채우기까지 완료된 후 자투리 공간 채우기
 short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK wallPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
@@ -207,16 +199,6 @@ enum	idxItem_5 {
 	EDITCONTROL_PLYWOOD_TOPREST
 };
 
-// 객체 번호
-enum	libPartObjType {
-	NONE,			// 없음
-	INCORNER,		// 인코너판넬v1.0
-	EUROFORM,		// 유로폼v2.0
-	FILLERSPACER,	// 휠러스페이서v1.0
-	PLYWOOD,		// 합판v1.0
-	WOOD			// 목재v1.0
-};
-
 
 // 벽 관련 정보
 struct InfoWall
@@ -231,7 +213,7 @@ struct InfoWall
 };
 
 // 모프 관련 정보
-struct InfoMorph
+struct InfoMorphForWall
 {
 	API_Guid	guid;		// 모프의 GUID
 
@@ -249,7 +231,7 @@ struct InfoMorph
 };
 
 // 간섭 보 정보
-struct InterfereBeam
+struct InterfereBeamForWall
 {
 	double	leftBottomX;
 	double	leftBottomY;
@@ -259,76 +241,8 @@ struct InterfereBeam
 	double	verLen;
 };
 
-// 유로폼 정보
-struct Euroform
-{
-	bool			eu_stan_onoff;	// 규격폼 On/Off
-	double			eu_wid;			// 너비 (규격) : *600, 500, 450, 400, 300, 200
-	double			eu_hei;			// 높이 (규격) : *1200, 900, 600
-	double			eu_wid2;		// 너비 (비규격) : 50 ~ 900
-	double			eu_hei2;		// 높이 (비규격) : 50 ~ 1500
-	bool			u_ins_wall;		// 설치방향 : 벽세우기(true), 벽눕히기(false)
-	/*
-	std::string		u_ins;			// 설치방향 : *벽세우기, 벽눕히기
-	double			ang_x;			// 회전X : 벽(90), 천장(0), 바닥(180)
-	double			ang_y;			// 회전Y
-	*/
-};
-
-// 휠러스페이서 정보
-struct FillerSpacer
-{
-	double			f_thk;			// 두께 : 10 ~ 50 (*20)
-	double			f_leng;			// 길이 : 150 ~ 2400
-	/*
-	double			f_ang;			// 각도 : 90
-	double			f_rota;			// 회전 : 0
-	*/
-};
-
-// 인코너판넬 정보
-struct IncornerPanel
-{
-	double			wid_s;			// 가로(빨강) : 80 ~ 500 (*100)
-	double			leng_s;			// 세로(파랑) : 80 ~ 500 (*100)
-	double			hei_s;			// 높이 : 50 ~ 1500
-	/*
-	double			dir_s;			// 설치방향 : *세우기, 눕히기, 뒤집기
-	*/
-};
-
-// 합판 정보
-struct Plywood
-{
-	/*
-	std::string		p_stan;			// 규격 : *3x6 [910x1820], 4x8 [1220x2440], 비규격, 비정형
-	std::string		w_dir;			// 설치방향 : *벽세우기, 벽눕히기, 바닥깔기, 바닥덮기
-	std::string		p_thk;			// 두께 : 2.7T, 4.8T, 8.5T, *11.5T, 14.5T
-	*/
-	double			p_wid;			// 가로
-	double			p_leng;			// 세로
-	bool			w_dir_wall;		// 설치방향 : 벽세우기(true), 벽눕히기(false)
-	/*
-	double			p_ang;			// 각도 : 0
-	bool			sogak;			// 제작틀 *On/Off
-	std::string		prof;			// 목재종류 : *소각, 중각, 대각
-	*/
-};
-
-// 목재 정보
-struct Wood
-{
-	/*
-	std::string		w_ins;			// 설치방향 : *벽세우기, 바닥눕히기, 바닥덮기
-	*/
-	double			w_w;			// 두께
-	double			w_h;			// 너비
-	double			w_leng;			// 길이
-	double			w_ang;			// 각도
-};
-
 // 그리드 각 셀 정보
-struct Cell
+struct CellForWall
 {
 	short		objType;	// enum libPartObjType 참조
 
@@ -352,7 +266,7 @@ struct Cell
 };
 
 // 벽면 영역 정보 (가장 중요한 정보)
-struct PlacingZone
+struct WallPlacingZone
 {
 	double	leftBottomX;	// 좌하단 좌표 X
 	double	leftBottomY;	// 좌하단 좌표 Y
@@ -383,14 +297,16 @@ struct PlacingZone
 
 	// 검토할 사항 (2. 배치된 객체 정보를 그리드로 관리)
 	// 인코너[0] | 예비[홀수] | 폼[짝수] | ... | 인코너[n-1]
-	Cell	cells [50][100];		// 마지막 인덱스: [eu_count_ver-1][nCells-1]
-	short	nCells;
+	CellForWall	cells [50][100];	// 마지막 인덱스: [eu_count_ver-1][nCells-1]
+	short		nCells;
 	
 	// 간섭보 (0개 이상)
-	short	nInterfereBeams;		// 간섭보 개수
-	InterfereBeam	beams [30];		// 간섭보 정보
-	Cell			woods [30][3];	// 보 주변 합판/목재 셀
+	short			nInterfereBeams;		// 간섭보 개수
+	InterfereBeamForWall	beams [30];		// 간섭보 정보
+	CellForWall				woods [30][3];	// 보 주변 합판/목재 셀
 
 	// 상단 합판/목재 셀 정보
-	Cell	topRestCells [100];		// 상단 자투리 공간 합판/목재 셀
+	CellForWall		topRestCells [100];		// 상단 자투리 공간 합판/목재 셀
 };
+
+#endif

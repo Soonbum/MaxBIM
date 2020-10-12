@@ -6,8 +6,8 @@
 #include "UtilityFunctions.hpp"
 #include "WallEuroformPlacer.hpp"
 
-static PlacingZone		placingZone;			// 기본 벽면 영역 정보
-static PlacingZone		placingZoneBackside;	// 반대쪽 벽면에도 벽면 영역 정보 부여, 벽 기준으로 대칭됨 (placingZone과 달리 오른쪽부터 객체를 설치함)
+static WallPlacingZone	placingZone;			// 기본 벽면 영역 정보
+static WallPlacingZone	placingZoneBackside;	// 반대쪽 벽면에도 벽면 영역 정보 부여, 벽 기준으로 대칭됨 (placingZone과 달리 오른쪽부터 객체를 설치함)
 static InfoWall			infoWall;				// 벽 객체 정보
 static short			clickedBtnItemIdx;		// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool				clickedOKButton;		// OK 버튼을 눌렀습니까?
@@ -49,7 +49,7 @@ GSErrCode	placeEuroformOnWall (void)
 	API_ElemInfo3D			info3D;
 
 	// 모프 객체 정보
-	InfoMorph				infoMorph;
+	InfoMorphForWall		infoMorph;
 
 	// 작업 층 정보
 	API_StoryInfo	storyInfo;
@@ -408,7 +408,7 @@ GSErrCode	fillRestAreasForWall (void)
 	double	beamLeftX, beamRightX;	// 보의 L/R측 X 좌표
 	double	dist;
 
-	Cell	insCell, insCellB;		// 삽입할 임시 셀
+	CellForWall		insCell, insCellB;		// 삽입할 임시 셀
 	double	insertedHeight;			// 회전시킨 유로폼(눕힘) 삽입으로 인해 추가된 높이
 	double	insertedLeft;			// 회전시킨 유로폼(세움) 삽입으로 인해 추가된 거리
 	double	insertedRight;			// 회전시킨 유로폼(세움) 삽입으로 인해 추가된 거리
@@ -1042,7 +1042,7 @@ GSErrCode	fillRestAreasForWall (void)
 }
 
 // 해당 셀 정보를 기반으로 라이브러리 배치
-API_Guid	placeLibPartForWall (Cell objInfo)
+API_Guid	placeLibPartForWall (CellForWall objInfo)
 {
 	GSErrCode	err = NoError;
 
@@ -1152,6 +1152,9 @@ API_Guid	placeLibPartForWall (Cell objInfo)
 			element.object.pos.y += ( objInfo.horLen * sin(objInfo.ang) );
 		}
 		GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+		
+		// 회전X
+		memo.params [0][33].value.real = DegreeToRad (90.0);
 
 	} else if (objInfo.objType == FILLERSPACER) {
 		element.header.layer = layerInd_Fillerspacer;
@@ -1195,7 +1198,7 @@ API_Guid	placeLibPartForWall (Cell objInfo)
 }
 
 // [arr1]행 - 해당 셀의 좌하단 좌표X 위치를 리턴
-double	getCellPositionLeftBottomXForWall (PlacingZone *src_zone, short arr1, short idx)
+double	getCellPositionLeftBottomXForWall (WallPlacingZone *src_zone, short arr1, short idx)
 {
 	double		distance = 0.0;
 	short		xx;
@@ -1209,7 +1212,7 @@ double	getCellPositionLeftBottomXForWall (PlacingZone *src_zone, short arr1, sho
 }
 
 // [arr1]행 - 전체 셀의 최하단 좌표Z 위치를 설정
-void	setCellPositionLeftBottomZForWall (PlacingZone *src_zone, short arr1, double new_hei)
+void	setCellPositionLeftBottomZForWall (WallPlacingZone *src_zone, short arr1, double new_hei)
 {
 	short		xx;
 
@@ -1218,7 +1221,7 @@ void	setCellPositionLeftBottomZForWall (PlacingZone *src_zone, short arr1, doubl
 }
 
 // Cell 배열을 초기화함
-void	initCellsForWall (PlacingZone* placingZone)
+void	initCellsForWall (WallPlacingZone* placingZone)
 {
 	short xx, yy;
 
@@ -1235,7 +1238,7 @@ void	initCellsForWall (PlacingZone* placingZone)
 }
 
 // 1차 배치: 인코너, 유로폼
-void	firstPlacingSettingsForWall (PlacingZone* placingZone)
+void	firstPlacingSettingsForWall (WallPlacingZone* placingZone)
 {
 	short			xx, yy, zz;
 	std::string		tempString;
@@ -1313,7 +1316,7 @@ void	firstPlacingSettingsForWall (PlacingZone* placingZone)
 }
 
 // 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
-void	copyPlacingZoneSymmetricForWall (PlacingZone* src_zone, PlacingZone* dst_zone, InfoWall* infoWall)
+void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone* dst_zone, InfoWall* infoWall)
 {
 	short	xx, yy;
 
@@ -1472,7 +1475,7 @@ void	copyPlacingZoneSymmetricForWall (PlacingZone* src_zone, PlacingZone* dst_zo
 }
 
 // Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-void	alignPlacingZoneForWall (PlacingZone* target_zone)
+void	alignPlacingZoneForWall (WallPlacingZone* target_zone)
 {
 	short			xx, yy;
 
@@ -1516,7 +1519,7 @@ void	alignPlacingZoneForWall (PlacingZone* target_zone)
 }
 
 // src행의 Cell 전체 라인을 dst행으로 복사
-void	copyCellsToAnotherLineForWall (PlacingZone* target_zone, short src_row, short dst_row)
+void	copyCellsToAnotherLineForWall (WallPlacingZone* target_zone, short src_row, short dst_row)
 {
 	short xx;
 
@@ -3902,7 +3905,7 @@ short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, 
 	API_Element	elem;
 	short	result;
 	short	idxItem;
-	Cell	insCell, insCellB;	// 삽입할 임시 셀
+	CellForWall		insCell, insCellB;	// 삽입할 임시 셀
 	double	spWidth = 0.0;		// 보 하부 합판/목재가 차지한 총 너비
 	double	spHeight = 0.0;		// 보 하부 합판/목재가 차지한 총 높이
 	double	temp;
@@ -4252,16 +4255,18 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 	double	initPlywoodHeight = 0.0;
 	double	changedPlywoodHeight = 0.0;
 
+	// 다이얼로그에서 선택한 정보를 저장
 	bool	bEuroform1, bEuroform2;
 	bool	bEufoformStandard1, bEufoformStandard2;
 	double	euroformWidth1 = 0.0, euroformWidth2 = 0.0;
 
+	// 연속된 셀 크기가 유로폼 높이와 일치하는지 확인함
 	short	ind1, ind2, ind3;
 	bool	bValid3Window, bValid2Window, bValid1Window;
 	double	width3Window, width2Window, width1Window;
 	bool	bFindWidth;
 	double	totalWidth;
-	Cell	insCell, insCellB;
+	CellForWall		insCell, insCellB;
 	double	backsideDistance;
 
 
