@@ -27,10 +27,11 @@ GSErrCode	placeEuroformOnWall (void)
 	short		result;
 	long		nSel;
 	short		xx, yy;
-	long		result_compare_x = 0, result_compare_y = 0, result_compare_z = 0;
 	double		dx, dy, ang1, ang2;
 	double		xPosLB, yPosLB, zPosLB;
 	double		xPosRT, yPosRT, zPosRT;
+
+	char msg [100];
 
 	// Selection Manager 관련 변수
 	API_SelectionInfo		selectionInfo;
@@ -53,7 +54,8 @@ GSErrCode	placeEuroformOnWall (void)
 
 	// 작업 층 정보
 	API_StoryInfo	storyInfo;
-	double			minusLevel;
+	double			minusLevel_wall;
+	double			minusLevel_beam;
 
 
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);	// 선택한 요소 가져오기
@@ -208,6 +210,21 @@ GSErrCode	placeEuroformOnWall (void)
 	placingZone.ang				= DegreeToRad (infoMorph.ang);
 	placingZone.nInterfereBeams	= (short)nBeams;
 	
+	// 작업 층 높이 반영 -- 모프
+	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+	minusLevel_wall = 0.0;
+	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+		if (storyInfo.data [0][xx].index == infoWall.floorInd) {
+			minusLevel_wall = storyInfo.data [0][xx].level;
+			break;
+		}
+	}
+	BMKillHandle ((GSHandle *) &storyInfo.data);
+
+	// 영역 정보의 Z 정보를 수정
+	placingZone.leftBottomZ -= minusLevel_wall;
+
 	// (3) 선택한 보가 있다면,
 	for (xx = 0 ; xx < nBeams ; ++xx) {
 
@@ -230,61 +247,62 @@ GSErrCode	placeEuroformOnWall (void)
 			xPosLB = elem.beam.begC.x - elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosLB = elem.beam.begC.y - elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosLB = elem.beam.level - elem.beam.height;
+			//if (elem.beam.modelElemStructureType == API_BasicStructure)
+			//	zPosLB = elem.beam.level - elem.beam.height;
+			//else
+			//	zPosLB = elem.beam.level;
 
 			// 보의 RightTop 좌표
 			xPosRT = elem.beam.begC.x + elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosRT = elem.beam.begC.y + elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosRT = elem.beam.level;
+			//if (elem.beam.modelElemStructureType == API_BasicStructure)
+			//	zPosRT = elem.beam.level;
+			//else
+			//	zPosRT = elem.beam.level + elem.beam.height;
 		} else {
 			// 보의 LeftBottom 좌표
 			xPosLB = elem.beam.endC.x - elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosLB = elem.beam.endC.y - elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosLB = elem.beam.level - elem.beam.height;
+			//if (elem.beam.modelElemStructureType == API_BasicStructure)
+			//	zPosLB = elem.beam.level - elem.beam.height;
+			//else
+			//	zPosLB = elem.beam.level;
 
 			// 보의 RightTop 좌표
 			xPosRT = elem.beam.endC.x + elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosRT = elem.beam.endC.y + elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosRT = elem.beam.level;
+			//if (elem.beam.modelElemStructureType == API_BasicStructure)
+			//	zPosRT = elem.beam.level;
+			//else
+			//	zPosRT = elem.beam.level + elem.beam.height;
 		}
 
-		for (yy = 0 ; yy < 2 ; ++yy) {
-			// X축 범위 비교
-			result_compare_x = compareRanges (infoMorph.leftBottomX, infoMorph.leftBottomX + infoMorph.horLen * cos(DegreeToRad (infoMorph.ang)), xPosLB, xPosRT);
+		placingZone.beams [xx].leftBottomX	= xPosLB;
+		placingZone.beams [xx].leftBottomY	= yPosLB;
+		placingZone.beams [xx].leftBottomZ	= zPosLB;
+		placingZone.beams [xx].horLen		= elem.beam.width;
+		placingZone.beams [xx].verLen		= elem.beam.height;
 
-			// Y축 범위 비교
-			result_compare_y = compareRanges (infoMorph.leftBottomY, infoMorph.leftBottomY + infoMorph.horLen * sin(DegreeToRad (infoMorph.ang)), yPosLB, yPosRT);
-
-			// Z축 범위 비교
-			result_compare_z = compareRanges (infoMorph.leftBottomZ, infoMorph.leftBottomZ + infoMorph.verLen, zPosLB, zPosRT);
-
-			// 벽 내부 상단에 붙어 있으면 처리해야 할 보라고 인식할 것
-			if ( (result_compare_x == 5) && (result_compare_y == 5) && (result_compare_z == 6) ) {
-				placingZone.beams [xx].leftBottomX	= xPosLB;
-				placingZone.beams [xx].leftBottomY	= yPosLB;
-				placingZone.beams [xx].leftBottomZ	= zPosLB;
-				placingZone.beams [xx].horLen		= elem.beam.width;
-				placingZone.beams [xx].verLen		= elem.beam.height;
+		// 작업 층 높이 반영 -- 보
+		BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+		minusLevel_beam = 0.0;
+		ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+		for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+			if (storyInfo.data [0][yy].index == elem.header.floorInd) {
+				minusLevel_beam = storyInfo.data [0][yy].level;
+				break;
 			}
 		}
+		BMKillHandle ((GSHandle *) &storyInfo.data);
+
+		// 영역 정보의 Z 정보를 수정
+		placingZone.beams [xx].leftBottomZ += minusLevel_beam;
 
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
-
-	// 작업 층 높이 반영
-	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-	minusLevel = 0.0;
-	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
-		if (storyInfo.data [0][xx].index == infoWall.floorInd) {
-			minusLevel = storyInfo.data [0][xx].level;
-			break;
-		}
-	}
-	BMKillHandle ((GSHandle *) &storyInfo.data);
-
-	// 모든 영역 정보의 Z 정보를 수정
-	placingZone.leftBottomZ -= minusLevel;
-	for (xx = 0 ; xx < placingZone.nInterfereBeams ; ++xx)	placingZone.beams [xx].leftBottomZ -= minusLevel;
 
 	//////////////////////////////////////////////////////////// 1차 유로폼/인코너 배치
 	// [DIALOG] 1번째 다이얼로그에서 인코너, 유로폼 정보 입력 받음

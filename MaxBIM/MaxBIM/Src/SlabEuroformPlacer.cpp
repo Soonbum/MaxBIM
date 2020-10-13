@@ -13,6 +13,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	GSErrCode	err = NoError;
 	long		nSel;
 	short		xx, yy;
+	double		dx, dy, ang;
 
 	// Selection Manager 관련 변수
 	API_SelectionInfo		selectionInfo;
@@ -25,15 +26,30 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	API_Element				elem;
 	API_ElemInfo3D			info3D;
 
+	// 모프 3D 구성요소 가져오기
+	API_Component3D			component;
+	API_Tranmat				tm;
+	Int32					nVert, nEdge, nPgon;
+	Int32					elemIdx, bodyIdx;
+	API_Coord3D				trCoord;
+	GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
+
+	// 점 입력
+	API_GetPointType		pointInfo;
+	API_Coord3D				point1, point2;
+	API_Coord3D				tempPoint, resultPoint;
+	GS::Array<API_Coord3D>&	coordsRotated = GS::Array<API_Coord3D> ();
+
 	// 모프 객체 정보
 	InfoMorphForSlab		infoMorph;
 
 	// 작업 층 정보
-	API_StoryInfo	storyInfo;
-	double			minusLevel;
+	API_StoryInfo			storyInfo;
+	double					minusLevel;
 
 
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);	// 선택한 요소 가져오기
+	// 선택한 요소 가져오기
+	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
 	if (err == APIERR_NOPLAN) {
 		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
@@ -88,23 +104,17 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	// 모프의 GUID 저장
 	infoMorph.guid = elem.header.guid;
 
-
-
-
-	// ... 모프의 3D 바디를 먼저 가져옴
-	API_Component3D		component;
-	API_Tranmat			tm;
-	short				j;
-	Int32				nVert, nEdge, nPgon;
-	Int32				elemIdx, bodyIdx;
-
+	// 모프의 3D 바디를 가져옴
 	BNZeroMemory (&component, sizeof (API_Component3D));
 	component.header.typeID = API_BodyID;
 	component.header.index = info3D.fbody;
 	err = ACAPI_3D_GetComponent (&component);
 
-	if (err != NoError)
+	// 모프의 3D 모델을 가져오지 못하면 종료
+	if (err != NoError) {
+		ACAPI_WriteReport ("모프의 3D 모델을 가져오지 못했습니다.", true);
 		return err;
+	}
 
 	nVert = component.body.nVert;
 	nEdge = component.body.nEdge;
@@ -112,28 +122,62 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	tm = component.body.tranmat;
 	elemIdx = component.body.head.elemIndex - 1;
 	bodyIdx = component.body.head.bodyIndex - 1;
-	std::string	tempString;
 	
-	err = ACAPI_CallUndoableCommand ("테스트", [&] () -> GSErrCode {
-		for (j = 1; j <= nVert; j++) {
-			component.header.typeID = API_VertID;
-			component.header.index  = j;
-			err = ACAPI_3D_GetComponent (&component);
-			if (err == NoError) {
-				API_Coord3D	trCoord;	// world coordinates
-				tempString = format_string ("%d", j);
-				trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
-				trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
-				trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
-				if (abs (trCoord.z - elem.morph.level) < EPS)
-					placeCoordinateLabel (trCoord.x, trCoord.y, trCoord.z, true, tempString, 1, 0);
-			}
+	// 정점 좌표를 임의 순서대로 저장함
+	for (xx = 1 ; xx <= nVert ; ++xx) {
+		component.header.typeID	= API_VertID;
+		component.header.index	= xx;
+		err = ACAPI_3D_GetComponent (&component);
+		if (err == NoError) {
+			trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
+			trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
+			trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
+			if (abs (trCoord.z - elem.morph.level) < EPS)
+				coords.Push (trCoord);
 		}
-		
-		return NoError;
-	});
+	}
 
-	// ... 좌하단을 찾아야 한다. 위 반복문의 순서는 폴리곤 정점 순서랑 무관함
+	// 하단 점 2개를 클릭
+	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
+	CHCopyC ("좌하단 점을 클릭하십시오.", pointInfo.prompt);
+	pointInfo.enableQuickSelection = true;
+	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
+	point1 = pointInfo.pos;
+
+	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
+	CHCopyC ("우하단 점을 클릭하십시오.", pointInfo.prompt);
+	pointInfo.enableQuickSelection = true;
+	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
+	point2 = pointInfo.pos;
+	
+	// 폴리곤 회전각도를 구함
+	dx = point2.x - point1.x;
+	dy = point2.y - point1.y;
+	ang = RadToDegree (atan2 (dy, dx));
+
+	// 회전각도 0일 때의 좌표를 계산함
+	for (xx = 0 ; coords.GetSize () ; ++xx) {
+		tempPoint = coords.Pop ();
+		resultPoint.x = point1.x + ((tempPoint.x - point1.x)*cos(DegreeToRad (-ang)) - (tempPoint.y - point1.y)*sin(DegreeToRad (-ang)));
+		resultPoint.y = point1.y + ((tempPoint.x - point1.x)*sin(DegreeToRad (-ang)) + (tempPoint.y - point1.y)*cos(DegreeToRad (-ang)));
+		resultPoint.z = tempPoint.z;
+
+		coordsRotated.Push (resultPoint);
+	}
+
+	// 폴리곤 점을 배열로 복사함
+	API_Coord3D	*nodeCoords = new API_Coord3D [coordsRotated.GetSize ()];
+
+	for (xx = 0 ; xx < coordsRotated.GetSize () ; ++xx)
+		nodeCoords [xx] = coordsRotated.Pop ();
+
+	// 폴리곤 점 순서대로 저장할 것
+	// ...
+
+	delete nodeCoords;
+
+	// ... 폴리곤 점 순서대로 저장할 것 (1,2번 점은 바로 저장)
+
 	// ... 영역의 너비, 높이를 구해야 한다.
 
 
@@ -142,11 +186,6 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	/*
 		* 사용 부재(3가지): 유로폼(회전X: 0도, 벽세우기로 고정), 합판(각도: 90도), 목재(설치방향: 바닥눕히기)
 		
-		1. 모프를 1개 그려야 함 (실행 전 사전 작업할 부분)
-			- 직사각형이 아님 (마법봉 또는 하나씩 점을 찍어서 그려야 함)
-		2. 모프 영역 설정
-			- 좌하단 점을 찍으라고 사용자에게 요청함
-			- 모프의 폴리곤 좌표를 가져와야 함
 		3. 작업 층 높이 반영
 		4. 모든 영역 정보의 Z 정보를 수정
 		5. 사용자 입력 (1차)
