@@ -78,5 +78,6 @@ struct SlabPlacingZone
 
 // 유로폼 슬래브 하부 배치 함수
 GSErrCode	placeEuroformOnSlabBottom (void);				// 2번 메뉴: 슬래브 하부에 유로폼을 배치하는 통합 루틴
+bool		isAlreadyStored (API_Coord3D aPoint, API_Coord3D pointList [], short startInd, short endInd);		// aPoint가 pointList에 보관이 되었는지 확인함
 
 #endif

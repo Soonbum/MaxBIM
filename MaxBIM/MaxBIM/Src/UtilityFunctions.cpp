@@ -23,7 +23,7 @@ double	GetDistance (const double begX, const double begY, const double endX, con
 long	compareDoubles (const double a, const double b)
 {
 	// 같으면 0
-	if ( abs (a - b) < EPS )
+	if ( (abs (a - b) < EPS) && (abs (b - a) < EPS) )
 		return 0;
 
 	// a > b이면 1

@@ -12,7 +12,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 {
 	GSErrCode	err = NoError;
 	long		nSel;
-	short		xx, yy;
+	short		xx, yy, nn;
 	double		dx, dy, ang;
 
 	// Selection Manager 관련 변수
@@ -34,14 +34,17 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	API_Coord3D				trCoord;
 	GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
 
+	// 모프 객체 정보
+	InfoMorphForSlab		infoMorph;
+
 	// 점 입력
 	API_GetPointType		pointInfo;
 	API_Coord3D				point1, point2;
 	API_Coord3D				tempPoint, resultPoint;
 	GS::Array<API_Coord3D>&	coordsRotated = GS::Array<API_Coord3D> ();
 
-	// 모프 객체 정보
-	InfoMorphForSlab		infoMorph;
+	// ...
+	char  msg[100];
 
 	// 작업 층 정보
 	API_StoryInfo			storyInfo;
@@ -132,8 +135,9 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 			trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
 			trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
 			trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
-			if (abs (trCoord.z - elem.morph.level) < EPS)
+			if ( (abs (trCoord.z - elem.morph.level) < EPS) && (abs (elem.morph.level - trCoord.z) < EPS) ) {
 				coords.Push (trCoord);
+			}
 		}
 	}
 
@@ -154,9 +158,10 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	dx = point2.x - point1.x;
 	dy = point2.y - point1.y;
 	ang = RadToDegree (atan2 (dy, dx));
-
+	
 	// 회전각도 0일 때의 좌표를 계산함
-	for (xx = 0 ; coords.GetSize () ; ++xx) {
+	nn = coords.GetSize ();
+	for (xx = 0 ; xx < nn ; ++xx) {
 		tempPoint = coords.Pop ();
 		resultPoint.x = point1.x + ((tempPoint.x - point1.x)*cos(DegreeToRad (-ang)) - (tempPoint.y - point1.y)*sin(DegreeToRad (-ang)));
 		resultPoint.y = point1.y + ((tempPoint.x - point1.x)*sin(DegreeToRad (-ang)) + (tempPoint.y - point1.y)*cos(DegreeToRad (-ang)));
@@ -164,21 +169,101 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 
 		coordsRotated.Push (resultPoint);
 	}
-
-	// 폴리곤 점을 배열로 복사함
-	API_Coord3D	*nodeCoords = new API_Coord3D [coordsRotated.GetSize ()];
-
-	for (xx = 0 ; xx < coordsRotated.GetSize () ; ++xx)
-		nodeCoords [xx] = coordsRotated.Pop ();
-
-	// 폴리곤 점 순서대로 저장할 것
+	
 	// ...
+	// 폴리곤 점을 배열로 복사함
+	API_Coord3D		nodes_random [20];
+	API_Coord3D		nodes_sequential [20];
+	API_Coord3D		tPoint;
+	short			nNodes = coordsRotated.GetSize ();
+	bool			bFindPoint;
+	API_Coord3D		bufPoint;
+	double			xOffset1, xOffset2;
+	double			yOffset1, yOffset2;
 
-	delete nodeCoords;
+	// 사용자가 클릭한 1, 2번 점을 직접 저장
+	nodes_random [0] = point1;
+	nodes_random [1] = point2;
+	nodes_sequential [0] = point1;
+	nodes_sequential [1] = point2;
 
-	// ... 폴리곤 점 순서대로 저장할 것 (1,2번 점은 바로 저장)
+	// 사용자가 클릭한 1, 2번 점을 제외한 나머지 점들을 저장함
+	xx = 0;
+	yy = 0;
+	while (xx < nNodes) {
+		tPoint = coordsRotated.Pop ();
+		if ( !( (compareDoubles (tPoint.x, point1.x) == 0) && (compareDoubles (tPoint.y, point1.y) == 0) && (compareDoubles (tPoint.z, point1.z) == 0) ) || !( (compareDoubles (tPoint.x, point2.x) == 0) && (compareDoubles (tPoint.y, point2.y) == 0) && (compareDoubles (tPoint.z, point2.z) == 0) ) ) {
+			nodes_random [yy] = tPoint;
+			++yy;
+		}
+		++xx;
+	}
 
-	// ... 영역의 너비, 높이를 구해야 한다.
+	// !!! 중복 점 입력 해결할 것
+	// 폴리곤 점 순서대로 저장할 것
+	for (xx = 1 ; xx < (nNodes - 1) ; ++xx) {
+		
+		// nodes_sequential [xx : 1 ~ nNodes-1] 는 입력된 최종 점 (우하단 점부터 시작)
+		// nodes_random [yy : 0 ~ nNodes]
+			// nodes_random이 nodes_sequential [0 ~ xx-1] 와 동일하면 통과
+			// ... 삽입이 된 포인트는 체크하도록 하면 어떨까?
+			// nodes_sequential [xx]와 비교 : x축 또는 y축 값이 동일한지 확인한다. - 단, Z값은 무조건 같아야 함
+			// 첫 조우	-- 버퍼에 보관
+			// 또 조우	-- nodes_sequential [xx]와 버퍼 간의 비교
+			//			-- nodes_sequential [xx]와 nodes_random [yy] 간의 비교
+			//			-- 둘 중에서 거리가 가까운 쪽을 버퍼로 채택
+		
+
+
+		/*
+		bFindPoint = false;
+
+		for (yy = 0 ; yy < nNodes ; ++yy) {
+
+			// 똑같은 좌표의 점은 통과
+			if (isAlreadyStored (nodes_random [yy], nodes_sequential, 0, xx) == true)
+				continue;
+
+			// 동일 축 상에 있는 가까운 점을 찾을 것
+			if ( (compareDoubles (nodes_sequential [xx].x, nodes_random [yy].x) == 0) || (compareDoubles (nodes_sequential [xx].y, nodes_random [yy].y) == 0) ) {
+
+				if (bFindPoint == false) {
+					bFindPoint = true;
+					bufPoint = nodes_random [yy];
+				} else {
+					// bufPoint 말고 다른 동일 축 상의 점을 찾았다면,
+					xOffset1 = abs (nodes_sequential [xx].x - bufPoint.x);	xOffset2 = abs (nodes_sequential [xx].x - nodes_random [yy].x);
+					yOffset1 = abs (nodes_sequential [xx].y - bufPoint.y);	yOffset2 = abs (nodes_sequential [xx].y - nodes_random [yy].y);
+
+					// 최종 점에 더 가까운지 비교할 것
+					if ( (abs (xOffset1 - xOffset2) > EPS) || (abs (yOffset1 - yOffset2) > EPS) ) {
+						if (xOffset1 > xOffset2)
+							bufPoint = nodes_random [yy];
+
+						if (yOffset1 > yOffset2)
+							bufPoint = nodes_random [yy];
+					}
+				}
+			}
+
+			// 가까운 점을 nodes_sequential [xx+1]에 저장
+			if (bFindPoint == true)
+				nodes_sequential [xx+1] = bufPoint;
+		}
+		*/
+	}
+
+	// ... nodes_sequential 를 순서대로 출력
+	//err = ACAPI_CallUndoableCommand ("영역 모프 제거", [&] () -> GSErrCode {
+	//for (xx = 0 ; xx < nNodes ; ++xx) {
+	//	sprintf (msg, "점 %d (%.4f, %.4f, %.4f)", xx, nodes_sequential [xx].x, nodes_sequential [xx].y, nodes_sequential [xx].z);
+	//	ACAPI_WriteReport (msg, true);
+	//	placeCoordinateLabel (nodes_sequential [xx].x, nodes_sequential [xx].y, nodes_sequential [xx].z, true, format_string ("%d", xx), 1, 0);
+	//}
+	//return NoError;
+	//});
+
+	// 영역의 너비, 높이를 구해야 한다.
 
 
 
@@ -211,4 +296,20 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	*/
 
 	return	err;
+}
+
+// aPoint가 pointList에 보관이 되었는지 확인함
+bool	isAlreadyStored (API_Coord3D aPoint, API_Coord3D pointList [], short startInd, short endInd)
+{
+	short	xx;
+
+	for (xx = startInd ; xx < endInd ; ++xx) {
+		// 모든 좌표 값이 일치할 경우, 이미 포함된 좌표 값이라고 인정함
+		if ( (abs (aPoint.x - pointList [xx].x) < EPS) && (abs (aPoint.y - pointList [xx].y) < EPS) && (abs (aPoint.z - pointList [xx].z) < EPS) &&
+			(abs (pointList [xx].x - aPoint.x) < EPS) && (abs (pointList [xx].y - aPoint.y) < EPS) && (abs (pointList [xx].z - aPoint.z) < EPS) ) {
+			return true;
+		}
+	}
+
+	return false;
 }
