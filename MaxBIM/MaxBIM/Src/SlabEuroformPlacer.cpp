@@ -45,7 +45,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 
 	// 작업 층 정보
 	API_StoryInfo			storyInfo;
-	double					minusLevel;
+	double					plusLevel;
 
 
 	// 선택한 요소 가져오기

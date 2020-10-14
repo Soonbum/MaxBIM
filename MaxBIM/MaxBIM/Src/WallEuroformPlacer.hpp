@@ -176,6 +176,7 @@ struct InfoWall
 {
 	double	wallThk;			// 벽 두께
 	short	floorInd;			// 층 인덱스
+	double	bottomOffset;		// 벽 하단 오프셋
 
 	double	begX;				// 시작점 X
 	double	begY;				// 시작점 Y

@@ -31,8 +31,6 @@ GSErrCode	placeEuroformOnWall (void)
 	double		xPosLB, yPosLB, zPosLB;
 	double		xPosRT, yPosRT, zPosRT;
 
-	char msg [100];
-
 	// Selection Manager 관련 변수
 	API_SelectionInfo		selectionInfo;
 	API_Element				tElem;
@@ -54,8 +52,8 @@ GSErrCode	placeEuroformOnWall (void)
 
 	// 작업 층 정보
 	API_StoryInfo	storyInfo;
-	double			minusLevel_wall;
-	double			minusLevel_beam;
+	double			plusLevel_wall;		// 합산할 벽의 작업 층 높이
+	double			plusLevel_beam;		// 합산할 보의 작업 층 높이
 
 
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);	// 선택한 요소 가져오기
@@ -124,12 +122,13 @@ GSErrCode	placeEuroformOnWall (void)
 		err = APIERR_GENERAL;
 		return err;
 	}
-	infoWall.wallThk	= elem.wall.thickness;
-	infoWall.floorInd	= elem.header.floorInd;
-	infoWall.begX		= elem.wall.begC.x;
-	infoWall.begY		= elem.wall.begC.y;
-	infoWall.endX		= elem.wall.endC.x;
-	infoWall.endY		= elem.wall.endC.y;
+	infoWall.wallThk		= elem.wall.thickness;
+	infoWall.floorInd		= elem.header.floorInd;
+	infoWall.bottomOffset	= elem.wall.bottomOffset;
+	infoWall.begX			= elem.wall.begC.x;
+	infoWall.begY			= elem.wall.begC.y;
+	infoWall.endX			= elem.wall.endC.x;
+	infoWall.endY			= elem.wall.endC.y;
 
 	ACAPI_DisposeElemMemoHdls (&memo);
 
@@ -196,6 +195,16 @@ GSErrCode	placeEuroformOnWall (void)
 			infoMorph.leftBottomZ = info3D.bounds.zMin;
 	}
 
+	// 영역 모프 제거
+	err = ACAPI_CallUndoableCommand ("영역 모프 제거", [&] () -> GSErrCode {
+		API_Elem_Head* headList = new API_Elem_Head [1];
+		headList [0] = elem.header;
+		err = ACAPI_Element_Delete (&headList, 1);
+		delete headList;
+
+		return err;
+	});
+
 	// 모프의 Z축 회전 각도 (벽의 설치 각도)
 	dx = infoMorph.rightTopX - infoMorph.leftBottomX;
 	dy = infoMorph.rightTopY - infoMorph.leftBottomY;
@@ -204,7 +213,7 @@ GSErrCode	placeEuroformOnWall (void)
 	// 벽면 모프를 통해 영역 정보 업데이트
 	placingZone.leftBottomX		= infoMorph.leftBottomX;
 	placingZone.leftBottomY		= infoMorph.leftBottomY;
-	placingZone.leftBottomZ		= infoMorph.leftBottomZ;
+	placingZone.leftBottomZ		= infoWall.bottomOffset;	// 벽의 하단 오프셋 값을 대입
 	placingZone.horLen			= infoMorph.horLen;
 	placingZone.verLen			= infoMorph.verLen;
 	placingZone.ang				= DegreeToRad (infoMorph.ang);
@@ -212,18 +221,18 @@ GSErrCode	placeEuroformOnWall (void)
 	
 	// 작업 층 높이 반영 -- 모프
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-	minusLevel_wall = 0.0;
+	plusLevel_wall = 0.0;
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
 	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
 		if (storyInfo.data [0][xx].index == infoWall.floorInd) {
-			minusLevel_wall = storyInfo.data [0][xx].level;
+			plusLevel_wall = storyInfo.data [0][xx].level;
 			break;
 		}
 	}
 	BMKillHandle ((GSHandle *) &storyInfo.data);
 
 	// 영역 정보의 Z 정보를 수정
-	placingZone.leftBottomZ -= minusLevel_wall;
+	placingZone.leftBottomZ += plusLevel_wall;
 
 	// (3) 선택한 보가 있다면,
 	for (xx = 0 ; xx < nBeams ; ++xx) {
@@ -247,37 +256,21 @@ GSErrCode	placeEuroformOnWall (void)
 			xPosLB = elem.beam.begC.x - elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosLB = elem.beam.begC.y - elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosLB = elem.beam.level - elem.beam.height;
-			//if (elem.beam.modelElemStructureType == API_BasicStructure)
-			//	zPosLB = elem.beam.level - elem.beam.height;
-			//else
-			//	zPosLB = elem.beam.level;
 
 			// 보의 RightTop 좌표
 			xPosRT = elem.beam.begC.x + elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosRT = elem.beam.begC.y + elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosRT = elem.beam.level;
-			//if (elem.beam.modelElemStructureType == API_BasicStructure)
-			//	zPosRT = elem.beam.level;
-			//else
-			//	zPosRT = elem.beam.level + elem.beam.height;
 		} else {
 			// 보의 LeftBottom 좌표
 			xPosLB = elem.beam.endC.x - elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosLB = elem.beam.endC.y - elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosLB = elem.beam.level - elem.beam.height;
-			//if (elem.beam.modelElemStructureType == API_BasicStructure)
-			//	zPosLB = elem.beam.level - elem.beam.height;
-			//else
-			//	zPosLB = elem.beam.level;
 
 			// 보의 RightTop 좌표
 			xPosRT = elem.beam.endC.x + elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosRT = elem.beam.endC.y + elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
 			zPosRT = elem.beam.level;
-			//if (elem.beam.modelElemStructureType == API_BasicStructure)
-			//	zPosRT = elem.beam.level;
-			//else
-			//	zPosRT = elem.beam.level + elem.beam.height;
 		}
 
 		placingZone.beams [xx].leftBottomX	= xPosLB;
@@ -288,18 +281,18 @@ GSErrCode	placeEuroformOnWall (void)
 
 		// 작업 층 높이 반영 -- 보
 		BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-		minusLevel_beam = 0.0;
+		plusLevel_beam = 0.0;
 		ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
 		for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
 			if (storyInfo.data [0][yy].index == elem.header.floorInd) {
-				minusLevel_beam = storyInfo.data [0][yy].level;
+				plusLevel_beam = storyInfo.data [0][yy].level;
 				break;
 			}
 		}
 		BMKillHandle ((GSHandle *) &storyInfo.data);
 
 		// 영역 정보의 Z 정보를 수정
-		placingZone.beams [xx].leftBottomZ += minusLevel_beam;
+		placingZone.beams [xx].leftBottomZ += plusLevel_beam;
 
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
@@ -352,33 +345,6 @@ GSErrCode	placeEuroformOnWall (void)
 
 	// 가로 나머지 길이 값 분리 (고정값, 변동값)
 	placingZone.remain_hor_updated = placingZone.remain_hor;
-
-	// 선택된 모프 전부 제거
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
-	if (err != NoError) {
-		BMKillHandle ((GSHandle *) &selNeigs);
-		return err;
-	}
-
-	err = ACAPI_CallUndoableCommand ("영역 모프 제거", [&] () -> GSErrCode {
-		if (selectionInfo.typeID != API_SelEmpty) {
-			nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-			for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-				tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-
-				if (tElem.header.typeID == API_MorphID) {	// 모프 제거
-					API_Elem_Head* headList = new API_Elem_Head [1];
-					headList [0] = tElem.header;
-					err = ACAPI_Element_Delete (&headList, 1);
-					delete headList;
-				}
-			}
-		}
-		BMKillHandle ((GSHandle *) &selNeigs);
-
-		return err;
-	});
 
 	// placingZone의 Cell 정보 초기화
 	placingZone.nCells = (placingZone.eu_count_hor * 2) + 3;
@@ -676,7 +642,7 @@ GSErrCode	fillRestAreasForWall (void)
 							if ((beamLeftX - cellLeftX) < 0.110) {
 								// 폭이 110mm 미만이면 목재
 								insCell.objType = WOOD;
-								insCell.libPart.wood.w_w = 0.080;				// 두께: 80mm
+								insCell.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCell.libPart.wood.w_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + insertedHeight);
 								insCell.libPart.wood.w_h = beamLeftX - cellLeftX - insertedLeft;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
@@ -725,7 +691,7 @@ GSErrCode	fillRestAreasForWall (void)
 							if ((placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen)) < 0.110) {
 								// 폭이 110mm 미만이면 목재
 								insCell.objType = WOOD;
-								insCell.libPart.wood.w_w = 0.080;				// 두께: 80mm
+								insCell.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCell.libPart.wood.w_leng = placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen + insertedHeight);
 								insCell.libPart.wood.w_h = beamRightX - beamLeftX;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
@@ -809,10 +775,10 @@ GSErrCode	fillRestAreasForWall (void)
 										insCellB.leftBottomZ = placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen + placingZoneBackside.cells [xx-1][yy].horLen;
 										insCellB.ang = placingZoneBackside.cells [xx-1][yy].ang;
 
-										if ((placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + placingZone.cells [xx-1][yy].horLen)) < 0.110) {
+										if ( (placingZone.cells [xx-1][yy].verLen < 0.110) || ((placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + placingZone.cells [xx-1][yy].horLen)) < 0.110) ) {
 											// 폭이 110mm 미만이면 목재
 											insCell.objType = WOOD;
-											insCell.libPart.wood.w_w = 0.080;				// 두께: 80mm
+											insCell.libPart.wood.w_w = 0.080;		// 두께: 80mm
 											insCell.libPart.wood.w_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + placingZone.cells [xx-1][yy].horLen);
 											insCell.libPart.wood.w_h = placingZone.cells [xx-1][yy].verLen;
 											insCell.libPart.wood.w_ang = DegreeToRad (90.0);
@@ -857,7 +823,7 @@ GSErrCode	fillRestAreasForWall (void)
 							if ((cellRightX - beamRightX) < 0.110) {
 								// 폭이 110mm 미만이면 목재
 								insCell.objType = WOOD;
-								insCell.libPart.wood.w_w = 0.080;				// 두께: 80mm
+								insCell.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCell.libPart.wood.w_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + insertedHeight);
 								insCell.libPart.wood.w_h = cellRightX - beamRightX - insertedRight;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
@@ -907,10 +873,10 @@ GSErrCode	fillRestAreasForWall (void)
 							insCellB.leftBottomZ = placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen;
 							insCellB.ang = placingZoneBackside.cells [xx-1][yy].ang;
 
-							if ((beamLeftX - cellLeftX) < 0.110) {
+							if ( ((beamLeftX - cellLeftX) < 0.110) || (placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen) < 0.110) ) {
 								// 폭이 110mm 미만이면 목재
 								insCell.objType = WOOD;
-								insCell.libPart.wood.w_w = 0.080;				// 두께: 80mm
+								insCell.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCell.libPart.wood.w_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen);
 								insCell.libPart.wood.w_h = beamLeftX - cellLeftX;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
@@ -956,10 +922,10 @@ GSErrCode	fillRestAreasForWall (void)
 							insCellB.leftBottomZ = placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen;
 							insCellB.ang = placingZoneBackside.cells [xx-1][yy].ang;
 
-							if ((placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen)) < 0.110) {
+							if ( ((beamRightX - beamLeftX) < 0.110) || ((placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen)) < 0.110) ) {
 								// 폭이 110mm 미만이면 목재
 								insCell.objType = WOOD;
-								insCell.libPart.wood.w_w = 0.080;				// 두께: 80mm
+								insCell.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCell.libPart.wood.w_leng = placingZone.beams [indInterfereBeam].leftBottomZ - (placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen);
 								insCell.libPart.wood.w_h = beamRightX - beamLeftX;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
@@ -1005,10 +971,10 @@ GSErrCode	fillRestAreasForWall (void)
 							insCellB.leftBottomZ = placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen;
 							insCellB.ang = placingZoneBackside.cells [xx-1][yy].ang;
 
-							if ((cellRightX - beamRightX) < 0.110) {
+							if ( ((cellRightX - beamRightX) < 0.110) || ((placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen)) < 0.110) )  {
 								// 폭이 110mm 미만이면 목재
 								insCell.objType = WOOD;
-								insCell.libPart.wood.w_w = 0.080;				// 두께: 80mm
+								insCell.libPart.wood.w_w = 0.080;		// 두께: 80mm
 								insCell.libPart.wood.w_leng = placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen);
 								insCell.libPart.wood.w_h = cellRightX - beamRightX;
 								insCell.libPart.wood.w_ang = DegreeToRad (90.0);
