@@ -12,7 +12,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 {
 	GSErrCode	err = NoError;
 	long		nSel;
-	short		xx, yy, nn;
+	short		xx, yy;
 	double		dx, dy, ang;
 
 	// Selection Manager 관련 변수
@@ -41,10 +41,15 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	API_GetPointType		pointInfo;
 	API_Coord3D				point1, point2;
 	API_Coord3D				tempPoint, resultPoint;
-	GS::Array<API_Coord3D>&	coordsRotated = GS::Array<API_Coord3D> ();
-
-	// ...
-	char  msg[100];
+	
+	// 폴리곤 점을 배열로 복사하고 순서대로 좌표 값을 얻어냄
+	API_Coord3D		nodes_random [20];
+	API_Coord3D		nodes_sequential [20];
+	long			nNodes;
+	long			nEntered;
+	bool			bFindPoint;
+	API_Coord3D		bufPoint;
+	short			result;
 
 	// 작업 층 정보
 	API_StoryInfo			storyInfo;
@@ -140,127 +145,93 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 			}
 		}
 	}
+	nNodes = coords.GetSize ();
 
 	// 하단 점 2개를 클릭
 	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
-	CHCopyC ("좌하단 점을 클릭하십시오.", pointInfo.prompt);
+	CHCopyC ("Left Bottom 점을 클릭하십시오.", pointInfo.prompt);
 	pointInfo.enableQuickSelection = true;
 	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
 	point1 = pointInfo.pos;
 
 	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
-	CHCopyC ("우하단 점을 클릭하십시오.", pointInfo.prompt);
+	CHCopyC ("Right Bottom 점을 클릭하십시오.", pointInfo.prompt);
 	pointInfo.enableQuickSelection = true;
 	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
 	point2 = pointInfo.pos;
 	
-	// 폴리곤 회전각도를 구함
+	// 두 점 간의 각도를 구함
 	dx = point2.x - point1.x;
 	dy = point2.y - point1.y;
 	ang = RadToDegree (atan2 (dy, dx));
-	
-	// 회전각도 0일 때의 좌표를 계산함
-	nn = coords.GetSize ();
-	for (xx = 0 ; xx < nn ; ++xx) {
+
+	// 폴리곤의 회전각도를 구함
+	if ((ang > 0.0) && (ang < 90.0))	ang = ang;			// 0도 초과 90도 미만이면,
+	if ((ang > 90.0) && (ang < 180.0))	ang = ang - 90.0;	// 90도 초과 180도 미만이면,
+	if ((ang > 180.0) && (ang < 270.0))	ang = ang - 180.0;	// 180도 초과 270도 미만이면,
+	if (ang > 270.0)					ang = ang - 270.0;	// 270도 초과이면,
+
+	// 회전각도 0일 때의 좌표를 계산하고, 폴리곤의 점들을 저장함
+	for (xx = 0 ; xx < nNodes ; ++xx) {
 		tempPoint = coords.Pop ();
 		resultPoint.x = point1.x + ((tempPoint.x - point1.x)*cos(DegreeToRad (-ang)) - (tempPoint.y - point1.y)*sin(DegreeToRad (-ang)));
 		resultPoint.y = point1.y + ((tempPoint.x - point1.x)*sin(DegreeToRad (-ang)) + (tempPoint.y - point1.y)*cos(DegreeToRad (-ang)));
 		resultPoint.z = tempPoint.z;
 
-		coordsRotated.Push (resultPoint);
+		nodes_random [xx] = resultPoint;
 	}
-	
-	// ...
-	// 폴리곤 점을 배열로 복사함
-	API_Coord3D		nodes_random [20];
-	API_Coord3D		nodes_sequential [20];
-	API_Coord3D		tPoint;
-	short			nNodes = coordsRotated.GetSize ();
-	bool			bFindPoint;
-	API_Coord3D		bufPoint;
-	double			xOffset1, xOffset2;
-	double			yOffset1, yOffset2;
 
 	// 사용자가 클릭한 1, 2번 점을 직접 저장
-	nodes_random [0] = point1;
-	nodes_random [1] = point2;
+	tempPoint = point2;
+	resultPoint.x = point1.x + ((tempPoint.x - point1.x)*cos(DegreeToRad (-ang)) - (tempPoint.y - point1.y)*sin(DegreeToRad (-ang)));
+	resultPoint.y = point1.y + ((tempPoint.x - point1.x)*sin(DegreeToRad (-ang)) + (tempPoint.y - point1.y)*cos(DegreeToRad (-ang)));
+	resultPoint.z = tempPoint.z;
+
 	nodes_sequential [0] = point1;
-	nodes_sequential [1] = point2;
+	nodes_sequential [1] = resultPoint;
 
-	// 사용자가 클릭한 1, 2번 점을 제외한 나머지 점들을 저장함
-	xx = 0;
-	yy = 0;
-	while (xx < nNodes) {
-		tPoint = coordsRotated.Pop ();
-		if ( !( (compareDoubles (tPoint.x, point1.x) == 0) && (compareDoubles (tPoint.y, point1.y) == 0) && (compareDoubles (tPoint.z, point1.z) == 0) ) || !( (compareDoubles (tPoint.x, point2.x) == 0) && (compareDoubles (tPoint.y, point2.y) == 0) && (compareDoubles (tPoint.z, point2.z) == 0) ) ) {
-			nodes_random [yy] = tPoint;
-			++yy;
-		}
-		++xx;
-	}
-
-	// !!! 중복 점 입력 해결할 것
 	// 폴리곤 점 순서대로 저장할 것
-	for (xx = 1 ; xx < (nNodes - 1) ; ++xx) {
+	nEntered = 1;
+	for (xx = 1 ; xx < (nNodes-1) ; ++xx) {
 		
-		// nodes_sequential [xx : 1 ~ nNodes-1] 는 입력된 최종 점 (우하단 점부터 시작)
-		// nodes_random [yy : 0 ~ nNodes]
-			// nodes_random이 nodes_sequential [0 ~ xx-1] 와 동일하면 통과
-			// ... 삽입이 된 포인트는 체크하도록 하면 어떨까?
-			// nodes_sequential [xx]와 비교 : x축 또는 y축 값이 동일한지 확인한다. - 단, Z값은 무조건 같아야 함
-			// 첫 조우	-- 버퍼에 보관
-			// 또 조우	-- nodes_sequential [xx]와 버퍼 간의 비교
-			//			-- nodes_sequential [xx]와 nodes_random [yy] 간의 비교
-			//			-- 둘 중에서 거리가 가까운 쪽을 버퍼로 채택
-		
-
-
-		/*
-		bFindPoint = false;
+		bFindPoint = false;		// 다음 점을 찾았는지 여부 (가까운 점, 먼 점을 구분하기 위함)
 
 		for (yy = 0 ; yy < nNodes ; ++yy) {
 
-			// 똑같은 좌표의 점은 통과
-			if (isAlreadyStored (nodes_random [yy], nodes_sequential, 0, xx) == true)
-				continue;
+			// 이미 저장된 점이 아닌 경우
+			if (!isAlreadyStored (nodes_random [yy], nodes_sequential, 0, xx)) {
+				// 다음 점이 맞습니까?
+				if (isNextPoint (nodes_sequential [xx-1], nodes_sequential [xx], nodes_random [yy])) {
 
-			// 동일 축 상에 있는 가까운 점을 찾을 것
-			if ( (compareDoubles (nodes_sequential [xx].x, nodes_random [yy].x) == 0) || (compareDoubles (nodes_sequential [xx].y, nodes_random [yy].y) == 0) ) {
+					// 처음 찾은 경우
+					if (bFindPoint == false) {
+						bFindPoint = true;
+						bufPoint = nodes_random [yy];
+					}
+				
+					// 또 찾은 경우
+					if (bFindPoint == true) {
+						result = moreCloserPoint (nodes_sequential [xx], bufPoint, nodes_random [yy]);	// nodes_sequential [xx]에 가까운 점이 어떤 점입니까?
 
-				if (bFindPoint == false) {
-					bFindPoint = true;
-					bufPoint = nodes_random [yy];
-				} else {
-					// bufPoint 말고 다른 동일 축 상의 점을 찾았다면,
-					xOffset1 = abs (nodes_sequential [xx].x - bufPoint.x);	xOffset2 = abs (nodes_sequential [xx].x - nodes_random [yy].x);
-					yOffset1 = abs (nodes_sequential [xx].y - bufPoint.y);	yOffset2 = abs (nodes_sequential [xx].y - nodes_random [yy].y);
-
-					// 최종 점에 더 가까운지 비교할 것
-					if ( (abs (xOffset1 - xOffset2) > EPS) || (abs (yOffset1 - yOffset2) > EPS) ) {
-						if (xOffset1 > xOffset2)
-							bufPoint = nodes_random [yy];
-
-						if (yOffset1 > yOffset2)
+						if (result == 2)
 							bufPoint = nodes_random [yy];
 					}
 				}
 			}
-
-			// 가까운 점을 nodes_sequential [xx+1]에 저장
-			if (bFindPoint == true)
-				nodes_sequential [xx+1] = bufPoint;
 		}
-		*/
+
+		// 찾은 점을 다음 점으로 추가
+		if (bFindPoint) {
+			nodes_sequential [xx+1] = bufPoint;
+			++nEntered;
+		}
 	}
 
-	// ... nodes_sequential 를 순서대로 출력
-	//err = ACAPI_CallUndoableCommand ("영역 모프 제거", [&] () -> GSErrCode {
-	//for (xx = 0 ; xx < nNodes ; ++xx) {
-	//	sprintf (msg, "점 %d (%.4f, %.4f, %.4f)", xx, nodes_sequential [xx].x, nodes_sequential [xx].y, nodes_sequential [xx].z);
-	//	ACAPI_WriteReport (msg, true);
-	//	placeCoordinateLabel (nodes_sequential [xx].x, nodes_sequential [xx].y, nodes_sequential [xx].z, true, format_string ("%d", xx), 1, 0);
-	//}
-	//return NoError;
+	//err = ACAPI_CallUndoableCommand ("테스트", [&] () -> GSErrCode {
+	//	for (xx = 0 ; xx <= nEntered ; ++xx) {
+	//		placeCoordinateLabel (nodes_sequential [xx].x, nodes_sequential [xx].y, nodes_sequential [xx].z, true, format_string ("%d / %d", xx, nEntered), 1, 0);
+	//	}
+	//	return NoError;
 	//});
 
 	// 영역의 너비, 높이를 구해야 한다.
@@ -298,12 +269,22 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	return	err;
 }
 
+// aPoint가 bPoint와 같은 점인지 확인함
+bool	isSamePoint (API_Coord3D aPoint, API_Coord3D bPoint)
+{
+	if ( (abs (aPoint.x - bPoint.x) < EPS) && (abs (aPoint.y - bPoint.y) < EPS) && (abs (aPoint.z - bPoint.z) < EPS) &&
+		(abs (bPoint.x - aPoint.x) < EPS) && (abs (bPoint.y - aPoint.y) < EPS) && (abs (bPoint.z - aPoint.z) < EPS) ) {
+		return true;
+	} else
+		return false;
+}
+
 // aPoint가 pointList에 보관이 되었는지 확인함
 bool	isAlreadyStored (API_Coord3D aPoint, API_Coord3D pointList [], short startInd, short endInd)
 {
 	short	xx;
 
-	for (xx = startInd ; xx < endInd ; ++xx) {
+	for (xx = startInd ; xx <= endInd ; ++xx) {
 		// 모든 좌표 값이 일치할 경우, 이미 포함된 좌표 값이라고 인정함
 		if ( (abs (aPoint.x - pointList [xx].x) < EPS) && (abs (aPoint.y - pointList [xx].y) < EPS) && (abs (aPoint.z - pointList [xx].z) < EPS) &&
 			(abs (pointList [xx].x - aPoint.x) < EPS) && (abs (pointList [xx].y - aPoint.y) < EPS) && (abs (pointList [xx].z - aPoint.z) < EPS) ) {
@@ -312,4 +293,52 @@ bool	isAlreadyStored (API_Coord3D aPoint, API_Coord3D pointList [], short startI
 	}
 
 	return false;
+}
+
+// nextPoint가 curPoint의 다음 점입니까?
+bool	isNextPoint (API_Coord3D prevPoint, API_Coord3D curPoint, API_Coord3D nextPoint)
+{
+	bool	cond1 = false;
+	bool	cond2_1 = false;
+	bool	cond2_2 = false;
+
+	// curPoint와 nextPoint가 같은 Z값을 갖는가?
+	if ( (abs (curPoint.z - nextPoint.z) < EPS) && (abs (nextPoint.z - curPoint.z) < EPS) )
+		cond1 = true;
+
+	// 예전 점과 현재 점이 Y축 상에 있을 경우, 현재 점과 다음 점은 X축 상에 있어야 하고, 현재 점과 다음 점 간에는 X값의 차이가 있어야 함
+	if ((abs (curPoint.x - prevPoint.x) < EPS) && (abs (prevPoint.x - curPoint.x) < EPS) &&
+		(abs (curPoint.y - nextPoint.y) < EPS) && (abs (nextPoint.y - curPoint.y) < EPS) &&
+		((abs (curPoint.x - nextPoint.x) > EPS) || (abs (nextPoint.x - curPoint.x) > EPS)))
+		cond2_1 = true;
+
+	// 예전 점과 현재 점이 X축 상에 있을 경우, 현재 점과 다음 점은 Y축 상에 있어야 하고, 현재 점과 다음 점 간에는 Y값의 차이가 있어야 함
+	if ((abs (curPoint.y - prevPoint.y) < EPS) && (abs (prevPoint.y - curPoint.y) < EPS) &&
+		(abs (curPoint.x - nextPoint.x) < EPS) && (abs (nextPoint.x - curPoint.x) < EPS) &&
+		((abs (curPoint.y - nextPoint.y) > EPS) || (abs (nextPoint.y - curPoint.y) > EPS)))
+		cond2_2 = true;
+
+	// 같은 Z값이면서 동일 축 상의 떨어진 거리의 점인 경우
+	if (cond1 && (cond2_1 || cond2_2))
+		return true;
+	else
+		return false;
+}
+
+// curPoint에 가까운 점이 p1, p2 중 어떤 점입니까?
+short	moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2)
+{
+	double dist1, dist2;
+
+	dist1 = GetDistance (curPoint, p1);
+	dist2 = GetDistance (curPoint, p2);
+
+	// curPoint와 p1가 더 가까우면 1 리턴
+	if ((dist2 - dist1) > EPS)	return 1;
+	
+	// curPoint와 p2가 더 가까우면 2 리턴
+	if ((dist1 - dist2) > EPS)	return 2;
+
+	// 그 외에는 0 리턴
+	return 0;
 }
