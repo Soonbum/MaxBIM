@@ -6,6 +6,8 @@
 #include "UtilityFunctions.hpp"
 #include "WallEuroformPlacer.hpp"
 
+using namespace wallPlacerDG;
+
 static WallPlacingZone	placingZone;			// 기본 벽면 영역 정보
 static WallPlacingZone	placingZoneBackside;	// 반대쪽 벽면에도 벽면 영역 정보 부여, 벽 기준으로 대칭됨 (placingZone과 달리 오른쪽부터 객체를 설치함)
 static InfoWall			infoWall;				// 벽 객체 정보
@@ -299,7 +301,6 @@ GSErrCode	placeEuroformOnWall (void)
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
 
-	//////////////////////////////////////////////////////////// 1차 유로폼/인코너 배치
 	// [DIALOG] 1번째 다이얼로그에서 인코너, 유로폼 정보 입력 받음
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32501, ACAPI_GetOwnResModule (), wallPlacerHandler1, 0);
 

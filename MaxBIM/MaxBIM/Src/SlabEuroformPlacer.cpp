@@ -6,6 +6,13 @@
 #include "UtilityFunctions.hpp"
 #include "SlabEuroformPlacer.hpp"
 
+using namespace slabBottomPlacerDG;
+
+static SlabPlacingZone	placingZone;			// 기본 슬래브 하부 영역 정보
+static short			layerInd_Euroform;		// 레이어 번호: 유로폼
+static short			layerInd_Plywood;		// 레이어 번호: 합판
+static short			layerInd_Wood;			// 레이어 번호: 목재
+
 
 // 2번 메뉴: 슬래브 하부에 유로폼을 배치하는 통합 루틴
 GSErrCode	placeEuroformOnSlabBottom (void)
@@ -45,15 +52,21 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	// 폴리곤 점을 배열로 복사하고 순서대로 좌표 값을 얻어냄
 	API_Coord3D		nodes_random [20];
 	API_Coord3D		nodes_sequential [20];
-	long			nNodes;
+	long			nNodes;		// 모프 폴리곤의 정점 좌표 개수
 	long			nEntered;
 	bool			bFindPoint;
 	API_Coord3D		bufPoint;
 	short			result;
 
 	// 작업 층 정보
-	API_StoryInfo			storyInfo;
-	double					workLevel_morph;
+	API_StoryInfo	storyInfo;
+	double			workLevel_morph;
+
+	// 코너 좌표를 구하기 위한 최외곽 좌표 임시 저장
+	API_Coord3D		outer_leftTop;
+	API_Coord3D		outer_leftBottom;
+	API_Coord3D		outer_rightTop;
+	API_Coord3D		outer_rightBottom;
 
 
 	// 선택한 요소 가져오기
@@ -230,34 +243,89 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	// 작업 층 높이 반영
 	// ...
 	
-	// 모든 영역 정보의 Z 정보를 수정
+	// 영역 정보의 고도 정보 수정
 	// ...
 
-	// 영역의 너비, 높이를 구함
-	// ...
+	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32511, ACAPI_GetOwnResModule (), slabBottomPlacerHandler1, 0);
 
+	// 그 외 영역 정보를 지정함
+	placingZone.ang = DegreeToRad (ang);
+	placingZone.level = nodes_sequential [0].z;
 
+	// 최외곽 좌표를 얻음
+	placingZone.outerLeft	= nodes_sequential [0].x;
+	placingZone.outerRight	= nodes_sequential [0].x;
+	placingZone.outerTop	= nodes_sequential [0].y;
+	placingZone.outerBottom	= nodes_sequential [0].y;
 
+	for (xx = 1 ; xx < nNodes ; ++xx) {
+		if (nodes_sequential [xx].x < placingZone.outerLeft)
+			placingZone.outerLeft = nodes_sequential [xx].x;
+		if (nodes_sequential [xx].x > placingZone.outerRight)
+			placingZone.outerRight = nodes_sequential [xx].x;
+		if (nodes_sequential [xx].y > placingZone.outerTop)
+			placingZone.outerTop = nodes_sequential [xx].y;
+		if (nodes_sequential [xx].y < placingZone.outerBottom)
+			placingZone.outerBottom = nodes_sequential [xx].y;
+	}
+
+	// 꺾인 부분 코너 좌표를 얻음
+	outer_leftTop.x		= placingZone.outerLeft;	outer_leftTop.y		= placingZone.outerTop;		outer_leftTop.z		= placingZone.level;
+	outer_leftBottom.x	= placingZone.outerLeft;	outer_leftBottom.y	= placingZone.outerBottom;	outer_leftBottom.z	= placingZone.level;
+	outer_rightTop.x	= placingZone.outerRight;	outer_rightTop.y	= placingZone.outerTop;		outer_rightTop.z	= placingZone.level;
+	outer_rightBottom.x	= placingZone.outerRight;	outer_rightBottom.y	= placingZone.outerBottom;	outer_rightBottom.z	= placingZone.level;
+
+	placingZone.corner_leftTop = NULL;		placingZone.corner_leftBottom = NULL;
+	placingZone.corner_rightTop = NULL;		placingZone.corner_rightBottom = NULL;
+
+	// !!! 점검 포인트 (사이 값을 찾아야 하는데...)
+	for (xx = 1 ; xx < nNodes ; ++xx) {
+		// 좌상단 코너
+		if ( (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_rightTop) == 1) && (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_leftBottom) == 1) )
+			placingZone.corner_leftTop = &nodes_sequential [xx];
+
+		// 좌하단 코너
+		if ( (moreCloserPoint (nodes_sequential [xx], outer_leftBottom, outer_rightBottom) == 1) && (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_leftBottom) == 2) )
+			placingZone.corner_leftBottom = &nodes_sequential [xx];
+
+		// 우상단 코너
+		if ( (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_rightTop) == 2) && (moreCloserPoint (nodes_sequential [xx], outer_rightTop, outer_rightBottom) == 1) )
+			placingZone.corner_rightTop = &nodes_sequential [xx];
+
+		// 우하단 코너
+		if ( (moreCloserPoint (nodes_sequential [xx], outer_leftBottom, outer_rightBottom) == 2) && (moreCloserPoint (nodes_sequential [xx], outer_rightTop, outer_rightBottom) == 2) )
+			placingZone.corner_rightBottom = &nodes_sequential [xx];
+	}
+
+	// !!! 점검 포인트
+	err = ACAPI_CallUndoableCommand ("테스트", [&] () -> GSErrCode {
+		placeCoordinateLabel (placingZone.corner_leftTop->x, placingZone.corner_leftTop->y, placingZone.corner_leftTop->z, true, "코너 leftTop", 1, 0);
+		placeCoordinateLabel (placingZone.corner_leftBottom->x, placingZone.corner_leftBottom->y, placingZone.corner_leftBottom->z, true, "코너 leftBottom", 1, 0);
+		placeCoordinateLabel (placingZone.corner_rightTop->x, placingZone.corner_rightTop->y, placingZone.corner_rightTop->z, true, "코너 rightTop", 1, 0);
+		placeCoordinateLabel (placingZone.corner_rightBottom->x, placingZone.corner_rightBottom->y, placingZone.corner_rightBottom->z, true, "코너 rightBottom", 1, 0);
+
+		return NoError;
+	});
+
+	// 1. 유로폼의 가로/세로 수량을 계산한다. (가장자리 너비는 150 이상 300 미만)
+	//	- 중심을 기준으로 inner 좌표까지만 폼 배치 가능
+	// 2. 합판 설치: 부재당 최대 길이 1800 이하
+	// 3. 안쪽 목재 설치 (두께 50, 너비 80): 부재당 최대 길이 1800 이하
+	// 4. 바깥쪽 목재 설치 (두께 40, 너비 50): 부재당 최대 길이 1800 이하
 
 	/*
-		* 사용 부재(3가지): 유로폼(회전X: 0도, 벽세우기로 고정), 합판(각도: 90도), 목재(설치방향: 바닥눕히기)
-		
-		5. 사용자 입력 (1차)
-			- 기본 배치 폼 선택
-				: 규격폼 기준 -- 너비, 높이 (방향은 사용자가 찍은 모프 좌하단 점을 기준으로 함)
-				: 설치방향을 어떤 기준으로 정할 것인가? - 모프의 처음 찍은 점(TMX 점 인식)을 좌하단 점이라고 가정함
-				: 최하단 점에 기둥이나 보의 간섭이 있으면 어떻게 할 것인가? -> 구간별 길이를 측정해서 처음 긴 선을 아래쪽 라인이라고 하자. -> 아래쪽 긴 라인의 시작/끝 점을 기준으로 각도값 획득
-			- 부재별 레이어 설정 (유로폼, 합판, 목재)
+		*** 사용 부재(3가지): 유로폼(회전X: 0도, 벽세우기로 고정), 합판(각도: 90도), 목재(설치방향: 바닥눕히기)
+		1. 사용자 입력 (2차)
 			- 유로폼 셀은 전부 붙어 있어도 됨
 			- 목재 보강재 위치 셀 버튼도 있어야 함
-		6. 사용자 입력 (2차)
 			- 타이틀: 가로/세로 채우기
 			- 버튼: 1. 남은 길이 확인 // 2. 배  치 // 3. 마무리
 			- 배치 버튼을 보여줌 (x번행 y번열 버튼의 폼 크기를 변경하면? - 너비를 바꾸면 y열 전체에 영향을 줌, 높이를 바꾸면 x행 전체에 영향을 줌)
 			- 남은 가로/세로 길이: 표시만 함 (양쪽 다 합친 것): 권장 남은 길이 표시 (150~300mm), 권장 길이인지 아닌지 글꼴로 표시
 			- 사방 합판 너비를 조정할 수 있어야 함 (위/아래 배분, 왼쪽/오른쪽 배분 - 사용자가 직접.. 그에 따라 유로폼 전체 배열이 이동됨)
 			- 배치 버튼 사방에는 버튼 사이마다 보강 목재를 댈지 여부를 선택할 수 있어야 함 (버튼 □■)
-		7. 최종 배치
+		2. 최종 배치
 			- (1) 유로폼은 모프 센터를 기준으로 배치할 것
 			- (2) 합판(11.5T, 제작틀 Off)을 모프에 맞게 배치하되, 겹치는 부분은 모깎기가 필요함! (난이도 높음)
 			- (3) 안쪽에 목재를 댈 것 (Z방향 두께는 50이어야 함, 너비는 80)
@@ -339,4 +407,95 @@ short	moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2)
 
 	// 그 외에는 0 리턴
 	return 0;
+}
+
+// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	short		result;
+	API_UCCallbackType	ucb;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "슬래브 하부에 배치");
+
+			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
+			// 적용 버튼
+			DGSetItemText (dialogID, DG_OK, "확 인");
+
+			// 종료 버튼
+			DGSetItemText (dialogID, DG_CANCEL, "취 소");
+
+			//////////////////////////////////////////////////////////// 아이템 배치 (유로폼)
+			// 라벨: 유로폼 배치 설정
+			DGSetItemText (dialogID, LABEL_PLACING_EUROFORM, "유로폼 배치 설정");
+
+			// 라벨: 너비
+			DGSetItemText (dialogID, LABEL_EUROFORM_WIDTH, "너비");
+
+			// 라벨: 높이
+			DGSetItemText (dialogID, LABEL_EUROFORM_HEIGHT, "높이");
+
+			// 라벨: 설치방향
+			DGSetItemText (dialogID, LABEL_EUROFORM_ORIENTATION, "설치방향");
+
+			// 라벨: 레이어 설정
+			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
+
+			// 라벨: 레이어 - 유로폼
+			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
+
+			// 라벨: 레이어 - 목재
+			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "목재");
+
+			// 라벨: 레이어 - 합판
+			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "합판");
+
+			// 유저 컨트롤 초기화
+			BNZeroMemory (&ucb, sizeof (ucb));
+			ucb.dialogID = dialogID;
+			ucb.type	 = APIUserControlType_Layer;
+			ucb.itemID	 = USERCONTROL_LAYER_EUROFORM;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_PLYWOOD;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_WOOD;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, 1);
+
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					//////////////////////////////////////// 다이얼로그 창 정보를 입력 받음
+					// 유로폼 너비, 높이, 방향
+					placingZone.eu_wid = DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH, static_cast<short>(DGGetItemValLong (dialogID, POPUP_EUROFORM_WIDTH))).ToCStr ().Get ();
+					placingZone.eu_hei = DGPopUpGetItemText (dialogID, POPUP_EUROFORM_HEIGHT, static_cast<short>(DGGetItemValLong (dialogID, POPUP_EUROFORM_HEIGHT))).ToCStr ().Get ();
+					placingZone.eu_ori = DGPopUpGetItemText (dialogID, POPUP_EUROFORM_ORIENTATION, static_cast<short>(DGGetItemValLong (dialogID, POPUP_EUROFORM_ORIENTATION))).ToCStr ().Get ();
+
+					// 레이어 번호 저장
+					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
+					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
+					layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+
+					break;
+				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
 }
