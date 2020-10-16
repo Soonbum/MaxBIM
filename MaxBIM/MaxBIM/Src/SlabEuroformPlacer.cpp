@@ -53,7 +53,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 
 	// 작업 층 정보
 	API_StoryInfo			storyInfo;
-	double					plusLevel;
+	double					workLevel_morph;
 
 
 	// 선택한 요소 가져오기
@@ -227,14 +227,14 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 		}
 	}
 
-	//err = ACAPI_CallUndoableCommand ("테스트", [&] () -> GSErrCode {
-	//	for (xx = 0 ; xx <= nEntered ; ++xx) {
-	//		placeCoordinateLabel (nodes_sequential [xx].x, nodes_sequential [xx].y, nodes_sequential [xx].z, true, format_string ("%d / %d", xx, nEntered), 1, 0);
-	//	}
-	//	return NoError;
-	//});
+	// 작업 층 높이 반영
+	// ...
+	
+	// 모든 영역 정보의 Z 정보를 수정
+	// ...
 
-	// 영역의 너비, 높이를 구해야 한다.
+	// 영역의 너비, 높이를 구함
+	// ...
 
 
 
@@ -242,8 +242,6 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	/*
 		* 사용 부재(3가지): 유로폼(회전X: 0도, 벽세우기로 고정), 합판(각도: 90도), 목재(설치방향: 바닥눕히기)
 		
-		3. 작업 층 높이 반영
-		4. 모든 영역 정보의 Z 정보를 수정
 		5. 사용자 입력 (1차)
 			- 기본 배치 폼 선택
 				: 규격폼 기준 -- 너비, 높이 (방향은 사용자가 찍은 모프 좌하단 점을 기준으로 함)

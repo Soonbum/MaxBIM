@@ -205,6 +205,9 @@ struct InfoMorphForWall
 // 간섭 보 정보
 struct InterfereBeamForWall
 {
+	short	floorInd;			// 층 인덱스
+	double	bottomOffset;		// 벽 하단 오프셋
+
 	double	leftBottomX;
 	double	leftBottomY;
 	double	leftBottomZ;
