@@ -9,6 +9,7 @@
 using namespace slabBottomPlacerDG;
 
 static SlabPlacingZone	placingZone;			// 기본 슬래브 하부 영역 정보
+static InfoSlab			infoSlab;				// 슬래브 객체 정보
 static short			layerInd_Euroform;		// 레이어 번호: 유로폼
 static short			layerInd_Plywood;		// 레이어 번호: 합판
 static short			layerInd_Wood;			// 레이어 번호: 목재
@@ -27,10 +28,13 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	API_Element				tElem;
 	API_Neig				**selNeigs;
 	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>&	slabs = GS::Array<API_Guid> ();
 	long					nMorphs = 0;
+	long					nSlabs = 0;
 
 	// 객체 정보 가져오기
 	API_Element				elem;
+	API_ElementMemo			memo;
 	API_ElemInfo3D			info3D;
 
 	// 모프 3D 구성요소 가져오기
@@ -48,6 +52,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	API_GetPointType		pointInfo;
 	API_Coord3D				point1, point2;
 	API_Coord3D				tempPoint, resultPoint;
+	bool					bIsInPolygon1, bIsInPolygon2;
 	
 	// 폴리곤 점을 배열로 복사하고 순서대로 좌표 값을 얻어냄
 	API_Coord3D		nodes_random [20];
@@ -68,6 +73,15 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	API_Coord3D		outer_rightTop;
 	API_Coord3D		outer_rightBottom;
 
+	API_Coord3D		outer_leftTopBelow;
+	API_Coord3D		outer_leftTopSide;
+	API_Coord3D		outer_leftBottomOver;
+	API_Coord3D		outer_leftBottomSide;
+	API_Coord3D		outer_rightTopBelow;
+	API_Coord3D		outer_rightTopSide;
+	API_Coord3D		outer_rightBottomOver;
+	API_Coord3D		outer_rightBottomSide;
+
 
 	// 선택한 요소 가져오기
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
@@ -77,7 +91,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 		return err;
 	}
 	if (err == APIERR_NOSEL) {
-		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 슬래브 하부를 덮는 모프 (1개)", true);
+		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 슬래브 (1개), 슬래브 하부를 덮는 모프 (1개)", true);
 		return err;
 	}
 	if (err != NoError) {
@@ -85,7 +99,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 		return err;
 	}
 
-	// 모프 1개 선택해야 함
+	// 슬래브 1개, 모프 1개 선택해야 함
 	if (selectionInfo.typeID != API_SelEmpty) {
 		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
 		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
@@ -97,10 +111,21 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 
 			if (tElem.header.typeID == API_MorphID)		// 모프인가?
 				morphs.Push (tElem.header.guid);
+
+			if (tElem.header.typeID == API_SlabID)		// 슬래브인가?
+				slabs.Push (tElem.header.guid);
 		}
 	}
 	BMKillHandle ((GSHandle *) &selNeigs);
 	nMorphs = morphs.GetSize ();
+	nSlabs = slabs.GetSize ();
+
+	// 슬래브가 1개인가?
+	if (nSlabs != 1) {
+		ACAPI_WriteReport ("슬래브를 1개 선택해야 합니다.", true);
+		err = APIERR_GENERAL;
+		return err;
+	}
 
 	// 모프가 1개인가?
 	if (nMorphs != 1) {
@@ -109,7 +134,18 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 		return err;
 	}
 
-	// 모프 정보를 가져옴
+	// (1) 슬래브 정보를 가져옴
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	elem.header.guid = slabs.Pop ();
+	err = ACAPI_Element_Get (&elem);
+	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+	
+	infoSlab.floorInd		= elem.header.floorInd;
+
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// (2) 모프 정보를 가져옴
 	BNZeroMemory (&elem, sizeof (API_Element));
 	elem.header.guid = morphs.Pop ();
 	err = ACAPI_Element_Get (&elem);
@@ -172,7 +208,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	pointInfo.enableQuickSelection = true;
 	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
 	point2 = pointInfo.pos;
-	
+
 	// 두 점 간의 각도를 구함
 	dx = point2.x - point1.x;
 	dy = point2.y - point1.y;
@@ -203,8 +239,23 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	nodes_sequential [0] = point1;
 	nodes_sequential [1] = resultPoint;
 
+	// 만약 선택한 두 점이 폴리곤에 속한 점이 아니면 오류
+	bIsInPolygon1 = false;
+	bIsInPolygon2 = false;
+	for (xx = 0 ; xx < nNodes ; ++xx) {
+		if (isSamePoint (point1, nodes_random [xx]))
+			bIsInPolygon1 = true;
+		if (isSamePoint (resultPoint, nodes_random [xx]))
+			bIsInPolygon2 = true;
+	}
+
+	if ( !(bIsInPolygon1 && bIsInPolygon2) ) {
+		ACAPI_WriteReport ("폴리곤에 속하지 않은 점을 클릭했습니다.", true);
+		return err;
+	}
+
 	// 폴리곤 점 순서대로 저장할 것
-	nEntered = 1;
+	nEntered = 2;	// 이미 2개의 점은 입력되어 있음
 	for (xx = 1 ; xx < (nNodes-1) ; ++xx) {
 		
 		bFindPoint = false;		// 다음 점을 찾았는지 여부 (가까운 점, 먼 점을 구분하기 위함)
@@ -241,13 +292,26 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	}
 
 	// 작업 층 높이 반영
-	// ...
+	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+	workLevel_morph = 0.0;
+	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+		if (storyInfo.data [0][xx].index == infoSlab.floorInd) {
+			workLevel_morph = storyInfo.data [0][xx].level;
+			break;
+		}
+	}
+	BMKillHandle ((GSHandle *) &storyInfo.data);
 	
 	// 영역 정보의 고도 정보 수정
 	// ...
 
 	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32511, ACAPI_GetOwnResModule (), slabBottomPlacerHandler1, 0);
+
+	// 문자열로 된 유로폼의 너비/높이를 실수형으로도 저장
+	placingZone.eu_wid_numeric = atof (placingZone.eu_wid.c_str ()) / 1000.0;
+	placingZone.eu_hei_numeric = atof (placingZone.eu_hei.c_str ()) / 1000.0;
 
 	// 그 외 영역 정보를 지정함
 	placingZone.ang = DegreeToRad (ang);
@@ -259,7 +323,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	placingZone.outerTop	= nodes_sequential [0].y;
 	placingZone.outerBottom	= nodes_sequential [0].y;
 
-	for (xx = 1 ; xx < nNodes ; ++xx) {
+	for (xx = 1 ; xx < nEntered ; ++xx) {
 		if (nodes_sequential [xx].x < placingZone.outerLeft)
 			placingZone.outerLeft = nodes_sequential [xx].x;
 		if (nodes_sequential [xx].x > placingZone.outerRight)
@@ -270,46 +334,156 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 			placingZone.outerBottom = nodes_sequential [xx].y;
 	}
 
-	// 꺾인 부분 코너 좌표를 얻음
+	// 가장 꼭지점 좌표를 임시로 생성함
 	outer_leftTop.x		= placingZone.outerLeft;	outer_leftTop.y		= placingZone.outerTop;		outer_leftTop.z		= placingZone.level;
 	outer_leftBottom.x	= placingZone.outerLeft;	outer_leftBottom.y	= placingZone.outerBottom;	outer_leftBottom.z	= placingZone.level;
 	outer_rightTop.x	= placingZone.outerRight;	outer_rightTop.y	= placingZone.outerTop;		outer_rightTop.z	= placingZone.level;
 	outer_rightBottom.x	= placingZone.outerRight;	outer_rightBottom.y	= placingZone.outerBottom;	outer_rightBottom.z	= placingZone.level;
 
-	placingZone.corner_leftTop = NULL;		placingZone.corner_leftBottom = NULL;
-	placingZone.corner_rightTop = NULL;		placingZone.corner_rightBottom = NULL;
+	API_Coord3D	tPoint;
+	tPoint.x = (placingZone.outerLeft + placingZone.outerRight) / 2;
+	tPoint.y = (placingZone.outerTop + placingZone.outerBottom) / 2;
+	tPoint.z = placingZone.level;
 
-	// !!! 점검 포인트 (사이 값을 찾아야 하는데...)
-	for (xx = 1 ; xx < nNodes ; ++xx) {
-		// 좌상단 코너
-		if ( (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_rightTop) == 1) && (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_leftBottom) == 1) )
-			placingZone.corner_leftTop = &nodes_sequential [xx];
+	outer_leftTopBelow		= tPoint;
+	outer_leftTopSide		= tPoint;
+	outer_leftBottomOver	= tPoint;
+	outer_leftBottomSide	= tPoint;
+	outer_rightTopBelow		= tPoint;
+	outer_rightTopSide		= tPoint;
+	outer_rightBottomOver	= tPoint;
+	outer_rightBottomSide	= tPoint;
 
-		// 좌하단 코너
-		if ( (moreCloserPoint (nodes_sequential [xx], outer_leftBottom, outer_rightBottom) == 1) && (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_leftBottom) == 2) )
-			placingZone.corner_leftBottom = &nodes_sequential [xx];
+	// 가장 꼭지점 좌표의 바로 안쪽에 있는 점의 좌표를 찾아냄
+	for (xx = 0 ; xx < nEntered ; ++xx) {
+		if ( (!isSamePoint (outer_leftTop, nodes_sequential [xx])) && (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_leftBottom) == 1) && (abs (nodes_sequential [xx].x - outer_leftTop.x) < EPS) )
+			outer_leftTopBelow = nodes_sequential [xx];
 
-		// 우상단 코너
-		if ( (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_rightTop) == 2) && (moreCloserPoint (nodes_sequential [xx], outer_rightTop, outer_rightBottom) == 1) )
-			placingZone.corner_rightTop = &nodes_sequential [xx];
+		if ( (!isSamePoint (outer_leftTop, nodes_sequential [xx])) && (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_rightTop) == 1) && (abs (nodes_sequential [xx].y - outer_leftTop.y) < EPS) )
+			outer_leftTopSide = nodes_sequential [xx];
 
-		// 우하단 코너
-		if ( (moreCloserPoint (nodes_sequential [xx], outer_leftBottom, outer_rightBottom) == 2) && (moreCloserPoint (nodes_sequential [xx], outer_rightTop, outer_rightBottom) == 2) )
-			placingZone.corner_rightBottom = &nodes_sequential [xx];
+		if ( (!isSamePoint (outer_leftBottom, nodes_sequential [xx])) && (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_leftBottom) == 2) && (abs (nodes_sequential [xx].x - outer_leftBottom.x) < EPS) )
+			outer_leftBottomOver = nodes_sequential [xx];
+
+		if ( (!isSamePoint (outer_leftBottom, nodes_sequential [xx])) && (moreCloserPoint (nodes_sequential [xx], outer_leftBottom, outer_rightBottom) == 1) && (abs (nodes_sequential [xx].y - outer_leftBottom.y) < EPS) )
+			outer_leftBottomSide = nodes_sequential [xx];
+
+		if ( (!isSamePoint (outer_rightTop, nodes_sequential [xx])) && (moreCloserPoint (nodes_sequential [xx], outer_rightTop, outer_rightBottom) == 1) && (abs (nodes_sequential [xx].x - outer_rightTop.x) < EPS) )
+			outer_rightTopBelow = nodes_sequential [xx];
+
+		if ( (!isSamePoint (outer_rightTop, nodes_sequential [xx])) && (moreCloserPoint (nodes_sequential [xx], outer_leftTop, outer_rightTop) == 2) && (abs (nodes_sequential [xx].y - outer_rightTop.y) < EPS) )
+			outer_rightTopSide = nodes_sequential [xx];
+
+		if ( (!isSamePoint (outer_rightBottom, nodes_sequential [xx])) && (moreCloserPoint (nodes_sequential [xx], outer_rightTop, outer_rightBottom) == 2) && (abs (nodes_sequential [xx].x - outer_rightBottom.x) < EPS) )
+			outer_rightBottomOver = nodes_sequential [xx];
+
+		if ( (!isSamePoint (outer_rightBottom, nodes_sequential [xx])) && (moreCloserPoint (nodes_sequential [xx], outer_leftBottom, outer_rightBottom) == 2) && (abs (nodes_sequential [xx].y - outer_rightBottom.y) < EPS) )
+			outer_rightBottomSide = nodes_sequential [xx];
 	}
 
-	// !!! 점검 포인트
-	err = ACAPI_CallUndoableCommand ("테스트", [&] () -> GSErrCode {
-		placeCoordinateLabel (placingZone.corner_leftTop->x, placingZone.corner_leftTop->y, placingZone.corner_leftTop->z, true, "코너 leftTop", 1, 0);
-		placeCoordinateLabel (placingZone.corner_leftBottom->x, placingZone.corner_leftBottom->y, placingZone.corner_leftBottom->z, true, "코너 leftBottom", 1, 0);
-		placeCoordinateLabel (placingZone.corner_rightTop->x, placingZone.corner_rightTop->y, placingZone.corner_rightTop->z, true, "코너 rightTop", 1, 0);
-		placeCoordinateLabel (placingZone.corner_rightBottom->x, placingZone.corner_rightBottom->y, placingZone.corner_rightBottom->z, true, "코너 rightBottom", 1, 0);
+	// 꺾인 코너 혹은 일반 코너의 좌표를 찾아냄
+	for (xx = 0 ; xx < nEntered ; ++xx) {
+		// 좌상단 코너
+		if ( (isSamePoint (outer_leftTopBelow, tPoint)) && (isSamePoint (outer_leftTopSide, tPoint)) )
+			placingZone.corner_leftTop = outer_leftTop;
+		else {
+			placingZone.corner_leftTop.x = outer_leftTopSide.x;
+			placingZone.corner_leftTop.y = outer_leftTopBelow.y;
+			placingZone.corner_leftTop.z = placingZone.level;
+		}
+		
+		// 좌하단 코너
+		if ( (isSamePoint (outer_leftBottomOver, tPoint)) && (isSamePoint (outer_leftBottomSide, tPoint)) )
+			placingZone.corner_leftBottom = outer_leftBottom;
+		else {
+			placingZone.corner_leftBottom.x = outer_leftBottomSide.x;
+			placingZone.corner_leftBottom.y = outer_leftBottomOver.y;
+			placingZone.corner_leftBottom.z = placingZone.level;
+		}
 
-		return NoError;
-	});
+		// 우상단 코너
+		if ( (isSamePoint (outer_rightTopBelow, tPoint)) && (isSamePoint (outer_rightTopSide, tPoint)) )
+			placingZone.corner_rightTop = outer_rightTop;
+		else {
+			placingZone.corner_rightTop.x = outer_rightTopSide.x;
+			placingZone.corner_rightTop.y = outer_rightTopBelow.y;
+			placingZone.corner_rightTop.z = placingZone.level;
+		}
+
+		// 우하단 코너
+		if ( (isSamePoint (outer_rightBottomOver, tPoint)) && (isSamePoint (outer_rightBottomSide, tPoint)) )
+			placingZone.corner_rightBottom = outer_rightBottom;
+		else {
+			placingZone.corner_rightBottom.x = outer_rightBottomSide.x;
+			placingZone.corner_rightBottom.y = outer_rightBottomOver.y;
+			placingZone.corner_rightBottom.z = placingZone.level;
+		}
+	}
+
+	// 코너 안쪽의 좌표를 구함
+	if (placingZone.corner_leftTop.x < placingZone.corner_leftBottom.x)
+		placingZone.innerLeft = placingZone.corner_leftBottom.x;
+	else
+		placingZone.innerLeft = placingZone.corner_leftTop.x;
+
+	if (placingZone.corner_rightTop.x < placingZone.corner_rightBottom.x)
+		placingZone.innerRight = placingZone.corner_rightTop.x;
+	else
+		placingZone.innerRight = placingZone.corner_rightBottom.x;
+
+	if (placingZone.corner_leftTop.y < placingZone.corner_rightTop.y)
+		placingZone.innerTop = placingZone.corner_leftTop.y;
+	else
+		placingZone.innerTop = placingZone.corner_rightTop.y;
+
+	if (placingZone.corner_leftBottom.y < placingZone.corner_rightBottom.y)
+		placingZone.innerBottom = placingZone.corner_rightBottom.y;
+	else
+		placingZone.innerBottom = placingZone.corner_leftBottom.y;
+
+	// 영역 안쪽의 너비와 높이를 구함
+	placingZone.innerWidth = placingZone.innerRight - placingZone.innerLeft;
+	placingZone.innerHeight = placingZone.innerTop - placingZone.innerBottom;
+
+	// 남은 길이 초기화
+	placingZone.remain_hor = placingZone.innerWidth;
+	placingZone.remain_ver = placingZone.innerHeight;
+
+	// 유로폼 가로/세로 방향 개수 세기
+	placingZone.eu_count_hor = 0;
+	placingZone.eu_count_ver = 0;
+
+	if (placingZone.eu_ori.compare (std::string ("벽세우기")) == 0) {
+		placingZone.eu_count_hor = static_cast<short>(placingZone.remain_hor / placingZone.eu_wid_numeric);				// 가로 방향 개수
+		placingZone.remain_hor = placingZone.remain_hor - (placingZone.eu_count_hor * placingZone.eu_wid_numeric);		// 가로 방향 나머지
+		placingZone.eu_count_ver = static_cast<short>(placingZone.remain_ver / placingZone.eu_hei_numeric);				// 세로 방향 개수
+		placingZone.remain_ver = placingZone.remain_ver - (placingZone.eu_count_ver * placingZone.eu_hei_numeric);		// 세로 방향 나머지
+	} else {
+		placingZone.eu_count_hor = static_cast<short>(placingZone.remain_hor / placingZone.eu_hei_numeric);				// 가로 방향 개수
+		placingZone.remain_hor = placingZone.remain_hor - (placingZone.eu_count_hor * placingZone.eu_hei_numeric);		// 가로 방향 나머지
+		placingZone.eu_count_ver = static_cast<short>(placingZone.remain_ver / placingZone.eu_wid_numeric);				// 세로 방향 개수
+		placingZone.remain_ver = placingZone.remain_ver - (placingZone.eu_count_ver * placingZone.eu_wid_numeric);		// 세로 방향 나머지
+	}
+
+	placingZone.remain_hor_updated = placingZone.remain_hor;
+	placingZone.remain_ver_updated = placingZone.remain_ver;
+
+	// placingZone의 Cell 정보 초기화
+	initCellsForSlabBottom (&placingZone);
+
+	// !!! 체크포인트
+
+	// 배치를 위한 정보 입력
+	firstPlacingSettingsForSlabBottom (&placingZone);
+
+	// [DIALOG] 2번째 다이얼로그에서 ... 유로폼/인코너 배치를 수정하거나 휠러스페이서를 삽입합니다.
+	//clickedOKButton = false;
+	//result = DGBlankModalDialog (185, 250, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, slabBottomPlacerHandler2, 0);
+
+	//if (clickedOKButton == false)
+	//	return err;
 
 	// 1. 유로폼의 가로/세로 수량을 계산한다. (가장자리 너비는 150 이상 300 미만)
-	//	- 중심을 기준으로 inner 좌표까지만 폼 배치 가능
 	// 2. 합판 설치: 부재당 최대 길이 1800 이하
 	// 3. 안쪽 목재 설치 (두께 50, 너비 80): 부재당 최대 길이 1800 이하
 	// 4. 바깥쪽 목재 설치 (두께 40, 너비 50): 부재당 최대 길이 1800 이하
@@ -408,6 +582,69 @@ short	moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2)
 	// 그 외에는 0 리턴
 	return 0;
 }
+
+// 회전이 적용되지 않았을 때의 위치 (배치되어야 할 본래 위치를 리턴)
+API_Coord3D		getUnrotatedPoint (API_Coord3D rotatedPoint, API_Coord3D axisPoint, double ang)
+{
+	API_Coord3D		unrotatedPoint;
+
+	// 아래에서 unrotatedPoint를 구해야 함
+
+	// 원래 식
+	//rotatedPoint.x = axisPoint.x + ((unrotatedPoint.x - axisPoint.x)*cos(DegreeToRad (-ang)) - (unrotatedPoint.y - axisPoint.y)*sin(DegreeToRad (-ang)));
+	//rotatedPoint.y = axisPoint.y + ((unrotatedPoint.x - axisPoint.x)*sin(DegreeToRad (-ang)) + (unrotatedPoint.y - axisPoint.y)*cos(DegreeToRad (-ang)));
+
+	// 도출 중...
+	//rotatedPoint.x - axisPoint.x = ((unrotatedPoint.x - axisPoint.x)*cos(DegreeToRad (-ang)) - (unrotatedPoint.y - axisPoint.y)*sin(DegreeToRad (-ang)));
+	//rotatedPoint.y - axisPoint.y = ((unrotatedPoint.x - axisPoint.x)*sin(DegreeToRad (-ang)) + (unrotatedPoint.y - axisPoint.y)*cos(DegreeToRad (-ang)));
+
+	// ...
+
+	unrotatedPoint.z = rotatedPoint.z;
+
+	return unrotatedPoint;
+}
+
+// Cell 배열을 초기화함
+void	initCellsForSlabBottom (SlabPlacingZone* placingZone)
+{
+	short xx, yy;
+
+	for (xx = 0 ; xx < 50 ; ++xx)
+		for (yy = 0 ; yy < 50 ; ++yy) {
+			placingZone->cells [xx][yy].objType = NONE;
+			placingZone->cells [xx][yy].ang = 0.0;
+			placingZone->cells [xx][yy].horLen = 0.0;
+			placingZone->cells [xx][yy].verLen = 0.0;
+			placingZone->cells [xx][yy].leftBottomX = 0.0;
+			placingZone->cells [xx][yy].leftBottomY = 0.0;
+			placingZone->cells [xx][yy].leftBottomZ = 0.0;
+		}
+}
+
+// 1차 배치: 유로폼
+void	firstPlacingSettingsForSlabBottom (SlabPlacingZone* placingZone)
+{
+	// ...
+}
+
+// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+void	alignPlacingZoneForSlabBottom (SlabPlacingZone* target_zone)
+{
+	// ...
+}
+
+/*
+// 해당 셀 정보를 기반으로 라이브러리 배치
+API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo)
+{
+}
+
+// 유로폼을 채운 후 자투리 공간 채우기
+GSErrCode	fillRestAreasForSlabBottom (void)
+{
+}
+*/
 
 // 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
