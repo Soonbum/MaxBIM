@@ -25,12 +25,26 @@ namespace slabBottomPlacerDG {
 		USERCONTROL_LAYER_PLYWOOD,
 		USERCONTROL_LAYER_WOOD
 	};
+
+	enum	idxItems_2_forSlabBottomPlacer {
+		LABEL_REMAIN_HORIZONTAL_LENGTH			= 3,
+		LABEL_REMAIN_VERTICAL_LENGTH			= 4,
+		EDITCONTROL_REMAIN_HORIZONTAL_LENGTH	= 5,
+		EDITCONTROL_REMAIN_VERTICAL_LENGTH		= 6,
+		GROUPBOX_GRID_EUROFORM_WOOD				= 7,
+		PUSHBUTTON_CONFIRM_REMAIN_LENGTH		= 8,
+
+		// 이후에는 그리드 버튼이 배치됨
+		GRIDBUTTON_IDX_START					= 9
+	};
 }
 
 // 슬래브 관련 정보
 struct InfoSlab
 {
 	short	floorInd;			// 층 인덱스
+	double	offsetFromTop;		// 레퍼런스 레벨과 슬래브 위쪽 간의 수직 거리
+	double	thickness;			// 슬래브 두께
 };
 
 // 모프 관련 정보
@@ -79,8 +93,13 @@ struct CellForSlab
 struct SlabPlacingZone
 {
 	// 슬래브 기하 정보
-	double	level;			// 고도
-	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+	double	level;				// 고도
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+	double	leftBottomX;		// 유로폼 시작 좌표 X
+	double	leftBottomY;		// 유로폼 시작 좌표 Y
+	double	leftBottomZ;		// 유로폼 시작 좌표 Z
+	double	formArrayWidth;		// 유로폼 배열 전체 너비
+	double	formArrayHeight;	// 유로폼 배열 전체 높이
 
 	// 최외곽 좌표
 	double	outerLeft;		// X 좌표
@@ -88,7 +107,7 @@ struct SlabPlacingZone
 	double	outerTop;		// Y 좌표
 	double	outerBottom;	// Y 좌표
 
-	// 꺾인 부분 코너 좌표, 또는 일반 코너 좌표 (없으면 NULL)
+	// 꺾인 부분 코너 좌표, 또는 일반 코너 좌표
 	API_Coord3D		corner_leftTop;
 	API_Coord3D		corner_leftBottom;
 	API_Coord3D		corner_rightTop;
@@ -132,12 +151,15 @@ bool		isSamePoint (API_Coord3D aPoint, API_Coord3D bPoint);												// aPoint
 bool		isAlreadyStored (API_Coord3D aPoint, API_Coord3D pointList [], short startInd, short endInd);		// aPoint가 pointList에 보관이 되었는지 확인함
 bool		isNextPoint (API_Coord3D prevPoint, API_Coord3D curPoint, API_Coord3D nextPoint);					// nextPoint가 curPoint의 다음 점입니까?
 short		moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2);								// curPoint에 가까운 점이 p1, p2 중 어떤 점입니까?
-API_Coord3D	getUnrotatedPoint (API_Coord3D rotatedPoint, API_Coord3D axisPoint, double ang);					// 회전이 적용되지 않았을 때의 위치 (배치되어야 할 본래 위치를 리턴)
+API_Coord3D	getUnrotatedPoint (API_Coord3D rotatedPoint, API_Coord3D axisPoint, double ang);					// 회전이 적용되지 않았을 때의 위치 (배치되어야 할 본래 위치를 리턴), 각도는 Degree
 void		initCellsForSlabBottom (SlabPlacingZone* placingZone);												// Cell 배열을 초기화함
 void		firstPlacingSettingsForSlabBottom (SlabPlacingZone* placingZone);									// 1차 배치: 유로폼
+void		setCellPositionForSlabBottom (SlabPlacingZone *target_zone, short ver, short hor);					// 해당 셀의 LeftBottom 위치를 설정
 void		alignPlacingZoneForSlabBottom (SlabPlacingZone* target_zone);										// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-//API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo);													// 해당 셀 정보를 기반으로 라이브러리 배치
-//GSErrCode	fillRestAreasForSlabBottom (void);																	// 유로폼을 채운 후 자투리 공간 채우기
-short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo);													// 해당 셀 정보를 기반으로 라이브러리 배치
+GSErrCode	fillRestAreasForSlabBottom (void);																	// 유로폼을 채운 후 자투리 공간 채우기
+short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
+short DGCALLBACK slabBottomPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
 
 #endif

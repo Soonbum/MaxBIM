@@ -361,7 +361,7 @@ GSErrCode	placeEuroformOnWall (void)
 	firstPlacingSettingsForWall (&placingZone);
 	copyPlacingZoneSymmetricForWall (&placingZone, &placingZoneBackside, &infoWall);
 
-	// [DIALOG] 2번째 다이얼로그에서 유로폼/인코너 배치를 수정하거나 휠러스페이서를 삽입합니다.
+	// [DIALOG] 2번째 다이얼로그에서 유로폼/인코너 배치를 수정하거나 휠러스페이서 등을 삽입합니다.
 	clickedOKButton = false;
 	result = DGBlankModalDialog (185, 250, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallPlacerHandler2, 0);
 
@@ -1153,8 +1153,8 @@ API_Guid	placeLibPartForWall (CellForWall objInfo)
 	} else if (objInfo.objType == PLYWOOD) {
 		element.header.layer = layerInd_Plywood;
 		GS::ucscpy (memo.params [0][32].value.uStr, L("비규격"));
-		memo.params [0][35].value.real = objInfo.libPart.fillersp.f_thk;	// 가로
-		memo.params [0][36].value.real = objInfo.libPart.fillersp.f_leng;	// 세로
+		memo.params [0][35].value.real = objInfo.libPart.plywood.p_wid;		// 가로
+		memo.params [0][36].value.real = objInfo.libPart.plywood.p_leng;	// 세로
 		
 		// 설치방향
 		if (objInfo.libPart.plywood.w_dir_wall == true)
@@ -1162,6 +1162,7 @@ API_Guid	placeLibPartForWall (CellForWall objInfo)
 		else
 			tempString = "벽눕히기";
 		GS::ucscpy (memo.params [0][33].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+	
 	} else if (objInfo.objType == WOOD) {
 		element.header.layer = layerInd_Wood;
 		GS::ucscpy (memo.params [0][27].value.uStr, L("벽세우기"));		// 설치방향
@@ -1703,13 +1704,13 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (인코너 관련)
 			// 라벨: 남은 가로 길이
-			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 10, 15, 90, 23);
+			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 20, 90, 23);
 			DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
 			DGSetItemText (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, "남은 가로 길이");
 			DGShowItem (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH);
 
 			// Edit 컨트롤: 남은 가로 길이
-			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 110, 15-7, 50, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 120, 20-7, 50, 25);
 			DGSetItemFont (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
 			DGShowItem (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH);
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated);
