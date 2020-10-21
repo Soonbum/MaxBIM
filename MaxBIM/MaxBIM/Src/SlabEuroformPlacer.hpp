@@ -4,6 +4,14 @@
 #include "MaxBIM.hpp"
 
 namespace slabBottomPlacerDG {
+	// 객체 타입
+	enum	libPartObjType {
+		NONE,			// 없음
+		EUROFORM,		// 유로폼v2.0
+		PLYWOOD,		// 합판v1.0
+		WOOD			// 목재v1.0
+	};
+
 	// 다이얼로그 항목 인덱스
 	enum	idxItems_1_forSlabBottomPlacer {
 		LABEL_PLACING_EUROFORM		= 3,
@@ -37,6 +45,28 @@ namespace slabBottomPlacerDG {
 		// 이후에는 그리드 버튼이 배치됨
 		GRIDBUTTON_IDX_START					= 9
 	};
+
+	enum	idxItems_3_forSlabBottomPlacer {
+		LABEL_OBJ_TYPE	= 3,
+		POPUP_OBJ_TYPE,
+		LABEL_WIDTH,
+		EDITCONTROL_WIDTH,
+		LABEL_HEIGHT,
+		EDITCONTROL_HEIGHT,
+		LABEL_ORIENTATION,
+		RADIO_ORIENTATION_1_PLYWOOD,
+		RADIO_ORIENTATION_2_PLYWOOD,
+		CHECKBOX_SET_STANDARD,
+		LABEL_EUROFORM_WIDTH_OPTIONS,
+		POPUP_EUROFORM_WIDTH_OPTIONS,
+		EDITCONTROL_EUROFORM_WIDTH_OPTIONS,
+		LABEL_EUROFORM_HEIGHT_OPTIONS,
+		POPUP_EUROFORM_HEIGHT_OPTIONS,
+		EDITCONTROL_EUROFORM_HEIGHT_OPTIONS,
+		LABEL_EUROFORM_ORIENTATION_OPTIONS,
+		RADIO_ORIENTATION_1_EUROFORM,
+		RADIO_ORIENTATION_2_EUROFORM
+	};
 }
 
 // 슬래브 관련 정보
@@ -51,20 +81,6 @@ struct InfoSlab
 struct InfoMorphForSlab
 {
 	API_Guid	guid;		// 모프의 GUID
-
-	double	leftBottomX;	// 좌하단 좌표 X
-	double	leftBottomY;	// 좌하단 좌표 Y
-	double	leftBottomZ;	// 좌하단 좌표 Z
-
-	//double	rightTopX;		// 우상단 좌표 X
-	//double	rightTopY;		// 우상단 좌표 Y
-	//double	rightTopZ;		// 우상단 좌표 Z
-
-	double	horLen;			// 가로 길이
-	double	verLen;			// 세로 길이
-	double	ang;			// 회전 각도 (단위: Degree, 회전축: Z축)
-
-	// ...
 };
 
 // 그리드 각 셀 정보
@@ -154,7 +170,8 @@ short		moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2);		
 API_Coord3D	getUnrotatedPoint (API_Coord3D rotatedPoint, API_Coord3D axisPoint, double ang);					// 회전이 적용되지 않았을 때의 위치 (배치되어야 할 본래 위치를 리턴), 각도는 Degree
 void		initCellsForSlabBottom (SlabPlacingZone* placingZone);												// Cell 배열을 초기화함
 void		firstPlacingSettingsForSlabBottom (SlabPlacingZone* placingZone);									// 1차 배치: 유로폼
-void		setCellPositionForSlabBottom (SlabPlacingZone *target_zone, short ver, short hor);					// 해당 셀의 LeftBottom 위치를 설정
+void		adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short col);						// 해당 셀과 동일한 행에 있는 다른 셀들의 타입 및 높이를 조정함
+void		adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col);						// 해당 셀과 동일한 열에 있는 다른 셀들의 타입 및 너비를 조정함
 void		alignPlacingZoneForSlabBottom (SlabPlacingZone* target_zone);										// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo);													// 해당 셀 정보를 기반으로 라이브러리 배치
 GSErrCode	fillRestAreasForSlabBottom (void);																	// 유로폼을 채운 후 자투리 공간 채우기

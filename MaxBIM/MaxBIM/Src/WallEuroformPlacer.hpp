@@ -4,6 +4,16 @@
 #include "MaxBIM.hpp"
 
 namespace wallPlacerDG {
+	// 객체 타입
+	enum	libPartObjType {
+		NONE,			// 없음
+		INCORNER,		// 인코너판넬v1.0
+		EUROFORM,		// 유로폼v2.0
+		FILLERSPACER,	// 휠러스페이서v1.0
+		PLYWOOD,		// 합판v1.0
+		WOOD			// 목재v1.0
+	};
+
 	// 다이얼로그 항목 인덱스
 	enum	idxItems_1_forWallPlacer {
 		LABEL_INCORNER				= 3,

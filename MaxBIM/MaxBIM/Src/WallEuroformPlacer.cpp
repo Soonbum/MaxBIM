@@ -1741,7 +1741,8 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 					lastIdxBtn = idxBtn;
 					DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
 
-					idxCell = ((idxBtn - itemInitIdx) * 2) - (xx * (placingZone.eu_count_hor + 2)) * 2;		// 버튼 인덱스로 셀 인덱스를 구함
+					// 버튼 인덱스로 셀 인덱스를 구함
+					idxCell = ((idxBtn - itemInitIdx) * 2) - (xx * (placingZone.eu_count_hor + 2)) * 2;
 
 					txtButton = "";
 					if (placingZone.cells [0][idxCell].objType == NONE) {
@@ -1794,8 +1795,8 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
 						for (yy = 0 ; yy < placingZone.nCells ; yy += 2) {
 
-							// 셀 인덱스로 버튼 인덱스를 구함
-							idxCell = ((idxBtn - itemInitIdx) * 2) - (xx * (placingZone.eu_count_hor + 2)) * 2;		// 버튼 인덱스로 셀 인덱스를 구함
+							// 버튼 인덱스로 셀 인덱스를 구함
+							idxCell = ((idxBtn - itemInitIdx) * 2) - (xx * (placingZone.eu_count_hor + 2)) * 2;
 
 							txtButton = "";
 							if (placingZone.cells [0][yy].objType == NONE) {
@@ -1927,10 +1928,10 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated);
 					DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_BOLD);
 
-					err = ACAPI_CallUndoableCommand ("유로폼/인코너 재배치", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand ("유로폼 배치", [&] () -> GSErrCode {
 						// 기존 배치된 객체 전부 삭제
 						for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
-							for (yy = 0 ; yy < placingZone.nCells ; ++ yy) {
+							for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
 								elem.header.guid = placingZone.cells [xx][yy].guid;
 								if (ACAPI_Element_Get (&elem) != NoError)
 									continue;
@@ -1943,7 +1944,7 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 						}
 
 						for (xx = 0 ; xx < placingZoneBackside.eu_count_ver ; ++xx) {
-							for (yy = 0 ; yy < placingZoneBackside.nCells ; ++ yy) {
+							for (yy = 0 ; yy < placingZoneBackside.nCells ; ++yy) {
 								elem.header.guid = placingZoneBackside.cells [xx][yy].guid;
 								if (ACAPI_Element_Get (&elem) != NoError)
 									continue;
