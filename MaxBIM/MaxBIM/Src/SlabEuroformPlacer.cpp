@@ -15,7 +15,7 @@ static bool				clickedOKButton;		// OK 버튼을 눌렀습니까?
 static short			layerInd_Euroform;		// 레이어 번호: 유로폼
 static short			layerInd_Plywood;		// 레이어 번호: 합판
 static short			layerInd_Wood;			// 레이어 번호: 목재
-static short			itemInitIdx = GRIDBUTTON_IDX_START;		// 그리드 버튼 항목 인덱스 시작번호
+static short			itemInitIdx = GRIDBUTTON_IDX_START;		// 그리드 버튼 항목 인덱스 시작 번호
 static API_Coord3D		firstClickPoint;		// 1번째로 클릭한 점
 
 
@@ -749,6 +749,42 @@ void	adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short c
 	}
 }
 
+// 새로운 행을 추가함 (행 하나를 늘리고 추가된 행에 마지막 행 정보 복사)
+void		addNewRow (SlabPlacingZone* target_zone)
+{
+	short	xx;
+
+	// 새로운 행 추가
+	target_zone->eu_count_ver ++;
+
+	for (xx = 0 ; xx < target_zone->eu_count_hor ; ++xx)
+		target_zone->cells [target_zone->eu_count_ver - 1][xx] = target_zone->cells [target_zone->eu_count_ver - 2][xx];
+}
+
+// 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+void		addNewCol (SlabPlacingZone* target_zone)
+{
+	short	xx;
+
+	// 새로운 열 추가
+	target_zone->eu_count_hor ++;
+
+	for (xx = 0 ; xx < target_zone->eu_count_ver ; ++xx)
+		target_zone->cells [xx][target_zone->eu_count_hor - 1] = target_zone->cells [xx][target_zone->eu_count_hor - 2];
+}
+
+// 마지막 행을 삭제함
+void		delLastRow (SlabPlacingZone* target_zone)
+{
+	target_zone->eu_count_ver --;
+}
+
+// 마지막 열을 삭제함
+void		delLastCol (SlabPlacingZone* target_zone)
+{
+	target_zone->eu_count_hor --;
+}
+
 // 해당 셀과 동일한 열에 있는 다른 셀들의 타입 및 너비를 조정함 (높이는 변경하지 않음)
 void	adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col)
 {
@@ -1152,7 +1188,6 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 	short	result;
 	short	btnSizeX = 50, btnSizeY = 50;
 	short	dialogSizeX, dialogSizeY;
-	short	groupboxSizeX, groupboxSizeY;
 	short	btnInitPosX = 220 + 25;
 	short	btnPosX, btnPosY;
 	short	xx, yy;
@@ -1169,13 +1204,13 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 업데이트 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 130, 130, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 210, 130, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "2. 배  치");
 			DGShowItem (dialogID, DG_OK);
 
 			// 종료 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 170, 130, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 250, 130, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_CANCEL, "3. 자투리 채우기");
 			DGShowItem (dialogID, DG_CANCEL);
@@ -1204,13 +1239,11 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 			DGShowItem (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH);
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
 
-			// 그룹박스: 유로폼/휠러스페이서 배치 설정
-			groupboxSizeX = 40 + (btnSizeX * placingZone.eu_count_hor) + 50;
-			groupboxSizeY = 70 + (btnSizeY * placingZone.eu_count_ver) + 50;
-			DGAppendDialogItem (dialogID, DG_ITM_GROUPBOX, DG_GT_PRIMARY, 0, 200, 10, groupboxSizeX, groupboxSizeY);
-			DGSetItemFont (dialogID, GROUPBOX_GRID_EUROFORM_WOOD, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, GROUPBOX_GRID_EUROFORM_WOOD, "유로폼/보강 목재 배치 설정");
-			DGShowItem (dialogID, GROUPBOX_GRID_EUROFORM_WOOD);
+			// 라벨: 유로폼/휠러스페이서 배치 설정
+			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 10, 200, 23);
+			DGSetItemFont (dialogID, LABEL_GRID_EUROFORM_WOOD, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_GRID_EUROFORM_WOOD, "유로폼/보강 목재 배치 설정");
+			DGShowItem (dialogID, LABEL_GRID_EUROFORM_WOOD);
 
 			// 남은 거리 확인 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 90, 130, 25);
@@ -1218,10 +1251,34 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 			DGSetItemText (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, "1. 남은 길이 확인");
 			DGShowItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
 
+			// 행 추가 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 130, 65, 25);
+			DGSetItemFont (dialogID, PUSHBUTTON_ADD_ROW, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, PUSHBUTTON_ADD_ROW, "행 추가");
+			DGShowItem (dialogID, PUSHBUTTON_ADD_ROW);
+
+			// 행 삭제 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 130, 65, 25);
+			DGSetItemFont (dialogID, PUSHBUTTON_DEL_ROW, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, PUSHBUTTON_DEL_ROW, "행 삭제");
+			DGShowItem (dialogID, PUSHBUTTON_DEL_ROW);
+
+			// 열 추가 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 170, 65, 25);
+			DGSetItemFont (dialogID, PUSHBUTTON_ADD_COL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, PUSHBUTTON_ADD_COL, "열 추가");
+			DGShowItem (dialogID, PUSHBUTTON_ADD_COL);
+		
+			// 열 삭제 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 170, 65, 25);
+			DGSetItemFont (dialogID, PUSHBUTTON_DEL_COL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, PUSHBUTTON_DEL_COL, "열 삭제");
+			DGShowItem (dialogID, PUSHBUTTON_DEL_COL);
+
 			// 메인 창 크기를 변경
 			dialogSizeX = 270 + (btnSizeX * placingZone.eu_count_hor) + 50;
 			dialogSizeY = max<short>(300, 150 + (btnSizeY * placingZone.eu_count_ver) + 50);
-			DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_CENTER, true);
+			DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
 
 			// 그리드 구조체에 따라서 버튼을 동적으로 배치함
 			btnPosX = 220 + 25, btnPosY = (btnSizeY * placingZone.eu_count_ver) + 25;
@@ -1402,6 +1459,422 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					break;
 
 				case DG_CANCEL:
+					break;
+
+				case PUSHBUTTON_ADD_ROW:
+					// 종료하지 않고 남은 가로 거리와 그리드 버튼 속성을 변경함
+					item = 0;
+
+					// 새로운 행 추가 (행 하나를 늘리고 추가된 행에 마지막 행 정보 복사)
+					addNewRow (&placingZone);
+
+					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
+					alignPlacingZoneForSlabBottom (&placingZone);
+
+					// 버튼 인덱스 iteration 준비
+					idxBtn = itemInitIdx;
+
+					// 기존에 배치된 그리드 버튼 모두 삭제 (itemInitIdx부터)
+					DGRemoveDialogItems (dialogID, itemInitIdx);
+					
+					// 메인 창 크기를 변경
+					dialogSizeX = 270 + (btnSizeX * placingZone.eu_count_hor) + 50;
+					dialogSizeY = max<short>(300, 150 + (btnSizeY * placingZone.eu_count_ver) + 50);
+					DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
+
+					// 그리드 구조체에 따라서 버튼을 동적으로 배치함
+					btnPosX = 220 + 25, btnPosY = (btnSizeY * placingZone.eu_count_ver) + 25;
+					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
+						for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy) {
+							idxBtn = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+							lastIdxBtn = idxBtn;
+							DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+							txtButton = "";
+							if (placingZone.cells [xx][yy].objType == NONE) {
+								txtButton = "NONE";
+							} else if (placingZone.cells [xx][yy].objType == EUROFORM) {
+								if (placingZone.cells [xx][yy].libPart.form.u_ins_wall)
+									txtButton = format_string ("유로폼\n(세움)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+								else
+									txtButton = format_string ("유로폼\n(눕힘)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							}
+							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
+							DGShowItem (dialogID, idxBtn);
+							btnPosX += btnSizeX;
+						}
+						btnPosX = btnInitPosX;
+						btnPosY -= btnSizeY;
+					}
+
+					// 위쪽 보강 목재 체크 박스
+					btnPosX = 270 + 12, btnPosY = 48;
+					for (xx = 0 ; xx < placingZone.eu_count_hor - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "T";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosX += 50;
+					}
+
+					// 아래쪽 보강 목재 체크 박스
+					btnPosX = 270 + 12, btnPosY = (btnSizeY * (placingZone.eu_count_ver + 1)) + 27;
+					for (xx = 0 ; xx < placingZone.eu_count_hor - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "B";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosX += 50;
+					}
+
+					// 왼쪽 보강 목재 체크 박스
+					btnPosX = 219, btnPosY = 114;
+					for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "L";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosY += 50;
+					}
+
+					// 오른쪽 보강 목재 체크 박스
+					btnPosX = 220 + 25 + (btnSizeX * placingZone.eu_count_hor), btnPosY = 114;
+					for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL); 
+
+						txtButton = "R";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosY += 50;
+					}
+
+					// 남은 가로/세로 길이 업데이트
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
+
+					break;
+
+				case PUSHBUTTON_DEL_ROW:
+					// 종료하지 않고 남은 가로 거리와 그리드 버튼 속성을 변경함
+					item = 0;
+
+					// 마지막 행 삭제
+					delLastRow (&placingZone);
+
+					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
+					alignPlacingZoneForSlabBottom (&placingZone);
+
+					// 버튼 인덱스 iteration 준비
+					idxBtn = itemInitIdx;
+
+					// 기존에 배치된 그리드 버튼 모두 삭제 (itemInitIdx부터)
+					DGRemoveDialogItems (dialogID, itemInitIdx);
+					
+					// 메인 창 크기를 변경
+					dialogSizeX = 270 + (btnSizeX * placingZone.eu_count_hor) + 50;
+					dialogSizeY = max<short>(300, 150 + (btnSizeY * placingZone.eu_count_ver) + 50);
+					DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
+
+					// 그리드 구조체에 따라서 버튼을 동적으로 배치함
+					btnPosX = 220 + 25, btnPosY = (btnSizeY * placingZone.eu_count_ver) + 25;
+					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
+						for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy) {
+							idxBtn = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+							lastIdxBtn = idxBtn;
+							DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+							txtButton = "";
+							if (placingZone.cells [xx][yy].objType == NONE) {
+								txtButton = "NONE";
+							} else if (placingZone.cells [xx][yy].objType == EUROFORM) {
+								if (placingZone.cells [xx][yy].libPart.form.u_ins_wall)
+									txtButton = format_string ("유로폼\n(세움)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+								else
+									txtButton = format_string ("유로폼\n(눕힘)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							}
+							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
+							DGShowItem (dialogID, idxBtn);
+							btnPosX += btnSizeX;
+						}
+						btnPosX = btnInitPosX;
+						btnPosY -= btnSizeY;
+					}
+
+					// 위쪽 보강 목재 체크 박스
+					btnPosX = 270 + 12, btnPosY = 48;
+					for (xx = 0 ; xx < placingZone.eu_count_hor - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "T";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosX += 50;
+					}
+
+					// 아래쪽 보강 목재 체크 박스
+					btnPosX = 270 + 12, btnPosY = (btnSizeY * (placingZone.eu_count_ver + 1)) + 27;
+					for (xx = 0 ; xx < placingZone.eu_count_hor - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "B";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosX += 50;
+					}
+
+					// 왼쪽 보강 목재 체크 박스
+					btnPosX = 219, btnPosY = 114;
+					for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "L";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosY += 50;
+					}
+
+					// 오른쪽 보강 목재 체크 박스
+					btnPosX = 220 + 25 + (btnSizeX * placingZone.eu_count_hor), btnPosY = 114;
+					for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL); 
+
+						txtButton = "R";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosY += 50;
+					}
+
+					// 남은 가로/세로 길이 업데이트
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
+
+					break;
+
+				case PUSHBUTTON_ADD_COL:
+					// 종료하지 않고 남은 가로 거리와 그리드 버튼 속성을 변경함
+					item = 0;
+
+					// 새로운 열 추가 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+					addNewCol (&placingZone);
+
+					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
+					alignPlacingZoneForSlabBottom (&placingZone);
+
+					// 버튼 인덱스 iteration 준비
+					idxBtn = itemInitIdx;
+
+					// 기존에 배치된 그리드 버튼 모두 삭제 (itemInitIdx부터)
+					DGRemoveDialogItems (dialogID, itemInitIdx);
+					
+					// 메인 창 크기를 변경
+					dialogSizeX = 270 + (btnSizeX * placingZone.eu_count_hor) + 50;
+					dialogSizeY = max<short>(300, 150 + (btnSizeY * placingZone.eu_count_ver) + 50);
+					DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
+
+					// 그리드 구조체에 따라서 버튼을 동적으로 배치함
+					btnPosX = 220 + 25, btnPosY = (btnSizeY * placingZone.eu_count_ver) + 25;
+					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
+						for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy) {
+							idxBtn = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+							lastIdxBtn = idxBtn;
+							DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+							txtButton = "";
+							if (placingZone.cells [xx][yy].objType == NONE) {
+								txtButton = "NONE";
+							} else if (placingZone.cells [xx][yy].objType == EUROFORM) {
+								if (placingZone.cells [xx][yy].libPart.form.u_ins_wall)
+									txtButton = format_string ("유로폼\n(세움)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+								else
+									txtButton = format_string ("유로폼\n(눕힘)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							}
+							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
+							DGShowItem (dialogID, idxBtn);
+							btnPosX += btnSizeX;
+						}
+						btnPosX = btnInitPosX;
+						btnPosY -= btnSizeY;
+					}
+
+					// 위쪽 보강 목재 체크 박스
+					btnPosX = 270 + 12, btnPosY = 48;
+					for (xx = 0 ; xx < placingZone.eu_count_hor - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "T";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosX += 50;
+					}
+
+					// 아래쪽 보강 목재 체크 박스
+					btnPosX = 270 + 12, btnPosY = (btnSizeY * (placingZone.eu_count_ver + 1)) + 27;
+					for (xx = 0 ; xx < placingZone.eu_count_hor - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "B";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosX += 50;
+					}
+
+					// 왼쪽 보강 목재 체크 박스
+					btnPosX = 219, btnPosY = 114;
+					for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "L";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosY += 50;
+					}
+
+					// 오른쪽 보강 목재 체크 박스
+					btnPosX = 220 + 25 + (btnSizeX * placingZone.eu_count_hor), btnPosY = 114;
+					for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL); 
+
+						txtButton = "R";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosY += 50;
+					}
+
+					// 남은 가로/세로 길이 업데이트
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
+
+					break;
+
+				case PUSHBUTTON_DEL_COL:
+					// 종료하지 않고 남은 가로 거리와 그리드 버튼 속성을 변경함
+					item = 0;
+
+					// 마지막 열 삭제
+					delLastCol (&placingZone);
+
+					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
+					alignPlacingZoneForSlabBottom (&placingZone);
+
+					// 버튼 인덱스 iteration 준비
+					idxBtn = itemInitIdx;
+
+					// 기존에 배치된 그리드 버튼 모두 삭제 (itemInitIdx부터)
+					DGRemoveDialogItems (dialogID, itemInitIdx);
+					
+					// 메인 창 크기를 변경
+					dialogSizeX = 270 + (btnSizeX * placingZone.eu_count_hor) + 50;
+					dialogSizeY = max<short>(300, 150 + (btnSizeY * placingZone.eu_count_ver) + 50);
+					DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
+
+					// 그리드 구조체에 따라서 버튼을 동적으로 배치함
+					btnPosX = 220 + 25, btnPosY = (btnSizeY * placingZone.eu_count_ver) + 25;
+					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
+						for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy) {
+							idxBtn = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+							lastIdxBtn = idxBtn;
+							DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+							txtButton = "";
+							if (placingZone.cells [xx][yy].objType == NONE) {
+								txtButton = "NONE";
+							} else if (placingZone.cells [xx][yy].objType == EUROFORM) {
+								if (placingZone.cells [xx][yy].libPart.form.u_ins_wall)
+									txtButton = format_string ("유로폼\n(세움)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+								else
+									txtButton = format_string ("유로폼\n(눕힘)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							}
+							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
+							DGShowItem (dialogID, idxBtn);
+							btnPosX += btnSizeX;
+						}
+						btnPosX = btnInitPosX;
+						btnPosY -= btnSizeY;
+					}
+
+					// 위쪽 보강 목재 체크 박스
+					btnPosX = 270 + 12, btnPosY = 48;
+					for (xx = 0 ; xx < placingZone.eu_count_hor - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "T";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosX += 50;
+					}
+
+					// 아래쪽 보강 목재 체크 박스
+					btnPosX = 270 + 12, btnPosY = (btnSizeY * (placingZone.eu_count_ver + 1)) + 27;
+					for (xx = 0 ; xx < placingZone.eu_count_hor - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "B";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosX += 50;
+					}
+
+					// 왼쪽 보강 목재 체크 박스
+					btnPosX = 219, btnPosY = 114;
+					for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+						txtButton = "L";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosY += 50;
+					}
+
+					// 오른쪽 보강 목재 체크 박스
+					btnPosX = 220 + 25 + (btnSizeX * placingZone.eu_count_hor), btnPosY = 114;
+					for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
+						idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
+						lastIdxBtn = idxBtn;
+						DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL); 
+
+						txtButton = "R";
+						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGShowItem (dialogID, idxBtn);
+						btnPosY += 50;
+					}
+
+					// 남은 가로/세로 길이 업데이트
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
+
 					break;
 
 				default:

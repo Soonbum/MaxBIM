@@ -39,11 +39,15 @@ namespace slabBottomPlacerDG {
 		LABEL_REMAIN_VERTICAL_LENGTH			= 4,
 		EDITCONTROL_REMAIN_HORIZONTAL_LENGTH	= 5,
 		EDITCONTROL_REMAIN_VERTICAL_LENGTH		= 6,
-		GROUPBOX_GRID_EUROFORM_WOOD				= 7,
+		LABEL_GRID_EUROFORM_WOOD				= 7,
 		PUSHBUTTON_CONFIRM_REMAIN_LENGTH		= 8,
+		PUSHBUTTON_ADD_ROW						= 9,
+		PUSHBUTTON_DEL_ROW						= 10,
+		PUSHBUTTON_ADD_COL						= 11,
+		PUSHBUTTON_DEL_COL						= 12,
 
 		// 이후에는 그리드 버튼이 배치됨
-		GRIDBUTTON_IDX_START					= 9
+		GRIDBUTTON_IDX_START					= 13
 	};
 
 	enum	idxItems_3_forSlabBottomPlacer {
@@ -172,6 +176,10 @@ void		initCellsForSlabBottom (SlabPlacingZone* placingZone);												// Cell 
 void		firstPlacingSettingsForSlabBottom (SlabPlacingZone* placingZone);									// 1차 배치: 유로폼
 void		adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short col);						// 해당 셀과 동일한 행에 있는 다른 셀들의 타입 및 높이를 조정함
 void		adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col);						// 해당 셀과 동일한 열에 있는 다른 셀들의 타입 및 너비를 조정함
+void		addNewRow (SlabPlacingZone* target_zone);															// 새로운 행을 추가함 (행 하나를 늘리고 추가된 행에 마지막 행 정보 복사)
+void		addNewCol (SlabPlacingZone* target_zone);															// 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+void		delLastRow (SlabPlacingZone* target_zone);															// 마지막 행을 삭제함
+void		delLastCol (SlabPlacingZone* target_zone);															// 마지막 열을 삭제함
 void		alignPlacingZoneForSlabBottom (SlabPlacingZone* target_zone);										// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo);													// 해당 셀 정보를 기반으로 라이브러리 배치
 GSErrCode	fillRestAreasForSlabBottom (void);																	// 유로폼을 채운 후 자투리 공간 채우기
