@@ -112,6 +112,8 @@ struct CellForSlab
 // 슬래브 하부 영역 정보
 struct SlabPlacingZone
 {
+	// 좌우상하: 슬래브 위에서 봤을 때의 방향을 따름
+
 	// 슬래브 기하 정보
 	double	level;				// 고도
 	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)

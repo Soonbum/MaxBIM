@@ -205,14 +205,14 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 
 	// 하단 점 2개를 클릭
 	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
-	CHCopyC ("Left Bottom 점을 클릭하십시오.", pointInfo.prompt);
+	CHCopyC ("모프의 하단 라인의 왼쪽 점을 클릭하십시오.", pointInfo.prompt);
 	pointInfo.enableQuickSelection = true;
 	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
 	point1 = pointInfo.pos;
 	firstClickPoint = point1;
 
 	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
-	CHCopyC ("Right Bottom 점을 클릭하십시오.", pointInfo.prompt);
+	CHCopyC ("모프의 하단 라인의 오른측 점을 클릭하십시오.", pointInfo.prompt);
 	pointInfo.enableQuickSelection = true;
 	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
 	point2 = pointInfo.pos;
@@ -257,14 +257,10 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	}
 
 	// 영역 모프 제거
-	err = ACAPI_CallUndoableCommand ("영역 모프 제거", [&] () -> GSErrCode {
-		API_Elem_Head* headList = new API_Elem_Head [1];
-		headList [0] = elem.header;
-		err = ACAPI_Element_Delete (&headList, 1);
-		delete headList;
-
-		return err;
-	});
+	API_Elem_Head* headList = new API_Elem_Head [1];
+	headList [0] = elem.header;
+	err = ACAPI_Element_Delete (&headList, 1);
+	delete headList;
 
 	// 폴리곤 점 순서대로 저장할 것
 	nEntered = 2;	// 이미 2개의 점은 입력되어 있음
@@ -514,23 +510,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	if (clickedOKButton == false)
 		return err;
 
-	// 1. 유로폼의 가로/세로 수량을 계산한다. (가장자리 너비는 150 이상 300 미만)
-	// 2. 합판 설치: 부재당 최대 길이 1800 이하
-	// 3. 안쪽 목재 설치 (두께 50, 너비 80): 부재당 최대 길이 1800 이하
-	// 4. 바깥쪽 목재 설치 (두께 40, 너비 50): 부재당 최대 길이 1800 이하
-
-	/*
-		1. 사용자 입력 (2차)
-			- 배치 버튼을 보여줌 (x번행 y번열 버튼의 폼 크기를 변경하면? - 너비를 바꾸면 y열 전체에 영향을 줌, 높이를 바꾸면 x행 전체에 영향을 줌)
-			- 남은 가로/세로 길이: 표시만 함 (양쪽 다 합친 것): 권장 남은 길이 표시 (한쪽에 150~300mm), 권장 길이인지 아닌지 글꼴로 표시
-			- 사방 합판 너비를 조정할 수 있어야 함 (위/아래 배분, 왼쪽/오른쪽 배분 - 사용자가 직접.. 그에 따라 유로폼 전체 배열이 이동됨)
-			- 배치 버튼 사방에는 버튼 사이마다 보강 목재를 댈지 여부를 선택할 수 있어야 함 (체크박스)
-		2. 최종 배치
-			- (1) 유로폼은 모프 센터를 기준으로 배치할 것
-			- (2) 합판(11.5T, 제작틀 Off)을 모프에 맞게 배치하되, 겹치는 부분은 모깎기가 필요함! (난이도 높음)
-			- (3) 안쪽에 목재를 댈 것 (Z방향 두께는 50이어야 함, 너비는 80)
-			- (4) 목재 보강재도 댈 것 (안쪽 목재와 두께, 너비는 동일 - 길이는 사용자 설정을 따름)
-	*/
+	err = fillRestAreasForSlabBottom ();
 
 	return	err;
 }
@@ -1049,24 +1029,15 @@ API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo)
 		// 회전X
 		memo.params [0][33].value.real = DegreeToRad (0.0);
 
-		// 유로폼 두께만큼 낮춤
-		//element.object.level -= 0.064;
-
 	} else if (objInfo.objType == PLYWOOD) {
 		element.header.layer = layerInd_Plywood;
 		GS::ucscpy (memo.params [0][32].value.uStr, L("비규격"));
 		GS::ucscpy (memo.params [0][33].value.uStr, L("바닥깔기"));
+		GS::ucscpy (memo.params [0][34].value.uStr, L("11.5T"));
 		memo.params [0][35].value.real = objInfo.libPart.plywood.p_wid;		// 가로
 		memo.params [0][36].value.real = objInfo.libPart.plywood.p_leng;	// 세로
 		memo.params [0][38].value.real = FALSE;		// 제작틀 OFF
 		
-		// 설치방향
-		if (objInfo.libPart.plywood.w_dir_wall == true)
-			tempString = "벽세우기";
-		else
-			tempString = "벽눕히기";
-		GS::ucscpy (memo.params [0][33].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
-
 	} else if (objInfo.objType == WOOD) {
 		element.header.layer = layerInd_Wood;
 		GS::ucscpy (memo.params [0][27].value.uStr, L("바닥눕히기"));	// 설치방향
@@ -1086,9 +1057,350 @@ API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo)
 // 유로폼을 채운 후 자투리 공간 채우기
 GSErrCode	fillRestAreasForSlabBottom (void)
 {
-	// ...
+	GSErrCode	err = NoError;
+	short		xx;
+	CellForSlab	insCell;
+	double		startXPos, startYPos;
+	API_Coord3D	axisPoint, rotatedPoint, unrotatedPoint;
 
-	return NoError;
+	// 솔리드 연산을 위해 GUID를 저장함
+	API_Guid	topAtLeftTop, topAtRightTop;
+	API_Guid	bottomAtLeftBottom, bottomAtRightBottom;
+	API_Guid	leftAtLeftTop, leftAtLeftBottom;
+	API_Guid	rightAtRightTop, rightAtRightBottom;
+
+	// 회전축이 되는 점
+	axisPoint.x = firstClickPoint.x;
+	axisPoint.y = firstClickPoint.y;
+	axisPoint.z = firstClickPoint.y;
+
+
+	// 합판 설치 (TOP)
+	insCell.objType = PLYWOOD;
+	insCell.ang = placingZone.ang;
+	insCell.horLen = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+	insCell.verLen = placingZone.cells [0][0].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.corner_leftTop.x - placingZone.outerLeft);
+	insCell.leftBottomX = axisPoint.x;
+	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2);
+	insCell.leftBottomZ = placingZone.level;
+	insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+	insCell.libPart.plywood.p_leng = placingZone.cells [0][0].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.corner_leftTop.x - placingZone.outerLeft);
+	insCell.libPart.plywood.w_dir_wall = true;
+
+	// 위치 값을 비회전값으로 변환
+	rotatedPoint.x = insCell.leftBottomX;
+	rotatedPoint.y = insCell.leftBottomY;
+	rotatedPoint.z = insCell.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+	insCell.leftBottomX = unrotatedPoint.x;
+	insCell.leftBottomY = unrotatedPoint.y;
+	insCell.leftBottomZ = unrotatedPoint.z;
+
+	// 셀 배치
+	topAtLeftTop = placeLibPartForSlabBottom (insCell);
+
+	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.cells [0][0].horLen;
+	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2);
+	for (xx = 1 ; xx < placingZone.eu_count_hor-1 ; ++xx) {
+		insCell.objType = PLYWOOD;
+		insCell.ang = placingZone.ang;
+		insCell.horLen = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+		insCell.verLen = placingZone.cells [0][xx].horLen;
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos;
+		insCell.leftBottomZ = placingZone.level;
+		insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+		insCell.libPart.plywood.p_leng = placingZone.cells [0][xx].horLen;
+		insCell.libPart.plywood.w_dir_wall = true;
+
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		// 셀 배치
+		placeLibPartForSlabBottom (insCell);
+
+		// 다음 셀 배치를 위해 시작 X 좌표 이동
+		startXPos += placingZone.cells [0][xx].horLen;
+	}
+
+	insCell.objType = PLYWOOD;
+	insCell.ang = placingZone.ang;
+	insCell.horLen = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+	insCell.verLen = placingZone.cells [0][xx].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.outerRight - placingZone.corner_rightTop.x);
+	insCell.leftBottomX = startXPos;
+	insCell.leftBottomY = startYPos;
+	insCell.leftBottomZ = placingZone.level;
+	insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+	insCell.libPart.plywood.p_leng = placingZone.cells [0][xx].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.outerRight - placingZone.corner_rightTop.x);
+	insCell.libPart.plywood.w_dir_wall = true;
+
+	// 위치 값을 비회전값으로 변환
+	rotatedPoint.x = insCell.leftBottomX;
+	rotatedPoint.y = insCell.leftBottomY;
+	rotatedPoint.z = insCell.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+	insCell.leftBottomX = unrotatedPoint.x;
+	insCell.leftBottomY = unrotatedPoint.y;
+	insCell.leftBottomZ = unrotatedPoint.z;
+
+	// 셀 배치
+	topAtRightTop = placeLibPartForSlabBottom (insCell);
+
+
+	// 합판 설치 (BOTTOM)
+	insCell.objType = PLYWOOD;
+	insCell.ang = placingZone.ang;
+	insCell.horLen = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+	insCell.verLen = placingZone.cells [0][0].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.corner_leftBottom.x - placingZone.outerLeft);
+	insCell.leftBottomX = axisPoint.x - (placingZone.corner_leftTop.x - placingZone.outerLeft) + (placingZone.corner_leftBottom.x - placingZone.outerLeft);
+	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom);
+	insCell.leftBottomZ = placingZone.level;
+	insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+	insCell.libPart.plywood.p_leng = placingZone.cells [0][0].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.corner_leftBottom.x - placingZone.outerLeft);
+	insCell.libPart.plywood.w_dir_wall = true;
+
+	// 위치 값을 비회전값으로 변환
+	rotatedPoint.x = insCell.leftBottomX;
+	rotatedPoint.y = insCell.leftBottomY;
+	rotatedPoint.z = insCell.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+	insCell.leftBottomX = unrotatedPoint.x;
+	insCell.leftBottomY = unrotatedPoint.y;
+	insCell.leftBottomZ = unrotatedPoint.z;
+
+	// 셀 배치
+	bottomAtLeftBottom = placeLibPartForSlabBottom (insCell);
+
+	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.cells [0][0].horLen;
+	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom);
+	for (xx = 1 ; xx < placingZone.eu_count_hor-1 ; ++xx) {
+		insCell.objType = PLYWOOD;
+		insCell.ang = placingZone.ang;
+		insCell.horLen = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+		insCell.verLen = placingZone.cells [0][xx].horLen;
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos;
+		insCell.leftBottomZ = placingZone.level;
+		insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+		insCell.libPart.plywood.p_leng = placingZone.cells [0][xx].horLen;
+		insCell.libPart.plywood.w_dir_wall = true;
+
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		// 셀 배치
+		placeLibPartForSlabBottom (insCell);
+			
+		// 다음 셀 배치를 위해 시작 X 좌표 이동
+		startXPos += placingZone.cells [0][xx].horLen;
+	}
+
+	insCell.objType = PLYWOOD;
+	insCell.ang = placingZone.ang;
+	insCell.horLen = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+	insCell.verLen = placingZone.cells [0][xx].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.outerRight - placingZone.corner_rightBottom.x);;
+	insCell.leftBottomX = startXPos;
+	insCell.leftBottomY = startYPos;
+	insCell.leftBottomZ = placingZone.level;
+	insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2);
+	insCell.libPart.plywood.p_leng = placingZone.cells [0][xx].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.outerRight - placingZone.corner_rightBottom.x);;
+	insCell.libPart.plywood.w_dir_wall = true;
+
+	// 위치 값을 비회전값으로 변환
+	rotatedPoint.x = insCell.leftBottomX;
+	rotatedPoint.y = insCell.leftBottomY;
+	rotatedPoint.z = insCell.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+	insCell.leftBottomX = unrotatedPoint.x;
+	insCell.leftBottomY = unrotatedPoint.y;
+	insCell.leftBottomZ = unrotatedPoint.z;
+
+	// 셀 배치
+	bottomAtRightBottom = placeLibPartForSlabBottom (insCell);
+
+
+	// 합판 설치 (LEFT)
+	insCell.objType = PLYWOOD;
+	insCell.ang = placingZone.ang;
+	insCell.horLen = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+	insCell.verLen = placingZone.cells [0][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.outerTop - placingZone.corner_leftTop.y);
+	insCell.leftBottomX = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft;
+	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen;
+	insCell.leftBottomZ = placingZone.level;
+	insCell.libPart.plywood.p_wid = placingZone.cells [0][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.outerTop - placingZone.corner_leftTop.y);
+	insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+	insCell.libPart.plywood.w_dir_wall = true;
+
+	// 위치 값을 비회전값으로 변환
+	rotatedPoint.x = insCell.leftBottomX;
+	rotatedPoint.y = insCell.leftBottomY;
+	rotatedPoint.z = insCell.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+	insCell.leftBottomX = unrotatedPoint.x;
+	insCell.leftBottomY = unrotatedPoint.y;
+	insCell.leftBottomZ = unrotatedPoint.z;
+
+	// 셀 배치
+	leftAtLeftTop = placeLibPartForSlabBottom (insCell);
+
+	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft;
+	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen * 2;
+	for (xx = 1 ; xx < placingZone.eu_count_ver-1 ; ++xx) {
+		insCell.objType = PLYWOOD;
+		insCell.ang = placingZone.ang;
+		insCell.horLen = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+		insCell.verLen = placingZone.cells [xx][0].verLen;
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos;
+		insCell.leftBottomZ = placingZone.level;
+		insCell.libPart.plywood.p_wid = placingZone.cells [xx][0].verLen;
+		insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+		insCell.libPart.plywood.w_dir_wall = true;
+
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		// 셀 배치
+		placeLibPartForSlabBottom (insCell);
+
+		// 다음 셀 배치를 위해 시작 X 좌표 이동
+		startYPos -= placingZone.cells [xx+1][0].verLen;
+	}
+
+	insCell.objType = PLYWOOD;
+	insCell.ang = placingZone.ang;
+	insCell.horLen = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+	insCell.verLen = placingZone.cells [xx][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.corner_leftBottom.y - placingZone.outerBottom);
+	insCell.leftBottomX = startXPos;
+	insCell.leftBottomY = startYPos - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) + (placingZone.corner_leftBottom.y - placingZone.outerBottom);
+	insCell.leftBottomZ = placingZone.level;
+	insCell.libPart.plywood.p_wid = placingZone.cells [xx][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.corner_leftBottom.y - placingZone.outerBottom);
+	insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+	insCell.libPart.plywood.w_dir_wall = true;
+
+	// 위치 값을 비회전값으로 변환
+	rotatedPoint.x = insCell.leftBottomX;
+	rotatedPoint.y = insCell.leftBottomY;
+	rotatedPoint.z = insCell.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+	insCell.leftBottomX = unrotatedPoint.x;
+	insCell.leftBottomY = unrotatedPoint.y;
+	insCell.leftBottomZ = unrotatedPoint.z;
+
+	// 셀 배치
+	leftAtLeftBottom = placeLibPartForSlabBottom (insCell);
+
+
+	// 합판 설치 (RIGHT)
+	insCell.objType = PLYWOOD;
+	insCell.ang = placingZone.ang;
+	insCell.horLen = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+	insCell.verLen = placingZone.cells [0][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.outerTop - placingZone.corner_rightTop.y);
+	insCell.leftBottomX = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2);;
+	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen;
+	insCell.leftBottomZ = placingZone.level;
+	insCell.libPart.plywood.p_wid = placingZone.cells [0][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.outerTop - placingZone.corner_rightTop.y);
+	insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+	insCell.libPart.plywood.w_dir_wall = true;
+
+	// 위치 값을 비회전값으로 변환
+	rotatedPoint.x = insCell.leftBottomX;
+	rotatedPoint.y = insCell.leftBottomY;
+	rotatedPoint.z = insCell.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+	insCell.leftBottomX = unrotatedPoint.x;
+	insCell.leftBottomY = unrotatedPoint.y;
+	insCell.leftBottomZ = unrotatedPoint.z;
+
+	// 셀 배치
+	rightAtRightTop = placeLibPartForSlabBottom (insCell);
+
+	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2);;
+	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen * 2;
+	for (xx = 1 ; xx < placingZone.eu_count_ver-1 ; ++xx) {
+		insCell.objType = PLYWOOD;
+		insCell.ang = placingZone.ang;
+		insCell.horLen = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+		insCell.verLen = placingZone.cells [xx][0].verLen;
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos;
+		insCell.leftBottomZ = placingZone.level;
+		insCell.libPart.plywood.p_wid = placingZone.cells [xx][0].verLen;
+		insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+		insCell.libPart.plywood.w_dir_wall = true;
+
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		// 셀 배치
+		placeLibPartForSlabBottom (insCell);
+
+		// 다음 셀 배치를 위해 시작 X 좌표 이동
+		startYPos -= placingZone.cells [xx+1][0].verLen;
+	}
+
+	insCell.objType = PLYWOOD;
+	insCell.ang = placingZone.ang;
+	insCell.horLen = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+	insCell.verLen = placingZone.cells [xx][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.corner_rightBottom.y - placingZone.outerBottom);
+	insCell.leftBottomX = startXPos;
+	insCell.leftBottomY = startYPos - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) + (placingZone.corner_rightBottom.y - placingZone.outerBottom);
+	insCell.leftBottomZ = placingZone.level;
+	insCell.libPart.plywood.p_wid = placingZone.cells [xx][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.corner_rightBottom.y - placingZone.outerBottom);
+	insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2);
+	insCell.libPart.plywood.w_dir_wall = true;
+
+	// 위치 값을 비회전값으로 변환
+	rotatedPoint.x = insCell.leftBottomX;
+	rotatedPoint.y = insCell.leftBottomY;
+	rotatedPoint.z = insCell.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+	insCell.leftBottomX = unrotatedPoint.x;
+	insCell.leftBottomY = unrotatedPoint.y;
+	insCell.leftBottomZ = unrotatedPoint.z;
+
+	// 셀 배치
+	rightAtRightBottom = placeLibPartForSlabBottom (insCell);
+
+	// 합판 코너 겹치는 부분은 솔리드 연산으로 빼기
+	err = ACAPI_Element_SolidLink_Create (topAtLeftTop,			leftAtLeftTop, APISolid_Substract, APISolidFlag_OperatorAttrib);
+	err = ACAPI_Element_SolidLink_Create (topAtRightTop,		rightAtRightTop, APISolid_Substract, APISolidFlag_OperatorAttrib);
+	err = ACAPI_Element_SolidLink_Create (bottomAtLeftBottom,	leftAtLeftBottom, APISolid_Substract, APISolidFlag_OperatorAttrib);
+	err = ACAPI_Element_SolidLink_Create (bottomAtRightBottom,	rightAtRightBottom, APISolid_Substract, APISolidFlag_OperatorAttrib);
+
+	// !!!
+	// 안쪽 목재 설치 (Z방향 두께는 50, 너비는 80) -- 부재당 최대 길이 1800 이하
+		// 1. 폼 둘레를 먼저 치고
+		// 2. 바깥쪽 목재와 닿을 때까지의 영역을 따로 설치
+
+	// 보강 목재 설치 (안쪽 목재와 두께, 너비는 동일 - 길이는 사용자 설정을 따름)
+		// 체크 박스 선택 여부에 따라 설치
+
+	return err;
 }
 
 // 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
@@ -1217,25 +1529,31 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 			// 라벨: 남은 가로 길이
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 30, 20, 90, 23);
-			DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
-			DGSetItemText (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, "좌우 여백 너비");
+			if ( ((placingZone.remain_hor_updated / 2) >= 0.150) && ((placingZone.remain_hor_updated / 2) <= 0.300) )
+				DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+			else
+				DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, "좌우 여백");
 			DGShowItem (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH);
 
 			// 라벨: 남은 세로 길이
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 30, 50, 90, 23);
-			DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
-			DGSetItemText (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, "상하 여백 너비");
+			if ( ((placingZone.remain_ver_updated / 2) >= 0.150) && ((placingZone.remain_ver_updated / 2) <= 0.300) )
+				DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+			else
+				DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, "상하 여백");
 			DGShowItem (dialogID, LABEL_REMAIN_VERTICAL_LENGTH);
 
 			// Edit 컨트롤: 남은 가로 길이
 			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 130, 20-7, 50, 25);
-			DGSetItemFont (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+			DGSetItemFont (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
 			DGShowItem (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH);
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
 
 			// Edit 컨트롤: 남은 세로 길이
 			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 130, 50-7, 50, 25);
-			DGSetItemFont (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+			DGSetItemFont (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
 			DGShowItem (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH);
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
 
@@ -1395,6 +1713,17 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
 					DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
 
+					if ( ((placingZone.remain_hor_updated / 2) >= 0.150) && ((placingZone.remain_hor_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
+
+					if ( ((placingZone.remain_ver_updated / 2) >= 0.150) && ((placingZone.remain_ver_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
 					break;
 
 				case DG_OK:
@@ -1431,28 +1760,35 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
 					DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_BOLD);
 
-					err = ACAPI_CallUndoableCommand ("유로폼 배치", [&] () -> GSErrCode {
-						// 기존 배치된 객체 전부 삭제
-						for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
-							for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy) {
-								elem.header.guid = placingZone.cells [xx][yy].guid;
-								if (ACAPI_Element_Get (&elem) != NoError)
-									continue;
+					if ( ((placingZone.remain_hor_updated / 2) >= 0.150) && ((placingZone.remain_hor_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
 
-								API_Elem_Head* headList = new API_Elem_Head [1];
-								headList [0] = elem.header;
-								err = ACAPI_Element_Delete (&headList, 1);
-								delete headList;
-							}
+
+					if ( ((placingZone.remain_ver_updated / 2) >= 0.150) && ((placingZone.remain_ver_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
+					// 기존 배치된 객체 전부 삭제
+					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
+						for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy) {
+							elem.header.guid = placingZone.cells [xx][yy].guid;
+							if (ACAPI_Element_Get (&elem) != NoError)
+								continue;
+
+							API_Elem_Head* headList = new API_Elem_Head [1];
+							headList [0] = elem.header;
+							err = ACAPI_Element_Delete (&headList, 1);
+							delete headList;
 						}
+					}
 
-						// 업데이트된 셀 정보대로 객체 재배치
-						for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx)
-							for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy)
-								placingZone.cells [xx][yy].guid = placeLibPartForSlabBottom (placingZone.cells [xx][yy]);
-
-						return err;
-					});
+					// 업데이트된 셀 정보대로 객체 재배치
+					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx)
+						for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy)
+							placingZone.cells [xx][yy].guid = placeLibPartForSlabBottom (placingZone.cells [xx][yy]);
 
 					clickedOKButton = true;
 
@@ -1563,6 +1899,17 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
 
+					if ( ((placingZone.remain_hor_updated / 2) >= 0.150) && ((placingZone.remain_hor_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
+
+					if ( ((placingZone.remain_ver_updated / 2) >= 0.150) && ((placingZone.remain_ver_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
 					break;
 
 				case PUSHBUTTON_DEL_ROW:
@@ -1666,6 +2013,17 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					// 남은 가로/세로 길이 업데이트
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
+
+					if ( ((placingZone.remain_hor_updated / 2) >= 0.150) && ((placingZone.remain_hor_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
+
+					if ( ((placingZone.remain_ver_updated / 2) >= 0.150) && ((placingZone.remain_ver_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
 
 					break;
 
@@ -1771,6 +2129,17 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
 
+					if ( ((placingZone.remain_hor_updated / 2) >= 0.150) && ((placingZone.remain_hor_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
+
+					if ( ((placingZone.remain_ver_updated / 2) >= 0.150) && ((placingZone.remain_ver_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
 					break;
 
 				case PUSHBUTTON_DEL_COL:
@@ -1874,6 +2243,17 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					// 남은 가로/세로 길이 업데이트
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
+
+					if ( ((placingZone.remain_hor_updated / 2) >= 0.150) && ((placingZone.remain_hor_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
+
+					if ( ((placingZone.remain_ver_updated / 2) >= 0.150) && ((placingZone.remain_ver_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
 
 					break;
 

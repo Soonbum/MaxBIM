@@ -54,8 +54,20 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 	switch (menuParams->menuItemRef.menuResID) {
 		case 32001:
 			switch (menuParams->menuItemRef.itemIndex) {
-				case 1:		err = placeEuroformOnWall ();			break;	// place Euroform on Wall
-				case 2:		err = placeEuroformOnSlabBottom ();		break;	// place Euroform on Slab Bottom
+				case 1:		
+					// place Euroform on Wall
+					err = ACAPI_CallUndoableCommand ("벽에 유로폼 배치", [&] () -> GSErrCode {
+						err = placeEuroformOnWall ();
+						return err;
+					});
+					break;
+				case 2:
+					// place Euroform on Slab Bottom
+					err = ACAPI_CallUndoableCommand ("슬래브 하부에 유로폼 배치", [&] () -> GSErrCode {
+						err = placeEuroformOnSlabBottom ();
+						return err;
+					});
+					break;
 			}
 	}
 
