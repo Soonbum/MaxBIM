@@ -161,10 +161,10 @@ struct SlabPlacingZone
 
 	// 검토할 사항 (2. 배치된 객체 정보를 그리드로 관리)
 	CellForSlab	cells [50][50];		// 유로폼 셀 정보 - 마지막 인덱스: [eu_count_ver-1][eu_count_hor-1]
-	bool	topBoundsCells [50];	// 위쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_hor-2]
-	bool	bottomBoundsCells [50];	// 아래쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_hor-2]
-	bool	leftBoundsCells [50];	// 왼쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_ver-2]
-	bool	rightBoundsCells [50];	// 오른쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_ver-2]
+	bool	topBoundsCells [50];	// 위쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_hor-2] : LeftBottom부터 RightBottom까지
+	bool	bottomBoundsCells [50];	// 아래쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_hor-2] : LeftTop에서 RightTop까지
+	bool	leftBoundsCells [50];	// 왼쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_ver-2] : LeftBottom에서 LeftTop까지
+	bool	rightBoundsCells [50];	// 오른쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_ver-2] : RightBottom에서 RightTop까지
 };
 
 // 유로폼 슬래브 하부 배치 함수
