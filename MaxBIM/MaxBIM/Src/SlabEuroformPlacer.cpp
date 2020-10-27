@@ -17,6 +17,10 @@ static short			layerInd_Plywood;		// 레이어 번호: 합판
 static short			layerInd_Wood;			// 레이어 번호: 목재
 static short			itemInitIdx = GRIDBUTTON_IDX_START;		// 그리드 버튼 항목 인덱스 시작 번호
 static API_Coord3D		firstClickPoint;		// 1번째로 클릭한 점
+static short			TButtonStartIdx;		// T 버튼 시작 인덱스
+static short			BButtonStartIdx;		// B 버튼 시작 인덱스
+static short			LButtonStartIdx;		// L 버튼 시작 인덱스
+static short			RButtonStartIdx;		// R 버튼 시작 인덱스
 
 
 // 2번 메뉴: 슬래브 하부에 유로폼을 배치하는 통합 루틴
@@ -690,40 +694,147 @@ void	adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short c
 
 			target_zone->cells [row][xx].objType = EUROFORM;
 
-			// 해당 셀의 변경된 높이가 규격폼 높이인가?
-			if ( (abs (target_zone->cells [row][col].verLen - 1.200) < EPS) ||
-				 (abs (target_zone->cells [row][col].verLen - 0.900) < EPS) ||
-				 (abs (target_zone->cells [row][col].verLen - 0.600) < EPS) )
-				bStandardHeight = true;
+			if (target_zone->cells [row][col].libPart.form.u_ins_wall == true) {
+				// 해당 셀의 변경된 높이가 규격폼 높이인가?
+				if ( (abs (target_zone->cells [row][col].verLen - 1.200) < EPS) ||
+					 (abs (target_zone->cells [row][col].verLen - 0.900) < EPS) ||
+					 (abs (target_zone->cells [row][col].verLen - 0.600) < EPS) )
+					bStandardHeight = true;
 
-			// 나머지 셀의 너비가 규격폼 너비인가?
-			if ( (abs (target_zone->cells [row][xx].horLen - 0.600) < EPS) ||
-				 (abs (target_zone->cells [row][xx].horLen - 0.500) < EPS) ||
-				 (abs (target_zone->cells [row][xx].horLen - 0.450) < EPS) ||
-				 (abs (target_zone->cells [row][xx].horLen - 0.400) < EPS) ||
-				 (abs (target_zone->cells [row][xx].horLen - 0.300) < EPS) ||
-				 (abs (target_zone->cells [row][xx].horLen - 0.200) < EPS) )
-				bStandardWidth = true;
+				// 나머지 셀의 너비가 규격폼 너비인가?
+				if ( (abs (target_zone->cells [row][xx].horLen - 0.600) < EPS) ||
+					 (abs (target_zone->cells [row][xx].horLen - 0.500) < EPS) ||
+					 (abs (target_zone->cells [row][xx].horLen - 0.450) < EPS) ||
+					 (abs (target_zone->cells [row][xx].horLen - 0.400) < EPS) ||
+					 (abs (target_zone->cells [row][xx].horLen - 0.300) < EPS) ||
+					 (abs (target_zone->cells [row][xx].horLen - 0.200) < EPS) )
+					bStandardWidth = true;
 
-			// 해당 셀의 변경된 높이와 나머지 셀의 너비가 모두 규격 사이즈이면 규격폼
-			if ( bStandardHeight && bStandardWidth ) {
-
-				target_zone->cells [row][xx].libPart.form.eu_stan_onoff = true;
-				target_zone->cells [row][xx].verLen = target_zone->cells [row][col].verLen;
-				if (target_zone->cells [row][xx].libPart.form.u_ins_wall)
+				// 해당 셀의 변경된 높이와 나머지 셀의 너비가 모두 규격 사이즈이면 규격폼
+				if ( bStandardHeight && bStandardWidth ) {
+					target_zone->cells [row][xx].libPart.form.eu_stan_onoff = true;
+					target_zone->cells [row][xx].verLen = target_zone->cells [row][col].verLen;
 					target_zone->cells [row][xx].libPart.form.eu_hei = target_zone->cells [row][col].verLen;
-				else
+			
+				// 그 외에는 비규격폼
+				} else {
+					target_zone->cells [row][xx].libPart.form.eu_stan_onoff = false;
+					target_zone->cells [row][xx].verLen = target_zone->cells [row][col].verLen;
+					target_zone->cells [row][xx].libPart.form.eu_hei2 = target_zone->cells [row][col].verLen;
+				}
+			} else {
+				// 해당 셀의 변경된 높이가 규격폼 높이인가?
+				if ( (abs (target_zone->cells [row][col].horLen - 1.200) < EPS) ||
+					 (abs (target_zone->cells [row][col].horLen - 0.900) < EPS) ||
+					 (abs (target_zone->cells [row][col].horLen - 0.600) < EPS) )
+					bStandardHeight = true;
+
+				// 나머지 셀의 너비가 규격폼 너비인가?
+				if ( (abs (target_zone->cells [row][xx].verLen - 0.600) < EPS) ||
+					 (abs (target_zone->cells [row][xx].verLen - 0.500) < EPS) ||
+					 (abs (target_zone->cells [row][xx].verLen - 0.450) < EPS) ||
+					 (abs (target_zone->cells [row][xx].verLen - 0.400) < EPS) ||
+					 (abs (target_zone->cells [row][xx].verLen - 0.300) < EPS) ||
+					 (abs (target_zone->cells [row][xx].verLen - 0.200) < EPS) )
+					bStandardWidth = true;
+
+				// 해당 셀의 변경된 높이와 나머지 셀의 너비가 모두 규격 사이즈이면 규격폼
+				if ( bStandardHeight && bStandardWidth ) {
+					target_zone->cells [row][xx].libPart.form.eu_stan_onoff = true;
+					target_zone->cells [row][xx].verLen = target_zone->cells [row][col].verLen;
 					target_zone->cells [row][xx].libPart.form.eu_wid = target_zone->cells [row][col].verLen;
 			
-			// 그 외에는 비규격폼
-			} else {
-
-				target_zone->cells [row][xx].libPart.form.eu_stan_onoff = false;
-				target_zone->cells [row][xx].verLen = target_zone->cells [row][col].verLen;
-				if (target_zone->cells [row][xx].libPart.form.u_ins_wall)
-					target_zone->cells [row][xx].libPart.form.eu_hei2 = target_zone->cells [row][col].verLen;
-				else
+				// 그 외에는 비규격폼
+				} else {
+					target_zone->cells [row][xx].libPart.form.eu_stan_onoff = false;
+					target_zone->cells [row][xx].verLen = target_zone->cells [row][col].verLen;
 					target_zone->cells [row][xx].libPart.form.eu_wid2 = target_zone->cells [row][col].verLen;
+				}
+			}
+		}
+	}
+}
+
+// 해당 셀과 동일한 열에 있는 다른 셀들의 타입 및 너비를 조정함 (높이는 변경하지 않음)
+void	adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col)
+{
+	short	xx;
+	bool	bStandardWidth;		// 규격폼 너비인가?
+	bool	bStandardHeight;	// 규격폼 높이인가?
+
+	// 모든 행들에 적용
+	for (xx = 0 ; xx < target_zone->eu_count_ver ; ++xx) {
+		if (xx == row) continue;
+
+		bStandardWidth = false;
+		bStandardHeight = false;
+
+		// 해당 셀이 NONE이면, 나머지 셀들의 타입도 NONE
+		if (target_zone->cells [row][col].objType == NONE) {
+
+			target_zone->cells [xx][col].objType = NONE;
+
+		// 해당 셀이 EUROFORM이면, 나머지 셀들의 타입도 EUROFORM
+		} else if (target_zone->cells [row][col].objType == EUROFORM) {
+
+			target_zone->cells [xx][col].objType = EUROFORM;
+
+			if (target_zone->cells [row][col].libPart.form.u_ins_wall == true) {
+				// 나머지 셀의 높이가 규격폼 높이인가?
+				if ( (abs (target_zone->cells [xx][col].verLen - 1.200) < EPS) ||
+					 (abs (target_zone->cells [xx][col].verLen - 0.900) < EPS) ||
+					 (abs (target_zone->cells [xx][col].verLen - 0.600) < EPS) )
+					bStandardHeight = true;
+
+				// 해당 셀의 변경된 너비가 규격폼 너비인가?
+				if ( (abs (target_zone->cells [row][col].horLen - 0.600) < EPS) ||
+					 (abs (target_zone->cells [row][col].horLen - 0.500) < EPS) ||
+					 (abs (target_zone->cells [row][col].horLen - 0.450) < EPS) ||
+					 (abs (target_zone->cells [row][col].horLen - 0.400) < EPS) ||
+					 (abs (target_zone->cells [row][col].horLen - 0.300) < EPS) ||
+					 (abs (target_zone->cells [row][col].horLen - 0.200) < EPS) )
+					bStandardWidth = true;
+
+				// 해당 셀의 변경된 너비와 나머지 셀의 높이가 모두 규격 사이즈이면 규격폼
+				if ( bStandardHeight && bStandardWidth ) {
+					target_zone->cells [xx][col].libPart.form.eu_stan_onoff = true;
+					target_zone->cells [xx][col].horLen = target_zone->cells [row][col].horLen;
+					target_zone->cells [xx][col].libPart.form.eu_wid = target_zone->cells [row][col].horLen;
+			
+				// 그 외에는 비규격폼
+				} else {
+					target_zone->cells [xx][col].libPart.form.eu_stan_onoff = false;
+					target_zone->cells [xx][col].horLen = target_zone->cells [row][col].horLen;
+					target_zone->cells [xx][col].libPart.form.eu_wid2 = target_zone->cells [row][col].horLen;
+				}
+			} else {
+				// 나머지 셀의 높이가 규격폼 높이인가?
+				if ( (abs (target_zone->cells [xx][col].horLen - 1.200) < EPS) ||
+					 (abs (target_zone->cells [xx][col].horLen - 0.900) < EPS) ||
+					 (abs (target_zone->cells [xx][col].horLen - 0.600) < EPS) )
+					bStandardHeight = true;
+
+				// 해당 셀의 변경된 너비가 규격폼 너비인가?
+				if ( (abs (target_zone->cells [row][col].verLen - 0.600) < EPS) ||
+					 (abs (target_zone->cells [row][col].verLen - 0.500) < EPS) ||
+					 (abs (target_zone->cells [row][col].verLen - 0.450) < EPS) ||
+					 (abs (target_zone->cells [row][col].verLen - 0.400) < EPS) ||
+					 (abs (target_zone->cells [row][col].verLen - 0.300) < EPS) ||
+					 (abs (target_zone->cells [row][col].verLen - 0.200) < EPS) )
+					bStandardWidth = true;
+
+				// 해당 셀의 변경된 너비와 나머지 셀의 높이가 모두 규격 사이즈이면 규격폼
+				if ( bStandardHeight && bStandardWidth ) {
+					target_zone->cells [xx][col].libPart.form.eu_stan_onoff = true;
+					target_zone->cells [xx][col].horLen = target_zone->cells [row][col].horLen;
+					target_zone->cells [xx][col].libPart.form.eu_hei = target_zone->cells [row][col].horLen;
+			
+				// 그 외에는 비규격폼
+				} else {
+					target_zone->cells [xx][col].libPart.form.eu_stan_onoff = false;
+					target_zone->cells [xx][col].horLen = target_zone->cells [row][col].horLen;
+					target_zone->cells [xx][col].libPart.form.eu_hei2 = target_zone->cells [row][col].horLen;
+				}
 			}
 		}
 	}
@@ -763,69 +874,6 @@ void		delLastRow (SlabPlacingZone* target_zone)
 void		delLastCol (SlabPlacingZone* target_zone)
 {
 	target_zone->eu_count_hor --;
-}
-
-// 해당 셀과 동일한 열에 있는 다른 셀들의 타입 및 너비를 조정함 (높이는 변경하지 않음)
-void	adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col)
-{
-	short	xx;
-	bool	bStandardWidth;		// 규격폼 너비인가?
-	bool	bStandardHeight;	// 규격폼 높이인가?
-
-	// 모든 행들에 적용
-	for (xx = 0 ; xx < target_zone->eu_count_ver ; ++xx) {
-		if (xx == row) continue;
-
-		bStandardWidth = false;
-		bStandardHeight = false;
-
-		// 해당 셀이 NONE이면, 나머지 셀들의 타입도 NONE
-		if (target_zone->cells [row][col].objType == NONE) {
-
-			target_zone->cells [xx][col].objType = NONE;
-
-		// 해당 셀이 EUROFORM이면, 나머지 셀들의 타입도 EUROFORM
-		} else if (target_zone->cells [row][col].objType == EUROFORM) {
-
-			target_zone->cells [xx][col].objType = EUROFORM;
-
-			// 나머지 셀의 높이가 규격폼 높이인가?
-			if ( (abs (target_zone->cells [xx][col].verLen - 1.200) < EPS) ||
-				 (abs (target_zone->cells [xx][col].verLen - 0.900) < EPS) ||
-				 (abs (target_zone->cells [xx][col].verLen - 0.600) < EPS) )
-				bStandardHeight = true;
-
-			// 해당 셀의 변경된 너비가 규격폼 너비인가?
-			if ( (abs (target_zone->cells [row][col].horLen - 0.600) < EPS) ||
-				 (abs (target_zone->cells [row][col].horLen - 0.500) < EPS) ||
-				 (abs (target_zone->cells [row][col].horLen - 0.450) < EPS) ||
-				 (abs (target_zone->cells [row][col].horLen - 0.400) < EPS) ||
-				 (abs (target_zone->cells [row][col].horLen - 0.300) < EPS) ||
-				 (abs (target_zone->cells [row][col].horLen - 0.200) < EPS) )
-				bStandardWidth = true;
-
-			// 해당 셀의 변경된 너비와 나머지 셀의 높이가 모두 규격 사이즈이면 규격폼
-			if ( bStandardHeight && bStandardWidth ) {
-
-				target_zone->cells [xx][col].libPart.form.eu_stan_onoff = true;
-				target_zone->cells [xx][col].horLen = target_zone->cells [row][col].horLen;
-				if (target_zone->cells [xx][col].libPart.form.u_ins_wall)
-					target_zone->cells [xx][col].libPart.form.eu_wid = target_zone->cells [row][col].horLen;
-				else
-					target_zone->cells [xx][col].libPart.form.eu_hei = target_zone->cells [row][col].horLen;
-			
-			// 그 외에는 비규격폼
-			} else {
-
-				target_zone->cells [xx][col].libPart.form.eu_stan_onoff = false;
-				target_zone->cells [xx][col].horLen = target_zone->cells [row][col].horLen;
-				if (target_zone->cells [xx][col].libPart.form.u_ins_wall)
-					target_zone->cells [xx][col].libPart.form.eu_wid2 = target_zone->cells [row][col].horLen;
-				else
-					target_zone->cells [xx][col].libPart.form.eu_hei2 = target_zone->cells [row][col].horLen;
-			}
-		}
-	}
 }
 
 // Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
@@ -1062,7 +1110,6 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	CellForSlab	insCell;
 	double		startXPos, startYPos;
 	API_Coord3D	axisPoint, rotatedPoint, unrotatedPoint;
-	API_Coord3D	tPoint;
 
 	// 솔리드 연산을 위해 GUID를 저장함
 	API_Guid	topAtLeftTop, topAtRightTop;
@@ -1243,7 +1290,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	leftAtLeftTop = placeLibPartForSlabBottom (insCell);
 
 	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft;
-	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen * 2;
+	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen;
 	for (xx = 1 ; xx < placingZone.eu_count_ver-1 ; ++xx) {
 		insCell.objType = PLYWOOD;
 		insCell.ang = placingZone.ang;
@@ -1315,7 +1362,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	rightAtRightTop = placeLibPartForSlabBottom (insCell);
 
 	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2);
-	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen * 2;
+	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen;
 	for (xx = 1 ; xx < placingZone.eu_count_ver-1 ; ++xx) {
 		insCell.objType = PLYWOOD;
 		insCell.ang = placingZone.ang;
@@ -1455,7 +1502,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	// 셀 배치
 	placeLibPartForSlabBottom (insCell);
 
-	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen * 2;
+	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen;
 	startYPos = axisPoint.y - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) + (placingZone.corner_leftTop.x - placingZone.outerLeft) + 0.080;
 	for (xx = 1 ; xx < placingZone.eu_count_ver-1 ; ++xx) {
 		insCell.objType = WOOD;
@@ -1491,7 +1538,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = placingZone.level - 0.0115;
 	insCell.libPart.wood.w_ang = 0.0;
 	insCell.libPart.wood.w_h = 0.080;
-	insCell.libPart.wood.w_leng = placingZone.cells [xx-1][0].verLen + 0.080;
+	insCell.libPart.wood.w_leng = placingZone.cells [xx][0].verLen + 0.080;
 	insCell.libPart.wood.w_w = 0.050;
 
 	// 위치 값을 비회전값으로 변환
@@ -1530,7 +1577,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	// 셀 배치
 	placeLibPartForSlabBottom (insCell);
 
-	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen * 2;
+	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen;
 	startYPos = axisPoint.y - (- placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2));
 	for (xx = 1 ; xx < placingZone.eu_count_ver-1 ; ++xx) {
 		insCell.objType = WOOD;
@@ -1566,7 +1613,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = placingZone.level - 0.0115;
 	insCell.libPart.wood.w_ang = 0.0;
 	insCell.libPart.wood.w_h = 0.080;
-	insCell.libPart.wood.w_leng = placingZone.cells [xx-1][0].verLen + 0.080;
+	insCell.libPart.wood.w_leng = placingZone.cells [xx][0].verLen + 0.080;
 	insCell.libPart.wood.w_w = 0.050;
 
 	// 위치 값을 비회전값으로 변환
@@ -1582,56 +1629,8 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	placeLibPartForSlabBottom (insCell);
 
 
-	//// 코너쪽 목재 설치 (LEFT-TOP)
-	//tPoint.x = placingZone.outerLeft;
-	//tPoint.y = placingZone.outerTop;
-	//tPoint.z = placingZone.level;
-	//if ( !isSamePoint (placingZone.corner_leftTop, tPoint) ) {
-	//	if (((placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.050 - 0.080 - (placingZone.corner_leftTop.x - placingZone.outerLeft)) >= 0.005) {
-	//		insCell.objType = WOOD;
-	//		insCell.ang = placingZone.ang;
-	//		insCell.leftBottomX = axisPoint.x + 0.050;
-	//		insCell.leftBottomY = axisPoint.y - placingZone.outerTop + placingZone.corner_leftTop.y;
-	//		insCell.leftBottomZ = placingZone.level - 0.0115;
-	//		insCell.libPart.wood.w_ang = 0.0;
-	//		insCell.libPart.wood.w_h = 0.080;
-	//		insCell.libPart.wood.w_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.050 - 0.080 - (placingZone.corner_leftTop.x - placingZone.outerLeft);
-	//		insCell.libPart.wood.w_w = 0.050;
-
-	//		// 위치 값을 비회전값으로 변환
-	//		rotatedPoint.x = insCell.leftBottomX;
-	//		rotatedPoint.y = insCell.leftBottomY;
-	//		rotatedPoint.z = insCell.leftBottomZ;
-	//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-	//		insCell.leftBottomX = unrotatedPoint.x;
-	//		insCell.leftBottomY = unrotatedPoint.y;
-	//		insCell.leftBottomZ = unrotatedPoint.z;
-
-	//		// 셀 배치
-	//		placeLibPartForSlabBottom (insCell);
-	//	}
-	//}
-	//insCell.objType = WOOD;
-	//insCell.ang = placingZone.ang + DegreeToRad (90.0);
-	//insCell.leftBottomX = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) + 0.080;
-	//insCell.leftBottomY = axisPoint.y - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) + (placingZone.corner_leftTop.x - placingZone.outerLeft) + 0.080;
-	//insCell.leftBottomZ = placingZone.level - 0.0115;
-	//insCell.libPart.wood.w_ang = 0.0;
-	//insCell.libPart.wood.w_h = 0.080;
-	//insCell.libPart.wood.w_leng = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.outerTop - placingZone.corner_leftTop.y) - 0.080;
-	//insCell.libPart.wood.w_w = 0.050;
-
-	//// 위치 값을 비회전값으로 변환
-	//rotatedPoint.x = insCell.leftBottomX;
-	//rotatedPoint.y = insCell.leftBottomY;
-	//rotatedPoint.z = insCell.leftBottomZ;
-	//unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-	//insCell.leftBottomX = unrotatedPoint.x;
-	//insCell.leftBottomY = unrotatedPoint.y;
-	//insCell.leftBottomZ = unrotatedPoint.z;
-
-	//// 셀 배치
-	//placeLibPartForSlabBottom (insCell);
+	// 코너쪽 목재 설치 (LEFT-TOP)
+	// ...
 
 
 	// 코너쪽 목재 설치 (RIGHT-TOP)
@@ -1646,12 +1645,11 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	// ...
 
 
-	// 보강 목재 설치
-	// ... UI 위쪽은 T (0부터 hor-2까지): 왼쪽부터 시작, leftbottom에서 rightbottom까지
-	// topBoundsCells [xx]
-	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) + 0.080;		// !!! 위치 옮겨야 함, 저 bottom 쪽으로
+	// 보강 목재 설치 : T 버튼에 해당 (왼쪽부터 시작, 0부터 eu_count_hor-2까지) : LeftBottom에서 RightBottom까지
+	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) + 0.050;
 	startYPos = axisPoint.y + placingZone.corner_leftTop.x - placingZone.outerLeft - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) - placingZone.cells [0][0].horLen + 0.080;
 	for (xx = 0 ; xx < placingZone.eu_count_hor-1 ; ++xx) {
+		// 1번
 		insCell.objType = WOOD;
 		insCell.ang = placingZone.ang + DegreeToRad (90.0);
 		insCell.leftBottomX = startXPos;
@@ -1659,7 +1657,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = placingZone.level - 0.0115;
 		insCell.libPart.wood.w_ang = 0.0;
 		insCell.libPart.wood.w_h = 0.080;
-		insCell.libPart.wood.w_leng = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - 0.080;
+		insCell.libPart.wood.w_leng = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - 0.080 - 0.050;
 		insCell.libPart.wood.w_w = 0.050;
 
 		// 위치 값을 비회전값으로 변환
@@ -1672,21 +1670,176 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		placeLibPartForSlabBottom (insCell);
+		if (placingZone.topBoundsCells [xx] == true)
+			placeLibPartForSlabBottom (insCell);
+
+		// 2번
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos - 0.080;
+
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		// 셀 배치
+		if (placingZone.topBoundsCells [xx] == true)
+			placeLibPartForSlabBottom (insCell);
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startYPos -= placingZone.cells [0][xx+1].horLen;
 	}
 	
-	// ... UI 아래쪽은 B (0부터 hor-2까지): 왼쪽부터 시작, lefttop에서 righttop까지
-	// bottomBoundsCells [xx]
+	// 보강 목재 설치 : B 버튼에 해당 (왼쪽부터 시작, 0부터 eu_count_hor-2까지) : LeftTop에서 RightTop까지
+	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) + 0.080;
+	startYPos = axisPoint.y + placingZone.corner_leftTop.x - placingZone.outerLeft - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) - placingZone.cells [0][0].horLen + 0.080;
+	for (xx = 0 ; xx < placingZone.eu_count_hor-1 ; ++xx) {
+		// 1번
+		insCell.objType = WOOD;
+		insCell.ang = placingZone.ang + DegreeToRad (90.0);
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos;
+		insCell.leftBottomZ = placingZone.level - 0.0115;
+		insCell.libPart.wood.w_ang = 0.0;
+		insCell.libPart.wood.w_h = 0.080;
+		insCell.libPart.wood.w_leng = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - 0.080 - 0.050;
+		insCell.libPart.wood.w_w = 0.050;
 
-	// ... UI 왼쪽은 L (0부터 ver-2): 위부터 시작, leftbottom에서 lefttop까지
-	// leftBoundsCells [xx]
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
 
-	// ... UI 오른쪽은 R (0부터 ver-2): 위부터 시작, rightbottom에서 righttop까지
-	// rightBoundsCells [xx]
+		// 셀 배치
+		if (placingZone.bottomBoundsCells [xx] == true)
+			placeLibPartForSlabBottom (insCell);
 
+		// 2번
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos - 0.080;
+
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		// 셀 배치
+		if (placingZone.bottomBoundsCells [xx] == true)
+			placeLibPartForSlabBottom (insCell);
+
+		// 다음 셀 배치를 위해 시작 좌표 이동
+		startYPos -= placingZone.cells [0][xx+1].horLen;
+	}
+
+	// 보강 목재 설치 : L 버튼에 해당 (위부터 시작, 0부터 eu_count_ver-2까지) : LeftBottom에서 LeftTop까지
+	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + 0.050;
+	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen;
+	for (xx = placingZone.eu_count_ver-2 ; xx >= 0 ; --xx) {
+		// 1번
+		insCell.objType = WOOD;
+		insCell.ang = placingZone.ang;
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos;
+		insCell.leftBottomZ = placingZone.level - 0.0115;
+		insCell.libPart.wood.w_ang = 0.0;
+		insCell.libPart.wood.w_h = 0.080;
+		insCell.libPart.wood.w_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.080 - 0.050;
+		insCell.libPart.wood.w_w = 0.050;
+
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		// 셀 배치
+		if (placingZone.leftBoundsCells [xx] == true)
+			placeLibPartForSlabBottom (insCell);
+
+		// 2번
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos + 0.080;
+
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		// 셀 배치
+		if (placingZone.leftBoundsCells [xx] == true)
+			placeLibPartForSlabBottom (insCell);
+
+		// 다음 셀 배치를 위해 시작 좌표 이동
+		startYPos -= placingZone.cells [xx][0].verLen;
+	}
+
+	// 보강 목재 설치 : R 버튼에 해당 (위부터 시작, 0부터 eu_count_ver-2까지) : RightBottom에서 RightTop까지
+	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - ((placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.080);
+	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen;
+	for (xx = placingZone.eu_count_ver-2 ; xx >= 0 ; --xx) {
+		// 1번
+		insCell.objType = WOOD;
+		insCell.ang = placingZone.ang;
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos;
+		insCell.leftBottomZ = placingZone.level - 0.0115;
+		insCell.libPart.wood.w_ang = 0.0;
+		insCell.libPart.wood.w_h = 0.080;
+		insCell.libPart.wood.w_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.080 - 0.050;
+		insCell.libPart.wood.w_w = 0.050;
+
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		// 셀 배치
+		if (placingZone.rightBoundsCells [xx] == true)
+			placeLibPartForSlabBottom (insCell);
+
+		// 2번
+		insCell.leftBottomX = startXPos;
+		insCell.leftBottomY = startYPos + 0.080;
+
+		// 위치 값을 비회전값으로 변환
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		// 셀 배치
+		if (placingZone.rightBoundsCells [xx] == true)
+			placeLibPartForSlabBottom (insCell);
+
+		// 다음 셀 배치를 위해 시작 좌표 이동
+		startYPos -= placingZone.cells [xx][0].verLen;
+	}
 
 	return err;
 }
@@ -1924,6 +2077,8 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 				btnPosX += 50;
 			}
 
+			TButtonStartIdx = lastIdxBtn - (placingZone.eu_count_hor - 2);
+
 			// 아래쪽 보강 목재 체크 박스
 			btnPosX = 270 + 12, btnPosY = (btnSizeY * (placingZone.eu_count_ver + 1)) + 27;
 			for (xx = 0 ; xx < placingZone.eu_count_hor - 1 ; ++xx) {
@@ -1936,6 +2091,8 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 				DGShowItem (dialogID, idxBtn);
 				btnPosX += 50;
 			}
+
+			BButtonStartIdx = lastIdxBtn - (placingZone.eu_count_hor - 2);
 
 			// 왼쪽 보강 목재 체크 박스
 			btnPosX = 219, btnPosY = 114;
@@ -1950,6 +2107,8 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 				btnPosY += 50;
 			}
 
+			LButtonStartIdx = lastIdxBtn - (placingZone.eu_count_ver - 2);
+
 			// 오른쪽 보강 목재 체크 박스
 			btnPosX = 220 + 25 + (btnSizeX * placingZone.eu_count_hor), btnPosY = 114;
 			for (xx = 0 ; xx < placingZone.eu_count_ver - 1 ; ++xx) {
@@ -1962,6 +2121,8 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 				DGShowItem (dialogID, idxBtn);
 				btnPosY += 50;
 			}
+
+			RButtonStartIdx = lastIdxBtn - (placingZone.eu_count_ver - 2);
 
 			break;
 
@@ -2078,6 +2239,36 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 						for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy)
 							placingZone.cells [xx][yy].guid = placeLibPartForSlabBottom (placingZone.cells [xx][yy]);
 
+					// T, B, L, R 버튼 배열의 푸시 여부를 저장함
+					for (xx = 0 ; xx < placingZone.eu_count_hor-1 ; ++xx) {
+						if (DGGetItemValLong (dialogID, TButtonStartIdx) == TRUE)
+							placingZone.topBoundsCells [xx] = true;
+						else
+							placingZone.topBoundsCells [xx] = false;
+						++TButtonStartIdx;
+					}
+					for (xx = 0 ; xx < placingZone.eu_count_hor-1 ; ++xx) {
+						if (DGGetItemValLong (dialogID, BButtonStartIdx) == TRUE)
+							placingZone.bottomBoundsCells [xx] = true;
+						else
+							placingZone.bottomBoundsCells [xx] = false;
+						++BButtonStartIdx;
+					}
+					for (xx = 0 ; xx < placingZone.eu_count_ver-1 ; ++xx) {
+						if (DGGetItemValLong (dialogID, LButtonStartIdx) == TRUE)
+							placingZone.leftBoundsCells [xx] = true;
+						else
+							placingZone.leftBoundsCells [xx] = false;
+						++LButtonStartIdx;
+					}
+					for (xx = 0 ; xx < placingZone.eu_count_ver-1 ; ++xx) {
+						if (DGGetItemValLong (dialogID, RButtonStartIdx) == TRUE)
+							placingZone.rightBoundsCells [xx] = true;
+						else
+							placingZone.rightBoundsCells [xx] = false;
+						++RButtonStartIdx;
+					}
+
 					clickedOKButton = true;
 
 					break;
@@ -2140,9 +2331,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "T";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosX += 50;
 					}
+
+					TButtonStartIdx = lastIdxBtn - (placingZone.eu_count_hor - 2);
 
 					// 아래쪽 보강 목재 체크 박스
 					btnPosX = 270 + 12, btnPosY = (btnSizeY * (placingZone.eu_count_ver + 1)) + 27;
@@ -2153,9 +2347,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "B";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosX += 50;
 					}
+
+					BButtonStartIdx = lastIdxBtn - (placingZone.eu_count_hor - 2);
 
 					// 왼쪽 보강 목재 체크 박스
 					btnPosX = 219, btnPosY = 114;
@@ -2166,9 +2363,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "L";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosY += 50;
 					}
+
+					LButtonStartIdx = lastIdxBtn - (placingZone.eu_count_ver - 2);
 
 					// 오른쪽 보강 목재 체크 박스
 					btnPosX = 220 + 25 + (btnSizeX * placingZone.eu_count_hor), btnPosY = 114;
@@ -2179,9 +2379,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "R";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosY += 50;
 					}
+
+					RButtonStartIdx = lastIdxBtn - (placingZone.eu_count_ver - 2);
 
 					// 남은 가로/세로 길이 업데이트
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
@@ -2255,9 +2458,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "T";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosX += 50;
 					}
+
+					TButtonStartIdx = lastIdxBtn - (placingZone.eu_count_hor - 2);
 
 					// 아래쪽 보강 목재 체크 박스
 					btnPosX = 270 + 12, btnPosY = (btnSizeY * (placingZone.eu_count_ver + 1)) + 27;
@@ -2268,9 +2474,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "B";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosX += 50;
 					}
+
+					BButtonStartIdx = lastIdxBtn - (placingZone.eu_count_hor - 2);
 
 					// 왼쪽 보강 목재 체크 박스
 					btnPosX = 219, btnPosY = 114;
@@ -2281,9 +2490,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "L";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosY += 50;
 					}
+
+					LButtonStartIdx = lastIdxBtn - (placingZone.eu_count_ver - 2);
 
 					// 오른쪽 보강 목재 체크 박스
 					btnPosX = 220 + 25 + (btnSizeX * placingZone.eu_count_hor), btnPosY = 114;
@@ -2294,9 +2506,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "R";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosY += 50;
 					}
+
+					RButtonStartIdx = lastIdxBtn - (placingZone.eu_count_ver - 2);
 
 					// 남은 가로/세로 길이 업데이트
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
@@ -2370,9 +2585,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "T";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosX += 50;
 					}
+
+					TButtonStartIdx = lastIdxBtn - (placingZone.eu_count_hor - 2);
 
 					// 아래쪽 보강 목재 체크 박스
 					btnPosX = 270 + 12, btnPosY = (btnSizeY * (placingZone.eu_count_ver + 1)) + 27;
@@ -2383,9 +2601,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "B";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosX += 50;
 					}
+
+					BButtonStartIdx = lastIdxBtn - (placingZone.eu_count_hor - 2);
 
 					// 왼쪽 보강 목재 체크 박스
 					btnPosX = 219, btnPosY = 114;
@@ -2396,9 +2617,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "L";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosY += 50;
 					}
+
+					LButtonStartIdx = lastIdxBtn - (placingZone.eu_count_ver - 2);
 
 					// 오른쪽 보강 목재 체크 박스
 					btnPosX = 220 + 25 + (btnSizeX * placingZone.eu_count_hor), btnPosY = 114;
@@ -2409,9 +2633,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "R";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosY += 50;
 					}
+
+					RButtonStartIdx = lastIdxBtn - (placingZone.eu_count_ver - 2);
 
 					// 남은 가로/세로 길이 업데이트
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
@@ -2485,9 +2712,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "T";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosX += 50;
 					}
+
+					TButtonStartIdx = lastIdxBtn - (placingZone.eu_count_hor - 2);
 
 					// 아래쪽 보강 목재 체크 박스
 					btnPosX = 270 + 12, btnPosY = (btnSizeY * (placingZone.eu_count_ver + 1)) + 27;
@@ -2498,9 +2728,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "B";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosX += 50;
 					}
+
+					BButtonStartIdx = lastIdxBtn - (placingZone.eu_count_hor - 2);
 
 					// 왼쪽 보강 목재 체크 박스
 					btnPosX = 219, btnPosY = 114;
@@ -2511,9 +2744,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "L";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosY += 50;
 					}
+
+					LButtonStartIdx = lastIdxBtn - (placingZone.eu_count_ver - 2);
 
 					// 오른쪽 보강 목재 체크 박스
 					btnPosX = 220 + 25 + (btnSizeX * placingZone.eu_count_hor), btnPosY = 114;
@@ -2524,9 +2760,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 
 						txtButton = "R";
 						DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
+						DGSetItemValLong (dialogID, idxBtn, FALSE);
 						DGShowItem (dialogID, idxBtn);
 						btnPosY += 50;
 					}
+
+					RButtonStartIdx = lastIdxBtn - (placingZone.eu_count_ver - 2);
 
 					// 남은 가로/세로 길이 업데이트
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
@@ -2610,6 +2849,7 @@ short DGCALLBACK slabBottomPlacerHandler3 (short message, short dialogID, short 
 			DGSetItemFont (dialogID, LABEL_OBJ_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_OBJ_TYPE, "객체 타입");
 			DGShowItem (dialogID, LABEL_OBJ_TYPE);
+			DGDisableItem (dialogID, LABEL_OBJ_TYPE);
 
 			// 팝업컨트롤: 객체 타입을 바꿀 수 있는 콤보박스가 맨 위에 나옴
 			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100, 20-7, 120, 25);
@@ -2619,6 +2859,7 @@ short DGCALLBACK slabBottomPlacerHandler3 (short message, short dialogID, short 
 			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "유로폼");
 			DGShowItem (dialogID, POPUP_OBJ_TYPE);
+			DGDisableItem (dialogID, POPUP_OBJ_TYPE);
 
 			// 라벨: 너비
 			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 50, 70, 23);
