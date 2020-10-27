@@ -68,6 +68,13 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						return err;
 					});
 					break;
+				case 3:
+					// place Euroform on Beam
+					//err = ACAPI_CallUndoableCommand ("보에 유로폼 배치", [&] () -> GSErrCode {
+						//err = placeEuroformOnBeam ();
+						//return err;
+					//});
+					break;
 			}
 	}
 

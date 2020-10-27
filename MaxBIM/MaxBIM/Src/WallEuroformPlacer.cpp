@@ -387,8 +387,8 @@ GSErrCode	fillRestAreasForWall (void)
 	short	xx, yy, zz;
 	short	indInterfereBeam;		// ÁßÃ¸µÇ´Â º¸ÀÇ ÀÎµ¦½º (-1Àº ÁßÃ¸ ¾øÀ½)
 
-	double	cellLeftX, cellRightX;	// ¼¿ÀÇ L/RÃø X ÁÂÇ¥
-	double	beamLeftX, beamRightX;	// º¸ÀÇ L/RÃø X ÁÂÇ¥
+	double	cellLeftX = 0.0, cellRightX = 0.0;	// ¼¿ÀÇ L/RÃø X ÁÂÇ¥
+	double	beamLeftX = 0.0, beamRightX = 0.0;	// º¸ÀÇ L/RÃø X ÁÂÇ¥
 	double	dist;
 
 	CellForWall		insCell, insCellB;		// »ðÀÔÇÒ ÀÓ½Ã ¼¿
@@ -4238,7 +4238,7 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 	bool	bFindWidth;
 	double	totalWidth;
 	CellForWall		insCell, insCellB;
-	double	backsideDistance;
+	double	backsideDistance = 0.0;
 
 
 	switch (message) {

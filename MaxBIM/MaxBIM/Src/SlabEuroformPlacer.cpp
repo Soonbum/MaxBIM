@@ -17,10 +17,10 @@ static short			layerInd_Plywood;		// 레이어 번호: 합판
 static short			layerInd_Wood;			// 레이어 번호: 목재
 static short			itemInitIdx = GRIDBUTTON_IDX_START;		// 그리드 버튼 항목 인덱스 시작 번호
 static API_Coord3D		firstClickPoint;		// 1번째로 클릭한 점
-static short			TButtonStartIdx;		// T 버튼 시작 인덱스
-static short			BButtonStartIdx;		// B 버튼 시작 인덱스
-static short			LButtonStartIdx;		// L 버튼 시작 인덱스
-static short			RButtonStartIdx;		// R 버튼 시작 인덱스
+static short			TButtonStartIdx = 0;	// T 버튼 시작 인덱스
+static short			BButtonStartIdx = 0;	// B 버튼 시작 인덱스
+static short			LButtonStartIdx = 0;	// L 버튼 시작 인덱스
+static short			RButtonStartIdx = 0;	// R 버튼 시작 인덱스
 
 
 // 2번 메뉴: 슬래브 하부에 유로폼을 배치하는 통합 루틴
@@ -265,6 +265,10 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	headList [0] = elem.header;
 	err = ACAPI_Element_Delete (&headList, 1);
 	delete headList;
+
+	bufPoint.x = 0.0;
+	bufPoint.y = 0.0;
+	bufPoint.z = 0.0;
 
 	// 폴리곤 점 순서대로 저장할 것
 	nEntered = 2;	// 이미 2개의 점은 입력되어 있음
@@ -1945,7 +1949,7 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 	short	btnPosX, btnPosY;
 	short	xx, yy;
 	short	idxBtn;
-	short	lastIdxBtn;
+	short	lastIdxBtn = 0;
 	std::string		txtButton = "";
 	API_Element		elem;
 	GSErrCode		err;
