@@ -1650,7 +1650,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 
 
 	// 보강 목재 설치 : T 버튼에 해당 (왼쪽부터 시작, 0부터 eu_count_hor-2까지) : LeftBottom에서 RightBottom까지
-	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) + 0.050;
+	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) + 0.064;
 	startYPos = axisPoint.y + placingZone.corner_leftTop.x - placingZone.outerLeft - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) - placingZone.cells [0][0].horLen + 0.080;
 	for (xx = 0 ; xx < placingZone.eu_count_hor-1 ; ++xx) {
 		// 1번
@@ -1661,7 +1661,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = placingZone.level - 0.0115;
 		insCell.libPart.wood.w_ang = 0.0;
 		insCell.libPart.wood.w_h = 0.080;
-		insCell.libPart.wood.w_leng = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - 0.080 - 0.050;
+		insCell.libPart.wood.w_leng = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - 0.080 - 0.064;
 		insCell.libPart.wood.w_w = 0.050;
 
 		// 위치 값을 비회전값으로 변환
@@ -1710,7 +1710,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = placingZone.level - 0.0115;
 		insCell.libPart.wood.w_ang = 0.0;
 		insCell.libPart.wood.w_h = 0.080;
-		insCell.libPart.wood.w_leng = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - 0.080 - 0.050;
+		insCell.libPart.wood.w_leng = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - 0.080 - 0.064;
 		insCell.libPart.wood.w_w = 0.050;
 
 		// 위치 값을 비회전값으로 변환
@@ -1748,7 +1748,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	}
 
 	// 보강 목재 설치 : L 버튼에 해당 (위부터 시작, 0부터 eu_count_ver-2까지) : LeftBottom에서 LeftTop까지
-	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + 0.050;
+	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + 0.064;
 	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen;
 	for (xx = placingZone.eu_count_ver-2 ; xx >= 0 ; --xx) {
 		// 1번
@@ -1759,7 +1759,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = placingZone.level - 0.0115;
 		insCell.libPart.wood.w_ang = 0.0;
 		insCell.libPart.wood.w_h = 0.080;
-		insCell.libPart.wood.w_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.080 - 0.050;
+		insCell.libPart.wood.w_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.080 - 0.064;
 		insCell.libPart.wood.w_w = 0.050;
 
 		// 위치 값을 비회전값으로 변환
@@ -1808,7 +1808,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = placingZone.level - 0.0115;
 		insCell.libPart.wood.w_ang = 0.0;
 		insCell.libPart.wood.w_h = 0.080;
-		insCell.libPart.wood.w_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.080 - 0.050;
+		insCell.libPart.wood.w_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.080 - 0.064;
 		insCell.libPart.wood.w_w = 0.050;
 
 		// 위치 값을 비회전값으로 변환

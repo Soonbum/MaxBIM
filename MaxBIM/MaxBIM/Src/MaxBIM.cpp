@@ -5,6 +5,7 @@
 #include "MaxBIM.hpp"
 #include "WallEuroformPlacer.hpp"
 #include "SlabEuroformPlacer.hpp"
+#include "BeamEuroformPlacer.hpp"
 
 #define	MDID_DEVELOPER_ID	829517673
 #define	MDID_LOCAL_ID		3588511626
@@ -54,7 +55,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 	switch (menuParams->menuItemRef.menuResID) {
 		case 32001:
 			switch (menuParams->menuItemRef.itemIndex) {
-				case 1:		
+				case 1:
 					// place Euroform on Wall
 					err = ACAPI_CallUndoableCommand ("벽에 유로폼 배치", [&] () -> GSErrCode {
 						err = placeEuroformOnWall ();
@@ -71,8 +72,8 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 3:
 					// place Euroform on Beam
 					//err = ACAPI_CallUndoableCommand ("보에 유로폼 배치", [&] () -> GSErrCode {
-						//err = placeEuroformOnBeam ();
-						//return err;
+						err = placeEuroformOnBeam ();
+						return err;
 					//});
 					break;
 			}
