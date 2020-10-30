@@ -108,4 +108,11 @@ struct Wood
 	double			w_ang;			// 각도
 };
 
+// 아웃코너앵글 정보
+struct OutcornerAngle
+{
+	double			a_leng;			// 길이
+	double			a_ang;			// 각도
+};
+
 #endif //__MAXBIM_HPP__
