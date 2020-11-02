@@ -74,7 +74,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 
 	// 작업 층 정보
 	API_StoryInfo	storyInfo;
-	double			workLevel_morph;
+	double			workLevel_slab;
 
 	// 코너 좌표를 구하기 위한 최외곽 좌표 임시 저장
 	API_Coord3D		outer_leftTop;
@@ -153,6 +153,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	infoSlab.floorInd		= elem.header.floorInd;
 	infoSlab.offsetFromTop	= elem.slab.offsetFromTop;
 	infoSlab.thickness		= elem.slab.thickness;
+	infoSlab.level			= elem.slab.level;
 
 	ACAPI_DisposeElemMemoHdls (&memo);
 
@@ -169,8 +170,10 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 		return err;
 	}
 
-	// 모프의 GUID 저장
-	infoMorph.guid = elem.header.guid;
+	// 모프의 정보 저장
+	infoMorph.guid		= elem.header.guid;
+	infoMorph.floorInd	= elem.header.floorInd;
+	infoMorph.level		= info3D.bounds.zMin;
 
 	// 모프의 3D 바디를 가져옴
 	BNZeroMemory (&component, sizeof (API_Component3D));
@@ -311,23 +314,23 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	placingZone.ang = DegreeToRad (ang);
 	placingZone.level = nodes_sequential [0].z;
 
+	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32511, ACAPI_GetOwnResModule (), slabBottomPlacerHandler1, 0);
+
 	// 작업 층 높이 반영
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-	workLevel_morph = 0.0;
+	workLevel_slab = 0.0;
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
 	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
 		if (storyInfo.data [0][xx].index == infoSlab.floorInd) {
-			workLevel_morph = storyInfo.data [0][xx].level;
+			workLevel_slab = storyInfo.data [0][xx].level;
 			break;
 		}
 	}
 	BMKillHandle ((GSHandle *) &storyInfo.data);
 	
 	// 영역 정보의 고도 정보 수정
-	placingZone.level = infoSlab.offsetFromTop - infoSlab.thickness;
-
-	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32511, ACAPI_GetOwnResModule (), slabBottomPlacerHandler1, 0);
+	placingZone.level = infoSlab.level + infoSlab.offsetFromTop - infoSlab.thickness - placingZone.gap;
 
 	// 문자열로 된 유로폼의 너비/높이를 실수형으로도 저장
 	placingZone.eu_wid_numeric = atof (placingZone.eu_wid.c_str ()) / 1000.0;
@@ -1879,6 +1882,9 @@ short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short 
 			// 라벨: 설치방향
 			DGSetItemText (dialogID, LABEL_EUROFORM_ORIENTATION, "설치방향");
 
+			// 라벨: 슬래브와의 간격
+			DGSetItemText (dialogID, LABEL_GAP_LENGTH, "슬래브와의 간격");
+
 			// 라벨: 레이어 설정
 			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
 
@@ -1917,6 +1923,9 @@ short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short 
 					placingZone.eu_wid = DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH, static_cast<short>(DGGetItemValLong (dialogID, POPUP_EUROFORM_WIDTH))).ToCStr ().Get ();
 					placingZone.eu_hei = DGPopUpGetItemText (dialogID, POPUP_EUROFORM_HEIGHT, static_cast<short>(DGGetItemValLong (dialogID, POPUP_EUROFORM_HEIGHT))).ToCStr ().Get ();
 					placingZone.eu_ori = DGPopUpGetItemText (dialogID, POPUP_EUROFORM_ORIENTATION, static_cast<short>(DGGetItemValLong (dialogID, POPUP_EUROFORM_ORIENTATION))).ToCStr ().Get ();
+
+					// 슬래브와의 간격
+					placingZone.gap = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_LENGTH);
 
 					// 레이어 번호 저장
 					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);

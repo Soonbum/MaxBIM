@@ -29,11 +29,17 @@ struct InfoBeam
 	short	floorInd;	// 층 인덱스
 	double	height;		// 보 높이
 	double	width;		// 보 너비
-	double	offset;		// 중심으로부터 보의 레퍼런스 라인의 오프셋입니다.
+	double	offset;		// 보 중심으로부터 보의 레퍼런스 라인의 오프셋입니다.
 	double	level;		// 바닥 레벨에 대한 보의 위쪽면 높이입니다.
 
 	API_Coord	begC;	// 보 시작 좌표
 	API_Coord	endC;	// 보 끝 좌표
+};
+
+// 모프 관련 정보
+struct InfoMorphForBeam
+{
+	API_Guid	guid;		// 모프의 GUID
 };
 
 // 그리드 각 셀 정보

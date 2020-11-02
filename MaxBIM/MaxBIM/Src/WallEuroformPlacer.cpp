@@ -224,7 +224,7 @@ GSErrCode	placeEuroformOnWall (void)
 	BMKillHandle ((GSHandle *) &storyInfo.data);
 
 	// 영역 정보의 고도 정보를 수정
-	placingZone.leftBottomZ = infoWall.bottomOffset;// + workLevel_wall;
+	placingZone.leftBottomZ = infoWall.bottomOffset;
 
 	// 영역 모프 제거
 	API_Elem_Head* headList = new API_Elem_Head [1];
@@ -234,7 +234,6 @@ GSErrCode	placeEuroformOnWall (void)
 
 	// (3) 선택한 보가 있다면,
 	for (xx = 0 ; xx < nBeams ; ++xx) {
-
 		BNZeroMemory (&elem, sizeof (API_Element));
 		BNZeroMemory (&memo, sizeof (API_ElementMemo));
 		elem.header.guid = beams.Pop ();
@@ -249,7 +248,7 @@ GSErrCode	placeEuroformOnWall (void)
 		dy = elem.beam.endC.y - infoMorph.leftBottomY;
 		ang2 = RadToDegree (atan2 (dy, dx));	// 보 끝점과 벽 좌하단점 간의 각도
 
-		if (abs (infoMorph.ang - ang1) < EPS) {
+		if (abs (infoMorph.ang - ang1) < abs (infoMorph.ang - ang2)) {
 			// 보의 LeftBottom 좌표
 			xPosLB = elem.beam.begC.x - elem.beam.width/2 * cos(DegreeToRad (infoMorph.ang));
 			yPosLB = elem.beam.begC.y - elem.beam.width/2 * sin(DegreeToRad (infoMorph.ang));
@@ -299,6 +298,13 @@ GSErrCode	placeEuroformOnWall (void)
 
 	// [DIALOG] 1번째 다이얼로그에서 인코너, 유로폼 정보 입력 받음
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32501, ACAPI_GetOwnResModule (), wallPlacerHandler1, 0);
+
+	// 벽과의 간격으로 인해 정보 업데이트
+	infoWall.wallThk		+= (placingZone.gap * 2);
+	for (xx = 0 ; xx < placingZone.nInterfereBeams ; ++xx) {
+		placingZone.beams [xx].leftBottomX += (placingZone.gap * sin(placingZone.ang));
+		placingZone.beams [xx].leftBottomY -= (placingZone.gap * cos(placingZone.ang));
+	}
 
 	// 문자열로 된 유로폼의 너비/높이를 실수형으로도 저장
 	placingZone.eu_wid_numeric = atof (placingZone.eu_wid.c_str ()) / 1000.0;
@@ -1555,6 +1561,9 @@ short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, 
 			// 라벨: 설치방향
 			DGSetItemText (dialogID, LABEL_EUROFORM_ORIENTATION, "설치방향");
 
+			// 라벨: 슬래브와의 간격
+			DGSetItemText (dialogID, LABEL_GAP_LENGTH, "벽과의 간격");
+
 			// 라벨: 레이어 설정
 			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
 
@@ -1633,6 +1642,9 @@ short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, 
 						placingZone.bRIncorner = false;
 					placingZone.lenLIncorner = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_INCORNER);
 					placingZone.lenRIncorner = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_INCORNER);
+
+					// 벽와의 간격
+					placingZone.gap = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_LENGTH);
 
 					// 레이어 번호 저장
 					layerInd_Incorner		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER);

@@ -32,6 +32,10 @@ namespace wallPlacerDG {
 		POPUP_EUROFORM_ORIENTATION,
 		SEPARATOR_2,
 
+		LABEL_GAP_LENGTH,
+		EDITCONTROL_GAP_LENGTH,
+		SEPARATOR_3,
+
 		ICON_LAYER,
 		LABEL_LAYER_SETTINGS,
 		LABEL_LAYER_INCORNER,
@@ -268,6 +272,8 @@ struct WallPlacingZone
 	double	remain_hor_updated;		// 가로 방향 남은 길이 (업데이트 후)
 	double	remain_ver;				// 세로 방향 남은 길이
 	double	remain_ver_wo_beams;	// 간섭보의 영향을 받지 않는 세로 길이
+
+	double	gap;		// 벽과의 간격
 
 	bool	bLIncorner;				// 인코너 왼쪽 배치
 	double	lenLIncorner;			// 인코너 왼쪽 너비

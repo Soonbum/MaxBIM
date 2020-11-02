@@ -23,6 +23,10 @@ namespace slabBottomPlacerDG {
 		POPUP_EUROFORM_ORIENTATION,
 		SEPARATOR_1,
 
+		LABEL_GAP_LENGTH,
+		EDITCONTROL_GAP_LENGTH,
+		SEPARATOR_2,
+
 		ICON_LAYER,
 		LABEL_LAYER_SETTINGS,
 		LABEL_LAYER_EUROFORM,
@@ -77,14 +81,17 @@ namespace slabBottomPlacerDG {
 struct InfoSlab
 {
 	short	floorInd;			// 층 인덱스
-	double	offsetFromTop;		// 레퍼런스 레벨과 슬래브 위쪽 간의 수직 거리
+	double	offsetFromTop;		// 슬래브 윗면과 레퍼런스 레벨과의 수직 거리
 	double	thickness;			// 슬래브 두께
+	double	level;				// 레퍼런스 레벨의 고도
 };
 
 // 모프 관련 정보
 struct InfoMorphForSlab
 {
 	API_Guid	guid;		// 모프의 GUID
+	short		floorInd;	// 층 인덱스
+	double		level;		// 모프의 고도
 };
 
 // 그리드 각 셀 정보
@@ -150,6 +157,8 @@ struct SlabPlacingZone
 	double	remain_hor_updated;		// 가로 방향 남은 길이 (업데이트 후)
 	double	remain_ver;				// 세로 방향 남은 길이
 	double	remain_ver_updated;		// 세로 방향 남은 길이 (업데이트 후)
+
+	double	gap;		// 슬래브와의 간격
 
 	std::string		eu_wid;			// 유로폼 너비
 	std::string		eu_hei;			// 유로폼 높이
