@@ -40,6 +40,8 @@ struct InfoBeam
 struct InfoMorphForBeam
 {
 	API_Guid	guid;		// 모프의 GUID
+	short		floorInd;	// 층 인덱스
+	double		level;		// 모프의 고도
 };
 
 // 그리드 각 셀 정보
@@ -69,38 +71,30 @@ struct CellForBeam
 // 보 영역 정보
 struct BeamPlacingZone
 {
-	// 보의 시작 좌표는 아래, 끝 좌표는 위라고 가정함
+	// 보의 시작 좌표는 왼쪽, 끝 좌표는 오른쪽이라고 가정함
 
 	// 보 기하 정보
-	double	level;				// 고도
+	double	level;				// 보 윗면 고도
 	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
-	double	leftBottomX;		// 유로폼 시작 좌표 X
-	double	leftBottomY;		// 유로폼 시작 좌표 Y
-	double	leftBottomZ;		// 유로폼 시작 좌표 Z
+	double	areaHeight;			// 영역 높이
+
+	API_Coord3D		begC;		// 배치 기준 시작점
+	API_Coord3D		endC;		// 배치 기준 끝점
+	double	beamLength;			// 메인 보 전체 길이
 
 	// 검토할 사항
-	double	remain_hor_at_bottom_beg;	// 하부 보 시작 부분 남은 길이
-	double	remain_hor_at_bottom_end;	// 하부 보 끝 부분 남은 길이
-	double	remain_hor_at_Lside_beg;	// 좌측 보 시작 부분 남은 길이
-	double	remain_hor_at_Lside_end;	// 좌측 보 끝 부분 남은 길이
-	double	remain_hor_at_Rside_beg;	// 우측 보 시작 부분 남은 길이
-	double	remain_hor_at_Rside_end;	// 우측 보 끝 부분 남은 길이
+	// ... 간섭 보 여부
+	// ... 간섭 보 위치
+	// ... 간섭 보 너비/높이
 
-	double	remain_hor_at_bottom_beg_updated;	// 하부 보 시작 부분 남은 길이 (업데이트 후)
-	double	remain_hor_at_bottom_end_updated;	// 하부 보 끝 부분 남은 길이 (업데이트 후)
-	double	remain_hor_at_Lside_beg_updated;	// 좌측 보 시작 부분 남은 길이 (업데이트 후)
-	double	remain_hor_at_Lside_end_updated;	// 좌측 보 끝 부분 남은 길이 (업데이트 후)
-	double	remain_hor_at_Rside_beg_updated;	// 우측 보 시작 부분 남은 길이 (업데이트 후)
-	double	remain_hor_at_Rside_end_updated;	// 우측 보 끝 부분 남은 길이 (업데이트 후)
+	// ... 측면 시작 부분 여백 (입력)
+	// ... 측면 끝 부분 여백 (입력)
+	// ... 하부 시작 부분 여백 (입력)
+	// ... 하부 끝 부분 여백 (입력)
 
-	short	eu_count_at_bottom;		// 하부 유로폼 개수
-	short	eu_count_at_Lside;		// 좌측 유로폼 개수
-	short	eu_count_at_Rside;		// 우측 유로폼 개수
+	double	gap;		// 보와의 간격
 
-	double	moveOffset_at_bottom;	// 하부 이동 오프셋 (+는 끝 좌표 방향)
-	double	moveOffset_at_Lside;	// 좌측 이동 오프셋 (+는 끝 좌표 방향)
-	double	moveOffset_at_Rside;	// 우측 이동 오프셋 (+는 끝 좌표 방향)
-
+	// 기본 채우기
 	std::string		eu_wid;			// 유로폼 너비
 	std::string		eu_hei;			// 유로폼 높이
 	double	eu_wid_numeric;			// 유로폼 너비 (실수형)
