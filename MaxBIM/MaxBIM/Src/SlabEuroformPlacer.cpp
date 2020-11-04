@@ -521,95 +521,10 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	if (clickedOKButton == false)
 		return err;
 
+	// 나머지 영역 채우기 - 합판, 목재
 	err = fillRestAreasForSlabBottom ();
 
 	return	err;
-}
-
-// aPoint가 bPoint와 같은 점인지 확인함
-bool	isSamePoint (API_Coord3D aPoint, API_Coord3D bPoint)
-{
-	if ( (abs (aPoint.x - bPoint.x) < EPS) && (abs (aPoint.y - bPoint.y) < EPS) && (abs (aPoint.z - bPoint.z) < EPS) &&
-		(abs (bPoint.x - aPoint.x) < EPS) && (abs (bPoint.y - aPoint.y) < EPS) && (abs (bPoint.z - aPoint.z) < EPS) ) {
-		return true;
-	} else
-		return false;
-}
-
-// aPoint가 pointList에 보관이 되었는지 확인함
-bool	isAlreadyStored (API_Coord3D aPoint, API_Coord3D pointList [], short startInd, short endInd)
-{
-	short	xx;
-
-	for (xx = startInd ; xx <= endInd ; ++xx) {
-		// 모든 좌표 값이 일치할 경우, 이미 포함된 좌표 값이라고 인정함
-		if ( (abs (aPoint.x - pointList [xx].x) < EPS) && (abs (aPoint.y - pointList [xx].y) < EPS) && (abs (aPoint.z - pointList [xx].z) < EPS) &&
-			(abs (pointList [xx].x - aPoint.x) < EPS) && (abs (pointList [xx].y - aPoint.y) < EPS) && (abs (pointList [xx].z - aPoint.z) < EPS) ) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-// nextPoint가 curPoint의 다음 점입니까?
-bool	isNextPoint (API_Coord3D prevPoint, API_Coord3D curPoint, API_Coord3D nextPoint)
-{
-	bool	cond1 = false;
-	bool	cond2_1 = false;
-	bool	cond2_2 = false;
-
-	// curPoint와 nextPoint가 같은 Z값을 갖는가?
-	if ( (abs (curPoint.z - nextPoint.z) < EPS) && (abs (nextPoint.z - curPoint.z) < EPS) )
-		cond1 = true;
-
-	// 예전 점과 현재 점이 Y축 상에 있을 경우, 현재 점과 다음 점은 X축 상에 있어야 하고, 현재 점과 다음 점 간에는 X값의 차이가 있어야 함
-	if ((abs (curPoint.x - prevPoint.x) < EPS) && (abs (prevPoint.x - curPoint.x) < EPS) &&
-		(abs (curPoint.y - nextPoint.y) < EPS) && (abs (nextPoint.y - curPoint.y) < EPS) &&
-		((abs (curPoint.x - nextPoint.x) > EPS) || (abs (nextPoint.x - curPoint.x) > EPS)))
-		cond2_1 = true;
-
-	// 예전 점과 현재 점이 X축 상에 있을 경우, 현재 점과 다음 점은 Y축 상에 있어야 하고, 현재 점과 다음 점 간에는 Y값의 차이가 있어야 함
-	if ((abs (curPoint.y - prevPoint.y) < EPS) && (abs (prevPoint.y - curPoint.y) < EPS) &&
-		(abs (curPoint.x - nextPoint.x) < EPS) && (abs (nextPoint.x - curPoint.x) < EPS) &&
-		((abs (curPoint.y - nextPoint.y) > EPS) || (abs (nextPoint.y - curPoint.y) > EPS)))
-		cond2_2 = true;
-
-	// 같은 Z값이면서 동일 축 상의 떨어진 거리의 점인 경우
-	if (cond1 && (cond2_1 || cond2_2))
-		return true;
-	else
-		return false;
-}
-
-// curPoint에 가까운 점이 p1, p2 중 어떤 점입니까?
-short	moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2)
-{
-	double dist1, dist2;
-
-	dist1 = GetDistance (curPoint, p1);
-	dist2 = GetDistance (curPoint, p2);
-
-	// curPoint와 p1가 더 가까우면 1 리턴
-	if ((dist2 - dist1) > EPS)	return 1;
-	
-	// curPoint와 p2가 더 가까우면 2 리턴
-	if ((dist1 - dist2) > EPS)	return 2;
-
-	// 그 외에는 0 리턴
-	return 0;
-}
-
-// 회전이 적용되지 않았을 때의 위치 (배치되어야 할 본래 위치를 리턴), 각도는 Degree
-API_Coord3D		getUnrotatedPoint (API_Coord3D rotatedPoint, API_Coord3D axisPoint, double ang)
-{
-	API_Coord3D		unrotatedPoint;
-
-	unrotatedPoint.x = axisPoint.x + ((rotatedPoint.x - axisPoint.x)*cos(DegreeToRad (ang)) - (rotatedPoint.y - axisPoint.y)*sin(DegreeToRad (ang)));
-	unrotatedPoint.y = axisPoint.y + ((rotatedPoint.x - axisPoint.x)*sin(DegreeToRad (ang)) + (rotatedPoint.y - axisPoint.y)*cos(DegreeToRad (ang)));
-	unrotatedPoint.z = rotatedPoint.z;
-
-	return unrotatedPoint;
 }
 
 // Cell 배열을 초기화함

@@ -19,6 +19,32 @@ namespace beamPlacerDG {
 		LEFT_SIDE,
 		RIGHT_SIDE
 	};
+
+	// 다이얼로그 항목 인덱스
+	enum	idxItems_1_forBeamPlacer {
+		LABEL_PLACING_EUROFORM		= 3,
+		LABEL_EUROFORM_WIDTH,
+		POPUP_EUROFORM_WIDTH,
+		LABEL_EUROFORM_HEIGHT,
+		POPUP_EUROFORM_HEIGHT,
+		SEPARATOR_1,
+
+		LABEL_GAP_LENGTH,
+		EDITCONTROL_GAP_LENGTH,
+		SEPARATOR_2,
+
+		ICON_LAYER,
+		LABEL_LAYER_SETTINGS,
+		LABEL_LAYER_EUROFORM,
+		LABEL_LAYER_PLYWOOD,
+		LABEL_LAYER_WOOD,
+		LABEL_LAYER_OUTCORNER_ANGLE,
+
+		USERCONTROL_LAYER_EUROFORM,
+		USERCONTROL_LAYER_PLYWOOD,
+		USERCONTROL_LAYER_WOOD,
+		USERCONTROL_LAYER_OUTCORNER_ANGLE
+	};
 }
 
 // 보 관련 정보
@@ -58,7 +84,7 @@ struct CellForBeam
 
 	double	dirLen;			// 보 설치방향 길이
 	double	perLen;			// 보 직각방향 길이
-	short	attachd_side;	// 하부(BOTTOM_SIDE), 좌측면(LEFT_SIDE), 우측면(RIGHT_SIDE)
+	short	attached_side;	// 하부(BOTTOM_SIDE), 좌측면(LEFT_SIDE), 우측면(RIGHT_SIDE)
 
 	union {
 		Euroform		form;
@@ -82,26 +108,63 @@ struct BeamPlacingZone
 	API_Coord3D		endC;		// 배치 기준 끝점
 	double	beamLength;			// 메인 보 전체 길이
 
-	// 검토할 사항
-	// ... 간섭 보 여부
-	// ... 간섭 보 위치
-	// ... 간섭 보 너비/높이
+	// 간섭 보 관련 정보
+	bool	bInterfereBeam;				// 간섭 보 여부
+	double	posInterfereBeamFromLeft;	// 간섭 보 위치 (보 시작 좌표-왼쪽-로부터)
+	double	interfereBeamWidth;			// 간섭 보 너비
+	double	interfereBeamHeight;		// 간섭 보 높이
 
-	// ... 측면 시작 부분 여백 (입력)
-	// ... 측면 끝 부분 여백 (입력)
-	// ... 하부 시작 부분 여백 (입력)
-	// ... 하부 끝 부분 여백 (입력)
+	// 보 양끝 여백
+	double	marginBeginAtSide;				// 측면 시작 부분 여백
+	double	marginEndAtSide;				// 측면 끝 부분 여백
+	double	marginBeginAtBottom;			// 하부 시작 부분 여백
+	double	marginEndAtBottom;				// 하부 끝 부분 여백
+	double	marginBeginAtSide_updated;		// 측면 시작 부분 여백 (업데이트 후)
+	double	marginEndAtSide_updated;		// 측면 끝 부분 여백 (업데이트 후)
+	double	marginBeginAtBottom_updated;	// 하부 시작 부분 여백 (업데이트 후)
+	double	marginEndAtBottom_updated;		// 하부 끝 부분 여백 (업데이트 후)
+
+	// 셀 정보 (측면)
+	CellForBeam		cellsFromBeginAtLSide [20];		// 시작 부분부터 붙여가는 셀 (왼쪽)
+	CellForBeam		cellsFromBeginAtRSide [20];		// 시작 부분부터 붙여가는 셀 (오른쪽)
+	CellForBeam		cellsFromEndAtLSide [20];		// 끝 부분부터 붙여가는 셀 (왼쪽)
+	CellForBeam		cellsFromEndAtRSide [20];		// 끝 부분부터 붙여가는 셀 (오른쪽)
+	CellForBeam		cellCenterAtLSide;				// 가운데 부분에 붙이는 셀 (왼쪽)
+	CellForBeam		cellCenterAtRSide;				// 가운데 부분에 붙이는 셀 (오른쪽)
+	short			nCellsFromBeginAtSide;			// 측면의 시작 부분 셀 개수
+	short			nCellsFromEndAtSide;			// 측면의 끝 부분 셀 개수
+
+	// 셀 정보 (하부)
+	CellForBeam		cellsFromBeginAtBottom [20];	// 시작 부분부터 붙여가는 셀
+	CellForBeam		cellsFromEndAtBottom [20];		// 끝 부분부터 붙여가는 셀
+	CellForBeam		cellCenterAtBottom;				// 가운데 부분에 붙이는 셀
+	short			nCellsFromBeginAtBottom;		// 하부의 시작 부분 셀 개수
+	short			nCellsFromEndAtBottom;			// 하부의 끝 부분 셀 개수
 
 	double	gap;		// 보와의 간격
 
-	// 기본 채우기
-	std::string		eu_wid;			// 유로폼 너비
-	std::string		eu_hei;			// 유로폼 높이
+	// 유로폼이 차지하는 높이
 	double	eu_wid_numeric;			// 유로폼 너비 (실수형)
-	double	eu_hei_numeric;			// 유로폼 높이 (실수형)
 };
 
 // 유로폼 보 배치 함수
 GSErrCode	placeEuroformOnBeam (void);				// 3번 메뉴: 보에 유로폼을 배치하는 통합 루틴
+void	initCellsForBeam (BeamPlacingZone* placingZone);										// Cell 배열을 초기화함
+void	firstPlacingSettingsForBeam (BeamPlacingZone* placingZone);								// 1차 배치
+void		adjustOtherCellsInSameRow (BeamPlacingZone* target_zone, short row, short col);		// 해당 셀과 동일한 행에 있는 다른 셀들의 타입 및 높이를 조정함
+void		addNewColFromBeginAtSide (BeamPlacingZone* target_zone);							// 측면 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+void		delLastColFromBeginAtSide (BeamPlacingZone* target_zone);							// 측면 시작 부분 - 마지막 열을 삭제함
+void		addNewColFromEndAtSide (BeamPlacingZone* target_zone);								// 측면 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+void		delLastColFromEndAtSide (BeamPlacingZone* target_zone);								// 측면 끝 부분 - 마지막 열을 삭제함
+void		addNewColFromBeginAtBottom (BeamPlacingZone* target_zone);							// 하부 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+void		delLastColFromBeginAtBottom (BeamPlacingZone* target_zone);							// 하부 시작 부분 - 마지막 열을 삭제함
+void		addNewColFromEndAtBottom (BeamPlacingZone* target_zone);							// 하부 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+void		delLastColFromEndAtBottom (BeamPlacingZone* target_zone);							// 하부 끝 부분 - 마지막 열을 삭제함
+void		alignPlacingZoneForBeam (BeamPlacingZone* target_zone);								// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+API_Guid	placeLibPartForBeam (CellForBeam objInfo);											// 해당 셀 정보를 기반으로 라이브러리 배치
+GSErrCode	fillRestAreasForBeam (void);														// 유로폼을 채운 후 자투리 공간 채우기
+short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
+short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
 
 #endif

@@ -178,22 +178,17 @@ struct SlabPlacingZone
 
 // 유로폼 슬래브 하부 배치 함수
 GSErrCode	placeEuroformOnSlabBottom (void);				// 2번 메뉴: 슬래브 하부에 유로폼을 배치하는 통합 루틴
-bool		isSamePoint (API_Coord3D aPoint, API_Coord3D bPoint);												// aPoint가 bPoint와 같은 점인지 확인함
-bool		isAlreadyStored (API_Coord3D aPoint, API_Coord3D pointList [], short startInd, short endInd);		// aPoint가 pointList에 보관이 되었는지 확인함
-bool		isNextPoint (API_Coord3D prevPoint, API_Coord3D curPoint, API_Coord3D nextPoint);					// nextPoint가 curPoint의 다음 점입니까?
-short		moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2);								// curPoint에 가까운 점이 p1, p2 중 어떤 점입니까?
-API_Coord3D	getUnrotatedPoint (API_Coord3D rotatedPoint, API_Coord3D axisPoint, double ang);					// 회전이 적용되지 않았을 때의 위치 (배치되어야 할 본래 위치를 리턴), 각도는 Degree
-void		initCellsForSlabBottom (SlabPlacingZone* placingZone);												// Cell 배열을 초기화함
-void		firstPlacingSettingsForSlabBottom (SlabPlacingZone* placingZone);									// 1차 배치: 유로폼
-void		adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short col);						// 해당 셀과 동일한 행에 있는 다른 셀들의 타입 및 높이를 조정함
-void		adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col);						// 해당 셀과 동일한 열에 있는 다른 셀들의 타입 및 너비를 조정함
-void		addNewRow (SlabPlacingZone* target_zone);															// 새로운 행을 추가함 (행 하나를 늘리고 추가된 행에 마지막 행 정보 복사)
-void		addNewCol (SlabPlacingZone* target_zone);															// 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		delLastRow (SlabPlacingZone* target_zone);															// 마지막 행을 삭제함
-void		delLastCol (SlabPlacingZone* target_zone);															// 마지막 열을 삭제함
-void		alignPlacingZoneForSlabBottom (SlabPlacingZone* target_zone);										// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo);													// 해당 셀 정보를 기반으로 라이브러리 배치
-GSErrCode	fillRestAreasForSlabBottom (void);																	// 유로폼을 채운 후 자투리 공간 채우기
+void		initCellsForSlabBottom (SlabPlacingZone* placingZone);								// Cell 배열을 초기화함
+void		firstPlacingSettingsForSlabBottom (SlabPlacingZone* placingZone);					// 1차 배치: 유로폼
+void		adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short col);		// 해당 셀과 동일한 행에 있는 다른 셀들의 타입 및 높이를 조정함
+void		adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col);		// 해당 셀과 동일한 열에 있는 다른 셀들의 타입 및 너비를 조정함
+void		addNewRow (SlabPlacingZone* target_zone);											// 새로운 행을 추가함 (행 하나를 늘리고 추가된 행에 마지막 행 정보 복사)
+void		addNewCol (SlabPlacingZone* target_zone);											// 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+void		delLastRow (SlabPlacingZone* target_zone);											// 마지막 행을 삭제함
+void		delLastCol (SlabPlacingZone* target_zone);											// 마지막 열을 삭제함
+void		alignPlacingZoneForSlabBottom (SlabPlacingZone* target_zone);						// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo);									// 해당 셀 정보를 기반으로 라이브러리 배치
+GSErrCode	fillRestAreasForSlabBottom (void);													// 유로폼을 채운 후 자투리 공간 채우기
 short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK slabBottomPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그

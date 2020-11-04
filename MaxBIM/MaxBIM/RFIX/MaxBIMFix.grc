@@ -110,3 +110,40 @@
 /* [ 20] */ UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
 /* [ 21] */ UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
 }
+
+/* ---------------------------------------------------------- place Euroform on Beam */
+'GDLG'  32521  Modal | grow	  0		  0		300		340		"보에 배치" {
+/* [  1] */	Button			 70		300		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		300		 70		 25		LargePlain		"Cancel"
+
+/* [  3] */ LeftText		 10		 10		200		 23		LargePlain		"Euroform Settings"
+/* [  4] */ RightText		 50		 40		 70		 23		LargePlain		"Width"
+/* [  5] */	PopupControl	140		 33		100		 25		200		10		/* 너비 */
+							NoIcon	"600"
+							NoIcon	"500"
+							NoIcon	"450"
+							NoIcon	"400"
+							NoIcon	"300"
+							NoIcon	"200"
+/* [  6] */ RightText		 50		 70		 70		 23		LargePlain		"Height"
+/* [  7] */	PopupControl	140		 63		100		 25		100		10		/* 높이 */
+							NoIcon	"1200"
+							NoIcon	"900"
+							NoIcon	"600"
+/* [  8] */ Separator		  5		100		290		  1
+
+/* [  9] */ RightText		 10		115		100		 23		LargePlain		"Gap from Beam"
+/* [ 10] */ LengthEdit		140		108		 50		 25		LargePlain		"0"	"1.0"
+/* [ 11] */ Separator		  5		140		290		  1
+
+/* [ 12] */ Icon			 85		148		 29		 14  	32502
+/* [ 13] */ LeftText		120		150		200		 23		LargePlain		"Layer Settings"
+/* [ 14] */ RightText		 10		180		100		 23		LargePlain		"Euroform"
+/* [ 15] */ RightText		 10		210		100		 23		LargePlain		"Plywood"
+/* [ 16] */ RightText		 10		240		100		 23		LargePlain		"Wood"
+/* [ 17] */ RightText		 10		270		100		 23		LargePlain		"OutcornerAngle"
+/* [ 18] */ UserControl		120		174		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 19] */ UserControl		120		204		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 20] */ UserControl		120		234		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
+/* [ 21] */ UserControl		120		264		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
+}
