@@ -112,9 +112,9 @@
 }
 
 /* ---------------------------------------------------------- place Euroform on Beam */
-'GDLG'  32521  Modal | grow	  0		  0		300		340		"보에 배치" {
-/* [  1] */	Button			 70		300		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		300		 70		 25		LargePlain		"Cancel"
+'GDLG'  32521  Modal | grow	  0		  0		300		390		"보에 배치" {
+/* [  1] */	Button			 70		345		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		345		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */ LeftText		 10		 10		200		 23		LargePlain		"Euroform Settings"
 /* [  4] */ RightText		 50		 40		 70		 23		LargePlain		"Width"
@@ -139,11 +139,13 @@
 /* [ 12] */ Icon			 85		148		 29		 14  	32502
 /* [ 13] */ LeftText		120		150		200		 23		LargePlain		"Layer Settings"
 /* [ 14] */ RightText		 10		180		100		 23		LargePlain		"Euroform"
-/* [ 15] */ RightText		 10		210		100		 23		LargePlain		"Plywood"
-/* [ 16] */ RightText		 10		240		100		 23		LargePlain		"Wood"
-/* [ 17] */ RightText		 10		270		100		 23		LargePlain		"OutcornerAngle"
-/* [ 18] */ UserControl		120		174		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 19] */ UserControl		120		204		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
-/* [ 20] */ UserControl		120		234		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
-/* [ 21] */ UserControl		120		264		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
+/* [ 15] */ RightText		 10		210		100		 23		LargePlain		"Fillerspacer"
+/* [ 16] */ RightText		 10		240		100		 23		LargePlain		"Plywood"
+/* [ 17] */ RightText		 10		270		100		 23		LargePlain		"Wood"
+/* [ 18] */ RightText		 10		300		100		 23		LargePlain		"OutcornerAngle"
+/* [ 19] */ UserControl		120		174		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 20] */	UserControl		120		204		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
+/* [ 21] */ UserControl		120		234		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 22] */ UserControl		120		264		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
+/* [ 23] */ UserControl		120		294		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
 }

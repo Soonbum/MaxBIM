@@ -8,6 +8,7 @@ namespace beamPlacerDG {
 	enum	libPartObjType {
 		NONE,			// 없음
 		EUROFORM,		// 유로폼v2.0
+		FILLERSPACER,	// 휠러스페이서v1.0
 		PLYWOOD,		// 합판v1.0
 		WOOD,			// 목재v1.0
 		OUTCORNER_ANGLE	// 아웃코너앵글v1.0
@@ -36,11 +37,13 @@ namespace beamPlacerDG {
 		ICON_LAYER,
 		LABEL_LAYER_SETTINGS,
 		LABEL_LAYER_EUROFORM,
+		LABEL_LAYER_FILLERSPACER,
 		LABEL_LAYER_PLYWOOD,
 		LABEL_LAYER_WOOD,
 		LABEL_LAYER_OUTCORNER_ANGLE,
 
 		USERCONTROL_LAYER_EUROFORM,
+		USERCONTROL_LAYER_FILLERSPACER,
 		USERCONTROL_LAYER_PLYWOOD,
 		USERCONTROL_LAYER_WOOD,
 		USERCONTROL_LAYER_OUTCORNER_ANGLE
@@ -125,6 +128,7 @@ struct BeamPlacingZone
 	double	marginEndAtBottom_updated;		// 하부 끝 부분 여백 (업데이트 후)
 
 	// 셀 정보 (측면)
+	//	!!!
 	CellForBeam		cellsFromBeginAtLSide [20];		// 시작 부분부터 붙여가는 셀 (왼쪽)
 	CellForBeam		cellsFromBeginAtRSide [20];		// 시작 부분부터 붙여가는 셀 (오른쪽)
 	CellForBeam		cellsFromEndAtLSide [20];		// 끝 부분부터 붙여가는 셀 (왼쪽)
@@ -135,6 +139,7 @@ struct BeamPlacingZone
 	short			nCellsFromEndAtSide;			// 측면의 끝 부분 셀 개수
 
 	// 셀 정보 (하부)
+	//	!!!
 	CellForBeam		cellsFromBeginAtBottom [20];	// 시작 부분부터 붙여가는 셀
 	CellForBeam		cellsFromEndAtBottom [20];		// 끝 부분부터 붙여가는 셀
 	CellForBeam		cellCenterAtBottom;				// 가운데 부분에 붙이는 셀
@@ -143,8 +148,10 @@ struct BeamPlacingZone
 
 	double	gap;		// 보와의 간격
 
-	// 유로폼이 차지하는 높이
-	double	eu_wid_numeric;			// 유로폼 너비 (실수형)
+	// 유로폼 너비 자동 계산
+	//	!!!
+	double	eu_wid_numeric_side;		// 유로폼 너비 (실수형) - 측면
+	double	eu_wid_numeric_bottom;		// 유로폼 너비 (실수형) - 하부
 };
 
 // 유로폼 보 배치 함수

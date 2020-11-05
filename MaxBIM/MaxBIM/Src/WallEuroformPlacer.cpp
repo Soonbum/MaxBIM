@@ -20,6 +20,7 @@ static short			layerInd_Plywood;		// 레이어 번호: 합판
 static short			layerInd_Wood;			// 레이어 번호: 목재
 static short			itemInitIdx = GRIDBUTTON_IDX_START;		// 그리드 버튼 항목 인덱스 시작번호
 static short			numberOfinterfereBeam;	// 몇 번째 간섭 보인가?
+static GS::Array<API_Guid>	elemList;			// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
 
 // 1번 메뉴: 벽에 유로폼을 배치하는 통합 루틴
@@ -382,6 +383,20 @@ GSErrCode	placeEuroformOnWall (void)
 	// [DIALOG] 5번째 다이얼로그에서 벽 상단의 자투리 공간을 다른 규격의 유로폼으로 대체할 것인지 묻습니다.
 	result = DGBlankModalDialog (300, 280, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallPlacerHandler5, 0);
 
+	// 결과물 전체 그룹화
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+
 	return	err;
 }
 
@@ -455,10 +470,12 @@ GSErrCode	fillRestAreasForWall (void)
 					placingZone.cells [xx][yy] = placingZone.cells [xx-1][yy];
 					placingZone.cells [xx][yy].leftBottomZ = placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen;
 					placingZone.cells [xx][yy].guid = placeLibPartForWall (placingZone.cells [xx][yy]);
+					elemList.Push (placingZone.cells [xx][yy].guid);
 
 					placingZoneBackside.cells [xx][yy] = placingZoneBackside.cells [xx-1][yy];
 					placingZoneBackside.cells [xx][yy].leftBottomZ = placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen;
 					placingZoneBackside.cells [xx][yy].guid = placeLibPartForWall (placingZoneBackside.cells [xx][yy]);
+					elemList.Push (placingZoneBackside.cells [xx][yy].guid);
 					
 				// 높이가 부족하면
 				} else if ( (placingZone.leftBottomZ + placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen)) >= 0.010) {
@@ -514,10 +531,12 @@ GSErrCode	fillRestAreasForWall (void)
 					placingZone.cells [xx][yy].horLen = placingZone.cells [xx-1][yy].horLen;
 					placingZone.cells [xx][yy].verLen = placingZone.leftBottomZ + placingZone.verLen - placingZone.cells [xx][yy].leftBottomZ;
 					placingZone.cells [xx][yy].guid = placeLibPartForWall (placingZone.cells [xx][yy]);
+					elemList.Push (placingZone.cells [xx][yy].guid);
 
 					placingZoneBackside.cells [xx][yy].horLen = placingZoneBackside.cells [xx-1][yy].horLen;
 					placingZoneBackside.cells [xx][yy].verLen = placingZoneBackside.leftBottomZ + placingZoneBackside.verLen - placingZoneBackside.cells [xx][yy].leftBottomZ;
 					placingZoneBackside.cells [xx][yy].guid = placeLibPartForWall (placingZoneBackside.cells [xx][yy]);
+					elemList.Push (placingZoneBackside.cells [xx][yy].guid);
 
 					// 상단 자투리 공간 셀 - 정보 저장
 					placingZone.topRestCells [yy] = placingZone.cells [xx][yy];
@@ -550,8 +569,8 @@ GSErrCode	fillRestAreasForWall (void)
 								insCellB.ang = placingZoneBackside.cells [xx-1][yy].ang;
 								insCellB.libPart.form.u_ins_wall = false;
 
-								placeLibPartForWall (insCell);
-								placeLibPartForWall (insCellB);
+								elemList.Push (placeLibPartForWall (insCell));
+								elemList.Push (placeLibPartForWall (insCellB));
 
 								if (insCell.libPart.form.eu_stan_onoff == true)
 									insertedHeight += insCell.libPart.form.eu_wid;
@@ -583,8 +602,8 @@ GSErrCode	fillRestAreasForWall (void)
 									insCellB.ang = placingZoneBackside.cells [xx-1][yy].ang;
 									insCellB.libPart.form.u_ins_wall = true;
 
-									placeLibPartForWall (insCell);
-									placeLibPartForWall (insCellB);
+									elemList.Push (placeLibPartForWall (insCell));
+									elemList.Push (placeLibPartForWall (insCellB));
 
 									// 위에 목재/합판 추가
 									insCell.leftBottomX = placingZone.cells [xx-1][yy].leftBottomX;
@@ -622,8 +641,8 @@ GSErrCode	fillRestAreasForWall (void)
 										insCellB.libPart.plywood.p_leng = placingZone.leftBottomZ + placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + placingZone.cells [xx-1][yy].horLen);
 										insCellB.libPart.plywood.w_dir_wall = true;
 									}
-									placeLibPartForWall (insCell);
-									placeLibPartForWall (insCellB);
+									elemList.Push (placeLibPartForWall (insCell));
+									elemList.Push (placeLibPartForWall (insCellB));
 
 									// 좌표값 수정
 									insertedLeft = placingZone.cells [xx-1][yy].verLen;
@@ -677,6 +696,8 @@ GSErrCode	fillRestAreasForWall (void)
 						}
 						insCell.guid = placeLibPartForWall (insCell);
 						insCellB.guid = placeLibPartForWall (insCellB);
+						elemList.Push (insCell.guid);
+						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][0] = insCell;
 						placingZoneBackside.woods [indInterfereBeam][0] = insCellB;
 
@@ -726,6 +747,8 @@ GSErrCode	fillRestAreasForWall (void)
 						}
 						insCell.guid = placeLibPartForWall (insCell);
 						insCellB.guid = placeLibPartForWall (insCellB);
+						elemList.Push (insCell.guid);
+						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][1] = insCell;
 						placingZoneBackside.woods [indInterfereBeam][1] = insCellB;
 					}
@@ -764,8 +787,8 @@ GSErrCode	fillRestAreasForWall (void)
 									insCellB.ang = placingZoneBackside.cells [xx-1][yy].ang;
 									insCellB.libPart.form.u_ins_wall = true;
 
-									placeLibPartForWall (insCell);
-									placeLibPartForWall (insCellB);
+									elemList.Push (placeLibPartForWall (insCell));
+									elemList.Push (placeLibPartForWall (insCellB));
 
 									// 위에 목재/합판 추가
 									insCell.leftBottomX = placingZone.cells [xx-1][yy].leftBottomX + (placingZone.cells [xx-1][yy].verLen * cos(placingZone.cells [xx-1][yy].ang));
@@ -803,8 +826,8 @@ GSErrCode	fillRestAreasForWall (void)
 										insCellB.libPart.plywood.p_leng = placingZone.leftBottomZ + placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + placingZone.cells [xx-1][yy].horLen);
 										insCellB.libPart.plywood.w_dir_wall = true;
 									}
-									placeLibPartForWall (insCell);
-									placeLibPartForWall (insCellB);
+									elemList.Push (placeLibPartForWall (insCell));
+									elemList.Push (placeLibPartForWall (insCellB));
 
 									// 좌표값 수정
 									insertedRight = placingZone.cells [xx-1][yy].verLen;
@@ -858,6 +881,8 @@ GSErrCode	fillRestAreasForWall (void)
 						}
 						insCell.guid = placeLibPartForWall (insCell);
 						insCellB.guid = placeLibPartForWall (insCellB);
+						elemList.Push (insCell.guid);
+						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][2] = insCell;
 						placingZoneBackside.woods [indInterfereBeam][2] = insCellB;
 					}
@@ -911,6 +936,8 @@ GSErrCode	fillRestAreasForWall (void)
 						}
 						insCell.guid = placeLibPartForWall (insCell);
 						insCellB.guid = placeLibPartForWall (insCellB);
+						elemList.Push (insCell.guid);
+						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][0] = insCell;
 						placingZoneBackside.woods [indInterfereBeam][0] = insCellB;
 
@@ -960,6 +987,8 @@ GSErrCode	fillRestAreasForWall (void)
 						}
 						insCell.guid = placeLibPartForWall (insCell);
 						insCellB.guid = placeLibPartForWall (insCellB);
+						elemList.Push (insCell.guid);
+						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][1] = insCell;
 						placingZoneBackside.woods [indInterfereBeam][1] = insCellB;
 
@@ -1009,6 +1038,8 @@ GSErrCode	fillRestAreasForWall (void)
 						}
 						insCell.guid = placeLibPartForWall (insCell);
 						insCellB.guid = placeLibPartForWall (insCellB);
+						elemList.Push (insCell.guid);
+						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][2] = insCell;
 						placingZoneBackside.woods [indInterfereBeam][2] = insCellB;
 					}
@@ -1577,10 +1608,10 @@ short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, 
 			DGSetItemText (dialogID, LABEL_LAYER_FILLERSPACER, "휠러스페이서");
 
 			// 라벨: 레이어 - 목재
-			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "목재");
+			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
 
 			// 라벨: 레이어 - 합판
-			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "합판");
+			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
 
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
@@ -1972,7 +2003,16 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 					clickedOKButton = true;
 
 					break;
+				
 				case DG_CANCEL:
+					// 자투리 채우기로 넘어갈 때 배치된 유로폼들의 모든 GUID를 저장함
+					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx)
+						for (yy = 0 ; yy < placingZone.nCells ; ++yy)
+							elemList.Push (placingZone.cells [xx][yy].guid);
+
+					for (xx = 0 ; xx < placingZoneBackside.eu_count_ver ; ++xx)
+						for (yy = 0 ; yy < placingZoneBackside.nCells ; ++yy)
+							elemList.Push (placingZoneBackside.cells [xx][yy].guid);
 
 					break;
 
@@ -4144,8 +4184,8 @@ short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, 
 					}
 						
 					// 사용자가 입력한 추가 유로폼 삽입
-					placeLibPartForWall (insCell);
-					placeLibPartForWall (insCellB);
+					elemList.Push (placeLibPartForWall (insCell));
+					elemList.Push (placeLibPartForWall (insCellB));
 
 					// 유로폼 크기에 의해 기존 합판/목재의 크기를 변경하고 위로 올림
 					// 보 좌측면
@@ -4158,8 +4198,8 @@ short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, 
 					}
 					placingZone.woods [numberOfinterfereBeam][0].leftBottomZ += insCell.verLen;
 					placingZoneBackside.woods [numberOfinterfereBeam][0].leftBottomZ += insCellB.verLen;
-					placeLibPartForWall (placingZone.woods [numberOfinterfereBeam][0]);
-					placeLibPartForWall (placingZoneBackside.woods [numberOfinterfereBeam][0]);
+					elemList.Push (placeLibPartForWall (placingZone.woods [numberOfinterfereBeam][0]));
+					elemList.Push (placeLibPartForWall (placingZoneBackside.woods [numberOfinterfereBeam][0]));
 
 					// 보 아래면
 					if (remainHeight > EPS) {
@@ -4191,8 +4231,8 @@ short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, 
 						placingZone.woods [numberOfinterfereBeam][1].leftBottomZ += insCell.verLen;
 						placingZoneBackside.woods [numberOfinterfereBeam][1].leftBottomZ += insCell.verLen;
 
-						placeLibPartForWall (placingZone.woods [numberOfinterfereBeam][1]);
-						placeLibPartForWall (placingZoneBackside.woods [numberOfinterfereBeam][1]);
+						elemList.Push (placeLibPartForWall (placingZone.woods [numberOfinterfereBeam][1]));
+						elemList.Push (placeLibPartForWall (placingZoneBackside.woods [numberOfinterfereBeam][1]));
 					}
 
 					// 보 우측면
@@ -4205,8 +4245,8 @@ short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, 
 					}
 					placingZone.woods [numberOfinterfereBeam][2].leftBottomZ += insCell.verLen;
 					placingZoneBackside.woods [numberOfinterfereBeam][2].leftBottomZ += insCellB.verLen;
-					placeLibPartForWall (placingZone.woods [numberOfinterfereBeam][2]);
-					placeLibPartForWall (placingZoneBackside.woods [numberOfinterfereBeam][2]);
+					elemList.Push (placeLibPartForWall (placingZone.woods [numberOfinterfereBeam][2]));
+					elemList.Push (placeLibPartForWall (placingZoneBackside.woods [numberOfinterfereBeam][2]));
 
 					break;
 				case DG_CANCEL:
@@ -4710,8 +4750,8 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 									insCellB.horLen = totalWidth;
 									insCellB.verLen = euroformWidth1;
 
-									placeLibPartForWall (insCell);
-									placeLibPartForWall (insCellB);
+									elemList.Push (placeLibPartForWall (insCell));
+									elemList.Push (placeLibPartForWall (insCellB));
 								}
 								
 								// 유로폼 (2단)
@@ -4754,8 +4794,8 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 									insCellB.horLen = totalWidth;
 									insCellB.verLen = euroformWidth2;
 
-									placeLibPartForWall (insCell);
-									placeLibPartForWall (insCellB);
+									elemList.Push (placeLibPartForWall (insCell));
+									elemList.Push (placeLibPartForWall (insCellB));
 								}
 
 								// 합판 또는 목재 (공간이 없으면 폼 위에 높이 50mm의 목재를 붙임)
@@ -4784,8 +4824,8 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 									insCellB.horLen = totalWidth;
 									insCellB.verLen = 0.050;
 
-									placeLibPartForWall (insCell);
-									placeLibPartForWall (insCellB);
+									elemList.Push (placeLibPartForWall (insCell));
+									elemList.Push (placeLibPartForWall (insCellB));
 
 								} else if (changedPlywoodHeight < 0.110) {
 									insCell.objType = WOOD;
@@ -4812,8 +4852,8 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 									insCellB.horLen = totalWidth;
 									insCellB.verLen = changedPlywoodHeight;
 
-									placeLibPartForWall (insCell);
-									placeLibPartForWall (insCellB);
+									elemList.Push (placeLibPartForWall (insCell));
+									elemList.Push (placeLibPartForWall (insCellB));
 								} else {
 									insCell.objType = PLYWOOD;
 									insCell.leftBottomX = placingZone.topRestCells [xx].leftBottomX;
@@ -4837,8 +4877,8 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 									insCellB.horLen = totalWidth;
 									insCellB.verLen = changedPlywoodHeight;
 
-									placeLibPartForWall (insCell);
-									placeLibPartForWall (insCellB);
+									elemList.Push (placeLibPartForWall (insCell));
+									elemList.Push (placeLibPartForWall (insCellB));
 								}
 
 								xx += processedIndex;
