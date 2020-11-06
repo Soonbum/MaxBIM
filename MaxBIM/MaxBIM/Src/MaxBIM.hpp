@@ -50,8 +50,8 @@ struct Euroform
 	double			eu_wid2;		// 너비 (비규격) : 50 ~ 900
 	double			eu_hei2;		// 높이 (비규격) : 50 ~ 1500
 	bool			u_ins_wall;		// 설치방향 : 벽세우기(true), 벽눕히기(false)
-	/*
 	double			ang_x;			// 회전X : 벽(90), 천장(0), 바닥(180)
+	/*
 	double			ang_y;			// 회전Y
 	*/
 };
@@ -61,10 +61,8 @@ struct FillerSpacer
 {
 	double			f_thk;			// 두께 : 10 ~ 50 (*20)
 	double			f_leng;			// 길이 : 150 ~ 2400
-	/*
 	double			f_ang;			// 각도 : 90
 	double			f_rota;			// 회전 : 0
-	*/
 };
 
 // 인코너판넬 정보

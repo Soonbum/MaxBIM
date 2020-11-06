@@ -1724,7 +1724,7 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 			DGSetDialogTitle (dialogID, "유로폼 벽에 배치 - 가로 채우기");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
-			// 업데이트 버튼
+			// 배치 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 100, 130, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "2. 배  치");

@@ -1906,7 +1906,7 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 			DGSetDialogTitle (dialogID, "슬래브 하부에 배치 - 유로폼 배치 수정");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
-			// 업데이트 버튼
+			// 배치 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 210, 130, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "2. 배  치");
