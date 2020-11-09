@@ -12,12 +12,45 @@ static BeamPlacingZone	placingZone;				// 기본 보 영역 정보
 static InfoBeam			infoBeam;					// 보 객체 정보
 static short			nInterfereBeams;			// 간섭 보 개수
 static InfoBeam			infoOtherBeams [10];		// 간섭 보 정보
-static bool				clickedOKButton;			// OK 버튼을 눌렀습니까?
 static short			layerInd_Euroform;			// 레이어 번호: 유로폼
 static short			layerInd_Fillerspacer;		// 레이어 번호: 휠러스페이서
 static short			layerInd_Plywood;			// 레이어 번호: 합판
 static short			layerInd_Wood;				// 레이어 번호: 목재
 static short			layerInd_OutcornerAngle;	// 레이어 번호: 아웃코너앵글
+
+// 추가/삭제 버튼 인덱스 저장
+static short	ADD_CELLS_FROM_BEGIN_AT_SIDE;
+static short	DEL_CELLS_FROM_BEGIN_AT_SIDE;
+static short	ADD_CELLS_FROM_END_AT_SIDE;
+static short	DEL_CELLS_FROM_END_AT_SIDE;
+static short	ADD_CELLS_FROM_BEGIN_AT_BOTTOM;
+static short	DEL_CELLS_FROM_BEGIN_AT_BOTTOM;
+static short	ADD_CELLS_FROM_END_AT_BOTTOM;
+static short	DEL_CELLS_FROM_END_AT_BOTTOM;
+
+// 여백 Edit 컨트롤 인덱스 저장
+static short	MARGIN_FROM_BEGIN_AT_SIDE;
+static short	MARGIN_FROM_END_AT_SIDE;
+static short	MARGIN_FROM_BEGIN_AT_BOTTOM;
+static short	MARGIN_FROM_END_AT_BOTTOM;
+
+// 여백 채움/비움 버튼 인덱스 저장
+static short	MARGIN_FILL_FROM_BEGIN_AT_SIDE;
+static short	MARGIN_EMPTY_FROM_BEGIN_AT_SIDE;
+static short	MARGIN_FILL_FROM_END_AT_SIDE;
+static short	MARGIN_EMPTY_FROM_END_AT_SIDE;
+static short	MARGIN_FILL_FROM_BEGIN_AT_BOTTOM;
+static short	MARGIN_EMPTY_FROM_BEGIN_AT_BOTTOM;
+static short	MARGIN_FILL_FROM_END_AT_BOTTOM;
+static short	MARGIN_EMPTY_FROM_END_AT_BOTTOM;
+
+// 배치 버튼 인덱스 저장
+static short	START_INDEX_FROM_BEGIN_AT_SIDE;
+static short	START_INDEX_CENTER_AT_SIDE;
+static short	START_INDEX_FROM_END_AT_SIDE;
+static short	START_INDEX_FROM_BEGIN_AT_BOTTOM;
+static short	START_INDEX_CENTER_AT_BOTTOM;
+static short	START_INDEX_FROM_END_AT_BOTTOM;
 
 // 3번 메뉴: 보에 유로폼을 배치하는 통합 루틴
 GSErrCode	placeEuroformOnBeam (void)
@@ -318,6 +351,9 @@ GSErrCode	placeEuroformOnBeam (void)
 	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32521, ACAPI_GetOwnResModule (), beamPlacerHandler1, 0);
 
+	if (result == DG_CANCEL)
+		return err;
+
 	// 작업 층 높이 반영
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	workLevel_beam = 0.0;
@@ -333,10 +369,18 @@ GSErrCode	placeEuroformOnBeam (void)
 	// 영역 정보의 고도 정보 수정
 	// ... placingZone.level = ???;
 
-	// !!! 이 아래부터 수정할 것 -- 1차 다이얼로그 대폭 수정할 것
+	// 1차 배치 설정
+	firstPlacingSettingsForBeam (&placingZone);
+
+	// !!! 이 아래부터 수정할 것
 	// [DIALOG] 2번째 다이얼로그에서 유로폼 배치를 수정합니다.
-	clickedOKButton = false;
-	result = DGBlankModalDialog (500, 300, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, beamPlacerHandler2, 0);
+	result = DGBlankModalDialog (500, 490, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, beamPlacerHandler2, 0);
+
+	if (result == DG_CANCEL)
+		return err;
+
+	// 1, 2번째 다이얼로그를 통해 입력된 데이터를 기반으로 객체를 배치
+	// ...
 
 	// 나머지 영역 채우기 - 합판, 목재
 	//err = fillRestAreasForBeam ();
@@ -456,345 +500,484 @@ void	initCellsForBeam (BeamPlacingZone* placingZone)
 	}
 }
 
-// 1차 배치 !!! - 필요없으면 폐기
-//void	firstPlacingSettingsForBeam (BeamPlacingZone* placingZone)
-//{
-	//short			xx;
-	//API_Coord3D		axisPoint, rotatedPoint, unrotatedPoint;
+// 1차 배치 설정
+void	firstPlacingSettingsForBeam (BeamPlacingZone* placingZone)
+{
+	short			xx, yy;
+	API_Coord3D		axisPoint, rotatedPoint, unrotatedPoint;
 
-	//double			centerPos;		// 중심 위치
-	//double			width;			// 간섭 보가 차지하는 너비
-	//double			remainLength;	// 남은 길이를 계산하기 위한 임시 변수
-	//double			xPos;			// 위치 커서
-	//double			accumDist;		// 이동 거리
-	//
-	//const double	formLength1 = 1.200;
-	//const double	formLength2 = 0.900;
-	//const double	formLength3 = 0.600;
-	//double			formLength;
-	//
-	//// 측면에서의 중심 위치 찾기
-	//if (placingZone->bInterfereBeam == true) {
-	//	centerPos = placingZone->posInterfereBeamFromLeft;	// 간섭 보의 중심 위치
-	//	width = placingZone->interfereBeamWidth;
-	//} else {
-	//	centerPos = placingZone->beamLength / 2;			// 간섭 보가 없으면 중심을 기준으로 함
-	//	width = 0.0;
-	//}
+	double			centerPos;		// 중심 위치
+	double			width;			// 간섭 보가 차지하는 너비
+	double			remainLength;	// 남은 길이를 계산하기 위한 임시 변수
+	double			xPos;			// 위치 커서
+	double			accumDist;		// 이동 거리
+	
+	const double	formLength1 = 1.200;
+	const double	formLength2 = 0.900;
+	const double	formLength3 = 0.600;
+	double			formLength;
+	
+	// 측면에서의 중심 위치 찾기
+	if (placingZone->bInterfereBeam == true) {
+		centerPos = placingZone->posInterfereBeamFromLeft;	// 간섭 보의 중심 위치
+		width = placingZone->interfereBeamWidth;
+	} else {
+		centerPos = placingZone->beamLength / 2;			// 간섭 보가 없으면 중심을 기준으로 함
+		width = 0.0;
+	}
 
-	//// 영역 높이에 따라 유로폼 너비를 자동으로 결정
-	//if ((placingZone->areaHeight - 0.050) >= 0.600)
-	//	placingZone->eu_wid_numeric_side = 0.600;
-	//else if ((placingZone->areaHeight - 0.050) >= 0.500)
-	//	placingZone->eu_wid_numeric_side = 0.500;
-	//else if ((placingZone->areaHeight - 0.050) >= 0.450)
-	//	placingZone->eu_wid_numeric_side = 0.450;
-	//else if ((placingZone->areaHeight - 0.050) >= 0.400)
-	//	placingZone->eu_wid_numeric_side = 0.400;
-	//else if ((placingZone->areaHeight - 0.050) >= 0.300)
-	//	placingZone->eu_wid_numeric_side = 0.300;
-	//else
-	//	placingZone->eu_wid_numeric_side = 0.200;
+	// (1-1) 측면 시작 부분
+	remainLength = centerPos - width/2;
+	while (remainLength >= 0.600) {
+		if (remainLength > formLength1) {
+			formLength = formLength1;
+			remainLength -= formLength1;
+		} else if (remainLength > formLength2) {
+			formLength = formLength2;
+			remainLength -= formLength2;
+		} else {
+			formLength = formLength3;
+			remainLength -= formLength3;
+		}
 
-	//// (1-1) 측면 시작 부분
-	//remainLength = centerPos - width/2;
-	//while (remainLength >= 0.600) {
-	//	if (remainLength > formLength1) {
-	//		formLength = formLength1;
-	//		remainLength -= formLength1;
-	//	} else if (remainLength > formLength2) {
-	//		formLength = formLength2;
-	//		remainLength -= formLength2;
-	//	} else {
-	//		formLength = formLength3;
-	//		remainLength -= formLength3;
-	//	}
+		// 측면 [0]
+		placingZone->cellsFromBeginAtLSide [0][placingZone->nCellsFromBeginAtSide].objType = EUROFORM;
+		placingZone->cellsFromBeginAtLSide [0][placingZone->nCellsFromBeginAtSide].dirLen = formLength;
+		placingZone->cellsFromBeginAtLSide [0][placingZone->nCellsFromBeginAtSide].libPart.form.eu_hei = formLength;
 
-	//	placingZone->cellsFromBeginAtLSide [placingZone->nCellsFromBeginAtSide].objType = EUROFORM;
-	//	placingZone->cellsFromBeginAtLSide [placingZone->nCellsFromBeginAtSide].ang = placingZone->ang + DegreeToRad (180.0);
-	//	placingZone->cellsFromBeginAtLSide [placingZone->nCellsFromBeginAtSide].dirLen = formLength;
-	//	placingZone->cellsFromBeginAtLSide [placingZone->nCellsFromBeginAtSide].perLen = placingZone->eu_wid_numeric_side;
-	//	placingZone->cellsFromBeginAtLSide [placingZone->nCellsFromBeginAtSide].attached_side = LEFT_SIDE;
-	//	placingZone->cellsFromBeginAtLSide [placingZone->nCellsFromBeginAtSide].libPart.form.eu_stan_onoff = true;
-	//	placingZone->cellsFromBeginAtLSide [placingZone->nCellsFromBeginAtSide].libPart.form.u_ins_wall = false;
-	//	placingZone->cellsFromBeginAtLSide [placingZone->nCellsFromBeginAtSide].libPart.form.eu_hei = formLength;
-	//	placingZone->cellsFromBeginAtLSide [placingZone->nCellsFromBeginAtSide].libPart.form.eu_wid = placingZone->eu_wid_numeric_side;
+		placingZone->cellsFromBeginAtRSide [0][placingZone->nCellsFromBeginAtSide].objType = EUROFORM;
+		placingZone->cellsFromBeginAtRSide [0][placingZone->nCellsFromBeginAtSide].dirLen = formLength;
+		placingZone->cellsFromBeginAtRSide [0][placingZone->nCellsFromBeginAtSide].libPart.form.eu_hei = formLength;
 
-	//	placingZone->cellsFromBeginAtRSide [placingZone->nCellsFromBeginAtSide].objType = EUROFORM;
-	//	placingZone->cellsFromBeginAtRSide [placingZone->nCellsFromBeginAtSide].ang = placingZone->ang;
-	//	placingZone->cellsFromBeginAtRSide [placingZone->nCellsFromBeginAtSide].dirLen = formLength;
-	//	placingZone->cellsFromBeginAtRSide [placingZone->nCellsFromBeginAtSide].perLen = placingZone->eu_wid_numeric_side;
-	//	placingZone->cellsFromBeginAtRSide [placingZone->nCellsFromBeginAtSide].attached_side = RIGHT_SIDE;
-	//	placingZone->cellsFromBeginAtRSide [placingZone->nCellsFromBeginAtSide].libPart.form.eu_stan_onoff = true;
-	//	placingZone->cellsFromBeginAtRSide [placingZone->nCellsFromBeginAtSide].libPart.form.u_ins_wall = false;
-	//	placingZone->cellsFromBeginAtRSide [placingZone->nCellsFromBeginAtSide].libPart.form.eu_hei = formLength;
-	//	placingZone->cellsFromBeginAtRSide [placingZone->nCellsFromBeginAtSide].libPart.form.eu_wid = placingZone->eu_wid_numeric_side;
+		// 측면 [1]
+		placingZone->cellsFromBeginAtLSide [1][placingZone->nCellsFromBeginAtSide].objType = FILLERSPACER;
+		placingZone->cellsFromBeginAtLSide [1][placingZone->nCellsFromBeginAtSide].dirLen = formLength;
+		placingZone->cellsFromBeginAtLSide [1][placingZone->nCellsFromBeginAtSide].libPart.fillersp.f_leng = formLength;
 
-	//	placingZone->nCellsFromBeginAtSide ++;
-	//}
+		placingZone->cellsFromBeginAtRSide [1][placingZone->nCellsFromBeginAtSide].objType = FILLERSPACER;
+		placingZone->cellsFromBeginAtRSide [1][placingZone->nCellsFromBeginAtSide].dirLen = formLength;
+		placingZone->cellsFromBeginAtRSide [1][placingZone->nCellsFromBeginAtSide].libPart.fillersp.f_leng = formLength;
 
-	//// 중심부터 끝으로 이동해야 함
-	//accumDist = 0.0;
-	//for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)
-	//	accumDist += placingZone->cellsFromBeginAtLSide [xx].dirLen;
+		// 측면 [2]
+		placingZone->cellsFromBeginAtLSide [2][placingZone->nCellsFromBeginAtSide].objType = EUROFORM;
+		placingZone->cellsFromBeginAtLSide [2][placingZone->nCellsFromBeginAtSide].dirLen = formLength;
+		placingZone->cellsFromBeginAtLSide [2][placingZone->nCellsFromBeginAtSide].libPart.form.eu_hei = formLength;
 
-	//// 위치 선정
-	//xPos = centerPos - width/2 - accumDist;
-	//for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx) {
-	//	// 좌측
-	//	placingZone->cellsFromBeginAtLSide [xx].leftBottomX = placingZone->begC.x + xPos + placingZone->cellsFromBeginAtLSide [xx].dirLen;
-	//	placingZone->cellsFromBeginAtLSide [xx].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gap;
-	//	placingZone->cellsFromBeginAtLSide [xx].leftBottomZ = placingZone->level - infoBeam.height;
-	//	
-	//	axisPoint.x = placingZone->begC.x;
-	//	axisPoint.y = placingZone->begC.y;
-	//	axisPoint.z = placingZone->begC.z;
+		placingZone->cellsFromBeginAtRSide [2][placingZone->nCellsFromBeginAtSide].objType = EUROFORM;
+		placingZone->cellsFromBeginAtRSide [2][placingZone->nCellsFromBeginAtSide].dirLen = formLength;
+		placingZone->cellsFromBeginAtRSide [2][placingZone->nCellsFromBeginAtSide].libPart.form.eu_hei = formLength;
 
-	//	rotatedPoint.x = placingZone->cellsFromBeginAtLSide [xx].leftBottomX;
-	//	rotatedPoint.y = placingZone->cellsFromBeginAtLSide [xx].leftBottomY;
-	//	rotatedPoint.z = placingZone->cellsFromBeginAtLSide [xx].leftBottomZ;
-	//	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+		// 측면 [3]
+		placingZone->cellsFromBeginAtLSide [3][placingZone->nCellsFromBeginAtSide].objType = WOOD;
+		placingZone->cellsFromBeginAtLSide [3][placingZone->nCellsFromBeginAtSide].dirLen = formLength;
+		placingZone->cellsFromBeginAtLSide [3][placingZone->nCellsFromBeginAtSide].libPart.wood.w_leng = formLength;
 
-	//	placingZone->cellsFromBeginAtLSide [xx].leftBottomX = unrotatedPoint.x;
-	//	placingZone->cellsFromBeginAtLSide [xx].leftBottomY = unrotatedPoint.y;
-	//	placingZone->cellsFromBeginAtLSide [xx].leftBottomZ = unrotatedPoint.z;
+		placingZone->cellsFromBeginAtRSide [3][placingZone->nCellsFromBeginAtSide].objType = WOOD;
+		placingZone->cellsFromBeginAtRSide [3][placingZone->nCellsFromBeginAtSide].dirLen = formLength;
+		placingZone->cellsFromBeginAtRSide [3][placingZone->nCellsFromBeginAtSide].libPart.wood.w_leng = formLength;
 
-	//	// 우측
-	//	placingZone->cellsFromBeginAtRSide [xx].leftBottomX = placingZone->begC.x + xPos;
-	//	placingZone->cellsFromBeginAtRSide [xx].leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gap;
-	//	placingZone->cellsFromBeginAtRSide [xx].leftBottomZ = placingZone->level - infoBeam.height;
+		placingZone->nCellsFromBeginAtSide ++;
+	}
 
-	//	axisPoint.x = placingZone->begC.x;
-	//	axisPoint.y = placingZone->begC.y;
-	//	axisPoint.z = placingZone->begC.z;
+	// 중심부터 끝으로 이동해야 함
+	accumDist = 0.0;
+	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)
+		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
 
-	//	rotatedPoint.x = placingZone->cellsFromBeginAtRSide [xx].leftBottomX;
-	//	rotatedPoint.y = placingZone->cellsFromBeginAtRSide [xx].leftBottomY;
-	//	rotatedPoint.z = placingZone->cellsFromBeginAtRSide [xx].leftBottomZ;
-	//	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+	// 위치 선정
+	xPos = centerPos - width/2 - accumDist;
+	for (xx = 0 ; xx < 4 ; ++xx) {
+		for (yy = 0 ; yy < placingZone->nCellsFromBeginAtSide ; ++yy) {
+			// 좌측
+			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomX = placingZone->begC.x + xPos + placingZone->cellsFromBeginAtLSide [xx][yy].dirLen;
+			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomZ = placingZone->level - infoBeam.height;
+		
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
 
-	//	placingZone->cellsFromBeginAtRSide [xx].leftBottomX = unrotatedPoint.x;
-	//	placingZone->cellsFromBeginAtRSide [xx].leftBottomY = unrotatedPoint.y;
-	//	placingZone->cellsFromBeginAtRSide [xx].leftBottomZ = unrotatedPoint.z;
+			rotatedPoint.x = placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomX;
+			rotatedPoint.y = placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomY;
+			rotatedPoint.z = placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-	//	// 거리 이동
-	//	xPos += placingZone->cellsFromBeginAtRSide [xx].dirLen;
-	//}
+			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomX = unrotatedPoint.x;
+			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomY = unrotatedPoint.y;
+			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomZ = unrotatedPoint.z;
 
-	//// (1-2) 측면 끝 부분
-	//remainLength = placingZone->beamLength - centerPos - width/2;
-	//while (remainLength >= 0.600) {
-	//	if (remainLength > formLength1) {
-	//		formLength = formLength1;
-	//		remainLength -= formLength1;
-	//	} else if (remainLength > formLength2) {
-	//		formLength = formLength2;
-	//		remainLength -= formLength2;
-	//	} else {
-	//		formLength = formLength3;
-	//		remainLength -= formLength3;
-	//	}
+			// 우측
+			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomX = placingZone->begC.x + xPos;
+			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomZ = placingZone->level - infoBeam.height;
 
-	//	placingZone->cellsFromEndAtLSide [placingZone->nCellsFromEndAtSide].objType = EUROFORM;
-	//	placingZone->cellsFromEndAtLSide [placingZone->nCellsFromEndAtSide].ang = placingZone->ang + DegreeToRad (180.0);
-	//	placingZone->cellsFromEndAtLSide [placingZone->nCellsFromEndAtSide].dirLen = formLength;
-	//	placingZone->cellsFromEndAtLSide [placingZone->nCellsFromEndAtSide].perLen = placingZone->eu_wid_numeric_side;
-	//	placingZone->cellsFromEndAtLSide [placingZone->nCellsFromEndAtSide].attached_side = LEFT_SIDE;
-	//	placingZone->cellsFromEndAtLSide [placingZone->nCellsFromEndAtSide].libPart.form.eu_stan_onoff = true;
-	//	placingZone->cellsFromEndAtLSide [placingZone->nCellsFromEndAtSide].libPart.form.u_ins_wall = false;
-	//	placingZone->cellsFromEndAtLSide [placingZone->nCellsFromEndAtSide].libPart.form.eu_hei = formLength;
-	//	placingZone->cellsFromEndAtLSide [placingZone->nCellsFromEndAtSide].libPart.form.eu_wid = placingZone->eu_wid_numeric_side;
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
 
-	//	placingZone->cellsFromEndAtRSide [placingZone->nCellsFromEndAtSide].objType = EUROFORM;
-	//	placingZone->cellsFromEndAtRSide [placingZone->nCellsFromEndAtSide].ang = placingZone->ang;
-	//	placingZone->cellsFromEndAtRSide [placingZone->nCellsFromEndAtSide].dirLen = formLength;
-	//	placingZone->cellsFromEndAtRSide [placingZone->nCellsFromEndAtSide].perLen = placingZone->eu_wid_numeric_side;
-	//	placingZone->cellsFromEndAtRSide [placingZone->nCellsFromEndAtSide].attached_side = RIGHT_SIDE;
-	//	placingZone->cellsFromEndAtRSide [placingZone->nCellsFromEndAtSide].libPart.form.eu_stan_onoff = true;
-	//	placingZone->cellsFromEndAtRSide [placingZone->nCellsFromEndAtSide].libPart.form.u_ins_wall = false;
-	//	placingZone->cellsFromEndAtRSide [placingZone->nCellsFromEndAtSide].libPart.form.eu_hei = formLength;
-	//	placingZone->cellsFromEndAtRSide [placingZone->nCellsFromEndAtSide].libPart.form.eu_wid = placingZone->eu_wid_numeric_side;
+			rotatedPoint.x = placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomX;
+			rotatedPoint.y = placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomY;
+			rotatedPoint.z = placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-	//	placingZone->nCellsFromEndAtSide ++;
-	//}
+			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomX = unrotatedPoint.x;
+			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomY = unrotatedPoint.y;
+			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomZ = unrotatedPoint.z;
 
-	//// 중심부터 끝으로 이동해야 함
-	//accumDist = 0.0;
-	//for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)
-	//	accumDist += placingZone->cellsFromEndAtLSide [xx].dirLen;
+			// 거리 이동
+			xPos += placingZone->cellsFromBeginAtRSide [xx][yy].dirLen;
+		}
+	}
 
-	//// 위치 선정
-	//xPos = centerPos + width/2 + accumDist;
-	//for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx) {
-	//	// 좌측
-	//	placingZone->cellsFromEndAtLSide [xx].leftBottomX = placingZone->begC.x + xPos;
-	//	placingZone->cellsFromEndAtLSide [xx].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gap;
-	//	placingZone->cellsFromEndAtLSide [xx].leftBottomZ = placingZone->level - infoBeam.height;
-	//	
-	//	axisPoint.x = placingZone->begC.x;
-	//	axisPoint.y = placingZone->begC.y;
-	//	axisPoint.z = placingZone->begC.z;
+	// (1-2) 측면 끝 부분
+	remainLength = placingZone->beamLength - centerPos - width/2;
+	while (remainLength >= 0.600) {
+		if (remainLength > formLength1) {
+			formLength = formLength1;
+			remainLength -= formLength1;
+		} else if (remainLength > formLength2) {
+			formLength = formLength2;
+			remainLength -= formLength2;
+		} else {
+			formLength = formLength3;
+			remainLength -= formLength3;
+		}
 
-	//	rotatedPoint.x = placingZone->cellsFromEndAtLSide [xx].leftBottomX;
-	//	rotatedPoint.y = placingZone->cellsFromEndAtLSide [xx].leftBottomY;
-	//	rotatedPoint.z = placingZone->cellsFromEndAtLSide [xx].leftBottomZ;
-	//	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+		// 측면 [0]
+		placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide].objType = EUROFORM;
+		placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide].dirLen = formLength;
+		placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide].libPart.form.eu_hei = formLength;
 
-	//	placingZone->cellsFromEndAtLSide [xx].leftBottomX = unrotatedPoint.x;
-	//	placingZone->cellsFromEndAtLSide [xx].leftBottomY = unrotatedPoint.y;
-	//	placingZone->cellsFromEndAtLSide [xx].leftBottomZ = unrotatedPoint.z;
+		placingZone->cellsFromEndAtRSide [0][placingZone->nCellsFromEndAtSide].objType = EUROFORM;
+		placingZone->cellsFromEndAtRSide [0][placingZone->nCellsFromEndAtSide].dirLen = formLength;
+		placingZone->cellsFromEndAtRSide [0][placingZone->nCellsFromEndAtSide].libPart.form.eu_hei = formLength;
 
-	//	// 우측
-	//	placingZone->cellsFromEndAtRSide [xx].leftBottomX = placingZone->begC.x + xPos - placingZone->cellsFromEndAtLSide [xx].dirLen;
-	//	placingZone->cellsFromEndAtRSide [xx].leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gap;
-	//	placingZone->cellsFromEndAtRSide [xx].leftBottomZ = placingZone->level - infoBeam.height;
+		// 측면 [1]
+		placingZone->cellsFromEndAtLSide [1][placingZone->nCellsFromEndAtSide].objType = FILLERSPACER;
+		placingZone->cellsFromEndAtLSide [1][placingZone->nCellsFromEndAtSide].dirLen = formLength;
+		placingZone->cellsFromEndAtLSide [1][placingZone->nCellsFromEndAtSide].libPart.fillersp.f_leng = formLength;
 
-	//	axisPoint.x = placingZone->begC.x;
-	//	axisPoint.y = placingZone->begC.y;
-	//	axisPoint.z = placingZone->begC.z;
+		placingZone->cellsFromEndAtRSide [1][placingZone->nCellsFromEndAtSide].objType = FILLERSPACER;
+		placingZone->cellsFromEndAtRSide [1][placingZone->nCellsFromEndAtSide].dirLen = formLength;
+		placingZone->cellsFromEndAtRSide [1][placingZone->nCellsFromEndAtSide].libPart.fillersp.f_leng = formLength;
 
-	//	rotatedPoint.x = placingZone->cellsFromEndAtRSide [xx].leftBottomX;
-	//	rotatedPoint.y = placingZone->cellsFromEndAtRSide [xx].leftBottomY;
-	//	rotatedPoint.z = placingZone->cellsFromEndAtRSide [xx].leftBottomZ;
-	//	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+		// 측면 [2]
+		placingZone->cellsFromEndAtLSide [2][placingZone->nCellsFromEndAtSide].objType = EUROFORM;
+		placingZone->cellsFromEndAtLSide [2][placingZone->nCellsFromEndAtSide].dirLen = formLength;
+		placingZone->cellsFromEndAtLSide [2][placingZone->nCellsFromEndAtSide].libPart.form.eu_hei = formLength;
 
-	//	placingZone->cellsFromEndAtRSide [xx].leftBottomX = unrotatedPoint.x;
-	//	placingZone->cellsFromEndAtRSide [xx].leftBottomY = unrotatedPoint.y;
-	//	placingZone->cellsFromEndAtRSide [xx].leftBottomZ = unrotatedPoint.z;
+		placingZone->cellsFromEndAtRSide [2][placingZone->nCellsFromEndAtSide].objType = EUROFORM;
+		placingZone->cellsFromEndAtRSide [2][placingZone->nCellsFromEndAtSide].dirLen = formLength;
+		placingZone->cellsFromEndAtRSide [2][placingZone->nCellsFromEndAtSide].libPart.form.eu_hei = formLength;
 
-	//	// 거리 이동
-	//	xPos -= placingZone->cellsFromEndAtRSide [xx].dirLen;
-	//}
+		// 측면 [3]
+		placingZone->cellsFromEndAtLSide [3][placingZone->nCellsFromEndAtSide].objType = WOOD;
+		placingZone->cellsFromEndAtLSide [3][placingZone->nCellsFromEndAtSide].dirLen = formLength;
+		placingZone->cellsFromEndAtLSide [3][placingZone->nCellsFromEndAtSide].libPart.wood.w_leng = formLength;
 
-	//// 보 너비에 따라 유로폼 너비를 자동으로 결정
-	//if (infoBeam.width >= 0.600)
-	//	placingZone->eu_wid_numeric_bottom = 0.600;
-	//else if (infoBeam.width >= 0.500)
-	//	placingZone->eu_wid_numeric_bottom = 0.500;
-	//else if (infoBeam.width >= 0.450)
-	//	placingZone->eu_wid_numeric_bottom = 0.450;
-	//else if (infoBeam.width >= 0.400)
-	//	placingZone->eu_wid_numeric_bottom = 0.400;
-	//else if (infoBeam.width >= 0.300)
-	//	placingZone->eu_wid_numeric_bottom = 0.300;
-	//else
-	//	placingZone->eu_wid_numeric_bottom = 0.200;
+		placingZone->cellsFromEndAtRSide [3][placingZone->nCellsFromEndAtSide].objType = WOOD;
+		placingZone->cellsFromEndAtRSide [3][placingZone->nCellsFromEndAtSide].dirLen = formLength;
+		placingZone->cellsFromEndAtRSide [3][placingZone->nCellsFromEndAtSide].libPart.wood.w_leng = formLength;
 
-	//// (2-1) 하부 시작 부분
-	//remainLength = centerPos - width/2;
-	//while (remainLength >= 0.600) {
-	//	if (remainLength > formLength1) {
-	//		formLength = formLength1;
-	//		remainLength -= formLength1;
-	//	} else if (remainLength > formLength2) {
-	//		formLength = formLength2;
-	//		remainLength -= formLength2;
-	//	} else {
-	//		formLength = formLength3;
-	//		remainLength -= formLength3;
-	//	}
+		placingZone->nCellsFromEndAtSide ++;
+	}
 
-	//	placingZone->cellsFromBeginAtBottom [placingZone->nCellsFromBeginAtBottom].objType = EUROFORM;
-	//	placingZone->cellsFromBeginAtBottom [placingZone->nCellsFromBeginAtBottom].ang = placingZone->ang;
-	//	placingZone->cellsFromBeginAtBottom [placingZone->nCellsFromBeginAtBottom].dirLen = formLength;
-	//	placingZone->cellsFromBeginAtBottom [placingZone->nCellsFromBeginAtBottom].perLen = placingZone->eu_wid_numeric_bottom;
-	//	placingZone->cellsFromBeginAtBottom [placingZone->nCellsFromBeginAtBottom].attached_side = BOTTOM_SIDE;
-	//	placingZone->cellsFromBeginAtBottom [placingZone->nCellsFromBeginAtBottom].libPart.form.eu_stan_onoff = true;
-	//	placingZone->cellsFromBeginAtBottom [placingZone->nCellsFromBeginAtBottom].libPart.form.u_ins_wall = false;
-	//	placingZone->cellsFromBeginAtBottom [placingZone->nCellsFromBeginAtBottom].libPart.form.eu_hei = formLength;
-	//	placingZone->cellsFromBeginAtBottom [placingZone->nCellsFromBeginAtBottom].libPart.form.eu_wid = placingZone->eu_wid_numeric_bottom;
+	// 중심부터 끝으로 이동해야 함
+	accumDist = 0.0;
+	for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)
+		accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
 
-	//	placingZone->nCellsFromBeginAtBottom ++;
-	//}
+	// 위치 선정
+	xPos = centerPos + width/2 + accumDist;
+	for (xx = 0 ; xx < 4 ; ++xx) {
+		for (yy = 0 ; yy < placingZone->nCellsFromBeginAtSide ; ++yy) {
+			// 좌측
+			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomX = placingZone->begC.x + xPos;
+			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomZ = placingZone->level - infoBeam.height;
+			
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
 
-	//// 중심부터 끝으로 이동해야 함
-	//accumDist = 0.0;
-	//for (xx = 0 ; xx < placingZone->nCellsFromBeginAtBottom ; ++xx)
-	//	accumDist += placingZone->cellsFromBeginAtBottom [xx].dirLen;
+			rotatedPoint.x = placingZone->cellsFromEndAtLSide [xx][yy].leftBottomX;
+			rotatedPoint.y = placingZone->cellsFromEndAtLSide [xx][yy].leftBottomY;
+			rotatedPoint.z = placingZone->cellsFromEndAtLSide [xx][yy].leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-	//// 위치 선정
-	//xPos = centerPos - width/2 - accumDist;
-	//for (xx = 0 ; xx < placingZone->nCellsFromBeginAtBottom ; ++xx) {
-	//	placingZone->cellsFromBeginAtBottom [xx].leftBottomX = placingZone->begC.x + xPos;
-	//	placingZone->cellsFromBeginAtBottom [xx].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gap;
-	//	placingZone->cellsFromBeginAtBottom [xx].leftBottomZ = placingZone->level - infoBeam.height;
-	//	
-	//	axisPoint.x = placingZone->begC.x;
-	//	axisPoint.y = placingZone->begC.y;
-	//	axisPoint.z = placingZone->begC.z;
+			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomX = unrotatedPoint.x;
+			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomY = unrotatedPoint.y;
+			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomZ = unrotatedPoint.z;
 
-	//	rotatedPoint.x = placingZone->cellsFromBeginAtBottom [xx].leftBottomX;
-	//	rotatedPoint.y = placingZone->cellsFromBeginAtBottom [xx].leftBottomY;
-	//	rotatedPoint.z = placingZone->cellsFromBeginAtBottom [xx].leftBottomZ;
-	//	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+			// 우측
+			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomX = placingZone->begC.x + xPos - placingZone->cellsFromEndAtLSide [xx][yy].dirLen;
+			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomZ = placingZone->level - infoBeam.height;
 
-	//	placingZone->cellsFromBeginAtBottom [xx].leftBottomX = unrotatedPoint.x;
-	//	placingZone->cellsFromBeginAtBottom [xx].leftBottomY = unrotatedPoint.y;
-	//	placingZone->cellsFromBeginAtBottom [xx].leftBottomZ = unrotatedPoint.z;
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
 
-	//	// 거리 이동
-	//	xPos += placingZone->cellsFromBeginAtBottom [xx].dirLen;
-	//}
+			rotatedPoint.x = placingZone->cellsFromEndAtRSide [xx][yy].leftBottomX;
+			rotatedPoint.y = placingZone->cellsFromEndAtRSide [xx][yy].leftBottomY;
+			rotatedPoint.z = placingZone->cellsFromEndAtRSide [xx][yy].leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-	//// (2-2) 하부 끝 부분
-	//remainLength = placingZone->beamLength - centerPos - width/2;
-	//while (remainLength >= 0.600) {
-	//	if (remainLength > formLength1) {
-	//		formLength = formLength1;
-	//		remainLength -= formLength1;
-	//	} else if (remainLength > formLength2) {
-	//		formLength = formLength2;
-	//		remainLength -= formLength2;
-	//	} else {
-	//		formLength = formLength3;
-	//		remainLength -= formLength3;
-	//	}
+			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomX = unrotatedPoint.x;
+			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomY = unrotatedPoint.y;
+			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomZ = unrotatedPoint.z;
 
-	//	placingZone->cellsFromEndAtBottom [placingZone->nCellsFromEndAtBottom].objType = EUROFORM;
-	//	placingZone->cellsFromEndAtBottom [placingZone->nCellsFromEndAtBottom].ang = placingZone->ang;
-	//	placingZone->cellsFromEndAtBottom [placingZone->nCellsFromEndAtBottom].dirLen = formLength;
-	//	placingZone->cellsFromEndAtBottom [placingZone->nCellsFromEndAtBottom].perLen = placingZone->eu_wid_numeric_bottom;
-	//	placingZone->cellsFromEndAtBottom [placingZone->nCellsFromEndAtBottom].attached_side = BOTTOM_SIDE;
-	//	placingZone->cellsFromEndAtBottom [placingZone->nCellsFromEndAtBottom].libPart.form.eu_stan_onoff = true;
-	//	placingZone->cellsFromEndAtBottom [placingZone->nCellsFromEndAtBottom].libPart.form.u_ins_wall = false;
-	//	placingZone->cellsFromEndAtBottom [placingZone->nCellsFromEndAtBottom].libPart.form.eu_hei = formLength;
-	//	placingZone->cellsFromEndAtBottom [placingZone->nCellsFromEndAtBottom].libPart.form.eu_wid = placingZone->eu_wid_numeric_bottom;
+			// 거리 이동
+			xPos -= placingZone->cellsFromEndAtRSide [xx][yy].dirLen;
+		}
+	}
 
-	//	placingZone->nCellsFromEndAtBottom ++;
-	//}
+	// (1-3) 측면 중앙
+	if (placingZone->bInterfereBeam == true) {
+		placingZone->cellCenterAtLSide [0].objType = EUROFORM;
+		placingZone->cellCenterAtLSide [0].dirLen = width;
+		placingZone->cellCenterAtLSide [0].libPart.form.eu_hei = width;
 
-	//// 중심부터 끝으로 이동해야 함
-	//accumDist = 0.0;
-	//for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
-	//	accumDist += placingZone->cellsFromEndAtBottom [xx].dirLen;
+		placingZone->cellCenterAtRSide [0].objType = EUROFORM;
+		placingZone->cellCenterAtRSide [0].dirLen = width;
+		placingZone->cellCenterAtRSide [0].libPart.form.eu_hei = width;
 
-	//// 위치 선정
-	//xPos = centerPos + width/2 + accumDist;
-	//for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx) {
-	//	placingZone->cellsFromEndAtBottom [xx].leftBottomX = placingZone->begC.x + xPos - placingZone->cellsFromEndAtLSide [xx].dirLen;
-	//	placingZone->cellsFromEndAtBottom [xx].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gap;
-	//	placingZone->cellsFromEndAtBottom [xx].leftBottomZ = placingZone->level - infoBeam.height;
-	//	
-	//	axisPoint.x = placingZone->begC.x;
-	//	axisPoint.y = placingZone->begC.y;
-	//	axisPoint.z = placingZone->begC.z;
+		placingZone->cellCenterAtLSide [1].objType = FILLERSPACER;
+		placingZone->cellCenterAtLSide [1].dirLen = width;
+		placingZone->cellCenterAtLSide [1].libPart.fillersp.f_leng = width;
 
-	//	rotatedPoint.x = placingZone->cellsFromEndAtBottom [xx].leftBottomX;
-	//	rotatedPoint.y = placingZone->cellsFromEndAtBottom [xx].leftBottomY;
-	//	rotatedPoint.z = placingZone->cellsFromEndAtBottom [xx].leftBottomZ;
-	//	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+		placingZone->cellCenterAtRSide [1].objType = FILLERSPACER;
+		placingZone->cellCenterAtRSide [1].dirLen = width;
+		placingZone->cellCenterAtRSide [1].libPart.fillersp.f_leng = width;
 
-	//	placingZone->cellsFromEndAtBottom [xx].leftBottomX = unrotatedPoint.x;
-	//	placingZone->cellsFromEndAtBottom [xx].leftBottomY = unrotatedPoint.y;
-	//	placingZone->cellsFromEndAtBottom [xx].leftBottomZ = unrotatedPoint.z;
+		placingZone->cellCenterAtLSide [2].objType = EUROFORM;
+		placingZone->cellCenterAtLSide [2].dirLen = width;
+		placingZone->cellCenterAtLSide [2].libPart.form.eu_hei = width;
 
-	//	// 거리 이동
-	//	xPos -= placingZone->cellsFromEndAtBottom [xx].dirLen;
-	//}
+		placingZone->cellCenterAtRSide [2].objType = EUROFORM;
+		placingZone->cellCenterAtRSide [2].dirLen = width;
+		placingZone->cellCenterAtRSide [2].libPart.form.eu_hei = width;
 
-	//// 여백 값 업데이트
-	//// ...
-//}
+		placingZone->cellCenterAtLSide [3].objType = WOOD;
+		placingZone->cellCenterAtLSide [3].dirLen = width;
+		placingZone->cellCenterAtLSide [3].libPart.wood.w_leng = width;
+
+		placingZone->cellCenterAtRSide [3].objType = WOOD;
+		placingZone->cellCenterAtRSide [3].dirLen = width;
+		placingZone->cellCenterAtRSide [3].libPart.wood.w_leng = width;
+	}
+
+	// 위치 선정
+	xPos = centerPos - width/2;
+	for (xx = 0 ; xx < 4 ; ++xx) {
+		// 좌측
+		placingZone->cellCenterAtLSide [xx].leftBottomX = placingZone->begC.x + xPos + placingZone->cellCenterAtLSide [xx].dirLen;
+		placingZone->cellCenterAtLSide [xx].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+		placingZone->cellCenterAtLSide [xx].leftBottomZ = placingZone->level - infoBeam.height;
+		
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = placingZone->cellCenterAtLSide [xx].leftBottomX;
+		rotatedPoint.y = placingZone->cellCenterAtLSide [xx].leftBottomY;
+		rotatedPoint.z = placingZone->cellCenterAtLSide [xx].leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		placingZone->cellCenterAtLSide [xx].leftBottomX = unrotatedPoint.x;
+		placingZone->cellCenterAtLSide [xx].leftBottomY = unrotatedPoint.y;
+		placingZone->cellCenterAtLSide [xx].leftBottomZ = unrotatedPoint.z;
+
+		// 우측
+		placingZone->cellCenterAtRSide [xx].leftBottomX = placingZone->begC.x + xPos;
+		placingZone->cellCenterAtRSide [xx].leftBottomX = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+		placingZone->cellCenterAtRSide [xx].leftBottomX = placingZone->level - infoBeam.height;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = placingZone->cellCenterAtRSide [xx].leftBottomX;
+		rotatedPoint.y = placingZone->cellCenterAtRSide [xx].leftBottomY;
+		rotatedPoint.z = placingZone->cellCenterAtRSide [xx].leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		placingZone->cellCenterAtRSide [xx].leftBottomX = unrotatedPoint.x;
+		placingZone->cellCenterAtRSide [xx].leftBottomY = unrotatedPoint.y;
+		placingZone->cellCenterAtRSide [xx].leftBottomZ = unrotatedPoint.z;
+
+		// 거리 이동
+		xPos += placingZone->cellCenterAtRSide [xx].dirLen;
+	}
+
+	// (2-1) 하부 시작 부분
+	remainLength = centerPos - width/2;
+	while (remainLength >= 0.600) {
+		if (remainLength > formLength1) {
+			formLength = formLength1;
+			remainLength -= formLength1;
+		} else if (remainLength > formLength2) {
+			formLength = formLength2;
+			remainLength -= formLength2;
+		} else {
+			formLength = formLength3;
+			remainLength -= formLength3;
+		}
+
+		// 하부 [0]
+		placingZone->cellsFromBeginAtBottom [0][placingZone->nCellsFromBeginAtBottom].objType = EUROFORM;
+		placingZone->cellsFromBeginAtBottom [0][placingZone->nCellsFromBeginAtBottom].dirLen = formLength;
+		placingZone->cellsFromBeginAtBottom [0][placingZone->nCellsFromBeginAtBottom].libPart.form.eu_hei = formLength;
+
+		// 하부 [1]
+		placingZone->cellsFromBeginAtBottom [1][placingZone->nCellsFromBeginAtBottom].objType = FILLERSPACER;
+		placingZone->cellsFromBeginAtBottom [1][placingZone->nCellsFromBeginAtBottom].dirLen = formLength;
+		placingZone->cellsFromBeginAtBottom [1][placingZone->nCellsFromBeginAtBottom].libPart.fillersp.f_leng = formLength;
+
+		// 하부 [2]
+		placingZone->cellsFromBeginAtBottom [2][placingZone->nCellsFromBeginAtBottom].objType = EUROFORM;
+		placingZone->cellsFromBeginAtBottom [2][placingZone->nCellsFromBeginAtBottom].dirLen = formLength;
+		placingZone->cellsFromBeginAtBottom [2][placingZone->nCellsFromBeginAtBottom].libPart.form.eu_hei = formLength;
+
+		placingZone->nCellsFromBeginAtBottom ++;
+	}
+
+	// 중심부터 끝으로 이동해야 함
+	accumDist = 0.0;
+	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtBottom ; ++xx)
+		accumDist += placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
+
+	// 위치 선정
+	xPos = centerPos - width/2 - accumDist;
+	for (xx = 0 ; xx < 3 ; ++xx) {
+		for (yy = 0 ; yy < placingZone->nCellsFromBeginAtSide ; ++yy) {
+			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomX = placingZone->begC.x + xPos;
+			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapBottom;
+			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomZ = placingZone->level - infoBeam.height;
+			
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomX;
+			rotatedPoint.y = placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomY;
+			rotatedPoint.z = placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomX = unrotatedPoint.x;
+			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomY = unrotatedPoint.y;
+			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomZ = unrotatedPoint.z;
+
+			// 거리 이동
+			xPos += placingZone->cellsFromBeginAtBottom [xx][yy].dirLen;
+		}
+	}
+
+	// (2-2) 하부 끝 부분
+	remainLength = placingZone->beamLength - centerPos - width/2;
+	while (remainLength >= 0.600) {
+		if (remainLength > formLength1) {
+			formLength = formLength1;
+			remainLength -= formLength1;
+		} else if (remainLength > formLength2) {
+			formLength = formLength2;
+			remainLength -= formLength2;
+		} else {
+			formLength = formLength3;
+			remainLength -= formLength3;
+		}
+
+		// 하부 [0]
+		placingZone->cellsFromEndAtBottom [0][placingZone->nCellsFromEndAtBottom].objType = EUROFORM;
+		placingZone->cellsFromEndAtBottom [0][placingZone->nCellsFromEndAtBottom].dirLen = formLength;
+		placingZone->cellsFromEndAtBottom [0][placingZone->nCellsFromEndAtBottom].libPart.form.eu_hei = formLength;
+
+		// 하부 [1]
+		placingZone->cellsFromEndAtBottom [1][placingZone->nCellsFromEndAtBottom].objType = FILLERSPACER;
+		placingZone->cellsFromEndAtBottom [1][placingZone->nCellsFromEndAtBottom].dirLen = formLength;
+		placingZone->cellsFromEndAtBottom [1][placingZone->nCellsFromEndAtBottom].libPart.fillersp.f_leng = formLength;
+
+		// 하부 [2]
+		placingZone->cellsFromEndAtBottom [2][placingZone->nCellsFromEndAtBottom].objType = EUROFORM;
+		placingZone->cellsFromEndAtBottom [2][placingZone->nCellsFromEndAtBottom].dirLen = formLength;
+		placingZone->cellsFromEndAtBottom [2][placingZone->nCellsFromEndAtBottom].libPart.form.eu_hei = formLength;
+
+		placingZone->nCellsFromEndAtBottom ++;
+	}
+
+	// 중심부터 끝으로 이동해야 함
+	accumDist = 0.0;
+	for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
+		accumDist += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+
+	// 위치 선정
+	xPos = centerPos + width/2 + accumDist;
+	for (xx = 0 ; xx < 3 ; ++xx) {
+		for (yy = 0 ; yy < placingZone->nCellsFromEndAtBottom ; ++yy) {
+			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomX = placingZone->begC.x + xPos - placingZone->cellsFromEndAtLSide [xx][yy].dirLen;
+			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapBottom;
+			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomZ = placingZone->level - infoBeam.height;
+			
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = placingZone->cellsFromEndAtBottom [xx][yy].leftBottomX;
+			rotatedPoint.y = placingZone->cellsFromEndAtBottom [xx][yy].leftBottomY;
+			rotatedPoint.z = placingZone->cellsFromEndAtBottom [xx][yy].leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomX = unrotatedPoint.x;
+			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomY = unrotatedPoint.y;
+			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomZ = unrotatedPoint.z;
+
+			// 거리 이동
+			xPos -= placingZone->cellsFromEndAtBottom [xx][yy].dirLen;
+		}
+	}
+
+	// (2-3) 하부 중앙
+	if (placingZone->bInterfereBeam == true) {
+		placingZone->cellCenterAtBottom [0].objType = EUROFORM;
+		placingZone->cellCenterAtBottom [0].dirLen = width;
+		placingZone->cellCenterAtBottom [0].libPart.form.eu_hei = width;
+
+		placingZone->cellCenterAtBottom [1].objType = FILLERSPACER;
+		placingZone->cellCenterAtBottom [1].dirLen = width;
+		placingZone->cellCenterAtBottom [1].libPart.fillersp.f_leng = width;
+
+		placingZone->cellCenterAtBottom [2].objType = EUROFORM;
+		placingZone->cellCenterAtBottom [2].dirLen = width;
+		placingZone->cellCenterAtBottom [2].libPart.form.eu_hei = width;
+	}
+
+	// 위치 선정
+	xPos = centerPos - width/2;
+	for (xx = 0 ; xx < 3 ; ++xx) {
+		placingZone->cellCenterAtBottom [xx].leftBottomX = placingZone->begC.x + xPos;
+		placingZone->cellCenterAtBottom [xx].leftBottomX = placingZone->begC.y - infoBeam.width/2 - placingZone->gapBottom;
+		placingZone->cellCenterAtBottom [xx].leftBottomX = placingZone->level - infoBeam.height;
+		
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = placingZone->cellCenterAtBottom [xx].leftBottomX;
+		rotatedPoint.y = placingZone->cellCenterAtBottom [xx].leftBottomY;
+		rotatedPoint.z = placingZone->cellCenterAtBottom [xx].leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		placingZone->cellCenterAtBottom [xx].leftBottomX = unrotatedPoint.x;
+		placingZone->cellCenterAtBottom [xx].leftBottomY = unrotatedPoint.y;
+		placingZone->cellCenterAtBottom [xx].leftBottomZ = unrotatedPoint.z;
+
+		// 거리 이동
+		xPos += placingZone->cellCenterAtBottom [xx].dirLen;
+	}
+
+	// 여백 값 업데이트
+	// ...
+}
 
 // 측면 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
 void		addNewColFromBeginAtSide (BeamPlacingZone* target_zone)
@@ -981,7 +1164,7 @@ API_Guid	placeLibPartForBeam (CellForBeam objInfo)
 			}
 		}
 		GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
-		
+
 		// 회전X
 		if (objInfo.attached_side == BOTTOM_SIDE)
 			memo.params [0][33].value.real = DegreeToRad (0.0);
@@ -990,8 +1173,10 @@ API_Guid	placeLibPartForBeam (CellForBeam objInfo)
 
 	} else if (objInfo.objType == FILLERSPACER) {
 		element.header.layer = layerInd_Fillerspacer;
-		//memo.params [0][27].value.real = objInfo.libPart.fillersp.f_thk;	// 두께
-		//memo.params [0][28].value.real = objInfo.libPart.fillersp.f_leng;	// 길이
+		memo.params [0][27].value.real = objInfo.libPart.fillersp.f_thk;	// 두께
+		memo.params [0][28].value.real = objInfo.libPart.fillersp.f_leng;	// 길이
+		memo.params [0][29].value.real = objInfo.libPart.fillersp.f_ang;	// 각도
+		memo.params [0][30].value.real = objInfo.libPart.fillersp.f_rota;	// 회전
 		//element.object.pos.x += ( objInfo.libPart.fillersp.f_thk * cos(objInfo.ang) );
 		//element.object.pos.y += ( objInfo.libPart.fillersp.f_thk * sin(objInfo.ang) );
 
@@ -1002,7 +1187,7 @@ API_Guid	placeLibPartForBeam (CellForBeam objInfo)
 		GS::ucscpy (memo.params [0][34].value.uStr, L("11.5T"));
 		memo.params [0][35].value.real = objInfo.libPart.plywood.p_wid;		// 가로
 		memo.params [0][36].value.real = objInfo.libPart.plywood.p_leng;	// 세로
-		memo.params [0][38].value.real = FALSE;		// 제작틀 OFF
+		memo.params [0][38].value.real = TRUE;		// 제작틀 ON
 		
 	} else if (objInfo.objType == WOOD) {
 		element.header.layer = layerInd_Wood;
@@ -1014,7 +1199,8 @@ API_Guid	placeLibPartForBeam (CellForBeam objInfo)
 	
 	} else if (objInfo.objType == OUTCORNER_ANGLE) {
 		element.header.layer = layerInd_OutcornerAngle;
-		// ...
+		memo.params [0][27].value.real = objInfo.libPart.outangle.a_leng;	// 길이
+		memo.params [0][28].value.real = objInfo.libPart.outangle.a_ang;	// 각도
 	}
 
 	// 객체 배치
@@ -1114,10 +1300,14 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 			(DGGetItemValLong (dialogID, CHECKBOX_WOOD_SIDE) == TRUE) ?		DGEnableItem (dialogID, EDITCONTROL_WOOD_SIDE)		:	DGDisableItem (dialogID, EDITCONTROL_WOOD_SIDE);
 			(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_SIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_SIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_SIDE);
 			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_SIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_SIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_SIDE);
-			(DGGetItemValLong (dialogID, CHECKBOX_B_FORM_SIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_B_FORM_SIDE)			:	DGDisableItem (dialogID, POPUP_B_FORM_SIDE);
-			(DGGetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_L_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_L_FORM_BOTTOM);
 			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_BOTTOM)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_BOTTOM);
 			(DGGetItemValLong (dialogID, CHECKBOX_R_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_R_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_R_FORM_BOTTOM);
+
+			// 측면 0번, 하부 0번 셀은 무조건 사용해야 함
+			DGSetItemValLong (dialogID, CHECKBOX_B_FORM_SIDE, TRUE);
+			DGSetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM, TRUE);
+			DGDisableItem (dialogID, CHECKBOX_B_FORM_SIDE);
+			DGDisableItem (dialogID, CHECKBOX_L_FORM_BOTTOM);
 
 			// 나머지 값 계산
 			h1 = 0;
@@ -1376,47 +1566,53 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 					if (DGGetItemValLong (dialogID, CHECKBOX_WOOD_SIDE) == TRUE) {
 						for (xx = 0 ; xx < 20 ; ++xx) {
 							// 좌측 [3]
-							placingZone.cellsFromBeginAtLSide [3][xx].objType = EUROFORM;
+							placingZone.cellsFromBeginAtLSide [3][xx].objType = WOOD;
 							placingZone.cellsFromBeginAtLSide [3][xx].attached_side = LEFT_SIDE;
 							placingZone.cellsFromBeginAtLSide [3][xx].ang = placingZone.ang + DegreeToRad (180.0);
 							placingZone.cellsFromBeginAtLSide [3][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
 							placingZone.cellsFromBeginAtLSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
+							placingZone.cellsFromBeginAtLSide [3][xx].libPart.wood.w_w = 0.064;
 							placingZone.cellsFromBeginAtLSide [3][xx].libPart.wood.w_ang = 0.0;
 
-							placingZone.cellsFromEndAtLSide [3][xx].objType = EUROFORM;
+							placingZone.cellsFromEndAtLSide [3][xx].objType = WOOD;
 							placingZone.cellsFromEndAtLSide [3][xx].attached_side = LEFT_SIDE;
 							placingZone.cellsFromEndAtLSide [3][xx].ang = placingZone.ang + DegreeToRad (180.0);
 							placingZone.cellsFromEndAtLSide [3][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
 							placingZone.cellsFromEndAtLSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
+							placingZone.cellsFromEndAtLSide [3][xx].libPart.wood.w_w = 0.064;
 							placingZone.cellsFromEndAtLSide [3][xx].libPart.wood.w_ang = 0.0;
 
-							placingZone.cellCenterAtLSide [3].objType = EUROFORM;
+							placingZone.cellCenterAtLSide [3].objType = WOOD;
 							placingZone.cellCenterAtLSide [3].attached_side = LEFT_SIDE;
 							placingZone.cellCenterAtLSide [3].ang = placingZone.ang + DegreeToRad (180.0);
 							placingZone.cellCenterAtLSide [3].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
 							placingZone.cellCenterAtLSide [3].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
+							placingZone.cellCenterAtLSide [3].libPart.wood.w_w = 0.064;
 							placingZone.cellCenterAtLSide [3].libPart.wood.w_ang = 0.0;
 
 							// 우측 [3]
-							placingZone.cellsFromBeginAtRSide [3][xx].objType = EUROFORM;
+							placingZone.cellsFromBeginAtRSide [3][xx].objType = WOOD;
 							placingZone.cellsFromBeginAtRSide [3][xx].attached_side = RIGHT_SIDE;
 							placingZone.cellsFromBeginAtRSide [3][xx].ang = placingZone.ang;
 							placingZone.cellsFromBeginAtRSide [3][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
 							placingZone.cellsFromBeginAtRSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
+							placingZone.cellsFromBeginAtRSide [3][xx].libPart.wood.w_w = 0.064;
 							placingZone.cellsFromBeginAtRSide [3][xx].libPart.wood.w_ang = 0.0;
 
-							placingZone.cellsFromEndAtRSide [3][xx].objType = EUROFORM;
+							placingZone.cellsFromEndAtRSide [3][xx].objType = WOOD;
 							placingZone.cellsFromEndAtRSide [3][xx].attached_side = RIGHT_SIDE;
 							placingZone.cellsFromEndAtRSide [3][xx].ang = placingZone.ang;
 							placingZone.cellsFromEndAtRSide [3][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
 							placingZone.cellsFromEndAtRSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
+							placingZone.cellsFromEndAtRSide [3][xx].libPart.wood.w_w = 0.064;
 							placingZone.cellsFromEndAtRSide [3][xx].libPart.wood.w_ang = 0.0;
 
-							placingZone.cellCenterAtRSide [3].objType = EUROFORM;
+							placingZone.cellCenterAtRSide [3].objType = WOOD;
 							placingZone.cellCenterAtRSide [3].attached_side = RIGHT_SIDE;
 							placingZone.cellCenterAtRSide [3].ang = placingZone.ang;
 							placingZone.cellCenterAtRSide [3].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
 							placingZone.cellCenterAtRSide [3].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
+							placingZone.cellCenterAtRSide [3].libPart.wood.w_w = 0.064;
 							placingZone.cellCenterAtRSide [3].libPart.wood.w_ang = 0.0;
 						}
 					}
@@ -1545,16 +1741,12 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short	result;
-	//short	btnSizeX = 50, btnSizeY = 50;
-	//short	dialogSizeX, dialogSizeY;
-	//short	btnInitPosX = 220 + 25;
-	//short	btnPosX, btnPosY;
-	//short	xx, yy;
-	//short	idxBtn;
-	//short	lastIdxBtn = 0;
-	//std::string		txtButton = "";
-	//API_Element		elem;
-	//GSErrCode		err;
+	short	itmIdx;
+	short	btnSizeX = 50, btnSizeY = 50;
+	short	dialogSizeX, dialogSizeY;
+	short	btnPosX, btnPosY;
+	short	xx;
+	std::string		txtButton = "";
 
 	switch (message) {
 		case DG_MSG_INIT:
@@ -1563,114 +1755,309 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 확인 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 100, 250, 130, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 30, 390, 100, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_OK, "2. 배  치");
+			DGSetItemText (dialogID, DG_OK, "확인");
 			DGShowItem (dialogID, DG_OK);
 
 			// 취소 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 300, 250, 130, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 30, 430, 100, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "3. 자투리 채우기");
+			DGSetItemText (dialogID, DG_CANCEL, "취소");
 			DGShowItem (dialogID, DG_CANCEL);
 
-			// "1. 남은 길이 확인"
+			// 업데이트 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 30, 350, 100, 25);
+			DGSetItemFont (dialogID, DG_UPDATE_BUTTON, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_UPDATE_BUTTON, "업데이트");
+			DGShowItem (dialogID, DG_UPDATE_BUTTON);
 
-			//// 라벨: 남은 가로 길이
-			//DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 30, 20, 90, 23);
-			//if ( ((placingZone.remain_hor_updated / 2) >= 0.150) && ((placingZone.remain_hor_updated / 2) <= 0.300) )
-			//	DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
-			//else
-			//	DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, "좌우 여백");
-			//DGShowItem (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH);
+			// 라벨: 보 우측면/화부면
+			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 10, 10, 100, 23);
+			DGSetItemFont (dialogID, LABEL_BEAM_SIDE_BOTTOM, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_BEAM_SIDE_BOTTOM, "보 우측면/하부면");
+			DGShowItem (dialogID, LABEL_BEAM_SIDE_BOTTOM);
 
-			//// 라벨: 남은 세로 길이
-			//DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 30, 50, 90, 23);
-			//if ( ((placingZone.remain_ver_updated / 2) >= 0.150) && ((placingZone.remain_ver_updated / 2) <= 0.300) )
-			//	DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
-			//else
-			//	DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, "상하 여백");
-			//DGShowItem (dialogID, LABEL_REMAIN_VERTICAL_LENGTH);
+			// 라벨: 우측면
+			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 10, 70, 60, 23);
+			DGSetItemFont (dialogID, LABEL_BEAM_SIDE, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_BEAM_SIDE, "우측면");
+			DGShowItem (dialogID, LABEL_BEAM_SIDE);
 
-			//// Edit 컨트롤: 남은 가로 길이
-			//DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 130, 20-7, 50, 25);
-			//DGSetItemFont (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGShowItem (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH);
-			//DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
+			// 라벨: 하부
+			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 10, 220, 60, 23);
+			DGSetItemFont (dialogID, LABEL_BEAM_BOTTOM, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_BEAM_BOTTOM, "하부면");
+			DGShowItem (dialogID, LABEL_BEAM_BOTTOM);
 
-			//// Edit 컨트롤: 남은 세로 길이
-			//DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 130, 50-7, 50, 25);
-			//DGSetItemFont (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGShowItem (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH);
-			//DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
+			// 측면 시작 부분 여백 채움 여부 - bFillMarginBeginAtSide
+			// 라디오 버튼: 여백 (채움)
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 111, 90, 110, 70, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백 채움");
+			DGShowItem (dialogID, itmIdx);
+			MARGIN_FILL_FROM_BEGIN_AT_SIDE = itmIdx;
+			// 라디오 버튼: 여백 (비움)
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 111, 90, 135, 70, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백 비움");
+			DGShowItem (dialogID, itmIdx);
+			MARGIN_EMPTY_FROM_BEGIN_AT_SIDE = itmIdx;
+			DGSetItemValLong (dialogID, itmIdx, TRUE);
 
-			//// 라벨: 유로폼/휠러스페이서 배치 설정
-			//DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 10, 200, 23);
-			//DGSetItemFont (dialogID, LABEL_GRID_EUROFORM_WOOD, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, LABEL_GRID_EUROFORM_WOOD, "유로폼/보강 목재 배치 설정");
-			//DGShowItem (dialogID, LABEL_GRID_EUROFORM_WOOD);
+			// 측면 시작 부분 여백
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 100, 50, btnSizeX, btnSizeY);
+			DGShowItem (dialogID, itmIdx);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 101, 55, 45, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백");
+			DGShowItem (dialogID, itmIdx);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 102, 74, 45, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, itmIdx);
+			DGDisableItem (dialogID, itmIdx);
+			MARGIN_FROM_BEGIN_AT_SIDE = itmIdx;
+			btnPosX = 150;
+			btnPosY = 50;
+			// 측면 시작 부분
+			for (xx = 0 ; xx < placingZone.nCellsFromBeginAtSide ; ++xx) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				txtButton = "";
+				if (placingZone.cellsFromBeginAtRSide [0][xx].objType == NONE) {
+					txtButton = "NONE";
+				} else if (placingZone.cellsFromBeginAtRSide [0][xx].objType == EUROFORM) {
+					txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellsFromBeginAtRSide [0][xx].dirLen * 1000);
+				}
+				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
+				DGShowItem (dialogID, itmIdx);
+				if (xx == 0) START_INDEX_FROM_BEGIN_AT_SIDE = itmIdx;
+				btnPosX += 50;
+			}
+			// 화살표 추가
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "↑");
+			DGShowItem (dialogID, itmIdx);
+			// 추가/삭제 버튼
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX - 25, btnPosY + 70, 50, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "추가");
+			DGShowItem (dialogID, itmIdx);
+			ADD_CELLS_FROM_BEGIN_AT_SIDE = itmIdx;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX - 25, btnPosY + 100, 50, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "삭제");
+			DGShowItem (dialogID, itmIdx);
+			DEL_CELLS_FROM_BEGIN_AT_SIDE = itmIdx;
+			// 측면 중앙 부분
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			txtButton = "";
+			if (placingZone.cellCenterAtRSide [0].objType == NONE) {
+				txtButton = "NONE";
+			} else if (placingZone.cellCenterAtRSide [0].objType == EUROFORM) {
+				txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellCenterAtRSide [0].dirLen * 1000);
+			}
+			DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
+			DGShowItem (dialogID, itmIdx);
+			START_INDEX_CENTER_AT_SIDE = itmIdx;
+			btnPosX += 50;
+			// 화살표 추가
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "↑");
+			DGShowItem (dialogID, itmIdx);
+			// 추가/삭제 버튼
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX - 25, btnPosY + 70, 50, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "추가");
+			DGShowItem (dialogID, itmIdx);
+			ADD_CELLS_FROM_END_AT_SIDE = itmIdx;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX - 25, btnPosY + 100, 50, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "삭제");
+			DGShowItem (dialogID, itmIdx);
+			DEL_CELLS_FROM_END_AT_SIDE = itmIdx;
+			// 측면 끝 부분
+			for (xx = placingZone.nCellsFromEndAtSide-1 ; xx >= 0 ; --xx) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				txtButton = "";
+				if (placingZone.cellsFromEndAtRSide [0][xx].objType == NONE) {
+					txtButton = "NONE";
+				} else if (placingZone.cellsFromEndAtRSide [0][xx].objType == EUROFORM) {
+					txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellsFromEndAtRSide [0][xx].dirLen * 1000);
+				}
+				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
+				DGShowItem (dialogID, itmIdx);
+				if (xx == 0) START_INDEX_FROM_END_AT_SIDE = itmIdx;
+				btnPosX += 50;
+			}
+			// 측면 끝 부분 여백
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, btnPosX, 50, btnSizeX, btnSizeY);
+			DGShowItem (dialogID, itmIdx);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, btnPosX+1, 55, 45, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백");
+			DGShowItem (dialogID, itmIdx);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, btnPosX+2, 74, 45, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, itmIdx);
+			DGDisableItem (dialogID, itmIdx);
+			MARGIN_FROM_END_AT_SIDE = itmIdx;
 
-			//// 남은 거리 확인 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 90, 130, 25);
-			//DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, "1. 남은 길이 확인");
-			//DGShowItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
+			// 측면 끝 부분 여백 채움 여부 - bFillMarginEndAtSide
+			// 라디오 버튼: 여백 (채움)
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 112, btnPosX-10, 110, 70, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백 채움");
+			DGShowItem (dialogID, itmIdx);
+			MARGIN_FILL_FROM_END_AT_SIDE = itmIdx;
+			// 라디오 버튼: 여백 (비움)
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 112, btnPosX-10, 135, 70, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백 비움");
+			DGShowItem (dialogID, itmIdx);
+			MARGIN_EMPTY_FROM_END_AT_SIDE = itmIdx;
+			DGSetItemValLong (dialogID, itmIdx, TRUE);
 
-			//// 행 추가 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 130, 65, 25);
-			//DGSetItemFont (dialogID, PUSHBUTTON_ADD_ROW, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, PUSHBUTTON_ADD_ROW, "행 추가");
-			//DGShowItem (dialogID, PUSHBUTTON_ADD_ROW);
+			// 하부 시작 부분 여백 채움 여부 - bFillMarginBeginAtBottom
+			// 라디오 버튼: 여백 (채움)
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 113, 90, 260, 70, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백 채움");
+			DGShowItem (dialogID, itmIdx);
+			MARGIN_FILL_FROM_BEGIN_AT_BOTTOM = itmIdx;
+			// 라디오 버튼: 여백 (비움)
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 113, 90, 285, 70, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백 비움");
+			DGShowItem (dialogID, itmIdx);
+			MARGIN_EMPTY_FROM_BEGIN_AT_BOTTOM = itmIdx;
+			DGSetItemValLong (dialogID, itmIdx, TRUE);
 
-			//// 행 삭제 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 130, 65, 25);
-			//DGSetItemFont (dialogID, PUSHBUTTON_DEL_ROW, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, PUSHBUTTON_DEL_ROW, "행 삭제");
-			//DGShowItem (dialogID, PUSHBUTTON_DEL_ROW);
+			// 하부 시작 부분 여백
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 100, 200, btnSizeX, btnSizeY);
+			DGShowItem (dialogID, itmIdx);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 101, 205, 45, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백");
+			DGShowItem (dialogID, itmIdx);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 102, 224, 45, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, itmIdx);
+			DGDisableItem (dialogID, itmIdx);
+			MARGIN_FROM_BEGIN_AT_BOTTOM = itmIdx;
+			btnPosX = 150;
+			btnPosY = 200;
+			// 하부 시작 부분
+			for (xx = 0 ; xx < placingZone.nCellsFromBeginAtBottom ; ++xx) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				txtButton = "";
+				if (placingZone.cellsFromBeginAtBottom [0][xx].objType == NONE) {
+					txtButton = "NONE";
+				} else if (placingZone.cellsFromBeginAtBottom [0][xx].objType == EUROFORM) {
+					txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellsFromBeginAtBottom [0][xx].dirLen * 1000);
+				}
+				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
+				DGShowItem (dialogID, itmIdx);
+				if (xx == 0) START_INDEX_FROM_BEGIN_AT_BOTTOM = itmIdx;
+				btnPosX += 50;
+			}
+			// 화살표 추가
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "↑");
+			DGShowItem (dialogID, itmIdx);
+			// 추가/삭제 버튼
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX - 25, btnPosY + 70, 50, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "추가");
+			DGShowItem (dialogID, itmIdx);
+			ADD_CELLS_FROM_BEGIN_AT_BOTTOM = itmIdx;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX - 25, btnPosY + 100, 50, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "삭제");
+			DGShowItem (dialogID, itmIdx);
+			DEL_CELLS_FROM_BEGIN_AT_BOTTOM = itmIdx;
+			// 하부 중앙 부분
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			txtButton = "";
+			if (placingZone.cellCenterAtBottom [0].objType == NONE) {
+				txtButton = "NONE";
+			} else if (placingZone.cellCenterAtBottom [0].objType == EUROFORM) {
+				txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellCenterAtBottom [0].dirLen * 1000);
+			}
+			DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
+			DGShowItem (dialogID, itmIdx);
+			START_INDEX_CENTER_AT_BOTTOM = itmIdx;
+			btnPosX += 50;
+			// 화살표 추가
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "↑");
+			DGShowItem (dialogID, itmIdx);
+			// 추가/삭제 버튼
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX - 25, btnPosY + 70, 50, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "추가");
+			DGShowItem (dialogID, itmIdx);
+			ADD_CELLS_FROM_END_AT_BOTTOM = itmIdx;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX - 25, btnPosY + 100, 50, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "삭제");
+			DGShowItem (dialogID, itmIdx);
+			DEL_CELLS_FROM_END_AT_BOTTOM = itmIdx;
+			// 하부 끝 부분
+			for (xx = placingZone.nCellsFromEndAtBottom-1 ; xx >= 0 ; --xx) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				txtButton = "";
+				if (placingZone.cellsFromEndAtBottom [0][xx].objType == NONE) {
+					txtButton = "NONE";
+				} else if (placingZone.cellsFromEndAtBottom [0][xx].objType == EUROFORM) {
+					txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellsFromEndAtBottom [0][xx].dirLen * 1000);
+				}
+				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
+				DGShowItem (dialogID, itmIdx);
+				if (xx == 0) START_INDEX_FROM_END_AT_BOTTOM = itmIdx;
+				btnPosX += 50;
+			}
+			// 하부 끝 부분 여백
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, btnPosX, 200, btnSizeX, btnSizeY);
+			DGShowItem (dialogID, itmIdx);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, btnPosX+1, 205, 45, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백");
+			DGShowItem (dialogID, itmIdx);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, btnPosX+2, 224, 45, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, itmIdx);
+			DGDisableItem (dialogID, itmIdx);
+			MARGIN_FROM_END_AT_BOTTOM = itmIdx;
 
-			//// 열 추가 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 170, 65, 25);
-			//DGSetItemFont (dialogID, PUSHBUTTON_ADD_COL, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, PUSHBUTTON_ADD_COL, "열 추가");
-			//DGShowItem (dialogID, PUSHBUTTON_ADD_COL);
-		
-			//// 열 삭제 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 170, 65, 25);
-			//DGSetItemFont (dialogID, PUSHBUTTON_DEL_COL, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, PUSHBUTTON_DEL_COL, "열 삭제");
-			//DGShowItem (dialogID, PUSHBUTTON_DEL_COL);
+			// 하부 끝 부분 여백 채움 여부 - bFillMarginEndAtBottom
+			// 라디오 버튼: 여백 (채움)
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 114, btnPosX-10, 260, 70, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백 채움");
+			DGShowItem (dialogID, itmIdx);
+			MARGIN_FILL_FROM_END_AT_BOTTOM = itmIdx;
+			// 라디오 버튼: 여백 (비움)
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 114, btnPosX-10, 285, 70, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백 비움");
+			DGShowItem (dialogID, itmIdx);
+			MARGIN_EMPTY_FROM_END_AT_BOTTOM = itmIdx;
+			DGSetItemValLong (dialogID, itmIdx, TRUE);
 
-			//// 메인 창 크기를 변경
-			//dialogSizeX = 270 + (btnSizeX * placingZone.eu_count_hor) + 50;
-			//dialogSizeY = max<short>(300, 150 + (btnSizeY * placingZone.eu_count_ver) + 50);
-			//DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
-
-			//// 그리드 구조체에 따라서 버튼을 동적으로 배치함
-			//btnPosX = 220 + 25, btnPosY = (btnSizeY * placingZone.eu_count_ver) + 25;
-			//for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
-			//	for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy) {
-			//		idxBtn = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
-			//		lastIdxBtn = idxBtn;
-			//		DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
-
-			//		txtButton = "";
-			//		if (placingZone.cells [xx][yy].objType == NONE) {
-			//			txtButton = "NONE";
-			//		} else if (placingZone.cells [xx][yy].objType == EUROFORM) {
-			//			if (placingZone.cells [xx][yy].libPart.form.u_ins_wall)
-			//				txtButton = format_string ("유로폼\n(세움)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-			//			else
-			//				txtButton = format_string ("유로폼\n(눕힘)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-			//		}
-			//		DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
-			//		DGShowItem (dialogID, idxBtn);
-			//		btnPosX += btnSizeX;
-			//	}
-			//	btnPosX = btnInitPosX;
-			//	btnPosY -= btnSizeY;
-			//}
+			// 메인 창 크기를 변경
+			dialogSizeX = max<short>(500, 150 + (btnSizeX * (placingZone.nCellsFromBeginAtBottom + placingZone.nCellsFromEndAtBottom + 1)) + 150);
+			dialogSizeY = 490;
+			DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
 
 			break;
 
@@ -1683,11 +2070,6 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				//	break;
 
 				case DG_OK:
-					// 종료하지 않고 배치된 객체를 수정 및 재배치하고 그리드 버튼 속성을 변경함
-					item = 0;
-
-					//clickedOKButton = true;
-
 					break;
 
 				case DG_CANCEL:
