@@ -81,7 +81,26 @@ namespace beamPlacerDG {
 		DG_UPDATE_BUTTON		= 3,
 		LABEL_BEAM_SIDE_BOTTOM,
 		LABEL_BEAM_SIDE,
-		LABEL_BEAM_BOTTOM
+		LABEL_BEAM_BOTTOM,
+		AFTER_ALL
+	};
+
+	enum	idxItems_3_forBeamPlacer {
+		LABEL_OBJ_TYPE			= 3,
+		POPUP_OBJ_TYPE,
+		CHECKBOX_SET_STANDARD,
+		LABEL_LENGTH,
+		EDITCONTROL_LENGTH,
+		POPUP_LENGTH
+	};
+
+	enum	cellType {
+		FROM_BEGIN_AT_SIDE = 1,
+		CENTER_AT_SIDE,
+		FROM_END_AT_SIDE,
+		FROM_BEGIN_AT_BOTTOM,
+		CENTER_AT_BOTTOM,
+		FROM_END_AT_BOTTOM
 	};
 }
 
@@ -158,10 +177,6 @@ struct BeamPlacingZone
 	double	marginEndAtSide;				// 측면 끝 부분 여백
 	double	marginBeginAtBottom;			// 하부 시작 부분 여백
 	double	marginEndAtBottom;				// 하부 끝 부분 여백
-	double	marginBeginAtSide_updated;		// 측면 시작 부분 여백 (업데이트 후)
-	double	marginEndAtSide_updated;		// 측면 끝 부분 여백 (업데이트 후)
-	double	marginBeginAtBottom_updated;	// 하부 시작 부분 여백 (업데이트 후)
-	double	marginEndAtBottom_updated;		// 하부 끝 부분 여백 (업데이트 후)
 
 	// 보 양끝 여백 채울지 여부
 	bool	bFillMarginBeginAtSide;			// 측면 시작 부분 여백 채움
@@ -170,18 +185,18 @@ struct BeamPlacingZone
 	bool	bFillMarginEndAtBottom;			// 하부 끝 부분 여백 채움
 
 	// 셀 정보 (측면)
-	CellForBeam		cellsFromBeginAtLSide [4][20];	// 시작 부분부터 붙여가는 셀 (왼쪽)
-	CellForBeam		cellsFromBeginAtRSide [4][20];	// 시작 부분부터 붙여가는 셀 (오른쪽)
-	CellForBeam		cellsFromEndAtLSide [4][20];	// 끝 부분부터 붙여가는 셀 (왼쪽)
-	CellForBeam		cellsFromEndAtRSide [4][20];	// 끝 부분부터 붙여가는 셀 (오른쪽)
+	CellForBeam		cellsFromBeginAtLSide [4][50];	// 시작 부분부터 붙여가는 셀 (왼쪽)
+	CellForBeam		cellsFromBeginAtRSide [4][50];	// 시작 부분부터 붙여가는 셀 (오른쪽)
+	CellForBeam		cellsFromEndAtLSide [4][50];	// 끝 부분부터 붙여가는 셀 (왼쪽)
+	CellForBeam		cellsFromEndAtRSide [4][50];	// 끝 부분부터 붙여가는 셀 (오른쪽)
 	CellForBeam		cellCenterAtLSide [4];			// 가운데 부분에 붙이는 셀 (왼쪽)
 	CellForBeam		cellCenterAtRSide [4];			// 가운데 부분에 붙이는 셀 (오른쪽)
 	short			nCellsFromBeginAtSide;			// 측면의 시작 부분 셀 개수
 	short			nCellsFromEndAtSide;			// 측면의 끝 부분 셀 개수
 
 	// 셀 정보 (하부)
-	CellForBeam		cellsFromBeginAtBottom [3][20];	// 시작 부분부터 붙여가는 셀
-	CellForBeam		cellsFromEndAtBottom [3][20];	// 끝 부분부터 붙여가는 셀
+	CellForBeam		cellsFromBeginAtBottom [3][50];	// 시작 부분부터 붙여가는 셀
+	CellForBeam		cellsFromEndAtBottom [3][50];	// 끝 부분부터 붙여가는 셀
 	CellForBeam		cellCenterAtBottom [3];			// 가운데 부분에 붙이는 셀
 	short			nCellsFromBeginAtBottom;		// 하부의 시작 부분 셀 개수
 	short			nCellsFromEndAtBottom;			// 하부의 끝 부분 셀 개수
