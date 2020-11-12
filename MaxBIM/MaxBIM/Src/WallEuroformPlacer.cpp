@@ -338,14 +338,14 @@ GSErrCode	placeEuroformOnWall (void)
 	placingZone.eu_count_ver = 0;
 
 	if (placingZone.eu_ori.compare (std::string ("벽세우기")) == 0) {
-		placingZone.eu_count_hor = static_cast<short>(placingZone.remain_hor / placingZone.eu_wid_numeric);				// 가로 방향 개수
+		placingZone.eu_count_hor = static_cast<short>((placingZone.remain_hor + EPS) / placingZone.eu_wid_numeric);		// 가로 방향 개수
 		placingZone.remain_hor = placingZone.remain_hor - (placingZone.eu_count_hor * placingZone.eu_wid_numeric);		// 가로 방향 나머지
-		placingZone.eu_count_ver = static_cast<short>(placingZone.remain_ver / placingZone.eu_hei_numeric);				// 세로 방향 개수
+		placingZone.eu_count_ver = static_cast<short>((placingZone.remain_ver + EPS) / placingZone.eu_hei_numeric);		// 세로 방향 개수
 		placingZone.remain_ver = placingZone.remain_ver - (placingZone.eu_count_ver * placingZone.eu_hei_numeric);		// 세로 방향 나머지
 	} else {
-		placingZone.eu_count_hor = static_cast<short>(placingZone.remain_hor / placingZone.eu_hei_numeric);				// 가로 방향 개수
+		placingZone.eu_count_hor = static_cast<short>((placingZone.remain_hor + EPS) / placingZone.eu_hei_numeric);		// 가로 방향 개수
 		placingZone.remain_hor = placingZone.remain_hor - (placingZone.eu_count_hor * placingZone.eu_hei_numeric);		// 가로 방향 나머지
-		placingZone.eu_count_ver = static_cast<short>(placingZone.remain_ver / placingZone.eu_wid_numeric);				// 세로 방향 개수
+		placingZone.eu_count_ver = static_cast<short>((placingZone.remain_ver + EPS) / placingZone.eu_wid_numeric);		// 세로 방향 개수
 		placingZone.remain_ver = placingZone.remain_ver - (placingZone.eu_count_ver * placingZone.eu_wid_numeric);		// 세로 방향 나머지
 	}
 
@@ -1642,14 +1642,14 @@ short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, 
 		case DG_MSG_CHANGE:
 			// 체크박스 제어 (인코너 관련)
 			if (DGGetItemValLong (dialogID, CHECKBOX_SET_LEFT_INCORNER) == 1)
-				DGEnableItem (dialogID, EDITCONTROL_LEFT_INCORNER);
+				DGShowItem (dialogID, EDITCONTROL_LEFT_INCORNER);
 			else
-				DGDisableItem (dialogID, EDITCONTROL_LEFT_INCORNER);
+				DGHideItem (dialogID, EDITCONTROL_LEFT_INCORNER);
 
 			if (DGGetItemValLong (dialogID, CHECKBOX_SET_RIGHT_INCORNER) == 1)
-				DGEnableItem (dialogID, EDITCONTROL_RIGHT_INCORNER);
+				DGShowItem (dialogID, EDITCONTROL_RIGHT_INCORNER);
 			else
-				DGDisableItem (dialogID, EDITCONTROL_RIGHT_INCORNER);
+				DGHideItem (dialogID, EDITCONTROL_RIGHT_INCORNER);
 
 			break;
 

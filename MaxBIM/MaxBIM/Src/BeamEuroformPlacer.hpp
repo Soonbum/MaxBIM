@@ -172,6 +172,10 @@ struct BeamPlacingZone
 	double	interfereBeamWidth;			// 간섭 보 너비
 	double	interfereBeamHeight;		// 간섭 보 높이
 
+	// 간섭 보가 들어오는 영역 길이
+	double	centerLengthAtSide;			// 측면
+	double	centerLengthAtBottom;		// 하부
+
 	// 보 양끝 여백
 	double	marginBeginAtSide;				// 측면 시작 부분 여백
 	double	marginEndAtSide;				// 측면 끝 부분 여백
@@ -217,9 +221,9 @@ void		addNewColFromBeginAtBottom (BeamPlacingZone* target_zone);		// 하부 시작 �
 void		delLastColFromBeginAtBottom (BeamPlacingZone* target_zone);		// 하부 시작 부분 - 마지막 열을 삭제함
 void		addNewColFromEndAtBottom (BeamPlacingZone* target_zone);		// 하부 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
 void		delLastColFromEndAtBottom (BeamPlacingZone* target_zone);		// 하부 끝 부분 - 마지막 열을 삭제함
-void		alignPlacingZoneForBeam (BeamPlacingZone* target_zone);			// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone);			// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 API_Guid	placeLibPartForBeam (CellForBeam objInfo);						// 해당 셀 정보를 기반으로 라이브러리 배치
-GSErrCode	fillRestAreasForBeam (void);									// 유로폼/휠러/목재를 채운 후 자투리 공간 채우기 (나머지 합판/목재 및 아웃코너앵글)
+GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone);			// 유로폼/휠러/목재를 채운 후 자투리 공간 채우기 (나머지 합판/목재 및 아웃코너앵글)
 short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
