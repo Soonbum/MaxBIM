@@ -57,7 +57,6 @@ static short	END_INDEX_FROM_END_AT_BOTTOM;
 
 // 간섭보 들어오는 측면 길이를 표현하는 Edit 컨트롤 인덱스
 static short	EDITCONTROL_CENTER_LENGTH_SIDE;
-static short	EDITCONTROL_CENTER_LENGTH_BOTTOM;
 
 
 // 3번 메뉴: 보에 유로폼을 배치하는 통합 루틴
@@ -459,6 +458,9 @@ void	initCellsForBeam (BeamPlacingZone* placingZone)
 	placingZone->nCellsFromEndAtSide = 0;
 	placingZone->nCellsFromBeginAtBottom = 0;
 	placingZone->nCellsFromEndAtBottom = 0;
+
+	// 간섭 보가 들어오는 영역 길이 초기화
+	placingZone->centerLengthAtSide = 0.0;
 
 	// 셀 정보 초기화
 	for (xx = 0 ; xx < 4 ; ++xx) {
@@ -1169,7 +1171,7 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	if (placingZone->cellCenterAtRSide [0].objType != NONE)
 		width_side = placingZone->cellCenterAtRSide [0].dirLen;
 	else
-		width_side = 0.0;
+		width_side = placingZone->centerLengthAtSide;
 
 	if (placingZone->cellCenterAtBottom [0].objType != NONE)
 		width_bottom = placingZone->cellCenterAtBottom [0].dirLen;
@@ -1675,12 +1677,187 @@ API_Guid	placeLibPartForBeam (CellForBeam objInfo)
 // 유로폼/휠러/목재를 채운 후 자투리 공간 채우기 (나머지 합판/목재 및 아웃코너앵글)
 GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 {
-	// !!!
+	double	centerPos;
+	double	cellWidth_side;
+	double	cellHeight_side;
+	CellForBeam		insCell;
+	API_Coord3D		axisPoint, rotatedPoint, unrotatedPoint;
+
+
+	// 측면에서의 중심 위치 찾기
+	if (placingZone->bInterfereBeam == true)
+		centerPos = placingZone->posInterfereBeamFromLeft;	// 간섭 보의 중심 위치
+	else
+		centerPos = placingZone->beamLength / 2;			// 간섭 보가 없으면 중심을 기준으로 함
+
+	// 중심 여백 너비 (중심 유로폼이 없을 경우에만 사용함)
+	if (placingZone->bInterfereBeam == true)
+		cellWidth_side = (placingZone->centerLengthAtSide - placingZone->interfereBeamWidth) / 2;
+	else
+		cellWidth_side = placingZone->centerLengthAtSide;
+
+	// 측면 합판/목재 높이
+	cellHeight_side = placingZone->cellsFromBeginAtRSide [0][0].perLen + placingZone->cellsFromBeginAtRSide [1][0].perLen + placingZone->cellsFromBeginAtRSide [2][0].perLen + placingZone->cellsFromBeginAtRSide [3][0].perLen;
+
 
 	// 측면 중앙 셀이 NONE일 경우
 	if (placingZone->cellCenterAtRSide [0].objType == NONE) {
-		//placingZone->centerLengthAtSide
-		//placingZone->centerLengthAtBottom
+		// 너비가 110 미만이면 목재, 110 이상이면 합판
+		if (placingZone->bInterfereBeam == true) {
+			// 좌측 1/2번째
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = LEFT_SIDE;
+			insCell.dirLen = cellWidth_side;
+			insCell.perLen = cellHeight_side;
+			insCell.leftBottomX = placingZone->begC.x + centerPos - placingZone->centerLengthAtSide/2;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height;
+
+			if (cellWidth_side < 0.110) {
+				insCell.objType = WOOD;
+				insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+				insCell.libPart.wood.w_h = cellWidth_side;
+				insCell.libPart.wood.w_leng = cellHeight_side;
+				insCell.libPart.wood.w_w = 0.040;
+				insCell.leftBottomX -= insCell.libPart.wood.w_leng;
+			} else {
+				insCell.objType = PLYWOOD;
+				insCell.libPart.plywood.p_leng = cellWidth_side;
+				insCell.libPart.plywood.p_wid = cellHeight_side;
+			}
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPartForBeam (insCell);
+
+			// 좌측 2/2번째
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = LEFT_SIDE;
+			insCell.dirLen = cellWidth_side;
+			insCell.perLen = cellHeight_side;
+			insCell.leftBottomX = placingZone->begC.x + centerPos + placingZone->centerLengthAtSide/2;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height;
+
+			if (cellWidth_side < 0.110) {
+				insCell.objType = WOOD;
+				insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+				insCell.libPart.wood.w_h = cellWidth_side;
+				insCell.libPart.wood.w_leng = cellHeight_side;
+				insCell.libPart.wood.w_w = 0.040;
+				insCell.leftBottomX -= (insCell.libPart.wood.w_leng + insCell.libPart.wood.w_h);
+			} else {
+				insCell.objType = PLYWOOD;
+				insCell.libPart.plywood.p_leng = cellWidth_side;
+				insCell.libPart.plywood.p_wid = cellHeight_side;
+				insCell.leftBottomX -= insCell.libPart.plywood.p_leng;
+			}
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPartForBeam (insCell);
+
+			// 우측 1/2번째
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = RIGHT_SIDE;
+			insCell.dirLen = cellWidth_side;
+			insCell.perLen = cellHeight_side;
+			insCell.leftBottomX = placingZone->begC.x + centerPos - placingZone->centerLengthAtSide/2;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height;
+
+			if (cellWidth_side < 0.110) {
+				insCell.objType = WOOD;
+				insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+				insCell.libPart.wood.w_h = cellWidth_side;
+				insCell.libPart.wood.w_leng = cellHeight_side;
+				insCell.libPart.wood.w_w = 0.040;
+				insCell.leftBottomX += (insCell.libPart.wood.w_leng + insCell.libPart.wood.w_h);
+			} else {
+				insCell.objType = PLYWOOD;
+				insCell.libPart.plywood.p_leng = cellWidth_side;
+				insCell.libPart.plywood.p_wid = cellHeight_side;
+			}
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPartForBeam (insCell);
+
+			// 우측 2/2번째
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = RIGHT_SIDE;
+			insCell.dirLen = cellWidth_side;
+			insCell.perLen = cellHeight_side;
+			insCell.leftBottomX = placingZone->begC.x + centerPos + placingZone->centerLengthAtSide/2;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height;
+
+			if (cellWidth_side < 0.110) {
+				insCell.objType = WOOD;
+				insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+				insCell.libPart.wood.w_h = cellWidth_side;
+				insCell.libPart.wood.w_leng = cellHeight_side;
+				insCell.libPart.wood.w_w = 0.040;
+				insCell.leftBottomX -= (insCell.libPart.wood.w_leng + 0);	//insCell.libPart.wood.w_h);
+			} else {
+				insCell.objType = PLYWOOD;
+				insCell.libPart.plywood.p_leng = cellWidth_side;
+				insCell.libPart.plywood.p_wid = cellHeight_side;
+				insCell.leftBottomX -= insCell.libPart.plywood.p_leng;
+			}
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPartForBeam (insCell);
+		} else {
+			// 좌측
+
+			// 우측
+		}
 	}
 
 	// 측면 시작 부분 여백 채움
@@ -2532,13 +2709,6 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 			DGDisableItem (dialogID, itmIdx);
 			EDITCONTROL_CENTER_LENGTH_SIDE = itmIdx;
 
-			// 간섭 보가 붙는 곳 영역 길이 (하부)
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtBottom), 184, 50, 25);
-			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGShowItem (dialogID, itmIdx);
-			DGDisableItem (dialogID, itmIdx);
-			EDITCONTROL_CENTER_LENGTH_BOTTOM = itmIdx;
-
 			// 메인 창 크기를 변경
 			dialogSizeX = max<short>(500, 150 + (btnSizeX * (placingZone.nCellsFromBeginAtBottom + placingZone.nCellsFromEndAtBottom + 1)) + 150);
 			dialogSizeY = 490;
@@ -2836,16 +3006,6 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					DGDisableItem (dialogID, itmIdx);
 				EDITCONTROL_CENTER_LENGTH_SIDE = itmIdx;
 
-				// 간섭 보가 붙는 곳 영역 길이 (하부)
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtBottom), 184, 50, 25);
-				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGShowItem (dialogID, itmIdx);
-				if (placingZone.cellCenterAtBottom [0].objType == NONE)
-					DGEnableItem (dialogID, itmIdx);
-				else
-					DGDisableItem (dialogID, itmIdx);
-				EDITCONTROL_CENTER_LENGTH_BOTTOM = itmIdx;
-
 				// 메인 창 크기를 변경
 				dialogSizeX = max<short>(500, 150 + (btnSizeX * (placingZone.nCellsFromBeginAtBottom + placingZone.nCellsFromEndAtBottom + 1)) + 150);
 				dialogSizeY = 490;
@@ -2867,7 +3027,9 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					placingZone.bFillMarginEndAtBottom = true;
 
 				placingZone.centerLengthAtSide = DGGetItemValDouble (dialogID, EDITCONTROL_CENTER_LENGTH_SIDE);
-				placingZone.centerLengthAtBottom = DGGetItemValDouble (dialogID, EDITCONTROL_CENTER_LENGTH_BOTTOM);
+
+				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
+				alignPlacingZoneForBeam (&placingZone);
 			}
 
 			// 취소 버튼
@@ -3188,16 +3350,6 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				else
 					DGDisableItem (dialogID, itmIdx);
 				EDITCONTROL_CENTER_LENGTH_SIDE = itmIdx;
-
-				// 간섭 보가 붙는 곳 영역 길이 (하부)
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtBottom), 184, 50, 25);
-				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGShowItem (dialogID, itmIdx);
-				if (placingZone.cellCenterAtBottom [0].objType == NONE)
-					DGEnableItem (dialogID, itmIdx);
-				else
-					DGDisableItem (dialogID, itmIdx);
-				EDITCONTROL_CENTER_LENGTH_BOTTOM = itmIdx;
 
 				// 메인 창 크기를 변경
 				dialogSizeX = max<short>(500, 150 + (btnSizeX * (placingZone.nCellsFromBeginAtBottom + placingZone.nCellsFromEndAtBottom + 1)) + 150);

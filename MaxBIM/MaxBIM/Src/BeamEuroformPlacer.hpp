@@ -174,7 +174,6 @@ struct BeamPlacingZone
 
 	// 간섭 보가 들어오는 영역 길이
 	double	centerLengthAtSide;			// 측면
-	double	centerLengthAtBottom;		// 하부
 
 	// 보 양끝 여백
 	double	marginBeginAtSide;				// 측면 시작 부분 여백
