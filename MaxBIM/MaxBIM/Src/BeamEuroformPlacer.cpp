@@ -333,6 +333,9 @@ GSErrCode	placeEuroformOnBeam (void)
 	placingZone.ang			= DegreeToRad (ang);
 	placingZone.level		= infoBeam.level;
 	placingZone.beamLength	= GetDistance (placingZone.begC, placingZone.endC);
+	char msg [100];
+	sprintf (msg, "보 길이: %.4f", placingZone.beamLength);
+	ACAPI_WriteReport (msg, true);
 
 	// 간섭 보들의 시작점/끝점 중 메인 보에 가까운 쪽 점을 검색 (간섭 보는 양쪽에 한 쌍만 있다고 가정함)
 	p1.x = infoBeam.begC.x;				p1.y = infoBeam.begC.y;
@@ -391,17 +394,23 @@ GSErrCode	placeEuroformOnBeam (void)
 	for (xx = 0 ; xx < 4 ; ++xx) {
 		for (yy = 0 ; yy < placingZone.nCellsFromBeginAtSide ; ++yy) {
 			placingZone.cellsFromBeginAtLSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromBeginAtLSide [xx][yy]);
+			elemList.Push (placingZone.cellsFromBeginAtLSide [xx][yy].guid);
 			placingZone.cellsFromBeginAtRSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromBeginAtRSide [xx][yy]);
+			elemList.Push (placingZone.cellsFromBeginAtRSide [xx][yy].guid);
 		}
 	}
 	for (xx = 0 ; xx < 4 ; ++xx) {
 		placingZone.cellCenterAtLSide [xx].guid = placeLibPartForBeam (placingZone.cellCenterAtLSide [xx]);
+		elemList.Push (placingZone.cellCenterAtLSide [xx].guid);
 		placingZone.cellCenterAtRSide [xx].guid = placeLibPartForBeam (placingZone.cellCenterAtRSide [xx]);
+		elemList.Push (placingZone.cellCenterAtRSide [xx].guid);
 	}
 	for (xx = 0 ; xx < 4 ; ++xx) {
 		for (yy = 0 ; yy < placingZone.nCellsFromEndAtSide ; ++yy) {
 			placingZone.cellsFromEndAtLSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromEndAtLSide [xx][yy]);
+			elemList.Push (placingZone.cellsFromEndAtLSide [xx][yy].guid);
 			placingZone.cellsFromEndAtRSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromEndAtRSide [xx][yy]);
+			elemList.Push (placingZone.cellsFromEndAtRSide [xx][yy].guid);
 		}
 	}
 
@@ -409,35 +418,36 @@ GSErrCode	placeEuroformOnBeam (void)
 	for (xx = 0 ; xx < 3 ; ++xx) {
 		for (yy = 0 ; yy < placingZone.nCellsFromBeginAtBottom ; ++yy) {
 			placingZone.cellsFromBeginAtBottom [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromBeginAtBottom [xx][yy]);
+			elemList.Push (placingZone.cellsFromBeginAtBottom [xx][yy].guid);
 		}
 	}
 	for (xx = 0 ; xx < 3 ; ++xx) {
 		placingZone.cellCenterAtBottom [xx].guid = placeLibPartForBeam (placingZone.cellCenterAtBottom [xx]);
+		elemList.Push (placingZone.cellCenterAtBottom [xx].guid);
 	}
 	for (xx = 0 ; xx < 3 ; ++xx) {
 		for (yy = 0 ; yy < placingZone.nCellsFromEndAtBottom ; ++yy) {
 			placingZone.cellsFromEndAtBottom [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromEndAtBottom [xx][yy]);
+			elemList.Push (placingZone.cellsFromEndAtBottom [xx][yy].guid);
 		}
 	}
 
 	// 나머지 영역 채우기 - 합판, 목재
 	err = fillRestAreasForBeam (&placingZone);
 
-	// !!!
-
 	// 결과물 전체 그룹화
-	//if (!elemList.IsEmpty ()) {
-	//	GSSize nElems = elemList.GetSize ();
-	//	API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-	//	if (elemHead != NULL) {
-	//		for (GSIndex i = 0; i < nElems; i++)
-	//			(*elemHead)[i].guid = elemList[i];
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
 
-	//		ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
 
-	//		BMKillHandle ((GSHandle *) &elemHead);
-	//	}
-	//}
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
 
 	return	err;
 }
@@ -1049,6 +1059,7 @@ void	firstPlacingSettingsForBeam (BeamPlacingZone* placingZone)
 		placingZone->cellCenterAtBottom [xx].leftBottomZ = unrotatedPoint.z;
 	}
 
+	// !!!
 	// 여백 값 초기화 (측면 시작 부분 여백)
 	remainLength = centerPos - width/2;
 	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)
@@ -1431,28 +1442,37 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 		placingZone->cellCenterAtBottom [xx].leftBottomZ = unrotatedPoint.z;
 	}
 
+	// !!!
 	// 여백 값 초기화 (측면 시작 부분 여백)
 	remainLength = centerPos - width_side/2;
-	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)
-		remainLength -= placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
+	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx) {
+		if (placingZone->cellsFromBeginAtRSide [0][xx].objType != NONE)
+			remainLength -= placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
+	}
 	placingZone->marginBeginAtSide = remainLength;
 
 	// 여백 값 초기화 (측면 끝 부분 여백)
 	remainLength = placingZone->beamLength - centerPos - width_side/2;
-	for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)
-		remainLength -= placingZone->cellsFromEndAtRSide [0][xx].dirLen;
+	for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx) {
+		if (placingZone->cellsFromEndAtRSide [0][xx].objType != NONE)
+			remainLength -= placingZone->cellsFromEndAtRSide [0][xx].dirLen;
+	}
 	placingZone->marginEndAtSide = remainLength;
 
 	// 여백 값 초기화 (하부 시작 부분 여백)
 	remainLength = centerPos - width_bottom/2;
-	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtBottom ; ++xx)
-		remainLength -= placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
+	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtBottom ; ++xx) {
+		if (placingZone->cellsFromBeginAtBottom [0][xx].objType != NONE)
+			remainLength -= placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
+	}
 	placingZone->marginBeginAtBottom = remainLength;
 
 	// 여백 값 초기화 (하부 끝 부분 여백)
 	remainLength = placingZone->beamLength - centerPos - width_bottom/2;
-	for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
-		remainLength -= placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+	for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx) {
+		if (placingZone->cellsFromEndAtBottom [0][xx].objType != NONE)
+			remainLength -= placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+	}
 	placingZone->marginEndAtBottom = remainLength;
 }
 
@@ -1739,7 +1759,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPartForBeam (insCell);
+			elemList.Push (placeLibPartForBeam (insCell));
 
 			// 좌측 2/2번째
 			insCell.ang = placingZone->ang;
@@ -1777,7 +1797,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPartForBeam (insCell);
+			elemList.Push (placeLibPartForBeam (insCell));
 
 			// 우측 1/2번째
 			insCell.ang = placingZone->ang;
@@ -1814,7 +1834,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPartForBeam (insCell);
+			elemList.Push (placeLibPartForBeam (insCell));
 
 			// 우측 2/2번째
 			insCell.ang = placingZone->ang;
@@ -1831,7 +1851,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 				insCell.libPart.wood.w_h = cellWidth_side;
 				insCell.libPart.wood.w_leng = cellHeight_side;
 				insCell.libPart.wood.w_w = 0.040;
-				insCell.leftBottomX -= (insCell.libPart.wood.w_leng + 0);	//insCell.libPart.wood.w_h);
+				insCell.leftBottomX -= (insCell.libPart.wood.w_leng + 0);
 			} else {
 				insCell.objType = PLYWOOD;
 				insCell.libPart.plywood.p_leng = cellWidth_side;
@@ -1852,22 +1872,166 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPartForBeam (insCell);
-		} else {
-			// 좌측
-
-			// 우측
+			elemList.Push (placeLibPartForBeam (insCell));
 		}
 	}
 
 	// 측면 시작 부분 여백 채움
 	if (placingZone->bFillMarginBeginAtSide == true) {
-		//placingZone->marginBeginAtSide
+		if (placingZone->marginBeginAtSide > EPS) {
+			// 좌측
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = LEFT_SIDE;
+			insCell.dirLen = placingZone->marginBeginAtSide;
+			insCell.perLen = cellHeight_side;
+			insCell.leftBottomX = placingZone->begC.x;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height;
+
+			if (placingZone->marginBeginAtSide < 0.110) {
+				insCell.objType = WOOD;
+				insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+				insCell.libPart.wood.w_h = placingZone->marginBeginAtSide;
+				insCell.libPart.wood.w_leng = cellHeight_side;
+				insCell.libPart.wood.w_w = 0.040;
+				insCell.leftBottomX -= cellHeight_side;
+			} else {
+				insCell.objType = PLYWOOD;
+				insCell.libPart.plywood.p_leng = placingZone->marginBeginAtSide;
+				insCell.libPart.plywood.p_wid = cellHeight_side;
+			}
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
+
+			elemList.Push (placeLibPartForBeam (insCell));
+
+			// 우측
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = RIGHT_SIDE;
+			insCell.dirLen = placingZone->marginBeginAtSide;
+			insCell.perLen = cellHeight_side;
+			insCell.leftBottomX = placingZone->begC.x;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height;
+
+			if (placingZone->marginBeginAtSide < 0.110) {
+				insCell.objType = WOOD;
+				insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+				insCell.libPart.wood.w_h = placingZone->marginBeginAtSide;
+				insCell.libPart.wood.w_leng = cellHeight_side;
+				insCell.libPart.wood.w_w = 0.040;
+				insCell.leftBottomX += placingZone->marginBeginAtSide;
+			} else {
+				insCell.objType = PLYWOOD;
+				insCell.libPart.plywood.p_leng = placingZone->marginBeginAtSide;
+				insCell.libPart.plywood.p_wid = cellHeight_side;
+			}
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
+
+			elemList.Push (placeLibPartForBeam (insCell));
+		}
 	}
 
 	// 측면 끝 부분 여백 채움
 	if (placingZone->bFillMarginEndAtSide == true) {
-		//placingZone->marginEndAtSide
+		if (placingZone->marginEndAtSide > EPS) {
+			// 좌측
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = LEFT_SIDE;
+			insCell.dirLen = placingZone->marginEndAtSide;
+			insCell.perLen = cellHeight_side;
+			insCell.leftBottomX = placingZone->begC.x + placingZone->beamLength;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height;
+
+			if (placingZone->marginBeginAtSide < 0.110) {
+				insCell.objType = WOOD;
+				insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+				insCell.libPart.wood.w_h = placingZone->marginEndAtSide;
+				insCell.libPart.wood.w_leng = cellHeight_side;
+				insCell.libPart.wood.w_w = 0.040;
+				insCell.leftBottomX -= cellHeight_side;
+			} else {
+				insCell.objType = PLYWOOD;
+				insCell.libPart.plywood.p_leng = placingZone->marginEndAtSide;
+				insCell.libPart.plywood.p_wid = cellHeight_side;
+			}
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
+
+			elemList.Push (placeLibPartForBeam (insCell));
+
+			// 우측
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = RIGHT_SIDE;
+			insCell.dirLen = placingZone->marginEndAtSide;
+			insCell.perLen = cellHeight_side;
+			insCell.leftBottomX = placingZone->begC.x + placingZone->beamLength;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height;
+
+			if (placingZone->marginEndAtSide < 0.110) {
+				insCell.objType = WOOD;
+				insCell.libPart.wood.w_ang = DegreeToRad (90.0);
+				insCell.libPart.wood.w_h = placingZone->marginEndAtSide;
+				insCell.libPart.wood.w_leng = cellHeight_side;
+				insCell.libPart.wood.w_w = 0.040;
+				insCell.leftBottomX += placingZone->marginEndAtSide;
+			} else {
+				insCell.objType = PLYWOOD;
+				insCell.libPart.plywood.p_leng = placingZone->marginEndAtSide;
+				insCell.libPart.plywood.p_wid = cellHeight_side;
+			}
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
+
+			elemList.Push (placeLibPartForBeam (insCell));
+		}
 	}
 
 	// 하부 시작 부분 여백 채움
@@ -1881,7 +2045,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 	}
 
 	// 아웃코너앵글 설치
-	// ...
+	// ... 간섭보가 없는 영역 양쪽으로
 
 	return	NoError;
 }
@@ -2225,21 +2389,21 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 							placingZone.cellsFromBeginAtLSide [3][xx].objType = WOOD;
 							placingZone.cellsFromBeginAtLSide [3][xx].attached_side = LEFT_SIDE;
 							placingZone.cellsFromBeginAtLSide [3][xx].ang = placingZone.ang;
-							placingZone.cellsFromBeginAtLSide [3][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
+							placingZone.cellsFromBeginAtLSide [3][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromBeginAtLSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromBeginAtLSide [3][xx].libPart.wood.w_w = 0.064;
 
 							placingZone.cellsFromEndAtLSide [3][xx].objType = WOOD;
 							placingZone.cellsFromEndAtLSide [3][xx].attached_side = LEFT_SIDE;
 							placingZone.cellsFromEndAtLSide [3][xx].ang = placingZone.ang;
-							placingZone.cellsFromEndAtLSide [3][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
+							placingZone.cellsFromEndAtLSide [3][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromEndAtLSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromEndAtLSide [3][xx].libPart.wood.w_w = 0.064;
 
 							placingZone.cellCenterAtLSide [3].objType = WOOD;
 							placingZone.cellCenterAtLSide [3].attached_side = LEFT_SIDE;
 							placingZone.cellCenterAtLSide [3].ang = placingZone.ang;
-							placingZone.cellCenterAtLSide [3].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
+							placingZone.cellCenterAtLSide [3].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellCenterAtLSide [3].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellCenterAtLSide [3].libPart.wood.w_w = 0.064;
 
@@ -2247,21 +2411,21 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 							placingZone.cellsFromBeginAtRSide [3][xx].objType = WOOD;
 							placingZone.cellsFromBeginAtRSide [3][xx].attached_side = RIGHT_SIDE;
 							placingZone.cellsFromBeginAtRSide [3][xx].ang = placingZone.ang;
-							placingZone.cellsFromBeginAtRSide [3][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
+							placingZone.cellsFromBeginAtRSide [3][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromBeginAtRSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromBeginAtRSide [3][xx].libPart.wood.w_w = 0.064;
 
 							placingZone.cellsFromEndAtRSide [3][xx].objType = WOOD;
 							placingZone.cellsFromEndAtRSide [3][xx].attached_side = RIGHT_SIDE;
 							placingZone.cellsFromEndAtRSide [3][xx].ang = placingZone.ang;
-							placingZone.cellsFromEndAtRSide [3][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
+							placingZone.cellsFromEndAtRSide [3][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromEndAtRSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromEndAtRSide [3][xx].libPart.wood.w_w = 0.064;
 
 							placingZone.cellCenterAtRSide [3].objType = WOOD;
 							placingZone.cellCenterAtRSide [3].attached_side = RIGHT_SIDE;
 							placingZone.cellCenterAtRSide [3].ang = placingZone.ang;
-							placingZone.cellCenterAtRSide [3].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
+							placingZone.cellCenterAtRSide [3].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellCenterAtRSide [3].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellCenterAtRSide [3].libPart.wood.w_w = 0.064;
 						}
@@ -2703,7 +2867,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 			DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 			// 간섭 보가 붙는 곳 영역 길이 (측면)
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtBottom), 24, 50, 25);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtSide), 24, 50, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGShowItem (dialogID, itmIdx);
 			DGDisableItem (dialogID, itmIdx);
@@ -2997,7 +3161,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 간섭 보가 붙는 곳 영역 길이 (측면)
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtBottom), 24, 50, 25);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtSide), 24, 50, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGShowItem (dialogID, itmIdx);
 				if (placingZone.cellCenterAtRSide [0].objType == NONE)
@@ -3342,7 +3506,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 간섭 보가 붙는 곳 영역 길이 (측면)
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtBottom), 24, 50, 25);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtSide), 24, 50, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGShowItem (dialogID, itmIdx);
 				if (placingZone.cellCenterAtRSide [0].objType == NONE)
