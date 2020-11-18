@@ -12,6 +12,7 @@ static SlabPlacingZone	placingZone;			// 기본 슬래브 하부 영역 정보
 static InfoSlab			infoSlab;				// 슬래브 객체 정보
 static short			clickedBtnItemIdx;		// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool				clickedOKButton;		// OK 버튼을 눌렀습니까?
+static bool				clickedPrevButton;		// 이전 버튼을 눌렀습니까?
 static short			layerInd_Euroform;		// 레이어 번호: 유로폼
 static short			layerInd_Plywood;		// 레이어 번호: 합판
 static short			layerInd_Wood;			// 레이어 번호: 목재
@@ -314,6 +315,8 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	placingZone.ang = DegreeToRad (ang);
 	placingZone.level = nodes_sequential [0].z;
 
+FIRST:
+
 	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32511, ACAPI_GetOwnResModule (), slabBottomPlacerHandler1, 0);
 
@@ -516,8 +519,14 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 
 	// [DIALOG] 2번째 다이얼로그에서 유로폼 배치를 수정하거나 보강 목재를 삽입합니다.
 	clickedOKButton = false;
-	result = DGBlankModalDialog (185, 250, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, slabBottomPlacerHandler2, 0);
+	clickedPrevButton = false;
+	result = DGBlankModalDialog (185, 290, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, slabBottomPlacerHandler2, 0);
 
+	// 이전 버튼을 누르면 1번째 다이얼로그 다시 실행
+	if (clickedPrevButton == true)
+		goto FIRST;
+
+	// 2번째 다이얼로그에서 OK 버튼을 눌러야만 다음 단계로 넘어감
 	if (clickedOKButton == false)
 		return err;
 
@@ -1918,6 +1927,12 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 			DGSetItemText (dialogID, DG_CANCEL, "3. 자투리 채우기");
 			DGShowItem (dialogID, DG_CANCEL);
 
+			// 이전 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 290, 130, 25);
+			DGSetItemFont (dialogID, DG_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_PREV, "이전");
+			DGShowItem (dialogID, DG_PREV);
+
 			// 라벨: 남은 가로 길이
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 30, 20, 90, 23);
 			if ( ((placingZone.remain_hor_updated / 2) >= 0.150) && ((placingZone.remain_hor_updated / 2) <= 0.300) )
@@ -2229,6 +2244,10 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 						for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy)
 							elemList.Push (placingZone.cells [xx][yy].guid);
 
+					break;
+
+				case DG_PREV:
+					clickedPrevButton = true;
 					break;
 
 				case PUSHBUTTON_ADD_ROW:

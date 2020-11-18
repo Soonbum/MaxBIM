@@ -13,6 +13,7 @@ static WallPlacingZone	placingZoneBackside;	// 반대쪽 벽면에도 벽면 영역 정보 부
 static InfoWall			infoWall;				// 벽 객체 정보
 static short			clickedBtnItemIdx;		// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool				clickedOKButton;		// OK 버튼을 눌렀습니까?
+static bool				clickedPrevButton;		// 이전 버튼을 눌렀습니까?
 static short			layerInd_Incorner;		// 레이어 번호: 인코너
 static short			layerInd_Euroform;		// 레이어 번호: 유로폼
 static short			layerInd_Fillerspacer;	// 레이어 번호: 휠러스페이서
@@ -297,6 +298,8 @@ GSErrCode	placeEuroformOnWall (void)
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
 
+FIRST:
+
 	// [DIALOG] 1번째 다이얼로그에서 인코너, 유로폼 정보 입력 받음
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32501, ACAPI_GetOwnResModule (), wallPlacerHandler1, 0);
 
@@ -366,8 +369,14 @@ GSErrCode	placeEuroformOnWall (void)
 
 	// [DIALOG] 2번째 다이얼로그에서 유로폼/인코너 배치를 수정하거나 휠러스페이서 등을 삽입합니다.
 	clickedOKButton = false;
+	clickedPrevButton = false;
 	result = DGBlankModalDialog (185, 250, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallPlacerHandler2, 0);
 
+	// 이전 버튼을 누르면 1번째 다이얼로그 다시 실행
+	if (clickedPrevButton == true)
+		goto FIRST;
+
+	// 2번째 다이얼로그에서 OK 버튼을 눌러야만 다음 단계로 넘어감
 	if (clickedOKButton == false)
 		return err;
 
@@ -1736,6 +1745,12 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 			DGSetItemText (dialogID, DG_CANCEL, "3. 자투리 채우기");
 			DGShowItem (dialogID, DG_CANCEL);
 
+			// 이전 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 180, 130, 25);
+			DGSetItemFont (dialogID, DG_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_PREV, "이전");
+			DGShowItem (dialogID, DG_PREV);
+
 			//////////////////////////////////////////////////////////// 아이템 배치 (인코너 관련)
 			// 라벨: 남은 가로 길이
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 20, 90, 23);
@@ -2014,6 +2029,10 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 						for (yy = 0 ; yy < placingZoneBackside.nCells ; ++yy)
 							elemList.Push (placingZoneBackside.cells [xx][yy].guid);
 
+					break;
+
+				case DG_PREV:
+					clickedPrevButton = true;
 					break;
 
 				default:

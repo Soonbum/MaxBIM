@@ -19,6 +19,7 @@ static short			layerInd_Wood;				// 레이어 번호: 목재
 static short			layerInd_OutcornerAngle;	// 레이어 번호: 아웃코너앵글
 static short			clickedBtnItemIdx;			// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool				clickedOKButton;			// OK 버튼을 눌렀습니까?
+static bool				clickedPrevButton;			// 이전 버튼을 눌렀습니까?
 static GS::Array<API_Guid>	elemList;				// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
 // 추가/삭제 버튼 인덱스 저장
@@ -351,15 +352,6 @@ GSErrCode	placeEuroformOnBeam (void)
 		placingZone.bInterfereBeam = false;
 	}
 
-	// placingZone의 Cell 정보 초기화
-	initCellsForBeam (&placingZone);
-
-	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32521, ACAPI_GetOwnResModule (), beamPlacerHandler1, 0);
-
-	if (result == DG_CANCEL)
-		return err;
-
 	// 작업 층 높이 반영
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	workLevel_beam = 0.0;
@@ -372,16 +364,31 @@ GSErrCode	placeEuroformOnBeam (void)
 	}
 	BMKillHandle ((GSHandle *) &storyInfo.data);
 
-	// 영역 정보의 고도 정보 수정
-	// placingZone.level
+	// 영역 정보의 고도 정보 수정 - 불필요
+
+FIRST:
+
+	// placingZone의 Cell 정보 초기화
+	initCellsForBeam (&placingZone);
+
+	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32521, ACAPI_GetOwnResModule (), beamPlacerHandler1, 0);
+
+	if (result == DG_CANCEL)
+		return err;
 
 	// 1차 배치 설정
 	firstPlacingSettingsForBeam (&placingZone);
 
 	// [DIALOG] 2번째 다이얼로그에서 유로폼 배치를 수정합니다.
 	clickedOKButton = false;
-	result = DGBlankModalDialog (500, 490, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, beamPlacerHandler2, 0);
+	clickedPrevButton = false;
+	result = DGBlankModalDialog (500, 530, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, beamPlacerHandler2, 0);
 	
+	// 이전 버튼을 누르면 1번째 다이얼로그 다시 실행
+	if (clickedPrevButton == true)
+		goto FIRST;
+
 	// 2번째 다이얼로그에서 OK 버튼을 눌러야만 다음 단계로 넘어감
 	if (clickedOKButton != true)
 		return err;
@@ -2844,6 +2851,12 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 			DGSetItemText (dialogID, DG_UPDATE_BUTTON, "업데이트");
 			DGShowItem (dialogID, DG_UPDATE_BUTTON);
 
+			// 이전 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 30, 480, 100, 25);
+			DGSetItemFont (dialogID, DG_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_PREV, "이전");
+			DGShowItem (dialogID, DG_PREV);
+
 			// 라벨: 보 우측면/화부면
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 10, 10, 100, 23);
 			DGSetItemFont (dialogID, LABEL_BEAM_SIDE_BOTTOM, DG_IS_LARGE | DG_IS_PLAIN);
@@ -2908,7 +2921,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				btnPosX += 50;
 			}
 			// 화살표 추가
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "↑");
 			DGShowItem (dialogID, itmIdx);
@@ -2937,7 +2950,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 			START_INDEX_CENTER_AT_SIDE = itmIdx;
 			btnPosX += 50;
 			// 화살표 추가
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "↑");
 			DGShowItem (dialogID, itmIdx);
@@ -3042,7 +3055,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				btnPosX += 50;
 			}
 			// 화살표 추가
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "↑");
 			DGShowItem (dialogID, itmIdx);
@@ -3071,7 +3084,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 			START_INDEX_CENTER_AT_BOTTOM = itmIdx;
 			btnPosX += 50;
 			// 화살표 추가
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "↑");
 			DGShowItem (dialogID, itmIdx);
@@ -3238,7 +3251,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					btnPosX += 50;
 				}
 				// 화살표 추가
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "↑");
 				DGShowItem (dialogID, itmIdx);
@@ -3267,7 +3280,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				START_INDEX_CENTER_AT_SIDE = itmIdx;
 				btnPosX += 50;
 				// 화살표 추가
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "↑");
 				DGShowItem (dialogID, itmIdx);
@@ -3390,7 +3403,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					btnPosX += 50;
 				}
 				// 화살표 추가
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "↑");
 				DGShowItem (dialogID, itmIdx);
@@ -3419,7 +3432,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				START_INDEX_CENTER_AT_BOTTOM = itmIdx;
 				btnPosX += 50;
 				// 화살표 추가
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "↑");
 				DGShowItem (dialogID, itmIdx);
@@ -3504,6 +3517,11 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				dialogSizeX = max<short>(500, 150 + (btnSizeX * (placingZone.nCellsFromBeginAtBottom + placingZone.nCellsFromEndAtBottom + 1)) + 150);
 				dialogSizeY = 490;
 				DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
+			}
+
+			// 이전 버튼
+			if (item == DG_PREV) {
+				clickedPrevButton = true;
 			}
 
 			// 확인 버튼
@@ -3613,7 +3631,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					btnPosX += 50;
 				}
 				// 화살표 추가
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "↑");
 				DGShowItem (dialogID, itmIdx);
@@ -3642,7 +3660,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				START_INDEX_CENTER_AT_SIDE = itmIdx;
 				btnPosX += 50;
 				// 화살표 추가
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "↑");
 				DGShowItem (dialogID, itmIdx);
@@ -3747,7 +3765,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					btnPosX += 50;
 				}
 				// 화살표 추가
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "↑");
 				DGShowItem (dialogID, itmIdx);
@@ -3776,7 +3794,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				START_INDEX_CENTER_AT_BOTTOM = itmIdx;
 				btnPosX += 50;
 				// 화살표 추가
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 23);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, btnPosX - 5, btnPosY + 52, 30, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "↑");
 				DGShowItem (dialogID, itmIdx);

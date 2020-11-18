@@ -79,6 +79,7 @@ namespace beamPlacerDG {
 
 	enum	idxItems_2_forBeamPlacer {
 		DG_UPDATE_BUTTON		= 3,
+		DG_PREV,
 		LABEL_BEAM_SIDE_BOTTOM,
 		LABEL_BEAM_SIDE,
 		LABEL_BEAM_BOTTOM,
