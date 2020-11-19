@@ -2662,21 +2662,21 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 							placingZone.cellsFromBeginAtLSide [3][xx].ang = placingZone.ang;
 							placingZone.cellsFromBeginAtLSide [3][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromBeginAtLSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
-							placingZone.cellsFromBeginAtLSide [3][xx].libPart.wood.w_w = 0.064;
+							placingZone.cellsFromBeginAtLSide [3][xx].libPart.wood.w_w = 0.050;
 
 							placingZone.cellsFromEndAtLSide [3][xx].objType = WOOD;
 							placingZone.cellsFromEndAtLSide [3][xx].attached_side = LEFT_SIDE;
 							placingZone.cellsFromEndAtLSide [3][xx].ang = placingZone.ang;
 							placingZone.cellsFromEndAtLSide [3][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromEndAtLSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
-							placingZone.cellsFromEndAtLSide [3][xx].libPart.wood.w_w = 0.064;
+							placingZone.cellsFromEndAtLSide [3][xx].libPart.wood.w_w = 0.050;
 
 							placingZone.cellCenterAtLSide [3].objType = WOOD;
 							placingZone.cellCenterAtLSide [3].attached_side = LEFT_SIDE;
 							placingZone.cellCenterAtLSide [3].ang = placingZone.ang;
 							placingZone.cellCenterAtLSide [3].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellCenterAtLSide [3].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
-							placingZone.cellCenterAtLSide [3].libPart.wood.w_w = 0.064;
+							placingZone.cellCenterAtLSide [3].libPart.wood.w_w = 0.050;
 
 							// ¿ìÃø [3]
 							placingZone.cellsFromBeginAtRSide [3][xx].objType = WOOD;
@@ -2684,21 +2684,21 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 							placingZone.cellsFromBeginAtRSide [3][xx].ang = placingZone.ang;
 							placingZone.cellsFromBeginAtRSide [3][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromBeginAtRSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
-							placingZone.cellsFromBeginAtRSide [3][xx].libPart.wood.w_w = 0.064;
+							placingZone.cellsFromBeginAtRSide [3][xx].libPart.wood.w_w = 0.050;
 
 							placingZone.cellsFromEndAtRSide [3][xx].objType = WOOD;
 							placingZone.cellsFromEndAtRSide [3][xx].attached_side = RIGHT_SIDE;
 							placingZone.cellsFromEndAtRSide [3][xx].ang = placingZone.ang;
 							placingZone.cellsFromEndAtRSide [3][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellsFromEndAtRSide [3][xx].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
-							placingZone.cellsFromEndAtRSide [3][xx].libPart.wood.w_w = 0.064;
+							placingZone.cellsFromEndAtRSide [3][xx].libPart.wood.w_w = 0.050;
 
 							placingZone.cellCenterAtRSide [3].objType = WOOD;
 							placingZone.cellCenterAtRSide [3].attached_side = RIGHT_SIDE;
 							placingZone.cellCenterAtRSide [3].ang = placingZone.ang;
 							placingZone.cellCenterAtRSide [3].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
 							placingZone.cellCenterAtRSide [3].libPart.wood.w_h = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
-							placingZone.cellCenterAtRSide [3].libPart.wood.w_w = 0.064;
+							placingZone.cellCenterAtRSide [3].libPart.wood.w_w = 0.050;
 						}
 					}
 

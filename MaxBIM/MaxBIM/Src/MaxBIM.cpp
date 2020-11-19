@@ -6,6 +6,7 @@
 #include "WallEuroformPlacer.hpp"
 #include "SlabEuroformPlacer.hpp"
 #include "BeamEuroformPlacer.hpp"
+#include "ColumnEuroformPlacer.hpp"
 
 #define	MDID_DEVELOPER_ID	829517673
 #define	MDID_LOCAL_ID		3588511626
@@ -75,6 +76,13 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						err = placeEuroformOnBeam ();
 						return err;
 					});
+					break;
+				case 4:
+					// place Euroform on Column
+					//err = ACAPI_CallUndoableCommand ("±âµÕ¿¡ À¯·ÎÆû ¹èÄ¡", [&] () -> GSErrCode {
+						err = placeEuroformOnColumn ();
+						//return err;
+					//});
 					break;
 			}
 	}
