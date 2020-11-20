@@ -61,7 +61,7 @@ static short	EDITCONTROL_CENTER_LENGTH_SIDE;
 
 
 // 3번 메뉴: 보에 유로폼을 배치하는 통합 루틴
-GSErrCode	placeEuroformOnBeam (void)
+GSErrCode	placeEuroformOnBeamEntire (void)
 {
 	GSErrCode		err = NoError;
 	long			nSel;
@@ -103,11 +103,7 @@ GSErrCode	placeEuroformOnBeam (void)
 	// 점 입력
 	API_GetPointType		pointInfo;
 	API_Coord3D				point1, point2;
-	API_Coord3D				tempPoint, resultPoint;
 	API_Coord3D				other_p1, other_p2;
-
-	// 회전각도 0일 때의 보의 시작점, 끝점의 좌표를 저장함
-	API_Coord3D				nodes [2];
 
 	// 교차점 찾기
 	API_Coord p1, p2, p3, p4, pResult;
@@ -125,7 +121,7 @@ GSErrCode	placeEuroformOnBeam (void)
 		return err;
 	}
 	if (err == APIERR_NOSEL) {
-		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 보 (1개), 보 측면을 덮는 모프 (1개)", true);
+		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 보 (1개), 보 측면 전체를 덮는 모프 (1개)", true);
 		return err;
 	}
 	if (err != NoError) {
@@ -163,7 +159,7 @@ GSErrCode	placeEuroformOnBeam (void)
 
 	// 모프가 1개인가?
 	if (nMorphs != 1) {
-		ACAPI_WriteReport ("보 측면을 덮는 모프를 1개 선택하셔야 합니다.", true);
+		ACAPI_WriteReport ("보 측면 전체를 덮는 모프를 1개 선택하셔야 합니다.", true);
 		err = APIERR_GENERAL;
 		return err;
 	}
@@ -277,10 +273,10 @@ GSErrCode	placeEuroformOnBeam (void)
 
 	other_p2.x = infoBeam.endC.x;
 	other_p2.y = infoBeam.endC.y;
-	other_p2.z = info3D.bounds.zMax;
+	other_p2.z = info3D.bounds.zMin;
 
 	// 영역 높이 값을 구함
-	placingZone.areaHeight = other_p2.z - other_p1.z;
+	placingZone.areaHeight = info3D.bounds.zMax - info3D.bounds.zMin;
 
 	// 클릭한 두 점을 보의 시작점, 끝점과 연결시킴
 	if (moreCloserPoint (point1, other_p1, other_p2) == 1) {
@@ -321,15 +317,6 @@ GSErrCode	placeEuroformOnBeam (void)
 	dy = placingZone.endC.y - placingZone.begC.y;
 	ang = RadToDegree (atan2 (dy, dx));
 
-	// 시작점이 왼쪽, 끝점이 오른쪽으로 가도록 회전할 것 (회전각도 0일 때의 좌표 계산)
-	tempPoint = placingZone.endC;
-	resultPoint.x = point1.x + ((tempPoint.x - point1.x)*cos(DegreeToRad (-ang)) - (tempPoint.y - point1.y)*sin(DegreeToRad (-ang)));
-	resultPoint.y = point1.y + ((tempPoint.x - point1.x)*sin(DegreeToRad (-ang)) + (tempPoint.y - point1.y)*cos(DegreeToRad (-ang)));
-	resultPoint.z = tempPoint.z;
-
-	nodes [0] = placingZone.begC;
-	nodes [1] = resultPoint;
-
 	// 나머지 보 영역 정보를 저장함
 	placingZone.ang			= DegreeToRad (ang);
 	placingZone.level		= infoBeam.level;
@@ -345,7 +332,7 @@ GSErrCode	placeEuroformOnBeam (void)
 	// 간섭 보 관련 정보 입력
 	if (nInterfereBeams > 0) {
 		placingZone.bInterfereBeam = true;
-		placingZone.posInterfereBeamFromLeft = GetDistance (placingZone.begC.x, placingZone.begC.y, pResult.x, pResult.y);
+		placingZone.posInterfereBeamFromLeft = GetDistance (placingZone.begC.x, placingZone.begC.y, pResult.x, pResult.y) - infoOtherBeams [0].offset;
 		placingZone.interfereBeamWidth = infoOtherBeams [0].width;
 		placingZone.interfereBeamHeight = infoOtherBeams [0].height;
 	} else {
@@ -365,6 +352,391 @@ GSErrCode	placeEuroformOnBeam (void)
 	BMKillHandle ((GSHandle *) &storyInfo.data);
 
 	// 영역 정보의 고도 정보 수정 - 불필요
+
+FIRST:
+
+	// placingZone의 Cell 정보 초기화
+	initCellsForBeam (&placingZone);
+
+	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32521, ACAPI_GetOwnResModule (), beamPlacerHandler1, 0);
+
+	if (result == DG_CANCEL)
+		return err;
+
+	// 1차 배치 설정
+	firstPlacingSettingsForBeam (&placingZone);
+
+	// [DIALOG] 2번째 다이얼로그에서 유로폼 배치를 수정합니다.
+	clickedOKButton = false;
+	clickedPrevButton = false;
+	result = DGBlankModalDialog (500, 530, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, beamPlacerHandler2, 0);
+	
+	// 이전 버튼을 누르면 1번째 다이얼로그 다시 실행
+	if (clickedPrevButton == true)
+		goto FIRST;
+
+	// 2번째 다이얼로그에서 OK 버튼을 눌러야만 다음 단계로 넘어감
+	if (clickedOKButton != true)
+		return err;
+
+	// 1, 2번째 다이얼로그를 통해 입력된 데이터를 기반으로 객체를 배치
+	// 측면 객체 배치
+	for (xx = 0 ; xx < 4 ; ++xx) {
+		for (yy = 0 ; yy < placingZone.nCellsFromBeginAtSide ; ++yy) {
+			placingZone.cellsFromBeginAtLSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromBeginAtLSide [xx][yy]);
+			elemList.Push (placingZone.cellsFromBeginAtLSide [xx][yy].guid);
+			placingZone.cellsFromBeginAtRSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromBeginAtRSide [xx][yy]);
+			elemList.Push (placingZone.cellsFromBeginAtRSide [xx][yy].guid);
+		}
+	}
+	for (xx = 0 ; xx < 4 ; ++xx) {
+		placingZone.cellCenterAtLSide [xx].guid = placeLibPartForBeam (placingZone.cellCenterAtLSide [xx]);
+		elemList.Push (placingZone.cellCenterAtLSide [xx].guid);
+		placingZone.cellCenterAtRSide [xx].guid = placeLibPartForBeam (placingZone.cellCenterAtRSide [xx]);
+		elemList.Push (placingZone.cellCenterAtRSide [xx].guid);
+	}
+	for (xx = 0 ; xx < 4 ; ++xx) {
+		for (yy = 0 ; yy < placingZone.nCellsFromEndAtSide ; ++yy) {
+			placingZone.cellsFromEndAtLSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromEndAtLSide [xx][yy]);
+			elemList.Push (placingZone.cellsFromEndAtLSide [xx][yy].guid);
+			placingZone.cellsFromEndAtRSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromEndAtRSide [xx][yy]);
+			elemList.Push (placingZone.cellsFromEndAtRSide [xx][yy].guid);
+		}
+	}
+
+	// 하부 객체 배치
+	for (xx = 0 ; xx < 3 ; ++xx) {
+		for (yy = 0 ; yy < placingZone.nCellsFromBeginAtBottom ; ++yy) {
+			placingZone.cellsFromBeginAtBottom [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromBeginAtBottom [xx][yy]);
+			elemList.Push (placingZone.cellsFromBeginAtBottom [xx][yy].guid);
+		}
+	}
+	for (xx = 0 ; xx < 3 ; ++xx) {
+		placingZone.cellCenterAtBottom [xx].guid = placeLibPartForBeam (placingZone.cellCenterAtBottom [xx]);
+		elemList.Push (placingZone.cellCenterAtBottom [xx].guid);
+	}
+	for (xx = 0 ; xx < 3 ; ++xx) {
+		for (yy = 0 ; yy < placingZone.nCellsFromEndAtBottom ; ++yy) {
+			placingZone.cellsFromEndAtBottom [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromEndAtBottom [xx][yy]);
+			elemList.Push (placingZone.cellsFromEndAtBottom [xx][yy].guid);
+		}
+	}
+
+	// 나머지 영역 채우기 - 합판, 목재
+	err = fillRestAreasForBeam (&placingZone);
+
+	// 결과물 전체 그룹화
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+
+	return	err;
+}
+
+// 4번 메뉴: 보에 유로폼을 배치하는 통합 루틴
+GSErrCode	placeEuroformOnBeamPart (void)
+{
+	GSErrCode		err = NoError;
+	long			nSel;
+	short			xx, yy;
+	double			dx, dy, ang;
+	short			result;
+
+	// Selection Manager 관련 변수
+	API_SelectionInfo		selectionInfo;
+	API_Element				tElem;
+	API_Neig				**selNeigs;
+	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>&	beams = GS::Array<API_Guid> ();
+	long					nMorphs = 0;
+	long					nBeams = 0;
+
+	// 객체 정보 가져오기
+	API_Element				elem;
+	API_ElementMemo			memo;
+	API_ElemInfo3D			info3D;
+
+	// 모프 3D 구성요소 가져오기
+	API_Component3D			component;
+	API_Tranmat				tm;
+	Int32					nVert, nEdge, nPgon;
+	Int32					elemIdx, bodyIdx;
+	API_Coord3D				trCoord;
+	GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
+
+	// 폴리곤 점을 배열로 복사하고 순서대로 좌표 값을 얻어냄
+	API_Coord3D		nodes_random [20];
+	long			nNodes;		// 모프 폴리곤의 정점 좌표 개수
+	bool			bIsInPolygon1, bIsInPolygon2;
+
+	// 모프 객체 정보
+	InfoMorphForBeam		infoMorph;
+
+	// 점 입력
+	API_GetPointType		pointInfo;
+	API_Coord3D				point1, point2;
+	API_Coord3D				other_p1, other_p2;
+
+	// 보와 모프와의 관계를 찾기 위한 변수
+	API_Coord				clickedPoint;
+	API_Coord				beginPoint;
+	API_Coord				endPoint;
+	double					distance1, distance2, distance3;
+
+	// 작업 층 정보
+	API_StoryInfo			storyInfo;
+	double					workLevel_beam;
+
+
+	// 선택한 요소 가져오기
+	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
+	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	if (err == APIERR_NOPLAN) {
+		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
+		return err;
+	}
+	if (err == APIERR_NOSEL) {
+		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 보 (1개), 보 측면 일부를 덮는 모프 (1개)", true);
+		return err;
+	}
+	if (err != NoError) {
+		BMKillHandle ((GSHandle *) &selNeigs);
+		return err;
+	}
+
+	// 메인 보 1개 선택해야 함
+	if (selectionInfo.typeID != API_SelEmpty) {
+		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
+		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
+			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
+
+			tElem.header.guid = (*selNeigs)[xx].guid;
+			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
+				continue;
+
+			if (tElem.header.typeID == API_MorphID)		// 모프인가?
+				morphs.Push (tElem.header.guid);
+
+			if (tElem.header.typeID == API_BeamID)		// 보인가?
+				beams.Push (tElem.header.guid);
+		}
+	}
+	BMKillHandle ((GSHandle *) &selNeigs);
+	nMorphs = morphs.GetSize ();
+	nBeams = beams.GetSize ();
+
+	// 보가 1개인가?
+	if (nBeams != 1) {
+		ACAPI_WriteReport ("보를 1개 선택해야 합니다.", true);
+		err = APIERR_GENERAL;
+		return err;
+	}
+
+	// 모프가 1개인가?
+	if (nMorphs != 1) {
+		ACAPI_WriteReport ("보 측면 일부를 덮는 모프를 1개 선택하셔야 합니다.", true);
+		err = APIERR_GENERAL;
+		return err;
+	}
+
+	// 보 정보 저장
+	infoBeam.guid = beams.Pop ();
+
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	elem.header.guid = infoBeam.guid;
+	err = ACAPI_Element_Get (&elem);
+	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+	
+	infoBeam.floorInd	= elem.header.floorInd;
+	infoBeam.height		= elem.beam.height;
+	infoBeam.width		= elem.beam.width;
+	infoBeam.offset		= elem.beam.offset;
+	infoBeam.level		= elem.beam.level;
+	infoBeam.begC		= elem.beam.begC;
+	infoBeam.endC		= elem.beam.endC;
+
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// 모프 정보를 가져옴
+	BNZeroMemory (&elem, sizeof (API_Element));
+	elem.header.guid = morphs.Pop ();
+	err = ACAPI_Element_Get (&elem);
+	err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
+
+	// 모프의 정보 저장
+	infoMorph.guid		= elem.header.guid;
+	infoMorph.floorInd	= elem.header.floorInd;
+	infoMorph.level		= info3D.bounds.zMin;
+
+	// 모프의 3D 바디를 가져옴
+	BNZeroMemory (&component, sizeof (API_Component3D));
+	component.header.typeID = API_BodyID;
+	component.header.index = info3D.fbody;
+	err = ACAPI_3D_GetComponent (&component);
+
+	// 모프의 3D 모델을 가져오지 못하면 종료
+	if (err != NoError) {
+		ACAPI_WriteReport ("모프의 3D 모델을 가져오지 못했습니다.", true);
+		return err;
+	}
+
+	nVert = component.body.nVert;
+	nEdge = component.body.nEdge;
+	nPgon = component.body.nPgon;
+	tm = component.body.tranmat;
+	elemIdx = component.body.head.elemIndex - 1;
+	bodyIdx = component.body.head.bodyIndex - 1;
+	
+	// 정점 좌표를 임의 순서대로 저장함
+	for (xx = 1 ; xx <= nVert ; ++xx) {
+		component.header.typeID	= API_VertID;
+		component.header.index	= xx;
+		err = ACAPI_3D_GetComponent (&component);
+		if (err == NoError) {
+			trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
+			trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
+			trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
+			coords.Push (trCoord);
+		}
+	}
+	nNodes = coords.GetSize ();
+
+	// 시작 부분 하단 점 클릭, 끝 부분 상단 점 클릭
+	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
+	CHCopyC ("보의 시작 부분 점을 클릭하십시오.", pointInfo.prompt);
+	pointInfo.enableQuickSelection = true;
+	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
+	point1 = pointInfo.pos;
+
+	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
+	CHCopyC ("보의 끝 부분 점을 클릭하십시오.", pointInfo.prompt);
+	pointInfo.enableQuickSelection = true;
+	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
+	point2 = pointInfo.pos;
+
+	// 사용자가 클릭한 두 점을 통해 보의 시작점, 끝점을 찾음
+	other_p1.x = infoBeam.begC.x;
+	other_p1.y = infoBeam.begC.y;
+	other_p1.z = info3D.bounds.zMin;
+
+	other_p2.x = infoBeam.endC.x;
+	other_p2.y = infoBeam.endC.y;
+	other_p2.z = info3D.bounds.zMin;
+
+	// 영역 높이 값을 구함
+	placingZone.areaHeight = info3D.bounds.zMax - info3D.bounds.zMin;
+
+	// 클릭한 두 점을 보의 시작점, 끝점과 연결시킴
+	if (moreCloserPoint (point1, other_p1, other_p2) == 1) {
+		placingZone.begC = other_p1;
+		placingZone.endC = other_p2;
+	} else {
+		placingZone.begC = other_p2;
+		placingZone.endC = other_p1;
+	}
+
+	// 폴리곤의 점들을 저장함
+	for (xx = 0 ; xx < nNodes ; ++xx)
+		nodes_random [xx] = coords.Pop ();
+
+	// 만약 선택한 두 점이 폴리곤에 속한 점이 아니면 오류
+	bIsInPolygon1 = false;
+	bIsInPolygon2 = false;
+	for (xx = 0 ; xx < nNodes ; ++xx) {
+		if (isSamePoint (point1, nodes_random [xx]))
+			bIsInPolygon1 = true;
+		if (isSamePoint (point2, nodes_random [xx]))
+			bIsInPolygon2 = true;
+	}
+
+	if ( !(bIsInPolygon1 && bIsInPolygon2) ) {
+		ACAPI_WriteReport ("폴리곤에 속하지 않은 점을 클릭했습니다.", true);
+		return err;
+	}
+
+	// 영역 모프 제거
+	API_Elem_Head* headList = new API_Elem_Head [1];
+	headList [0] = elem.header;
+	err = ACAPI_Element_Delete (&headList, 1);
+	delete headList;
+
+	// 두 점 간의 각도를 구함
+	dx = placingZone.endC.x - placingZone.begC.x;
+	dy = placingZone.endC.y - placingZone.begC.y;
+	ang = RadToDegree (atan2 (dy, dx));
+
+	// 나머지 보 영역 정보를 저장함
+	placingZone.ang			= DegreeToRad (ang);
+	placingZone.level		= infoBeam.level;
+	placingZone.beamLength	= GetDistance (infoBeam.begC.x, infoBeam.begC.y, infoBeam.endC.x, infoBeam.endC.y);
+
+	// 보 레퍼런스 라인과 모프 시작점 간의 거리를 측정한다
+	if (moreCloserPoint (point1, other_p1, other_p2) == 1) {
+		clickedPoint.x = point1.x;
+		clickedPoint.y = point1.y;
+		beginPoint.x = infoBeam.begC.x;
+		beginPoint.y = infoBeam.begC.y;
+		endPoint.x = infoBeam.endC.x;
+		endPoint.y = infoBeam.endC.y;
+	} else {
+		clickedPoint.x = point1.x;
+		clickedPoint.y = point1.y;
+		beginPoint.x = infoBeam.endC.x;
+		beginPoint.y = infoBeam.endC.y;
+		endPoint.x = infoBeam.begC.x;
+		endPoint.y = infoBeam.begC.y;
+	}
+
+	distance1 = distOfPointBetweenLine (clickedPoint, beginPoint, endPoint);
+	distance2 = GetDistance (beginPoint.x, beginPoint.y, clickedPoint.x, clickedPoint.y);
+	if (abs (distance2 - distance1) > EPS)
+		distance3 = sqrt (distance2 - distance1 * distance1);	// 보 시작점으로부터 모프 시작점까지의 X 거리
+	else
+		distance3 = 0.0;
+
+	// 보의 시작/끝점을 모프가 덮은 영역인 일부 구간으로 설정
+	placingZone.begC.x = infoBeam.begC.x + (distance3 * cos(placingZone.ang));
+	placingZone.begC.y = infoBeam.begC.y + (distance3 * sin(placingZone.ang));
+	placingZone.endC.x = placingZone.begC.x + (GetDistance (point1.x, point1.y, point2.x, point2.y) * cos(placingZone.ang));
+	placingZone.endC.y = placingZone.begC.y + (GetDistance (point1.x, point1.y, point2.x, point2.y) * sin(placingZone.ang));
+
+	// 보 정보 업데이트
+	infoBeam.begC.x		= placingZone.begC.x;
+	infoBeam.begC.y		= placingZone.begC.y;
+	infoBeam.endC.x		= placingZone.endC.x;
+	infoBeam.endC.y		= placingZone.endC.y;
+
+	// 보 길이 업데이트
+	placingZone.beamLength	= GetDistance (placingZone.begC.x, placingZone.begC.y, placingZone.endC.x, placingZone.endC.y);
+
+	// 간섭 보 관련 정보 입력 - 간섭 보 없음
+	placingZone.bInterfereBeam = false;
+
+	// 작업 층 높이 반영
+	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+	workLevel_beam = 0.0;
+	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+		if (storyInfo.data [0][xx].index == infoBeam.floorInd) {
+			workLevel_beam = storyInfo.data [0][xx].level;
+			break;
+		}
+	}
+	BMKillHandle ((GSHandle *) &storyInfo.data);
+
+	// 영역 정보의 고도 정보 수정 - 불필요
+
 
 FIRST:
 
@@ -659,7 +1031,8 @@ void	firstPlacingSettingsForBeam (BeamPlacingZone* placingZone)
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)
-		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		if (placingZone->cellsFromBeginAtLSide [0][xx].objType != NONE)
+			accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
 
 	// 위치 선정
 	height [0] = placingZone->level - infoBeam.height - placingZone->gapBottom;
@@ -766,7 +1139,8 @@ void	firstPlacingSettingsForBeam (BeamPlacingZone* placingZone)
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)
-		accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+		if (placingZone->cellsFromEndAtLSide [0][xx].objType != NONE)
+			accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
 
 	// 위치 선정
 	height [0] = placingZone->level - infoBeam.height - placingZone->gapBottom;
@@ -932,7 +1306,8 @@ void	firstPlacingSettingsForBeam (BeamPlacingZone* placingZone)
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtBottom ; ++xx)
-		accumDist += placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
+		if (placingZone->cellsFromBeginAtBottom [0][xx].objType != NONE)
+			accumDist += placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
 
 	// 위치 선정
 	left [0] = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
@@ -998,7 +1373,8 @@ void	firstPlacingSettingsForBeam (BeamPlacingZone* placingZone)
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
-		accumDist += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+		if (placingZone->cellsFromEndAtBottom [0][xx].objType != NONE)
+			accumDist += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
 
 	// 위치 선정
 	left [0] = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
@@ -1203,7 +1579,8 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)
-		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		if (placingZone->cellsFromBeginAtLSide [0][xx].objType != NONE)
+			accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
 
 	// 위치 선정
 	height [0] = placingZone->level - infoBeam.height - placingZone->gapBottom;
@@ -1213,44 +1590,46 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	for (xx = 0 ; xx < 4 ; ++xx) {
 		xPos = centerPos - width_side/2 - accumDist;
 		for (yy = 0 ; yy < placingZone->nCellsFromBeginAtSide ; ++yy) {
-			// 좌측
-			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomX = placingZone->begC.x + xPos;
-			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
-			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomZ = height [xx];
+			if (placingZone->cellsFromBeginAtLSide [xx][yy].objType != NONE) {
+				// 좌측
+				placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomX = placingZone->begC.x + xPos;
+				placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+				placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomZ = height [xx];
 		
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
 
-			rotatedPoint.x = placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomX;
-			rotatedPoint.y = placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomY;
-			rotatedPoint.z = placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+				rotatedPoint.x = placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomX;
+				rotatedPoint.y = placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomY;
+				rotatedPoint.z = placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomX = unrotatedPoint.x;
-			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomY = unrotatedPoint.y;
-			placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomZ = unrotatedPoint.z;
+				placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomX = unrotatedPoint.x;
+				placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomY = unrotatedPoint.y;
+				placingZone->cellsFromBeginAtLSide [xx][yy].leftBottomZ = unrotatedPoint.z;
 
-			// 우측
-			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomX = placingZone->begC.x + xPos;
-			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
-			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomZ = height [xx];
+				// 우측
+				placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomX = placingZone->begC.x + xPos;
+				placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+				placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomZ = height [xx];
 
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
 
-			rotatedPoint.x = placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomX;
-			rotatedPoint.y = placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomY;
-			rotatedPoint.z = placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+				rotatedPoint.x = placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomX;
+				rotatedPoint.y = placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomY;
+				rotatedPoint.z = placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomX = unrotatedPoint.x;
-			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomY = unrotatedPoint.y;
-			placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomZ = unrotatedPoint.z;
+				placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomX = unrotatedPoint.x;
+				placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomY = unrotatedPoint.y;
+				placingZone->cellsFromBeginAtRSide [xx][yy].leftBottomZ = unrotatedPoint.z;
 
-			// 거리 이동
-			xPos += placingZone->cellsFromBeginAtRSide [xx][yy].dirLen;
+				// 거리 이동
+				xPos += placingZone->cellsFromBeginAtRSide [xx][yy].dirLen;
+			}
 		}
 	}
 
@@ -1258,7 +1637,8 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)
-		accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+		if (placingZone->cellsFromEndAtLSide [0][xx].objType != NONE)
+			accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
 
 	// 위치 선정
 	height [0] = placingZone->level - infoBeam.height - placingZone->gapBottom;
@@ -1268,45 +1648,47 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	for (xx = 0 ; xx < 4 ; ++xx) {
 		xPos = centerPos + width_side/2 + accumDist - placingZone->cellsFromEndAtLSide [0][0].dirLen;
 		for (yy = 0 ; yy < placingZone->nCellsFromEndAtSide ; ++yy) {
-			// 좌측
-			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomX = placingZone->begC.x + xPos;
-			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
-			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomZ = height [xx];
+			if (placingZone->cellsFromEndAtLSide [xx][yy].objType != NONE) {
+				// 좌측
+				placingZone->cellsFromEndAtLSide [xx][yy].leftBottomX = placingZone->begC.x + xPos;
+				placingZone->cellsFromEndAtLSide [xx][yy].leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+				placingZone->cellsFromEndAtLSide [xx][yy].leftBottomZ = height [xx];
 			
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
 
-			rotatedPoint.x = placingZone->cellsFromEndAtLSide [xx][yy].leftBottomX;
-			rotatedPoint.y = placingZone->cellsFromEndAtLSide [xx][yy].leftBottomY;
-			rotatedPoint.z = placingZone->cellsFromEndAtLSide [xx][yy].leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+				rotatedPoint.x = placingZone->cellsFromEndAtLSide [xx][yy].leftBottomX;
+				rotatedPoint.y = placingZone->cellsFromEndAtLSide [xx][yy].leftBottomY;
+				rotatedPoint.z = placingZone->cellsFromEndAtLSide [xx][yy].leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomX = unrotatedPoint.x;
-			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomY = unrotatedPoint.y;
-			placingZone->cellsFromEndAtLSide [xx][yy].leftBottomZ = unrotatedPoint.z;
+				placingZone->cellsFromEndAtLSide [xx][yy].leftBottomX = unrotatedPoint.x;
+				placingZone->cellsFromEndAtLSide [xx][yy].leftBottomY = unrotatedPoint.y;
+				placingZone->cellsFromEndAtLSide [xx][yy].leftBottomZ = unrotatedPoint.z;
 
-			// 우측
-			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomX = placingZone->begC.x + xPos;
-			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
-			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomZ = height [xx];
+				// 우측
+				placingZone->cellsFromEndAtRSide [xx][yy].leftBottomX = placingZone->begC.x + xPos;
+				placingZone->cellsFromEndAtRSide [xx][yy].leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+				placingZone->cellsFromEndAtRSide [xx][yy].leftBottomZ = height [xx];
 
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
 
-			rotatedPoint.x = placingZone->cellsFromEndAtRSide [xx][yy].leftBottomX;
-			rotatedPoint.y = placingZone->cellsFromEndAtRSide [xx][yy].leftBottomY;
-			rotatedPoint.z = placingZone->cellsFromEndAtRSide [xx][yy].leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+				rotatedPoint.x = placingZone->cellsFromEndAtRSide [xx][yy].leftBottomX;
+				rotatedPoint.y = placingZone->cellsFromEndAtRSide [xx][yy].leftBottomY;
+				rotatedPoint.z = placingZone->cellsFromEndAtRSide [xx][yy].leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomX = unrotatedPoint.x;
-			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomY = unrotatedPoint.y;
-			placingZone->cellsFromEndAtRSide [xx][yy].leftBottomZ = unrotatedPoint.z;
+				placingZone->cellsFromEndAtRSide [xx][yy].leftBottomX = unrotatedPoint.x;
+				placingZone->cellsFromEndAtRSide [xx][yy].leftBottomY = unrotatedPoint.y;
+				placingZone->cellsFromEndAtRSide [xx][yy].leftBottomZ = unrotatedPoint.z;
 
-			// 거리 이동
-			if (yy < placingZone->nCellsFromEndAtSide-1)
-				xPos -= placingZone->cellsFromEndAtRSide [xx][yy+1].dirLen;
+				// 거리 이동
+				if (yy < placingZone->nCellsFromEndAtSide-1)
+					xPos -= placingZone->cellsFromEndAtRSide [xx][yy+1].dirLen;
+			}
 		}
 	}
 
@@ -1320,7 +1702,7 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	for (xx = 0 ; xx < 4 ; ++xx) {
 		// 좌측
 		placingZone->cellCenterAtLSide [xx].leftBottomX = placingZone->begC.x + xPos;
-		placingZone->cellCenterAtLSide [xx].leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+		placingZone->cellCenterAtLSide [xx].leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
 		placingZone->cellCenterAtLSide [xx].leftBottomZ = height [xx];
 		
 		axisPoint.x = placingZone->begC.x;
@@ -1338,7 +1720,7 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 
 		// 우측
 		placingZone->cellCenterAtRSide [xx].leftBottomX = placingZone->begC.x + xPos;
-		placingZone->cellCenterAtRSide [xx].leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+		placingZone->cellCenterAtRSide [xx].leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
 		placingZone->cellCenterAtRSide [xx].leftBottomZ = height [xx];
 
 		axisPoint.x = placingZone->begC.x;
@@ -1359,7 +1741,8 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtBottom ; ++xx)
-		accumDist += placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
+		if (placingZone->cellsFromBeginAtBottom [0][xx].objType != NONE)
+			accumDist += placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
 
 	// 위치 선정
 	left [0] = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
@@ -1368,25 +1751,27 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	for (xx = 0 ; xx < 3 ; ++xx) {
 		xPos = centerPos - width_bottom/2 - accumDist;
 		for (yy = 0 ; yy < placingZone->nCellsFromBeginAtBottom ; ++yy) {
-			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomX = placingZone->begC.x + xPos;
-			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomY = left [xx];
-			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+			if (placingZone->cellsFromBeginAtBottom [xx][yy].objType != NONE) {
+				placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomX = placingZone->begC.x + xPos;
+				placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomY = left [xx] + infoBeam.offset;
+				placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 			
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
 
-			rotatedPoint.x = placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomX;
-			rotatedPoint.y = placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomY;
-			rotatedPoint.z = placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+				rotatedPoint.x = placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomX;
+				rotatedPoint.y = placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomY;
+				rotatedPoint.z = placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomX = unrotatedPoint.x;
-			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomY = unrotatedPoint.y;
-			placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomZ = unrotatedPoint.z;
+				placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomX = unrotatedPoint.x;
+				placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomY = unrotatedPoint.y;
+				placingZone->cellsFromBeginAtBottom [xx][yy].leftBottomZ = unrotatedPoint.z;
 
-			// 거리 이동
-			xPos += placingZone->cellsFromBeginAtBottom [xx][yy].dirLen;
+				// 거리 이동
+				xPos += placingZone->cellsFromBeginAtBottom [xx][yy].dirLen;
+			}
 		}
 	}
 
@@ -1394,7 +1779,8 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
-		accumDist += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+		if (placingZone->cellsFromEndAtBottom [0][xx].objType != NONE)
+			accumDist += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
 
 	// 위치 선정
 	left [0] = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
@@ -1403,26 +1789,28 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	for (xx = 0 ; xx < 3 ; ++xx) {
 		xPos = centerPos + width_bottom/2 + accumDist - placingZone->cellsFromEndAtBottom [0][0].dirLen;
 		for (yy = 0 ; yy < placingZone->nCellsFromEndAtBottom ; ++yy) {
-			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomX = placingZone->begC.x + xPos;
-			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomY = left [xx];
-			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+			if (placingZone->cellsFromEndAtBottom [xx][yy].objType != NONE) {
+				placingZone->cellsFromEndAtBottom [xx][yy].leftBottomX = placingZone->begC.x + xPos;
+				placingZone->cellsFromEndAtBottom [xx][yy].leftBottomY = left [xx] + infoBeam.offset;
+				placingZone->cellsFromEndAtBottom [xx][yy].leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 			
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
 
-			rotatedPoint.x = placingZone->cellsFromEndAtBottom [xx][yy].leftBottomX;
-			rotatedPoint.y = placingZone->cellsFromEndAtBottom [xx][yy].leftBottomY;
-			rotatedPoint.z = placingZone->cellsFromEndAtBottom [xx][yy].leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+				rotatedPoint.x = placingZone->cellsFromEndAtBottom [xx][yy].leftBottomX;
+				rotatedPoint.y = placingZone->cellsFromEndAtBottom [xx][yy].leftBottomY;
+				rotatedPoint.z = placingZone->cellsFromEndAtBottom [xx][yy].leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomX = unrotatedPoint.x;
-			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomY = unrotatedPoint.y;
-			placingZone->cellsFromEndAtBottom [xx][yy].leftBottomZ = unrotatedPoint.z;
+				placingZone->cellsFromEndAtBottom [xx][yy].leftBottomX = unrotatedPoint.x;
+				placingZone->cellsFromEndAtBottom [xx][yy].leftBottomY = unrotatedPoint.y;
+				placingZone->cellsFromEndAtBottom [xx][yy].leftBottomZ = unrotatedPoint.z;
 
-			// 거리 이동
-			if (yy < placingZone->nCellsFromEndAtBottom-1)
-				xPos -= placingZone->cellsFromEndAtBottom [xx][yy+1].dirLen;
+				// 거리 이동
+				if (yy < placingZone->nCellsFromEndAtBottom-1)
+					xPos -= placingZone->cellsFromEndAtBottom [xx][yy+1].dirLen;
+			}
 		}
 	}
 
@@ -1434,7 +1822,7 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 	left [2] = left [1] - placingZone->cellCenterAtBottom [1].perLen;
 	for (xx = 0 ; xx < 3 ; ++xx) {
 		placingZone->cellCenterAtBottom [xx].leftBottomX = placingZone->begC.x + xPos;
-		placingZone->cellCenterAtBottom [xx].leftBottomY = left [xx];
+		placingZone->cellCenterAtBottom [xx].leftBottomY = left [xx] + infoBeam.offset;
 		placingZone->cellCenterAtBottom [xx].leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 		
 		axisPoint.x = placingZone->begC.x;
@@ -1756,7 +2144,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.dirLen = cellWidth_side;
 			insCell.perLen = cellHeight_side;
 			insCell.leftBottomX = placingZone->begC.x + centerPos - placingZone->centerLengthAtSide/2;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (cellWidth_side < 0.110) {
@@ -1793,7 +2181,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.dirLen = cellWidth_side;
 			insCell.perLen = cellHeight_side;
 			insCell.leftBottomX = placingZone->begC.x + centerPos + placingZone->centerLengthAtSide/2;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (cellWidth_side < 0.110) {
@@ -1831,7 +2219,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.dirLen = cellWidth_side;
 			insCell.perLen = cellHeight_side;
 			insCell.leftBottomX = placingZone->begC.x + centerPos - placingZone->centerLengthAtSide/2;
-			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (cellWidth_side < 0.110) {
@@ -1868,7 +2256,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.dirLen = cellWidth_side;
 			insCell.perLen = cellHeight_side;
 			insCell.leftBottomX = placingZone->begC.x + centerPos + placingZone->centerLengthAtSide/2;
-			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (cellWidth_side < 0.110) {
@@ -1910,7 +2298,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.dirLen = placingZone->marginBeginAtSide;
 			insCell.perLen = cellHeight_side;
 			insCell.leftBottomX = placingZone->begC.x;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (placingZone->marginBeginAtSide < 0.110) {
@@ -1947,7 +2335,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.dirLen = placingZone->marginBeginAtSide;
 			insCell.perLen = cellHeight_side;
 			insCell.leftBottomX = placingZone->begC.x;
-			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (placingZone->marginBeginAtSide < 0.110) {
@@ -1989,7 +2377,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.dirLen = placingZone->marginEndAtSide;
 			insCell.perLen = cellHeight_side;
 			insCell.leftBottomX = placingZone->begC.x + placingZone->beamLength - placingZone->marginEndAtSide;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (placingZone->marginBeginAtSide < 0.110) {
@@ -2026,7 +2414,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.dirLen = placingZone->marginEndAtSide;
 			insCell.perLen = cellHeight_side;
 			insCell.leftBottomX = placingZone->begC.x + placingZone->beamLength - placingZone->marginEndAtSide;
-			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (placingZone->marginEndAtSide < 0.110) {
@@ -2067,7 +2455,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.dirLen = placingZone->marginBeginAtBottom;
 			insCell.perLen = cellHeight_bottom;
 			insCell.leftBottomX = placingZone->begC.x;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (placingZone->marginBeginAtBottom < 0.110) {
@@ -2109,7 +2497,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.dirLen = placingZone->marginEndAtBottom;
 			insCell.perLen = cellHeight_bottom;
 			insCell.leftBottomX = placingZone->begC.x + placingZone->beamLength - placingZone->marginEndAtBottom;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (placingZone->marginEndAtBottom < 0.110) {
@@ -2146,122 +2534,128 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)
-		accumDist += placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
+		if (placingZone->cellsFromBeginAtRSide [0][xx].objType != NONE)
+			accumDist += placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
 
 	// 아웃코너앵글 설치 (측면 시작 부분)
 	xPos = centerPos - width_side/2 - accumDist;
 	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx) {
-		// 좌측
-		insCell.objType = OUTCORNER_ANGLE;
-		insCell.ang = placingZone->ang;
-		insCell.attached_side = LEFT_SIDE;
-		insCell.leftBottomX = placingZone->begC.x + xPos;
-		insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
-		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-		insCell.libPart.outangle.a_leng = placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		if (placingZone->cellsFromBeginAtLSide [0][xx].objType != NONE) {
+			// 좌측
+			insCell.objType = OUTCORNER_ANGLE;
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = LEFT_SIDE;
+			insCell.leftBottomX = placingZone->begC.x + xPos;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+			insCell.libPart.outangle.a_leng = placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
 
-		axisPoint.x = placingZone->begC.x;
-		axisPoint.y = placingZone->begC.y;
-		axisPoint.z = placingZone->begC.z;
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
 
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
 
-		elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placeLibPartForBeam (insCell));
 
-		// 우측
-		insCell.objType = OUTCORNER_ANGLE;
-		insCell.ang = placingZone->ang;
-		insCell.attached_side = RIGHT_SIDE;
-		insCell.leftBottomX = placingZone->begC.x + xPos;
-		insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
-		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-		insCell.libPart.outangle.a_leng = placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
+			// 우측
+			insCell.objType = OUTCORNER_ANGLE;
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = RIGHT_SIDE;
+			insCell.leftBottomX = placingZone->begC.x + xPos;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+			insCell.libPart.outangle.a_leng = placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
 
-		axisPoint.x = placingZone->begC.x;
-		axisPoint.y = placingZone->begC.y;
-		axisPoint.z = placingZone->begC.z;
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
 
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
 
-		elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placeLibPartForBeam (insCell));
 
-		// 거리 이동
-		xPos += placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
+			// 거리 이동
+			xPos += placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
+		}
 	}
 
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)
-		accumDist += placingZone->cellsFromEndAtRSide [0][xx].dirLen;
+		if (placingZone->cellsFromEndAtRSide [0][xx].objType != NONE)
+			accumDist += placingZone->cellsFromEndAtRSide [0][xx].dirLen;
 
 	// 아웃코너앵글 설치 (측면 끝 부분)
 	xPos = centerPos + width_side/2 + accumDist - placingZone->cellsFromEndAtLSide [0][0].dirLen;
 	for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx) {
-		// 좌측
-		insCell.objType = OUTCORNER_ANGLE;
-		insCell.ang = placingZone->ang;
-		insCell.attached_side = LEFT_SIDE;
-		insCell.leftBottomX = placingZone->begC.x + xPos;
-		insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
-		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-		insCell.libPart.outangle.a_leng = placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+		if (placingZone->cellsFromEndAtLSide [0][xx].objType != NONE) {
+			// 좌측
+			insCell.objType = OUTCORNER_ANGLE;
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = LEFT_SIDE;
+			insCell.leftBottomX = placingZone->begC.x + xPos;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+			insCell.libPart.outangle.a_leng = placingZone->cellsFromEndAtLSide [0][xx].dirLen;
 
-		axisPoint.x = placingZone->begC.x;
-		axisPoint.y = placingZone->begC.y;
-		axisPoint.z = placingZone->begC.z;
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
 
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
 
-		elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placeLibPartForBeam (insCell));
 
-		// 우측
-		insCell.objType = OUTCORNER_ANGLE;
-		insCell.ang = placingZone->ang;
-		insCell.attached_side = RIGHT_SIDE;
-		insCell.leftBottomX = placingZone->begC.x + xPos;
-		insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
-		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-		insCell.libPart.outangle.a_leng = placingZone->cellsFromEndAtRSide [0][xx].dirLen;
+			// 우측
+			insCell.objType = OUTCORNER_ANGLE;
+			insCell.ang = placingZone->ang;
+			insCell.attached_side = RIGHT_SIDE;
+			insCell.leftBottomX = placingZone->begC.x + xPos;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+			insCell.libPart.outangle.a_leng = placingZone->cellsFromEndAtRSide [0][xx].dirLen;
 
-		axisPoint.x = placingZone->begC.x;
-		axisPoint.y = placingZone->begC.y;
-		axisPoint.z = placingZone->begC.z;
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
 
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+			rotatedPoint.x = insCell.leftBottomX;
+			rotatedPoint.y = insCell.leftBottomY;
+			rotatedPoint.z = insCell.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
+			insCell.leftBottomX = unrotatedPoint.x;
+			insCell.leftBottomY = unrotatedPoint.y;
+			insCell.leftBottomZ = unrotatedPoint.z;
 
-		elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placeLibPartForBeam (insCell));
 
-		// 거리 이동
-		if (xx < placingZone->nCellsFromEndAtSide-1)
-			xPos -= placingZone->cellsFromEndAtRSide [0][xx+1].dirLen;
+			// 거리 이동
+			if (xx < placingZone->nCellsFromEndAtSide-1)
+				xPos -= placingZone->cellsFromEndAtRSide [0][xx+1].dirLen;
+		}
 	}
 
 	// 아웃코너 앵글 설치 (중앙 부분)
@@ -2273,7 +2667,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.ang = placingZone->ang;
 			insCell.attached_side = LEFT_SIDE;
 			insCell.leftBottomX = placingZone->begC.x + xPos;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + placingZone->gapSide;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 			insCell.libPart.outangle.a_leng = placingZone->cellCenterAtLSide [0].dirLen;
 
@@ -2297,7 +2691,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.ang = placingZone->ang;
 			insCell.attached_side = RIGHT_SIDE;
 			insCell.leftBottomX = placingZone->begC.x + xPos;
-			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 - placingZone->gapSide;
+			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 			insCell.libPart.outangle.a_leng = placingZone->cellCenterAtRSide [0].dirLen;
 

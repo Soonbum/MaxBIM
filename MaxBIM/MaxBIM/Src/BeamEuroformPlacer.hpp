@@ -210,7 +210,8 @@ struct BeamPlacingZone
 };
 
 // 유로폼 보 배치 함수
-GSErrCode	placeEuroformOnBeam (void);				// 3번 메뉴: 보에 유로폼을 배치하는 통합 루틴
+GSErrCode	placeEuroformOnBeamEntire (void);		// 3번 메뉴: 보에 유로폼을 배치하는 통합 루틴
+GSErrCode	placeEuroformOnBeamPart (void);			// 4번 메뉴: 보에 유로폼을 배치하는 통합 루틴
 void		initCellsForBeam (BeamPlacingZone* placingZone);				// Cell 배열을 초기화함
 void		firstPlacingSettingsForBeam (BeamPlacingZone* placingZone);		// 1차 배치 설정
 void		addNewColFromBeginAtSide (BeamPlacingZone* target_zone);		// 측면 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)

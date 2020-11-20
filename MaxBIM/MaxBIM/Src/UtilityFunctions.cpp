@@ -158,6 +158,18 @@ long	findDirection (const double begX, const double begY, const double endX, con
 	return -1;
 }
 
+// 선분 AB와 점 P와의 거리를 구하는 함수
+double	distOfPointBetweenLine (API_Coord p, API_Coord a, API_Coord b)
+{
+	double	area;
+	double	dist_ab;
+
+	area = abs ( (a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x) );
+	dist_ab = sqrt ( (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) );
+
+	return	area / dist_ab;
+}
+
 // (p1, p2)를 이은 직선과 (p3, p4)를 이은 직선의 교차점을 구하는 함수
 // Function to get intersection point with line connecting points (p1, p2) and another line (p3, p4).
 API_Coord	IntersectionPoint1 (const API_Coord* p1, const API_Coord* p2, const API_Coord* p3, const API_Coord* p4)
