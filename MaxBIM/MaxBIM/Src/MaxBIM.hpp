@@ -76,6 +76,17 @@ struct IncornerPanel
 	*/
 };
 
+// 아웃코너판넬 정보
+struct OutcornerPanel
+{
+	double			wid_s;			// 가로(빨강) : 80 ~ 500 (*100)
+	double			leng_s;			// 세로(파랑) : 80 ~ 500 (*100)
+	double			hei_s;			// 높이 : 50 ~ 1500
+	/*
+	std::string		dir_s;			// 설치방향 : *세우기, 눕히기, 뒤집기
+	*/
+};
+
 // 합판 정보
 struct Plywood
 {
@@ -111,6 +122,29 @@ struct OutcornerAngle
 {
 	double			a_leng;			// 길이
 	double			a_ang;			// 각도
+};
+
+// 매직바 정보
+struct MagicBar
+{
+	double		angX;				// 회전 X
+	double		angY;				// 회전 Y
+
+	bool		bPlywood;			// 합판 On/Off
+	double		plywoodWidth;		// 합판 너비
+	double		plywoodOverhangH;	// 합판 오버행
+	double		plywoodUnderhangH;	// 합판 언더행
+};
+
+// 매직인코너 정보
+struct MagicIncorner
+{
+	short		type;				// 타입 (50, 100)
+
+	bool		bPlywood;			// 합판 On/Off
+	double		plywoodWidth;		// 합판 너비
+	double		plywoodOverhangH;	// 합판 오버행
+	double		plywoodUnderhangH;	// 합판 언더행
 };
 
 #endif //__MAXBIM_HPP__

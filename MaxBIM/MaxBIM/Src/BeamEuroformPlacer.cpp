@@ -638,7 +638,7 @@ GSErrCode	placeEuroformOnBeamPart (void)
 	placingZone.areaHeight = info3D.bounds.zMax - info3D.bounds.zMin;
 
 	// 클릭한 두 점을 보의 시작점, 끝점과 연결시킴
-	if (moreCloserPoint (point1, other_p1, other_p2) == 1) {
+	if (GetDistance (point1, other_p1) < GetDistance (point2, other_p1)) {
 		placingZone.begC = other_p1;
 		placingZone.endC = other_p2;
 	} else {
@@ -679,46 +679,58 @@ GSErrCode	placeEuroformOnBeamPart (void)
 	// 나머지 보 영역 정보를 저장함
 	placingZone.ang			= DegreeToRad (ang);
 	placingZone.level		= infoBeam.level;
-	placingZone.beamLength	= GetDistance (infoBeam.begC.x, infoBeam.begC.y, infoBeam.endC.x, infoBeam.endC.y);
+	placingZone.beamLength	= GetDistance (point1.x, point1.y, point2.x, point2.y);
 
 	// 보 레퍼런스 라인과 모프 시작점 간의 거리를 측정한다
-	if (moreCloserPoint (point1, other_p1, other_p2) == 1) {
+	if (GetDistance (point1, other_p1) < GetDistance (point2, other_p1)) {
 		clickedPoint.x = point1.x;
 		clickedPoint.y = point1.y;
-		beginPoint.x = infoBeam.begC.x;
-		beginPoint.y = infoBeam.begC.y;
-		endPoint.x = infoBeam.endC.x;
-		endPoint.y = infoBeam.endC.y;
+		beginPoint.x = placingZone.begC.x;
+		beginPoint.y = placingZone.begC.y;
+		endPoint.x = placingZone.endC.x;
+		endPoint.y = placingZone.endC.y;
+
+		distance1 = distOfPointBetweenLine (clickedPoint, beginPoint, endPoint);
+		distance2 = GetDistance (beginPoint.x, beginPoint.y, clickedPoint.x, clickedPoint.y);
+		if (abs (distance2 - distance1) > EPS)
+			distance3 = sqrt (distance2 * distance2 - distance1 * distance1);	// 보 시작점으로부터 모프 시작점까지의 X 거리
+		else
+			distance3 = 0.0;
+
+		// 보의 시작/끝점을 모프가 덮은 영역인 일부 구간으로 설정
+		placingZone.begC.x = beginPoint.x + (distance3 * cos(placingZone.ang));
+		placingZone.begC.y = beginPoint.y + (distance3 * sin(placingZone.ang));
+		placingZone.endC.x = beginPoint.x + (GetDistance (point1.x, point1.y, point2.x, point2.y) * cos(placingZone.ang));
+		placingZone.endC.y = beginPoint.y + (GetDistance (point1.x, point1.y, point2.x, point2.y) * sin(placingZone.ang));
 	} else {
 		clickedPoint.x = point1.x;
 		clickedPoint.y = point1.y;
-		beginPoint.x = infoBeam.endC.x;
-		beginPoint.y = infoBeam.endC.y;
-		endPoint.x = infoBeam.begC.x;
-		endPoint.y = infoBeam.begC.y;
+		beginPoint.x = placingZone.endC.x;
+		beginPoint.y = placingZone.endC.y;
+		endPoint.x = placingZone.begC.x;
+		endPoint.y = placingZone.begC.y;
+
+		distance1 = distOfPointBetweenLine (clickedPoint, endPoint, beginPoint);
+		distance2 = GetDistance (endPoint.x, endPoint.y, clickedPoint.x, clickedPoint.y);
+		if (abs (distance2 - distance1) > EPS)
+			distance3 = sqrt (distance2 * distance2 - distance1 * distance1);	// 보 시작점으로부터 모프 시작점까지의 X 거리
+		else
+			distance3 = 0.0;
+
+		// 보의 시작/끝점을 모프가 덮은 영역인 일부 구간으로 설정
+		placingZone.begC.x = endPoint.x + (distance3 * cos(placingZone.ang));
+		placingZone.begC.y = endPoint.y + (distance3 * sin(placingZone.ang));
+		placingZone.endC.x = endPoint.x + (GetDistance (point1.x, point1.y, point2.x, point2.y) * cos(placingZone.ang));
+		placingZone.endC.y = endPoint.y + (GetDistance (point1.x, point1.y, point2.x, point2.y) * sin(placingZone.ang));
+
+		infoBeam.offset = -infoBeam.offset;
 	}
-
-	distance1 = distOfPointBetweenLine (clickedPoint, beginPoint, endPoint);
-	distance2 = GetDistance (beginPoint.x, beginPoint.y, clickedPoint.x, clickedPoint.y);
-	if (abs (distance2 - distance1) > EPS)
-		distance3 = sqrt (distance2 - distance1 * distance1);	// 보 시작점으로부터 모프 시작점까지의 X 거리
-	else
-		distance3 = 0.0;
-
-	// 보의 시작/끝점을 모프가 덮은 영역인 일부 구간으로 설정
-	placingZone.begC.x = infoBeam.begC.x + (distance3 * cos(placingZone.ang));
-	placingZone.begC.y = infoBeam.begC.y + (distance3 * sin(placingZone.ang));
-	placingZone.endC.x = placingZone.begC.x + (GetDistance (point1.x, point1.y, point2.x, point2.y) * cos(placingZone.ang));
-	placingZone.endC.y = placingZone.begC.y + (GetDistance (point1.x, point1.y, point2.x, point2.y) * sin(placingZone.ang));
 
 	// 보 정보 업데이트
 	infoBeam.begC.x		= placingZone.begC.x;
 	infoBeam.begC.y		= placingZone.begC.y;
 	infoBeam.endC.x		= placingZone.endC.x;
 	infoBeam.endC.y		= placingZone.endC.y;
-
-	// 보 길이 업데이트
-	placingZone.beamLength	= GetDistance (placingZone.begC.x, placingZone.begC.y, placingZone.endC.x, placingZone.endC.y);
 
 	// 간섭 보 관련 정보 입력 - 간섭 보 없음
 	placingZone.bInterfereBeam = false;
