@@ -19,24 +19,61 @@ namespace columnPlacerDG {
 // 기둥 관련 정보
 struct InfoColumn
 {
+	API_Guid	guid;		// 기둥의 GUID
+	short	floorInd;		// 층 인덱스
+
 	bool	bRectangle;		// 직사각형 형태가 맞는가?
 	short	coreAnchor;		// 코어의 앵커 포인트
-	double	coreDepth;		// 기둥의 깊이
-	double	coreWidth;		// 기둥의 너비
+	double	coreWidth;		// 기둥의 X 길이
+	double	coreDepth;		// 기둥의 Y 길이
 	double	venThick;		// 기둥 베니어 두께
 	double	height;			// 기둥의 높이
 	double	bottomOffset;	// 바닥 레벨에 대한 기둥 베이스 레벨
 	double	topOffset;		// 만약 기둥이 윗층과 연결되어 있는 경우 윗층으로부터의 오프셋
-	double	angle;			// 기둥 축을 중심으로 한 회전 각도 (단위: radian)
+	double	angle;			// 기둥 축을 중심으로 한 회전 각도 (단위: Radian)
 	API_Coord	origoPos;	// 기둥의 위치
+};
+
+// 벽 관련 정보
+struct InfoWallForColumn
+{
+	API_Guid	guid;			// 보의 GUID
+
+	double	wallThk;			// 벽 두께
+	short	floorInd;			// 층 인덱스
+	double	bottomOffset;		// 벽 하단 오프셋
+	double	offset;				// 시작점에서 레퍼런스 라인으로부터 벽의 기초 라인의 오프셋
+	double	angle;				// 회전 각도 (단위: Radian)
+	
+	double								offsetFromOutside;		// 벽의 레퍼런스 라인과 벽의 바깥쪽 면 간의 거리
+	API_WallReferenceLineLocationID     referenceLineLocation;	// 레퍼런스 라인의 위치
+	/*
+		APIWallRefLine_Outside (0)
+			레퍼런스 라인 위치는 벽의 외부 면 상에 있습니다.
+		APIWallRefLine_Center (1)
+			레퍼런스 라인 위치는 벽의 중앙에 있습니다.
+		APIWallRefLine_Inside (2)
+			레퍼런스 라인 위치는 벽의 내부 면 상에 있습니다.
+		APIWallRefLine_CoreOutside (3)
+			레퍼런스 라인 위치는 복합 구조의 코어 외부 스킨 상에 있습니다.
+		APIWallRefLine_CoreCenter (4)
+			레퍼런스 라인 위치는 복합 구조의 코어 스킨의 중앙에 있습니다.
+		APIWallRefLine_CoreInside (5)
+			레퍼런스 라인 위치는 복합 구조의 코어 내부 스킨 상에 있습니다.
+	 */
+
+	double	begX;				// 시작점 X
+	double	begY;				// 시작점 Y
+	double	endX;				// 끝점 X
+	double	endY;				// 끝점 Y
 };
 
 // 보 관련 정보
 struct InfoBeamForColumn
 {
 	API_Guid	guid;	// 보의 GUID
-
 	short	floorInd;	// 층 인덱스
+
 	double	height;		// 보 높이
 	double	width;		// 보 너비
 	double	offset;		// 보 중심으로부터 보의 레퍼런스 라인의 오프셋입니다.
@@ -52,6 +89,7 @@ struct InfoMorphForColumn
 	API_Guid	guid;		// 모프의 GUID
 	short		floorInd;	// 층 인덱스
 	double		level;		// 모프의 고도
+	double		height;		// 모프의 높이
 };
 
 // 그리드 각 셀 정보
@@ -84,7 +122,7 @@ struct CellForColumn
 // 기둥 영역 정보
 struct ColumnPlacingZone
 {
-	// 기둥 기하 정보 !!!
+	// 기둥 기하 정보
 	short	coreAnchor;		// 코어의 앵커 포인트
 	double	coreDepth;		// 기둥의 깊이
 	double	coreWidth;		// 기둥의 너비
@@ -95,7 +133,7 @@ struct ColumnPlacingZone
 	double	angle;			// 기둥 축을 중심으로 한 회전 각도 (단위: Radian, 회전축: Z축)
 	API_Coord	origoPos;	// 기둥의 위치
 	
-	double	areaHeight;			// 영역 높이
+	double	areaHeight;		// 영역 높이
 
 	// 간섭 보 관련 정보
 	bool	bInterfereBeam;				// 간섭 보 여부
@@ -140,8 +178,6 @@ struct ColumnPlacingZone
 	short	nCellsR2;
 	short	nCellsB1;
 	short	nCellsB2;
-
-	double			gap;				// 기둥과의 간격
 };
 
 // 유로폼 기둥 배치 함수

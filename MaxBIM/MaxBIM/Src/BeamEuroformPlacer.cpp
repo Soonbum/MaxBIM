@@ -92,7 +92,7 @@ GSErrCode	placeEuroformOnBeamEntire (void)
 	API_Coord3D				trCoord;
 	GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
 
-	// 폴리곤 점을 배열로 복사하고 순서대로 좌표 값을 얻어냄
+	// 폴리곤 점을 배열로 복사함
 	API_Coord3D		nodes_random [20];
 	long			nNodes;		// 모프 폴리곤의 정점 좌표 개수
 	bool			bIsInPolygon1, bIsInPolygon2;
