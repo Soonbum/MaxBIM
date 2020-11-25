@@ -86,10 +86,10 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					break;
 				case 5:
 					// place Euroform on Column
-					//err = ACAPI_CallUndoableCommand ("±âµÕ¿¡ À¯·ÎÆû ¹èÄ¡", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand ("±âµÕ¿¡ À¯·ÎÆû ¹èÄ¡", [&] () -> GSErrCode {
 						err = placeEuroformOnColumn ();
-						//return err;
-					//});
+						return err;
+					});
 					break;
 			}
 	}

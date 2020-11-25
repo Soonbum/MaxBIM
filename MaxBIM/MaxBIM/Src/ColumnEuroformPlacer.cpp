@@ -144,35 +144,37 @@ GSErrCode	placeEuroformOnColumn (void)
 	infoColumn.height		= elem.column.height;			// 기둥 높이
 	infoColumn.bottomOffset	= elem.column.bottomOffset;		// 바닥 레벨에 대한 기둥 베이스 레벨
 	infoColumn.topOffset	= elem.column.topOffset;		// 만약 기둥이 윗층과 연결되어 있는 경우 윗층으로부터의 오프셋
-	infoColumn.angle		= elem.column.angle;			// 기둥 축을 중심으로 한 회전 각도 (단위: Radian)
+	infoColumn.angle		= elem.column.angle + elem.column.slantDirectionAngle;	// 기둥 축을 중심으로 한 회전 각도 (단위: Radian)
 	infoColumn.origoPos		= elem.column.origoPos;			// 기둥 중심 위치
 
 	ACAPI_DisposeElemMemoHdls (&memo);
 
 	// 벽 정보 저장
-	infoWall.guid = walls.Pop ();
+	if (nWalls != 0) {
+		infoWall.guid = walls.Pop ();
 
-	BNZeroMemory (&elem, sizeof (API_Element));
-	BNZeroMemory (&memo, sizeof (API_ElementMemo));
-	elem.header.guid = infoWall.guid;
-	err = ACAPI_Element_Get (&elem);
-	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+		BNZeroMemory (&elem, sizeof (API_Element));
+		BNZeroMemory (&memo, sizeof (API_ElementMemo));
+		elem.header.guid = infoWall.guid;
+		err = ACAPI_Element_Get (&elem);
+		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-	infoWall.wallThk		= elem.wall.thickness;		// 벽 두께
-	infoWall.floorInd		= elem.header.floorInd;		// 층 인덱스
-	infoWall.bottomOffset	= elem.wall.bottomOffset;	// 벽 하단 오프셋
-	infoWall.offset			= elem.wall.offset;			// 시작점에서 레퍼런스 라인으로부터 벽의 기초 라인의 오프셋
-	infoWall.angle			= elem.wall.angle;			// 회전 각도 (단위: Radian)
+		infoWall.wallThk		= elem.wall.thickness;		// 벽 두께
+		infoWall.floorInd		= elem.header.floorInd;		// 층 인덱스
+		infoWall.bottomOffset	= elem.wall.bottomOffset;	// 벽 하단 오프셋
+		infoWall.offset			= elem.wall.offset;			// 시작점에서 레퍼런스 라인으로부터 벽의 기초 라인의 오프셋
+		infoWall.angle			= elem.wall.angle;			// 회전 각도 (단위: Radian)
 
-	infoWall.offsetFromOutside		= elem.wall.offsetFromOutside;		// 벽의 레퍼런스 라인과 벽의 바깥쪽 면 간의 거리
-	infoWall.referenceLineLocation	= elem.wall.referenceLineLocation;	// 레퍼런스 라인의 위치
+		infoWall.offsetFromOutside		= elem.wall.offsetFromOutside;		// 벽의 레퍼런스 라인과 벽의 바깥쪽 면 간의 거리
+		infoWall.referenceLineLocation	= elem.wall.referenceLineLocation;	// 레퍼런스 라인의 위치
 
-	infoWall.begX			= elem.wall.begC.x;			// 시작점 X
-	infoWall.begY			= elem.wall.begC.y;			// 시작점 Y
-	infoWall.endX			= elem.wall.endC.x;			// 끝점 X
-	infoWall.endY			= elem.wall.endC.y;			// 끝점 Y
+		infoWall.begX			= elem.wall.begC.x;			// 시작점 X
+		infoWall.begY			= elem.wall.begC.y;			// 시작점 Y
+		infoWall.endX			= elem.wall.endC.x;			// 끝점 X
+		infoWall.endY			= elem.wall.endC.y;			// 끝점 Y
 
-	ACAPI_DisposeElemMemoHdls (&memo);
+		ACAPI_DisposeElemMemoHdls (&memo);
+	}
 
 	// 보 정보 저장
 	nInterfereBeams = nBeams;
@@ -209,40 +211,396 @@ GSErrCode	placeEuroformOnColumn (void)
 	infoMorph.level		= info3D.bounds.zMin;
 	infoMorph.height	= info3D.bounds.zMax - info3D.bounds.zMin;
 
-	// !!!
-	// 단독 기둥의 경우 -> 이것을 먼저 개발할 것
+	// 영역 모프 제거
+	API_Elem_Head* headList = new API_Elem_Head [1];
+	headList [0] = elem.header;
+	err = ACAPI_Element_Delete (&headList, 1);
+	delete headList;
 
-	// 벽체 속 기둥의 경우
-	// 1. 먼저 기둥의 중심을 찾고, 회전되지 않았을 때의 기둥의 각 꼭지점을 찾는다. (회전각도에 따라 꼭지점이 어디에 있는지 확인해 볼 것)
-	// 2. 벽면 안쪽/바깥쪽 라인 2개의 각각의 시작/끝점을 찾고.. 기둥의 중심과 벽면 라인 간의 거리를 측정한다. (거리가 기둥의 너비/2 또는 깊이/2 이하이면 붙거나 간섭)
-	// 3. 벽의 위치를 구하는 법
-	//		- 기둥 중심을 기준으로 벽의 두 점이 모두 Y값이 크고, X값이 하나는 작고 다른 하나는 큼 -> 벽이 북쪽에 있음
-	//		- 기둥 중심을 기준으로 벽의 두 점이 모두 Y값이 작고, X값이 하나는 작고 다른 하나는 큼 -> 벽이 남쪽에 있음
-	//		- 기둥 중심을 기준으로 벽의 두 점이 모두 X값이 크고, Y값이 하나는 작고 다른 하나는 큼 -> 벽이 동쪽에 있음
-	//		- 기둥 중심을 기준으로 벽의 두 점이 모두 X값이 작고, Y값이 하나는 작고 다른 하나는 큼 -> 벽이 서쪽에 있음
-	// 4. 벽의 침범 거리
-	//		- ???
+	// 작업 층 높이 반영
+	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+	workLevel_column = 0.0;
+	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+		if (storyInfo.data [0][xx].index == infoColumn.floorInd) {
+			workLevel_column = storyInfo.data [0][xx].level;
+			break;
+		}
+	}
+	BMKillHandle ((GSHandle *) &storyInfo.data);
 
-	// 벽도 선택할 것 (벽 1개까지만 인식하면 되나?)
-	// 영역 모프 있어야 함
-	// 모프 -> zMax - zMin : 영역 높이에 해당함
-	// 기둥의 꼭지점 4개를 찾고, 면 4개를 찾는다.
+	// 영역 정보의 고도 정보 수정 - 불필요
 
+	// 영역 정보 저장
+	placingZone.bRectangle		= infoColumn.bRectangle;	// 직사각형인가?
+	placingZone.coreAnchor		= infoColumn.coreAnchor;	// 코어의 앵커 포인트
+	placingZone.coreWidth		= infoColumn.coreWidth;		// 코어의 너비 (X 길이)
+	placingZone.coreDepth		= infoColumn.coreDepth;		// 코어의 깊이 (Y 길이)
+	placingZone.venThick		= infoColumn.venThick;		// 베니어 두께
+	placingZone.height			= infoColumn.height;		// 기둥 높이
+	placingZone.bottomOffset	= infoColumn.bottomOffset;	// 바닥 레벨에 대한 기둥 베이스 레벨
+	placingZone.topOffset		= infoColumn.topOffset;		// 만약 기둥이 윗층과 연결되어 있는 경우 윗층으로부터의 오프셋
+	placingZone.angle			= infoColumn.angle;			// 기둥 축을 중심으로 한 회전 각도 (단위: Radian)
+	placingZone.origoPos		= infoColumn.origoPos;		// 기둥 중심 위치
 
+	placingZone.areaHeight		= infoMorph.height;			// 영역 높이
 
-	/*
-	- 메인 기둥과 보들과의 관계를 파악
-		- 모든 보의 고도를 찾는다.
-		- 그 중 제일 낮은 보의 고도를 찾아야 함
-	- 1차 DG (보 단면)
-		- 기둥 코너: 아웃코너판넬 (기둥 코너가 벽 속에 들어가면 생략)
-		- 벽과 맞닿는 부분: 인코너판넬 (벽이 돌출된 경우에만)
-		- 유로폼: 기둥 가운데, 그리고 벽면 (기둥 반쪽이 벽속에 매립된 경우)
-	- 2차 DG (보 측면)
-		- 가장 낮은 보 하단 라인과 유로폼 최상단 라인 간의 여백을 표현해야 함 (80mm 이상이어야 함)
-		- UI에서 유효하지 않은 여백이 나오면 텍스트로 경고!
-		- 모든 방향은 동일한 높이의 유로폼이 적용됨
-	*/
+	// placingZone의 Cell 정보 초기화
+	initCellsForColumn (&placingZone);
+
+	// 단독 기둥의 경우
+	if (nWalls == 0) {
+
+		API_Coord	rotatedPoint;
+		double		lineLen;
+
+		lineLen = sqrt (pow (infoColumn.coreWidth/2, 2) + pow (infoColumn.coreDepth/2, 2));
+		rotatedPoint.x = infoColumn.origoPos.x + lineLen * cos(atan2 (infoColumn.coreDepth/2, infoColumn.coreWidth/2) + infoColumn.angle);
+		rotatedPoint.y = infoColumn.origoPos.y + lineLen * sin(atan2 (infoColumn.coreDepth/2, infoColumn.coreWidth/2) + infoColumn.angle);
+		placeCoordinateLabel (rotatedPoint.x, rotatedPoint.y, infoColumn.bottomOffset, true, "RT", 1, infoColumn.floorInd);
+
+		lineLen = sqrt (pow (infoColumn.coreWidth/2, 2) + pow (infoColumn.coreDepth/2, 2));
+		rotatedPoint.x = infoColumn.origoPos.x + lineLen * cos(atan2 (infoColumn.coreDepth/2, -infoColumn.coreWidth/2) + infoColumn.angle);
+		rotatedPoint.y = infoColumn.origoPos.y + lineLen * sin(atan2 (infoColumn.coreDepth/2, -infoColumn.coreWidth/2) + infoColumn.angle);
+		placeCoordinateLabel (rotatedPoint.x, rotatedPoint.y, infoColumn.bottomOffset, true, "LT", 1, infoColumn.floorInd);
+
+		lineLen = sqrt (pow (infoColumn.coreWidth/2, 2) + pow (infoColumn.coreDepth/2, 2));
+		rotatedPoint.x = infoColumn.origoPos.x + lineLen * cos(atan2 (-infoColumn.coreDepth/2, -infoColumn.coreWidth/2) + infoColumn.angle);
+		rotatedPoint.y = infoColumn.origoPos.y + lineLen * sin(atan2 (-infoColumn.coreDepth/2, -infoColumn.coreWidth/2) + infoColumn.angle);
+		placeCoordinateLabel (rotatedPoint.x, rotatedPoint.y, infoColumn.bottomOffset, true, "LB", 1, infoColumn.floorInd);
+
+		lineLen = sqrt (pow (infoColumn.coreWidth/2, 2) + pow (infoColumn.coreDepth/2, 2));
+		rotatedPoint.x = infoColumn.origoPos.x + lineLen * cos(atan2 (-infoColumn.coreDepth/2, infoColumn.coreWidth/2) + infoColumn.angle);
+		rotatedPoint.y = infoColumn.origoPos.y + lineLen * sin(atan2 (-infoColumn.coreDepth/2, infoColumn.coreWidth/2) + infoColumn.angle);
+		placeCoordinateLabel (rotatedPoint.x, rotatedPoint.y, infoColumn.bottomOffset, true, "RB", 1, infoColumn.floorInd);
+
+FIRST_SOLE_COLUMN:
+
+		// 영역 정보 중 간섭 보 관련 정보 업데이트
+		// !!!
+		//- 메인 기둥과 보들과의 관계를 파악
+		//	- 모든 보의 고도를 찾는다.
+		//	- 그 중 제일 낮은 보의 고도를 찾아야 함
+
+		// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
+		result = DGModalDialog (ACAPI_GetOwnResModule (), 32531, ACAPI_GetOwnResModule (), columnPlacerHandler1, 0);
+
+	// 벽체와 맞닿거나 벽체 속 기둥인 경우
+	} else {
+
+		// ...
+		// 벽체 속 기둥의 경우
+		// 1. 먼저 기둥의 중심을 찾고, 회전되지 않았을 때의 기둥의 각 꼭지점을 찾는다. (회전각도에 따라 꼭지점이 어디에 있는지 확인해 볼 것)
+		// 2. 벽면 안쪽/바깥쪽 라인 2개의 각각의 시작/끝점을 찾고.. 기둥의 중심과 벽면 라인 간의 거리를 측정한다. (거리가 기둥의 너비/2 또는 깊이/2 이하이면 붙거나 간섭)
+		// 3. 벽의 위치를 구하는 법
+		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 Y값이 크고, X값이 하나는 작고 다른 하나는 큼 -> 벽이 북쪽에 있음
+		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 Y값이 작고, X값이 하나는 작고 다른 하나는 큼 -> 벽이 남쪽에 있음
+		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 X값이 크고, Y값이 하나는 작고 다른 하나는 큼 -> 벽이 동쪽에 있음
+		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 X값이 작고, Y값이 하나는 작고 다른 하나는 큼 -> 벽이 서쪽에 있음
+		// 4. 벽의 침범 거리
+		//		- ???
+	}
 
 	return	err;
+}
+
+// Cell 배열을 초기화함
+void	initCellsForColumn (ColumnPlacingZone* placingZone)
+{
+	short	xx;
+
+	// 기둥 위쪽 여백 초기화
+	placingZone->marginTopAtNorth = 0.0;
+	placingZone->marginTopAtWest = 0.0;
+	placingZone->marginTopAtEast = 0.0;
+	placingZone->marginTopAtSouth = 0.0;
+
+	// 기둥 위쪽 여백은 기본적으로 채움으로 설정
+	placingZone->bFillMarginTopAtNorth = true;
+	placingZone->bFillMarginTopAtWest = true;
+	placingZone->bFillMarginTopAtEast = true;
+	placingZone->bFillMarginTopAtSouth = true;
+
+	// 셀 정보 초기화
+	for (xx = 0 ; xx < 20 ; ++xx) {
+		placingZone->cellsLT [xx].objType = NONE;
+		placingZone->cellsLT [xx].leftBottomX = 0.0;
+		placingZone->cellsLT [xx].leftBottomY = 0.0;
+		placingZone->cellsLT [xx].leftBottomZ = 0.0;
+		placingZone->cellsLT [xx].ang = 0.0;
+		placingZone->cellsLT [xx].horLen = 0.0;
+		placingZone->cellsLT [xx].verLen = 0.0;
+		placingZone->cellsLT [xx].height = 0.0;
+		placingZone->cellsLT [xx].anchor = LEFT_TOP;
+
+		placingZone->cellsRT [xx].objType = NONE;
+		placingZone->cellsRT [xx].leftBottomX = 0.0;
+		placingZone->cellsRT [xx].leftBottomY = 0.0;
+		placingZone->cellsRT [xx].leftBottomZ = 0.0;
+		placingZone->cellsRT [xx].ang = 0.0;
+		placingZone->cellsRT [xx].horLen = 0.0;
+		placingZone->cellsRT [xx].verLen = 0.0;
+		placingZone->cellsRT [xx].height = 0.0;
+		placingZone->cellsRT [xx].anchor = RIGHT_TOP;
+
+		placingZone->cellsLB [xx].objType = NONE;
+		placingZone->cellsLB [xx].leftBottomX = 0.0;
+		placingZone->cellsLB [xx].leftBottomY = 0.0;
+		placingZone->cellsLB [xx].leftBottomZ = 0.0;
+		placingZone->cellsLB [xx].ang = 0.0;
+		placingZone->cellsLB [xx].horLen = 0.0;
+		placingZone->cellsLB [xx].verLen = 0.0;
+		placingZone->cellsLB [xx].height = 0.0;
+		placingZone->cellsLB [xx].anchor = LEFT_BOTTOM;
+
+		placingZone->cellsRB [xx].objType = NONE;
+		placingZone->cellsRB [xx].leftBottomX = 0.0;
+		placingZone->cellsRB [xx].leftBottomY = 0.0;
+		placingZone->cellsRB [xx].leftBottomZ = 0.0;
+		placingZone->cellsRB [xx].ang = 0.0;
+		placingZone->cellsRB [xx].horLen = 0.0;
+		placingZone->cellsRB [xx].verLen = 0.0;
+		placingZone->cellsRB [xx].height = 0.0;
+		placingZone->cellsRB [xx].anchor = RIGHT_BOTTOM;
+
+		placingZone->cellsT1 [xx].objType = NONE;
+		placingZone->cellsT1 [xx].leftBottomX = 0.0;
+		placingZone->cellsT1 [xx].leftBottomY = 0.0;
+		placingZone->cellsT1 [xx].leftBottomZ = 0.0;
+		placingZone->cellsT1 [xx].ang = 0.0;
+		placingZone->cellsT1 [xx].horLen = 0.0;
+		placingZone->cellsT1 [xx].verLen = 0.0;
+		placingZone->cellsT1 [xx].height = 0.0;
+		placingZone->cellsT1 [xx].anchor = LEFT_TOP;
+
+		placingZone->cellsT2 [xx].objType = NONE;
+		placingZone->cellsT2 [xx].leftBottomX = 0.0;
+		placingZone->cellsT2 [xx].leftBottomY = 0.0;
+		placingZone->cellsT2 [xx].leftBottomZ = 0.0;
+		placingZone->cellsT2 [xx].ang = 0.0;
+		placingZone->cellsT2 [xx].horLen = 0.0;
+		placingZone->cellsT2 [xx].verLen = 0.0;
+		placingZone->cellsT2 [xx].height = 0.0;
+		placingZone->cellsT2 [xx].anchor = RIGHT_TOP;
+
+		placingZone->cellsL1 [xx].objType = NONE;
+		placingZone->cellsL1 [xx].leftBottomX = 0.0;
+		placingZone->cellsL1 [xx].leftBottomY = 0.0;
+		placingZone->cellsL1 [xx].leftBottomZ = 0.0;
+		placingZone->cellsL1 [xx].ang = 0.0;
+		placingZone->cellsL1 [xx].horLen = 0.0;
+		placingZone->cellsL1 [xx].verLen = 0.0;
+		placingZone->cellsL1 [xx].height = 0.0;
+		placingZone->cellsL1 [xx].anchor = LEFT_TOP;
+
+		placingZone->cellsL2 [xx].objType = NONE;
+		placingZone->cellsL2 [xx].leftBottomX = 0.0;
+		placingZone->cellsL2 [xx].leftBottomY = 0.0;
+		placingZone->cellsL2 [xx].leftBottomZ = 0.0;
+		placingZone->cellsL2 [xx].ang = 0.0;
+		placingZone->cellsL2 [xx].horLen = 0.0;
+		placingZone->cellsL2 [xx].verLen = 0.0;
+		placingZone->cellsL2 [xx].height = 0.0;
+		placingZone->cellsL2 [xx].anchor = LEFT_BOTTOM;
+
+		placingZone->cellsR1 [xx].objType = NONE;
+		placingZone->cellsR1 [xx].leftBottomX = 0.0;
+		placingZone->cellsR1 [xx].leftBottomY = 0.0;
+		placingZone->cellsR1 [xx].leftBottomZ = 0.0;
+		placingZone->cellsR1 [xx].ang = 0.0;
+		placingZone->cellsR1 [xx].horLen = 0.0;
+		placingZone->cellsR1 [xx].verLen = 0.0;
+		placingZone->cellsR1 [xx].height = 0.0;
+		placingZone->cellsR1 [xx].anchor = RIGHT_TOP;
+
+		placingZone->cellsR2 [xx].objType = NONE;
+		placingZone->cellsR2 [xx].leftBottomX = 0.0;
+		placingZone->cellsR2 [xx].leftBottomY = 0.0;
+		placingZone->cellsR2 [xx].leftBottomZ = 0.0;
+		placingZone->cellsR2 [xx].ang = 0.0;
+		placingZone->cellsR2 [xx].horLen = 0.0;
+		placingZone->cellsR2 [xx].verLen = 0.0;
+		placingZone->cellsR2 [xx].height = 0.0;
+		placingZone->cellsR2 [xx].anchor = RIGHT_BOTTOM;
+
+		placingZone->cellsB1 [xx].objType = NONE;
+		placingZone->cellsB1 [xx].leftBottomX = 0.0;
+		placingZone->cellsB1 [xx].leftBottomY = 0.0;
+		placingZone->cellsB1 [xx].leftBottomZ = 0.0;
+		placingZone->cellsB1 [xx].ang = 0.0;
+		placingZone->cellsB1 [xx].horLen = 0.0;
+		placingZone->cellsB1 [xx].verLen = 0.0;
+		placingZone->cellsB1 [xx].height = 0.0;
+		placingZone->cellsB1 [xx].anchor = LEFT_BOTTOM;
+
+		placingZone->cellsB2 [xx].objType = NONE;
+		placingZone->cellsB2 [xx].leftBottomX = 0.0;
+		placingZone->cellsB2 [xx].leftBottomY = 0.0;
+		placingZone->cellsB2 [xx].leftBottomZ = 0.0;
+		placingZone->cellsB2 [xx].ang = 0.0;
+		placingZone->cellsB2 [xx].horLen = 0.0;
+		placingZone->cellsB2 [xx].verLen = 0.0;
+		placingZone->cellsB2 [xx].height = 0.0;
+		placingZone->cellsB2 [xx].anchor = RIGHT_BOTTOM;
+	}
+
+	// 셀 개수 초기화
+	placingZone->nCells = 0;
+}
+
+// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	short		result;
+	short		xx;
+	//double		h1, h2, h3, h4, hRest;	// 나머지 높이 계산을 위한 변수
+	API_UCCallbackType	ucb;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "기둥에 배치 - 기둥 단면");
+
+			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
+			// 확인 버튼
+			DGSetItemText (dialogID, DG_OK, "확 인");
+
+			// 취소 버튼
+			DGSetItemText (dialogID, DG_CANCEL, "취 소");
+
+			//////////////////////////////////////////////////////////// 아이템 배치 (유로폼)
+			// 라벨 및 체크박스
+			//DGSetItemText (dialogID, LABEL_BEAM_SECTION, "보 단면");
+			//DGSetItemText (dialogID, LABEL_BEAM_HEIGHT, "보 높이");
+			//DGSetItemText (dialogID, LABEL_BEAM_WIDTH, "보 너비");
+			//DGSetItemText (dialogID, LABEL_TOTAL_HEIGHT, "총 높이");
+			//DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, "총 너비");
+
+			//DGSetItemText (dialogID, LABEL_REST_SIDE, "나머지");
+			//DGSetItemText (dialogID, CHECKBOX_WOOD_SIDE, "목재");
+			//DGSetItemText (dialogID, CHECKBOX_T_FORM_SIDE, "유로폼");
+			//DGSetItemText (dialogID, CHECKBOX_FILLER_SIDE, "휠러");
+			//DGSetItemText (dialogID, CHECKBOX_B_FORM_SIDE, "유로폼");
+
+			//DGSetItemText (dialogID, CHECKBOX_L_FORM_BOTTOM, "유로폼");
+			//DGSetItemText (dialogID, CHECKBOX_FILLER_BOTTOM, "휠러");
+			//DGSetItemText (dialogID, CHECKBOX_R_FORM_BOTTOM, "유로폼");
+
+			// 라벨: 레이어 설정
+			//DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
+			//DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
+			//DGSetItemText (dialogID, LABEL_LAYER_FILLERSPACER, "휠러스페이서");
+			//DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
+			//DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
+			//DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_ANGLE, "아웃코너앵글");
+
+			// 유저 컨트롤 초기화
+			//BNZeroMemory (&ucb, sizeof (ucb));
+			//ucb.dialogID = dialogID;
+			//ucb.type	 = APIUserControlType_Layer;
+			//ucb.itemID	 = USERCONTROL_LAYER_EUROFORM;
+			//ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, 1);
+
+			//ucb.itemID	 = USERCONTROL_LAYER_FILLERSPACER;
+			//ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			//DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, 1);
+
+			//ucb.itemID	 = USERCONTROL_LAYER_PLYWOOD;
+			//ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, 1);
+
+			//ucb.itemID	 = USERCONTROL_LAYER_WOOD;
+			//ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, 1);
+
+			//ucb.itemID	 = USERCONTROL_LAYER_OUTCORNER_ANGLE;
+			//ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			//DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, 1);
+
+			// 보 높이/너비 계산
+			//DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_HEIGHT, placingZone.areaHeight);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_WIDTH, infoBeam.width);
+
+			// 총 높이/너비 계산
+			//DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_HEIGHT, placingZone.areaHeight + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM));
+			//DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_WIDTH, infoBeam.width + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1)*2);
+
+			// 부재별 체크박스-규격 설정
+			//(DGGetItemValLong (dialogID, CHECKBOX_WOOD_SIDE) == TRUE) ?		DGEnableItem (dialogID, EDITCONTROL_WOOD_SIDE)		:	DGDisableItem (dialogID, EDITCONTROL_WOOD_SIDE);
+			//(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_SIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_SIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_SIDE);
+			//(DGGetItemValLong (dialogID, CHECKBOX_FILLER_SIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_SIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_SIDE);
+			//(DGGetItemValLong (dialogID, CHECKBOX_FILLER_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_BOTTOM)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_BOTTOM);
+			//(DGGetItemValLong (dialogID, CHECKBOX_R_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_R_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_R_FORM_BOTTOM);
+
+			// 측면 0번, 하부 0번 셀은 무조건 사용해야 함
+			//DGSetItemValLong (dialogID, CHECKBOX_B_FORM_SIDE, TRUE);
+			//DGSetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM, TRUE);
+			//DGDisableItem (dialogID, CHECKBOX_B_FORM_SIDE);
+			//DGDisableItem (dialogID, CHECKBOX_L_FORM_BOTTOM);
+
+			// 나머지 값 계산
+			// ...
+
+			// 직접 변경해서는 안 되는 항목 잠그기
+			//DGDisableItem (dialogID, EDITCONTROL_GAP_SIDE2);
+			//DGDisableItem (dialogID, EDITCONTROL_BEAM_HEIGHT);
+			//DGDisableItem (dialogID, EDITCONTROL_BEAM_WIDTH);
+			//DGDisableItem (dialogID, EDITCONTROL_TOTAL_HEIGHT);
+			//DGDisableItem (dialogID, EDITCONTROL_TOTAL_WIDTH);
+			//DGDisableItem (dialogID, EDITCONTROL_REST_SIDE);
+
+			break;
+		
+		case DG_MSG_CHANGE:
+			// 나머지 값 계산
+			// ...
+
+			switch (item) {
+				// 총 높이/너비 계산
+				// ...
+
+				// 부재별 체크박스-규격 설정
+				//case CHECKBOX_WOOD_SIDE:
+				//	(DGGetItemValLong (dialogID, CHECKBOX_WOOD_SIDE) == TRUE) ?		DGEnableItem (dialogID, EDITCONTROL_WOOD_SIDE)		:	DGDisableItem (dialogID, EDITCONTROL_WOOD_SIDE);
+				//	break;
+				//case CHECKBOX_T_FORM_SIDE:
+				//	(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_SIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_SIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_SIDE);
+				//	break;
+				//case CHECKBOX_FILLER_SIDE:
+				//	(DGGetItemValLong (dialogID, CHECKBOX_FILLER_SIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_SIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_SIDE);
+				//	break;
+				//case CHECKBOX_B_FORM_SIDE:
+				//	(DGGetItemValLong (dialogID, CHECKBOX_B_FORM_SIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_B_FORM_SIDE)			:	DGDisableItem (dialogID, POPUP_B_FORM_SIDE);
+				//	break;
+			}
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					//////////////////////////////////////// 다이얼로그 창 정보를 입력 받음
+					// 셀 설정 적용
+					// ...
+
+					// 레이어 번호 저장
+					//layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
+					//layerInd_Fillerspacer	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER);
+					//layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
+					//layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+					//layerInd_OutcornerAngle	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE);
+
+					break;
+				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
 }

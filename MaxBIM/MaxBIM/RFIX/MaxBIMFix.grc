@@ -21,6 +21,10 @@
            0  128  128
 }
 
+'GICN' 32532 "soleColumnSection" {
+           0  128  128
+}
+
 
 /* ---------------------------------------------------------- place Euroform on Wall */
 'GDLG'  32501  Modal | grow	  0		  0		300		500		"유로폼 벽에 배치" {
@@ -192,4 +196,13 @@
 /* [ 44] */	UserControl		210		454		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
 /* [ 45] */	UserControl		210		484		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
 /* [ 46] */	UserControl		210		514		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
+}
+
+/* ---------------------------------------------------------- place Euroform on Column */
+'GDLG'  32531  Modal | grow	  0		  0		500		610		"기둥에 배치" {
+/* [  1] */	Button			170		560		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		560		 70		 25		LargePlain		"Cancel"
+
+/* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
+/* [  4] */	Icon    		 50		 50		230		230  	32532
 }

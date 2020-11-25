@@ -14,6 +14,14 @@ namespace columnPlacerDG {
 		MAGIC_BAR,		// 매직바v1.0
 		MAGIC_INCORNER	// 매직인코너v1.0
 	};
+
+	// 부재가 부착되는 곳에 해당하는 기둥의 앵커 포인트
+	enum	anchorPoint {
+		LEFT_TOP,		// 좌상단
+		RIGHT_TOP,		// 우상단
+		LEFT_BOTTOM,	// 좌하단
+		RIGHT_BOTTOM	// 우하단
+	};
 }
 
 // 기둥 관련 정보
@@ -107,7 +115,7 @@ struct CellForColumn
 	double	horLen;			// 가로 길이
 	double	verLen;			// 세로 길이
 	double	height;			// 높이
-	short	anchor;			// 부착할 앵커 포인트: 좌상단(1), 상단(2), 우상단(3), 좌(4), 우(5), 좌하단(6), 하단(7), 우하단(8)
+	short	anchor;			// 부착할 앵커 포인트
 
 	union {
 		Euroform		form;
@@ -123,6 +131,7 @@ struct CellForColumn
 struct ColumnPlacingZone
 {
 	// 기둥 기하 정보
+	bool	bRectangle;		// 직사각형인가?
 	short	coreAnchor;		// 코어의 앵커 포인트
 	double	coreDepth;		// 기둥의 깊이
 	double	coreWidth;		// 기둥의 너비
@@ -132,8 +141,8 @@ struct ColumnPlacingZone
 	double	topOffset;		// 만약 기둥이 윗층과 연결되어 있는 경우 윗층으로부터의 오프셋
 	double	angle;			// 기둥 축을 중심으로 한 회전 각도 (단위: Radian, 회전축: Z축)
 	API_Coord	origoPos;	// 기둥의 위치
-	
-	double	areaHeight;		// 영역 높이
+
+	double	areaHeight;		// 모프가 지정한 영역의 높이
 
 	// 간섭 보 관련 정보
 	bool	bInterfereBeam;				// 간섭 보 여부
@@ -166,21 +175,13 @@ struct ColumnPlacingZone
 	CellForColumn	cellsB1 [20];		// 하단1 셀 (왼쪽)
 	CellForColumn	cellsB2 [20];		// 하단2 셀 (오른쪽)
 
-	short	nCellsLT;
-	short	nCellsRT;
-	short	nCellsLB;
-	short	nCellsRB;
-	short	nCellsT1;
-	short	nCellsT2;
-	short	nCellsL1;
-	short	nCellsL2;
-	short	nCellsR1;
-	short	nCellsR2;
-	short	nCellsB1;
-	short	nCellsB2;
+	// 수직 방향으로의 셀 개수
+	short	nCells;
 };
 
 // 유로폼 기둥 배치 함수
-GSErrCode	placeEuroformOnColumn (void);			// 5번 메뉴: 기둥에 유로폼을 배치하는 통합 루틴
+GSErrCode	placeEuroformOnColumn (void);						// 5번 메뉴: 기둥에 유로폼을 배치하는 통합 루틴
+void	initCellsForColumn (ColumnPlacingZone* placingZone);	// Cell 배열을 초기화함
+short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 
 #endif
