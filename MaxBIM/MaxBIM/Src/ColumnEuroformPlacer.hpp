@@ -20,7 +20,77 @@ namespace columnPlacerDG {
 		LEFT_TOP,		// 좌상단
 		RIGHT_TOP,		// 우상단
 		LEFT_BOTTOM,	// 좌하단
-		RIGHT_BOTTOM	// 우하단
+		RIGHT_BOTTOM,	// 우하단
+		TOP,			// 상단
+		LEFT,			// 좌측
+		RIGHT,			// 우측
+		BOTTOM			// 하단
+	};
+
+	// 기둥을 중심으로 간섭 보가 있는 방향
+	enum	direction {
+		NORTH,
+		SOUTH,
+		EAST,
+		WEST
+	};
+
+	// 다이얼로그 항목 인덱스
+	enum	idxItems_1_forColumnPlacer {
+		LABEL_COLUMN_SECTION		= 3,
+		ICON_COLUMN_SECTION,
+		
+		EDITCONTROL_TOP_1,
+		EDITCONTROL_TOP_2,
+		EDITCONTROL_TOP_3,
+		EDITCONTROL_TOP_4,
+		EDITCONTROL_LEFT_1,
+		EDITCONTROL_LEFT_2,
+		EDITCONTROL_LEFT_3,
+		EDITCONTROL_LEFT_4,
+		EDITCONTROL_RIGHT_1,
+		EDITCONTROL_RIGHT_2,
+		EDITCONTROL_RIGHT_3,
+		EDITCONTROL_RIGHT_4,
+		EDITCONTROL_BOTTOM_1,
+		EDITCONTROL_BOTTOM_2,
+		EDITCONTROL_BOTTOM_3,
+		EDITCONTROL_BOTTOM_4,
+
+		CHECKBOX_TOP_ADDITIONAL_FORM,
+		CHECKBOX_LEFT_ADDITIONAL_FORM,
+		CHECKBOX_RIGHT_ADDITIONAL_FORM,
+		CHECKBOX_BOTTOM_ADDITIONAL_FORM,
+
+		LABEL_COLUMN_WIDTH,
+		LABEL_COLUMN_DEPTH,
+		EDITCONTROL_COLUMN_WIDTH,
+		EDITCONTROL_COLUMN_DEPTH,
+
+		ICON_LAYER,
+		LABEL_LAYER_SETTINGS,
+		LABEL_LAYER_EUROFORM,
+		LABEL_LAYER_INCORNER,
+		LABEL_LAYER_OUTCORNER,
+		LABEL_LAYER_PLYWOOD,
+		LABEL_LAYER_MAGIC_BAR,
+		LABEL_LAYER_MAGIC_INCORNER,
+
+		USERCONTROL_LAYER_EUROFORM,
+		USERCONTROL_LAYER_INCORNER,
+		USERCONTROL_LAYER_OUTCORNER,
+		USERCONTROL_LAYER_PLYWOOD,
+		USERCONTROL_LAYER_MAGIC_BAR,
+		USERCONTROL_LAYER_MAGIC_INCORNER
+	};
+
+	enum	idxItems_2_forColumnPlacer {
+		DG_UPDATE_BUTTON	= 3,
+		DG_PREV,
+		LABEL_COLUMN_SIDE,
+		BUTTON_BEAM_SECTION,
+		LABEL_MARGIN_PLACE,
+		AFTER_ALL
 	};
 }
 
@@ -147,6 +217,7 @@ struct ColumnPlacingZone
 	// 간섭 보 관련 정보
 	bool	bInterfereBeam;				// 간섭 보 여부
 	short	nInterfereBeams;			// 간섭 보 개수 (0~4개)
+	bool	bExistBeams [4];			// 간섭 보 유무
 	double	bottomLevelOfBeams [4];		// 간섭 보의 하단 레벨
 
 	// 기둥 위쪽 여백
@@ -180,8 +251,11 @@ struct ColumnPlacingZone
 };
 
 // 유로폼 기둥 배치 함수
-GSErrCode	placeEuroformOnColumn (void);						// 5번 메뉴: 기둥에 유로폼을 배치하는 통합 루틴
-void	initCellsForColumn (ColumnPlacingZone* placingZone);	// Cell 배열을 초기화함
+GSErrCode	placeEuroformOnColumn (void);									// 5번 메뉴: 기둥에 유로폼을 배치하는 통합 루틴
+void		initCellsForColumn (ColumnPlacingZone* placingZone);			// Cell 배열을 초기화함
+void		addTopCell (ColumnPlacingZone* target_zone);					// 꼭대기에 셀 추가
+void		delTopCell (ColumnPlacingZone* target_zone);					// 꼭대기의 셀 삭제
 short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK columnPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 
 #endif

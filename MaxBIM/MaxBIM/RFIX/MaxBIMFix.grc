@@ -122,23 +122,23 @@
 
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Beam Section"
 
-/* [  4] */	Separator		230		 50		200		200
+/* [  4] */	Separator		230		 50		200		200									/* Representation of Beam Section */
 /* [  5] */	LeftText		240		117		 70		 23		LargePlain		"B.Height"
-/* [  6] */	LengthEdit		235		140		 50		 25		LargePlain		"0"	"2.0"
+/* [  6] */	LengthEdit		235		140		 50		 25		LargePlain		"0"	"2.0"	/* Beam Height */
 /* [  7] */	LeftText		315		197		 70		 23		LargePlain		"B.Width"
-/* [  8] */	LengthEdit		310		220		 50		 25		LargePlain		"0"	"2.0"
+/* [  8] */	LengthEdit		310		220		 50		 25		LargePlain		"0"	"2.0"	/* Beam Width */
 
-/* [  9] */	Separator		190		 50		  1		200
-/* [ 10] */	Separator		230		280		200		  1
-/* [ 11] */	Separator		470		 50		  1		200
-/* [ 12] */	LengthEdit		195		140		 30		 25		LargePlain		"0"	"1.0"
-/* [ 13] */	LengthEdit		320		252		 30		 25		LargePlain		"0"	"1.0"
-/* [ 14] */	LengthEdit		435		140		 30		 25		LargePlain		"0"	"1.0"
+/* [  9] */	Separator		190		 50		  1		200									/* Left Gap Line */
+/* [ 10] */	Separator		230		280		200		  1									/* Bottom Gap Line */
+/* [ 11] */	Separator		470		 50		  1		200									/* Right Gap Line */
+/* [ 12] */	LengthEdit		195		140		 30		 25		LargePlain		"0"	"1.0"	/* Left Gap */
+/* [ 13] */	LengthEdit		320		252		 30		 25		LargePlain		"0"	"1.0"	/* Bottom Gap */
+/* [ 14] */	LengthEdit		435		140		 30		 25		LargePlain		"0"	"1.0"	/* Right Gap */
 
 /* [ 15] */	RightText		175		 20		 70		 23		LargePlain		"T.Height"
-/* [ 16] */	LengthEdit		250		 13		 50		 25		LargePlain		"0"	"5.0"
+/* [ 16] */	LengthEdit		250		 13		 50		 25		LargePlain		"0"	"5.0"	/* Total Height */
 /* [ 17] */	RightText		305		 20		 70		 23		LargePlain		"T.Width"
-/* [ 18] */	LengthEdit		380		 13		 50		 25		LargePlain		"0"	"5.0"
+/* [ 18] */	LengthEdit		380		 13		 50		 25		LargePlain		"0"	"5.0"	/* Total Width */
 
 /* [ 19] */	LeftText		 60		 70		 60		 25		LargePlain		"Rest"
 /* [ 20] */	CheckBox		 60		105		 60		 25		LargePlain		"Wood"
@@ -202,7 +202,48 @@
 'GDLG'  32531  Modal | grow	  0		  0		500		610		"기둥에 배치" {
 /* [  1] */	Button			170		560		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			270		560		 70		 25		LargePlain		"Cancel"
-
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
-/* [  4] */	Icon    		 50		 50		230		230  	32532
+/* [  4] */	Icon    		140		 50		230		230  	32532
+
+/* [  5] */	LengthEdit		170		 25		 30		 25		LargePlain		"0"	"0.5"	/* TOP Outcorner Panel Width */
+/* [  6] */	LengthEdit		215		 25		 30		 25		LargePlain		"0"	"0.6"	/* TOP Euroform Width */
+/* [  7] */	LengthEdit		265		 25		 30		 25		LargePlain		"0"	"0.6"	/* TOP Euroform Width */
+/* [  8] */	LengthEdit		310		 25		 30		 25		LargePlain		"0"	"0.5"	/* TOP Outcorner Panel Width */
+/* [  9] */	LengthEdit		108		 85		 30		 25		LargePlain		"0"	"0.5"	/* LEFT Outcorner Panel Width */
+/* [ 10] */	LengthEdit		108		122		 30		 25		LargePlain		"0"	"0.6"	/* LEFT Euroform Width */
+/* [ 11] */	LengthEdit		108		170		 30		 25		LargePlain		"0"	"0.6"	/* LEFT Euroform Width */
+/* [ 12] */	LengthEdit		108		215		 30		 25		LargePlain		"0"	"0.5"	/* LEFT Outcorner Panel Width */
+/* [ 13] */	LengthEdit		372		 85		 30		 25		LargePlain		"0"	"0.5"	/* RIGHT Outcorner Panel Width */
+/* [ 14] */	LengthEdit		372		122		 30		 25		LargePlain		"0"	"0.6"	/* RIGHT Euroform Width */
+/* [ 15] */	LengthEdit		372		170		 30		 25		LargePlain		"0"	"0.6"	/* RIGHT Euroform Width */
+/* [ 16] */	LengthEdit		372		215		 30		 25		LargePlain		"0"	"0.5"	/* RIGHT Outcorner Panel Width */
+/* [ 17] */	LengthEdit		170		282		 30		 25		LargePlain		"0"	"0.5"	/* BOTTOM Outcorner Panel Width */
+/* [ 18] */	LengthEdit		215		282		 30		 25		LargePlain		"0"	"0.6"	/* BOTTOM Euroform Width */
+/* [ 19] */	LengthEdit		265		282		 30		 25		LargePlain		"0"	"0.6"	/* BOTTOM Euroform Width */
+/* [ 20] */	LengthEdit		310		282		 30		 25		LargePlain		"0"	"0.5"	/* BOTTOM Outcorner Panel Width */
+
+/* [ 21] */	CheckBox		250		 25		 15		 25		LargePlain		""			/* TOP Additional Euroform */
+/* [ 22] */	CheckBox		 93		170		 15		 25		LargePlain		""			/* LEFT Additional Euroform */
+/* [ 23] */	CheckBox		405		170		 15		 25		LargePlain		""			/* RIGHT Additional Euroform */
+/* [ 24] */	CheckBox		250		282		 15		 25		LargePlain		""			/* BOTTOM Additional Euroform */
+
+/* [ 25] */	LeftText		195		133		 50		 23		LargePlain		"Width"
+/* [ 26] */	LeftText		240		190		 50		 23		LargePlain		"Depth"
+/* [ 27] */	LengthEdit		185		155		 40		 25		LargePlain		"0"	"5"		/* Column Width */
+/* [ 28] */	LengthEdit		230		212		 40		 25		LargePlain		"0"	"5"		/* Column Depth */
+
+/* [ 29] */	Icon			175		328		 29		 14  	32502
+/* [ 30] */	LeftText		210		330		200		 23		LargePlain		"Layer Settings"
+/* [ 31] */	RightText		100		360		100		 23		LargePlain		"Euroform"
+/* [ 32] */	RightText		100		390		100		 23		LargePlain		"Incorner"
+/* [ 33] */	RightText		100		420		100		 23		LargePlain		"Outcorner"
+/* [ 34] */	RightText		100		450		100		 23		LargePlain		"Plywood"
+/* [ 35] */	RightText		100		480		100		 23		LargePlain		"Magic Bar"
+/* [ 36] */	RightText		100		510		100		 23		LargePlain		"Magic Incorner"
+/* [ 37] */	UserControl		210		354		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 38] */	UserControl		210		384		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER			*/
+/* [ 39] */	UserControl		210		414		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER		*/
+/* [ 40] */	UserControl		210		444		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 41] */	UserControl		210		474		160		 25		257	0x0006 0x0000 0		/* Layer Control - MAGIC BAR		*/
+/* [ 42] */	UserControl		210		504		160		 25		257	0x0006 0x0000 0		/* Layer Control - MAGIC INCORNER	*/
 }
