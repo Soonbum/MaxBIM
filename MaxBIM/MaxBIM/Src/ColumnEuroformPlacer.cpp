@@ -25,6 +25,8 @@ static bool				clickedPrevButton;			// 이전 버튼을 눌렀습니까?
 static GS::Array<API_Guid>	elemList;				// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
 // 추가/삭제 버튼 인덱스 저장
+static short	EUROFORM_BUTTON_TOP;
+static short	EUROFORM_BUTTON_BOTTOM;
 static short	ADD_CELLS;
 static short	DEL_CELLS;
 static short	CHECKBOX_NORTH_MARGIN;
@@ -43,7 +45,6 @@ GSErrCode	placeEuroformOnColumn (void)
 	GSErrCode		err = NoError;
 	long			nSel;
 	short			xx, yy;
-	double			dx, dy, ang;
 	short			result;
 	double			lowestBeamBottomLevel;
 
@@ -71,6 +72,7 @@ GSErrCode	placeEuroformOnColumn (void)
 	// 작업 층 정보
 	API_StoryInfo			storyInfo;
 	double					workLevel_column;
+	double					workLevel_beam;
 
 
 	// 선택한 요소 가져오기
@@ -162,6 +164,21 @@ GSErrCode	placeEuroformOnColumn (void)
 
 	ACAPI_DisposeElemMemoHdls (&memo);
 
+	// 작업 층 높이 반영
+	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+	workLevel_column = 0.0;
+	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+	for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+		if (storyInfo.data [0][yy].index == infoColumn.floorInd) {
+			workLevel_column = storyInfo.data [0][yy].level;
+			break;
+		}
+	}
+	BMKillHandle ((GSHandle *) &storyInfo.data);
+
+	infoColumn.bottomOffset += workLevel_column;
+	infoColumn.topOffset += workLevel_column;
+
 	// 벽 정보 저장
 	if (nWalls != 0) {
 		infoWall.guid = walls.Pop ();
@@ -190,7 +207,7 @@ GSErrCode	placeEuroformOnColumn (void)
 	}
 
 	// 보 정보 저장
-	nInterfereBeams = nBeams;
+	nInterfereBeams = (short)nBeams;
 
 	for (xx = 0 ; xx < nInterfereBeams ; ++xx) {
 		infoOtherBeams [xx].guid = beams.Pop ();
@@ -210,6 +227,20 @@ GSErrCode	placeEuroformOnColumn (void)
 		infoOtherBeams [xx].endC		= elem.beam.endC;			// 보 끝 좌표
 
 		ACAPI_DisposeElemMemoHdls (&memo);
+
+		// 작업 층 높이 반영
+		BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+		workLevel_beam = 0.0;
+		ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+		for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+			if (storyInfo.data [0][yy].index == infoOtherBeams [xx].floorInd) {
+				workLevel_beam = storyInfo.data [0][yy].level;
+				break;
+			}
+		}
+		BMKillHandle ((GSHandle *) &storyInfo.data);
+
+		infoOtherBeams [xx].level += workLevel_beam;
 	}
 
 	// 모프 정보를 가져옴
@@ -229,20 +260,6 @@ GSErrCode	placeEuroformOnColumn (void)
 	//headList [0] = elem.header;
 	//err = ACAPI_Element_Delete (&headList, 1);
 	//delete headList;
-
-	// 작업 층 높이 반영
-	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-	workLevel_column = 0.0;
-	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
-		if (storyInfo.data [0][xx].index == infoColumn.floorInd) {
-			workLevel_column = storyInfo.data [0][xx].level;
-			break;
-		}
-	}
-	BMKillHandle ((GSHandle *) &storyInfo.data);
-
-	// 영역 정보의 고도 정보 수정 - 불필요
 
 	// 영역 정보 저장
 	placingZone.bRectangle		= infoColumn.bRectangle;	// 직사각형인가?
@@ -277,26 +294,20 @@ FIRST_SOLE_COLUMN:
 			}
 
 			for (xx = 0 ; xx < nInterfereBeams ; ++xx) {
-
-				// !!!
-				//char msg [200];
-				//sprintf (msg, "보 높이 [%d]: %.4f", xx+1, infoOtherBeams [xx].level - infoOtherBeams [xx].height);
-				//ACAPI_WriteReport (msg, true);
-
 				// 기둥의 동/서/남/북 방향에 있는 보의 하단 레벨을 저장함
-				if ( (infoOtherBeams [xx].begC.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (infoOtherBeams [xx].begC.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (infoOtherBeams [xx].begC.y > (placingZone.origoPos.y + placingZone.coreDepth/2)) ) {
+				if ( (infoOtherBeams [xx].begC.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (infoOtherBeams [xx].begC.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (infoOtherBeams [xx].begC.y >= (placingZone.origoPos.y + placingZone.coreDepth/2)) ) {
 					placingZone.bottomLevelOfBeams [NORTH] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 					placingZone.bExistBeams [NORTH] = true;
 				}
-				if ( (infoOtherBeams [xx].begC.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (infoOtherBeams [xx].begC.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (infoOtherBeams [xx].begC.y < (placingZone.origoPos.y - placingZone.coreDepth/2)) ) {
+				if ( (infoOtherBeams [xx].begC.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (infoOtherBeams [xx].begC.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (infoOtherBeams [xx].begC.y <= (placingZone.origoPos.y - placingZone.coreDepth/2)) ) {
 					placingZone.bottomLevelOfBeams [SOUTH] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 					placingZone.bExistBeams [SOUTH] = true;
 				}
-				if ( (infoOtherBeams [xx].begC.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (infoOtherBeams [xx].begC.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (infoOtherBeams [xx].begC.x > (placingZone.origoPos.x + placingZone.coreWidth/2)) ) {
+				if ( (infoOtherBeams [xx].begC.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (infoOtherBeams [xx].begC.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (infoOtherBeams [xx].begC.x >= (placingZone.origoPos.x + placingZone.coreWidth/2)) ) {
 					placingZone.bottomLevelOfBeams [EAST] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 					placingZone.bExistBeams [EAST] = true;
 				}
-				if ( (infoOtherBeams [xx].begC.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (infoOtherBeams [xx].begC.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (infoOtherBeams [xx].begC.x < (placingZone.origoPos.x - placingZone.coreWidth/2)) ) {
+				if ( (infoOtherBeams [xx].begC.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (infoOtherBeams [xx].begC.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (infoOtherBeams [xx].begC.x <= (placingZone.origoPos.x - placingZone.coreWidth/2)) ) {
 					placingZone.bottomLevelOfBeams [WEST] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 					placingZone.bExistBeams [WEST] = true;
 				}
@@ -312,7 +323,7 @@ FIRST_SOLE_COLUMN:
 		}
 
 		// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
-		result = DGModalDialog (ACAPI_GetOwnResModule (), 32531, ACAPI_GetOwnResModule (), columnPlacerHandler1, 0);
+		result = DGModalDialog (ACAPI_GetOwnResModule (), 32531, ACAPI_GetOwnResModule (), columnPlacerHandler_soleColumn_1, 0);
 
 		if (result == DG_CANCEL)
 			return err;
@@ -333,7 +344,7 @@ FIRST_SOLE_COLUMN:
 		// [DIALOG] 2번째 다이얼로그에서 유로폼 배치를 수정합니다.
 		clickedOKButton = false;
 		clickedPrevButton = false;
-		result = DGBlankModalDialog (700, 300, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, columnPlacerHandler2, 0);
+		result = DGBlankModalDialog (700, 300, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, columnPlacerHandler_soleColumn_2, 0);
 	
 		// 이전 버튼을 누르면 1번째 다이얼로그 다시 실행
 		if (clickedPrevButton == true)
@@ -343,25 +354,52 @@ FIRST_SOLE_COLUMN:
 		if (clickedOKButton != true)
 			return err;
 
+		// !!!
 		// 1, 2번째 다이얼로그를 통해 입력된 데이터를 기반으로 객체를 배치
-		// ...
+		for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
+			placingZone.cellsLT [xx].guid = placeLibPartForColumn (placingZone.cellsLT [xx]);
+			elemList.Push (placingZone.cellsLT [xx].guid);
+			placingZone.cellsRT [xx].guid = placeLibPartForColumn (placingZone.cellsRT [xx]);
+			elemList.Push (placingZone.cellsRT [xx].guid);
+			placingZone.cellsLB [xx].guid = placeLibPartForColumn (placingZone.cellsLB [xx]);
+			elemList.Push (placingZone.cellsLB [xx].guid);
+			placingZone.cellsRB [xx].guid = placeLibPartForColumn (placingZone.cellsRB [xx]);
+			elemList.Push (placingZone.cellsRB [xx].guid);
+
+			placingZone.cellsT1 [xx].guid = placeLibPartForColumn (placingZone.cellsT1 [xx]);
+			elemList.Push (placingZone.cellsT1 [xx].guid);
+			placingZone.cellsT2 [xx].guid = placeLibPartForColumn (placingZone.cellsT2 [xx]);
+			elemList.Push (placingZone.cellsT2 [xx].guid);
+			placingZone.cellsL1 [xx].guid = placeLibPartForColumn (placingZone.cellsL1 [xx]);
+			elemList.Push (placingZone.cellsL1 [xx].guid);
+			placingZone.cellsL2 [xx].guid = placeLibPartForColumn (placingZone.cellsL2 [xx]);
+			elemList.Push (placingZone.cellsL2 [xx].guid);
+			placingZone.cellsR1 [xx].guid = placeLibPartForColumn (placingZone.cellsR1 [xx]);
+			elemList.Push (placingZone.cellsR1 [xx].guid);
+			placingZone.cellsR2 [xx].guid = placeLibPartForColumn (placingZone.cellsR2 [xx]);
+			elemList.Push (placingZone.cellsR2 [xx].guid);
+			placingZone.cellsB1 [xx].guid = placeLibPartForColumn (placingZone.cellsB1 [xx]);
+			elemList.Push (placingZone.cellsB1 [xx].guid);
+			placingZone.cellsB2 [xx].guid = placeLibPartForColumn (placingZone.cellsB2 [xx]);
+			elemList.Push (placingZone.cellsB2 [xx].guid);
+		}
 
 		// 나머지 영역 채우기 - 합판, 목재
 		//err = fillRestAreasForColumn (&placingZone);
 
 		// 결과물 전체 그룹화
-		//if (!elemList.IsEmpty ()) {
-		//	GSSize nElems = elemList.GetSize ();
-		//	API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		//	if (elemHead != NULL) {
-		//		for (GSIndex i = 0; i < nElems; i++)
-		//			(*elemHead)[i].guid = elemList[i];
+		if (!elemList.IsEmpty ()) {
+			GSSize nElems = elemList.GetSize ();
+			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+			if (elemHead != NULL) {
+				for (GSIndex i = 0; i < nElems; i++)
+					(*elemHead)[i].guid = elemList[i];
 
-		//		ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
 
-		//		BMKillHandle ((GSHandle *) &elemHead);
-		//	}
-		//}
+				BMKillHandle ((GSHandle *) &elemHead);
+			}
+		}
 
 	// 벽체와 맞닿거나 벽체 속 기둥인 경우
 	} else {
@@ -529,6 +567,8 @@ void	initCellsForColumn (ColumnPlacingZone* placingZone)
 // 꼭대기에 셀 추가
 void	addTopCell (ColumnPlacingZone* target_zone)
 {
+	if (target_zone->nCells >= 20) return;
+
 	target_zone->cellsLT [target_zone->nCells] = target_zone->cellsLT [target_zone->nCells - 1];
 	target_zone->cellsRT [target_zone->nCells] = target_zone->cellsRT [target_zone->nCells - 1];
 	target_zone->cellsLB [target_zone->nCells] = target_zone->cellsLB [target_zone->nCells - 1];
@@ -548,11 +588,369 @@ void	addTopCell (ColumnPlacingZone* target_zone)
 // 꼭대기의 셀 삭제
 void	delTopCell (ColumnPlacingZone* target_zone)
 {
+	if (target_zone->nCells <= 1) return;
+
 	target_zone->nCells --;
 }
 
+// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+void	alignPlacingZoneForColumn (ColumnPlacingZone* placingZone)
+{
+	short	xx;
+	double	formWidth, formHeight;
+	
+	// 높이를 아래부터 시작해서 재조정, 규격폼인지 아닌지 여부를 결정
+	placingZone->cellsLT [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsRT [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsLB [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsRB [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsT1 [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsT2 [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsL1 [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsL2 [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsR1 [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsR2 [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsB1 [0].leftBottomZ = placingZone->bottomOffset;
+	placingZone->cellsB2 [0].leftBottomZ = placingZone->bottomOffset;
+
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+
+		if (xx >= 1) {
+			// 좌상단
+			placingZone->cellsLT [xx].leftBottomZ = placingZone->cellsLT [xx-1].leftBottomZ + placingZone->cellsLT [xx-1].height;
+
+			// 우상단
+			placingZone->cellsRT [xx].leftBottomZ = placingZone->cellsRT [xx-1].leftBottomZ + placingZone->cellsRT [xx-1].height;
+
+			// 좌하단
+			placingZone->cellsLB [xx].leftBottomZ = placingZone->cellsLB [xx-1].leftBottomZ + placingZone->cellsLB [xx-1].height;
+
+			// 우하단
+			placingZone->cellsRB [xx].leftBottomZ = placingZone->cellsRB [xx-1].leftBottomZ + placingZone->cellsRB [xx-1].height;
+
+			// 위쪽 1
+			placingZone->cellsT1 [xx].leftBottomZ = placingZone->cellsT1 [xx-1].leftBottomZ + placingZone->cellsT1 [xx-1].height;
+
+			// 위쪽 2
+			placingZone->cellsT2 [xx].leftBottomZ = placingZone->cellsT2 [xx-1].leftBottomZ + placingZone->cellsT2 [xx-1].height;
+
+			// 좌측 1
+			placingZone->cellsL1 [xx].leftBottomZ = placingZone->cellsL1 [xx-1].leftBottomZ + placingZone->cellsL1 [xx-1].height;
+
+			// 좌측 2
+			placingZone->cellsL2 [xx].leftBottomZ = placingZone->cellsL2 [xx-1].leftBottomZ + placingZone->cellsL2 [xx-1].height;
+
+			// 우측 1
+			placingZone->cellsR1 [xx].leftBottomZ = placingZone->cellsR1 [xx-1].leftBottomZ + placingZone->cellsR1 [xx-1].height;
+
+			// 우측 2
+			placingZone->cellsR2 [xx].leftBottomZ = placingZone->cellsR2 [xx-1].leftBottomZ + placingZone->cellsR2 [xx-1].height;
+
+			// 아래쪽 1
+			placingZone->cellsB1 [xx].leftBottomZ = placingZone->cellsB1 [xx-1].leftBottomZ + placingZone->cellsB1 [xx-1].height;
+
+			// 아래쪽 2
+			placingZone->cellsB2 [xx].leftBottomZ = placingZone->cellsB2 [xx-1].leftBottomZ + placingZone->cellsB2 [xx-1].height;
+		}
+
+		// 위쪽 1
+		formWidth = placingZone->cellsT1 [xx].libPart.form.eu_wid;
+		formHeight = placingZone->cellsT1 [xx].libPart.form.eu_hei;
+		placingZone->cellsT1 [xx].libPart.form.eu_stan_onoff = false;
+		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
+				placingZone->cellsT1 [xx].libPart.form.eu_stan_onoff = true;
+		
+		// 위쪽 2
+		formWidth = placingZone->cellsT2 [xx].libPart.form.eu_wid;
+		formHeight = placingZone->cellsT2 [xx].libPart.form.eu_hei;
+		placingZone->cellsT2 [xx].libPart.form.eu_stan_onoff = false;
+		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
+				placingZone->cellsT2 [xx].libPart.form.eu_stan_onoff = true;
+
+		// 좌측 1
+		formWidth = placingZone->cellsL1 [xx].libPart.form.eu_wid;
+		formHeight = placingZone->cellsL1 [xx].libPart.form.eu_hei;
+		placingZone->cellsL1 [xx].libPart.form.eu_stan_onoff = false;
+		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
+				placingZone->cellsL1 [xx].libPart.form.eu_stan_onoff = true;
+
+		// 좌측 2
+		formWidth = placingZone->cellsL2 [xx].libPart.form.eu_wid;
+		formHeight = placingZone->cellsL2 [xx].libPart.form.eu_hei;
+		placingZone->cellsL2 [xx].libPart.form.eu_stan_onoff = false;
+		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
+				placingZone->cellsL2 [xx].libPart.form.eu_stan_onoff = true;
+
+		// 우측 1
+		formWidth = placingZone->cellsR1 [xx].libPart.form.eu_wid;
+		formHeight = placingZone->cellsR1 [xx].libPart.form.eu_hei;
+		placingZone->cellsR1 [xx].libPart.form.eu_stan_onoff = false;
+		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
+				placingZone->cellsR1 [xx].libPart.form.eu_stan_onoff = true;
+
+		// 우측 2
+		formWidth = placingZone->cellsR2 [xx].libPart.form.eu_wid;
+		formHeight = placingZone->cellsR2 [xx].libPart.form.eu_hei;
+		placingZone->cellsR2 [xx].libPart.form.eu_stan_onoff = false;
+		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
+				placingZone->cellsR2 [xx].libPart.form.eu_stan_onoff = true;
+
+		// 아래쪽 1
+		formWidth = placingZone->cellsB1 [xx].libPart.form.eu_wid;
+		formHeight = placingZone->cellsB1 [xx].libPart.form.eu_hei;
+		placingZone->cellsB1 [xx].libPart.form.eu_stan_onoff = false;
+		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
+				placingZone->cellsB1 [xx].libPart.form.eu_stan_onoff = true;
+
+		// 아래쪽 2
+		formWidth = placingZone->cellsB2 [xx].libPart.form.eu_wid;
+		formHeight = placingZone->cellsB2 [xx].libPart.form.eu_hei;
+		placingZone->cellsB2 [xx].libPart.form.eu_stan_onoff = false;
+		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
+				placingZone->cellsB2 [xx].libPart.form.eu_stan_onoff = true;
+	}
+}
+
+// 해당 셀 정보를 기반으로 라이브러리 배치
+API_Guid	placeLibPartForColumn (CellForColumn objInfo)
+{
+	GSErrCode	err = NoError;
+
+	API_Element			element;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const	GS::uchar_t* gsmName = NULL;
+	double	aParam;
+	double	bParam;
+	Int32	addParNum;
+
+	double	validLength = 0.0;	// 유효한 길이인가?
+	double	validWidth = 0.0;	// 유효한 너비인가?
+
+	std::string		tempString;
+
+	short		xx;
+	API_StoryInfo	storyInfo;
+
+	// GUID 변수 초기화
+	element.header.guid.clock_seq_hi_and_reserved = 0;
+	element.header.guid.clock_seq_low = 0;
+	element.header.guid.node[0] = 0;
+	element.header.guid.node[1] = 0;
+	element.header.guid.node[2] = 0;
+	element.header.guid.node[3] = 0;
+	element.header.guid.node[4] = 0;
+	element.header.guid.node[5] = 0;
+	element.header.guid.time_hi_and_version = 0;
+	element.header.guid.time_low = 0;
+	element.header.guid.time_mid = 0;
+
+	// 라이브러리 이름 선택
+	if (objInfo.objType == NONE)			return element.header.guid;
+	if (objInfo.objType == EUROFORM)		gsmName = L("유로폼v2.0.gsm");
+	if (objInfo.objType == INCORNER)		gsmName = L("인코너판넬v1.0.gsm");
+	if (objInfo.objType == OUTCORNER)		gsmName = L("아웃코너판넬v1.0.gsm");
+	if (objInfo.objType == PLYWOOD)			gsmName = L("합판v1.0.gsm");
+	if (objInfo.objType == MAGIC_BAR)		gsmName = L("매직바v1.0.gsm");
+	if (objInfo.objType == MAGIC_INCORNER)	gsmName = L("매직인코너v1.0.gsm");
+
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return element.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&element, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	element.header.typeID = API_ObjectID;
+	element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&element, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	element.object.libInd = libPart.index;
+	element.object.pos.x = objInfo.leftBottomX;
+	element.object.pos.y = objInfo.leftBottomY;
+	element.object.level = objInfo.leftBottomZ;
+	element.object.xRatio = aParam;
+	element.object.yRatio = bParam;
+	element.object.angle = objInfo.ang;
+	element.header.floorInd = infoColumn.floorInd;
+
+	// 작업 층 높이 반영
+	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+		if (storyInfo.data [0][xx].index == infoColumn.floorInd) {
+			element.object.level -= storyInfo.data [0][xx].level;
+			break;
+		}
+	}
+	BMKillHandle ((GSHandle *) &storyInfo.data);
+
+	if (objInfo.objType == EUROFORM) {
+		element.header.layer = layerInd_Euroform;
+
+		// 규격품일 경우,
+		if (objInfo.libPart.form.eu_stan_onoff == true) {
+			// 규격폼 On/Off
+			memo.params [0][27].value.real = TRUE;
+
+			// 너비
+			tempString = format_string ("%.0f", objInfo.libPart.form.eu_wid * 1000);
+			GS::ucscpy (memo.params [0][28].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+
+			// 높이
+			tempString = format_string ("%.0f", objInfo.libPart.form.eu_hei * 1000);
+			GS::ucscpy (memo.params [0][29].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+
+		// 비규격품일 경우,
+		} else {
+			// 규격폼 On/Off
+			memo.params [0][27].value.real = FALSE;
+
+			// 너비
+			memo.params [0][30].value.real = objInfo.libPart.form.eu_wid2;
+
+			// 높이
+			memo.params [0][31].value.real = objInfo.libPart.form.eu_hei2;
+		}
+
+		// 설치방향
+		if (objInfo.libPart.form.u_ins_wall == true) {
+			tempString = "벽세우기";
+			if (objInfo.libPart.form.eu_stan_onoff == true) {
+				validWidth = objInfo.libPart.form.eu_wid;
+				validLength = objInfo.libPart.form.eu_hei;
+			} else {
+				validWidth = objInfo.libPart.form.eu_wid2;
+				validLength = objInfo.libPart.form.eu_hei2;
+			}
+		} else {
+			tempString = "벽눕히기";
+			if (objInfo.libPart.form.eu_stan_onoff == true) {
+				element.object.pos.x += ( objInfo.libPart.form.eu_hei * cos(objInfo.ang) );
+				element.object.pos.y += ( objInfo.libPart.form.eu_hei * sin(objInfo.ang) );
+				validWidth = objInfo.libPart.form.eu_hei;
+				validLength = objInfo.libPart.form.eu_wid;
+			} else {
+				element.object.pos.x += ( objInfo.libPart.form.eu_hei2 * cos(objInfo.ang) );
+				element.object.pos.y += ( objInfo.libPart.form.eu_hei2 * sin(objInfo.ang) );
+				validWidth = objInfo.libPart.form.eu_hei2;
+				validLength = objInfo.libPart.form.eu_wid2;
+			}
+		}
+		GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+
+		// 회전X
+		memo.params [0][33].value.real = DegreeToRad (90.0);
+
+	} else if (objInfo.objType == INCORNER) {
+		// ...
+	} else if (objInfo.objType == OUTCORNER) {
+		element.header.layer = layerInd_Outcorner;
+		memo.params [0][27].value.real = objInfo.libPart.outcorner.wid_s;	// 가로(빨강)
+		memo.params [0][28].value.real = objInfo.libPart.outcorner.leng_s;	// 세로(파랑)
+		memo.params [0][29].value.real = objInfo.libPart.outcorner.hei_s;	// 높이
+		GS::ucscpy (memo.params [0][30].value.uStr, L("세우기"));			// 설치방향
+
+		validWidth = objInfo.libPart.outcorner.leng_s + objInfo.libPart.outcorner.wid_s;
+		validLength = objInfo.libPart.outcorner.hei_s;
+	} else if (objInfo.objType == PLYWOOD) {
+		element.header.layer = layerInd_Plywood;
+		GS::ucscpy (memo.params [0][32].value.uStr, L("비규격"));
+		GS::ucscpy (memo.params [0][33].value.uStr, L("벽눕히기"));
+		GS::ucscpy (memo.params [0][34].value.uStr, L("11.5T"));
+		memo.params [0][35].value.real = objInfo.libPart.plywood.p_wid;		// 가로
+		memo.params [0][36].value.real = objInfo.libPart.plywood.p_leng;	// 세로
+		memo.params [0][38].value.real = FALSE;								// 제작틀 OFF
+		memo.params [0][37].value.real = DegreeToRad (0.0);					// 각도
+
+		validLength = objInfo.libPart.plywood.p_leng;
+		validWidth = objInfo.libPart.plywood.p_wid;
+	} else if (objInfo.objType == MAGIC_BAR) {
+		element.header.layer = layerInd_MagicBar;
+		memo.params [0][2].value.real = objInfo.libPart.mbar.ZZYZX;					// 높이
+		memo.params [0][11].value.real = objInfo.libPart.mbar.angX;					// 회전X
+		memo.params [0][12].value.real = objInfo.libPart.mbar.angY;					// 회전Y
+		memo.params [0][13].value.real = objInfo.libPart.mbar.bPlywood;				// 합판 on/off
+		memo.params [0][14].value.real = objInfo.libPart.mbar.plywoodWidth;			// 합판 너비
+		memo.params [0][15].value.real = objInfo.libPart.mbar.plywoodOverhangH;		// 합판 오버행
+		memo.params [0][16].value.real = objInfo.libPart.mbar.plywoodUnderhangH;	// 합판 언더행
+
+		validLength = objInfo.libPart.mbar.ZZYZX;
+		validWidth = 0.039;
+	} else if (objInfo.objType == MAGIC_INCORNER) {
+		element.header.layer = layerInd_MagicIncorner;
+		memo.params [0][2].value.real = objInfo.libPart.mincorner.ZZYZX;				// 높이
+		GS::ucscpy (memo.params [0][9].value.uStr, L("100"));							// 타입 "100"
+		memo.params [0][12].value.real = objInfo.libPart.mincorner.angX;				// 회전X
+		memo.params [0][13].value.real = objInfo.libPart.mincorner.angY;				// 회전Y
+		memo.params [0][14].value.real = objInfo.libPart.mincorner.bPlywood;			// 합판 on/off
+		memo.params [0][15].value.real = objInfo.libPart.mincorner.plywoodWidth;		// 합판 너비
+		memo.params [0][16].value.real = objInfo.libPart.mincorner.plywoodOverhangH;	// 합판 오버행
+		memo.params [0][17].value.real = objInfo.libPart.mincorner.plywoodUnderhangH;	// 합판 언더행
+
+		validLength = objInfo.libPart.mincorner.ZZYZX;
+		validWidth = 0.100;
+	}
+
+	// 객체 배치
+	if ((objInfo.objType != NONE) && (validLength > EPS) && (validWidth > EPS))
+		ACAPI_Element_Create (&element, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return element.header.guid;
+}
+
+// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 매직바, 매직인코너, 합판으로 채움)
+GSErrCode	fillRestAreasForColumn (ColumnPlacingZone* placingZone)
+{
+	GSErrCode	err = NoError;
+	CellForColumn	insCell;
+
+	/*
+		1. 매직바
+			- 오른쪽으로 기둥 너비만큼 이동해야 함
+			- Z 회전: 180도
+			- 파라미터
+				- 회전X : 0
+				- 회전Y : -90
+				- ZZYZX : 기둥너비
+				- 합판 : off
+		2. 매직인코너
+			- 타입 : 100
+			- Z 회전: 90
+			- 파라미터
+				- 회전X : 90
+				- 회전Y : 0
+				- ZZYZX : 기둥너비
+				- 합판 : on
+				- 합판너비 : 기둥 남은 여백 - 5 mm
+				- 합판오버행 : 기둥너비
+	*/
+
+	return	err;
+}
+
 // 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
-short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short		result;
 	short		xx;
@@ -661,22 +1059,18 @@ short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item
 			// 부재별 체크박스-규격 설정
 			if (DGGetItemValLong (dialogID, CHECKBOX_LEFT_ADDITIONAL_FORM) == TRUE) {
 				DGEnableItem (dialogID, EDITCONTROL_LEFT_3);
-				DGEnableItem (dialogID, EDITCONTROL_RIGHT_3);
 				DGSetItemValLong (dialogID, CHECKBOX_RIGHT_ADDITIONAL_FORM, TRUE);
 			} else {
 				DGDisableItem (dialogID, EDITCONTROL_LEFT_3);
-				DGDisableItem (dialogID, EDITCONTROL_RIGHT_3);
 				DGSetItemValDouble (dialogID, EDITCONTROL_LEFT_3, 0.0);
 				DGSetItemValDouble (dialogID, EDITCONTROL_RIGHT_3, 0.0);
 				DGSetItemValLong (dialogID, CHECKBOX_RIGHT_ADDITIONAL_FORM, FALSE);
 			}
 			if (DGGetItemValLong (dialogID, CHECKBOX_BOTTOM_ADDITIONAL_FORM) == TRUE) {
 				DGEnableItem (dialogID, EDITCONTROL_BOTTOM_3);
-				DGEnableItem (dialogID, EDITCONTROL_TOP_3);
 				DGSetItemValLong (dialogID, CHECKBOX_TOP_ADDITIONAL_FORM, TRUE);
 			} else {
 				DGDisableItem (dialogID, EDITCONTROL_BOTTOM_3);
-				DGDisableItem (dialogID, EDITCONTROL_TOP_3);
 				DGSetItemValDouble (dialogID, EDITCONTROL_BOTTOM_3, 0.0);
 				DGSetItemValDouble (dialogID, EDITCONTROL_TOP_3, 0.0);
 				DGSetItemValLong (dialogID, CHECKBOX_TOP_ADDITIONAL_FORM, FALSE);
@@ -838,8 +1232,8 @@ short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item
 						rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
 						placingZone.cellsL1 [xx].objType = EUROFORM;
-						placingZone.cellsL1 [xx].leftBottomX = rotatedPoint.x + DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) * cos(placingZone.angle);
-						placingZone.cellsL1 [xx].leftBottomY = rotatedPoint.y - DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) * sin(placingZone.angle);
+						placingZone.cellsL1 [xx].leftBottomX = rotatedPoint.x + DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) * sin(placingZone.angle);
+						placingZone.cellsL1 [xx].leftBottomY = rotatedPoint.y - DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) * cos(placingZone.angle);
 						placingZone.cellsL1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
 						placingZone.cellsL1 [xx].ang = placingZone.angle - DegreeToRad (90);
 						placingZone.cellsL1 [xx].horLen = 0.064;
@@ -865,8 +1259,8 @@ short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item
 							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
 							placingZone.cellsL2 [xx].objType = EUROFORM;
-							placingZone.cellsL2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2)) * cos(placingZone.angle);
-							placingZone.cellsL2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2)) * sin(placingZone.angle);
+							placingZone.cellsL2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2)) * sin(placingZone.angle);
+							placingZone.cellsL2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2)) * cos(placingZone.angle);
 							placingZone.cellsL2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
 							placingZone.cellsL2 [xx].ang = placingZone.angle - DegreeToRad (90);
 							placingZone.cellsL2 [xx].horLen = 0.064;
@@ -892,8 +1286,8 @@ short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item
 						rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
 						placingZone.cellsR1 [xx].objType = EUROFORM;
-						placingZone.cellsR1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2)) * cos(placingZone.angle);
-						placingZone.cellsR1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2)) * sin(placingZone.angle);
+						placingZone.cellsR1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2)) * sin(placingZone.angle);
+						placingZone.cellsR1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2)) * cos(placingZone.angle);
 						placingZone.cellsR1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
 						placingZone.cellsR1 [xx].ang = placingZone.angle + DegreeToRad (90);
 						placingZone.cellsR1 [xx].horLen = 0.064;
@@ -919,8 +1313,8 @@ short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item
 							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
 							placingZone.cellsR2 [xx].objType = EUROFORM;
-							placingZone.cellsR2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3)) * cos(placingZone.angle);
-							placingZone.cellsR2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3)) * sin(placingZone.angle);
+							placingZone.cellsR2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3)) * sin(placingZone.angle);
+							placingZone.cellsR2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3)) * cos(placingZone.angle);
 							placingZone.cellsR2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
 							placingZone.cellsR2 [xx].ang = placingZone.angle + DegreeToRad (90);
 							placingZone.cellsR2 [xx].horLen = 0.064;
@@ -1018,7 +1412,7 @@ short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item
 }
 
 // 1차 배치 후 수정을 요청하는 2차 다이얼로그
-short DGCALLBACK columnPlacerHandler2 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short	result;
 	short	itmIdx;
@@ -1064,32 +1458,30 @@ short DGCALLBACK columnPlacerHandler2 (short message, short dialogID, short item
 			DGSetItemText (dialogID, LABEL_COLUMN_SIDE, "기둥 측면");
 			DGShowItem (dialogID, LABEL_COLUMN_SIDE);
 
-			// 보 단면
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 230, 40, btnSizeX, btnSizeY);
-			DGSetItemFont (dialogID, BUTTON_BEAM_SECTION, DG_IS_LARGE | DG_IS_PLAIN);
-			DGShowItem (dialogID, BUTTON_BEAM_SECTION);
-			if (placingZone.bInterfereBeam == true) {
-				DGEnableItem (dialogID, BUTTON_BEAM_SECTION);
-				DGSetItemText (dialogID, BUTTON_BEAM_SECTION, "보\n있음");
-			} else {
-				DGDisableItem (dialogID, BUTTON_BEAM_SECTION);
-				DGSetItemText (dialogID, BUTTON_BEAM_SECTION, "보\n없음");
-			}
-
-			// 여백 위치
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 235, 110, 40, 23);
-			DGSetItemFont (dialogID, LABEL_MARGIN_PLACE, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_MARGIN_PLACE, "여백");
-			DGShowItem (dialogID, LABEL_MARGIN_PLACE);
-
 			// 보를 의미하는 직사각형
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 220, 30, 70, 175 + (btnSizeY * (placingZone.nCells-1)));
 			DGShowItem (dialogID, itmIdx);
 
-			// 버튼 시작
+			// 보 단면
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 230, 40, btnSizeX, btnSizeY);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, itmIdx);
+			DGDisableItem (dialogID, itmIdx);
+			if (placingZone.bInterfereBeam == true)
+				DGSetItemText (dialogID, itmIdx, "보\n있음");
+			else
+				DGSetItemText (dialogID, itmIdx, "보\n없음");
+
+			// 여백 위치
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 235, 110, 40, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "여백");
+			DGShowItem (dialogID, itmIdx);
+
+			// 유로폼 버튼 시작
 			btnPosX = 230;
 			btnPosY = 140 + (btnSizeY * (placingZone.nCells-1));
-			for (xx = placingZone.nCells-1 ; xx >= 0 ; --xx) {
+			for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
 
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
@@ -1102,6 +1494,11 @@ short DGCALLBACK columnPlacerHandler2 (short message, short dialogID, short item
 				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
 				DGShowItem (dialogID, itmIdx);
 				btnPosY -= 50;
+
+				if (xx == 0)
+					EUROFORM_BUTTON_BOTTOM = itmIdx;
+				if (xx == placingZone.nCells-1)
+					EUROFORM_BUTTON_TOP = itmIdx;
 			}
 
 			// 추가/삭제 버튼
@@ -1227,9 +1624,9 @@ short DGCALLBACK columnPlacerHandler2 (short message, short dialogID, short item
 			EDITCONTROL_EAST_MARGIN = itmIdx;
 
 			// 메인 창 크기를 변경
-			//dialogSizeX = max<short>(500, 150 + (btnSizeX * (placingZone.nCellsFromBeginAtBottom + placingZone.nCellsFromEndAtBottom + 1)) + 150);
-			//dialogSizeY = 490;
-			//DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
+			dialogSizeX = 700;
+			dialogSizeY = max<short>(300, 300 + (btnSizeY * (placingZone.nCells - 1)));
+			DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
 
 			break;
 
@@ -1243,52 +1640,202 @@ short DGCALLBACK columnPlacerHandler2 (short message, short dialogID, short item
 			if (item == DG_UPDATE_BUTTON) {
 				item = 0;
 
-				//// 저장된 측면 시작 여백 여부 저장
-				//if (DGGetItemValLong (dialogID, MARGIN_FILL_FROM_BEGIN_AT_SIDE) == TRUE)
-				//	placingZone.bFillMarginBeginAtSide = true;
-				//else
-				//	placingZone.bFillMarginBeginAtSide = false;
+				// 저장된 여백 채움 여부 저장
+				if (DGGetItemValLong (dialogID, CHECKBOX_NORTH_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtNorth = true;
+				else
+					placingZone.bFillMarginTopAtNorth = false;
 
-				//// 저장된 측면 끝 여백 여부 저장
-				//if (DGGetItemValLong (dialogID, MARGIN_FILL_FROM_END_AT_SIDE) == TRUE)
-				//	placingZone.bFillMarginEndAtSide = true;
-				//else
-				//	placingZone.bFillMarginEndAtSide = false;
+				if (DGGetItemValLong (dialogID, CHECKBOX_SOUTH_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtSouth = true;
+				else
+					placingZone.bFillMarginTopAtSouth = false;
 
-				//// 저장된 하부 시작 여백 여부 저장
-				//if (DGGetItemValLong (dialogID, MARGIN_FILL_FROM_BEGIN_AT_BOTTOM) == TRUE)
-				//	placingZone.bFillMarginBeginAtBottom = true;
-				//else
-				//	placingZone.bFillMarginBeginAtBottom = false;
+				if (DGGetItemValLong (dialogID, CHECKBOX_WEST_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtWest = true;
+				else
+					placingZone.bFillMarginTopAtWest = false;
 
-				//// 저장된 하부 끝 여백 여부 저장
-				//if (DGGetItemValLong (dialogID, MARGIN_FILL_FROM_END_AT_BOTTOM) == TRUE)
-				//	placingZone.bFillMarginEndAtBottom = true;
-				//else
-				//	placingZone.bFillMarginEndAtBottom = false;
+				if (DGGetItemValLong (dialogID, CHECKBOX_EAST_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtEast = true;
+				else
+					placingZone.bFillMarginTopAtEast = false;
 
-				//// 간섭 보가 붙는 곳 영역 길이 저장
-				//placingZone.centerLengthAtSide = DGGetItemValDouble (dialogID, EDITCONTROL_CENTER_LENGTH_SIDE);
+				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
+				alignPlacingZoneForColumn (&placingZone);
 
-				//// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				//alignPlacingZoneForBeam (&placingZone);
+				// 변경 가능성이 있는 DG 항목 모두 제거
+				DGRemoveDialogItems (dialogID, AFTER_ALL);
 
-				//// 변경 가능성이 있는 DG 항목 모두 제거
-				//DGRemoveDialogItems (dialogID, AFTER_ALL);
+				// 보를 의미하는 직사각형
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 220, 30, 70, 175 + (btnSizeY * (placingZone.nCells-1)));
+				DGShowItem (dialogID, itmIdx);
 
-				//// 측면 시작 부분 여백 채움 여부 - bFillMarginBeginAtSide
-				//// 라디오 버튼: 여백 (채움)
-				//itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 111, 90, 110, 70, 25);
-				//DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				//DGSetItemText (dialogID, itmIdx, "여백 채움");
-				//DGShowItem (dialogID, itmIdx);
-				//MARGIN_FILL_FROM_BEGIN_AT_SIDE = itmIdx;
-				// ...
+				// 보 단면
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 230, 40, btnSizeX, btnSizeY);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGShowItem (dialogID, itmIdx);
+				DGDisableItem (dialogID, itmIdx);
+				if (placingZone.bInterfereBeam == true)
+					DGSetItemText (dialogID, itmIdx, "보\n있음");
+				else
+					DGSetItemText (dialogID, itmIdx, "보\n없음");
 
-				//// 메인 창 크기를 변경
-				//dialogSizeX = max<short>(500, 150 + (btnSizeX * (placingZone.nCellsFromBeginAtBottom + placingZone.nCellsFromEndAtBottom + 1)) + 150);
-				//dialogSizeY = 490;
-				//DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
+				// 여백 위치
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 235, 110, 40, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백");
+				DGShowItem (dialogID, itmIdx);
+
+				// 유로폼 버튼 시작
+				btnPosX = 230;
+				btnPosY = 140 + (btnSizeY * (placingZone.nCells-1));
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
+
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					txtButton = "";
+					if (placingZone.cellsB1 [xx].objType == NONE) {
+						txtButton = "NONE";
+					} else if (placingZone.cellsB1 [xx].objType == EUROFORM) {
+						txtButton = format_string ("유로폼\n↕%.0f", placingZone.cellsB1 [xx].height * 1000);
+					}
+					DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
+					DGShowItem (dialogID, itmIdx);
+					btnPosY -= 50;
+
+					if (xx == 0)
+						EUROFORM_BUTTON_BOTTOM = itmIdx;
+					if (xx == placingZone.nCells-1)
+						EUROFORM_BUTTON_TOP = itmIdx;
+				}
+
+				// 추가/삭제 버튼
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 113, 50, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "추가");
+				DGShowItem (dialogID, itmIdx);
+				ADD_CELLS = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 142, 50, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "삭제");
+				DGShowItem (dialogID, itmIdx);
+				DEL_CELLS = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 290, 134, 20, 20);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "←");
+				DGShowItem (dialogID, itmIdx);
+
+				// 보 단면을 의미하는 직사각형
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 500, 100, 80, 80);
+				DGShowItem (dialogID, itmIdx);
+
+				// 라벨: 동서남북
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 105, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "북");
+				DGShowItem (dialogID, itmIdx);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 155, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "남");
+				DGShowItem (dialogID, itmIdx);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 505, 130, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "서");
+				DGShowItem (dialogID, itmIdx);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 550, 130, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "동");
+				DGShowItem (dialogID, itmIdx);
+
+				// 체크박스: 동서남북 여백 채움 여부
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 50, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtNorth == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 북
+				CHECKBOX_NORTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 210, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtSouth == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 남
+				CHECKBOX_SOUTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 420, 115, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtWest == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 서
+				CHECKBOX_WEST_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 590, 115, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtEast == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 동
+				CHECKBOX_EAST_MARGIN = itmIdx;
+
+				// 여백 계산 (북)
+				if (placingZone.bExistBeams [NORTH] == true)
+					placingZone.marginTopAtNorth = placingZone.bottomLevelOfBeams [NORTH];
+				else
+					placingZone.marginTopAtNorth = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtNorth -= placingZone.cellsB1 [xx].height;
+
+				// 여백 계산 (남)
+				if (placingZone.bExistBeams [SOUTH] == true)
+					placingZone.marginTopAtSouth = placingZone.bottomLevelOfBeams [SOUTH];
+				else
+					placingZone.marginTopAtSouth = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtSouth -= placingZone.cellsB1 [xx].height;
+
+				// 여백 계산 (서)
+				if (placingZone.bExistBeams [WEST] == true)
+					placingZone.marginTopAtWest = placingZone.bottomLevelOfBeams [WEST];
+				else
+					placingZone.marginTopAtWest = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtWest -= placingZone.cellsB1 [xx].height;
+
+				// 여백 계산 (동)
+				if (placingZone.bExistBeams [EAST] == true)
+					placingZone.marginTopAtEast = placingZone.bottomLevelOfBeams [EAST];
+				else
+					placingZone.marginTopAtEast = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtEast -= placingZone.cellsB1 [xx].height;
+
+				// Edit 컨트롤: 동서남북 여백 치수 표시
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 520, 75, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtNorth);
+				DGShowItem (dialogID, itmIdx);	// 북
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_NORTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 520, 182, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtSouth);
+				DGShowItem (dialogID, itmIdx);	// 남
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_SOUTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 440, 142, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtWest);
+				DGShowItem (dialogID, itmIdx);	// 서
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_WEST_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 600, 142, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtEast);
+				DGShowItem (dialogID, itmIdx);	// 동
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_EAST_MARGIN = itmIdx;
+
+				// 메인 창 크기를 변경
+				dialogSizeX = 700;
+				dialogSizeY = max<short>(300, 300 + (btnSizeY * (placingZone.nCells - 1)));
+				DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
 			}
 
 			// 이전 버튼
@@ -1300,117 +1847,712 @@ short DGCALLBACK columnPlacerHandler2 (short message, short dialogID, short item
 			if (item == DG_OK) {
 				clickedOKButton = true;
 
-				//// 여백 채움/비움 여부 저장
-				//if (DGGetItemValLong (dialogID, MARGIN_FILL_FROM_BEGIN_AT_SIDE) == TRUE)
-				//	placingZone.bFillMarginBeginAtSide = true;
-				//if (DGGetItemValLong (dialogID, MARGIN_FILL_FROM_END_AT_SIDE) == TRUE)
-				//	placingZone.bFillMarginEndAtSide = true;
-				//if (DGGetItemValLong (dialogID, MARGIN_FILL_FROM_BEGIN_AT_BOTTOM) == TRUE)
-				//	placingZone.bFillMarginBeginAtBottom = true;
-				//if (DGGetItemValLong (dialogID, MARGIN_FILL_FROM_END_AT_BOTTOM) == TRUE)
-				//	placingZone.bFillMarginEndAtBottom = true;
+				// 저장된 여백 채움 여부 저장
+				if (DGGetItemValLong (dialogID, CHECKBOX_NORTH_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtNorth = true;
+				else
+					placingZone.bFillMarginTopAtNorth = false;
 
-				//placingZone.centerLengthAtSide = DGGetItemValDouble (dialogID, EDITCONTROL_CENTER_LENGTH_SIDE);
+				if (DGGetItemValLong (dialogID, CHECKBOX_SOUTH_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtSouth = true;
+				else
+					placingZone.bFillMarginTopAtSouth = false;
 
-				//// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				//alignPlacingZoneForBeam (&placingZone);
+				if (DGGetItemValLong (dialogID, CHECKBOX_WEST_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtWest = true;
+				else
+					placingZone.bFillMarginTopAtWest = false;
+
+				if (DGGetItemValLong (dialogID, CHECKBOX_EAST_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtEast = true;
+				else
+					placingZone.bFillMarginTopAtEast = false;
+
+				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
+				alignPlacingZoneForColumn (&placingZone);
+
+				// 변경 가능성이 있는 DG 항목 모두 제거
+				DGRemoveDialogItems (dialogID, AFTER_ALL);
+
+				// 보를 의미하는 직사각형
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 220, 30, 70, 175 + (btnSizeY * (placingZone.nCells-1)));
+				DGShowItem (dialogID, itmIdx);
+
+				// 보 단면
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 230, 40, btnSizeX, btnSizeY);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGShowItem (dialogID, itmIdx);
+				DGDisableItem (dialogID, itmIdx);
+				if (placingZone.bInterfereBeam == true)
+					DGSetItemText (dialogID, itmIdx, "보\n있음");
+				else
+					DGSetItemText (dialogID, itmIdx, "보\n없음");
+
+				// 여백 위치
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 235, 110, 40, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백");
+				DGShowItem (dialogID, itmIdx);
+
+				// 유로폼 버튼 시작
+				btnPosX = 230;
+				btnPosY = 140 + (btnSizeY * (placingZone.nCells-1));
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
+
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					txtButton = "";
+					if (placingZone.cellsB1 [xx].objType == NONE) {
+						txtButton = "NONE";
+					} else if (placingZone.cellsB1 [xx].objType == EUROFORM) {
+						txtButton = format_string ("유로폼\n↕%.0f", placingZone.cellsB1 [xx].height * 1000);
+					}
+					DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
+					DGShowItem (dialogID, itmIdx);
+					btnPosY -= 50;
+
+					if (xx == 0)
+						EUROFORM_BUTTON_BOTTOM = itmIdx;
+					if (xx == placingZone.nCells-1)
+						EUROFORM_BUTTON_TOP = itmIdx;
+				}
+
+				// 추가/삭제 버튼
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 113, 50, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "추가");
+				DGShowItem (dialogID, itmIdx);
+				ADD_CELLS = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 142, 50, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "삭제");
+				DGShowItem (dialogID, itmIdx);
+				DEL_CELLS = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 290, 134, 20, 20);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "←");
+				DGShowItem (dialogID, itmIdx);
+
+				// 보 단면을 의미하는 직사각형
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 500, 100, 80, 80);
+				DGShowItem (dialogID, itmIdx);
+
+				// 라벨: 동서남북
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 105, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "북");
+				DGShowItem (dialogID, itmIdx);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 155, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "남");
+				DGShowItem (dialogID, itmIdx);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 505, 130, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "서");
+				DGShowItem (dialogID, itmIdx);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 550, 130, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "동");
+				DGShowItem (dialogID, itmIdx);
+
+				// 체크박스: 동서남북 여백 채움 여부
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 50, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtNorth == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 북
+				CHECKBOX_NORTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 210, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtSouth == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 남
+				CHECKBOX_SOUTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 420, 115, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtWest == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 서
+				CHECKBOX_WEST_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 590, 115, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtEast == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 동
+				CHECKBOX_EAST_MARGIN = itmIdx;
+
+				// 여백 계산 (북)
+				if (placingZone.bExistBeams [NORTH] == true)
+					placingZone.marginTopAtNorth = placingZone.bottomLevelOfBeams [NORTH];
+				else
+					placingZone.marginTopAtNorth = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtNorth -= placingZone.cellsB1 [xx].height;
+
+				// 여백 계산 (남)
+				if (placingZone.bExistBeams [SOUTH] == true)
+					placingZone.marginTopAtSouth = placingZone.bottomLevelOfBeams [SOUTH];
+				else
+					placingZone.marginTopAtSouth = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtSouth -= placingZone.cellsB1 [xx].height;
+
+				// 여백 계산 (서)
+				if (placingZone.bExistBeams [WEST] == true)
+					placingZone.marginTopAtWest = placingZone.bottomLevelOfBeams [WEST];
+				else
+					placingZone.marginTopAtWest = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtWest -= placingZone.cellsB1 [xx].height;
+
+				// 여백 계산 (동)
+				if (placingZone.bExistBeams [EAST] == true)
+					placingZone.marginTopAtEast = placingZone.bottomLevelOfBeams [EAST];
+				else
+					placingZone.marginTopAtEast = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtEast -= placingZone.cellsB1 [xx].height;
+
+				// Edit 컨트롤: 동서남북 여백 치수 표시
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 520, 75, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtNorth);
+				DGShowItem (dialogID, itmIdx);	// 북
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_NORTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 520, 182, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtSouth);
+				DGShowItem (dialogID, itmIdx);	// 남
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_SOUTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 440, 142, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtWest);
+				DGShowItem (dialogID, itmIdx);	// 서
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_WEST_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 600, 142, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtEast);
+				DGShowItem (dialogID, itmIdx);	// 동
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_EAST_MARGIN = itmIdx;
+
+				// 메인 창 크기를 변경
+				dialogSizeX = 700;
+				dialogSizeY = max<short>(300, 300 + (btnSizeY * (placingZone.nCells - 1)));
+				DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
 			}
 
 			// 취소 버튼
 			if (item == DG_CANCEL) {
 			}
 
-			//// 셀 추가/삭제 버튼 8종
-			//if (item == ADD_CELLS_FROM_BEGIN_AT_SIDE) {
-			//	addNewColFromBeginAtSide (&placingZone);
-			//}
-			//if (item == DEL_CELLS_FROM_BEGIN_AT_SIDE) {
-			//	delLastColFromBeginAtSide (&placingZone);
-			//}
-			//if (item == ADD_CELLS_FROM_END_AT_SIDE) {
-			//	addNewColFromEndAtSide (&placingZone);
-			//}
-			//if (item == DEL_CELLS_FROM_END_AT_SIDE) {
-			//	delLastColFromEndAtSide (&placingZone);
-			//}
-			//if (item == ADD_CELLS_FROM_BEGIN_AT_BOTTOM) {
-			//	addNewColFromBeginAtBottom (&placingZone);
-			//}
-			//if (item == DEL_CELLS_FROM_BEGIN_AT_BOTTOM) {
-			//	delLastColFromBeginAtBottom (&placingZone);
-			//}
-			//if (item == ADD_CELLS_FROM_END_AT_BOTTOM) {
-			//	addNewColFromEndAtBottom (&placingZone);
-			//}
-			//if (item == DEL_CELLS_FROM_END_AT_BOTTOM) {
-			//	delLastColFromEndAtBottom (&placingZone);
-			//}
+			// 셀 추가/삭제 버튼
+			if (item == ADD_CELLS) {
+				addTopCell (&placingZone);
+			}
+			if (item == DEL_CELLS) {
+				delTopCell (&placingZone);
+			}
 
-			//if ( (item == ADD_CELLS_FROM_BEGIN_AT_SIDE) || (item == DEL_CELLS_FROM_BEGIN_AT_SIDE) || (item == ADD_CELLS_FROM_END_AT_SIDE) || (item == DEL_CELLS_FROM_END_AT_SIDE) ||
-			//	 (item == ADD_CELLS_FROM_BEGIN_AT_BOTTOM) || (item == DEL_CELLS_FROM_BEGIN_AT_BOTTOM) || (item == ADD_CELLS_FROM_END_AT_BOTTOM) || (item == DEL_CELLS_FROM_END_AT_BOTTOM)) {
+			if ((item == ADD_CELLS) || (item == DEL_CELLS)) {
+				item = 0;
 
-			//	item = 0;
+				// 저장된 여백 채움 여부 저장
+				if (DGGetItemValLong (dialogID, CHECKBOX_NORTH_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtNorth = true;
+				else
+					placingZone.bFillMarginTopAtNorth = false;
 
-			//	// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-			//	alignPlacingZoneForBeam (&placingZone);
+				if (DGGetItemValLong (dialogID, CHECKBOX_SOUTH_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtSouth = true;
+				else
+					placingZone.bFillMarginTopAtSouth = false;
 
-			//	// 변경 가능성이 있는 DG 항목 모두 제거
-			//	DGRemoveDialogItems (dialogID, AFTER_ALL);
+				if (DGGetItemValLong (dialogID, CHECKBOX_WEST_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtWest = true;
+				else
+					placingZone.bFillMarginTopAtWest = false;
 
-			//	// 측면 시작 부분 여백 채움 여부 - bFillMarginBeginAtSide
-			//	// 라디오 버튼: 여백 (채움)
-			//	itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 111, 90, 110, 70, 25);
-			// ...
+				if (DGGetItemValLong (dialogID, CHECKBOX_EAST_MARGIN) == TRUE)
+					placingZone.bFillMarginTopAtEast = true;
+				else
+					placingZone.bFillMarginTopAtEast = false;
 
-			//	// 메인 창 크기를 변경
-			//	dialogSizeX = max<short>(500, 150 + (btnSizeX * (placingZone.nCellsFromBeginAtBottom + placingZone.nCellsFromEndAtBottom + 1)) + 150);
-			//	dialogSizeY = 490;
-			//	DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
-			//}
+				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
+				alignPlacingZoneForColumn (&placingZone);
 
-			//// 배치 버튼 (측면 시작 부분)
-			//if ((item >= START_INDEX_FROM_BEGIN_AT_SIDE) && (item < START_INDEX_FROM_BEGIN_AT_SIDE + placingZone.nCellsFromBeginAtSide)) {
-			//	// [DIALOG] 그리드 버튼을 누르면 Cell을 설정하기 위한 작은 창(3번째 다이얼로그)이 나옴
-			//	clickedBtnItemIdx = item;
-			//	result = DGBlankModalDialog (200, 200, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, beamPlacerHandler3, 0);
-			//	item = 0;
-			//}
-			//// 배치 버튼 (측면 중앙 부분)
-			//if (item == START_INDEX_CENTER_AT_SIDE) {
-			//	// [DIALOG] 그리드 버튼을 누르면 Cell을 설정하기 위한 작은 창(3번째 다이얼로그)이 나옴
-			//	clickedBtnItemIdx = item;
-			//	result = DGBlankModalDialog (200, 200, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, beamPlacerHandler3, 0);
-			//	item = 0;
-			//}
-			//// 배치 버튼 (측면 끝 부분)
-			//if ((item >= END_INDEX_FROM_END_AT_SIDE) && (item < END_INDEX_FROM_END_AT_SIDE + placingZone.nCellsFromEndAtSide)) {
-			//	// [DIALOG] 그리드 버튼을 누르면 Cell을 설정하기 위한 작은 창(3번째 다이얼로그)이 나옴
-			//	clickedBtnItemIdx = item;
-			//	result = DGBlankModalDialog (200, 200, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, beamPlacerHandler3, 0);
-			//	item = 0;
-			//}
+				// 변경 가능성이 있는 DG 항목 모두 제거
+				DGRemoveDialogItems (dialogID, AFTER_ALL);
 
-			//// 배치 버튼 (하부 시작 부분)
-			//if ((item >= START_INDEX_FROM_BEGIN_AT_BOTTOM) && (item < START_INDEX_FROM_BEGIN_AT_BOTTOM + placingZone.nCellsFromBeginAtBottom)) {
-			//	// [DIALOG] 그리드 버튼을 누르면 Cell을 설정하기 위한 작은 창(3번째 다이얼로그)이 나옴
-			//	clickedBtnItemIdx = item;
-			//	result = DGBlankModalDialog (200, 200, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, beamPlacerHandler3, 0);
-			//	item = 0;
-			//}
-			//// 배치 버튼 (하부 중앙 부분)
-			//if (item == START_INDEX_CENTER_AT_BOTTOM) {
-			//	// [DIALOG] 그리드 버튼을 누르면 Cell을 설정하기 위한 작은 창(3번째 다이얼로그)이 나옴
-			//	clickedBtnItemIdx = item;
-			//	result = DGBlankModalDialog (200, 200, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, beamPlacerHandler3, 0);
-			//	item = 0;
-			//}
-			//// 배치 버튼 (하부 끝 부분)
-			//if ((item >= END_INDEX_FROM_END_AT_BOTTOM) && (item < END_INDEX_FROM_END_AT_BOTTOM + placingZone.nCellsFromEndAtBottom)) {
-			//	// [DIALOG] 그리드 버튼을 누르면 Cell을 설정하기 위한 작은 창(3번째 다이얼로그)이 나옴
-			//	clickedBtnItemIdx = item;
-			//	result = DGBlankModalDialog (200, 200, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, beamPlacerHandler3, 0);
-			//	item = 0;
-			//}
+				// 보를 의미하는 직사각형
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 220, 30, 70, 175 + (btnSizeY * (placingZone.nCells-1)));
+				DGShowItem (dialogID, itmIdx);
+
+				// 보 단면
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 230, 40, btnSizeX, btnSizeY);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGShowItem (dialogID, itmIdx);
+				DGDisableItem (dialogID, itmIdx);
+				if (placingZone.bInterfereBeam == true)
+					DGSetItemText (dialogID, itmIdx, "보\n있음");
+				else
+					DGSetItemText (dialogID, itmIdx, "보\n없음");
+
+				// 여백 위치
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 235, 110, 40, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백");
+				DGShowItem (dialogID, itmIdx);
+
+				// 유로폼 버튼 시작
+				btnPosX = 230;
+				btnPosY = 140 + (btnSizeY * (placingZone.nCells-1));
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
+
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					txtButton = "";
+					if (placingZone.cellsB1 [xx].objType == NONE) {
+						txtButton = "NONE";
+					} else if (placingZone.cellsB1 [xx].objType == EUROFORM) {
+						txtButton = format_string ("유로폼\n↕%.0f", placingZone.cellsB1 [xx].height * 1000);
+					}
+					DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
+					DGShowItem (dialogID, itmIdx);
+					btnPosY -= 50;
+
+					if (xx == 0)
+						EUROFORM_BUTTON_BOTTOM = itmIdx;
+					if (xx == placingZone.nCells-1)
+						EUROFORM_BUTTON_TOP = itmIdx;
+				}
+
+				// 추가/삭제 버튼
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 113, 50, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "추가");
+				DGShowItem (dialogID, itmIdx);
+				ADD_CELLS = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 142, 50, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "삭제");
+				DGShowItem (dialogID, itmIdx);
+				DEL_CELLS = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 290, 134, 20, 20);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "←");
+				DGShowItem (dialogID, itmIdx);
+
+				// 보 단면을 의미하는 직사각형
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 500, 100, 80, 80);
+				DGShowItem (dialogID, itmIdx);
+
+				// 라벨: 동서남북
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 105, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "북");
+				DGShowItem (dialogID, itmIdx);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 155, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "남");
+				DGShowItem (dialogID, itmIdx);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 505, 130, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "서");
+				DGShowItem (dialogID, itmIdx);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 550, 130, 25, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "동");
+				DGShowItem (dialogID, itmIdx);
+
+				// 체크박스: 동서남북 여백 채움 여부
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 50, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtNorth == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 북
+				CHECKBOX_NORTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 210, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtSouth == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 남
+				CHECKBOX_SOUTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 420, 115, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtWest == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 서
+				CHECKBOX_WEST_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 590, 115, 80, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtEast == true) ? TRUE : FALSE);
+				DGShowItem (dialogID, itmIdx);	// 동
+				CHECKBOX_EAST_MARGIN = itmIdx;
+
+				// 여백 계산 (북)
+				if (placingZone.bExistBeams [NORTH] == true)
+					placingZone.marginTopAtNorth = placingZone.bottomLevelOfBeams [NORTH];
+				else
+					placingZone.marginTopAtNorth = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtNorth -= placingZone.cellsB1 [xx].height;
+
+				// 여백 계산 (남)
+				if (placingZone.bExistBeams [SOUTH] == true)
+					placingZone.marginTopAtSouth = placingZone.bottomLevelOfBeams [SOUTH];
+				else
+					placingZone.marginTopAtSouth = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtSouth -= placingZone.cellsB1 [xx].height;
+
+				// 여백 계산 (서)
+				if (placingZone.bExistBeams [WEST] == true)
+					placingZone.marginTopAtWest = placingZone.bottomLevelOfBeams [WEST];
+				else
+					placingZone.marginTopAtWest = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtWest -= placingZone.cellsB1 [xx].height;
+
+				// 여백 계산 (동)
+				if (placingZone.bExistBeams [EAST] == true)
+					placingZone.marginTopAtEast = placingZone.bottomLevelOfBeams [EAST];
+				else
+					placingZone.marginTopAtEast = placingZone.areaHeight;
+				for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+					placingZone.marginTopAtEast -= placingZone.cellsB1 [xx].height;
+
+				// Edit 컨트롤: 동서남북 여백 치수 표시
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 520, 75, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtNorth);
+				DGShowItem (dialogID, itmIdx);	// 북
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_NORTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 520, 182, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtSouth);
+				DGShowItem (dialogID, itmIdx);	// 남
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_SOUTH_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 440, 142, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtWest);
+				DGShowItem (dialogID, itmIdx);	// 서
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_WEST_MARGIN = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 600, 142, 40, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemValDouble (dialogID, itmIdx, placingZone.marginTopAtEast);
+				DGShowItem (dialogID, itmIdx);	// 동
+				DGDisableItem (dialogID, itmIdx);
+				EDITCONTROL_EAST_MARGIN = itmIdx;
+
+				// 메인 창 크기를 변경
+				dialogSizeX = 700;
+				dialogSizeY = max<short>(300, 300 + (btnSizeY * (placingZone.nCells - 1)));
+				DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
+			}
+
+			// 유로폼 버튼
+			if ((item >= EUROFORM_BUTTON_BOTTOM) && (item <= EUROFORM_BUTTON_TOP)) {
+				// [DIALOG] 그리드 버튼을 누르면 Cell을 설정하기 위한 작은 창(3번째 다이얼로그)이 나옴
+				clickedBtnItemIdx = item;
+				result = DGBlankModalDialog (200, 200, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, columnPlacerHandler_soleColumn_3, 0);
+				item = 0;
+			}
+
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
+}
+
+// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
+short DGCALLBACK columnPlacerHandler_soleColumn_3 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	short	result;
+	short	idx = -1;
+	short	popupSelectedIdx = -1;
+
+	switch (message) {
+		case DG_MSG_INIT:
+
+			// 배치 버튼
+			if ((clickedBtnItemIdx >= EUROFORM_BUTTON_BOTTOM) && (clickedBtnItemIdx <= EUROFORM_BUTTON_TOP))
+				idx = clickedBtnItemIdx - EUROFORM_BUTTON_BOTTOM;
+
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "셀 설정");
+
+			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
+			// 저장 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 30, 160, 60, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "저장");
+			DGShowItem (dialogID, DG_OK);
+
+			// 취소 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 110, 160, 60, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGShowItem (dialogID, DG_CANCEL);
+
+			//////////////////////////////////////////////////////////// 필드 생성 (클릭한 셀)
+			// 라벨: 객체 타입
+			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 10, 20, 70, 23);
+			DGSetItemFont (dialogID, LABEL_OBJ_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_OBJ_TYPE, "객체 타입");
+			DGShowItem (dialogID, LABEL_OBJ_TYPE);
+
+			// 팝업컨트롤: 객체 타입을 바꿀 수 있는 콤보박스가 맨 위에 나옴
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 90, 20-7, 100, 25);
+			DGSetItemFont (dialogID, POPUP_OBJ_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "없음");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "유로폼");
+			DGShowItem (dialogID, POPUP_OBJ_TYPE);
+
+			// 체크박스: 규격폼
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 20, 60, 70, 25-5);
+			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD, "규격폼");
+
+			// 라벨: 길이
+			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 90, 50, 23);
+			DGSetItemFont (dialogID, LABEL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_LENGTH, "길이");
+
+			// Edit 컨트롤: 길이
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 90-6, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
+			// 팝업 컨트롤: 길이
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 80, 90-6, 80, 25);
+			DGSetItemFont (dialogID, POPUP_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_LENGTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_LENGTH, DG_POPUP_BOTTOM, "1200");
+			DGPopUpInsertItem (dialogID, POPUP_LENGTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_LENGTH, DG_POPUP_BOTTOM, "900");
+			DGPopUpInsertItem (dialogID, POPUP_LENGTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_LENGTH, DG_POPUP_BOTTOM, "600");
+
+			// 초기 입력 필드 표시
+			if (placingZone.cellsB1 [idx].objType == NONE) {
+				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, NONE + 1);
+
+			} else if (placingZone.cellsB1 [idx].objType == EUROFORM) {
+				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, EUROFORM + 1);
+
+				DGShowItem (dialogID, CHECKBOX_SET_STANDARD);
+				DGShowItem (dialogID, LABEL_LENGTH);
+				if (placingZone.cellsB1 [idx].libPart.form.eu_stan_onoff == true) {
+					DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, TRUE);
+					DGShowItem (dialogID, POPUP_LENGTH);
+					if (abs (placingZone.cellsB1 [idx].libPart.form.eu_hei - 1.200) < EPS)		popupSelectedIdx = 1;
+					if (abs (placingZone.cellsB1 [idx].libPart.form.eu_hei - 0.900) < EPS)		popupSelectedIdx = 2;
+					if (abs (placingZone.cellsB1 [idx].libPart.form.eu_hei - 0.600) < EPS)		popupSelectedIdx = 3;
+					DGPopUpSelectItem (dialogID, POPUP_LENGTH, popupSelectedIdx);
+				} else {
+					DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, FALSE);
+					DGShowItem (dialogID, EDITCONTROL_LENGTH);
+					DGSetItemValDouble (dialogID, EDITCONTROL_LENGTH, placingZone.cellsB1 [idx].libPart.form.eu_hei2);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_LENGTH, 0.050);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_LENGTH, 1.500);
+				}
+			}
+
+			break;
+
+		case DG_MSG_CHANGE:
+			switch (item) {
+				case POPUP_OBJ_TYPE:
+					if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == NONE + 1) {
+						DGHideItem (dialogID, CHECKBOX_SET_STANDARD);
+						DGHideItem (dialogID, LABEL_LENGTH);
+						DGHideItem (dialogID, EDITCONTROL_LENGTH);
+						DGHideItem (dialogID, POPUP_LENGTH);
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == EUROFORM + 1) {
+						DGShowItem (dialogID, CHECKBOX_SET_STANDARD);
+						DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, TRUE);
+						DGShowItem (dialogID, LABEL_LENGTH);
+						DGShowItem (dialogID, POPUP_LENGTH);
+						DGHideItem (dialogID, EDITCONTROL_LENGTH);
+					}
+					break;
+
+				case CHECKBOX_SET_STANDARD:
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
+						DGShowItem (dialogID, POPUP_LENGTH);
+						DGHideItem (dialogID, EDITCONTROL_LENGTH);
+					} else {
+						DGHideItem (dialogID, POPUP_LENGTH);
+						DGShowItem (dialogID, EDITCONTROL_LENGTH);
+					}
+					break;
+			}
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					idx = -1;
+
+					// 배치 버튼
+					if ((clickedBtnItemIdx >= EUROFORM_BUTTON_BOTTOM) && (clickedBtnItemIdx <= EUROFORM_BUTTON_TOP))
+						idx = clickedBtnItemIdx - EUROFORM_BUTTON_BOTTOM;
+
+					// 입력한 길이를 해당 셀의 모든 객체들에게 적용함
+					if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == NONE + 1) {
+
+						placingZone.cellsLT [idx].objType = NONE;
+						placingZone.cellsRT [idx].objType = NONE;
+						placingZone.cellsLB [idx].objType = NONE;
+						placingZone.cellsRB [idx].objType = NONE;
+						placingZone.cellsT1 [idx].objType = NONE;
+						placingZone.cellsT2 [idx].objType = NONE;
+						placingZone.cellsL1 [idx].objType = NONE;
+						placingZone.cellsL2 [idx].objType = NONE;
+						placingZone.cellsR1 [idx].objType = NONE;
+						placingZone.cellsR2 [idx].objType = NONE;
+						placingZone.cellsB1 [idx].objType = NONE;
+						placingZone.cellsB2 [idx].objType = NONE;
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == EUROFORM + 1) {
+
+						// 규격폼으로 저장할 경우
+						if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
+
+							placingZone.cellsLT [idx].objType = OUTCORNER;
+							placingZone.cellsLT [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsLT [idx].libPart.outcorner.hei_s = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+							placingZone.cellsRT [idx].objType = OUTCORNER;
+							placingZone.cellsRT [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsRT [idx].libPart.outcorner.hei_s = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+							placingZone.cellsLB [idx].objType = OUTCORNER;
+							placingZone.cellsLB [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsLB [idx].libPart.outcorner.hei_s = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+							placingZone.cellsRB [idx].objType = OUTCORNER;
+							placingZone.cellsRB [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsRB [idx].libPart.outcorner.hei_s = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+							
+							placingZone.cellsT1 [idx].objType = EUROFORM;
+							placingZone.cellsT1 [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsT1 [idx].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+							placingZone.cellsT1 [idx].libPart.form.eu_hei2 = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+							placingZone.cellsT2 [idx].objType = EUROFORM;
+							placingZone.cellsT2 [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsT2 [idx].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+							placingZone.cellsT2 [idx].libPart.form.eu_hei2 = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+							placingZone.cellsL1 [idx].objType = EUROFORM;
+							placingZone.cellsL1 [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsL1 [idx].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+							placingZone.cellsL1 [idx].libPart.form.eu_hei2 = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+							placingZone.cellsL2 [idx].objType = EUROFORM;
+							placingZone.cellsL2 [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsL2 [idx].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+							placingZone.cellsL2 [idx].libPart.form.eu_hei2 = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+							placingZone.cellsR1 [idx].objType = EUROFORM;
+							placingZone.cellsR1 [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsR1 [idx].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+							placingZone.cellsR1 [idx].libPart.form.eu_hei2 = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+							placingZone.cellsR2 [idx].objType = EUROFORM;
+							placingZone.cellsR2 [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsR2 [idx].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+							placingZone.cellsR2 [idx].libPart.form.eu_hei2 = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+							placingZone.cellsB1 [idx].objType = EUROFORM;
+							placingZone.cellsB1 [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsB1 [idx].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+							placingZone.cellsB1 [idx].libPart.form.eu_hei2 = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+							placingZone.cellsB2 [idx].objType = EUROFORM;
+							placingZone.cellsB2 [idx].height = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;;
+							placingZone.cellsB2 [idx].libPart.form.eu_hei = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+							placingZone.cellsB2 [idx].libPart.form.eu_hei2 = atof (DGPopUpGetItemText (dialogID, POPUP_LENGTH, DGPopUpGetSelected (dialogID, POPUP_LENGTH)).ToCStr ()) / 1000.0;
+
+						// 비규격폼으로 저장할 경우
+						} else {
+
+							placingZone.cellsLT [idx].objType = OUTCORNER;
+							placingZone.cellsLT [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsLT [idx].libPart.outcorner.hei_s = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+
+							placingZone.cellsRT [idx].objType = OUTCORNER;
+							placingZone.cellsRT [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsRT [idx].libPart.outcorner.hei_s = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+
+							placingZone.cellsLB [idx].objType = OUTCORNER;
+							placingZone.cellsLB [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsLB [idx].libPart.outcorner.hei_s = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+
+							placingZone.cellsRB [idx].objType = OUTCORNER;
+							placingZone.cellsRB [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsRB [idx].libPart.outcorner.hei_s = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							
+							placingZone.cellsT1 [idx].objType = EUROFORM;
+							placingZone.cellsT1 [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsT1 [idx].libPart.form.eu_hei = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsT1 [idx].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+
+							placingZone.cellsT2 [idx].objType = EUROFORM;
+							placingZone.cellsT2 [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsT2 [idx].libPart.form.eu_hei = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsT2 [idx].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+
+							placingZone.cellsL1 [idx].objType = EUROFORM;
+							placingZone.cellsL1 [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsL1 [idx].libPart.form.eu_hei = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsL1 [idx].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+
+							placingZone.cellsL2 [idx].objType = EUROFORM;
+							placingZone.cellsL2 [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsL2 [idx].libPart.form.eu_hei = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsL2 [idx].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+
+							placingZone.cellsR1 [idx].objType = EUROFORM;
+							placingZone.cellsR1 [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsR1 [idx].libPart.form.eu_hei = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsR1 [idx].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+
+							placingZone.cellsR2 [idx].objType = EUROFORM;
+							placingZone.cellsR2 [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsR2 [idx].libPart.form.eu_hei = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsR2 [idx].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+
+							placingZone.cellsB1 [idx].objType = EUROFORM;
+							placingZone.cellsB1 [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsB1 [idx].libPart.form.eu_hei = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsB1 [idx].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+
+							placingZone.cellsB2 [idx].objType = EUROFORM;
+							placingZone.cellsB2 [idx].height = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsB2 [idx].libPart.form.eu_hei = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellsB2 [idx].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+						}
+					}
+
+					break;
+				case DG_CANCEL:
+					break;
+			}
 		case DG_MSG_CLOSE:
 			switch (item) {
 				case DG_CLOSEBOX:

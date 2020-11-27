@@ -127,6 +127,8 @@ struct OutcornerAngle
 // 매직바 정보
 struct MagicBar
 {
+	double		ZZYZX;				// 높이
+
 	double		angX;				// 회전 X
 	double		angY;				// 회전 Y
 
@@ -139,7 +141,12 @@ struct MagicBar
 // 매직인코너 정보
 struct MagicIncorner
 {
+	double		ZZYZX;				// 높이
+
 	short		type;				// 타입 (50, 100)
+
+	double		angX;				// 회전 X
+	double		angY;				// 회전 Y
 
 	bool		bPlywood;			// 합판 On/Off
 	double		plywoodWidth;		// 합판 너비

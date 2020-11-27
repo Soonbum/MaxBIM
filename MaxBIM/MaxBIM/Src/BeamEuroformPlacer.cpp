@@ -2105,6 +2105,7 @@ API_Guid	placeLibPartForBeam (CellForBeam objInfo)
 // 유로폼/휠러/목재를 채운 후 자투리 공간 채우기 (나머지 합판/목재 및 아웃코너앵글)
 GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 {
+	GSErrCode	err = NoError;
 	short	xx;
 	double	centerPos;		// 중심 위치
 	double	width_side;		// 측면 중심 유로폼 너비
@@ -2724,7 +2725,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 		}
 	}
 
-	return	NoError;
+	return	err;
 }
 
 // 1차 배치를 위한 질의를 요청하는 1차 다이얼로그

@@ -88,9 +88,16 @@ namespace columnPlacerDG {
 		DG_UPDATE_BUTTON	= 3,
 		DG_PREV,
 		LABEL_COLUMN_SIDE,
-		BUTTON_BEAM_SECTION,
-		LABEL_MARGIN_PLACE,
 		AFTER_ALL
+	};
+	
+	enum	idxItems_3_forColumnPlacer {
+		LABEL_OBJ_TYPE			= 3,
+		POPUP_OBJ_TYPE,
+		CHECKBOX_SET_STANDARD,
+		LABEL_LENGTH,
+		EDITCONTROL_LENGTH,
+		POPUP_LENGTH
 	};
 }
 
@@ -255,7 +262,11 @@ GSErrCode	placeEuroformOnColumn (void);									// 5번 메뉴: 기둥에 유로폼을 배�
 void		initCellsForColumn (ColumnPlacingZone* placingZone);			// Cell 배열을 초기화함
 void		addTopCell (ColumnPlacingZone* target_zone);					// 꼭대기에 셀 추가
 void		delTopCell (ColumnPlacingZone* target_zone);					// 꼭대기의 셀 삭제
-short DGCALLBACK columnPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
-short DGCALLBACK columnPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
+void		alignPlacingZoneForColumn (ColumnPlacingZone* placingZone);		// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+API_Guid	placeLibPartForColumn (CellForColumn objInfo);					// 해당 셀 정보를 기반으로 라이브러리 배치
+GSErrCode	fillRestAreasForColumn (ColumnPlacingZone* placingZone);		// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 매직바, 매직인코너, 합판으로 채움)
+short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
+short DGCALLBACK columnPlacerHandler_soleColumn_3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
 
 #endif
