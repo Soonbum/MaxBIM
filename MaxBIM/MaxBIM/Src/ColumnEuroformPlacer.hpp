@@ -133,18 +133,12 @@ struct InfoWallForColumn
 	double								offsetFromOutside;		// 벽의 레퍼런스 라인과 벽의 바깥쪽 면 간의 거리
 	API_WallReferenceLineLocationID     referenceLineLocation;	// 레퍼런스 라인의 위치
 	/*
-		APIWallRefLine_Outside (0)
-			레퍼런스 라인 위치는 벽의 외부 면 상에 있습니다.
-		APIWallRefLine_Center (1)
-			레퍼런스 라인 위치는 벽의 중앙에 있습니다.
-		APIWallRefLine_Inside (2)
-			레퍼런스 라인 위치는 벽의 내부 면 상에 있습니다.
-		APIWallRefLine_CoreOutside (3)
-			레퍼런스 라인 위치는 복합 구조의 코어 외부 스킨 상에 있습니다.
-		APIWallRefLine_CoreCenter (4)
-			레퍼런스 라인 위치는 복합 구조의 코어 스킨의 중앙에 있습니다.
-		APIWallRefLine_CoreInside (5)
-			레퍼런스 라인 위치는 복합 구조의 코어 내부 스킨 상에 있습니다.
+	APIWallRefLine_Outside (0)		: 레퍼런스 라인 위치는 벽의 외부 면 상에 있습니다.
+	APIWallRefLine_Center (1)		: 레퍼런스 라인 위치는 벽의 중앙에 있습니다.
+	APIWallRefLine_Inside (2)		: 레퍼런스 라인 위치는 벽의 내부 면 상에 있습니다.
+	APIWallRefLine_CoreOutside (3)	: 레퍼런스 라인 위치는 복합 구조의 코어 외부 스킨 상에 있습니다.
+	APIWallRefLine_CoreCenter (4)	: 레퍼런스 라인 위치는 복합 구조의 코어 스킨의 중앙에 있습니다.
+	APIWallRefLine_CoreInside (5)	: 레퍼런스 라인 위치는 복합 구조의 코어 내부 스킨 상에 있습니다.
 	 */
 
 	double	begX;				// 시작점 X

@@ -279,73 +279,73 @@ GSErrCode	placeEuroformOnColumn (void)
 	// placingZone의 Cell 정보 초기화
 	initCellsForColumn (&placingZone);
 
+	// 영역 정보 중 간섭 보 관련 정보 업데이트
+	if (nInterfereBeams > 0) {
+		placingZone.bInterfereBeam = true;
+		placingZone.nInterfereBeams = nInterfereBeams;
+			
+		for (xx = 0 ; xx < 4 ; ++xx) {
+			placingZone.bottomLevelOfBeams [xx] = 0.0;
+			placingZone.bExistBeams [xx] = false;
+		}
+
+		for (xx = 0 ; xx < nInterfereBeams ; ++xx) {
+			axisPoint.x = placingZone.origoPos.x;
+			axisPoint.y = placingZone.origoPos.y;
+
+			rotatedPoint.x = infoOtherBeams [xx].begC.x;
+			rotatedPoint.y = infoOtherBeams [xx].begC.y;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, -RadToDegree (placingZone.angle));
+
+			// 기둥의 동/서/남/북 방향에 있는 보의 하단 레벨을 저장함
+			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y + placingZone.coreDepth/2)) ) {
+				placingZone.bottomLevelOfBeams [NORTH] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
+				placingZone.bExistBeams [NORTH] = true;
+			}
+			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (unrotatedPoint.y <= (placingZone.origoPos.y - placingZone.coreDepth/2)) ) {
+				placingZone.bottomLevelOfBeams [SOUTH] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
+				placingZone.bExistBeams [SOUTH] = true;
+			}
+			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x + placingZone.coreWidth/2)) ) {
+				placingZone.bottomLevelOfBeams [EAST] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
+				placingZone.bExistBeams [EAST] = true;
+			}
+			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (unrotatedPoint.x <= (placingZone.origoPos.x - placingZone.coreWidth/2)) ) {
+				placingZone.bottomLevelOfBeams [WEST] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
+				placingZone.bExistBeams [WEST] = true;
+			}
+		}
+	} else {
+		placingZone.bInterfereBeam = false;
+		placingZone.nInterfereBeams = 0;
+
+		for (xx = 0 ; xx < 4 ; ++xx) {
+			placingZone.bottomLevelOfBeams [xx] = 0.0;
+			placingZone.bExistBeams [xx] = false;
+		}
+	}
+
+	// 영역 높이와 보 하단 레벨을 고려하여 셀의 개수를 연산
+	lowestBeamBottomLevel = placingZone.bottomOffset + placingZone.areaHeight;	// 기본값: 영역 높이
+	if (nInterfereBeams > 0) {
+		// 가장 낮은 보 하단 레벨을 기준으로 셀 개수 연산
+		for (xx = 0 ; xx < 4 ; ++xx) {
+			if (placingZone.bExistBeams [xx] == true)
+				if (lowestBeamBottomLevel > placingZone.bottomLevelOfBeams [xx])
+					lowestBeamBottomLevel = placingZone.bottomLevelOfBeams [xx];
+		}
+	}
+
 	// 단독 기둥의 경우
 	if (nWalls == 0) {
 
 FIRST_SOLE_COLUMN:
 	
-		// 영역 정보 중 간섭 보 관련 정보 업데이트
-		if (nInterfereBeams > 0) {
-			placingZone.bInterfereBeam = true;
-			placingZone.nInterfereBeams = nInterfereBeams;
-			
-			for (xx = 0 ; xx < 4 ; ++xx) {
-				placingZone.bottomLevelOfBeams [xx] = 0.0;
-				placingZone.bExistBeams [xx] = false;
-			}
-
-			for (xx = 0 ; xx < nInterfereBeams ; ++xx) {
-				axisPoint.x = placingZone.origoPos.x;
-				axisPoint.y = placingZone.origoPos.y;
-
-				rotatedPoint.x = infoOtherBeams [xx].begC.x;
-				rotatedPoint.y = infoOtherBeams [xx].begC.y;
-				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, -RadToDegree (placingZone.angle));
-
-				// 기둥의 동/서/남/북 방향에 있는 보의 하단 레벨을 저장함
-				if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y + placingZone.coreDepth/2)) ) {
-					placingZone.bottomLevelOfBeams [NORTH] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
-					placingZone.bExistBeams [NORTH] = true;
-				}
-				if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (unrotatedPoint.y <= (placingZone.origoPos.y - placingZone.coreDepth/2)) ) {
-					placingZone.bottomLevelOfBeams [SOUTH] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
-					placingZone.bExistBeams [SOUTH] = true;
-				}
-				if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x + placingZone.coreWidth/2)) ) {
-					placingZone.bottomLevelOfBeams [EAST] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
-					placingZone.bExistBeams [EAST] = true;
-				}
-				if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (unrotatedPoint.x <= (placingZone.origoPos.x - placingZone.coreWidth/2)) ) {
-					placingZone.bottomLevelOfBeams [WEST] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
-					placingZone.bExistBeams [WEST] = true;
-				}
-			}
-		} else {
-			placingZone.bInterfereBeam = false;
-			placingZone.nInterfereBeams = 0;
-
-			for (xx = 0 ; xx < 4 ; ++xx) {
-				placingZone.bottomLevelOfBeams [xx] = 0.0;
-				placingZone.bExistBeams [xx] = false;
-			}
-		}
-
 		// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
 		result = DGModalDialog (ACAPI_GetOwnResModule (), 32531, ACAPI_GetOwnResModule (), columnPlacerHandler_soleColumn_1, 0);
 
 		if (result == DG_CANCEL)
 			return err;
-
-		// 영역 높이와 보 하단 레벨을 고려하여 셀의 개수를 연산
-		lowestBeamBottomLevel = placingZone.bottomOffset + placingZone.areaHeight;	// 기본값: 영역 높이
-		if (nInterfereBeams > 0) {
-			// 가장 낮은 보 하단 레벨을 기준으로 셀 개수 연산
-			for (xx = 0 ; xx < 4 ; ++xx) {
-				if (placingZone.bExistBeams [xx] == true)
-					if (lowestBeamBottomLevel > placingZone.bottomLevelOfBeams [xx])
-						lowestBeamBottomLevel = placingZone.bottomLevelOfBeams [xx];
-			}
-		}
 
 		placingZone.nCells = static_cast<short>((lowestBeamBottomLevel + EPS) / 1.200);		// 높이 1200 폼 기준으로 들어갈 수 있는 최대 셀 개수 연산
 
@@ -394,34 +394,49 @@ FIRST_SOLE_COLUMN:
 		// 나머지 영역 채우기 - 합판, 목재
 		err = fillRestAreasForColumn_soleColumn (&placingZone);
 
-		// 결과물 전체 그룹화
-		if (!elemList.IsEmpty ()) {
-			GSSize nElems = elemList.GetSize ();
-			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-			if (elemHead != NULL) {
-				for (GSIndex i = 0; i < nElems; i++)
-					(*elemHead)[i].guid = elemList[i];
-
-				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-				BMKillHandle ((GSHandle *) &elemHead);
-			}
-		}
-
 	// 벽체와 맞닿거나 벽체 속 기둥인 경우
 	} else {
-
 		// ...
 		// 벽체 속 기둥의 경우
 		// 1. 먼저 기둥의 중심을 찾고, 회전되지 않았을 때의 기둥의 각 꼭지점을 찾는다. (회전각도에 따라 꼭지점이 어디에 있는지 확인해 볼 것)
-		// 2. 벽면 안쪽/바깥쪽 라인 2개의 각각의 시작/끝점을 찾고.. 기둥의 중심과 벽면 라인 간의 거리를 측정한다. (거리가 기둥의 너비/2 또는 깊이/2 이하이면 붙거나 간섭)
+		// 2. 기둥이 회전되지 않았을 때의 벽면 안쪽/바깥쪽 라인 2개의 각각의 시작/끝점을 찾고.. 기둥의 중심과 벽면 라인 간의 거리를 측정한다. (거리가 기둥의 깊이/2 이하이면 붙거나 간섭)
+			// 벽 라인은 4 종류가 있음
+			/*
+			APIWallRefLine_Outside (0)		: 레퍼런스 라인 위치는 벽의 외부 면 상에 있습니다.
+			APIWallRefLine_Center (1)		: 레퍼런스 라인 위치는 벽의 중앙에 있습니다.
+			APIWallRefLine_Inside (2)		: 레퍼런스 라인 위치는 벽의 내부 면 상에 있습니다.
+			APIWallRefLine_CoreOutside (3)	: 레퍼런스 라인 위치는 복합 구조의 코어 외부 스킨 상에 있습니다.
+			APIWallRefLine_CoreCenter (4)	: 레퍼런스 라인 위치는 복합 구조의 코어 스킨의 중앙에 있습니다.
+			APIWallRefLine_CoreInside (5)	: 레퍼런스 라인 위치는 복합 구조의 코어 내부 스킨 상에 있습니다.
+			 */
 		// 3. 벽의 위치를 구하는 법
-		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 Y값이 크고, X값이 하나는 작고 다른 하나는 큼 -> 벽이 북쪽에 있음
-		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 Y값이 작고, X값이 하나는 작고 다른 하나는 큼 -> 벽이 남쪽에 있음
-		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 X값이 크고, Y값이 하나는 작고 다른 하나는 큼 -> 벽이 동쪽에 있음
-		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 X값이 작고, Y값이 하나는 작고 다른 하나는 큼 -> 벽이 서쪽에 있음
-		// 4. 벽의 침범 거리
-		//		- ???
+		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 Y값이 크고, X값이 하나는 작고 다른 하나는 큼 -> 벽이 북쪽에 있음 (기둥편두께: 기둥중심 + 기둥깊이/2 + 베니어두께)
+		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 Y값이 작고, X값이 하나는 작고 다른 하나는 큼 -> 벽이 남쪽에 있음 (기둥편두께: 기둥중심 + 기둥깊이/2 + 베니어두께)
+		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 X값이 크고, Y값이 하나는 작고 다른 하나는 큼 -> 벽이 동쪽에 있음 (기둥편두께: 기둥중심 + 기둥너비/2 + 베니어두께)
+		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 X값이 작고, Y값이 하나는 작고 다른 하나는 큼 -> 벽이 서쪽에 있음 (기둥편두께: 기둥중심 + 기둥너비/2 + 베니어두께)
+		// 4. 벽면 라인 중에서 기둥의 중심과 가장 가까운 선은 안쪽 벽면, 가장 먼 선은 바깥쪽 벽면이다.
+		// 5. 벽의 침범 거리 (각 케이스를 테스트할 것, 벽두께/기둥두께/벽위치를 바꿔가면서)
+		//		1) 바깥쪽 벽면과 기둥 중심 거리 > (벽두께 + 기둥편두께), 안쪽 벽면과 기둥 중심 거리 > 기둥편두께 : 단독기둥
+		//		2) 바깥쪽 벽면과 기둥 중심 거리 == (벽두께 + 기둥편두께), 안쪽 벽면과 기둥 중심 거리 == 기둥편두께 : 벽에 맞닿음
+		//		3) 바깥쪽 벽면과 기둥 중심 거리 < (벽두께 + 기둥편두께), 안쪽 벽면과 기둥 중심 거리 < 기둥편두께 : 벽에 일부 침범
+		//		4) 바깥쪽 벽면과 기둥 중심 거리 == 기둥편두께, 안쪽 벽면과 기둥 중심 거리 < 기둥편두께 : 벽 바깥쪽과 기둥변 일치
+		//		5) 바깥쪽 벽면과 기둥 중심 거리 < 기둥편두께, 안쪽 벽면과 기둥 중심 거리 < 기둥편두께 : 기둥 속에 벽이 들어옴
+		// 6. DG 1차 : CASE 별로 UI 그림이 달라짐
+		// 7. DG 2차 : 단독기둥과 동일함 (차이없음)
+	}
+
+	// 결과물 전체 그룹화
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
 	}
 
 	return	err;
