@@ -4336,14 +4336,15 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 {
 	short	xx;
 	short	result;
-	short	idx;
-	short	iCellType;
+	short	idx = 0;
+	short	iCellType = 0;
 	short	popupSelectedIdx = 0;
 
 	switch (message) {
 		case DG_MSG_INIT:
 
 			iCellType = 0;
+			idx = 0;
 
 			// 배치 버튼 (측면 시작 부분)
 			if ((clickedBtnItemIdx >= START_INDEX_FROM_BEGIN_AT_SIDE) && (clickedBtnItemIdx < START_INDEX_FROM_BEGIN_AT_SIDE + placingZone.nCellsFromBeginAtSide)) {

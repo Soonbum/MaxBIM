@@ -8,6 +8,8 @@
 #include "BeamEuroformPlacer.hpp"
 #include "ColumnEuroformPlacer.hpp"
 
+#include "Information.hpp"
+
 #define	MDID_DEVELOPER_ID	829517673
 #define	MDID_LOCAL_ID		3588511626
 
@@ -20,6 +22,9 @@
  */
 API_AddonType	__ACENV_CALL	CheckEnvironment (API_EnvirParams* envir)
 {
+	if (envir->serverInfo.serverApplication != APIAppl_ArchiCADID)
+		return APIAddon_DontRegister;
+
 	ACAPI_Resource_GetLocStr (envir->addOnInfo.name, 32000, 1);
 	ACAPI_Resource_GetLocStr (envir->addOnInfo.description, 32000, 2);
 
@@ -36,7 +41,10 @@ GSErrCode	__ACENV_CALL	RegisterInterface (void)
 	//
 	// Register a menu
 	//
-	GSErrCode err = ACAPI_Register_Menu (32001, 32002, MenuCode_UserDef, MenuFlag_Default);
+	GSErrCode err;
+	
+	err = ACAPI_Register_Menu (32001, 32002, MenuCode_UserDef, MenuFlag_Default);
+	err = ACAPI_Register_Menu (32003, 32004, MenuCode_UserDef, MenuFlag_Default);
 
 	return err;
 }		// RegisterInterface ()
@@ -92,6 +100,17 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					});
 					break;
 			}
+			break;
+		case 32003:
+			switch (menuParams->menuItemRef.itemIndex) {
+				case 1:		// 애드온 사용법 보기
+					err = showHelp ();
+					break;
+				case 2:		// MaxBIM 애드온 정보
+					err = showAbout ();
+					break;
+			}
+			break;
 	}
 
 	return err;
@@ -104,7 +123,10 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
  */
 GSErrCode __ACENV_CALL	Initialize (void)
 {
-	GSErrCode err = ACAPI_Install_MenuHandler (32001, MenuCommandHandler);
+	GSErrCode err;
+	
+	err = ACAPI_Install_MenuHandler (32001, MenuCommandHandler);
+	err = ACAPI_Install_MenuHandler (32003, MenuCommandHandler);
 
 	// register special help location if needed
 	// for Graphisoft's add-ons, this is the Help folder beside the installed ArchiCAD
