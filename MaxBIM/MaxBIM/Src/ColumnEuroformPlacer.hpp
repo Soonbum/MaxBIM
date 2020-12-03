@@ -62,8 +62,8 @@ namespace columnPlacerDG {
 		CHECKBOX_RIGHT_ADDITIONAL_FORM,
 		CHECKBOX_BOTTOM_ADDITIONAL_FORM,
 
-		LABEL_COLUMN_WIDTH,
 		LABEL_COLUMN_DEPTH,
+		LABEL_COLUMN_WIDTH,
 		EDITCONTROL_COLUMN_WIDTH,
 		EDITCONTROL_COLUMN_DEPTH,
 
@@ -73,15 +73,11 @@ namespace columnPlacerDG {
 		LABEL_LAYER_INCORNER,
 		LABEL_LAYER_OUTCORNER,
 		LABEL_LAYER_PLYWOOD,
-		LABEL_LAYER_MAGIC_BAR,
-		LABEL_LAYER_MAGIC_INCORNER,
 
 		USERCONTROL_LAYER_EUROFORM,
 		USERCONTROL_LAYER_INCORNER,
 		USERCONTROL_LAYER_OUTCORNER,
 		USERCONTROL_LAYER_PLYWOOD,
-		USERCONTROL_LAYER_MAGIC_BAR,
-		USERCONTROL_LAYER_MAGIC_INCORNER
 	};
 
 	enum	idxItems_2_forColumnPlacer {
@@ -219,6 +215,7 @@ struct ColumnPlacingZone
 	short	nInterfereBeams;			// 간섭 보 개수 (0~4개)
 	bool	bExistBeams [4];			// 간섭 보 유무
 	double	bottomLevelOfBeams [4];		// 간섭 보의 하단 레벨
+	InfoBeamForColumn	beams [4];		// 간섭 보 정보
 
 	// 기둥 위쪽 여백
 	double	marginTopAtNorth;			// 기둥 북쪽 면의 위쪽 여백

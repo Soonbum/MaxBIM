@@ -279,17 +279,21 @@ GSErrCode	placeEuroformOnColumn (void)
 	// placingZone의 Cell 정보 초기화
 	initCellsForColumn (&placingZone);
 
+	// 간섭 보 정보 초기화
+	placingZone.bInterfereBeam = false;
+	placingZone.nInterfereBeams = 0;
+
+	for (xx = 0 ; xx < 4 ; ++xx) {
+		placingZone.bottomLevelOfBeams [xx] = 0.0;
+		placingZone.bExistBeams [xx] = false;
+	}
+
 	// 영역 정보 중 간섭 보 관련 정보 업데이트
 	if (nInterfereBeams > 0) {
 		placingZone.bInterfereBeam = true;
 		placingZone.nInterfereBeams = nInterfereBeams;
 			
 		for (xx = 0 ; xx < 4 ; ++xx) {
-			placingZone.bottomLevelOfBeams [xx] = 0.0;
-			placingZone.bExistBeams [xx] = false;
-		}
-
-		for (xx = 0 ; xx < nInterfereBeams ; ++xx) {
 			axisPoint.x = placingZone.origoPos.x;
 			axisPoint.y = placingZone.origoPos.y;
 
@@ -298,30 +302,26 @@ GSErrCode	placeEuroformOnColumn (void)
 			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, -RadToDegree (placingZone.angle));
 
 			// 기둥의 동/서/남/북 방향에 있는 보의 하단 레벨을 저장함
-			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y + placingZone.coreDepth/2)) ) {
+			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (unrotatedPoint.y + EPS >= (placingZone.origoPos.y + placingZone.coreDepth/2)) ) {
 				placingZone.bottomLevelOfBeams [NORTH] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 				placingZone.bExistBeams [NORTH] = true;
+				placingZone.beams [NORTH] = infoOtherBeams [xx];
 			}
-			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (unrotatedPoint.y <= (placingZone.origoPos.y - placingZone.coreDepth/2)) ) {
+			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (unrotatedPoint.y - EPS <= (placingZone.origoPos.y - placingZone.coreDepth/2)) ) {
 				placingZone.bottomLevelOfBeams [SOUTH] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 				placingZone.bExistBeams [SOUTH] = true;
+				placingZone.beams [SOUTH] = infoOtherBeams [xx];
 			}
-			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x + placingZone.coreWidth/2)) ) {
+			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (unrotatedPoint.x + EPS >= (placingZone.origoPos.x + placingZone.coreWidth/2)) ) {
 				placingZone.bottomLevelOfBeams [EAST] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 				placingZone.bExistBeams [EAST] = true;
+				placingZone.beams [EAST] = infoOtherBeams [xx];
 			}
-			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (unrotatedPoint.x <= (placingZone.origoPos.x - placingZone.coreWidth/2)) ) {
+			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (unrotatedPoint.x - EPS <= (placingZone.origoPos.x - placingZone.coreWidth/2)) ) {
 				placingZone.bottomLevelOfBeams [WEST] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 				placingZone.bExistBeams [WEST] = true;
+				placingZone.beams [WEST] = infoOtherBeams [xx];
 			}
-		}
-	} else {
-		placingZone.bInterfereBeam = false;
-		placingZone.nInterfereBeams = 0;
-
-		for (xx = 0 ; xx < 4 ; ++xx) {
-			placingZone.bottomLevelOfBeams [xx] = 0.0;
-			placingZone.bExistBeams [xx] = false;
 		}
 	}
 
@@ -885,7 +885,7 @@ API_Guid	placeLibPartForColumn (CellForColumn objInfo)
 	} else if (objInfo.objType == PLYWOOD) {
 		element.header.layer = layerInd_Plywood;
 		GS::ucscpy (memo.params [0][32].value.uStr, L("비규격"));
-		GS::ucscpy (memo.params [0][33].value.uStr, L("벽눕히기"));
+		GS::ucscpy (memo.params [0][33].value.uStr, L("벽세우기"));
 		GS::ucscpy (memo.params [0][34].value.uStr, L("11.5T"));
 		memo.params [0][35].value.real = objInfo.libPart.plywood.p_wid;		// 가로
 		memo.params [0][36].value.real = objInfo.libPart.plywood.p_leng;	// 세로
@@ -938,7 +938,9 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 	API_Coord	rotatedPoint;
 	double		lineLen;
 	double		xLen, yLen;
-	
+	double		dx, dy;
+	double		leftLenOfBeam, rightLenOfBeam;
+
 	double		heightOfFormArea = 0.0;
 	double		columnWidth;
 	double		marginHeight;
@@ -960,33 +962,56 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 		columnWidth = placingZone->coreWidth + placingZone->venThick*2;
 		marginHeight = placingZone->marginTopAtSouth;
 
-		if (marginHeight >= 0.050) {
-			// 매직바
-			insCell.objType = MAGIC_BAR;
-			insCell.ang = placingZone->angle;
+		if (placingZone->bExistBeams [NORTH] == true) {
+			dx = placingZone->beams [NORTH].endC.x - placingZone->beams [NORTH].begC.x;
+			dy = placingZone->beams [NORTH].endC.y - placingZone->beams [NORTH].begC.y;
+			if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [NORTH].begC, placingZone->beams [NORTH].endC) - placingZone->beams [NORTH].width/2 + placingZone->beams [NORTH].offset;
+			else
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [NORTH].begC, placingZone->beams [NORTH].endC) - placingZone->beams [NORTH].width/2 - placingZone->beams [NORTH].offset;
+			rightLenOfBeam = placingZone->coreWidth + placingZone->venThick*2 - placingZone->beams [NORTH].width - leftLenOfBeam;
+
+			// 합판 (왼쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (180);
 			insCell.leftBottomX = rotatedPoint.x;
 			insCell.leftBottomY = rotatedPoint.y;
 			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.mbar.angX = DegreeToRad (0);
-			insCell.libPart.mbar.angY = DegreeToRad (-90);
-			insCell.libPart.mbar.bPlywood = false;
-			insCell.libPart.mbar.ZZYZX = columnWidth;
+			insCell.libPart.plywood.p_wid = leftLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
 			elemList.Push (placeLibPartForColumn (insCell));
 
-			// 매직인코너 + 합판
-			insCell.objType = MAGIC_INCORNER;
-			insCell.ang = placingZone->angle + DegreeToRad (-90);
-			insCell.leftBottomX = rotatedPoint.x - 0.100 * sin(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y + 0.100 * cos(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea + placingZone->marginTopAtNorth;
-			insCell.libPart.mincorner.angX = DegreeToRad (90);
-			insCell.libPart.mincorner.angY = DegreeToRad (0);
-			insCell.libPart.mincorner.bPlywood = true;
-			insCell.libPart.mincorner.plywoodWidth = marginHeight - 0.005;
-			insCell.libPart.mincorner.plywoodOverhangH = columnWidth;
-			insCell.libPart.mincorner.plywoodUnderhangH = 0.0;
-			insCell.libPart.mincorner.ZZYZX = columnWidth;
+			// 합판 (아래쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (180);
+			insCell.leftBottomX = rotatedPoint.x - leftLenOfBeam * cos(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y - leftLenOfBeam * sin(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = placingZone->beams [NORTH].width;
+			insCell.libPart.plywood.p_leng = marginHeight;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+
+			// 합판 (오른쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (180);
+			insCell.leftBottomX = rotatedPoint.x - (leftLenOfBeam + placingZone->beams [NORTH].width) * cos(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y - (leftLenOfBeam + placingZone->beams [NORTH].width) * sin(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = rightLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+		} else {
+			// 합판 (전체)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (180);
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = columnWidth;
+			insCell.libPart.plywood.p_leng = marginHeight;
 
 			elemList.Push (placeLibPartForColumn (insCell));
 		}
@@ -1003,33 +1028,56 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 		columnWidth = placingZone->coreWidth + placingZone->venThick*2;
 		marginHeight = placingZone->marginTopAtSouth;
 
-		if (marginHeight >= 0.050) {
-			// 매직바
-			insCell.objType = MAGIC_BAR;
-			insCell.ang = placingZone->angle + DegreeToRad (180);
+		if (placingZone->bExistBeams [SOUTH] == true) {
+			dx = placingZone->beams [SOUTH].endC.x - placingZone->beams [SOUTH].begC.x;
+			dy = placingZone->beams [SOUTH].endC.y - placingZone->beams [SOUTH].begC.y;
+			if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [SOUTH].begC, placingZone->beams [SOUTH].endC) - placingZone->beams [SOUTH].width/2 - placingZone->beams [SOUTH].offset;
+			else
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [SOUTH].begC, placingZone->beams [SOUTH].endC) - placingZone->beams [SOUTH].width/2 + placingZone->beams [SOUTH].offset;
+			rightLenOfBeam = placingZone->coreWidth + placingZone->venThick*2 - placingZone->beams [SOUTH].width - leftLenOfBeam;
+
+			// 합판 (왼쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle;
 			insCell.leftBottomX = rotatedPoint.x;
 			insCell.leftBottomY = rotatedPoint.y;
 			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.mbar.angX = DegreeToRad (0);
-			insCell.libPart.mbar.angY = DegreeToRad (-90);
-			insCell.libPart.mbar.bPlywood = false;
-			insCell.libPart.mbar.ZZYZX = columnWidth;
+			insCell.libPart.plywood.p_wid = leftLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
 			elemList.Push (placeLibPartForColumn (insCell));
 
-			// 매직인코너 + 합판
-			insCell.objType = MAGIC_INCORNER;
-			insCell.ang = placingZone->angle + DegreeToRad (90);
-			insCell.leftBottomX = rotatedPoint.x + 0.100 * sin(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y - 0.100 * cos(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea + placingZone->marginTopAtSouth;
-			insCell.libPart.mincorner.angX = DegreeToRad (90);
-			insCell.libPart.mincorner.angY = DegreeToRad (0);
-			insCell.libPart.mincorner.bPlywood = true;
-			insCell.libPart.mincorner.plywoodWidth = marginHeight - 0.005;
-			insCell.libPart.mincorner.plywoodOverhangH = columnWidth;
-			insCell.libPart.mincorner.plywoodUnderhangH = 0.0;
-			insCell.libPart.mincorner.ZZYZX = columnWidth;
+			// 합판 (아래쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle;
+			insCell.leftBottomX = rotatedPoint.x + leftLenOfBeam * cos(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y + leftLenOfBeam * sin(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = placingZone->beams [SOUTH].width;
+			insCell.libPart.plywood.p_leng = marginHeight;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+
+			// 합판 (오른쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle;
+			insCell.leftBottomX = rotatedPoint.x + (leftLenOfBeam + placingZone->beams [SOUTH].width) * cos(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y + (leftLenOfBeam + placingZone->beams [SOUTH].width) * sin(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = rightLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+		} else {
+			// 합판 (전체)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle;
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = columnWidth;
+			insCell.libPart.plywood.p_leng = marginHeight;
 
 			elemList.Push (placeLibPartForColumn (insCell));
 		}
@@ -1046,33 +1094,56 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 		columnWidth = placingZone->coreDepth + placingZone->venThick*2;
 		marginHeight = placingZone->marginTopAtWest;
 
-		if (marginHeight >= 0.050) {
-			// 매직바
-			insCell.objType = MAGIC_BAR;
-			insCell.ang = placingZone->angle + DegreeToRad (90);
+		if (placingZone->bExistBeams [WEST] == true) {
+			dx = placingZone->beams [WEST].endC.x - placingZone->beams [WEST].begC.x;
+			dy = placingZone->beams [WEST].endC.y - placingZone->beams [WEST].begC.y;
+			if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [WEST].begC, placingZone->beams [WEST].endC) - placingZone->beams [WEST].width/2 - placingZone->beams [WEST].offset;
+			else
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [WEST].begC, placingZone->beams [WEST].endC) - placingZone->beams [WEST].width/2 + placingZone->beams [WEST].offset;
+			rightLenOfBeam = placingZone->coreDepth + placingZone->venThick*2 - placingZone->beams [WEST].width - leftLenOfBeam;
+
+			// 합판 (왼쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle - DegreeToRad (90);
 			insCell.leftBottomX = rotatedPoint.x;
 			insCell.leftBottomY = rotatedPoint.y;
 			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.mbar.angX = DegreeToRad (0);
-			insCell.libPart.mbar.angY = DegreeToRad (-90);
-			insCell.libPart.mbar.bPlywood = false;
-			insCell.libPart.mbar.ZZYZX = columnWidth;
+			insCell.libPart.plywood.p_wid = leftLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
 			elemList.Push (placeLibPartForColumn (insCell));
 
-			// 매직인코너 + 합판
-			insCell.objType = MAGIC_INCORNER;
-			insCell.ang = placingZone->angle;
-			insCell.leftBottomX = rotatedPoint.x - 0.100 * cos(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y - 0.100 * sin(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea + placingZone->marginTopAtWest;
-			insCell.libPart.mincorner.angX = DegreeToRad (90);
-			insCell.libPart.mincorner.angY = DegreeToRad (0);
-			insCell.libPart.mincorner.bPlywood = true;
-			insCell.libPart.mincorner.plywoodWidth = marginHeight - 0.005;
-			insCell.libPart.mincorner.plywoodOverhangH = columnWidth;
-			insCell.libPart.mincorner.plywoodUnderhangH = 0.0;
-			insCell.libPart.mincorner.ZZYZX = columnWidth;
+			// 합판 (아래쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle - DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x + leftLenOfBeam * sin(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y - leftLenOfBeam * cos(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = placingZone->beams [WEST].width;
+			insCell.libPart.plywood.p_leng = marginHeight;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+
+			// 합판 (오른쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle - DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x + (leftLenOfBeam + placingZone->beams [WEST].width) * sin(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y - (leftLenOfBeam + placingZone->beams [WEST].width) * cos(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = rightLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+		} else {
+			// 합판 (전체)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle - DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = columnWidth;
+			insCell.libPart.plywood.p_leng = marginHeight;
 
 			elemList.Push (placeLibPartForColumn (insCell));
 		}
@@ -1089,33 +1160,56 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 		columnWidth = placingZone->coreDepth + placingZone->venThick*2;
 		marginHeight = placingZone->marginTopAtEast;
 
-		if (marginHeight >= 0.050) {
-			// 매직바
-			insCell.objType = MAGIC_BAR;
-			insCell.ang = placingZone->angle - DegreeToRad (90);
+		if (placingZone->bExistBeams [EAST] == true) {
+			dx = placingZone->beams [EAST].endC.x - placingZone->beams [EAST].begC.x;
+			dy = placingZone->beams [EAST].endC.y - placingZone->beams [EAST].begC.y;
+			if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [EAST].begC, placingZone->beams [EAST].endC) - placingZone->beams [EAST].width/2 + placingZone->beams [EAST].offset;
+			else
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [EAST].begC, placingZone->beams [EAST].endC) - placingZone->beams [EAST].width/2 - placingZone->beams [EAST].offset;
+			rightLenOfBeam = placingZone->coreDepth + placingZone->venThick*2 - placingZone->beams [EAST].width - leftLenOfBeam;
+
+			// 합판 (왼쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (90);
 			insCell.leftBottomX = rotatedPoint.x;
 			insCell.leftBottomY = rotatedPoint.y;
 			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.mbar.angX = DegreeToRad (0);
-			insCell.libPart.mbar.angY = DegreeToRad (-90);
-			insCell.libPart.mbar.bPlywood = false;
-			insCell.libPart.mbar.ZZYZX = columnWidth;
+			insCell.libPart.plywood.p_wid = leftLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
 			elemList.Push (placeLibPartForColumn (insCell));
 
-			// 매직인코너 + 합판
-			insCell.objType = MAGIC_INCORNER;
-			insCell.ang = placingZone->angle + DegreeToRad (180);
-			insCell.leftBottomX = rotatedPoint.x + 0.100 * cos(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y + 0.100 * sin(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea + placingZone->marginTopAtEast;
-			insCell.libPart.mincorner.angX = DegreeToRad (90);
-			insCell.libPart.mincorner.angY = DegreeToRad (0);
-			insCell.libPart.mincorner.bPlywood = true;
-			insCell.libPart.mincorner.plywoodWidth = marginHeight - 0.005;
-			insCell.libPart.mincorner.plywoodOverhangH = columnWidth;
-			insCell.libPart.mincorner.plywoodUnderhangH = 0.0;
-			insCell.libPart.mincorner.ZZYZX = columnWidth;
+			// 합판 (아래쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x - leftLenOfBeam * sin(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y + leftLenOfBeam * cos(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = placingZone->beams [EAST].width;
+			insCell.libPart.plywood.p_leng = marginHeight;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+
+			// 합판 (오른쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x - (leftLenOfBeam + placingZone->beams [EAST].width) * sin(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y + (leftLenOfBeam + placingZone->beams [EAST].width) * cos(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = rightLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+		} else {
+			// 합판 (전체)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = columnWidth;
+			insCell.libPart.plywood.p_leng = marginHeight;
 
 			elemList.Push (placeLibPartForColumn (insCell));
 		}
@@ -1151,8 +1245,8 @@ short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID
 			//////////////////////////////////////////////////////////// 아이템 배치 (유로폼)
 			// 라벨 및 체크박스
 			DGSetItemText (dialogID, LABEL_COLUMN_SECTION, "기둥 단면");
-			DGSetItemText (dialogID, LABEL_COLUMN_WIDTH, "가로");
 			DGSetItemText (dialogID, LABEL_COLUMN_DEPTH, "세로");
+			DGSetItemText (dialogID, LABEL_COLUMN_WIDTH, "가로");
 
 			// 라벨: 레이어 설정
 			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
@@ -1160,8 +1254,6 @@ short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID
 			DGSetItemText (dialogID, LABEL_LAYER_INCORNER, "인코너");
 			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER, "아웃코너");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
-			DGSetItemText (dialogID, LABEL_LAYER_MAGIC_BAR, "매직 바");
-			DGSetItemText (dialogID, LABEL_LAYER_MAGIC_INCORNER, "매직 인코너");
 
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
@@ -1182,14 +1274,6 @@ short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID
 			ucb.itemID	 = USERCONTROL_LAYER_PLYWOOD;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, 1);
-
-			ucb.itemID	 = USERCONTROL_LAYER_MAGIC_BAR;
-			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-			DGSetItemValLong (dialogID, USERCONTROL_LAYER_MAGIC_BAR, 1);
-
-			ucb.itemID	 = USERCONTROL_LAYER_MAGIC_INCORNER;
-			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-			DGSetItemValLong (dialogID, USERCONTROL_LAYER_MAGIC_INCORNER, 1);
 
 			// 기둥 가로/세로 계산
 			DGSetItemValDouble (dialogID, EDITCONTROL_COLUMN_WIDTH, placingZone.coreWidth + placingZone.venThick * 2);
@@ -1567,8 +1651,6 @@ short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID
 					layerInd_Incorner		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER);
 					layerInd_Outcorner		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER);
 					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
-					layerInd_MagicBar		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_MAGIC_BAR);
-					layerInd_MagicIncorner	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_MAGIC_INCORNER);
 
 					break;
 				case DG_CANCEL:

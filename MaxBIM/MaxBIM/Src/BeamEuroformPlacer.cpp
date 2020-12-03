@@ -285,6 +285,7 @@ GSErrCode	placeEuroformOnBeamEntire (void)
 	} else {
 		placingZone.begC = other_p2;
 		placingZone.endC = other_p1;
+		infoBeam.offset = -infoBeam.offset;
 	}
 
 	// 폴리곤의 점들을 저장함
@@ -332,7 +333,12 @@ GSErrCode	placeEuroformOnBeamEntire (void)
 	// 간섭 보 관련 정보 입력
 	if (nInterfereBeams > 0) {
 		placingZone.bInterfereBeam = true;
-		placingZone.posInterfereBeamFromLeft = GetDistance (placingZone.begC.x, placingZone.begC.y, pResult.x, pResult.y) - infoOtherBeams [0].offset;
+		dx = pResult.x - placingZone.begC.x;
+		dy = pResult.y - placingZone.begC.y;
+		if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
+			placingZone.posInterfereBeamFromLeft = GetDistance (placingZone.begC.x, placingZone.begC.y, pResult.x, pResult.y) - infoOtherBeams [0].offset;
+		else
+			placingZone.posInterfereBeamFromLeft = GetDistance (placingZone.begC.x, placingZone.begC.y, pResult.x, pResult.y) + infoOtherBeams [0].offset;
 		placingZone.interfereBeamWidth = infoOtherBeams [0].width;
 		placingZone.interfereBeamHeight = infoOtherBeams [0].height;
 	} else {
@@ -644,6 +650,7 @@ GSErrCode	placeEuroformOnBeamPart (void)
 	} else {
 		placingZone.begC = other_p2;
 		placingZone.endC = other_p1;
+		infoBeam.offset = -infoBeam.offset;
 	}
 
 	// 폴리곤의 점들을 저장함

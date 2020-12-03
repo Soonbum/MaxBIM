@@ -23,17 +23,6 @@ GSErrCode	showHelp (void)
 	}
 
 	// ...
-	// MaxBIMFix.grc 파일 안에 'GICN' 리소스로 매뉴얼 캡쳐 파일을 지정할 것? 아니면 그림으로 읽을 땐 굳이 리소스 선언이 필요한가?
-	/*	Sample icon, 29x20 pixels */
-	/*'GICN' 32511 "Wall icon" {
-		"wall_icon"
-		0    128    128
-	}*/
-	/* Panel_Test 예제 참조
-	'GICN' IDS_ATTRIBUTEPAGE_ICON "Settings Extra page icon" {
-			"Panel_Icon"
-			0  128  128
-	}*/
 
 	return err;
 }
@@ -70,6 +59,8 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "닫기");
 			DGShowItem (dialogID, DG_OK);
+
+			// ... 링크?
 
 			break;
 		
@@ -120,7 +111,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 230, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "버전 5.0 (배포일: 2020.12.01)");
+			DGSetItemText (dialogID, itmIdx, "버전 5.1 (배포일: 2020.12.03)");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
@@ -164,9 +155,9 @@ static GSErrCode __ACENV_CALL	APIHelpPaletteAPIControlCallBack (Int32 referenceI
 {
 	if (referenceID == modelessID) {
 		switch (messageID) {
-			case APIPalMsg_ClosePalette:		DGEndProcessEvents (modelessID);
-												DGDestroyModelessDialog (modelessID);
-												//DGModelessClose (modelessID);
+			case APIPalMsg_ClosePalette:		//DGEndProcessEvents (modelessID);
+												//DGDestroyModelessDialog (modelessID);
+												DGModelessClose (modelessID);
 												break;
 			case APIPalMsg_HidePalette_Begin:	DGHideModelessDialog (modelessID);
 												break;
