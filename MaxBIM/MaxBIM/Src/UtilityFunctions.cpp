@@ -19,6 +19,12 @@ double	GetDistance (const double begX, const double begY, const double endX, con
 	return sqrt ( (begX - endX) * (begX - endX) + (begY - endY) * (begY - endY) );
 }
 
+// 2차원에서 2점 간의 거리를 알려줌
+double	GetDistance (const API_Coord begPoint, API_Coord endPoint)
+{
+	return sqrt ( (begPoint.x - endPoint.x) * (begPoint.x - endPoint.x) + (begPoint.y - endPoint.y) * (begPoint.y - endPoint.y) );
+}
+
 // 3차원에서 2점 간의 거리를 알려줌
 double	GetDistance (const double begX, const double begY, const double begZ, const double endX, const double endY, const double endZ)
 {

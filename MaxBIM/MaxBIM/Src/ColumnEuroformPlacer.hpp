@@ -27,7 +27,7 @@ namespace columnPlacerDG {
 		BOTTOM			// 하단
 	};
 
-	// 기둥을 중심으로 간섭 보가 있는 방향
+	// 기둥을 중심으로 간섭 보, 벽이 있는 방향
 	enum	direction {
 		NORTH,
 		SOUTH,
@@ -123,24 +123,18 @@ struct InfoWallForColumn
 	double	wallThk;			// 벽 두께
 	short	floorInd;			// 층 인덱스
 	double	bottomOffset;		// 벽 하단 오프셋
-	double	offset;				// 시작점에서 레퍼런스 라인으로부터 벽의 기초 라인의 오프셋
 	double	angle;				// 회전 각도 (단위: Radian)
-	
-	double								offsetFromOutside;		// 벽의 레퍼런스 라인과 벽의 바깥쪽 면 간의 거리
-	API_WallReferenceLineLocationID     referenceLineLocation;	// 레퍼런스 라인의 위치
-	/*
-	APIWallRefLine_Outside (0)		: 레퍼런스 라인 위치는 벽의 외부 면 상에 있습니다.
-	APIWallRefLine_Center (1)		: 레퍼런스 라인 위치는 벽의 중앙에 있습니다.
-	APIWallRefLine_Inside (2)		: 레퍼런스 라인 위치는 벽의 내부 면 상에 있습니다.
-	APIWallRefLine_CoreOutside (3)	: 레퍼런스 라인 위치는 복합 구조의 코어 외부 스킨 상에 있습니다.
-	APIWallRefLine_CoreCenter (4)	: 레퍼런스 라인 위치는 복합 구조의 코어 스킨의 중앙에 있습니다.
-	APIWallRefLine_CoreInside (5)	: 레퍼런스 라인 위치는 복합 구조의 코어 내부 스킨 상에 있습니다.
-	 */
 
-	double	begX;				// 시작점 X
-	double	begY;				// 시작점 Y
-	double	endX;				// 끝점 X
-	double	endY;				// 끝점 Y
+	long	nCoords;			// 정점 개수
+	API_Coord	poly [10];		// 정점 좌표
+	
+	API_Coord	begC;			// 레퍼런스 라인 시작점
+	API_Coord	endC;			// 레퍼런스 라인 끝점
+
+	API_Coord	begC_1;			// 벽면 1 시작점
+	API_Coord	endC_1;			// 벽면 1 끝점
+	API_Coord	begC_2;			// 벽면 2 시작점
+	API_Coord	endC_2;			// 벽면 2 끝점
 };
 
 // 보 관련 정보
@@ -216,6 +210,13 @@ struct ColumnPlacingZone
 	bool	bExistBeams [4];			// 간섭 보 유무
 	double	bottomLevelOfBeams [4];		// 간섭 보의 하단 레벨
 	InfoBeamForColumn	beams [4];		// 간섭 보 정보
+
+	// 간섭 벽 관련 정보
+	bool	bWallHorizontalDirected;	// 벽의 방향 (true: 가로, false: 세로)
+	double	posTopWallLine;				// 위쪽(오른쪽) 벽 라인의 수직(수평) 위치
+	double	posBottomWallLine;			// 아래쪽(왼쪽) 벽 라인의 수직(수평) 위치
+	double	posTopColumnLine;			// 위쪽(오른쪽) 기둥 라인의 수직(수평) 위치
+	double	posBottomColumnLine;		// 아래쪽(왼쪽) 기둥 라인의 수직(수평) 위치
 
 	// 기둥 위쪽 여백
 	double	marginTopAtNorth;			// 기둥 북쪽 면의 위쪽 여백

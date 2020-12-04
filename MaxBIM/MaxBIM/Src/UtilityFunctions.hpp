@@ -8,6 +8,7 @@
 double	DegreeToRad (double degree);																		// degree 각도를 radian 각도로 변환
 double	RadToDegree (double rad);																			// radian 각도를 degree 각도로 변환
 double	GetDistance (const double begX, const double begY, const double endX, const double endY);			// 2차원에서 2점 간의 거리를 알려줌
+double	GetDistance (const API_Coord begPoint, API_Coord endPoint);											// 2차원에서 2점 간의 거리를 알려줌
 double	GetDistance (const double begX, const double begY, const double begZ, const double endX, const double endY, const double endZ);		// 3차원에서 2점 간의 거리를 알려줌
 double	GetDistance (const API_Coord3D begPoint, API_Coord3D endPoint);										// 3차원에서 2점 간의 거리를 알려줌
 long	compareDoubles (const double a, const double b);													// 어떤 수가 더 큰지 비교함

@@ -48,6 +48,7 @@ GSErrCode	placeEuroformOnColumn (void)
 	short			result;
 	double			lowestBeamBottomLevel;
 	API_Coord		axisPoint, rotatedPoint, unrotatedPoint;
+	bool			bFoundOneLine;
 
 	// Selection Manager 관련 변수
 	API_SelectionInfo		selectionInfo;
@@ -193,16 +194,53 @@ GSErrCode	placeEuroformOnColumn (void)
 		infoWall.wallThk		= elem.wall.thickness;		// 벽 두께
 		infoWall.floorInd		= elem.header.floorInd;		// 층 인덱스
 		infoWall.bottomOffset	= elem.wall.bottomOffset;	// 벽 하단 오프셋
-		infoWall.offset			= elem.wall.offset;			// 시작점에서 레퍼런스 라인으로부터 벽의 기초 라인의 오프셋
 		infoWall.angle			= elem.wall.angle;			// 회전 각도 (단위: Radian)
 
-		infoWall.offsetFromOutside		= elem.wall.offsetFromOutside;		// 벽의 레퍼런스 라인과 벽의 바깥쪽 면 간의 거리
-		infoWall.referenceLineLocation	= elem.wall.referenceLineLocation;	// 레퍼런스 라인의 위치
+		infoWall.begC.x			= elem.wall.begC.x;			// 시작점 X
+		infoWall.begC.y			= elem.wall.begC.y;			// 시작점 Y
+		infoWall.endC.x			= elem.wall.endC.x;			// 끝점 X
+		infoWall.endC.y			= elem.wall.endC.y;			// 끝점 Y
 
-		infoWall.begX			= elem.wall.begC.x;			// 시작점 X
-		infoWall.begY			= elem.wall.begC.y;			// 시작점 Y
-		infoWall.endX			= elem.wall.endC.x;			// 끝점 X
-		infoWall.endY			= elem.wall.endC.y;			// 끝점 Y
+		infoWall.nCoords		= elem.wall.poly.nCoords;	// 정점 개수
+		
+		// 정점 좌표를 저장함
+		for (xx = 1 ; xx <= elem.wall.poly.nCoords ; ++xx) {
+			infoWall.poly [xx].x = memo.coords [0][xx].x;
+			infoWall.poly [xx].y = memo.coords [0][xx].y;
+		}
+
+		// 벽면 시작점, 끝점 찾기
+		bFoundOneLine = false;
+		for (xx = 1 ; xx < infoWall.nCoords ; ++xx) {
+			if (GetDistance (infoWall.poly [xx], infoWall.poly [xx+1]) > (infoWall.wallThk + EPS)) {
+				if (bFoundOneLine == false) {
+					if (GetDistance (infoWall.begC, infoWall.poly [xx]) < GetDistance (infoWall.begC, infoWall.poly [xx+1])) {
+						infoWall.begC_1.x = infoWall.poly [xx].x;
+						infoWall.begC_1.y = infoWall.poly [xx].y;
+						infoWall.endC_1.x = infoWall.poly [xx+1].x;
+						infoWall.endC_1.y = infoWall.poly [xx+1].y;
+					} else {
+						infoWall.begC_1.x = infoWall.poly [xx+1].x;
+						infoWall.begC_1.y = infoWall.poly [xx+1].y;
+						infoWall.endC_1.x = infoWall.poly [xx].x;
+						infoWall.endC_1.y = infoWall.poly [xx].y;
+					}
+					bFoundOneLine = true;
+				} else {
+					if (GetDistance (infoWall.begC, infoWall.poly [xx]) < GetDistance (infoWall.begC, infoWall.poly [xx+1])) {
+						infoWall.begC_2.x = infoWall.poly [xx].x;
+						infoWall.begC_2.y = infoWall.poly [xx].y;
+						infoWall.endC_2.x = infoWall.poly [xx+1].x;
+						infoWall.endC_2.y = infoWall.poly [xx+1].y;
+					} else {
+						infoWall.begC_2.x = infoWall.poly [xx+1].x;
+						infoWall.begC_2.y = infoWall.poly [xx+1].y;
+						infoWall.endC_2.x = infoWall.poly [xx].x;
+						infoWall.endC_2.y = infoWall.poly [xx].y;
+					}
+				}
+			}
+		}
 
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
@@ -396,33 +434,34 @@ FIRST_SOLE_COLUMN:
 
 	// 벽체와 맞닿거나 벽체 속 기둥인 경우
 	} else {
-		// ...
-		// 벽체 속 기둥의 경우
-		// 1. 먼저 기둥의 중심을 찾고, 회전되지 않았을 때의 기둥의 각 꼭지점을 찾는다. (회전각도에 따라 꼭지점이 어디에 있는지 확인해 볼 것)
-		// 2. 기둥이 회전되지 않았을 때의 벽면 안쪽/바깥쪽 라인 2개의 각각의 시작/끝점을 찾고.. 기둥의 중심과 벽면 라인 간의 거리를 측정한다. (거리가 기둥의 깊이/2 이하이면 붙거나 간섭)
-			// 벽 라인은 4 종류가 있음
-			/*
-			APIWallRefLine_Outside (0)		: 레퍼런스 라인 위치는 벽의 외부 면 상에 있습니다.
-			APIWallRefLine_Center (1)		: 레퍼런스 라인 위치는 벽의 중앙에 있습니다.
-			APIWallRefLine_Inside (2)		: 레퍼런스 라인 위치는 벽의 내부 면 상에 있습니다.
-			APIWallRefLine_CoreOutside (3)	: 레퍼런스 라인 위치는 복합 구조의 코어 외부 스킨 상에 있습니다.
-			APIWallRefLine_CoreCenter (4)	: 레퍼런스 라인 위치는 복합 구조의 코어 스킨의 중앙에 있습니다.
-			APIWallRefLine_CoreInside (5)	: 레퍼런스 라인 위치는 복합 구조의 코어 내부 스킨 상에 있습니다.
-			 */
-		// 3. 벽의 위치를 구하는 법
-		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 Y값이 크고, X값이 하나는 작고 다른 하나는 큼 -> 벽이 북쪽에 있음 (기둥편두께: 기둥중심 + 기둥깊이/2 + 베니어두께)
-		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 Y값이 작고, X값이 하나는 작고 다른 하나는 큼 -> 벽이 남쪽에 있음 (기둥편두께: 기둥중심 + 기둥깊이/2 + 베니어두께)
-		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 X값이 크고, Y값이 하나는 작고 다른 하나는 큼 -> 벽이 동쪽에 있음 (기둥편두께: 기둥중심 + 기둥너비/2 + 베니어두께)
-		//		- 기둥 중심을 기준으로 벽의 두 점이 모두 X값이 작고, Y값이 하나는 작고 다른 하나는 큼 -> 벽이 서쪽에 있음 (기둥편두께: 기둥중심 + 기둥너비/2 + 베니어두께)
-		// 4. 벽면 라인 중에서 기둥의 중심과 가장 가까운 선은 안쪽 벽면, 가장 먼 선은 바깥쪽 벽면이다.
-		// 5. 벽의 침범 거리 (각 케이스를 테스트할 것, 벽두께/기둥두께/벽위치를 바꿔가면서)
-		//		1) 바깥쪽 벽면과 기둥 중심 거리 > (벽두께 + 기둥편두께), 안쪽 벽면과 기둥 중심 거리 > 기둥편두께 : 단독기둥
-		//		2) 바깥쪽 벽면과 기둥 중심 거리 == (벽두께 + 기둥편두께), 안쪽 벽면과 기둥 중심 거리 == 기둥편두께 : 벽에 맞닿음
-		//		3) 바깥쪽 벽면과 기둥 중심 거리 < (벽두께 + 기둥편두께), 안쪽 벽면과 기둥 중심 거리 < 기둥편두께 : 벽에 일부 침범
-		//		4) 바깥쪽 벽면과 기둥 중심 거리 == 기둥편두께, 안쪽 벽면과 기둥 중심 거리 < 기둥편두께 : 벽 바깥쪽과 기둥변 일치
-		//		5) 바깥쪽 벽면과 기둥 중심 거리 < 기둥편두께, 안쪽 벽면과 기둥 중심 거리 < 기둥편두께 : 기둥 속에 벽이 들어옴
-		// 6. DG 1차 : CASE 별로 UI 그림이 달라짐
-		// 7. DG 2차 : 단독기둥과 동일함 (차이없음)
+		// !!! 테스트 - 벽 시작/끝점
+		placeCoordinateLabel (infoWall.begC_1.x, infoWall.begC_1.y, infoWall.bottomOffset, true, "시작점1", 1, 0);
+		placeCoordinateLabel (infoWall.endC_1.x, infoWall.endC_1.y, infoWall.bottomOffset, true, "끝점1", 1, 0);
+		placeCoordinateLabel (infoWall.begC_2.x, infoWall.begC_2.y, infoWall.bottomOffset, true, "시작점2", 1, 0);
+		placeCoordinateLabel (infoWall.endC_2.x, infoWall.endC_2.y, infoWall.bottomOffset, true, "끝점2", 1, 0);
+
+		// 벽의 위치를 구함
+			// 전제조건: 회전된 기둥을 기준으로 벽의 시작/끝점도 회전되어야 함
+			// 벽 라인이 기둥을 중심으로 가로 방향인지, 세로 방향인지 판단할 것
+			// 1. 가로인 경우 (위부터) - 라인 위치 순서
+				// CASE 1. 기둥 바로 위에 벽이 붙은 경우:			top wall > bottom wall == top column > bottom column
+				// CASE 2. 기둥이 벽 아래에 조금 들어간 경우:		top wall > top column > bottom wall > bottom column
+				// CASE 3. 기둥 위쪽이 벽 위쪽과 일치한 경우:		top wall == top column > bottom wall > bottom column
+				// CASE 4. 기둥이 벽을 삼킨 경우:					top column > top wall > bottom wall > bottom column
+				// CASE 5. 기둥 아래쪽이 벽 아래쪽과 일치한 경우:	top column > top wall > bottom wall == bottom column
+				// CASE 6. 기둥이 벽 위에 조금 들어간 경우:			top column > top wall > bottom column > bottom wall
+				// CASE 7. 기둥 바로 아래에 벽이 붙은 경우:			top column > bottom column == top wall > bottom wall
+			// 2. 세로인 경우 (오른쪽부터)
+				// CASE 1. 기둥 바로 오른쪽에 벽이 붙은 경우:		상동
+				// CASE 2. 기둥이 벽 왼쪽에 조금 들어간 경우:		상동
+				// CASE 3. 기둥 오른쪽이 벽 오른쪽과 일치한 경우:	상동
+				// CASE 4. 기둥이 벽을 삼킨 경우:					상동
+				// CASE 5. 기둥 왼쪽이 벽 왼쪽과 일치한 경우:		상동
+				// CASE 6. 기둥이 벽 오른쪽에 조금 들어간 경우:		상동
+				// CASE 7. 기둥 바로 왼쪽에 벽이 붙은 경우:			상동
+
+		// DG 1차 : CASE 별로 UI 그림이 달라짐
+		// DG 2차 : 단독기둥과 동일함 (차이없음)
 	}
 
 	// 결과물 전체 그룹화
