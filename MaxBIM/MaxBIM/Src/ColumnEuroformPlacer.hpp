@@ -217,6 +217,25 @@ struct ColumnPlacingZone
 	double	posBottomWallLine;			// 아래쪽(왼쪽) 벽 라인의 수직(수평) 위치
 	double	posTopColumnLine;			// 위쪽(오른쪽) 기둥 라인의 수직(수평) 위치
 	double	posBottomColumnLine;		// 아래쪽(왼쪽) 기둥 라인의 수직(수평) 위치
+	short	relationCase;				// 벽과 기둥과의 관계
+	/*
+	1. 가로인 경우 (위부터)
+		CASE 1. 기둥 바로 위에 벽이 붙은 경우:			top wall > bottom wall == top column > bottom column
+		CASE 2. 기둥이 벽 아래에 조금 들어간 경우:		top wall > top column > bottom wall > bottom column
+		CASE 3. 기둥 위쪽이 벽 위쪽과 일치한 경우:		top wall == top column > bottom wall > bottom column
+		CASE 4. 기둥이 벽을 삼킨 경우:					top column > top wall > bottom wall > bottom column
+		CASE 5. 기둥 아래쪽이 벽 아래쪽과 일치한 경우:	top column > top wall > bottom wall == bottom column
+		CASE 6. 기둥이 벽 위에 조금 들어간 경우:		top column > top wall > bottom column > bottom wall
+		CASE 7. 기둥 바로 아래에 벽이 붙은 경우:		top column > bottom column == top wall > bottom wall
+	2. 세로인 경우 (오른쪽부터)
+		CASE 1. 기둥 바로 오른쪽에 벽이 붙은 경우:		top wall > bottom wall == top column > bottom column
+		CASE 2. 기둥이 벽 왼쪽에 조금 들어간 경우:		top wall > top column > bottom wall > bottom column
+		CASE 3. 기둥 오른쪽이 벽 오른쪽과 일치한 경우:	top wall == top column > bottom wall > bottom column
+		CASE 4. 기둥이 벽을 삼킨 경우:					top column > top wall > bottom wall > bottom column
+		CASE 5. 기둥 왼쪽이 벽 왼쪽과 일치한 경우:		top column > top wall > bottom wall == bottom column
+		CASE 6. 기둥이 벽 오른쪽에 조금 들어간 경우:	top column > top wall > bottom column > bottom wall
+		CASE 7. 기둥 바로 왼쪽에 벽이 붙은 경우:		top column > bottom column == top wall > bottom wall
+	*/
 
 	// 기둥 위쪽 여백
 	double	marginTopAtNorth;			// 기둥 북쪽 면의 위쪽 여백

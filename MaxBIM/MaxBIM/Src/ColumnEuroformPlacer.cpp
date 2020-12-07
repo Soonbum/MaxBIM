@@ -46,8 +46,10 @@ GSErrCode	placeEuroformOnColumn (void)
 	long			nSel;
 	short			xx, yy;
 	short			result;
+	double			dx, dy, angle;
 	double			lowestBeamBottomLevel;
 	API_Coord		axisPoint, rotatedPoint, unrotatedPoint;
+	API_Coord		unrotatedPoint1, unrotatedPoint2;
 	bool			bFoundOneLine;
 
 	// Selection Manager 관련 변수
@@ -380,7 +382,7 @@ GSErrCode	placeEuroformOnColumn (void)
 FIRST_SOLE_COLUMN:
 	
 		// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
-		result = DGModalDialog (ACAPI_GetOwnResModule (), 32531, ACAPI_GetOwnResModule (), columnPlacerHandler_soleColumn_1, 0);
+		result = DGModalDialog (ACAPI_GetOwnResModule (), 32514, ACAPI_GetOwnResModule (), columnPlacerHandler_soleColumn_1, 0);
 
 		if (result == DG_CANCEL)
 			return err;
@@ -434,35 +436,103 @@ FIRST_SOLE_COLUMN:
 
 	// 벽체와 맞닿거나 벽체 속 기둥인 경우
 	} else {
-		// !!! 테스트 - 벽 시작/끝점
-		placeCoordinateLabel (infoWall.begC_1.x, infoWall.begC_1.y, infoWall.bottomOffset, true, "시작점1", 1, 0);
-		placeCoordinateLabel (infoWall.endC_1.x, infoWall.endC_1.y, infoWall.bottomOffset, true, "끝점1", 1, 0);
-		placeCoordinateLabel (infoWall.begC_2.x, infoWall.begC_2.y, infoWall.bottomOffset, true, "시작점2", 1, 0);
-		placeCoordinateLabel (infoWall.endC_2.x, infoWall.endC_2.y, infoWall.bottomOffset, true, "끝점2", 1, 0);
+		// 벽 라인이 회전된 기둥을 기준으로 가로 방향인지, 세로 방향인지 판단함 (벽 각도가 0 혹은 180도이면 가로, 90 혹은 -90도이면 세로)
+		axisPoint.x = placingZone.origoPos.x;
+		axisPoint.y = placingZone.origoPos.y;
 
-		// 벽의 위치를 구함
-			// 전제조건: 회전된 기둥을 기준으로 벽의 시작/끝점도 회전되어야 함
-			// 벽 라인이 기둥을 중심으로 가로 방향인지, 세로 방향인지 판단할 것
-			// 1. 가로인 경우 (위부터) - 라인 위치 순서
-				// CASE 1. 기둥 바로 위에 벽이 붙은 경우:			top wall > bottom wall == top column > bottom column
-				// CASE 2. 기둥이 벽 아래에 조금 들어간 경우:		top wall > top column > bottom wall > bottom column
-				// CASE 3. 기둥 위쪽이 벽 위쪽과 일치한 경우:		top wall == top column > bottom wall > bottom column
-				// CASE 4. 기둥이 벽을 삼킨 경우:					top column > top wall > bottom wall > bottom column
-				// CASE 5. 기둥 아래쪽이 벽 아래쪽과 일치한 경우:	top column > top wall > bottom wall == bottom column
-				// CASE 6. 기둥이 벽 위에 조금 들어간 경우:			top column > top wall > bottom column > bottom wall
-				// CASE 7. 기둥 바로 아래에 벽이 붙은 경우:			top column > bottom column == top wall > bottom wall
-			// 2. 세로인 경우 (오른쪽부터)
-				// CASE 1. 기둥 바로 오른쪽에 벽이 붙은 경우:		상동
-				// CASE 2. 기둥이 벽 왼쪽에 조금 들어간 경우:		상동
-				// CASE 3. 기둥 오른쪽이 벽 오른쪽과 일치한 경우:	상동
-				// CASE 4. 기둥이 벽을 삼킨 경우:					상동
-				// CASE 5. 기둥 왼쪽이 벽 왼쪽과 일치한 경우:		상동
-				// CASE 6. 기둥이 벽 오른쪽에 조금 들어간 경우:		상동
-				// CASE 7. 기둥 바로 왼쪽에 벽이 붙은 경우:			상동
+		rotatedPoint.x = infoWall.begC.x;
+		rotatedPoint.y = infoWall.begC.y;
+		unrotatedPoint1 = getUnrotatedPoint (rotatedPoint, axisPoint, -RadToDegree (placingZone.angle));
+		rotatedPoint.x = infoWall.endC.x;
+		rotatedPoint.y = infoWall.endC.y;
+		unrotatedPoint2 = getUnrotatedPoint (rotatedPoint, axisPoint, -RadToDegree (placingZone.angle));
 
-		// DG 1차 : CASE 별로 UI 그림이 달라짐
-		// DG 2차 : 단독기둥과 동일함 (차이없음)
+		dx = unrotatedPoint2.x - unrotatedPoint1.x;
+		dy = unrotatedPoint2.y - unrotatedPoint1.y;
+		angle = RadToDegree (atan2 (dy, dx));
+		if ( abs(abs (angle) - 90.0) < EPS )
+			placingZone.bWallHorizontalDirected = false;
+		else
+			placingZone.bWallHorizontalDirected = true;
+
+		// !!!
+		// 벽의 위치 저장
+		if ( abs(abs (RadToDegree (placingZone.angle)) - 90.0) < EPS ) {
+			// 기둥이 90도 혹은 -90도 회전되어 있으면
+			if (placingZone.bWallHorizontalDirected == true) {
+				placingZone.posTopWallLine = max (infoWall.begC_1.x, infoWall.begC_2.x);
+				placingZone.posBottomWallLine = min (infoWall.begC_1.x, infoWall.begC_2.x);
+				placingZone.posTopColumnLine = placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick;
+				placingZone.posBottomColumnLine = placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick;
+
+				placeCoordinateLabel (placingZone.posTopWallLine, 0, infoWall.bottomOffset, true, "topWall", 1, 0);
+				placeCoordinateLabel (placingZone.posBottomWallLine, 0, infoWall.bottomOffset, true, "bottomWall", 1, 0);
+				placeCoordinateLabel (placingZone.posTopColumnLine, 0, infoWall.bottomOffset, true, "topColumn", 1, 0);
+				placeCoordinateLabel (placingZone.posBottomColumnLine, 0, infoWall.bottomOffset, true, "bottomColumn", 1, 0);
+			} else {
+				placingZone.posTopWallLine = max (infoWall.begC_1.y, infoWall.begC_2.y);
+				placingZone.posBottomWallLine = min (infoWall.begC_1.y, infoWall.begC_2.y);
+				placingZone.posTopColumnLine = placingZone.origoPos.y + placingZone.coreDepth/2 + placingZone.venThick;
+				placingZone.posBottomColumnLine = placingZone.origoPos.y - placingZone.coreDepth/2 - placingZone.venThick;
+
+				placeCoordinateLabel (0, placingZone.posTopWallLine, infoWall.bottomOffset, true, "topWall", 1, 0);
+				placeCoordinateLabel (0, placingZone.posBottomWallLine, infoWall.bottomOffset, true, "bottomWall", 1, 0);
+				placeCoordinateLabel (0, placingZone.posTopColumnLine, infoWall.bottomOffset, true, "topColumn", 1, 0);
+				placeCoordinateLabel (0, placingZone.posBottomColumnLine, infoWall.bottomOffset, true, "bottomColumn", 1, 0);
+			}
+		} else {
+			// 기둥이 회전되어 있지 않거나 180도 간격으로 회전되어 있으면
+			if (placingZone.bWallHorizontalDirected == true) {
+				placingZone.posTopWallLine = max (infoWall.begC_1.y, infoWall.begC_2.y);
+				placingZone.posBottomWallLine = min (infoWall.begC_1.y, infoWall.begC_2.y);
+				placingZone.posTopColumnLine = placingZone.origoPos.y + placingZone.coreDepth/2 + placingZone.venThick;
+				placingZone.posBottomColumnLine = placingZone.origoPos.y - placingZone.coreDepth/2 - placingZone.venThick;
+
+				placeCoordinateLabel (0, placingZone.posTopWallLine, infoWall.bottomOffset, true, "topWall", 1, 0);
+				placeCoordinateLabel (0, placingZone.posBottomWallLine, infoWall.bottomOffset, true, "bottomWall", 1, 0);
+				placeCoordinateLabel (0, placingZone.posTopColumnLine, infoWall.bottomOffset, true, "topColumn", 1, 0);
+				placeCoordinateLabel (0, placingZone.posBottomColumnLine, infoWall.bottomOffset, true, "bottomColumn", 1, 0);
+			} else {
+				placingZone.posTopWallLine = max (infoWall.begC_1.x, infoWall.begC_2.x);
+				placingZone.posBottomWallLine = min (infoWall.begC_1.x, infoWall.begC_2.x);
+				placingZone.posTopColumnLine = placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick;
+				placingZone.posBottomColumnLine = placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick;
+
+				placeCoordinateLabel (placingZone.posTopWallLine, 0, infoWall.bottomOffset, true, "topWall", 1, 0);
+				placeCoordinateLabel (placingZone.posBottomWallLine, 0, infoWall.bottomOffset, true, "bottomWall", 1, 0);
+				placeCoordinateLabel (placingZone.posTopColumnLine, 0, infoWall.bottomOffset, true, "topColumn", 1, 0);
+				placeCoordinateLabel (placingZone.posBottomColumnLine, 0, infoWall.bottomOffset, true, "bottomColumn", 1, 0);
+			}
+		}
+
+		// 벽과 기둥과의 관계 정리
+		placingZone.relationCase = 0;
+		if ( (placingZone.posTopWallLine - placingZone.posBottomWallLine) > EPS && abs (placingZone.posBottomWallLine - placingZone.posTopColumnLine) < EPS && (placingZone.posTopColumnLine - placingZone.posBottomColumnLine) > EPS )
+			placingZone.relationCase = 1;	// CASE 1. 기둥 바로 위에 벽이 붙은 경우
+		if ( (placingZone.posTopWallLine - placingZone.posTopColumnLine) > EPS && (placingZone.posTopColumnLine - placingZone.posBottomWallLine) > EPS && (placingZone.posBottomWallLine - placingZone.posBottomColumnLine) > EPS )
+			placingZone.relationCase = 2;	// CASE 2. 기둥이 벽 아래에 조금 들어간 경우
+		if ( abs (placingZone.posTopWallLine - placingZone.posTopColumnLine) < EPS && (placingZone.posTopColumnLine > placingZone.posBottomWallLine) > EPS && (placingZone.posBottomWallLine - placingZone.posBottomColumnLine) > EPS )
+			placingZone.relationCase = 3;	// CASE 3. 기둥 위쪽이 벽 위쪽과 일치한 경우
+		if ( (placingZone.posTopColumnLine - placingZone.posTopWallLine) > EPS && (placingZone.posTopWallLine - placingZone.posBottomWallLine) > EPS && (placingZone.posBottomWallLine - placingZone.posBottomColumnLine) > EPS )
+			placingZone.relationCase = 4;	// CASE 4. 기둥이 벽을 삼킨 경우
+		if ( (placingZone.posTopColumnLine - placingZone.posTopWallLine) > EPS && (placingZone.posTopWallLine - placingZone.posBottomWallLine) > EPS && abs (placingZone.posBottomWallLine - placingZone.posBottomColumnLine) < EPS )
+			placingZone.relationCase = 5;	// CASE 5. 기둥 아래쪽이 벽 아래쪽과 일치한 경우
+		if ( (placingZone.posTopColumnLine - placingZone.posTopWallLine) > EPS && (placingZone.posTopWallLine - placingZone.posBottomColumnLine) > EPS && (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) > EPS )
+			placingZone.relationCase = 6;	// CASE 6. 기둥이 벽 위에 조금 들어간 경우
+		if ( (placingZone.posTopColumnLine - placingZone.posBottomColumnLine) > EPS && abs (placingZone.posBottomColumnLine - placingZone.posTopWallLine) < EPS && (placingZone.posTopWallLine - placingZone.posBottomWallLine) > EPS )
+			placingZone.relationCase = 7;	// CASE 7. 기둥 바로 아래에 벽이 붙은 경우
 	}
+
+	if (placingZone.relationCase == 0) {
+		ACAPI_WriteReport ("단독 기둥의 경우 벽을 선택하지 마십시오.", true);
+		err = APIERR_GENERAL;
+		return err;
+	}
+
+	// ...
+
+	// DG 1차 : CASE 별로 UI 그림이 달라짐
+	// DG 2차 : 단독기둥과 동일함 (차이없음)
 
 	// 결과물 전체 그룹화
 	if (!elemList.IsEmpty ()) {

@@ -6,8 +6,9 @@
 #include "UtilityFunctions.hpp"
 #include "Information.hpp"
 
-static short	modelessID;
+using namespace informationDG;
 
+static short	paletteID;
 
 // 애드온 사용법 보기
 GSErrCode	showHelp (void)
@@ -15,15 +16,8 @@ GSErrCode	showHelp (void)
 	GSErrCode	err = NoError;
 
 	// 팔레트 창 열기 (모달리스 창과 호환됨)
-	modelessID = DGCreateBlankPalette (500, 500, DG_DLG_HGROW | DG_DLG_VGROW, DG_DLG_CLOSE, DG_DLG_TOPCAPTION, DG_DLG_THICKFRAME, helpHandler, 0);
+	paletteID = DGModelessInit (ACAPI_GetOwnResModule (), 32515, ACAPI_GetOwnResModule (), helpHandler, 0, 1);
 	
-	if (modelessID != 0) {
-		DGBeginProcessEvents (modelessID);
-		DGShowModelessDialog (modelessID, DG_DF_FIRST);
-	}
-
-	// ...
-
 	return err;
 }
 
@@ -55,12 +49,27 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 			DGSetDialogTitle (dialogID, "애드온 사용법");
 
 			// 닫기 버튼
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 200, 460, 100, 25);
-			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "닫기");
-			DGShowItem (dialogID, DG_OK);
 
-			// ... 링크?
+			// 라벨: 유로폼 배치
+			DGSetItemText (dialogID, LABEL_PLACING_EUROFORM, "유로폼 배치");
+
+			// 버튼: 벽
+			DGSetItemText (dialogID, BUTTON_WALL, "벽");
+
+			// 버튼: 슬래브
+			DGSetItemText (dialogID, BUTTON_SLAB, "슬래브");
+
+			// 버튼: 보
+			DGSetItemText (dialogID, BUTTON_BEAM, "보");
+
+			// 버튼: 기둥
+			DGSetItemText (dialogID, BUTTON_COLUMN, "기둥");
+
+			// 처음에는 벽 관련 매뉴얼을 보여줌
+			DGHideItem (dialogID, ICON_MORPH_FOR_SLAB);
+			DGHideItem (dialogID, ICON_MORPH_FOR_BEAM);
+			DGHideItem (dialogID, ICON_MORPH_FOR_COLUMN);
 
 			break;
 		
@@ -70,9 +79,57 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
-					DGEndProcessEvents (modelessID);
-					DGDestroyModelessDialog (modelessID);
-					ACAPI_UnregisterModelessWindow (modelessID);
+					DGModelessClose (paletteID);
+					DGDestroyModelessDialog (paletteID);
+					ACAPI_UnregisterModelessWindow (paletteID);
+					break;
+
+				case BUTTON_WALL:
+					item = 0;
+
+					// 벽 관련 매뉴얼 표시
+					DGShowItem (dialogID, ICON_MORPH_FOR_WALL);
+					DGHideItem (dialogID, ICON_MORPH_FOR_SLAB);
+					DGHideItem (dialogID, ICON_MORPH_FOR_BEAM);
+					DGHideItem (dialogID, ICON_MORPH_FOR_COLUMN);
+					// ... 그 외 텍스트 추가
+
+					break;
+
+				case BUTTON_SLAB:
+					item = 0;
+
+					// 슬래브 관련 매뉴얼 표시
+					DGHideItem (dialogID, ICON_MORPH_FOR_WALL);
+					DGShowItem (dialogID, ICON_MORPH_FOR_SLAB);
+					DGHideItem (dialogID, ICON_MORPH_FOR_BEAM);
+					DGHideItem (dialogID, ICON_MORPH_FOR_COLUMN);
+					// ... 그 외 텍스트 추가
+
+					break;
+
+				case BUTTON_BEAM:
+					item = 0;
+
+					// 보 관련 매뉴얼 표시
+					DGHideItem (dialogID, ICON_MORPH_FOR_WALL);
+					DGHideItem (dialogID, ICON_MORPH_FOR_SLAB);
+					DGShowItem (dialogID, ICON_MORPH_FOR_BEAM);
+					DGHideItem (dialogID, ICON_MORPH_FOR_COLUMN);
+					// ... 그 외 텍스트 추가
+
+					break;
+
+				case BUTTON_COLUMN:
+					item = 0;
+
+					// 기둥 관련 매뉴얼 표시
+					DGHideItem (dialogID, ICON_MORPH_FOR_WALL);
+					DGHideItem (dialogID, ICON_MORPH_FOR_SLAB);
+					DGHideItem (dialogID, ICON_MORPH_FOR_BEAM);
+					DGShowItem (dialogID, ICON_MORPH_FOR_COLUMN);
+					// ... 그 외 텍스트 추가
+
 					break;
 			}
 		case DG_MSG_CLOSE:
@@ -153,15 +210,15 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 // 모달리스 창을 제어하기 위한 콜백함수
 static GSErrCode __ACENV_CALL	APIHelpPaletteAPIControlCallBack (Int32 referenceID, API_PaletteMessageID messageID, GS::IntPtr /*param*/)
 {
-	if (referenceID == modelessID) {
+	if (referenceID == paletteID) {
 		switch (messageID) {
-			case APIPalMsg_ClosePalette:		//DGEndProcessEvents (modelessID);
-												//DGDestroyModelessDialog (modelessID);
-												DGModelessClose (modelessID);
+			case APIPalMsg_ClosePalette:		DGModelessClose (paletteID);
+												DGDestroyModelessDialog (paletteID);
+												ACAPI_UnregisterModelessWindow (paletteID);
 												break;
-			case APIPalMsg_HidePalette_Begin:	DGHideModelessDialog (modelessID);
+			case APIPalMsg_HidePalette_Begin:	DGHideModelessDialog (paletteID);
 												break;
-			case APIPalMsg_HidePalette_End:		DGShowModelessDialog (modelessID, DG_DF_FIRST);
+			case APIPalMsg_HidePalette_End:		DGShowModelessDialog (paletteID, DG_DF_FIRST);
 												break;
 			case APIPalMsg_DisableItems_Begin:
 			case APIPalMsg_DisableItems_End:	// actually do nothing, because the input finish functionality the buttons have to stay enabled

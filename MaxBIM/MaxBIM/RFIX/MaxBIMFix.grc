@@ -16,18 +16,30 @@
 	3588511626
 }
 
-
 'GICN' 32502 "Layers" {
 	0  128  128
 }
 
-'GICN' 32532 "soleColumnSection" {
+'GICN' 32503 "soleColumnSection" {
+	0  128  128
+}
+
+'GICN' 32504 "morphForWall" {
+	0  128  128
+}
+'GICN' 32505 "morphForSlab" {
+	0  128  128
+}
+'GICN' 32506 "morphForBeam" {
+	0  128  128
+}
+'GICN' 32507 "morphForColumn" {
 	0  128  128
 }
 
 
 /* ---------------------------------------------------------- place Euroform on Wall */
-'GDLG'  32501  Modal | grow	  0		  0		300		500		"유로폼 벽에 배치" {
+'GDLG'  32511  Modal | grow	  0		  0		300		500		"유로폼 벽에 배치" {
 /* [  1] */	Button			 70		460		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			160		460		 70		 25		LargePlain		"Cancel"
 
@@ -77,7 +89,7 @@
 }
 
 /* ---------------------------------------------------------- place Euroform on Slab Bottom */
-'GDLG'  32511  Modal | grow	  0		  0		300		355		"슬래브 하부에 배치" {
+'GDLG'  32512  Modal | grow	  0		  0		300		355		"슬래브 하부에 배치" {
 /* [  1] */	Button			 70		315		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			160		315		 70		 25		LargePlain		"Cancel"
 
@@ -116,7 +128,7 @@
 }
 
 /* ---------------------------------------------------------- place Euroform on Beam */
-'GDLG'  32521  Modal | grow	  0		  0		500		610		"보에 배치" {
+'GDLG'  32513  Modal | grow	  0		  0		500		610		"보에 배치" {
 /* [  1] */	Button			170		560		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			270		560		 70		 25		LargePlain		"Cancel"
 
@@ -199,11 +211,11 @@
 }
 
 /* ---------------------------------------------------------- place Euroform on Column */
-'GDLG'  32531  Modal | grow	  0		  0		500		550		"기둥에 배치" {
+'GDLG'  32514  Modal | grow	  0		  0		500		550		"기둥에 배치" {
 /* [  1] */	Button			170		500		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			270		500		 70		 25		LargePlain		"Cancel"
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
-/* [  4] */	Icon    		140		 50		230		230  	32532
+/* [  4] */	Icon    		140		 50		230		230  	32503
 
 /* [  5] */	LengthEdit		170		 25		 30		 25		LargePlain		"0"	"0.5"	/* TOP Outcorner Panel Width */
 /* [  6] */	LengthEdit		215		 25		 30		 25		LargePlain		"0"	"0.6"	/* TOP Euroform Width */
@@ -242,4 +254,20 @@
 /* [ 38] */	UserControl		210		384		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER			*/
 /* [ 39] */	UserControl		210		414		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER		*/
 /* [ 40] */	UserControl		210		444		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+}
+
+/* ---------------------------------------------------------- Munual Palette */
+'GDLG'  32515  Palette | grow		  0		  0		500		500		"Manual Palette" {
+/* [  1] */	Button			200		460		100		 25		LargePlain		"OK"
+/* [  2] */	LeftText		 10		 10		 80		 23		LargePlain		"Placing Euroform"
+/* [  3] */	Button			 20		 40		 70		 23		LargePlain		"Wall"
+/* [  4] */	Button			 20		 70		 70		 23		LargePlain		"Slab"
+/* [  5] */	Button			 20		100		 70		 23		LargePlain		"Beam"
+/* [  6] */	Button			 20		130		 70		 23		LargePlain		"Column"
+/* [  7] */	Separator		100		  5		  1		450
+
+/* [  8] */	Icon			110		 20		300		230  	32504		/* Morph for Wall */
+/* [  9] */	Icon			110		 20		300		230  	32505		/* Morph for Slab */
+/* [ 10] */	Icon			110		 20		300		230  	32506		/* Morph for Beam */
+/* [ 11] */	Icon			110		 20		300		230  	32507		/* Morph for Column */
 }

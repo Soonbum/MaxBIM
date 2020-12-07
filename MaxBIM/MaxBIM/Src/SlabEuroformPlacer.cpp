@@ -318,7 +318,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 FIRST:
 
 	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32511, ACAPI_GetOwnResModule (), slabBottomPlacerHandler1, 0);
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), slabBottomPlacerHandler1, 0);
 
 	// 작업 층 높이 반영
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));

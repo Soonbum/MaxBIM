@@ -301,7 +301,7 @@ GSErrCode	placeEuroformOnWall (void)
 FIRST:
 
 	// [DIALOG] 1번째 다이얼로그에서 인코너, 유로폼 정보 입력 받음
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32501, ACAPI_GetOwnResModule (), wallPlacerHandler1, 0);
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32511, ACAPI_GetOwnResModule (), wallPlacerHandler1, 0);
 
 	// 벽과의 간격으로 인해 정보 업데이트
 	infoWall.wallThk		+= (placingZone.gap * 2);
