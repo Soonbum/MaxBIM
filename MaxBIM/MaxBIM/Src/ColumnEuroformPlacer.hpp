@@ -70,12 +70,10 @@ namespace columnPlacerDG {
 		ICON_LAYER,
 		LABEL_LAYER_SETTINGS,
 		LABEL_LAYER_EUROFORM,
-		LABEL_LAYER_INCORNER,
 		LABEL_LAYER_OUTCORNER,
 		LABEL_LAYER_PLYWOOD,
 
 		USERCONTROL_LAYER_EUROFORM,
-		USERCONTROL_LAYER_INCORNER,
 		USERCONTROL_LAYER_OUTCORNER,
 		USERCONTROL_LAYER_PLYWOOD,
 	};
@@ -94,6 +92,40 @@ namespace columnPlacerDG {
 		LABEL_LENGTH,
 		EDITCONTROL_LENGTH,
 		POPUP_LENGTH
+	};
+
+	enum	idxItems_1_forWallColumnPlacer {
+		LABEL_COLUMN_SECTION_WC	= 3,
+
+		ICON_COLUMN_SECTION_01_WC,
+		ICON_COLUMN_SECTION_02_WC,
+		ICON_COLUMN_SECTION_03_WC,
+		ICON_COLUMN_SECTION_04_WC,
+		ICON_COLUMN_SECTION_05_WC,
+		ICON_COLUMN_SECTION_06_WC,
+		ICON_COLUMN_SECTION_07_WC,
+
+		ICON_COLUMN_SECTION_08_WC,
+		ICON_COLUMN_SECTION_09_WC,
+		ICON_COLUMN_SECTION_10_WC,
+		ICON_COLUMN_SECTION_11_WC,
+		ICON_COLUMN_SECTION_12_WC,
+		ICON_COLUMN_SECTION_13_WC,
+		ICON_COLUMN_SECTION_14_WC,
+
+		ICON_LAYER_WC,
+		LABEL_LAYER_SETTINGS_WC,
+		LABEL_LAYER_EUROFORM_WC,
+		LABEL_LAYER_INCORNER_WC,
+		LABEL_LAYER_OUTCORNER_WC,
+		LABEL_LAYER_PLYWOOD_WC,
+
+		USERCONTROL_LAYER_EUROFORM_WC,
+		USERCONTROL_LAYER_INCORNER_WC,
+		USERCONTROL_LAYER_OUTCORNER_WC,
+		USERCONTROL_LAYER_PLYWOOD_WC,
+
+		AFTER_ALL_WC
 	};
 }
 
@@ -263,6 +295,16 @@ struct ColumnPlacingZone
 	CellForColumn	cellsB1 [20];		// 하단1 셀 (왼쪽)
 	CellForColumn	cellsB2 [20];		// 하단2 셀 (오른쪽)
 
+	CellForColumn	cellsLin1 [20];		// 왼쪽 인코너 셀 1 (위)
+	CellForColumn	cellsLin2 [20];		// 왼쪽 인코너 셀 2 (아래)
+	CellForColumn	cellsRin1 [20];		// 오른쪽 인코너 셀 1 (위)
+	CellForColumn	cellsRin2 [20];		// 오른쪽 인코너 셀 2 (아래)
+
+	CellForColumn	cellsW1 [20];		// 벽 반대쪽 셀 1
+	CellForColumn	cellsW2 [20];		// 벽 반대쪽 셀 2
+	CellForColumn	cellsW3 [20];		// 벽 반대쪽 셀 3
+	CellForColumn	cellsW4 [20];		// 벽 반대쪽 셀 4
+
 	// 수직 방향으로의 셀 개수
 	short	nCells;
 };
@@ -278,5 +320,6 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone);		/
 short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK columnPlacerHandler_soleColumn_3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
+short DGCALLBACK columnPlacerHandler_wallColumn_1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 
 #endif

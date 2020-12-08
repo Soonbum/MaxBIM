@@ -16,7 +16,7 @@ GSErrCode	showHelp (void)
 	GSErrCode	err = NoError;
 
 	// 팔레트 창 열기 (모달리스 창과 호환됨)
-	paletteID = DGModelessInit (ACAPI_GetOwnResModule (), 32515, ACAPI_GetOwnResModule (), helpHandler, 0, 1);
+	paletteID = DGModelessInit (ACAPI_GetOwnResModule (), 32516, ACAPI_GetOwnResModule (), helpHandler, 0, 1);
 	
 	return err;
 }
@@ -66,7 +66,7 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 			// 버튼: 기둥
 			DGSetItemText (dialogID, BUTTON_COLUMN, "기둥");
 
-			// 처음에는 벽 관련 매뉴얼을 보여줌
+			DGHideItem (dialogID, ICON_MORPH_FOR_WALL);
 			DGHideItem (dialogID, ICON_MORPH_FOR_SLAB);
 			DGHideItem (dialogID, ICON_MORPH_FOR_BEAM);
 			DGHideItem (dialogID, ICON_MORPH_FOR_COLUMN);
@@ -92,7 +92,31 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					DGHideItem (dialogID, ICON_MORPH_FOR_SLAB);
 					DGHideItem (dialogID, ICON_MORPH_FOR_BEAM);
 					DGHideItem (dialogID, ICON_MORPH_FOR_COLUMN);
-					// ... 그 외 텍스트 추가
+
+					// 변경 가능성이 있는 DG 항목 모두 제거
+					DGRemoveDialogItems (dialogID, AFTER_ALL);
+
+					// 그림에 대한 설명
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 260, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "유로폼을 붙일 벽면에 직사각형 모프를 그리되,\n좌하단부터 우상단으로 그리십시오.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 290, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "모프의 최상단 라인은 보의 상단 라인과 일치해야\n합니다.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 320, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "벽면에 단열재가 있으면 모프를 단열재 위에 그리면\n됩니다.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 350, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "보 주변에 합판 처리를 하려면 보들도 같이\n선택하십시오.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 380, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오:\n모프, 벽, (보 다수)");
+					DGShowItem (dialogID, itmIdx);
 
 					break;
 
@@ -104,7 +128,27 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					DGShowItem (dialogID, ICON_MORPH_FOR_SLAB);
 					DGHideItem (dialogID, ICON_MORPH_FOR_BEAM);
 					DGHideItem (dialogID, ICON_MORPH_FOR_COLUMN);
-					// ... 그 외 텍스트 추가
+
+					// 변경 가능성이 있는 DG 항목 모두 제거
+					DGRemoveDialogItems (dialogID, AFTER_ALL);
+					
+					// 그림에 대한 설명
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 260, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "유로폼을 붙일 슬래브 하부에 모프를 그리십시오.\n기둥 등에 의해 코너가 꺾일 수 있습니다.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 290, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "슬래브 하부에 단열재가 있으면 모프를 단열재 위에\n그리면 됩니다.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 320, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "실행 후 모프 하단의 좌측, 우측 점을 순서대로\n클릭하십시오.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 350, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오: 모프, 슬래브");
+					DGShowItem (dialogID, itmIdx);
 
 					break;
 
@@ -116,7 +160,35 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					DGHideItem (dialogID, ICON_MORPH_FOR_SLAB);
 					DGShowItem (dialogID, ICON_MORPH_FOR_BEAM);
 					DGHideItem (dialogID, ICON_MORPH_FOR_COLUMN);
-					// ... 그 외 텍스트 추가
+
+					// 변경 가능성이 있는 DG 항목 모두 제거
+					DGRemoveDialogItems (dialogID, AFTER_ALL);
+
+					// 그림에 대한 설명
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 260, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "유로폼을 붙일 보 측면 전체 혹은 일부에 모프를\n그리십시오.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 290, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "보 전체의 경우, 간섭 보를 인식하려면 간섭 보가\n관통해야 합니다.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 320, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "보 전체의 경우, 간섭 보는 1개만 인식되므로 간섭 보가\n많으면 보 일부로 나눠서 작업하십시오.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 350, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "실행 후 모프의 시작점, 끝점을 순서대로\n클릭하십시오.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 380, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "보 측면/하부에 단열재가 있으면 모프를 단열재 위에\n그리면 됩니다.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 410, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오: 모프, 메인보");
+					DGShowItem (dialogID, itmIdx);
 
 					break;
 
@@ -128,7 +200,31 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					DGHideItem (dialogID, ICON_MORPH_FOR_SLAB);
 					DGHideItem (dialogID, ICON_MORPH_FOR_BEAM);
 					DGShowItem (dialogID, ICON_MORPH_FOR_COLUMN);
-					// ... 그 외 텍스트 추가
+
+					// 변경 가능성이 있는 DG 항목 모두 제거
+					DGRemoveDialogItems (dialogID, AFTER_ALL);
+
+					// 그림에 대한 설명
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 260, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "기둥 측면의 유로폼, 합판을 붙일 영역에 모프를\n그리십시오.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 290, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "기둥의 경우, 단열재를 고려하지 않습니다.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 320, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "기둥에 붙은 보 근처에 합판을 설치하기 위해 보를 같이\n선택하십시오.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 350, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "기둥이 벽에 붙거나 침범하는 경우, 벽을 같이\n선택하십시오.");
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 380, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오:\n모프, 기둥, (보 다수), (벽)");
+					DGShowItem (dialogID, itmIdx);
 
 					break;
 			}
@@ -168,7 +264,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 230, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "버전 5.1 (배포일: 2020.12.03)");
+			DGSetItemText (dialogID, itmIdx, "버전 5.1 (배포일: 2020.12.08)");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
@@ -182,7 +278,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 프로그램 기능
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 230, 23*4);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "1. 유로폼 배치\n  - 벽에 유로폼 배치\n  - 슬래브 하부에 유로폼 배치\n  - 보에 유로폼 배치\n  - 기둥에 유로폼 배치");
+			DGSetItemText (dialogID, itmIdx, "1. 유로폼 배치\n  - 벽에 유로폼 배치\n  - 슬래브 하부에 유로폼 배치\n  - 보에 유로폼 배치\n  - 기둥에 유로폼 배치 (개발중)");
 			DGShowItem (dialogID, itmIdx);
 
 			break;

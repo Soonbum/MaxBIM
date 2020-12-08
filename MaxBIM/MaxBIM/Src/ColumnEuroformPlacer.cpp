@@ -376,6 +376,9 @@ GSErrCode	placeEuroformOnColumn (void)
 		}
 	}
 
+	placingZone.nCells = static_cast<short>((lowestBeamBottomLevel + EPS) / 1.200);		// 높이 1200 폼 기준으로 들어갈 수 있는 최대 셀 개수 연산
+
+
 	// 단독 기둥의 경우
 	if (nWalls == 0) {
 
@@ -386,8 +389,6 @@ FIRST_SOLE_COLUMN:
 
 		if (result == DG_CANCEL)
 			return err;
-
-		placingZone.nCells = static_cast<short>((lowestBeamBottomLevel + EPS) / 1.200);		// 높이 1200 폼 기준으로 들어갈 수 있는 최대 셀 개수 연산
 
 		// [DIALOG] 2번째 다이얼로그에서 유로폼 배치를 수정합니다.
 		clickedOKButton = false;
@@ -455,54 +456,28 @@ FIRST_SOLE_COLUMN:
 		else
 			placingZone.bWallHorizontalDirected = true;
 
-		// !!!
+		// !!! 테스트
+		placeCoordinateLabel (0, 0, 0, false, "", 1, 0);
+
 		// 벽의 위치 저장
-		if ( abs(abs (RadToDegree (placingZone.angle)) - 90.0) < EPS ) {
-			// 기둥이 90도 혹은 -90도 회전되어 있으면
-			if (placingZone.bWallHorizontalDirected == true) {
-				placingZone.posTopWallLine = max (infoWall.begC_1.x, infoWall.begC_2.x);
-				placingZone.posBottomWallLine = min (infoWall.begC_1.x, infoWall.begC_2.x);
-				placingZone.posTopColumnLine = placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick;
-				placingZone.posBottomColumnLine = placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick;
+		rotatedPoint.x = infoWall.begC_1.x;
+		rotatedPoint.y = infoWall.begC_1.y;
+		unrotatedPoint1 = getUnrotatedPoint (rotatedPoint, axisPoint, -RadToDegree (placingZone.angle));
 
-				placeCoordinateLabel (placingZone.posTopWallLine, 0, infoWall.bottomOffset, true, "topWall", 1, 0);
-				placeCoordinateLabel (placingZone.posBottomWallLine, 0, infoWall.bottomOffset, true, "bottomWall", 1, 0);
-				placeCoordinateLabel (placingZone.posTopColumnLine, 0, infoWall.bottomOffset, true, "topColumn", 1, 0);
-				placeCoordinateLabel (placingZone.posBottomColumnLine, 0, infoWall.bottomOffset, true, "bottomColumn", 1, 0);
-			} else {
-				placingZone.posTopWallLine = max (infoWall.begC_1.y, infoWall.begC_2.y);
-				placingZone.posBottomWallLine = min (infoWall.begC_1.y, infoWall.begC_2.y);
-				placingZone.posTopColumnLine = placingZone.origoPos.y + placingZone.coreDepth/2 + placingZone.venThick;
-				placingZone.posBottomColumnLine = placingZone.origoPos.y - placingZone.coreDepth/2 - placingZone.venThick;
+		rotatedPoint.x = infoWall.begC_2.x;
+		rotatedPoint.y = infoWall.begC_2.y;
+		unrotatedPoint2 = getUnrotatedPoint (rotatedPoint, axisPoint, -RadToDegree (placingZone.angle));
 
-				placeCoordinateLabel (0, placingZone.posTopWallLine, infoWall.bottomOffset, true, "topWall", 1, 0);
-				placeCoordinateLabel (0, placingZone.posBottomWallLine, infoWall.bottomOffset, true, "bottomWall", 1, 0);
-				placeCoordinateLabel (0, placingZone.posTopColumnLine, infoWall.bottomOffset, true, "topColumn", 1, 0);
-				placeCoordinateLabel (0, placingZone.posBottomColumnLine, infoWall.bottomOffset, true, "bottomColumn", 1, 0);
-			}
+		if (placingZone.bWallHorizontalDirected == true) {
+			placingZone.posTopWallLine = max (unrotatedPoint1.y, unrotatedPoint2.y);
+			placingZone.posBottomWallLine = min (unrotatedPoint1.y, unrotatedPoint2.y);
+			placingZone.posTopColumnLine = placingZone.origoPos.y + placingZone.coreDepth/2 + placingZone.venThick;
+			placingZone.posBottomColumnLine = placingZone.origoPos.y - placingZone.coreDepth/2 - placingZone.venThick;
 		} else {
-			// 기둥이 회전되어 있지 않거나 180도 간격으로 회전되어 있으면
-			if (placingZone.bWallHorizontalDirected == true) {
-				placingZone.posTopWallLine = max (infoWall.begC_1.y, infoWall.begC_2.y);
-				placingZone.posBottomWallLine = min (infoWall.begC_1.y, infoWall.begC_2.y);
-				placingZone.posTopColumnLine = placingZone.origoPos.y + placingZone.coreDepth/2 + placingZone.venThick;
-				placingZone.posBottomColumnLine = placingZone.origoPos.y - placingZone.coreDepth/2 - placingZone.venThick;
-
-				placeCoordinateLabel (0, placingZone.posTopWallLine, infoWall.bottomOffset, true, "topWall", 1, 0);
-				placeCoordinateLabel (0, placingZone.posBottomWallLine, infoWall.bottomOffset, true, "bottomWall", 1, 0);
-				placeCoordinateLabel (0, placingZone.posTopColumnLine, infoWall.bottomOffset, true, "topColumn", 1, 0);
-				placeCoordinateLabel (0, placingZone.posBottomColumnLine, infoWall.bottomOffset, true, "bottomColumn", 1, 0);
-			} else {
-				placingZone.posTopWallLine = max (infoWall.begC_1.x, infoWall.begC_2.x);
-				placingZone.posBottomWallLine = min (infoWall.begC_1.x, infoWall.begC_2.x);
-				placingZone.posTopColumnLine = placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick;
-				placingZone.posBottomColumnLine = placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick;
-
-				placeCoordinateLabel (placingZone.posTopWallLine, 0, infoWall.bottomOffset, true, "topWall", 1, 0);
-				placeCoordinateLabel (placingZone.posBottomWallLine, 0, infoWall.bottomOffset, true, "bottomWall", 1, 0);
-				placeCoordinateLabel (placingZone.posTopColumnLine, 0, infoWall.bottomOffset, true, "topColumn", 1, 0);
-				placeCoordinateLabel (placingZone.posBottomColumnLine, 0, infoWall.bottomOffset, true, "bottomColumn", 1, 0);
-			}
+			placingZone.posTopWallLine = max (unrotatedPoint1.x, unrotatedPoint2.x);
+			placingZone.posBottomWallLine = min (unrotatedPoint1.x, unrotatedPoint2.x);
+			placingZone.posTopColumnLine = placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick;
+			placingZone.posBottomColumnLine = placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick;
 		}
 
 		// 벽과 기둥과의 관계 정리
@@ -511,7 +486,7 @@ FIRST_SOLE_COLUMN:
 			placingZone.relationCase = 1;	// CASE 1. 기둥 바로 위에 벽이 붙은 경우
 		if ( (placingZone.posTopWallLine - placingZone.posTopColumnLine) > EPS && (placingZone.posTopColumnLine - placingZone.posBottomWallLine) > EPS && (placingZone.posBottomWallLine - placingZone.posBottomColumnLine) > EPS )
 			placingZone.relationCase = 2;	// CASE 2. 기둥이 벽 아래에 조금 들어간 경우
-		if ( abs (placingZone.posTopWallLine - placingZone.posTopColumnLine) < EPS && (placingZone.posTopColumnLine > placingZone.posBottomWallLine) > EPS && (placingZone.posBottomWallLine - placingZone.posBottomColumnLine) > EPS )
+		if ( abs (placingZone.posTopWallLine - placingZone.posTopColumnLine) < EPS && (placingZone.posTopColumnLine - placingZone.posBottomWallLine) > EPS && (placingZone.posBottomWallLine - placingZone.posBottomColumnLine) > EPS )
 			placingZone.relationCase = 3;	// CASE 3. 기둥 위쪽이 벽 위쪽과 일치한 경우
 		if ( (placingZone.posTopColumnLine - placingZone.posTopWallLine) > EPS && (placingZone.posTopWallLine - placingZone.posBottomWallLine) > EPS && (placingZone.posBottomWallLine - placingZone.posBottomColumnLine) > EPS )
 			placingZone.relationCase = 4;	// CASE 4. 기둥이 벽을 삼킨 경우
@@ -521,15 +496,30 @@ FIRST_SOLE_COLUMN:
 			placingZone.relationCase = 6;	// CASE 6. 기둥이 벽 위에 조금 들어간 경우
 		if ( (placingZone.posTopColumnLine - placingZone.posBottomColumnLine) > EPS && abs (placingZone.posBottomColumnLine - placingZone.posTopWallLine) < EPS && (placingZone.posTopWallLine - placingZone.posBottomWallLine) > EPS )
 			placingZone.relationCase = 7;	// CASE 7. 기둥 바로 아래에 벽이 붙은 경우
-	}
 
-	if (placingZone.relationCase == 0) {
-		ACAPI_WriteReport ("단독 기둥의 경우 벽을 선택하지 마십시오.", true);
-		err = APIERR_GENERAL;
-		return err;
-	}
+		// 단독 기둥은 처리하지 않음
+		if (placingZone.relationCase == 0) {
+			ACAPI_WriteReport ("단독 기둥의 경우 벽을 선택하지 마십시오.", true);
+			err = APIERR_GENERAL;
+			return err;
+		}
 
-	// ...
+FIRST_WALL_COLUMN:
+	
+		// !!!
+		// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
+		result = DGModalDialog (ACAPI_GetOwnResModule (), 32515, ACAPI_GetOwnResModule (), columnPlacerHandler_wallColumn_1, 0);
+
+		if (result == DG_CANCEL)
+			return err;
+
+		// [DIALOG] 2번째 다이얼로그에서 유로폼 배치를 수정합니다.
+		clickedOKButton = false;
+		clickedPrevButton = false;
+		//result = DGBlankModalDialog (700, 300, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, columnPlacerHandler_soleColumn_2, 0);
+
+		// ...
+	}
 
 	// DG 1차 : CASE 별로 UI 그림이 달라짐
 	// DG 2차 : 단독기둥과 동일함 (차이없음)
@@ -1360,7 +1350,6 @@ short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID
 			// 라벨: 레이어 설정
 			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
 			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
-			DGSetItemText (dialogID, LABEL_LAYER_INCORNER, "인코너");
 			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER, "아웃코너");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
 
@@ -1371,10 +1360,6 @@ short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID
 			ucb.itemID	 = USERCONTROL_LAYER_EUROFORM;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, 1);
-
-			ucb.itemID	 = USERCONTROL_LAYER_INCORNER;
-			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-			DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER, 1);
 
 			ucb.itemID	 = USERCONTROL_LAYER_OUTCORNER;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
@@ -1757,7 +1742,6 @@ short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID
 
 					// 레이어 번호 저장
 					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
-					layerInd_Incorner		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER);
 					layerInd_Outcorner		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER);
 					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 
@@ -2914,6 +2898,1322 @@ short DGCALLBACK columnPlacerHandler_soleColumn_3 (short message, short dialogID
 							placingZone.cellsB2 [idx].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
 						}
 					}
+
+					break;
+				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
+}
+
+// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK columnPlacerHandler_wallColumn_1 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	short		result;
+	short		itmIdx;
+	short		xx;
+	API_UCCallbackType	ucb;
+
+	API_Coord	rotatedPoint;
+	double		lineLen;
+	double		xLen, yLen;
+	double		formWidth;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "기둥에 배치 - 기둥 단면");
+
+			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
+			// 확인 버튼
+			DGSetItemText (dialogID, DG_OK, "확 인");
+
+			// 취소 버튼
+			DGSetItemText (dialogID, DG_CANCEL, "취 소");
+
+			//////////////////////////////////////////////////////////// 아이템 배치 (유로폼)
+			// 라벨 및 체크박스
+			DGSetItemText (dialogID, LABEL_COLUMN_SECTION_WC, "기둥 단면");
+
+			// 라벨: 레이어 설정
+			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS_WC, "부재별 레이어 설정");
+			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM_WC, "유로폼");
+			DGSetItemText (dialogID, LABEL_LAYER_INCORNER_WC, "인코너");
+			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_WC, "아웃코너");
+			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD_WC, "합판");
+
+			// 유저 컨트롤 초기화
+			BNZeroMemory (&ucb, sizeof (ucb));
+			ucb.dialogID = dialogID;
+			ucb.type	 = APIUserControlType_Layer;
+			ucb.itemID	 = USERCONTROL_LAYER_EUROFORM_WC;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_WC, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_INCORNER_WC;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_WC, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_OUTCORNER_WC;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_WC, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_PLYWOOD_WC;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_WC, 1);
+
+			// 기둥 단면 이미지 모두 숨기기
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_01_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_02_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_03_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_04_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_05_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_06_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_07_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_08_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_09_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_10_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_11_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_12_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_13_WC);
+			DGHideItem (dialogID, ICON_COLUMN_SECTION_14_WC);
+
+			// 기둥 단면 이미지 표시
+			if (placingZone.bWallHorizontalDirected == true) {
+				if (placingZone.relationCase == 1)	DGShowItem (dialogID, ICON_COLUMN_SECTION_01_WC);
+				if (placingZone.relationCase == 2)	DGShowItem (dialogID, ICON_COLUMN_SECTION_02_WC);
+				if (placingZone.relationCase == 3)	DGShowItem (dialogID, ICON_COLUMN_SECTION_03_WC);
+				if (placingZone.relationCase == 4)	DGShowItem (dialogID, ICON_COLUMN_SECTION_04_WC);
+				if (placingZone.relationCase == 5)	DGShowItem (dialogID, ICON_COLUMN_SECTION_05_WC);
+				if (placingZone.relationCase == 6)	DGShowItem (dialogID, ICON_COLUMN_SECTION_06_WC);
+				if (placingZone.relationCase == 7)	DGShowItem (dialogID, ICON_COLUMN_SECTION_07_WC);
+			} else {
+				if (placingZone.relationCase == 1)	DGShowItem (dialogID, ICON_COLUMN_SECTION_08_WC);
+				if (placingZone.relationCase == 2)	DGShowItem (dialogID, ICON_COLUMN_SECTION_09_WC);
+				if (placingZone.relationCase == 3)	DGShowItem (dialogID, ICON_COLUMN_SECTION_10_WC);
+				if (placingZone.relationCase == 4)	DGShowItem (dialogID, ICON_COLUMN_SECTION_11_WC);
+				if (placingZone.relationCase == 5)	DGShowItem (dialogID, ICON_COLUMN_SECTION_12_WC);
+				if (placingZone.relationCase == 6)	DGShowItem (dialogID, ICON_COLUMN_SECTION_13_WC);
+				if (placingZone.relationCase == 7)	DGShowItem (dialogID, ICON_COLUMN_SECTION_14_WC);
+			}
+
+			// 보 너비/높이, 체크박스, Edit박스 표시
+			if (placingZone.bWallHorizontalDirected == true) {
+				if (placingZone.relationCase == 1) {
+					// 라벨: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 195, 165, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "세로");
+					DGShowItem (dialogID, itmIdx);
+
+					// 라벨: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 240, 220, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "가로");
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 190, 185, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 235, 240, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 왼쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 77, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 117, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 152, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 202, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 245, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 오른쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 77, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 117, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 152, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 202, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 245, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 위쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 143, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 207, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 258, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 322, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 아래쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 165, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 210, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 260, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 305, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+				}
+				if ( (placingZone.relationCase == 2) || (placingZone.relationCase == 3) ) {
+					// 라벨: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 195, 145, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "세로");
+					DGShowItem (dialogID, itmIdx);
+
+					// 라벨: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 240, 200, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "가로");
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 190, 165, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 235, 220, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 왼쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 104, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 142, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 190, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 220, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 오른쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 104, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 142, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 190, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 220, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 위쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 143, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 207, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 258, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 322, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 아래쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 165, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 210, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 260, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 305, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+				}
+				if (placingZone.relationCase == 4) {
+					// 라벨: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 195, 210, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "세로");
+					DGShowItem (dialogID, itmIdx);
+
+					// 라벨: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 260, 220, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "가로");
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 190, 230, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 255, 240, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 왼쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 94, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 122, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 169, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 215, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 245, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 오른쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 94, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 122, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 169, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 215, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 245, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 위쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 163, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 207, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 258, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 302, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 아래쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 165, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 210, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 260, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 305, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+				}
+				if ( (placingZone.relationCase == 5) || (placingZone.relationCase == 6) ) {
+					// 라벨: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 195, 145, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "세로");
+					DGShowItem (dialogID, itmIdx);
+
+					// 라벨: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 240, 200, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "가로");
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 190, 165, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 235, 220, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 왼쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 115, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 155, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 192, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 233, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 오른쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 115, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 155, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 192, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 233, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 위쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 165, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 210, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 260, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 305, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 아래쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 143, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 207, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 258, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 322, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+				}
+				if (placingZone.relationCase == 7) {
+					// 라벨: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 195, 145, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "세로");
+					DGShowItem (dialogID, itmIdx);
+
+					// 라벨: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 240, 200, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "가로");
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 190, 165, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 235, 220, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 왼쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 95, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 135, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 185, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 223, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 70, 260, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 오른쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 95, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 135, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 185, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 223, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 400, 260, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 위쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 165, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 210, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 260, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 305, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 아래쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 143, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 207, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 258, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 322, 315, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+				}
+			} else {
+				if (placingZone.relationCase == 1) {
+					// 라벨: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 180, 155, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "세로");
+					DGShowItem (dialogID, itmIdx);
+
+					// 라벨: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 230, 210, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "가로");
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 175, 175, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 225, 230, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 왼쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 110, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 153, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 203, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 248, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 오른쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 88, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 150, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 200, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 265, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 위쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 160, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 203, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 249, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 290, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 331, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 아래쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 160, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 203, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 249, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 290, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 331, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+				}
+				if ( (placingZone.relationCase == 2) || (placingZone.relationCase == 3) ) {
+					// 라벨: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 155, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "세로");
+					DGShowItem (dialogID, itmIdx);
+
+					// 라벨: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 250, 210, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "가로");
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 195, 175, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 245, 230, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 왼쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 110, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 153, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 203, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 248, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 오른쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 88, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 150, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 200, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 265, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 위쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 182, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 223, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 265, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 306, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 아래쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 182, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 223, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 265, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 306, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+				}
+				if (placingZone.relationCase == 4) {
+					// 라벨: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 185, 155, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "세로");
+					DGShowItem (dialogID, itmIdx);
+
+					// 라벨: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 290, 210, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "가로");
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 180, 175, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 285, 230, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 왼쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 110, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 153, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 203, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 248, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 오른쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 110, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 153, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 203, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 248, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 위쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 152, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 193, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 233, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 275, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 320, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 아래쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 152, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 193, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 233, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 275, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 320, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+				}
+				if ( (placingZone.relationCase == 5) || (placingZone.relationCase == 6) ) {
+					// 라벨: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 155, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "세로");
+					DGShowItem (dialogID, itmIdx);
+
+					// 라벨: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 250, 210, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "가로");
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 195, 175, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 245, 230, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 왼쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 90, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 155, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 205, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 269, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 오른쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 110, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 153, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 203, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 248, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 위쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 169, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 210, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 253, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 295, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 아래쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 169, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 210, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 253, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 295, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+				}
+				if (placingZone.relationCase == 7) {
+					// !!!
+					// 라벨: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 155, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "세로");
+					DGShowItem (dialogID, itmIdx);
+
+					// 라벨: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 250, 210, 40, 20);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, "가로");
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 세로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 195, 175, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// Edit 컨트롤: 가로
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 245, 230, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 왼쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 90, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 155, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 205, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 269, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 오른쪽 4개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 110, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 153, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 203, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 390, 248, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 위쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 138, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 179, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 270, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 315, 25, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+
+					// 아래쪽 5개
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 138, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 179, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 270, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 315, 335, 40, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGShowItem (dialogID, itmIdx);
+				}
+			}
+
+			//// 기둥 가로/세로 계산
+			//DGSetItemValDouble (dialogID, EDITCONTROL_COLUMN_WIDTH, placingZone.coreWidth + placingZone.venThick * 2);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_COLUMN_DEPTH, placingZone.coreDepth + placingZone.venThick * 2);
+			//DGDisableItem (dialogID, EDITCONTROL_COLUMN_WIDTH);
+			//DGDisableItem (dialogID, EDITCONTROL_COLUMN_DEPTH);
+
+			//// 부재별 체크박스-규격 설정
+			//(DGGetItemValLong (dialogID, CHECKBOX_LEFT_ADDITIONAL_FORM) == TRUE) ?		DGEnableItem (dialogID, EDITCONTROL_LEFT_3)		: 	DGDisableItem (dialogID, EDITCONTROL_LEFT_3);
+			//(DGGetItemValLong (dialogID, CHECKBOX_BOTTOM_ADDITIONAL_FORM) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_BOTTOM_3)	: 	DGDisableItem (dialogID, EDITCONTROL_BOTTOM_3);
+
+			//// 직접 변경해서는 안 되는 항목 잠그기
+			//DGDisableItem (dialogID, EDITCONTROL_TOP_1);
+			//DGDisableItem (dialogID, EDITCONTROL_TOP_2);
+			//DGDisableItem (dialogID, EDITCONTROL_TOP_3);
+			//DGDisableItem (dialogID, EDITCONTROL_TOP_4);
+			//DGDisableItem (dialogID, CHECKBOX_TOP_ADDITIONAL_FORM);
+			//DGDisableItem (dialogID, EDITCONTROL_RIGHT_1);
+			//DGDisableItem (dialogID, EDITCONTROL_RIGHT_2);
+			//DGDisableItem (dialogID, EDITCONTROL_RIGHT_3);
+			//DGDisableItem (dialogID, EDITCONTROL_RIGHT_4);
+			//DGDisableItem (dialogID, CHECKBOX_RIGHT_ADDITIONAL_FORM);
+
+			//// 기본값 입력해 놓음
+			//DGSetItemValDouble (dialogID, EDITCONTROL_TOP_1, 0.100);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_TOP_2, 0.300);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_TOP_4, 0.100);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_LEFT_1, 0.100);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_LEFT_2, 0.300);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_LEFT_4, 0.100);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_RIGHT_1, 0.100);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_RIGHT_2, 0.300);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_RIGHT_4, 0.100);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_BOTTOM_1, 0.100);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2, 0.300);
+			//DGSetItemValDouble (dialogID, EDITCONTROL_BOTTOM_4, 0.100);
+
+			break;
+		
+		case DG_MSG_CHANGE:
+
+			// 부재별 체크박스-규격 설정
+			//if (DGGetItemValLong (dialogID, CHECKBOX_LEFT_ADDITIONAL_FORM) == TRUE) {
+			//	DGEnableItem (dialogID, EDITCONTROL_LEFT_3);
+			//	DGSetItemValLong (dialogID, CHECKBOX_RIGHT_ADDITIONAL_FORM, TRUE);
+			//} else {
+			//	DGDisableItem (dialogID, EDITCONTROL_LEFT_3);
+			//	DGSetItemValDouble (dialogID, EDITCONTROL_LEFT_3, 0.0);
+			//	DGSetItemValDouble (dialogID, EDITCONTROL_RIGHT_3, 0.0);
+			//	DGSetItemValLong (dialogID, CHECKBOX_RIGHT_ADDITIONAL_FORM, FALSE);
+			//}
+			//if (DGGetItemValLong (dialogID, CHECKBOX_BOTTOM_ADDITIONAL_FORM) == TRUE) {
+			//	DGEnableItem (dialogID, EDITCONTROL_BOTTOM_3);
+			//	DGSetItemValLong (dialogID, CHECKBOX_TOP_ADDITIONAL_FORM, TRUE);
+			//} else {
+			//	DGDisableItem (dialogID, EDITCONTROL_BOTTOM_3);
+			//	DGSetItemValDouble (dialogID, EDITCONTROL_BOTTOM_3, 0.0);
+			//	DGSetItemValDouble (dialogID, EDITCONTROL_TOP_3, 0.0);
+			//	DGSetItemValLong (dialogID, CHECKBOX_TOP_ADDITIONAL_FORM, FALSE);
+			//}
+
+			//DGSetItemValDouble (dialogID, EDITCONTROL_RIGHT_1, DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1));
+			//DGSetItemValDouble (dialogID, EDITCONTROL_RIGHT_2, DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2));
+			//DGSetItemValDouble (dialogID, EDITCONTROL_RIGHT_3, DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_3));
+			//DGSetItemValDouble (dialogID, EDITCONTROL_RIGHT_4, DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_4));
+
+			//DGSetItemValDouble (dialogID, EDITCONTROL_TOP_1, DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_1));
+			//DGSetItemValDouble (dialogID, EDITCONTROL_TOP_2, DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2));
+			//DGSetItemValDouble (dialogID, EDITCONTROL_TOP_3, DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_3));
+			//DGSetItemValDouble (dialogID, EDITCONTROL_TOP_4, DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_4));
+
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					//////////////////////////////////////// 다이얼로그 창 정보를 입력 받음
+					// 셀 설정 적용
+					//for (xx = 0 ; xx < 20 ; ++xx) {
+					//	// 좌상단
+					//	xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+					//	yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+					//	lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//	rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//	rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//	placingZone.cellsLT [xx].objType = OUTCORNER;
+					//	placingZone.cellsLT [xx].leftBottomX = rotatedPoint.x;
+					//	placingZone.cellsLT [xx].leftBottomY = rotatedPoint.y;
+					//	placingZone.cellsLT [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//	placingZone.cellsLT [xx].ang = placingZone.angle - DegreeToRad (90);
+					//	placingZone.cellsLT [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_1);
+					//	placingZone.cellsLT [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1);
+					//	placingZone.cellsLT [xx].height = 1.200;
+					//	placingZone.cellsLT [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_1);
+					//	placingZone.cellsLT [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1);
+					//	placingZone.cellsLT [xx].libPart.outcorner.hei_s = 1.200;
+
+					//	// 우상단
+					//	xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+					//	yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+					//	lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//	rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//	rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//	placingZone.cellsRT [xx].objType = OUTCORNER;
+					//	placingZone.cellsRT [xx].leftBottomX = rotatedPoint.x;
+					//	placingZone.cellsRT [xx].leftBottomY = rotatedPoint.y;
+					//	placingZone.cellsRT [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//	placingZone.cellsRT [xx].ang = placingZone.angle + DegreeToRad (180);
+					//	placingZone.cellsRT [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_4);
+					//	placingZone.cellsRT [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1);
+					//	placingZone.cellsRT [xx].height = 1.200;
+					//	placingZone.cellsRT [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1);
+					//	placingZone.cellsRT [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_4);
+					//	placingZone.cellsRT [xx].libPart.outcorner.hei_s = 1.200;
+
+					//	// 좌하단
+					//	xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+					//	yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+					//	lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//	rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//	rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//	placingZone.cellsLB [xx].objType = OUTCORNER;
+					//	placingZone.cellsLB [xx].leftBottomX = rotatedPoint.x;
+					//	placingZone.cellsLB [xx].leftBottomY = rotatedPoint.y;
+					//	placingZone.cellsLB [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//	placingZone.cellsLB [xx].ang = placingZone.angle;
+					//	placingZone.cellsLB [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_1);
+					//	placingZone.cellsLB [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_4);
+					//	placingZone.cellsLB [xx].height = 1.200;
+					//	placingZone.cellsLB [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_4);
+					//	placingZone.cellsLB [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_1);
+					//	placingZone.cellsLB [xx].libPart.outcorner.hei_s = 1.200;
+
+					//	// 우하단
+					//	xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+					//	yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+					//	lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//	rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//	rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//	placingZone.cellsRB [xx].objType = OUTCORNER;
+					//	placingZone.cellsRB [xx].leftBottomX = rotatedPoint.x;
+					//	placingZone.cellsRB [xx].leftBottomY = rotatedPoint.y;
+					//	placingZone.cellsRB [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//	placingZone.cellsRB [xx].ang = placingZone.angle + DegreeToRad (90);
+					//	placingZone.cellsRB [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_4);
+					//	placingZone.cellsRB [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_4);
+					//	placingZone.cellsRB [xx].height = 1.200;
+					//	placingZone.cellsRB [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_4);
+					//	placingZone.cellsRB [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_4);
+					//	placingZone.cellsRB [xx].libPart.outcorner.hei_s = 1.200;
+
+					//	// 위쪽 1
+					//	xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+					//	yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+					//	lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//	rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//	rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//	placingZone.cellsT1 [xx].objType = EUROFORM;
+					//	placingZone.cellsT1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_TOP_1) + DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2)) * cos(placingZone.angle);
+					//	placingZone.cellsT1 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, EDITCONTROL_TOP_1) + DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2)) * sin(placingZone.angle);
+					//	placingZone.cellsT1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//	placingZone.cellsT1 [xx].ang = placingZone.angle + DegreeToRad (180);
+					//	placingZone.cellsT1 [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2);
+					//	placingZone.cellsT1 [xx].verLen = 0.064;
+					//	placingZone.cellsT1 [xx].height = 1.200;
+					//	placingZone.cellsT1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2);
+					//	placingZone.cellsT1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2);
+					//	placingZone.cellsT1 [xx].libPart.form.eu_hei = 1.200;
+					//	placingZone.cellsT1 [xx].libPart.form.eu_hei2 = 1.200;
+					//	placingZone.cellsT1 [xx].libPart.form.u_ins_wall = true;
+					//	formWidth = placingZone.cellsT1 [xx].libPart.form.eu_wid;
+					//	if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+					//		placingZone.cellsT1 [xx].libPart.form.eu_stan_onoff = true;
+					//	else
+					//		placingZone.cellsT1 [xx].libPart.form.eu_stan_onoff = false;
+
+					//	// 위쪽 2
+					//	if (DGGetItemValLong (dialogID, CHECKBOX_TOP_ADDITIONAL_FORM) == TRUE) {
+					//		xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+					//		yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+					//		lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//		rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//		rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//		placingZone.cellsT2 [xx].objType = EUROFORM;
+					//		placingZone.cellsT2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_TOP_1) + DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2) + DGGetItemValDouble (dialogID, EDITCONTROL_TOP_3)) * cos(placingZone.angle);
+					//		placingZone.cellsT2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, EDITCONTROL_TOP_1) + DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2) + DGGetItemValDouble (dialogID, EDITCONTROL_TOP_3)) * sin(placingZone.angle);
+					//		placingZone.cellsT2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//		placingZone.cellsT2 [xx].ang = placingZone.angle + DegreeToRad (180);
+					//		placingZone.cellsT2 [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_3);
+					//		placingZone.cellsT2 [xx].verLen = 0.064;
+					//		placingZone.cellsT2 [xx].height = 1.200;
+					//		placingZone.cellsT2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_3);
+					//		placingZone.cellsT2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_3);
+					//		placingZone.cellsT2 [xx].libPart.form.eu_hei = 1.200;
+					//		placingZone.cellsT2 [xx].libPart.form.eu_hei2 = 1.200;
+					//		placingZone.cellsT2 [xx].libPart.form.u_ins_wall = true;
+					//		formWidth = placingZone.cellsT2 [xx].libPart.form.eu_wid;
+					//		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+					//			placingZone.cellsT2 [xx].libPart.form.eu_stan_onoff = true;
+					//		else
+					//			placingZone.cellsT2 [xx].libPart.form.eu_stan_onoff = false;
+					//	}
+
+					//	// 좌측 1
+					//	xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+					//	yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+					//	lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//	rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//	rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//	placingZone.cellsL1 [xx].objType = EUROFORM;
+					//	placingZone.cellsL1 [xx].leftBottomX = rotatedPoint.x + DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) * sin(placingZone.angle);
+					//	placingZone.cellsL1 [xx].leftBottomY = rotatedPoint.y - DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) * cos(placingZone.angle);
+					//	placingZone.cellsL1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//	placingZone.cellsL1 [xx].ang = placingZone.angle - DegreeToRad (90);
+					//	placingZone.cellsL1 [xx].horLen = 0.064;
+					//	placingZone.cellsL1 [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2);
+					//	placingZone.cellsL1 [xx].height = 1.200;
+					//	placingZone.cellsL1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2);
+					//	placingZone.cellsL1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2);
+					//	placingZone.cellsL1 [xx].libPart.form.eu_hei = 1.200;
+					//	placingZone.cellsL1 [xx].libPart.form.eu_hei2 = 1.200;
+					//	placingZone.cellsL1 [xx].libPart.form.u_ins_wall = true;
+					//	formWidth = placingZone.cellsL1 [xx].libPart.form.eu_wid;
+					//	if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+					//		placingZone.cellsL1 [xx].libPart.form.eu_stan_onoff = true;
+					//	else
+					//		placingZone.cellsL1 [xx].libPart.form.eu_stan_onoff = false;
+
+					//	// 좌측 2
+					//	if (DGGetItemValLong (dialogID, CHECKBOX_LEFT_ADDITIONAL_FORM) == TRUE) {
+					//		xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+					//		yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+					//		lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//		rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//		rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//		placingZone.cellsL2 [xx].objType = EUROFORM;
+					//		placingZone.cellsL2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2)) * sin(placingZone.angle);
+					//		placingZone.cellsL2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2)) * cos(placingZone.angle);
+					//		placingZone.cellsL2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//		placingZone.cellsL2 [xx].ang = placingZone.angle - DegreeToRad (90);
+					//		placingZone.cellsL2 [xx].horLen = 0.064;
+					//		placingZone.cellsL2 [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_3);
+					//		placingZone.cellsL2 [xx].height = 1.200;
+					//		placingZone.cellsL2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_3);
+					//		placingZone.cellsL2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_3);
+					//		placingZone.cellsL2 [xx].libPart.form.eu_hei = 1.200;
+					//		placingZone.cellsL2 [xx].libPart.form.eu_hei2 = 1.200;
+					//		placingZone.cellsL2 [xx].libPart.form.u_ins_wall = true;
+					//		formWidth = placingZone.cellsL2 [xx].libPart.form.eu_wid;
+					//		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+					//			placingZone.cellsL2 [xx].libPart.form.eu_stan_onoff = true;
+					//		else
+					//			placingZone.cellsL2 [xx].libPart.form.eu_stan_onoff = false;
+					//	}
+
+					//	// 우측 1
+					//	xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+					//	yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+					//	lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//	rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//	rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//	placingZone.cellsR1 [xx].objType = EUROFORM;
+					//	placingZone.cellsR1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2)) * sin(placingZone.angle);
+					//	placingZone.cellsR1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2)) * cos(placingZone.angle);
+					//	placingZone.cellsR1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//	placingZone.cellsR1 [xx].ang = placingZone.angle + DegreeToRad (90);
+					//	placingZone.cellsR1 [xx].horLen = 0.064;
+					//	placingZone.cellsR1 [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2);
+					//	placingZone.cellsR1 [xx].height = 1.200;
+					//	placingZone.cellsR1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2);
+					//	placingZone.cellsR1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2);
+					//	placingZone.cellsR1 [xx].libPart.form.eu_hei = 1.200;
+					//	placingZone.cellsR1 [xx].libPart.form.eu_hei2 = 1.200;
+					//	placingZone.cellsR1 [xx].libPart.form.u_ins_wall = true;
+					//	formWidth = placingZone.cellsR1 [xx].libPart.form.eu_wid;
+					//	if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+					//		placingZone.cellsR1 [xx].libPart.form.eu_stan_onoff = true;
+					//	else
+					//		placingZone.cellsR1 [xx].libPart.form.eu_stan_onoff = false;
+
+					//	// 우측 2
+					//	if (DGGetItemValLong (dialogID, CHECKBOX_RIGHT_ADDITIONAL_FORM) == TRUE) { 
+					//		xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+					//		yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+					//		lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//		rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//		rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//		placingZone.cellsR2 [xx].objType = EUROFORM;
+					//		placingZone.cellsR2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3)) * sin(placingZone.angle);
+					//		placingZone.cellsR2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2) + DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3)) * cos(placingZone.angle);
+					//		placingZone.cellsR2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//		placingZone.cellsR2 [xx].ang = placingZone.angle + DegreeToRad (90);
+					//		placingZone.cellsR2 [xx].horLen = 0.064;
+					//		placingZone.cellsR2 [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3);
+					//		placingZone.cellsR2 [xx].height = 1.200;
+					//		placingZone.cellsR2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3);
+					//		placingZone.cellsR2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3);
+					//		placingZone.cellsR2 [xx].libPart.form.eu_hei = 1.200;
+					//		placingZone.cellsR2 [xx].libPart.form.eu_hei2 = 1.200;
+					//		placingZone.cellsR2 [xx].libPart.form.u_ins_wall = true;
+					//		formWidth = placingZone.cellsR2 [xx].libPart.form.eu_wid;
+					//		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+					//			placingZone.cellsR2 [xx].libPart.form.eu_stan_onoff = true;
+					//		else
+					//			placingZone.cellsR2 [xx].libPart.form.eu_stan_onoff = false;
+					//	}
+
+					//	// 아래쪽 1
+					//	xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+					//	yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+					//	lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//	rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//	rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//	placingZone.cellsB1 [xx].objType = EUROFORM;
+					//	placingZone.cellsB1 [xx].leftBottomX = rotatedPoint.x + DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_1) * cos(placingZone.angle);
+					//	placingZone.cellsB1 [xx].leftBottomY = rotatedPoint.y + DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_1) * sin(placingZone.angle);
+					//	placingZone.cellsB1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//	placingZone.cellsB1 [xx].ang = placingZone.angle;
+					//	placingZone.cellsB1 [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2);
+					//	placingZone.cellsB1 [xx].verLen = 0.064;
+					//	placingZone.cellsB1 [xx].height = 1.200;
+					//	placingZone.cellsB1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2);
+					//	placingZone.cellsB1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2);
+					//	placingZone.cellsB1 [xx].libPart.form.eu_hei = 1.200;
+					//	placingZone.cellsB1 [xx].libPart.form.eu_hei2 = 1.200;
+					//	placingZone.cellsB1 [xx].libPart.form.u_ins_wall = true;
+					//	formWidth = placingZone.cellsB1 [xx].libPart.form.eu_wid;
+					//	if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+					//		placingZone.cellsB1 [xx].libPart.form.eu_stan_onoff = true;
+					//	else
+					//		placingZone.cellsB1 [xx].libPart.form.eu_stan_onoff = false;
+
+					//	// 아래쪽 2
+					//	if (DGGetItemValLong (dialogID, CHECKBOX_BOTTOM_ADDITIONAL_FORM) == TRUE) {
+					//		xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+					//		yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+					//		lineLen = sqrt (xLen*xLen + yLen*yLen);
+					//		rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+					//		rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+					//		placingZone.cellsB2 [xx].objType = EUROFORM;
+					//		placingZone.cellsB2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_1) + DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2)) * cos(placingZone.angle);
+					//		placingZone.cellsB2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_1) + DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2)) * sin(placingZone.angle);
+					//		placingZone.cellsB2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+					//		placingZone.cellsB2 [xx].ang = placingZone.angle;
+					//		placingZone.cellsB2 [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_3);
+					//		placingZone.cellsB2 [xx].verLen = 0.064;
+					//		placingZone.cellsB2 [xx].height = 1.200;
+					//		placingZone.cellsB2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_3);
+					//		placingZone.cellsB2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_3);
+					//		placingZone.cellsB2 [xx].libPart.form.eu_hei = 1.200;
+					//		placingZone.cellsB2 [xx].libPart.form.eu_hei2 = 1.200;
+					//		placingZone.cellsB2 [xx].libPart.form.u_ins_wall = true;
+					//		formWidth = placingZone.cellsB2 [xx].libPart.form.eu_wid;
+					//		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+					//			placingZone.cellsB2 [xx].libPart.form.eu_stan_onoff = true;
+					//		else
+					//			placingZone.cellsB2 [xx].libPart.form.eu_stan_onoff = false;
+					//	}
+					//}
+
+					// 레이어 번호 저장
+					//layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
+					//layerInd_Incorner		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER);
+					//layerInd_Outcorner		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER);
+					//layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 
 					break;
 				case DG_CANCEL:
