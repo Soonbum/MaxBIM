@@ -243,6 +243,10 @@ struct ColumnPlacingZone
 	double	bottomLevelOfBeams [4];		// 간섭 보의 하단 레벨
 	InfoBeamForColumn	beams [4];		// 간섭 보 정보
 
+	// 간섭 벽으로 인해 분리된 가로/세로 길이
+	double	hLenDown, vLenDown;			// 벽의 아래쪽/왼쪽 가로/세로 길이
+	double	hLenUp, vLenUp;				// 벽의 위쪽/오른쪽 가로/세로 길이
+
 	// 간섭 벽 관련 정보
 	bool	bWallHorizontalDirected;	// 벽의 방향 (true: 가로, false: 세로)
 	double	posTopWallLine;				// 위쪽(오른쪽) 벽 라인의 수직(수평) 위치
@@ -310,13 +314,14 @@ struct ColumnPlacingZone
 };
 
 // 유로폼 기둥 배치 함수
-GSErrCode	placeEuroformOnColumn (void);									// 5번 메뉴: 기둥에 유로폼을 배치하는 통합 루틴
-void		initCellsForColumn (ColumnPlacingZone* placingZone);			// Cell 배열을 초기화함
-void		addTopCell (ColumnPlacingZone* target_zone);					// 꼭대기에 셀 추가
-void		delTopCell (ColumnPlacingZone* target_zone);					// 꼭대기의 셀 삭제
-void		alignPlacingZoneForColumn (ColumnPlacingZone* placingZone);		// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-API_Guid	placeLibPartForColumn (CellForColumn objInfo);					// 해당 셀 정보를 기반으로 라이브러리 배치
-GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone);		// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 매직바, 매직인코너, 합판으로 채움)
+GSErrCode	placeEuroformOnColumn (void);												// 5번 메뉴: 기둥에 유로폼을 배치하는 통합 루틴
+void		initCellsForColumn (ColumnPlacingZone* placingZone);						// Cell 배열을 초기화함
+void		addTopCell (ColumnPlacingZone* target_zone);								// 꼭대기에 셀 추가
+void		delTopCell (ColumnPlacingZone* target_zone);								// 꼭대기의 셀 삭제
+void		alignPlacingZoneForColumn_soleColumn (ColumnPlacingZone* placingZone);		// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+void		alignPlacingZoneForColumn_wallColumn (ColumnPlacingZone* placingZone);		// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+API_Guid	placeLibPartForColumn (CellForColumn objInfo);								// 해당 셀 정보를 기반으로 라이브러리 배치
+GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone);			// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
 short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK columnPlacerHandler_soleColumn_3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
