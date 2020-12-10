@@ -322,9 +322,12 @@ void		alignPlacingZoneForColumn_soleColumn (ColumnPlacingZone* placingZone);		//
 void		alignPlacingZoneForColumn_wallColumn (ColumnPlacingZone* placingZone);		// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 API_Guid	placeLibPartForColumn (CellForColumn objInfo);								// 해당 셀 정보를 기반으로 라이브러리 배치
 GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone);			// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
+GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone);			// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
 short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK columnPlacerHandler_soleColumn_3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
 short DGCALLBACK columnPlacerHandler_wallColumn_1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK columnPlacerHandler_wallColumn_2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
+short DGCALLBACK columnPlacerHandler_wallColumn_3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
 
 #endif
