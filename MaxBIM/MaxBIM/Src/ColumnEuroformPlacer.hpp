@@ -314,7 +314,7 @@ struct ColumnPlacingZone
 };
 
 // 유로폼 기둥 배치 함수
-GSErrCode	placeEuroformOnColumn (void);												// 5번 메뉴: 기둥에 유로폼을 배치하는 통합 루틴
+GSErrCode	placeEuroformOnColumn (void);												// 4번 메뉴: 기둥에 유로폼을 배치하는 통합 루틴
 void		initCellsForColumn (ColumnPlacingZone* placingZone);						// Cell 배열을 초기화함
 void		addTopCell (ColumnPlacingZone* target_zone);								// 꼭대기에 셀 추가
 void		delTopCell (ColumnPlacingZone* target_zone);								// 꼭대기의 셀 삭제

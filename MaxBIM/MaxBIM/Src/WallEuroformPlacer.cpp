@@ -1777,6 +1777,7 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 			DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, "1. 남은 길이 확인");
 			DGShowItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
+			DGDisableItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
 
 			// 메인 창 크기를 변경
 			dialogSizeX = 270 + (btnSizeX * (placingZone.eu_count_hor + 3));
@@ -2041,6 +2042,75 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 					result = DGBlankModalDialog (240*3, 260, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, wallPlacerHandler3, 0);
 
 					item = 0;	// 그리드 버튼을 눌렀을 때 창이 닫히지 않게 함
+
+					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
+					alignPlacingZoneForWall (&placingZone);
+					copyPlacingZoneSymmetricForWall (&placingZone, &placingZoneBackside, &infoWall);
+
+					// 버튼 인덱스 iteration 준비
+					idxBtn = itemInitIdx;
+					
+					// 그리드 버튼 텍스트 업데이트
+					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
+						for (yy = 0 ; yy < placingZone.nCells ; yy += 2) {
+
+							// 버튼 인덱스로 셀 인덱스를 구함
+							idxCell = ((idxBtn - itemInitIdx) * 2) - (xx * (placingZone.eu_count_hor + 2)) * 2;
+
+							txtButton = "";
+							if (placingZone.cells [0][yy].objType == NONE) {
+								txtButton = "NONE";
+							} else if (placingZone.cells [0][yy].objType == INCORNER) {
+								txtButton = format_string ("인코너\n↔%.0f\n↕%.0f", placingZone.cells [0][yy].horLen * 1000, placingZone.cells [0][yy].verLen * 1000);
+							} else if (placingZone.cells [0][yy].objType == EUROFORM) {
+								if (placingZone.cells [0][yy].libPart.form.u_ins_wall)
+									txtButton = format_string ("유로폼\n(세움)\n↔%.0f\n↕%.0f", placingZone.cells [0][yy].horLen * 1000, placingZone.cells [0][yy].verLen * 1000);
+								else
+									txtButton = format_string ("유로폼\n(눕힘)\n↔%.0f\n↕%.0f", placingZone.cells [0][yy].horLen * 1000, placingZone.cells [0][yy].verLen * 1000);
+							} else if (placingZone.cells [0][yy].objType == FILLERSPACER) {
+								txtButton = format_string ("휠러\n↔%.0f\n↕%.0f", placingZone.cells [0][yy].horLen * 1000, placingZone.cells [0][yy].verLen * 1000);
+							} else if (placingZone.cells [0][yy].objType == PLYWOOD) {
+								if (placingZone.cells [0][yy].libPart.plywood.w_dir_wall)
+									txtButton = format_string ("합판\n(세움)\n↔%.0f\n↕%.0f", placingZone.cells [0][yy].horLen * 1000, placingZone.cells [0][yy].verLen * 1000);
+								else
+									txtButton = format_string ("합판\n(눕힘)\n↔%.0f\n↕%.0f", placingZone.cells [0][yy].horLen * 1000, placingZone.cells [0][yy].verLen * 1000);
+							} else if (placingZone.cells [0][yy].objType == WOOD) {
+								txtButton = format_string ("목재\n↔%.0f\n↕%.0f", placingZone.cells [0][yy].horLen * 1000, placingZone.cells [0][yy].verLen * 1000);
+							}
+							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
+							
+							// 만약 버튼 인접 셀이 '없음'이 아니라면 해당 셀의 글꼴을 변경함
+							if ( (idxCell > 0) && (idxCell < (placingZone.nCells - 1)) ) {
+								idxCell_prev = idxCell - 1;
+								idxCell_next = idxCell + 1;
+							} else if (idxCell == 0) {
+								idxCell_prev = -1;
+								idxCell_next = idxCell + 1;
+							} else if (idxCell == (placingZone.nCells - 1)) {
+								idxCell_prev = idxCell - 1;
+								idxCell_next = -1;
+							}
+
+							// 인접 셀의 객체 종류가 NONE이 아니면 버튼 글꼴 변경
+							DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_PLAIN);
+							if (yy == 0) {
+								if (placingZone.cells [0][yy+1].objType != NONE)
+									DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_BOLD);
+							} else if ( (yy > 0) && (yy < (placingZone.nCells - 2)) ) {
+								if ( (placingZone.cells [0][yy-1].objType != NONE) || (placingZone.cells [0][yy+1].objType != NONE) )
+									DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_BOLD);
+							} else if ( yy == (placingZone.nCells - 1) ) {
+								if (placingZone.cells [0][yy-1].objType != NONE)
+									DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL | DG_IS_BOLD);
+							}
+
+							++idxBtn;
+						}
+					}
+
+					// 남은 가로 길이 업데이트
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated);
+					DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
 
 					break;
 			}

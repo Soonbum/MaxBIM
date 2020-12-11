@@ -1974,6 +1974,7 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 			DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, "1. 남은 길이 확인");
 			DGShowItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
+			DGDisableItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
 
 			// 행 추가 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 130, 65, 25);
@@ -2764,6 +2765,47 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					result = DGBlankModalDialog (240, 260, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, slabBottomPlacerHandler3, 0);
 
 					item = 0;	// 그리드 버튼을 눌렀을 때 창이 닫히지 않게 함
+
+					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
+					alignPlacingZoneForSlabBottom (&placingZone);
+
+					// 버튼 인덱스 iteration 준비
+					idxBtn = itemInitIdx;
+					
+					// 그리드 버튼 텍스트 업데이트
+					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx) {
+						for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy) {
+
+							txtButton = "";
+							if (placingZone.cells [xx][yy].objType == NONE) {
+								txtButton = "NONE";
+							} else if (placingZone.cells [xx][yy].objType == EUROFORM) {
+								if (placingZone.cells [xx][yy].libPart.form.u_ins_wall)
+									txtButton = format_string ("유로폼\n(세움)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+								else
+									txtButton = format_string ("유로폼\n(눕힘)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							}
+
+							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
+							++idxBtn;
+						}
+					}
+
+					// 남은 가로/세로 길이 업데이트
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH, placingZone.remain_hor_updated / 2);
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH, placingZone.remain_ver_updated / 2);
+					DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+
+					if ( ((placingZone.remain_hor_updated / 2) >= 0.150) && ((placingZone.remain_hor_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_HORIZONTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
+
+
+					if ( ((placingZone.remain_ver_updated / 2) >= 0.150) && ((placingZone.remain_ver_updated / 2) <= 0.300) )
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
+					else
+						DGSetItemFont (dialogID, LABEL_REMAIN_VERTICAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
 
 					break;
 			}
