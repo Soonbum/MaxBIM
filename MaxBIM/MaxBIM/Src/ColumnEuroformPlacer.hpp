@@ -173,6 +173,7 @@ struct InfoWallForColumn
 struct InfoBeamForColumn
 {
 	API_Guid	guid;	// 보의 GUID
+	bool	valid;		// 정보의 유효성
 	short	floorInd;	// 층 인덱스
 
 	double	height;		// 보 높이

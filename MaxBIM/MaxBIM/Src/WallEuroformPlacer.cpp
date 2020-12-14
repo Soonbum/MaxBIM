@@ -1736,13 +1736,13 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 			// 배치 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 100, 130, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_OK, "2. 배  치");
+			DGSetItemText (dialogID, DG_OK, "배  치");
 			DGShowItem (dialogID, DG_OK);
 
 			// 종료 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 140, 130, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "3. 자투리 채우기");
+			DGSetItemText (dialogID, DG_CANCEL, "자투리 채우기");
 			DGShowItem (dialogID, DG_CANCEL);
 
 			// 이전 버튼
@@ -1775,7 +1775,7 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 			// 남은 거리 확인 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 60, 130, 25);
 			DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, "1. 남은 길이 확인");
+			DGSetItemText (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, "남은 길이 확인");
 			DGShowItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
 			DGDisableItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
 

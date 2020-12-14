@@ -274,6 +274,7 @@ GSErrCode	placeEuroformOnColumn (void)
 		err = ACAPI_Element_Get (&elem);
 		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
+		infoOtherBeams [xx].valid		= true;						// 정보의 유효성
 		infoOtherBeams [xx].floorInd	= elem.header.floorInd;		// 층 인덱스
 		infoOtherBeams [xx].height		= elem.beam.height;			// 보 높이
 		infoOtherBeams [xx].width		= elem.beam.width;			// 보 너비
@@ -352,27 +353,30 @@ GSErrCode	placeEuroformOnColumn (void)
 			axisPoint.x = placingZone.origoPos.x;
 			axisPoint.y = placingZone.origoPos.y;
 
+			if (infoOtherBeams [xx].valid == false)
+				continue;
+
 			rotatedPoint.x = infoOtherBeams [xx].begC.x;
 			rotatedPoint.y = infoOtherBeams [xx].begC.y;
 			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, -RadToDegree (placingZone.angle));
 
 			// 기둥의 동/서/남/북 방향에 있는 보의 하단 레벨을 저장함
-			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (unrotatedPoint.y + EPS >= (placingZone.origoPos.y + placingZone.coreDepth/2)) ) {
+			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick)) && (unrotatedPoint.y >= (placingZone.origoPos.y + placingZone.coreDepth/2 + placingZone.venThick)) ) {
 				placingZone.bottomLevelOfBeams [NORTH] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 				placingZone.bExistBeams [NORTH] = true;
 				placingZone.beams [NORTH] = infoOtherBeams [xx];
 			}
-			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2)) && (unrotatedPoint.y - EPS <= (placingZone.origoPos.y - placingZone.coreDepth/2)) ) {
+			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick)) && (unrotatedPoint.y <= (placingZone.origoPos.y - placingZone.coreDepth/2 - placingZone.venThick)) ) {
 				placingZone.bottomLevelOfBeams [SOUTH] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 				placingZone.bExistBeams [SOUTH] = true;
 				placingZone.beams [SOUTH] = infoOtherBeams [xx];
 			}
-			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (unrotatedPoint.x + EPS >= (placingZone.origoPos.x + placingZone.coreWidth/2)) ) {
+			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2 + placingZone.venThick)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2 - placingZone.venThick)) && (unrotatedPoint.x >= (placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick)) ) {
 				placingZone.bottomLevelOfBeams [EAST] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 				placingZone.bExistBeams [EAST] = true;
 				placingZone.beams [EAST] = infoOtherBeams [xx];
 			}
-			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2)) && (unrotatedPoint.x - EPS <= (placingZone.origoPos.x - placingZone.coreWidth/2)) ) {
+			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2 + placingZone.venThick)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2 - placingZone.venThick)) && (unrotatedPoint.x <= (placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick)) ) {
 				placingZone.bottomLevelOfBeams [WEST] = infoOtherBeams [xx].level - infoOtherBeams [xx].height;
 				placingZone.bExistBeams [WEST] = true;
 				placingZone.beams [WEST] = infoOtherBeams [xx];
@@ -1445,7 +1449,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 		rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
 
 		columnWidth = placingZone->coreWidth + placingZone->venThick*2;
-		marginHeight = placingZone->marginTopAtSouth;
+		marginHeight = placingZone->marginTopAtNorth;
 
 		if (placingZone->bExistBeams [NORTH] == true) {
 			dx = placingZone->beams [NORTH].endC.x - placingZone->beams [NORTH].begC.x;
@@ -1731,266 +1735,467 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 
 	// 북쪽
 	if (placingZone->bFillMarginTopAtNorth == true) {
-	//	xLen = (placingZone->coreWidth/2 + placingZone->venThick);
-	//	yLen = (placingZone->coreDepth/2 + placingZone->venThick);
-	//	lineLen = sqrt (xLen*xLen + yLen*yLen);
-	//	rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
-	//	rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
+		xLen = (placingZone->coreWidth/2 + placingZone->venThick);
+		yLen = (placingZone->coreDepth/2 + placingZone->venThick);
+		lineLen = sqrt (xLen*xLen + yLen*yLen);
+		rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
+		rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
 
-	//	columnWidth = placingZone->coreWidth + placingZone->venThick*2;
-	//	marginHeight = placingZone->marginTopAtSouth;
+		columnWidth = placingZone->coreWidth + placingZone->venThick*2;
+		marginHeight = placingZone->marginTopAtNorth;
 
-	//	if (placingZone->bExistBeams [NORTH] == true) {
-	//		dx = placingZone->beams [NORTH].endC.x - placingZone->beams [NORTH].begC.x;
-	//		dy = placingZone->beams [NORTH].endC.y - placingZone->beams [NORTH].begC.y;
-	//		if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
-	//			leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [NORTH].begC, placingZone->beams [NORTH].endC) - placingZone->beams [NORTH].width/2 + placingZone->beams [NORTH].offset;
-	//		else
-	//			leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [NORTH].begC, placingZone->beams [NORTH].endC) - placingZone->beams [NORTH].width/2 - placingZone->beams [NORTH].offset;
-	//		rightLenOfBeam = placingZone->coreWidth + placingZone->venThick*2 - placingZone->beams [NORTH].width - leftLenOfBeam;
+		// 보가 있는 경우
+		if ((placingZone->bExistBeams [NORTH] == true) && (placingZone->bWallHorizontalDirected == true) && ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7))) {
+			dx = placingZone->beams [NORTH].endC.x - placingZone->beams [NORTH].begC.x;
+			dy = placingZone->beams [NORTH].endC.y - placingZone->beams [NORTH].begC.y;
+			if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [NORTH].begC, placingZone->beams [NORTH].endC) - placingZone->beams [NORTH].width/2 + placingZone->beams [NORTH].offset;
+			else
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [NORTH].begC, placingZone->beams [NORTH].endC) - placingZone->beams [NORTH].width/2 - placingZone->beams [NORTH].offset;
+			rightLenOfBeam = placingZone->coreWidth + placingZone->venThick*2 - placingZone->beams [NORTH].width - leftLenOfBeam;
 
-	//		// 합판 (왼쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle + DegreeToRad (180);
-	//		insCell.leftBottomX = rotatedPoint.x;
-	//		insCell.leftBottomY = rotatedPoint.y;
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = leftLenOfBeam;
-	//		insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+			// 합판 (왼쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (180);
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = leftLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placeLibPartForColumn (insCell));
 
-	//		// 합판 (아래쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle + DegreeToRad (180);
-	//		insCell.leftBottomX = rotatedPoint.x - leftLenOfBeam * cos(placingZone->angle);
-	//		insCell.leftBottomY = rotatedPoint.y - leftLenOfBeam * sin(placingZone->angle);
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = placingZone->beams [NORTH].width;
-	//		insCell.libPart.plywood.p_leng = marginHeight;
+			// 합판 (아래쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (180);
+			insCell.leftBottomX = rotatedPoint.x - leftLenOfBeam * cos(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y - leftLenOfBeam * sin(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = placingZone->beams [NORTH].width;
+			insCell.libPart.plywood.p_leng = marginHeight;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placeLibPartForColumn (insCell));
 
-	//		// 합판 (오른쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle + DegreeToRad (180);
-	//		insCell.leftBottomX = rotatedPoint.x - (leftLenOfBeam + placingZone->beams [NORTH].width) * cos(placingZone->angle);
-	//		insCell.leftBottomY = rotatedPoint.y - (leftLenOfBeam + placingZone->beams [NORTH].width) * sin(placingZone->angle);
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = rightLenOfBeam;
-	//		insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+			// 합판 (오른쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (180);
+			insCell.leftBottomX = rotatedPoint.x - (leftLenOfBeam + placingZone->beams [NORTH].width) * cos(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y - (leftLenOfBeam + placingZone->beams [NORTH].width) * sin(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = rightLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
-	//	} else {
-	//		// 합판 (전체)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle + DegreeToRad (180);
-	//		insCell.leftBottomX = rotatedPoint.x;
-	//		insCell.leftBottomY = rotatedPoint.y;
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = columnWidth;
-	//		insCell.libPart.plywood.p_leng = marginHeight;
+			elemList.Push (placeLibPartForColumn (insCell));
+		}
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
-	//	}
+		// 보가 없는 경우 1
+		if ((placingZone->bExistBeams [NORTH] == false) && (placingZone->bWallHorizontalDirected == true) && ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7))) {
+			// 합판 (전체)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (180);
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = columnWidth;
+			insCell.libPart.plywood.p_leng = marginHeight;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+		}
+
+		// 보가 없는 경우 2
+		if ((placingZone->bExistBeams [NORTH] == false) && (placingZone->bWallHorizontalDirected == false)) {
+			if ((placingZone->relationCase == 1) || (placingZone->relationCase == 2) || (placingZone->relationCase == 3) || (placingZone->relationCase == 4)) {
+				// 합판
+				xLen = (placingZone->coreWidth/2 + placingZone->venThick);
+				yLen = (placingZone->coreDepth/2 + placingZone->venThick);
+				lineLen = sqrt (xLen*xLen + yLen*yLen);
+				rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle) - (placingZone->posTopColumnLine - placingZone->posBottomWallLine) * cos(placingZone->angle);
+				rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle) - (placingZone->posTopColumnLine - placingZone->posBottomWallLine) * sin(placingZone->angle);
+
+				columnWidth = placingZone->posBottomWallLine - placingZone->posBottomColumnLine;
+				marginHeight = placingZone->marginTopAtNorth;
+
+				insCell.objType = PLYWOOD;
+				insCell.ang = placingZone->angle + DegreeToRad (180);
+				insCell.leftBottomX = rotatedPoint.x;
+				insCell.leftBottomY = rotatedPoint.y;
+				insCell.leftBottomZ = heightOfFormArea;
+				insCell.libPart.plywood.p_wid = columnWidth;
+				insCell.libPart.plywood.p_leng = marginHeight;
+
+				elemList.Push (placeLibPartForColumn (insCell));
+			}
+			if ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7)) {
+				// 합판
+				xLen = (placingZone->coreWidth/2 + placingZone->venThick);
+				yLen = (placingZone->coreDepth/2 + placingZone->venThick);
+				lineLen = sqrt (xLen*xLen + yLen*yLen);
+				rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
+				rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
+
+				columnWidth = placingZone->posTopColumnLine - placingZone->posTopWallLine;
+				marginHeight = placingZone->marginTopAtNorth;
+
+				insCell.objType = PLYWOOD;
+				insCell.ang = placingZone->angle + DegreeToRad (180);
+				insCell.leftBottomX = rotatedPoint.x;
+				insCell.leftBottomY = rotatedPoint.y;
+				insCell.leftBottomZ = heightOfFormArea;
+				insCell.libPart.plywood.p_wid = columnWidth;
+				insCell.libPart.plywood.p_leng = marginHeight;
+
+				elemList.Push (placeLibPartForColumn (insCell));
+			}
+		}
 	}
 
 	// 남쪽
 	if (placingZone->bFillMarginTopAtSouth == true) {
-	//	xLen = -(placingZone->coreWidth/2 + placingZone->venThick);
-	//	yLen = -(placingZone->coreDepth/2 + placingZone->venThick);
-	//	lineLen = sqrt (xLen*xLen + yLen*yLen);
-	//	rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
-	//	rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
+		xLen = -(placingZone->coreWidth/2 + placingZone->venThick);
+		yLen = -(placingZone->coreDepth/2 + placingZone->venThick);
+		lineLen = sqrt (xLen*xLen + yLen*yLen);
+		rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
+		rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
 
-	//	columnWidth = placingZone->coreWidth + placingZone->venThick*2;
-	//	marginHeight = placingZone->marginTopAtSouth;
+		columnWidth = placingZone->coreWidth + placingZone->venThick*2;
+		marginHeight = placingZone->marginTopAtSouth;
 
-	//	if (placingZone->bExistBeams [SOUTH] == true) {
-	//		dx = placingZone->beams [SOUTH].endC.x - placingZone->beams [SOUTH].begC.x;
-	//		dy = placingZone->beams [SOUTH].endC.y - placingZone->beams [SOUTH].begC.y;
-	//		if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
-	//			leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [SOUTH].begC, placingZone->beams [SOUTH].endC) - placingZone->beams [SOUTH].width/2 - placingZone->beams [SOUTH].offset;
-	//		else
-	//			leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [SOUTH].begC, placingZone->beams [SOUTH].endC) - placingZone->beams [SOUTH].width/2 + placingZone->beams [SOUTH].offset;
-	//		rightLenOfBeam = placingZone->coreWidth + placingZone->venThick*2 - placingZone->beams [SOUTH].width - leftLenOfBeam;
+		// 보가 있는 경우
+		if ((placingZone->bExistBeams [SOUTH] == true) && (placingZone->bWallHorizontalDirected == true) && ((placingZone->relationCase == 1) || (placingZone->relationCase == 2) || (placingZone->relationCase == 3) || (placingZone->relationCase == 4))) {
+			dx = placingZone->beams [SOUTH].endC.x - placingZone->beams [SOUTH].begC.x;
+			dy = placingZone->beams [SOUTH].endC.y - placingZone->beams [SOUTH].begC.y;
+			if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [SOUTH].begC, placingZone->beams [SOUTH].endC) - placingZone->beams [SOUTH].width/2 - placingZone->beams [SOUTH].offset;
+			else
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [SOUTH].begC, placingZone->beams [SOUTH].endC) - placingZone->beams [SOUTH].width/2 + placingZone->beams [SOUTH].offset;
+			rightLenOfBeam = placingZone->coreWidth + placingZone->venThick*2 - placingZone->beams [SOUTH].width - leftLenOfBeam;
 
-	//		// 합판 (왼쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle;
-	//		insCell.leftBottomX = rotatedPoint.x;
-	//		insCell.leftBottomY = rotatedPoint.y;
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = leftLenOfBeam;
-	//		insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+			// 합판 (왼쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle;
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = leftLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placeLibPartForColumn (insCell));
 
-	//		// 합판 (아래쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle;
-	//		insCell.leftBottomX = rotatedPoint.x + leftLenOfBeam * cos(placingZone->angle);
-	//		insCell.leftBottomY = rotatedPoint.y + leftLenOfBeam * sin(placingZone->angle);
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = placingZone->beams [SOUTH].width;
-	//		insCell.libPart.plywood.p_leng = marginHeight;
+			// 합판 (아래쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle;
+			insCell.leftBottomX = rotatedPoint.x + leftLenOfBeam * cos(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y + leftLenOfBeam * sin(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = placingZone->beams [SOUTH].width;
+			insCell.libPart.plywood.p_leng = marginHeight;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placeLibPartForColumn (insCell));
 
-	//		// 합판 (오른쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle;
-	//		insCell.leftBottomX = rotatedPoint.x + (leftLenOfBeam + placingZone->beams [SOUTH].width) * cos(placingZone->angle);
-	//		insCell.leftBottomY = rotatedPoint.y + (leftLenOfBeam + placingZone->beams [SOUTH].width) * sin(placingZone->angle);
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = rightLenOfBeam;
-	//		insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+			// 합판 (오른쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle;
+			insCell.leftBottomX = rotatedPoint.x + (leftLenOfBeam + placingZone->beams [SOUTH].width) * cos(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y + (leftLenOfBeam + placingZone->beams [SOUTH].width) * sin(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = rightLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
-	//	} else {
-	//		// 합판 (전체)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle;
-	//		insCell.leftBottomX = rotatedPoint.x;
-	//		insCell.leftBottomY = rotatedPoint.y;
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = columnWidth;
-	//		insCell.libPart.plywood.p_leng = marginHeight;
+			elemList.Push (placeLibPartForColumn (insCell));
+		}
+		
+		// 보가 없는 경우 1
+		if ((placingZone->bExistBeams [SOUTH] == false) && (placingZone->bWallHorizontalDirected == true) && ((placingZone->relationCase == 1) || (placingZone->relationCase == 2) || (placingZone->relationCase == 3) || (placingZone->relationCase == 4))) {
+			// 합판 (전체)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle;
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = columnWidth;
+			insCell.libPart.plywood.p_leng = marginHeight;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
-	//	}
-	}
+			elemList.Push (placeLibPartForColumn (insCell));
+		}
+
+		// 보가 없는 경우 2
+		if ((placingZone->bExistBeams [SOUTH] == false) && (placingZone->bWallHorizontalDirected == false)) {
+			if ((placingZone->relationCase == 1) || (placingZone->relationCase == 2) || (placingZone->relationCase == 3) || (placingZone->relationCase == 4)) {
+				// 합판
+				xLen = -(placingZone->coreWidth/2 + placingZone->venThick);
+				yLen = -(placingZone->coreDepth/2 + placingZone->venThick);
+				lineLen = sqrt (xLen*xLen + yLen*yLen);
+				rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
+				rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
+
+				columnWidth = placingZone->posBottomWallLine - placingZone->posBottomColumnLine;
+				marginHeight = placingZone->marginTopAtSouth;
+
+				insCell.objType = PLYWOOD;
+				insCell.ang = placingZone->angle;
+				insCell.leftBottomX = rotatedPoint.x;
+				insCell.leftBottomY = rotatedPoint.y;
+				insCell.leftBottomZ = heightOfFormArea;
+				insCell.libPart.plywood.p_wid = columnWidth;
+				insCell.libPart.plywood.p_leng = marginHeight;
+
+				elemList.Push (placeLibPartForColumn (insCell));
+			}
+			if ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7)) {
+				// 합판
+				xLen = (placingZone->coreWidth/2 + placingZone->venThick);
+				yLen = -(placingZone->coreDepth/2 + placingZone->venThick);
+				lineLen = sqrt (xLen*xLen + yLen*yLen);
+				rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle) - (placingZone->posTopColumnLine - placingZone->posTopWallLine) * cos(placingZone->angle);
+				rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle) - (placingZone->posTopColumnLine - placingZone->posTopWallLine) * sin(placingZone->angle);
+
+				columnWidth = placingZone->posTopColumnLine - placingZone->posTopWallLine;
+				marginHeight = placingZone->marginTopAtSouth;
+
+				insCell.objType = PLYWOOD;
+				insCell.ang = placingZone->angle;
+				insCell.leftBottomX = rotatedPoint.x;
+				insCell.leftBottomY = rotatedPoint.y;
+				insCell.leftBottomZ = heightOfFormArea;
+				insCell.libPart.plywood.p_wid = columnWidth;
+				insCell.libPart.plywood.p_leng = marginHeight;
+
+				elemList.Push (placeLibPartForColumn (insCell));
+			}
+		}
+}
 
 	// 서쪽
 	if (placingZone->bFillMarginTopAtWest == true) {
-	//	xLen = -(placingZone->coreWidth/2 + placingZone->venThick);
-	//	yLen = (placingZone->coreDepth/2 + placingZone->venThick);
-	//	lineLen = sqrt (xLen*xLen + yLen*yLen);
-	//	rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
-	//	rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
+		xLen = -(placingZone->coreWidth/2 + placingZone->venThick);
+		yLen = (placingZone->coreDepth/2 + placingZone->venThick);
+		lineLen = sqrt (xLen*xLen + yLen*yLen);
+		rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
+		rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
 
-	//	columnWidth = placingZone->coreDepth + placingZone->venThick*2;
-	//	marginHeight = placingZone->marginTopAtWest;
+		columnWidth = placingZone->coreDepth + placingZone->venThick*2;
+		marginHeight = placingZone->marginTopAtWest;
 
-	//	if (placingZone->bExistBeams [WEST] == true) {
-	//		dx = placingZone->beams [WEST].endC.x - placingZone->beams [WEST].begC.x;
-	//		dy = placingZone->beams [WEST].endC.y - placingZone->beams [WEST].begC.y;
-	//		if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
-	//			leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [WEST].begC, placingZone->beams [WEST].endC) - placingZone->beams [WEST].width/2 - placingZone->beams [WEST].offset;
-	//		else
-	//			leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [WEST].begC, placingZone->beams [WEST].endC) - placingZone->beams [WEST].width/2 + placingZone->beams [WEST].offset;
-	//		rightLenOfBeam = placingZone->coreDepth + placingZone->venThick*2 - placingZone->beams [WEST].width - leftLenOfBeam;
+		// 보가 있는 경우
+		if ((placingZone->bExistBeams [WEST] == true) && (placingZone->bWallHorizontalDirected == false) && ((placingZone->relationCase == 1) || (placingZone->relationCase == 2) || (placingZone->relationCase == 3) || (placingZone->relationCase == 4))) {
+			dx = placingZone->beams [WEST].endC.x - placingZone->beams [WEST].begC.x;
+			dy = placingZone->beams [WEST].endC.y - placingZone->beams [WEST].begC.y;
+			if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [WEST].begC, placingZone->beams [WEST].endC) - placingZone->beams [WEST].width/2 - placingZone->beams [WEST].offset;
+			else
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [WEST].begC, placingZone->beams [WEST].endC) - placingZone->beams [WEST].width/2 + placingZone->beams [WEST].offset;
+			rightLenOfBeam = placingZone->coreDepth + placingZone->venThick*2 - placingZone->beams [WEST].width - leftLenOfBeam;
 
-	//		// 합판 (왼쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle - DegreeToRad (90);
-	//		insCell.leftBottomX = rotatedPoint.x;
-	//		insCell.leftBottomY = rotatedPoint.y;
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = leftLenOfBeam;
-	//		insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+			// 합판 (왼쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle - DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = leftLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placeLibPartForColumn (insCell));
 
-	//		// 합판 (아래쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle - DegreeToRad (90);
-	//		insCell.leftBottomX = rotatedPoint.x + leftLenOfBeam * sin(placingZone->angle);
-	//		insCell.leftBottomY = rotatedPoint.y - leftLenOfBeam * cos(placingZone->angle);
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = placingZone->beams [WEST].width;
-	//		insCell.libPart.plywood.p_leng = marginHeight;
+			// 합판 (아래쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle - DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x + leftLenOfBeam * sin(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y - leftLenOfBeam * cos(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = placingZone->beams [WEST].width;
+			insCell.libPart.plywood.p_leng = marginHeight;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placeLibPartForColumn (insCell));
 
-	//		// 합판 (오른쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle - DegreeToRad (90);
-	//		insCell.leftBottomX = rotatedPoint.x + (leftLenOfBeam + placingZone->beams [WEST].width) * sin(placingZone->angle);
-	//		insCell.leftBottomY = rotatedPoint.y - (leftLenOfBeam + placingZone->beams [WEST].width) * cos(placingZone->angle);
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = rightLenOfBeam;
-	//		insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+			// 합판 (오른쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle - DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x + (leftLenOfBeam + placingZone->beams [WEST].width) * sin(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y - (leftLenOfBeam + placingZone->beams [WEST].width) * cos(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = rightLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
-	//	} else {
-	//		// 합판 (전체)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle - DegreeToRad (90);
-	//		insCell.leftBottomX = rotatedPoint.x;
-	//		insCell.leftBottomY = rotatedPoint.y;
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = columnWidth;
-	//		insCell.libPart.plywood.p_leng = marginHeight;
+			elemList.Push (placeLibPartForColumn (insCell));
+		}
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
-	//	}
+		// 보가 없는 경우 1
+		if ((placingZone->bExistBeams [WEST] == false) && (placingZone->bWallHorizontalDirected == false) && ((placingZone->relationCase == 1) || (placingZone->relationCase == 2) || (placingZone->relationCase == 3) || (placingZone->relationCase == 4))) {
+			// 합판 (전체)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle - DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = columnWidth;
+			insCell.libPart.plywood.p_leng = marginHeight;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+		}
+
+		// 보가 없는 경우 2
+		if ((placingZone->bExistBeams [WEST] == false) && (placingZone->bWallHorizontalDirected == true)) {
+			if ((placingZone->relationCase == 1) || (placingZone->relationCase == 2) || (placingZone->relationCase == 3) || (placingZone->relationCase == 4)) {
+				// 합판
+				xLen = -(placingZone->coreWidth/2 + placingZone->venThick);
+				yLen = (placingZone->coreDepth/2 + placingZone->venThick);
+				lineLen = sqrt (xLen*xLen + yLen*yLen);
+				rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle) + (placingZone->posTopColumnLine - placingZone->posBottomWallLine) * sin(placingZone->angle);
+				rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle) - (placingZone->posTopColumnLine - placingZone->posBottomWallLine) * cos(placingZone->angle);
+
+				columnWidth = placingZone->posBottomWallLine - placingZone->posBottomColumnLine;
+				marginHeight = placingZone->marginTopAtWest;
+
+				insCell.objType = PLYWOOD;
+				insCell.ang = placingZone->angle - DegreeToRad (90);
+				insCell.leftBottomX = rotatedPoint.x;
+				insCell.leftBottomY = rotatedPoint.y;
+				insCell.leftBottomZ = heightOfFormArea;
+				insCell.libPart.plywood.p_wid = columnWidth;
+				insCell.libPart.plywood.p_leng = marginHeight;
+
+				elemList.Push (placeLibPartForColumn (insCell));
+			}
+			if ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7)) {
+				// 합판
+				xLen = -(placingZone->coreWidth/2 + placingZone->venThick);
+				yLen = (placingZone->coreDepth/2 + placingZone->venThick);
+				lineLen = sqrt (xLen*xLen + yLen*yLen);
+				rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
+				rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
+
+				columnWidth = placingZone->posTopColumnLine - placingZone->posTopWallLine;
+				marginHeight = placingZone->marginTopAtWest;
+
+				insCell.objType = PLYWOOD;
+				insCell.ang = placingZone->angle - DegreeToRad (90);
+				insCell.leftBottomX = rotatedPoint.x;
+				insCell.leftBottomY = rotatedPoint.y;
+				insCell.leftBottomZ = heightOfFormArea;
+				insCell.libPart.plywood.p_wid = columnWidth;
+				insCell.libPart.plywood.p_leng = marginHeight;
+
+				elemList.Push (placeLibPartForColumn (insCell));
+			}
+		}
 	}
 
 	// 동쪽
 	if (placingZone->bFillMarginTopAtEast == true) {
-	//	xLen = (placingZone->coreWidth/2 + placingZone->venThick);
-	//	yLen = -(placingZone->coreDepth/2 + placingZone->venThick);
-	//	lineLen = sqrt (xLen*xLen + yLen*yLen);
-	//	rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
-	//	rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
+		xLen = (placingZone->coreWidth/2 + placingZone->venThick);
+		yLen = -(placingZone->coreDepth/2 + placingZone->venThick);
+		lineLen = sqrt (xLen*xLen + yLen*yLen);
+		rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
+		rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
 
-	//	columnWidth = placingZone->coreDepth + placingZone->venThick*2;
-	//	marginHeight = placingZone->marginTopAtEast;
+		columnWidth = placingZone->coreDepth + placingZone->venThick*2;
+		marginHeight = placingZone->marginTopAtEast;
 
-	//	if (placingZone->bExistBeams [EAST] == true) {
-	//		dx = placingZone->beams [EAST].endC.x - placingZone->beams [EAST].begC.x;
-	//		dy = placingZone->beams [EAST].endC.y - placingZone->beams [EAST].begC.y;
-	//		if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
-	//			leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [EAST].begC, placingZone->beams [EAST].endC) - placingZone->beams [EAST].width/2 + placingZone->beams [EAST].offset;
-	//		else
-	//			leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [EAST].begC, placingZone->beams [EAST].endC) - placingZone->beams [EAST].width/2 - placingZone->beams [EAST].offset;
-	//		rightLenOfBeam = placingZone->coreDepth + placingZone->venThick*2 - placingZone->beams [EAST].width - leftLenOfBeam;
+		// 보가 있는 경우
+		if ((placingZone->bExistBeams [EAST] == true) && (placingZone->bWallHorizontalDirected == false) && ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7))) {
+			dx = placingZone->beams [EAST].endC.x - placingZone->beams [EAST].begC.x;
+			dy = placingZone->beams [EAST].endC.y - placingZone->beams [EAST].begC.y;
+			if (RadToDegree (atan2 (dy, dx)) >= 0 && RadToDegree (atan2 (dy, dx)) < 180)
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [EAST].begC, placingZone->beams [EAST].endC) - placingZone->beams [EAST].width/2 + placingZone->beams [EAST].offset;
+			else
+				leftLenOfBeam = distOfPointBetweenLine (rotatedPoint, placingZone->beams [EAST].begC, placingZone->beams [EAST].endC) - placingZone->beams [EAST].width/2 - placingZone->beams [EAST].offset;
+			rightLenOfBeam = placingZone->coreDepth + placingZone->venThick*2 - placingZone->beams [EAST].width - leftLenOfBeam;
 
-	//		// 합판 (왼쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle + DegreeToRad (90);
-	//		insCell.leftBottomX = rotatedPoint.x;
-	//		insCell.leftBottomY = rotatedPoint.y;
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = leftLenOfBeam;
-	//		insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+			// 합판 (왼쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = leftLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placeLibPartForColumn (insCell));
 
-	//		// 합판 (아래쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle + DegreeToRad (90);
-	//		insCell.leftBottomX = rotatedPoint.x - leftLenOfBeam * sin(placingZone->angle);
-	//		insCell.leftBottomY = rotatedPoint.y + leftLenOfBeam * cos(placingZone->angle);
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = placingZone->beams [EAST].width;
-	//		insCell.libPart.plywood.p_leng = marginHeight;
+			// 합판 (아래쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x - leftLenOfBeam * sin(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y + leftLenOfBeam * cos(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = placingZone->beams [EAST].width;
+			insCell.libPart.plywood.p_leng = marginHeight;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placeLibPartForColumn (insCell));
 
-	//		// 합판 (오른쪽)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle + DegreeToRad (90);
-	//		insCell.leftBottomX = rotatedPoint.x - (leftLenOfBeam + placingZone->beams [EAST].width) * sin(placingZone->angle);
-	//		insCell.leftBottomY = rotatedPoint.y + (leftLenOfBeam + placingZone->beams [EAST].width) * cos(placingZone->angle);
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = rightLenOfBeam;
-	//		insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
+			// 합판 (오른쪽)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x - (leftLenOfBeam + placingZone->beams [EAST].width) * sin(placingZone->angle);
+			insCell.leftBottomY = rotatedPoint.y + (leftLenOfBeam + placingZone->beams [EAST].width) * cos(placingZone->angle);
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = rightLenOfBeam;
+			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
-	//	} else {
-	//		// 합판 (전체)
-	//		insCell.objType = PLYWOOD;
-	//		insCell.ang = placingZone->angle + DegreeToRad (90);
-	//		insCell.leftBottomX = rotatedPoint.x;
-	//		insCell.leftBottomY = rotatedPoint.y;
-	//		insCell.leftBottomZ = heightOfFormArea;
-	//		insCell.libPart.plywood.p_wid = columnWidth;
-	//		insCell.libPart.plywood.p_leng = marginHeight;
+			elemList.Push (placeLibPartForColumn (insCell));
+		}
 
-	//		elemList.Push (placeLibPartForColumn (insCell));
-	//	}
+		// 보가 없는 경우 1
+		if ((placingZone->bExistBeams [EAST] == false) && (placingZone->bWallHorizontalDirected == false) && ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7))) {
+			// 합판 (전체)
+			insCell.objType = PLYWOOD;
+			insCell.ang = placingZone->angle + DegreeToRad (90);
+			insCell.leftBottomX = rotatedPoint.x;
+			insCell.leftBottomY = rotatedPoint.y;
+			insCell.leftBottomZ = heightOfFormArea;
+			insCell.libPart.plywood.p_wid = columnWidth;
+			insCell.libPart.plywood.p_leng = marginHeight;
+
+			elemList.Push (placeLibPartForColumn (insCell));
+		}
+
+		// 보가 없는 경우 2
+		if ((placingZone->bExistBeams [EAST] == false) && (placingZone->bWallHorizontalDirected == true)) {
+			if ((placingZone->relationCase == 1) || (placingZone->relationCase == 2) || (placingZone->relationCase == 3) || (placingZone->relationCase == 4)) {
+				// 합판
+				xLen = (placingZone->coreWidth/2 + placingZone->venThick);
+				yLen = -(placingZone->coreDepth/2 + placingZone->venThick);
+				lineLen = sqrt (xLen*xLen + yLen*yLen);
+				rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle);
+				rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle);
+
+				columnWidth = placingZone->posBottomWallLine - placingZone->posBottomColumnLine;
+				marginHeight = placingZone->marginTopAtEast;
+
+				insCell.objType = PLYWOOD;
+				insCell.ang = placingZone->angle + DegreeToRad (90);
+				insCell.leftBottomX = rotatedPoint.x;
+				insCell.leftBottomY = rotatedPoint.y;
+				insCell.leftBottomZ = heightOfFormArea;
+				insCell.libPart.plywood.p_wid = columnWidth;
+				insCell.libPart.plywood.p_leng = marginHeight;
+
+				elemList.Push (placeLibPartForColumn (insCell));
+
+			}
+			if ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7)) {
+				// 합판
+				xLen = (placingZone->coreWidth/2 + placingZone->venThick);
+				yLen = (placingZone->coreDepth/2 + placingZone->venThick);
+				lineLen = sqrt (xLen*xLen + yLen*yLen);
+				rotatedPoint.x = placingZone->origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone->angle) + (placingZone->posTopColumnLine - placingZone->posTopWallLine) * sin(placingZone->angle);
+				rotatedPoint.y = placingZone->origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone->angle) - (placingZone->posTopColumnLine - placingZone->posTopWallLine) * cos(placingZone->angle);
+
+				columnWidth = placingZone->posTopColumnLine - placingZone->posTopWallLine;
+				marginHeight = placingZone->marginTopAtEast;
+
+				insCell.objType = PLYWOOD;
+				insCell.ang = placingZone->angle + DegreeToRad (90);
+				insCell.leftBottomX = rotatedPoint.x;
+				insCell.leftBottomY = rotatedPoint.y;
+				insCell.leftBottomZ = heightOfFormArea;
+				insCell.libPart.plywood.p_wid = columnWidth;
+				insCell.libPart.plywood.p_leng = marginHeight;
+
+				elemList.Push (placeLibPartForColumn (insCell));
+			}
+		}
 	}
 
 	return	err;
@@ -5399,621 +5604,1241 @@ short DGCALLBACK columnPlacerHandler_wallColumn_1 (short message, short dialogID
 				case DG_OK:
 					//////////////////////////////////////// 다이얼로그 창 정보를 입력 받음
 					// 셀 설정 적용
-					for (xx = 0 ; xx < 20 ; ++xx) {
-						// 좌상단
-						if ((HLEN_LT != 0) && (VLEN_LT != 0)) {
-							xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsLT [xx].objType = OUTCORNER;
-							placingZone.cellsLT [xx].leftBottomX = rotatedPoint.x;
-							placingZone.cellsLT [xx].leftBottomY = rotatedPoint.y;
-							placingZone.cellsLT [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsLT [xx].ang = placingZone.angle - DegreeToRad (90);
-							placingZone.cellsLT [xx].horLen = DGGetItemValDouble (dialogID, HLEN_LT);
-							placingZone.cellsLT [xx].verLen = DGGetItemValDouble (dialogID, VLEN_LT);
-							placingZone.cellsLT [xx].height = 1.200;
-							placingZone.cellsLT [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, HLEN_LT);
-							placingZone.cellsLT [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, VLEN_LT);
-							placingZone.cellsLT [xx].libPart.outcorner.hei_s = 1.200;
-						}
-
-						// 우상단
-						if ((HLEN_RT != 0) && (VLEN_RT != 0)) {
-							xLen = (placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsRT [xx].objType = OUTCORNER;
-							placingZone.cellsRT [xx].leftBottomX = rotatedPoint.x;
-							placingZone.cellsRT [xx].leftBottomY = rotatedPoint.y;
-							placingZone.cellsRT [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsRT [xx].ang = placingZone.angle + DegreeToRad (180);
-							placingZone.cellsRT [xx].horLen = DGGetItemValDouble (dialogID, HLEN_RT);
-							placingZone.cellsRT [xx].verLen = DGGetItemValDouble (dialogID, VLEN_RT);
-							placingZone.cellsRT [xx].height = 1.200;
-							placingZone.cellsRT [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, VLEN_RT);
-							placingZone.cellsRT [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, HLEN_RT);
-							placingZone.cellsRT [xx].libPart.outcorner.hei_s = 1.200;
-						}
-
-						// 좌하단
-						if ((HLEN_LB != 0) && (VLEN_LB != 0)) {
-							xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsLB [xx].objType = OUTCORNER;
-							placingZone.cellsLB [xx].leftBottomX = rotatedPoint.x;
-							placingZone.cellsLB [xx].leftBottomY = rotatedPoint.y;
-							placingZone.cellsLB [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsLB [xx].ang = placingZone.angle;
-							placingZone.cellsLB [xx].horLen = DGGetItemValDouble (dialogID, HLEN_LB);
-							placingZone.cellsLB [xx].verLen = DGGetItemValDouble (dialogID, VLEN_LB);
-							placingZone.cellsLB [xx].height = 1.200;
-							placingZone.cellsLB [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, VLEN_LB);
-							placingZone.cellsLB [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, HLEN_LB);
-							placingZone.cellsLB [xx].libPart.outcorner.hei_s = 1.200;
-						}
-
-						// 우하단
-						if ((HLEN_RB != 0) && (VLEN_RB != 0)) {
-							xLen = (placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsRB [xx].objType = OUTCORNER;
-							placingZone.cellsRB [xx].leftBottomX = rotatedPoint.x;
-							placingZone.cellsRB [xx].leftBottomY = rotatedPoint.y;
-							placingZone.cellsRB [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsRB [xx].ang = placingZone.angle + DegreeToRad (90);
-							placingZone.cellsRB [xx].horLen = DGGetItemValDouble (dialogID, HLEN_RB);
-							placingZone.cellsRB [xx].verLen = DGGetItemValDouble (dialogID, VLEN_RB);
-							placingZone.cellsRB [xx].height = 1.200;
-							placingZone.cellsRB [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, HLEN_RB);
-							placingZone.cellsRB [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, VLEN_RB);
-							placingZone.cellsRB [xx].libPart.outcorner.hei_s = 1.200;
-						}
-
-						// T1
-						if (LEN_T1 != 0) {
-							xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsT1 [xx].objType = EUROFORM;
-							placingZone.cellsT1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1)) * cos(placingZone.angle);
-							placingZone.cellsT1 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1)) * sin(placingZone.angle);
-							placingZone.cellsT1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsT1 [xx].ang = placingZone.angle + DegreeToRad (180);
-							placingZone.cellsT1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_T1);
-							placingZone.cellsT1 [xx].verLen = 0.064;
-							placingZone.cellsT1 [xx].height = 1.200;
-							placingZone.cellsT1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T1);
-							placingZone.cellsT1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T1);
-							placingZone.cellsT1 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsT1 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsT1 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsT1 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsT1 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsT1 [xx].libPart.form.eu_stan_onoff = false;
-						}
-
-						// T2
-						if (LEN_T2 != 0) {
-							xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsT2 [xx].objType = EUROFORM;
-							placingZone.cellsT2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * cos(placingZone.angle);
-							placingZone.cellsT2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * sin(placingZone.angle);
-							placingZone.cellsT2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsT2 [xx].ang = placingZone.angle + DegreeToRad (180);
-							placingZone.cellsT2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_T2);
-							placingZone.cellsT2 [xx].verLen = 0.064;
-							placingZone.cellsT2 [xx].height = 1.200;
-							placingZone.cellsT2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T2);
-							placingZone.cellsT2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T2);
-							placingZone.cellsT2 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsT2 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsT2 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsT2 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsT2 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsT2 [xx].libPart.form.eu_stan_onoff = false;
-						}
-
-						// B1
-						if (LEN_B1 != 0) {
-							xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsB1 [xx].objType = EUROFORM;
-							placingZone.cellsB1 [xx].leftBottomX = rotatedPoint.x + DGGetItemValDouble (dialogID, HLEN_LB) * cos(placingZone.angle);
-							placingZone.cellsB1 [xx].leftBottomY = rotatedPoint.y + DGGetItemValDouble (dialogID, HLEN_LB) * sin(placingZone.angle);
-							placingZone.cellsB1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsB1 [xx].ang = placingZone.angle;
-							placingZone.cellsB1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_B1);
-							placingZone.cellsB1 [xx].verLen = 0.064;
-							placingZone.cellsB1 [xx].height = 1.200;
-							placingZone.cellsB1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B1);
-							placingZone.cellsB1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B1);
-							placingZone.cellsB1 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsB1 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsB1 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsB1 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsB1 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsB1 [xx].libPart.form.eu_stan_onoff = false;
-						}
-
-						// B2
-						if (LEN_B2 != 0) {
-							xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsB2 [xx].objType = EUROFORM;
-							placingZone.cellsB2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * cos(placingZone.angle);
-							placingZone.cellsB2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * sin(placingZone.angle);
-							placingZone.cellsB2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsB2 [xx].ang = placingZone.angle;
-							placingZone.cellsB2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_B2);
-							placingZone.cellsB2 [xx].verLen = 0.064;
-							placingZone.cellsB2 [xx].height = 1.200;
-							placingZone.cellsB2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B2);
-							placingZone.cellsB2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B2);
-							placingZone.cellsB2 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsB2 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsB2 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsB2 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsB2 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsB2 [xx].libPart.form.eu_stan_onoff = false;
-						}
-
-						// L1
-						if (LEN_L1 != 0) {
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							} else {
+					if (placingZone.bWallHorizontalDirected == true) {
+						for (xx = 0 ; xx < 20 ; ++xx) {
+							// 좌상단
+							if ((HLEN_LT != 0) && (VLEN_LT != 0)) {
 								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
 								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							}
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
-							placingZone.cellsL1 [xx].objType = EUROFORM;
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								placingZone.cellsL1 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_L1)) * sin(placingZone.angle);
-								placingZone.cellsL1 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_L1)) * cos(placingZone.angle);
-								placingZone.cellsL1 [xx].ang = placingZone.angle - DegreeToRad (90);
-							} else {
-								placingZone.cellsL1 [xx].leftBottomX = rotatedPoint.x + DGGetItemValDouble (dialogID, VLEN_LT) * sin(placingZone.angle);
-								placingZone.cellsL1 [xx].leftBottomY = rotatedPoint.y - DGGetItemValDouble (dialogID, VLEN_LT) * cos(placingZone.angle);
-								placingZone.cellsL1 [xx].ang = placingZone.angle - DegreeToRad (90);
+								placingZone.cellsLT [xx].objType = OUTCORNER;
+								placingZone.cellsLT [xx].leftBottomX = rotatedPoint.x;
+								placingZone.cellsLT [xx].leftBottomY = rotatedPoint.y;
+								placingZone.cellsLT [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsLT [xx].ang = placingZone.angle - DegreeToRad (90);
+								placingZone.cellsLT [xx].horLen = DGGetItemValDouble (dialogID, HLEN_LT);
+								placingZone.cellsLT [xx].verLen = DGGetItemValDouble (dialogID, VLEN_LT);
+								placingZone.cellsLT [xx].height = 1.200;
+								placingZone.cellsLT [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, HLEN_LT);
+								placingZone.cellsLT [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, VLEN_LT);
+								placingZone.cellsLT [xx].libPart.outcorner.hei_s = 1.200;
 							}
-							placingZone.cellsL1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsL1 [xx].horLen = 0.064;
-							placingZone.cellsL1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_L1);
-							placingZone.cellsL1 [xx].height = 1.200;
-							placingZone.cellsL1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_L1);
-							placingZone.cellsL1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_L1);
-							placingZone.cellsL1 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsL1 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsL1 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsL1 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsL1 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsL1 [xx].libPart.form.eu_stan_onoff = false;
-						}
 
-						// L2
-						if (LEN_L2 != 0) {
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							} else {
-								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							}
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsL2 [xx].objType = EUROFORM;
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								placingZone.cellsL2 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2)) * sin(placingZone.angle);
-								placingZone.cellsL2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2)) * cos(placingZone.angle);
-								placingZone.cellsL2 [xx].ang = placingZone.angle - DegreeToRad (90);
-							} else {
-								placingZone.cellsL2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * sin(placingZone.angle);
-								placingZone.cellsL2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * cos(placingZone.angle);
-								placingZone.cellsL2 [xx].ang = placingZone.angle - DegreeToRad (90);
-							}
-							placingZone.cellsL2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsL2 [xx].horLen = 0.064;
-							placingZone.cellsL2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_L2);
-							placingZone.cellsL2 [xx].height = 1.200;
-							placingZone.cellsL2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_L2);
-							placingZone.cellsL2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_L2);
-							placingZone.cellsL2 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsL2 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsL2 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsL2 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsL2 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsL2 [xx].libPart.form.eu_stan_onoff = false;
-						}
-
-						// R1
-						if (LEN_R1 != 0) {
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
-								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							} else {
+							// 우상단
+							if ((HLEN_RT != 0) && (VLEN_RT != 0)) {
 								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
 								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							}
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
-							placingZone.cellsR1 [xx].objType = EUROFORM;
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								placingZone.cellsR1 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R2)) * sin(placingZone.angle);
-								placingZone.cellsR1 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R2)) * cos(placingZone.angle);
-								placingZone.cellsR1 [xx].ang = placingZone.angle + DegreeToRad (90);
-							} else {
-								placingZone.cellsR1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1)) * sin(placingZone.angle);
-								placingZone.cellsR1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1)) * cos(placingZone.angle);
-								placingZone.cellsR1 [xx].ang = placingZone.angle + DegreeToRad (90);
+								placingZone.cellsRT [xx].objType = OUTCORNER;
+								placingZone.cellsRT [xx].leftBottomX = rotatedPoint.x;
+								placingZone.cellsRT [xx].leftBottomY = rotatedPoint.y;
+								placingZone.cellsRT [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsRT [xx].ang = placingZone.angle + DegreeToRad (180);
+								placingZone.cellsRT [xx].horLen = DGGetItemValDouble (dialogID, HLEN_RT);
+								placingZone.cellsRT [xx].verLen = DGGetItemValDouble (dialogID, VLEN_RT);
+								placingZone.cellsRT [xx].height = 1.200;
+								placingZone.cellsRT [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, VLEN_RT);
+								placingZone.cellsRT [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, HLEN_RT);
+								placingZone.cellsRT [xx].libPart.outcorner.hei_s = 1.200;
 							}
-							placingZone.cellsR1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsR1 [xx].horLen = 0.064;
-							placingZone.cellsR1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_R1);
-							placingZone.cellsR1 [xx].height = 1.200;
-							placingZone.cellsR1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_R1);
-							placingZone.cellsR1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_R1);
-							placingZone.cellsR1 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsR1 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsR1 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsR1 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsR1 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsR1 [xx].libPart.form.eu_stan_onoff = false;
-						}
 
-						// R2
-						if (LEN_R2 != 0) {
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+							// 좌하단
+							if ((HLEN_LB != 0) && (VLEN_LB != 0)) {
+								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsLB [xx].objType = OUTCORNER;
+								placingZone.cellsLB [xx].leftBottomX = rotatedPoint.x;
+								placingZone.cellsLB [xx].leftBottomY = rotatedPoint.y;
+								placingZone.cellsLB [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsLB [xx].ang = placingZone.angle;
+								placingZone.cellsLB [xx].horLen = DGGetItemValDouble (dialogID, HLEN_LB);
+								placingZone.cellsLB [xx].verLen = DGGetItemValDouble (dialogID, VLEN_LB);
+								placingZone.cellsLB [xx].height = 1.200;
+								placingZone.cellsLB [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, VLEN_LB);
+								placingZone.cellsLB [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, HLEN_LB);
+								placingZone.cellsLB [xx].libPart.outcorner.hei_s = 1.200;
+							}
+
+							// 우하단
+							if ((HLEN_RB != 0) && (VLEN_RB != 0)) {
 								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
 								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							} else {
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsRB [xx].objType = OUTCORNER;
+								placingZone.cellsRB [xx].leftBottomX = rotatedPoint.x;
+								placingZone.cellsRB [xx].leftBottomY = rotatedPoint.y;
+								placingZone.cellsRB [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsRB [xx].ang = placingZone.angle + DegreeToRad (90);
+								placingZone.cellsRB [xx].horLen = DGGetItemValDouble (dialogID, HLEN_RB);
+								placingZone.cellsRB [xx].verLen = DGGetItemValDouble (dialogID, VLEN_RB);
+								placingZone.cellsRB [xx].height = 1.200;
+								placingZone.cellsRB [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, HLEN_RB);
+								placingZone.cellsRB [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, VLEN_RB);
+								placingZone.cellsRB [xx].libPart.outcorner.hei_s = 1.200;
+							}
+
+							// T1
+							if (LEN_T1 != 0) {
+								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsT1 [xx].objType = EUROFORM;
+								placingZone.cellsT1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1)) * cos(placingZone.angle);
+								placingZone.cellsT1 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1)) * sin(placingZone.angle);
+								placingZone.cellsT1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsT1 [xx].ang = placingZone.angle + DegreeToRad (180);
+								placingZone.cellsT1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_T1);
+								placingZone.cellsT1 [xx].verLen = 0.064;
+								placingZone.cellsT1 [xx].height = 1.200;
+								placingZone.cellsT1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T1);
+								placingZone.cellsT1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T1);
+								placingZone.cellsT1 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsT1 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsT1 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsT1 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsT1 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsT1 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// T2
+							if (LEN_T2 != 0) {
+								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsT2 [xx].objType = EUROFORM;
+								placingZone.cellsT2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * cos(placingZone.angle);
+								placingZone.cellsT2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * sin(placingZone.angle);
+								placingZone.cellsT2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsT2 [xx].ang = placingZone.angle + DegreeToRad (180);
+								placingZone.cellsT2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_T2);
+								placingZone.cellsT2 [xx].verLen = 0.064;
+								placingZone.cellsT2 [xx].height = 1.200;
+								placingZone.cellsT2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T2);
+								placingZone.cellsT2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T2);
+								placingZone.cellsT2 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsT2 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsT2 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsT2 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsT2 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsT2 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// B1
+							if (LEN_B1 != 0) {
+								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsB1 [xx].objType = EUROFORM;
+								placingZone.cellsB1 [xx].leftBottomX = rotatedPoint.x + DGGetItemValDouble (dialogID, HLEN_LB) * cos(placingZone.angle);
+								placingZone.cellsB1 [xx].leftBottomY = rotatedPoint.y + DGGetItemValDouble (dialogID, HLEN_LB) * sin(placingZone.angle);
+								placingZone.cellsB1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsB1 [xx].ang = placingZone.angle;
+								placingZone.cellsB1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_B1);
+								placingZone.cellsB1 [xx].verLen = 0.064;
+								placingZone.cellsB1 [xx].height = 1.200;
+								placingZone.cellsB1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B1);
+								placingZone.cellsB1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B1);
+								placingZone.cellsB1 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsB1 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsB1 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsB1 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsB1 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsB1 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// B2
+							if (LEN_B2 != 0) {
+								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsB2 [xx].objType = EUROFORM;
+								placingZone.cellsB2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * cos(placingZone.angle);
+								placingZone.cellsB2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * sin(placingZone.angle);
+								placingZone.cellsB2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsB2 [xx].ang = placingZone.angle;
+								placingZone.cellsB2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_B2);
+								placingZone.cellsB2 [xx].verLen = 0.064;
+								placingZone.cellsB2 [xx].height = 1.200;
+								placingZone.cellsB2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B2);
+								placingZone.cellsB2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B2);
+								placingZone.cellsB2 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsB2 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsB2 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsB2 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsB2 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsB2 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// L1
+							if (LEN_L1 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsL1 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsL1 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_L1)) * sin(placingZone.angle);
+									placingZone.cellsL1 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_L1)) * cos(placingZone.angle);
+									placingZone.cellsL1 [xx].ang = placingZone.angle - DegreeToRad (90);
+								} else {
+									placingZone.cellsL1 [xx].leftBottomX = rotatedPoint.x + DGGetItemValDouble (dialogID, VLEN_LT) * sin(placingZone.angle);
+									placingZone.cellsL1 [xx].leftBottomY = rotatedPoint.y - DGGetItemValDouble (dialogID, VLEN_LT) * cos(placingZone.angle);
+									placingZone.cellsL1 [xx].ang = placingZone.angle - DegreeToRad (90);
+								}
+								placingZone.cellsL1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsL1 [xx].horLen = 0.064;
+								placingZone.cellsL1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_L1);
+								placingZone.cellsL1 [xx].height = 1.200;
+								placingZone.cellsL1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_L1);
+								placingZone.cellsL1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_L1);
+								placingZone.cellsL1 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsL1 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsL1 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsL1 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsL1 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsL1 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// L2
+							if (LEN_L2 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsL2 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsL2 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2)) * sin(placingZone.angle);
+									placingZone.cellsL2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2)) * cos(placingZone.angle);
+									placingZone.cellsL2 [xx].ang = placingZone.angle - DegreeToRad (90);
+								} else {
+									placingZone.cellsL2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * sin(placingZone.angle);
+									placingZone.cellsL2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * cos(placingZone.angle);
+									placingZone.cellsL2 [xx].ang = placingZone.angle - DegreeToRad (90);
+								}
+								placingZone.cellsL2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsL2 [xx].horLen = 0.064;
+								placingZone.cellsL2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_L2);
+								placingZone.cellsL2 [xx].height = 1.200;
+								placingZone.cellsL2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_L2);
+								placingZone.cellsL2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_L2);
+								placingZone.cellsL2 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsL2 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsL2 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsL2 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsL2 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsL2 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// R1
+							if (LEN_R1 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsR1 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsR1 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R2)) * sin(placingZone.angle);
+									placingZone.cellsR1 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R2)) * cos(placingZone.angle);
+									placingZone.cellsR1 [xx].ang = placingZone.angle + DegreeToRad (90);
+								} else {
+									placingZone.cellsR1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1)) * sin(placingZone.angle);
+									placingZone.cellsR1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1)) * cos(placingZone.angle);
+									placingZone.cellsR1 [xx].ang = placingZone.angle + DegreeToRad (90);
+								}
+								placingZone.cellsR1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsR1 [xx].horLen = 0.064;
+								placingZone.cellsR1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_R1);
+								placingZone.cellsR1 [xx].height = 1.200;
+								placingZone.cellsR1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_R1);
+								placingZone.cellsR1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_R1);
+								placingZone.cellsR1 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsR1 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsR1 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsR1 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsR1 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsR1 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// R2
+							if (LEN_R2 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsR2 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsR2 [xx].leftBottomX = rotatedPoint.x - DGGetItemValDouble (dialogID, VLEN_RB) * sin(placingZone.angle);
+									placingZone.cellsR2 [xx].leftBottomY = rotatedPoint.y + DGGetItemValDouble (dialogID, VLEN_RB) * cos(placingZone.angle);
+									placingZone.cellsR2 [xx].ang = placingZone.angle + DegreeToRad (90);
+								} else {
+									placingZone.cellsR2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2)) * sin(placingZone.angle);
+									placingZone.cellsR2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2)) * cos(placingZone.angle);
+									placingZone.cellsR2 [xx].ang = placingZone.angle + DegreeToRad (90);
+								}
+								placingZone.cellsR2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsR2 [xx].horLen = 0.064;
+								placingZone.cellsR2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_R2);
+								placingZone.cellsR2 [xx].height = 1.200;
+								placingZone.cellsR2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_R2);
+								placingZone.cellsR2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_R2);
+								placingZone.cellsR2 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsR2 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsR2 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsR2 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsR2 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsR2 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// 왼쪽 인코너 셀 1 (위)
+							if (LEN_Lin1_C != 0) {
+								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsLin1 [xx].objType = INCORNER;
+								placingZone.cellsLin1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin1_C)) * sin(placingZone.angle);
+								placingZone.cellsLin1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin1_C)) * cos(placingZone.angle);
+								placingZone.cellsLin1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsLin1 [xx].ang = placingZone.angle + DegreeToRad (90);
+								placingZone.cellsLin1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Lin1_C);
+								if (placingZone.relationCase != 4)
+									placingZone.cellsLin1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin1_W);
+								else
+									placingZone.cellsLin1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin2_W);
+								placingZone.cellsLin1 [xx].height = 1.200;
+								placingZone.cellsLin1 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Lin1_C);
+								if (placingZone.relationCase != 4)
+									placingZone.cellsLin1 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Lin1_W);
+								else
+									placingZone.cellsLin1 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Lin2_W);
+								placingZone.cellsLin1 [xx].libPart.incorner.hei_s = 1.200;
+							}
+
+							// 왼쪽 인코너 셀 2 (아래)
+							if (LEN_Lin2_C != 0) {
+								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsLin2 [xx].objType = INCORNER;
+								placingZone.cellsLin2 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin2_C)) * sin(placingZone.angle);
+								placingZone.cellsLin2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin2_C)) * cos(placingZone.angle);
+								placingZone.cellsLin2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsLin2 [xx].ang = placingZone.angle + DegreeToRad (180);
+								placingZone.cellsLin2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Lin2_W);
+								placingZone.cellsLin2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin2_C);
+								placingZone.cellsLin2 [xx].height = 1.200;
+								placingZone.cellsLin2 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Lin2_W);
+								placingZone.cellsLin2 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Lin2_C);
+								placingZone.cellsLin2 [xx].libPart.incorner.hei_s = 1.200;
+							}
+
+							// 오른쪽 인코너 셀 1 (위)
+							if (LEN_Rin1_C != 0) {
 								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
 								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsRin1 [xx].objType = INCORNER;
+								placingZone.cellsRin1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin1_C)) * sin(placingZone.angle);
+								placingZone.cellsRin1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin1_C)) * cos(placingZone.angle);
+								placingZone.cellsRin1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsRin1 [xx].ang = placingZone.angle;
+								if (placingZone.relationCase != 4)
+									placingZone.cellsRin1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Rin1_W);
+								else
+									placingZone.cellsRin1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Rin2_W);
+								placingZone.cellsRin1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Rin1_C);
+								placingZone.cellsRin1 [xx].height = 1.200;
+								if (placingZone.relationCase != 4)
+									placingZone.cellsRin1 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Rin1_W);
+								else
+									placingZone.cellsRin1 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Rin2_W);
+								placingZone.cellsRin1 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Rin1_C);
+								placingZone.cellsRin1 [xx].libPart.incorner.hei_s = 1.200;
 							}
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
-							placingZone.cellsR2 [xx].objType = EUROFORM;
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								placingZone.cellsR2 [xx].leftBottomX = rotatedPoint.x - DGGetItemValDouble (dialogID, VLEN_RB) * sin(placingZone.angle);
-								placingZone.cellsR2 [xx].leftBottomY = rotatedPoint.y + DGGetItemValDouble (dialogID, VLEN_RB) * cos(placingZone.angle);
-								placingZone.cellsR2 [xx].ang = placingZone.angle + DegreeToRad (90);
-							} else {
-								placingZone.cellsR2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2)) * sin(placingZone.angle);
-								placingZone.cellsR2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2)) * cos(placingZone.angle);
-								placingZone.cellsR2 [xx].ang = placingZone.angle + DegreeToRad (90);
+							// 오른쪽 인코너 셀 2 (아래)
+							if (LEN_Rin2_C != 0) {
+								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsRin2 [xx].objType = INCORNER;
+								placingZone.cellsRin2 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin2_C)) * sin(placingZone.angle);
+								placingZone.cellsRin2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin2_C)) * cos(placingZone.angle);
+								placingZone.cellsRin2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsRin2 [xx].ang = placingZone.angle - DegreeToRad (90);
+								placingZone.cellsRin2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Rin2_C);
+								placingZone.cellsRin2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Rin2_W);
+								placingZone.cellsRin2 [xx].height = 1.200;
+								placingZone.cellsRin2 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Rin2_C);
+								placingZone.cellsRin2 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Rin2_W);
+								placingZone.cellsRin2 [xx].libPart.incorner.hei_s = 1.200;
 							}
-							placingZone.cellsR2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsR2 [xx].horLen = 0.064;
-							placingZone.cellsR2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_R2);
-							placingZone.cellsR2 [xx].height = 1.200;
-							placingZone.cellsR2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_R2);
-							placingZone.cellsR2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_R2);
-							placingZone.cellsR2 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsR2 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsR2 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsR2 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsR2 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsR2 [xx].libPart.form.eu_stan_onoff = false;
+
+							// W1
+							if (LEN_W1 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsW1 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsW1 [xx].leftBottomX = rotatedPoint.x - (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) + DGGetItemValDouble (dialogID, HLEN_LB) * cos(placingZone.angle);
+									placingZone.cellsW1 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + DGGetItemValDouble (dialogID, HLEN_LB) * sin(placingZone.angle);
+									placingZone.cellsW1 [xx].ang = placingZone.angle + DegreeToRad (180);
+									placingZone.cellsW1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin2_W) + DGGetItemValDouble (dialogID, HLEN_LB);
+									placingZone.cellsW1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_Lin2_W) + DGGetItemValDouble (dialogID, HLEN_LB);
+									placingZone.cellsW1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_Lin2_W) + DGGetItemValDouble (dialogID, HLEN_LB);
+								} else {
+									placingZone.cellsW1 [xx].leftBottomX = rotatedPoint.x + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) - DGGetItemValDouble (dialogID, LEN_Lin1_W) * cos(placingZone.angle);
+									placingZone.cellsW1 [xx].leftBottomY = rotatedPoint.y - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) - DGGetItemValDouble (dialogID, LEN_Lin1_W) * sin(placingZone.angle);
+									placingZone.cellsW1 [xx].ang = placingZone.angle;
+									placingZone.cellsW1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin1_W) + DGGetItemValDouble (dialogID, HLEN_LT);
+									placingZone.cellsW1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_Lin1_W) + DGGetItemValDouble (dialogID, HLEN_LT);
+									placingZone.cellsW1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_Lin1_W) + DGGetItemValDouble (dialogID, HLEN_LT);
+								}
+								placingZone.cellsW1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsW1 [xx].horLen = 0.064;
+								placingZone.cellsW1 [xx].height = 1.200;
+								placingZone.cellsW1 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsW1 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsW1 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsW1 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsW1 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsW1 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// W2
+							if (LEN_W2 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsW2 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsW2 [xx].leftBottomX = rotatedPoint.x - (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * cos(placingZone.angle);
+									placingZone.cellsW2 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * sin(placingZone.angle);
+									placingZone.cellsW2 [xx].ang = placingZone.angle + DegreeToRad (180);
+									placingZone.cellsW2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_B1);
+									placingZone.cellsW2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B1);
+									placingZone.cellsW2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B1);
+								} else {
+									placingZone.cellsW2 [xx].leftBottomX = rotatedPoint.x + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) + DGGetItemValDouble (dialogID, HLEN_LT) * cos(placingZone.angle);
+									placingZone.cellsW2 [xx].leftBottomY = rotatedPoint.y - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) + DGGetItemValDouble (dialogID, HLEN_LT) * sin(placingZone.angle);
+									placingZone.cellsW2 [xx].ang = placingZone.angle;
+									placingZone.cellsW2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_T1);
+									placingZone.cellsW2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T1);
+									placingZone.cellsW2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T1);
+								}
+								placingZone.cellsW2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsW2 [xx].horLen = 0.064;
+								placingZone.cellsW2 [xx].height = 1.200;
+								placingZone.cellsW2 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsW2 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsW2 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsW2 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsW2 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsW2 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// W3
+							if (LEN_W3 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsW3 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsW3 [xx].leftBottomX = rotatedPoint.x - (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2)) * cos(placingZone.angle);
+									placingZone.cellsW3 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2)) * sin(placingZone.angle);
+									placingZone.cellsW3 [xx].ang = placingZone.angle + DegreeToRad (180);
+									placingZone.cellsW3 [xx].verLen = DGGetItemValDouble (dialogID, LEN_B2);
+									placingZone.cellsW3 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B2);
+									placingZone.cellsW3 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B2);
+								} else {
+									placingZone.cellsW3 [xx].leftBottomX = rotatedPoint.x + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * cos(placingZone.angle);
+									placingZone.cellsW3 [xx].leftBottomY = rotatedPoint.y - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * sin(placingZone.angle);
+									placingZone.cellsW3 [xx].ang = placingZone.angle;
+									placingZone.cellsW3 [xx].verLen = DGGetItemValDouble (dialogID, LEN_T2);
+									placingZone.cellsW3 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T2);
+									placingZone.cellsW3 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T2);
+								}
+								placingZone.cellsW3 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsW3 [xx].horLen = 0.064;
+								placingZone.cellsW3 [xx].height = 1.200;
+								placingZone.cellsW3 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsW3 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsW3 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsW3 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsW3 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsW3 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// W4
+							if (LEN_W4 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsW4 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsW4 [xx].leftBottomX = rotatedPoint.x - (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2) + DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W)) * cos(placingZone.angle);
+									placingZone.cellsW4 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2) + DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W)) * sin(placingZone.angle);
+									placingZone.cellsW4 [xx].ang = placingZone.angle + DegreeToRad (180);
+									placingZone.cellsW4 [xx].verLen = DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W);
+									placingZone.cellsW4 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W);
+									placingZone.cellsW4 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W);
+								} else {
+									placingZone.cellsW4 [xx].leftBottomX = rotatedPoint.x + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * cos(placingZone.angle);
+									placingZone.cellsW4 [xx].leftBottomY = rotatedPoint.y - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * sin(placingZone.angle);
+									placingZone.cellsW4 [xx].ang = placingZone.angle;
+									placingZone.cellsW4 [xx].verLen = DGGetItemValDouble (dialogID, HLEN_RT) + DGGetItemValDouble (dialogID, LEN_Rin1_W);
+									placingZone.cellsW4 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, HLEN_RT) + DGGetItemValDouble (dialogID, LEN_Rin1_W);
+									placingZone.cellsW4 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, HLEN_RT) + DGGetItemValDouble (dialogID, LEN_Rin1_W);
+								}
+								placingZone.cellsW4 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsW4 [xx].horLen = 0.064;
+								placingZone.cellsW4 [xx].height = 1.200;
+								placingZone.cellsW4 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsW4 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsW4 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsW4 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsW4 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsW4 [xx].libPart.form.eu_stan_onoff = false;
+							}
 						}
+					} else {
+						for (xx = 0 ; xx < 20 ; ++xx) {
+							// 좌상단
+							if ((HLEN_LT != 0) && (VLEN_LT != 0)) {
+								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
-						// 왼쪽 인코너 셀 1 (위)
-						if (LEN_Lin1_C != 0) {
-							xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+								placingZone.cellsLT [xx].objType = OUTCORNER;
+								placingZone.cellsLT [xx].leftBottomX = rotatedPoint.x;
+								placingZone.cellsLT [xx].leftBottomY = rotatedPoint.y;
+								placingZone.cellsLT [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsLT [xx].ang = placingZone.angle - DegreeToRad (180);
+								placingZone.cellsLT [xx].horLen = DGGetItemValDouble (dialogID, VLEN_LT);
+								placingZone.cellsLT [xx].verLen = DGGetItemValDouble (dialogID, HLEN_LT);
+								placingZone.cellsLT [xx].height = 1.200;
+								placingZone.cellsLT [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, VLEN_LT);
+								placingZone.cellsLT [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, HLEN_LT);
+								placingZone.cellsLT [xx].libPart.outcorner.hei_s = 1.200;
+							}
 
-							placingZone.cellsLin1 [xx].objType = INCORNER;
-							placingZone.cellsLin1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin1_C)) * sin(placingZone.angle);
-							placingZone.cellsLin1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin1_C)) * cos(placingZone.angle);
-							placingZone.cellsLin1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsLin1 [xx].ang = placingZone.angle + DegreeToRad (90);
-							placingZone.cellsLin1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Lin1_C);
-							if (placingZone.relationCase != 4)
-								placingZone.cellsLin1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin1_W);
-							else
-								placingZone.cellsLin1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin2_W);
-							placingZone.cellsLin1 [xx].height = 1.200;
-							placingZone.cellsLin1 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Lin1_C);
-							if (placingZone.relationCase != 4)
-								placingZone.cellsLin1 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Lin1_W);
-							else
-								placingZone.cellsLin1 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Lin2_W);
-							placingZone.cellsLin1 [xx].libPart.incorner.hei_s = 1.200;
-						}
+							// 우상단
+							if ((HLEN_RT != 0) && (VLEN_RT != 0)) {
+								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
-						// 왼쪽 인코너 셀 2 (아래)
-						if (LEN_Lin2_C != 0) {
-							xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+								placingZone.cellsRT [xx].objType = OUTCORNER;
+								placingZone.cellsRT [xx].leftBottomX = rotatedPoint.x;
+								placingZone.cellsRT [xx].leftBottomY = rotatedPoint.y;
+								placingZone.cellsRT [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsRT [xx].ang = placingZone.angle + DegreeToRad (90);
+								placingZone.cellsRT [xx].horLen = DGGetItemValDouble (dialogID, VLEN_RT);
+								placingZone.cellsRT [xx].verLen = DGGetItemValDouble (dialogID, HLEN_RT);
+								placingZone.cellsRT [xx].height = 1.200;
+								placingZone.cellsRT [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, HLEN_RT);
+								placingZone.cellsRT [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, VLEN_RT);
+								placingZone.cellsRT [xx].libPart.outcorner.hei_s = 1.200;
+							}
 
-							placingZone.cellsLin2 [xx].objType = INCORNER;
-							placingZone.cellsLin2 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin2_C)) * sin(placingZone.angle);
-							placingZone.cellsLin2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin2_C)) * cos(placingZone.angle);
-							placingZone.cellsLin2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsLin2 [xx].ang = placingZone.angle + DegreeToRad (180);
-							placingZone.cellsLin2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Lin2_W);
-							placingZone.cellsLin2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin2_C);
-							placingZone.cellsLin2 [xx].height = 1.200;
-							placingZone.cellsLin2 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Lin2_W);
-							placingZone.cellsLin2 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Lin2_C);
-							placingZone.cellsLin2 [xx].libPart.incorner.hei_s = 1.200;
-						}
-
-						// 오른쪽 인코너 셀 1 (위)
-						if (LEN_Rin1_C != 0) {
-							xLen = (placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsRin1 [xx].objType = INCORNER;
-							placingZone.cellsRin1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin1_C)) * sin(placingZone.angle);
-							placingZone.cellsRin1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin1_C)) * cos(placingZone.angle);
-							placingZone.cellsRin1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsRin1 [xx].ang = placingZone.angle;
-							if (placingZone.relationCase != 4)
-								placingZone.cellsRin1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Rin1_W);
-							else
-								placingZone.cellsRin1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Rin2_W);
-							placingZone.cellsRin1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Rin1_C);
-							placingZone.cellsRin1 [xx].height = 1.200;
-							if (placingZone.relationCase != 4)
-								placingZone.cellsRin1 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Rin1_W);
-							else
-								placingZone.cellsRin1 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Rin2_W);
-							placingZone.cellsRin1 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Rin1_C);
-							placingZone.cellsRin1 [xx].libPart.incorner.hei_s = 1.200;
-						}
-
-						// 오른쪽 인코너 셀 2 (아래)
-						if (LEN_Rin2_C != 0) {
-							xLen = (placingZone.coreWidth/2 + placingZone.venThick);
-							yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
-
-							placingZone.cellsRin2 [xx].objType = INCORNER;
-							placingZone.cellsRin2 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin2_C)) * sin(placingZone.angle);
-							placingZone.cellsRin2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin2_C)) * cos(placingZone.angle);
-							placingZone.cellsRin2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsRin2 [xx].ang = placingZone.angle - DegreeToRad (90);
-							placingZone.cellsRin2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Rin2_C);
-							placingZone.cellsRin2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Rin2_W);
-							placingZone.cellsRin2 [xx].height = 1.200;
-							placingZone.cellsRin2 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Rin2_C);
-							placingZone.cellsRin2 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Rin2_W);
-							placingZone.cellsRin2 [xx].libPart.incorner.hei_s = 1.200;
-						}
-
-						// W1
-						if (LEN_W1 != 0) {
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+							// 좌하단
+							if ((HLEN_LB != 0) && (VLEN_LB != 0)) {
 								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
 								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							} else {
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsLB [xx].objType = OUTCORNER;
+								placingZone.cellsLB [xx].leftBottomX = rotatedPoint.x;
+								placingZone.cellsLB [xx].leftBottomY = rotatedPoint.y;
+								placingZone.cellsLB [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsLB [xx].ang = placingZone.angle - DegreeToRad (90);
+								placingZone.cellsLB [xx].horLen = DGGetItemValDouble (dialogID, VLEN_LB);
+								placingZone.cellsLB [xx].verLen = DGGetItemValDouble (dialogID, HLEN_LB);
+								placingZone.cellsLB [xx].height = 1.200;
+								placingZone.cellsLB [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, HLEN_LB);
+								placingZone.cellsLB [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, VLEN_LB);
+								placingZone.cellsLB [xx].libPart.outcorner.hei_s = 1.200;
+							}
+
+							// 우하단
+							if ((HLEN_RB != 0) && (VLEN_RB != 0)) {
 								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
 								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							}
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
-							placingZone.cellsW1 [xx].objType = EUROFORM;
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								placingZone.cellsW1 [xx].leftBottomX = rotatedPoint.x - (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) + DGGetItemValDouble (dialogID, HLEN_LB) * cos(placingZone.angle);
-								placingZone.cellsW1 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + DGGetItemValDouble (dialogID, HLEN_LB) * sin(placingZone.angle);
-								placingZone.cellsW1 [xx].ang = placingZone.angle + DegreeToRad (180);
-								placingZone.cellsW1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin2_W) + DGGetItemValDouble (dialogID, HLEN_LB);
-								placingZone.cellsW1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_Lin2_W) + DGGetItemValDouble (dialogID, HLEN_LB);
-								placingZone.cellsW1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_Lin2_W) + DGGetItemValDouble (dialogID, HLEN_LB);
-							} else {
-								placingZone.cellsW1 [xx].leftBottomX = rotatedPoint.x + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) - DGGetItemValDouble (dialogID, LEN_Lin1_W) * cos(placingZone.angle);
-								placingZone.cellsW1 [xx].leftBottomY = rotatedPoint.y - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) - DGGetItemValDouble (dialogID, LEN_Lin1_W) * sin(placingZone.angle);
-								placingZone.cellsW1 [xx].ang = placingZone.angle;
-								placingZone.cellsW1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin1_W) + DGGetItemValDouble (dialogID, HLEN_LT);
-								placingZone.cellsW1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_Lin1_W) + DGGetItemValDouble (dialogID, HLEN_LT);
-								placingZone.cellsW1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_Lin1_W) + DGGetItemValDouble (dialogID, HLEN_LT);
+								placingZone.cellsRB [xx].objType = OUTCORNER;
+								placingZone.cellsRB [xx].leftBottomX = rotatedPoint.x;
+								placingZone.cellsRB [xx].leftBottomY = rotatedPoint.y;
+								placingZone.cellsRB [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsRB [xx].ang = placingZone.angle;
+								placingZone.cellsRB [xx].horLen = DGGetItemValDouble (dialogID, VLEN_RB);
+								placingZone.cellsRB [xx].verLen = DGGetItemValDouble (dialogID, HLEN_RB);
+								placingZone.cellsRB [xx].height = 1.200;
+								placingZone.cellsRB [xx].libPart.outcorner.leng_s = DGGetItemValDouble (dialogID, VLEN_RB);
+								placingZone.cellsRB [xx].libPart.outcorner.wid_s = DGGetItemValDouble (dialogID, HLEN_RB);
+								placingZone.cellsRB [xx].libPart.outcorner.hei_s = 1.200;
 							}
-							placingZone.cellsW1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsW1 [xx].horLen = 0.064;
-							placingZone.cellsW1 [xx].height = 1.200;
-							placingZone.cellsW1 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsW1 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsW1 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsW1 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsW1 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsW1 [xx].libPart.form.eu_stan_onoff = false;
-						}
 
-						// W2
-						if (LEN_W2 != 0) {
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+							// T1
+							if (LEN_T1 != 0) {
+								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsT1 [xx].objType = EUROFORM;
+								placingZone.cellsT1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1)) * sin(placingZone.angle);
+								placingZone.cellsT1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1)) * cos(placingZone.angle);
+								placingZone.cellsT1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsT1 [xx].ang = placingZone.angle + DegreeToRad (90);
+								placingZone.cellsT1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_T1);
+								placingZone.cellsT1 [xx].verLen = 0.064;
+								placingZone.cellsT1 [xx].height = 1.200;
+								placingZone.cellsT1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T1);
+								placingZone.cellsT1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T1);
+								placingZone.cellsT1 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsT1 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsT1 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsT1 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsT1 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsT1 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// T2
+							if (LEN_T2 != 0) {
+								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsT2 [xx].objType = EUROFORM;
+								placingZone.cellsT2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * sin(placingZone.angle);
+								placingZone.cellsT2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * cos(placingZone.angle);
+								placingZone.cellsT2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsT2 [xx].ang = placingZone.angle + DegreeToRad (90);
+								placingZone.cellsT2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_T2);
+								placingZone.cellsT2 [xx].verLen = 0.064;
+								placingZone.cellsT2 [xx].height = 1.200;
+								placingZone.cellsT2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T2);
+								placingZone.cellsT2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T2);
+								placingZone.cellsT2 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsT2 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsT2 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsT2 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsT2 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsT2 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// B1
+							if (LEN_B1 != 0) {
 								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
 								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							} else {
-								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							}
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
-							placingZone.cellsW2 [xx].objType = EUROFORM;
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								placingZone.cellsW2 [xx].leftBottomX = rotatedPoint.x - (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * cos(placingZone.angle);
-								placingZone.cellsW2 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * sin(placingZone.angle);
-								placingZone.cellsW2 [xx].ang = placingZone.angle + DegreeToRad (180);
-								placingZone.cellsW2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_B1);
-								placingZone.cellsW2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B1);
-								placingZone.cellsW2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B1);
-							} else {
-								placingZone.cellsW2 [xx].leftBottomX = rotatedPoint.x + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) + DGGetItemValDouble (dialogID, HLEN_LT) * cos(placingZone.angle);
-								placingZone.cellsW2 [xx].leftBottomY = rotatedPoint.y - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) + DGGetItemValDouble (dialogID, HLEN_LT) * sin(placingZone.angle);
-								placingZone.cellsW2 [xx].ang = placingZone.angle;
-								placingZone.cellsW2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_T1);
-								placingZone.cellsW2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T1);
-								placingZone.cellsW2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T1);
+								placingZone.cellsB1 [xx].objType = EUROFORM;
+								placingZone.cellsB1 [xx].leftBottomX = rotatedPoint.x + DGGetItemValDouble (dialogID, HLEN_LB) * sin(placingZone.angle);
+								placingZone.cellsB1 [xx].leftBottomY = rotatedPoint.y - DGGetItemValDouble (dialogID, HLEN_LB) * cos(placingZone.angle);
+								placingZone.cellsB1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsB1 [xx].ang = placingZone.angle - DegreeToRad (90);
+								placingZone.cellsB1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_B1);
+								placingZone.cellsB1 [xx].verLen = 0.064;
+								placingZone.cellsB1 [xx].height = 1.200;
+								placingZone.cellsB1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B1);
+								placingZone.cellsB1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B1);
+								placingZone.cellsB1 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsB1 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsB1 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsB1 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsB1 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsB1 [xx].libPart.form.eu_stan_onoff = false;
 							}
-							placingZone.cellsW2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsW2 [xx].horLen = 0.064;
-							placingZone.cellsW2 [xx].height = 1.200;
-							placingZone.cellsW2 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsW2 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsW2 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsW2 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsW2 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsW2 [xx].libPart.form.eu_stan_onoff = false;
-						}
 
-						// W3
-						if (LEN_W3 != 0) {
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+							// B2
+							if (LEN_B2 != 0) {
 								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
 								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							} else {
-								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
-								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							}
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
-							placingZone.cellsW3 [xx].objType = EUROFORM;
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								placingZone.cellsW3 [xx].leftBottomX = rotatedPoint.x - (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2)) * cos(placingZone.angle);
-								placingZone.cellsW3 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2)) * sin(placingZone.angle);
-								placingZone.cellsW3 [xx].ang = placingZone.angle + DegreeToRad (180);
-								placingZone.cellsW3 [xx].verLen = DGGetItemValDouble (dialogID, LEN_B2);
-								placingZone.cellsW3 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B2);
-								placingZone.cellsW3 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B2);
-							} else {
-								placingZone.cellsW3 [xx].leftBottomX = rotatedPoint.x + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * cos(placingZone.angle);
-								placingZone.cellsW3 [xx].leftBottomY = rotatedPoint.y - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * sin(placingZone.angle);
-								placingZone.cellsW3 [xx].ang = placingZone.angle;
-								placingZone.cellsW3 [xx].verLen = DGGetItemValDouble (dialogID, LEN_T2);
-								placingZone.cellsW3 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T2);
-								placingZone.cellsW3 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T2);
+								placingZone.cellsB2 [xx].objType = EUROFORM;
+								placingZone.cellsB2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * sin(placingZone.angle);
+								placingZone.cellsB2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * cos(placingZone.angle);
+								placingZone.cellsB2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsB2 [xx].ang = placingZone.angle - DegreeToRad (90);
+								placingZone.cellsB2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_B2);
+								placingZone.cellsB2 [xx].verLen = 0.064;
+								placingZone.cellsB2 [xx].height = 1.200;
+								placingZone.cellsB2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B2);
+								placingZone.cellsB2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B2);
+								placingZone.cellsB2 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsB2 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsB2 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsB2 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsB2 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsB2 [xx].libPart.form.eu_stan_onoff = false;
 							}
-							placingZone.cellsW3 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsW3 [xx].horLen = 0.064;
-							placingZone.cellsW3 [xx].height = 1.200;
-							placingZone.cellsW3 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsW3 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsW3 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsW3 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsW3 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsW3 [xx].libPart.form.eu_stan_onoff = false;
-						}
 
-						// W4
-						if (LEN_W4 != 0) {
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+							// L1
+							if (LEN_L1 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsL1 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsL1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_L1)) * cos(placingZone.angle);
+									placingZone.cellsL1 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_L1)) * sin(placingZone.angle);
+									placingZone.cellsL1 [xx].ang = placingZone.angle - DegreeToRad (180);
+								} else {
+									placingZone.cellsL1 [xx].leftBottomX = rotatedPoint.x - DGGetItemValDouble (dialogID, VLEN_LT) * cos(placingZone.angle);
+									placingZone.cellsL1 [xx].leftBottomY = rotatedPoint.y - DGGetItemValDouble (dialogID, VLEN_LT) * sin(placingZone.angle);
+									placingZone.cellsL1 [xx].ang = placingZone.angle - DegreeToRad (180);
+								}
+								placingZone.cellsL1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsL1 [xx].horLen = 0.064;
+								placingZone.cellsL1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_L1);
+								placingZone.cellsL1 [xx].height = 1.200;
+								placingZone.cellsL1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_L1);
+								placingZone.cellsL1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_L1);
+								placingZone.cellsL1 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsL1 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsL1 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsL1 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsL1 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsL1 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// L2
+							if (LEN_L2 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsL2 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsL2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2)) * cos(placingZone.angle);
+									placingZone.cellsL2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L2)) * sin(placingZone.angle);
+									placingZone.cellsL2 [xx].ang = placingZone.angle - DegreeToRad (180);
+								} else {
+									placingZone.cellsL2 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * cos(placingZone.angle);
+									placingZone.cellsL2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * sin(placingZone.angle);
+									placingZone.cellsL2 [xx].ang = placingZone.angle - DegreeToRad (180);
+								}
+								placingZone.cellsL2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsL2 [xx].horLen = 0.064;
+								placingZone.cellsL2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_L2);
+								placingZone.cellsL2 [xx].height = 1.200;
+								placingZone.cellsL2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_L2);
+								placingZone.cellsL2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_L2);
+								placingZone.cellsL2 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsL2 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsL2 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsL2 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsL2 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsL2 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// R1
+							if (LEN_R1 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsR1 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsR1 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R2)) * cos(placingZone.angle);
+									placingZone.cellsR1 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R2)) * sin(placingZone.angle);
+									placingZone.cellsR1 [xx].ang = placingZone.angle;
+								} else {
+									placingZone.cellsR1 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1)) * cos(placingZone.angle);
+									placingZone.cellsR1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1)) * sin(placingZone.angle);
+									placingZone.cellsR1 [xx].ang = placingZone.angle;
+								}
+								placingZone.cellsR1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsR1 [xx].horLen = 0.064;
+								placingZone.cellsR1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_R1);
+								placingZone.cellsR1 [xx].height = 1.200;
+								placingZone.cellsR1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_R1);
+								placingZone.cellsR1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_R1);
+								placingZone.cellsR1 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsR1 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsR1 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsR1 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsR1 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsR1 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// R2
+							if (LEN_R2 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsR2 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsR2 [xx].leftBottomX = rotatedPoint.x + DGGetItemValDouble (dialogID, VLEN_RB) * cos(placingZone.angle);
+									placingZone.cellsR2 [xx].leftBottomY = rotatedPoint.y + DGGetItemValDouble (dialogID, VLEN_RB) * sin(placingZone.angle);
+									placingZone.cellsR2 [xx].ang = placingZone.angle;
+								} else {
+									placingZone.cellsR2 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2)) * cos(placingZone.angle);
+									placingZone.cellsR2 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2)) * sin(placingZone.angle);
+									placingZone.cellsR2 [xx].ang = placingZone.angle;
+								}
+								placingZone.cellsR2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsR2 [xx].horLen = 0.064;
+								placingZone.cellsR2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_R2);
+								placingZone.cellsR2 [xx].height = 1.200;
+								placingZone.cellsR2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_R2);
+								placingZone.cellsR2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_R2);
+								placingZone.cellsR2 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsR2 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsR2 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsR2 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsR2 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsR2 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// 왼쪽 인코너 셀 1 (위)
+							if (LEN_Lin1_C != 0) {
+								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsLin1 [xx].objType = INCORNER;
+								placingZone.cellsLin1 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin1_C)) * cos(placingZone.angle);
+								placingZone.cellsLin1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin1_C)) * sin(placingZone.angle);
+								placingZone.cellsLin1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsLin1 [xx].ang = placingZone.angle;
+								placingZone.cellsLin1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Lin1_C);
+								if (placingZone.relationCase != 4)
+									placingZone.cellsLin1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin1_W);
+								else
+									placingZone.cellsLin1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin2_W);
+								placingZone.cellsLin1 [xx].height = 1.200;
+								placingZone.cellsLin1 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Lin1_C);
+								if (placingZone.relationCase != 4)
+									placingZone.cellsLin1 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Lin1_W);
+								else
+									placingZone.cellsLin1 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Lin2_W);
+								placingZone.cellsLin1 [xx].libPart.incorner.hei_s = 1.200;
+							}
+
+							// 왼쪽 인코너 셀 2 (아래)
+							if (LEN_Lin2_C != 0) {
 								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
 								yLen = (placingZone.coreDepth/2 + placingZone.venThick);
-							} else {
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsLin2 [xx].objType = INCORNER;
+								placingZone.cellsLin2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin2_C)) * cos(placingZone.angle);
+								placingZone.cellsLin2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_LB) + DGGetItemValDouble (dialogID, LEN_L1) + DGGetItemValDouble (dialogID, LEN_L2) + DGGetItemValDouble (dialogID, LEN_Lin2_C)) * sin(placingZone.angle);
+								placingZone.cellsLin2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsLin2 [xx].ang = placingZone.angle + DegreeToRad (90);
+								placingZone.cellsLin2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Lin2_W);
+								placingZone.cellsLin2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin2_C);
+								placingZone.cellsLin2 [xx].height = 1.200;
+								placingZone.cellsLin2 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Lin2_W);
+								placingZone.cellsLin2 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Lin2_C);
+								placingZone.cellsLin2 [xx].libPart.incorner.hei_s = 1.200;
+							}
+
+							// 오른쪽 인코너 셀 1 (위)
+							if (LEN_Rin1_C != 0) {
+								xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsRin1 [xx].objType = INCORNER;
+								placingZone.cellsRin1 [xx].leftBottomX = rotatedPoint.x - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin1_C)) * cos(placingZone.angle);
+								placingZone.cellsRin1 [xx].leftBottomY = rotatedPoint.y - (DGGetItemValDouble (dialogID, VLEN_RT) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin1_C)) * sin(placingZone.angle);
+								placingZone.cellsRin1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsRin1 [xx].ang = placingZone.angle - DegreeToRad (90);
+								if (placingZone.relationCase != 4)
+									placingZone.cellsRin1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Rin1_W);
+								else
+									placingZone.cellsRin1 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Rin2_W);
+								placingZone.cellsRin1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Rin1_C);
+								placingZone.cellsRin1 [xx].height = 1.200;
+								if (placingZone.relationCase != 4)
+									placingZone.cellsRin1 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Rin1_W);
+								else
+									placingZone.cellsRin1 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Rin2_W);
+								placingZone.cellsRin1 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Rin1_C);
+								placingZone.cellsRin1 [xx].libPart.incorner.hei_s = 1.200;
+							}
+
+							// 오른쪽 인코너 셀 2 (아래)
+							if (LEN_Rin2_C != 0) {
 								xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
 								yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
-							}
-							lineLen = sqrt (xLen*xLen + yLen*yLen);
-							rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
-							rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
 
-							placingZone.cellsW4 [xx].objType = EUROFORM;
-							if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
-								placingZone.cellsW4 [xx].leftBottomX = rotatedPoint.x - (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2) + DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W)) * cos(placingZone.angle);
-								placingZone.cellsW4 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2) + DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W)) * sin(placingZone.angle);
-								placingZone.cellsW4 [xx].ang = placingZone.angle + DegreeToRad (180);
-								placingZone.cellsW4 [xx].verLen = DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W);
-								placingZone.cellsW4 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W);
-								placingZone.cellsW4 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W);
-							} else {
-								placingZone.cellsW4 [xx].leftBottomX = rotatedPoint.x + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * cos(placingZone.angle);
-								placingZone.cellsW4 [xx].leftBottomY = rotatedPoint.y - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * sin(placingZone.angle);
-								placingZone.cellsW4 [xx].ang = placingZone.angle;
-								placingZone.cellsW4 [xx].verLen = DGGetItemValDouble (dialogID, HLEN_RT) + DGGetItemValDouble (dialogID, LEN_Rin1_W);
-								placingZone.cellsW4 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, HLEN_RT) + DGGetItemValDouble (dialogID, LEN_Rin1_W);
-								placingZone.cellsW4 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, HLEN_RT) + DGGetItemValDouble (dialogID, LEN_Rin1_W);
+								placingZone.cellsRin2 [xx].objType = INCORNER;
+								placingZone.cellsRin2 [xx].leftBottomX = rotatedPoint.x + (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin2_C)) * cos(placingZone.angle);
+								placingZone.cellsRin2 [xx].leftBottomY = rotatedPoint.y + (DGGetItemValDouble (dialogID, VLEN_RB) + DGGetItemValDouble (dialogID, LEN_R1) + DGGetItemValDouble (dialogID, LEN_R2) + DGGetItemValDouble (dialogID, LEN_Rin2_C)) * sin(placingZone.angle);
+								placingZone.cellsRin2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsRin2 [xx].ang = placingZone.angle - DegreeToRad (180);
+								placingZone.cellsRin2 [xx].horLen = DGGetItemValDouble (dialogID, LEN_Rin2_C);
+								placingZone.cellsRin2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Rin2_W);
+								placingZone.cellsRin2 [xx].height = 1.200;
+								placingZone.cellsRin2 [xx].libPart.incorner.wid_s = DGGetItemValDouble (dialogID, LEN_Rin2_C);
+								placingZone.cellsRin2 [xx].libPart.incorner.leng_s = DGGetItemValDouble (dialogID, LEN_Rin2_W);
+								placingZone.cellsRin2 [xx].libPart.incorner.hei_s = 1.200;
 							}
-							placingZone.cellsW4 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
-							placingZone.cellsW4 [xx].horLen = 0.064;
-							placingZone.cellsW4 [xx].height = 1.200;
-							placingZone.cellsW4 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsW4 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsW4 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsW4 [xx].libPart.form.eu_wid;
-							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsW4 [xx].libPart.form.eu_stan_onoff = true;
-							else
-								placingZone.cellsW4 [xx].libPart.form.eu_stan_onoff = false;
+
+							// W1
+							if (LEN_W1 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsW1 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsW1 [xx].leftBottomX = rotatedPoint.x + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + DGGetItemValDouble (dialogID, HLEN_LB) * sin(placingZone.angle);
+									placingZone.cellsW1 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) - DGGetItemValDouble (dialogID, HLEN_LB) * cos(placingZone.angle);
+									placingZone.cellsW1 [xx].ang = placingZone.angle + DegreeToRad (90);
+									placingZone.cellsW1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin2_W) + DGGetItemValDouble (dialogID, HLEN_LB);
+									placingZone.cellsW1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_Lin2_W) + DGGetItemValDouble (dialogID, HLEN_LB);
+									placingZone.cellsW1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_Lin2_W) + DGGetItemValDouble (dialogID, HLEN_LB);
+								} else {
+									placingZone.cellsW1 [xx].leftBottomX = rotatedPoint.x - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) + DGGetItemValDouble (dialogID, LEN_Lin1_W) * sin(placingZone.angle);
+									placingZone.cellsW1 [xx].leftBottomY = rotatedPoint.y + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) + DGGetItemValDouble (dialogID, LEN_Lin1_W) * cos(placingZone.angle);
+									placingZone.cellsW1 [xx].ang = placingZone.angle - DegreeToRad (90);
+									placingZone.cellsW1 [xx].verLen = DGGetItemValDouble (dialogID, LEN_Lin1_W) + DGGetItemValDouble (dialogID, HLEN_LT);
+									placingZone.cellsW1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_Lin1_W) + DGGetItemValDouble (dialogID, HLEN_LT);
+									placingZone.cellsW1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_Lin1_W) + DGGetItemValDouble (dialogID, HLEN_LT);
+								}
+								placingZone.cellsW1 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsW1 [xx].horLen = 0.064;
+								placingZone.cellsW1 [xx].height = 1.200;
+								placingZone.cellsW1 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsW1 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsW1 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsW1 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsW1 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsW1 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// W2
+							if (LEN_W2 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsW2 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsW2 [xx].leftBottomX = rotatedPoint.x + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * sin(placingZone.angle);
+									placingZone.cellsW2 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) - (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1)) * cos(placingZone.angle);
+									placingZone.cellsW2 [xx].ang = placingZone.angle + DegreeToRad (90);
+									placingZone.cellsW2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_B1);
+									placingZone.cellsW2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B1);
+									placingZone.cellsW2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B1);
+								} else {
+									placingZone.cellsW2 [xx].leftBottomX = rotatedPoint.x - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) + DGGetItemValDouble (dialogID, HLEN_LT) * sin(placingZone.angle);
+									placingZone.cellsW2 [xx].leftBottomY = rotatedPoint.y + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) - DGGetItemValDouble (dialogID, HLEN_LT) * cos(placingZone.angle);
+									placingZone.cellsW2 [xx].ang = placingZone.angle - DegreeToRad (90);
+									placingZone.cellsW2 [xx].verLen = DGGetItemValDouble (dialogID, LEN_T1);
+									placingZone.cellsW2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T1);
+									placingZone.cellsW2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T1);
+								}
+								placingZone.cellsW2 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsW2 [xx].horLen = 0.064;
+								placingZone.cellsW2 [xx].height = 1.200;
+								placingZone.cellsW2 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsW2 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsW2 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsW2 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsW2 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsW2 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// W3
+							if (LEN_W3 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsW3 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsW3 [xx].leftBottomX = rotatedPoint.x + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2)) * sin(placingZone.angle);
+									placingZone.cellsW3 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) - (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2)) * cos(placingZone.angle);
+									placingZone.cellsW3 [xx].ang = placingZone.angle + DegreeToRad (90);
+									placingZone.cellsW3 [xx].verLen = DGGetItemValDouble (dialogID, LEN_B2);
+									placingZone.cellsW3 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_B2);
+									placingZone.cellsW3 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_B2);
+								} else {
+									placingZone.cellsW3 [xx].leftBottomX = rotatedPoint.x - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * sin(placingZone.angle);
+									placingZone.cellsW3 [xx].leftBottomY = rotatedPoint.y + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) - (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_L1)) * cos(placingZone.angle);
+									placingZone.cellsW3 [xx].ang = placingZone.angle - DegreeToRad (90);
+									placingZone.cellsW3 [xx].verLen = DGGetItemValDouble (dialogID, LEN_T2);
+									placingZone.cellsW3 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, LEN_T2);
+									placingZone.cellsW3 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, LEN_T2);
+								}
+								placingZone.cellsW3 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsW3 [xx].horLen = 0.064;
+								placingZone.cellsW3 [xx].height = 1.200;
+								placingZone.cellsW3 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsW3 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsW3 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsW3 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsW3 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsW3 [xx].libPart.form.eu_stan_onoff = false;
+							}
+
+							// W4
+							if (LEN_W4 != 0) {
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									xLen = (placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								} else {
+									xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
+									yLen = (placingZone.coreDepth/2 + placingZone.venThick);
+								}
+								lineLen = sqrt (xLen*xLen + yLen*yLen);
+								rotatedPoint.x = placingZone.origoPos.x + lineLen*cos(atan2 (yLen, xLen) + placingZone.angle);
+								rotatedPoint.y = placingZone.origoPos.y + lineLen*sin(atan2 (yLen, xLen) + placingZone.angle);
+
+								placingZone.cellsW4 [xx].objType = EUROFORM;
+								if ( (placingZone.relationCase >= 1) && (placingZone.relationCase <= 3) ) {
+									placingZone.cellsW4 [xx].leftBottomX = rotatedPoint.x + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2) + DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W)) * sin(placingZone.angle);
+									placingZone.cellsW4 [xx].leftBottomY = rotatedPoint.y + (placingZone.posTopWallLine - placingZone.posTopColumnLine) * sin(placingZone.angle) - (DGGetItemValDouble (dialogID, HLEN_LB) + DGGetItemValDouble (dialogID, LEN_B1) + DGGetItemValDouble (dialogID, LEN_B2) + DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W)) * cos(placingZone.angle);
+									placingZone.cellsW4 [xx].ang = placingZone.angle + DegreeToRad (90);
+									placingZone.cellsW4 [xx].verLen = DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W);
+									placingZone.cellsW4 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W);
+									placingZone.cellsW4 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, HLEN_RB) + DGGetItemValDouble (dialogID, LEN_Rin2_W);
+								} else {
+									placingZone.cellsW4 [xx].leftBottomX = rotatedPoint.x - (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * cos(placingZone.angle) + (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * sin(placingZone.angle);
+									placingZone.cellsW4 [xx].leftBottomY = rotatedPoint.y + (placingZone.posBottomColumnLine - placingZone.posBottomWallLine) * sin(placingZone.angle) - (DGGetItemValDouble (dialogID, HLEN_LT) + DGGetItemValDouble (dialogID, LEN_T1) + DGGetItemValDouble (dialogID, LEN_T2)) * cos(placingZone.angle);
+									placingZone.cellsW4 [xx].ang = placingZone.angle - DegreeToRad (90);
+									placingZone.cellsW4 [xx].verLen = DGGetItemValDouble (dialogID, HLEN_RT) + DGGetItemValDouble (dialogID, LEN_Rin1_W);
+									placingZone.cellsW4 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, HLEN_RT) + DGGetItemValDouble (dialogID, LEN_Rin1_W);
+									placingZone.cellsW4 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, HLEN_RT) + DGGetItemValDouble (dialogID, LEN_Rin1_W);
+								}
+								placingZone.cellsW4 [xx].leftBottomZ = placingZone.bottomOffset + (1.200 * xx);
+								placingZone.cellsW4 [xx].horLen = 0.064;
+								placingZone.cellsW4 [xx].height = 1.200;
+								placingZone.cellsW4 [xx].libPart.form.eu_hei = 1.200;
+								placingZone.cellsW4 [xx].libPart.form.eu_hei2 = 1.200;
+								placingZone.cellsW4 [xx].libPart.form.u_ins_wall = true;
+								formWidth = placingZone.cellsW4 [xx].libPart.form.eu_wid;
+								if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
+									placingZone.cellsW4 [xx].libPart.form.eu_stan_onoff = true;
+								else
+									placingZone.cellsW4 [xx].libPart.form.eu_stan_onoff = false;
+							}
 						}
 					}
 
