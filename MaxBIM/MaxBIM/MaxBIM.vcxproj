@@ -135,6 +135,7 @@
     <ClInclude Include="Src\ColumnEuroformPlacer.hpp" />
     <ClInclude Include="Src\Information.hpp" />
     <ClInclude Include="Src\MaxBIM.hpp" />
+    <ClInclude Include="Src\Others.hpp" />
     <ClInclude Include="Src\SlabEuroformPlacer.hpp" />
     <ClInclude Include="Src\UtilityFunctions.hpp" />
     <ClInclude Include="Src\WallEuroformPlacer.hpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="Src\BeamEuroformPlacer.cpp" />
     <ClCompile Include="Src\ColumnEuroformPlacer.cpp" />
     <ClCompile Include="Src\Information.cpp" />
+    <ClCompile Include="Src\Others.cpp" />
     <ClCompile Include="Src\SlabEuroformPlacer.cpp" />
     <ClCompile Include="Src\WallEuroformPlacer.cpp" />
     <ClCompile Include="Src\MaxBIM.cpp" />

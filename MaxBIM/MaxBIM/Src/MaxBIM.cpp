@@ -3,10 +3,13 @@
  */
 
 #include "MaxBIM.hpp"
+
 #include "WallEuroformPlacer.hpp"
 #include "SlabEuroformPlacer.hpp"
 #include "BeamEuroformPlacer.hpp"
 #include "ColumnEuroformPlacer.hpp"
+
+#include "Others.hpp"
 
 #include "Information.hpp"
 
@@ -43,8 +46,9 @@ GSErrCode	__ACENV_CALL	RegisterInterface (void)
 	//
 	GSErrCode err;
 	
-	err = ACAPI_Register_Menu (32001, 32002, MenuCode_UserDef, MenuFlag_Default);
-	err = ACAPI_Register_Menu (32003, 32004, MenuCode_UserDef, MenuFlag_Default);
+	err = ACAPI_Register_Menu (32001, 32002, MenuCode_UserDef, MenuFlag_Default);	// 유로폼 배치
+	err = ACAPI_Register_Menu (32005, 32006, MenuCode_UserDef, MenuFlag_Default);	// 기타
+	err = ACAPI_Register_Menu (32003, 32004, MenuCode_UserDef, MenuFlag_Default);	// 정보
 
 	return err;
 }		// RegisterInterface ()
@@ -63,6 +67,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 
 	switch (menuParams->menuItemRef.menuResID) {
 		case 32001:
+			// 유로폼 배치
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:
 					// place Euroform on Wall
@@ -94,7 +99,16 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					break;
 			}
 			break;
+		case 32005:
+			// 기타
+			switch (menuParams->menuItemRef.itemIndex) {
+				case 1:		// 레이어 쉽게 선택하기
+					err = showLayersEasily ();
+					break;
+			}
+			break;
 		case 32003:
+			// 정보
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:		// 애드온 사용법 보기
 					err = showHelp ();
@@ -118,8 +132,9 @@ GSErrCode __ACENV_CALL	Initialize (void)
 {
 	GSErrCode err;
 	
-	err = ACAPI_Install_MenuHandler (32001, MenuCommandHandler);
-	err = ACAPI_Install_MenuHandler (32003, MenuCommandHandler);
+	err = ACAPI_Install_MenuHandler (32001, MenuCommandHandler);	// 유로폼 배치
+	err = ACAPI_Install_MenuHandler (32005, MenuCommandHandler);	// 기타
+	err = ACAPI_Install_MenuHandler (32003, MenuCommandHandler);	// 정보
 
 	// register special help location if needed
 	// for Graphisoft's add-ons, this is the Help folder beside the installed ArchiCAD
