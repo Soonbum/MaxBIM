@@ -25,10 +25,10 @@ struct LayerNameSystem
 	bool	bType_08_L;		// 조경 (08-L)
 	bool	bType_09_C;		// 토목 (09-C)
 	bool	bType_10_K;		// 건설장비 (10-K)
-	bool	bTypeAll;		// 모두
 
 	// 동 구분 (선택)
-	bool	bDong_1xx [100];	// 100 ~ 199동 (0101~0199)
+	bool	bDong_Exist;
+	bool	bDong_1xx [100];	// 100 ~ 199동 (0100~0199)
 	bool	bDong_2xx [100];	// 200 ~ 299동 (0200~0299)
 	bool	bDong_3xx [100];	// 300 ~ 399동 (0300~0399)
 	bool	bDong_4xx [100];	// 400 ~ 499동 (0400~0499)
@@ -45,23 +45,17 @@ struct LayerNameSystem
 	bool	bDong_15xx [100];	// 1500 ~ 1599동 (1500~1599)
 	bool	bDong_SHOP;			// 근린공원 (SHOP)
 	bool	bDong_SECU;			// 경비실 (SECU)
-	bool	bDongAll;			// 모두 (생략한 경우도 포함)
 
 	// 층 구분 (필수)
 	bool	bFloor_Bxx [10];	// 지하층 (인덱스 0은 사용하지 않음) 9B1, 8B2, 7B3, 6B4, 5B5, 4B6, 3B7, 2B8, 1B9 (1B9~9B1에서 1번째 숫자는 정렬 차원에서 넣은 것으로 의미는 없음)
-	bool	bFloor_B_All;		// 지하층 모두
 	bool	bFloor_Fxx [100];	// 지상층 (인덱스 0은 사용하지 않음) F01 ~ F99
-	bool	bFloor_F_All;		// 지상층 모두
 	bool	bFloor_PHxx [10];	// 옥탑층 (인덱스 0은 사용하지 않음) PH1 ~ PH9
-	bool	bFloor_PH_All;		// 옥탑층 모두
 
 	// CJ 구간 (선택)
 	bool	bCJ [100];			// 01~99 (인덱스 0은 사용하지 않음)
-	bool	bCJ_All;			// CJ 구간 모두
 
 	// CJ 속 시공순서 (선택)
 	bool	bOrderInCJ [100];	// 01~99 (인덱스 0은 사용하지 않음)
-	bool	bOrderInCJ_All;		// CJ 속 시공순서 모두
 
 	// 부재 및 객체 구분 (필수)
 	// 01-S 구조
@@ -70,7 +64,7 @@ struct LayerNameSystem
 	bool	bType_01_S_FOOT;	// 기초
 	bool	bType_01_S_WALL;	// 벽체
 	bool	bType_01_S_BEAM;	// 보
-	bool	bType_01_S_SALB;	// 슬래브
+	bool	bType_01_S_SLAB;	// 슬래브
 	bool	bType_01_S_CLST;	// 철골기둥
 	bool	bType_01_S_BMST;	// 철골보
 	bool	bType_01_S_RAMP;	// 램프
@@ -130,7 +124,7 @@ struct LayerNameSystem
 	bool	bType_05_T_CLAM;	// 클램프
 	bool	bType_05_T_LUMB;	// 토류판
 	bool	bType_05_T_TRUS;	// 트러스
-	bool	bType_05_T_TBBM;	// 텀버빔
+	bool	bType_05_T_TBBM;	// 팀버빔
 	bool	bType_05_T_BCWF;	// 합벽지지대
 	bool	bType_05_T_PLYW;	// 합판
 	bool	bType_05_T_FISP;	// 휠러스페이서
@@ -147,7 +141,7 @@ struct LayerNameSystem
 	bool	bType_06_F_PBKT;	// 피스 브라켓
 	bool	bType_06_F_CIP;		// 흙막이 벽체
 	bool	bType_06_F_LAND;	// 대지
-	bool	bType_06_F_ANGL;	// 행글
+	bool	bType_06_F_ANGL;	// 앵글
 	bool	bType_06_F_ERAC;	// 지반앵커
 	bool	bType_06_F_LUMB;	// 토류판
 	bool	bType_06_F_BPAN;	// 복공판
@@ -155,7 +149,8 @@ struct LayerNameSystem
 	bool	bType_06_F_PILE;	// 파일
 };
 
+void		initLayerInfo (void);		// 레이어 정보 초기화
 GSErrCode	showLayersEasily (void);	// 레이어 쉽게 선택하기
-//short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그 박스] MaxBIM 애드온 정보
+short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그 박스] 레이어 보여주기
 
 #endif
