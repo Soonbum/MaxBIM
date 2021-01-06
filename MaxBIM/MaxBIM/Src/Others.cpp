@@ -8,8 +8,19 @@
 
 using namespace othersDG;
 
-LayerNameSystem	layerInfo;
-LayerNameSystem	selectedInfo;
+static LayerNameSystem	layerInfo;
+static LayerNameSystem	selectedInfo;
+
+static short	changedBtnItemIdx;	// 상태가 변경된 버튼의 항목 인덱스
+static short	SELECTALL_1_CONTYPE;
+static short	SELECTALL_2_DONG;
+static short	SELECTALL_3_FLOOR;
+static short	SELECTALL_4_CJ;
+static short	SELECTALL_5_ORDER;
+static short	SELECTALL_6_OBJ_01_S;
+static short	SELECTALL_6_OBJ_02_A;
+static short	SELECTALL_6_OBJ_05_T;
+static short	SELECTALL_6_OBJ_06_F;
 
 
 // 레이어 정보 초기화
@@ -78,6 +89,7 @@ void	initLayerInfo (LayerNameSystem *layerInfo)
 		layerInfo->iDong_SHOP = 0;
 		layerInfo->iDong_SECU = 0;
 	}
+	layerInfo->bDongAllShow = false;
 
 	// 층 구분
 	for (xx = 0 ; xx < 10 ; ++xx) {
@@ -99,6 +111,7 @@ void	initLayerInfo (LayerNameSystem *layerInfo)
 
 		layerInfo->iCJ [xx] = 0;
 	}
+	layerInfo->bCJAllShow = false;
 
 	// CJ 속 시공순서
 	for (xx = 0 ; xx < 100 ; ++xx) {
@@ -106,6 +119,7 @@ void	initLayerInfo (LayerNameSystem *layerInfo)
 
 		layerInfo->iOrderInCJ [xx] = 0;
 	}
+	layerInfo->bOrderInCJAllShow = false;
 
 	// 부재 및 객체 구분
 	// 01-S 구조
@@ -128,6 +142,7 @@ void	initLayerInfo (LayerNameSystem *layerInfo)
 	layerInfo->bType_01_S_BMPC = false;	// 보PC
 	layerInfo->bType_01_S_BMWL = false;	// 보벽체
 	layerInfo->bType_01_S_STST = false;	// 철골계단
+	layerInfo->bType_01_S_AllShow = false;
 
 	layerInfo->iType_01_S_STAR = 0;	// 계단
 	layerInfo->iType_01_S_COLU = 0;	// 기둥
@@ -168,6 +183,7 @@ void	initLayerInfo (LayerNameSystem *layerInfo)
 	layerInfo->bType_02_A_PANE = false;	// 판넬
 	layerInfo->bType_02_A_PLYW = false;	// 합판
 	layerInfo->bType_02_A_PCON = false;	// 무근콘크리트
+	layerInfo->bType_02_A_AllShow = false;
 	
 	layerInfo->iType_02_A_FURN = 0;	// 가구
 	layerInfo->iType_02_A_INSU = 0;	// 단열재
@@ -220,6 +236,7 @@ void	initLayerInfo (LayerNameSystem *layerInfo)
 	layerInfo->bType_05_T_STSE = false;	// 계단제작폼
 	layerInfo->bType_05_T_SLSE = false;	// 슬래브제작폼
 	layerInfo->bType_05_T_RAIL = false;	// 목심레일
+	layerInfo->bType_05_T_AllShow = false;
 	
 	layerInfo->iType_05_T_TIMB = 0;	// 각재
 	layerInfo->iType_05_T_BIMJ = 0;	// 각파이프행거
@@ -268,6 +285,7 @@ void	initLayerInfo (LayerNameSystem *layerInfo)
 	layerInfo->bType_06_F_BPAN = false;	// 복공판
 	layerInfo->bType_06_F_WALE = false;	// 띠장
 	layerInfo->bType_06_F_PILE = false;	// 파일
+	layerInfo->bType_06_F_AllShow = false;
 
 	layerInfo->iType_06_F_STRU = 0;	// 수평H형강
 	layerInfo->iType_06_F_HFIL = 0;	// 수직H형강
@@ -403,7 +421,7 @@ GSErrCode	showLayersEasily (void)
 						success = true;
 					}
 				}
-				// 6차 (CJ 속 시공순서) - 선택 (2글자, 숫자)
+				// 6차 (CJ 속 시공순서) - 선택 (2글자, 숫자) - 단 CJ 구간이 없으면 이것도 없어짐
 				if (i == 6) {
 					strcpy (tempStr, token);
 					if (strlen (tempStr) == 2) {
@@ -451,39 +469,24 @@ GSErrCode	showLayersEasily (void)
 				// 3단계. 동 구분
 				DongNumber = atoi (tok3);
 				if (DongNumber == 0) {
-					if (strncmp (tok4, "SHOP", 4) == 0)	layerInfo.bDong_SHOP = true;
-					if (strncmp (tok4, "SECU", 4) == 0)	layerInfo.bDong_SECU = true;
+					if (strncmp (tok4, "SHOP", 4) == 0)	{	layerInfo.bDong_SHOP = true;	layerInfo.bDongAllShow = true;	}
+					if (strncmp (tok4, "SECU", 4) == 0)	{	layerInfo.bDong_SECU = true;	layerInfo.bDongAllShow = true;	}
 				} else {
-					if ((DongNumber >= 100) && (DongNumber <= 199))
-						layerInfo.bDong_1xx [DongNumber - 100] = true;
-					if ((DongNumber >= 200) && (DongNumber <= 299))
-						layerInfo.bDong_2xx [DongNumber - 200] = true;
-					if ((DongNumber >= 300) && (DongNumber <= 399))
-						layerInfo.bDong_3xx [DongNumber - 300] = true;
-					if ((DongNumber >= 400) && (DongNumber <= 499))
-						layerInfo.bDong_4xx [DongNumber - 400] = true;
-					if ((DongNumber >= 500) && (DongNumber <= 599))
-						layerInfo.bDong_5xx [DongNumber - 500] = true;
-					if ((DongNumber >= 600) && (DongNumber <= 699))
-						layerInfo.bDong_6xx [DongNumber - 600] = true;
-					if ((DongNumber >= 700) && (DongNumber <= 799))
-						layerInfo.bDong_7xx [DongNumber - 700] = true;
-					if ((DongNumber >= 800) && (DongNumber <= 899))
-						layerInfo.bDong_8xx [DongNumber - 800] = true;
-					if ((DongNumber >= 900) && (DongNumber <= 999))
-						layerInfo.bDong_9xx [DongNumber - 900] = true;
-					if ((DongNumber >= 1000) && (DongNumber <= 1099))
-						layerInfo.bDong_10xx [DongNumber - 1000] = true;
-					if ((DongNumber >= 1100) && (DongNumber <= 1199))
-						layerInfo.bDong_11xx [DongNumber - 1100] = true;
-					if ((DongNumber >= 1200) && (DongNumber <= 1299))
-						layerInfo.bDong_12xx [DongNumber - 1200] = true;
-					if ((DongNumber >= 1300) && (DongNumber <= 1399))
-						layerInfo.bDong_13xx [DongNumber - 1300] = true;
-					if ((DongNumber >= 1400) && (DongNumber <= 1499))
-						layerInfo.bDong_14xx [DongNumber - 1400] = true;
-					if ((DongNumber >= 1500) && (DongNumber <= 1599))
-						layerInfo.bDong_15xx [DongNumber - 1500] = true;
+					if ((DongNumber >= 100) && (DongNumber <= 199)) {	layerInfo.bDong_1xx [DongNumber - 100] = true;		layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 200) && (DongNumber <= 299)) {	layerInfo.bDong_2xx [DongNumber - 200] = true;		layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 300) && (DongNumber <= 399)) {	layerInfo.bDong_3xx [DongNumber - 300] = true;		layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 400) && (DongNumber <= 499)) {	layerInfo.bDong_4xx [DongNumber - 400] = true;		layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 500) && (DongNumber <= 599)) {	layerInfo.bDong_5xx [DongNumber - 500] = true;		layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 600) && (DongNumber <= 699)) {	layerInfo.bDong_6xx [DongNumber - 600] = true;		layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 700) && (DongNumber <= 799)) {	layerInfo.bDong_7xx [DongNumber - 700] = true;		layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 800) && (DongNumber <= 899)) {	layerInfo.bDong_8xx [DongNumber - 800] = true;		layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 900) && (DongNumber <= 999)) {	layerInfo.bDong_9xx [DongNumber - 900] = true;		layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 1000) && (DongNumber <= 1099)) {	layerInfo.bDong_10xx [DongNumber - 1000] = true;	layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 1100) && (DongNumber <= 1199)) {	layerInfo.bDong_11xx [DongNumber - 1100] = true;	layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 1200) && (DongNumber <= 1299)) {	layerInfo.bDong_12xx [DongNumber - 1200] = true;	layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 1300) && (DongNumber <= 1399)) {	layerInfo.bDong_13xx [DongNumber - 1300] = true;	layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 1400) && (DongNumber <= 1499)) {	layerInfo.bDong_14xx [DongNumber - 1400] = true;	layerInfo.bDongAllShow = true;	}
+					if ((DongNumber >= 1500) && (DongNumber <= 1599)) {	layerInfo.bDong_15xx [DongNumber - 1500] = true;	layerInfo.bDongAllShow = true;	}
 				}
 
 				// 4단계. 층 구분
@@ -609,102 +612,102 @@ GSErrCode	showLayersEasily (void)
 
 				// 5단계. CJ 구간
 				CJNumber = atoi (tok5);
-				if (CJNumber != 0)	layerInfo.bCJ [CJNumber] = true;
+				if (CJNumber != 0) {	layerInfo.bCJ [CJNumber] = true;	layerInfo.bCJAllShow = true; }
 
 				// 6단계. CJ 속 시공순서
 				OrderInCJNumber = atoi (tok6);
-				if (OrderInCJNumber != 0)	layerInfo.bOrderInCJ [OrderInCJNumber] = true;
+				if (OrderInCJNumber != 0) {	layerInfo.bOrderInCJ [OrderInCJNumber] = true;	layerInfo.bOrderInCJAllShow = true; }
 
 				// 7단계. 부재 및 객체 구분
 				// 01-S 구조
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "STAR", 4) == 0))	layerInfo.bType_01_S_STAR = true;	// 계단
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "COLU", 4) == 0))	layerInfo.bType_01_S_COLU = true;	// 기둥
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "FOOT", 4) == 0))	layerInfo.bType_01_S_FOOT = true;	// 기초
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "WALL", 4) == 0))	layerInfo.bType_01_S_WALL = true;	// 벽체
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "BEAM", 4) == 0))	layerInfo.bType_01_S_BEAM = true;	// 보
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "SLAB", 4) == 0))	layerInfo.bType_01_S_SLAB = true;	// 슬래브
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "CLST", 4) == 0))	layerInfo.bType_01_S_CLST = true;	// 철골기둥
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "BMST", 4) == 0))	layerInfo.bType_01_S_BMST = true;	// 철골보
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "RAMP", 4) == 0))	layerInfo.bType_01_S_RAMP = true;	// 램프
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "CWAL", 4) == 0))	layerInfo.bType_01_S_CWAL = true;	// 합벽
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "WTWL", 4) == 0))	layerInfo.bType_01_S_WTWL = true;	// 방수턱
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "CSTN", 4) == 0))	layerInfo.bType_01_S_CSTN = true;	// 연석
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "MPAD", 4) == 0))	layerInfo.bType_01_S_MPAD = true;	// 장비패드
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "GADN", 4) == 0))	layerInfo.bType_01_S_GADN = true;	// 화단
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "PARA", 4) == 0))	layerInfo.bType_01_S_PARA = true;	// 파라펫
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "CLPC", 4) == 0))	layerInfo.bType_01_S_CLPC = true;	// PC기둥
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "BMPC", 4) == 0))	layerInfo.bType_01_S_BMPC = true;	// 보PC
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "BMWL", 4) == 0))	layerInfo.bType_01_S_BMWL = true;	// 보벽체
-				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "STST", 4) == 0))	layerInfo.bType_01_S_STST = true;	// 철골계단
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "STAR", 4) == 0)) {	layerInfo.bType_01_S_STAR = true;	layerInfo.bType_01_S_AllShow = true; }	// 계단
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "COLU", 4) == 0)) {	layerInfo.bType_01_S_COLU = true;	layerInfo.bType_01_S_AllShow = true; }	// 기둥
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "FOOT", 4) == 0)) {	layerInfo.bType_01_S_FOOT = true;	layerInfo.bType_01_S_AllShow = true; }	// 기초
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "WALL", 4) == 0)) {	layerInfo.bType_01_S_WALL = true;	layerInfo.bType_01_S_AllShow = true; }	// 벽체
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "BEAM", 4) == 0)) {	layerInfo.bType_01_S_BEAM = true;	layerInfo.bType_01_S_AllShow = true; }	// 보
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "SLAB", 4) == 0)) {	layerInfo.bType_01_S_SLAB = true;	layerInfo.bType_01_S_AllShow = true; }	// 슬래브
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "CLST", 4) == 0)) {	layerInfo.bType_01_S_CLST = true;	layerInfo.bType_01_S_AllShow = true; }	// 철골기둥
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "BMST", 4) == 0)) {	layerInfo.bType_01_S_BMST = true;	layerInfo.bType_01_S_AllShow = true; }	// 철골보
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "RAMP", 4) == 0)) {	layerInfo.bType_01_S_RAMP = true;	layerInfo.bType_01_S_AllShow = true; }	// 램프
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "CWAL", 4) == 0)) {	layerInfo.bType_01_S_CWAL = true;	layerInfo.bType_01_S_AllShow = true; }	// 합벽
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "WTWL", 4) == 0)) {	layerInfo.bType_01_S_WTWL = true;	layerInfo.bType_01_S_AllShow = true; }	// 방수턱
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "CSTN", 4) == 0)) {	layerInfo.bType_01_S_CSTN = true;	layerInfo.bType_01_S_AllShow = true; }	// 연석
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "MPAD", 4) == 0)) {	layerInfo.bType_01_S_MPAD = true;	layerInfo.bType_01_S_AllShow = true; }	// 장비패드
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "GADN", 4) == 0)) {	layerInfo.bType_01_S_GADN = true;	layerInfo.bType_01_S_AllShow = true; }	// 화단
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "PARA", 4) == 0)) {	layerInfo.bType_01_S_PARA = true;	layerInfo.bType_01_S_AllShow = true; }	// 파라펫
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "CLPC", 4) == 0)) {	layerInfo.bType_01_S_CLPC = true;	layerInfo.bType_01_S_AllShow = true; }	// PC기둥
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "BMPC", 4) == 0)) {	layerInfo.bType_01_S_BMPC = true;	layerInfo.bType_01_S_AllShow = true; }	// 보PC
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "BMWL", 4) == 0)) {	layerInfo.bType_01_S_BMWL = true;	layerInfo.bType_01_S_AllShow = true; }	// 보벽체
+				if ((strncmp (constructionCode, "01-S", 4) == 0) && (strncmp (tok7, "STST", 4) == 0)) {	layerInfo.bType_01_S_STST = true;	layerInfo.bType_01_S_AllShow = true; }	// 철골계단
 
 				// 02-A 건축마감
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "FURN", 4) == 0))	layerInfo.bType_02_A_FURN = true;	// 가구
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "INSU", 4) == 0))	layerInfo.bType_02_A_INSU = true;	// 단열재
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "PAIN", 4) == 0))	layerInfo.bType_02_A_PAIN = true;	// 도전
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "MOLD", 4) == 0))	layerInfo.bType_02_A_MOLD = true;	// 몰딩
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "MORT", 4) == 0))	layerInfo.bType_02_A_MORT = true;	// 몰탈
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "WATE", 4) == 0))	layerInfo.bType_02_A_WATE = true;	// 방수
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "BRIC", 4) == 0))	layerInfo.bType_02_A_BRIC = true;	// 벽돌
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "PAPE", 4) == 0))	layerInfo.bType_02_A_PAPE = true;	// 벽지
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "BLOC", 4) == 0))	layerInfo.bType_02_A_BLOC = true;	// 블록
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "GYPS", 4) == 0))	layerInfo.bType_02_A_GYPS = true;	// 석고보드
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "STON", 4) == 0))	layerInfo.bType_02_A_STON = true;	// 석재
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "INTE", 4) == 0))	layerInfo.bType_02_A_INTE = true;	// 수장
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "GLAS", 4) == 0))	layerInfo.bType_02_A_GLAS = true;	// 유리
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "HARD", 4) == 0))	layerInfo.bType_02_A_HARD = true;	// 철물
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "TILE", 4) == 0))	layerInfo.bType_02_A_TILE = true;	// 타일
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "PANE", 4) == 0))	layerInfo.bType_02_A_PANE = true;	// 판넬
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "PLYW", 4) == 0))	layerInfo.bType_02_A_PLYW = true;	// 합판
-				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "PCON", 4) == 0))	layerInfo.bType_02_A_PCON = true;	// 무근콘크리트
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "FURN", 4) == 0)) {	layerInfo.bType_02_A_FURN = true;	layerInfo.bType_02_A_AllShow = true; }	// 가구
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "INSU", 4) == 0)) {	layerInfo.bType_02_A_INSU = true;	layerInfo.bType_02_A_AllShow = true; }	// 단열재
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "PAIN", 4) == 0)) {	layerInfo.bType_02_A_PAIN = true;	layerInfo.bType_02_A_AllShow = true; }	// 도전
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "MOLD", 4) == 0)) {	layerInfo.bType_02_A_MOLD = true;	layerInfo.bType_02_A_AllShow = true; }	// 몰딩
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "MORT", 4) == 0)) {	layerInfo.bType_02_A_MORT = true;	layerInfo.bType_02_A_AllShow = true; }	// 몰탈
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "WATE", 4) == 0)) {	layerInfo.bType_02_A_WATE = true;	layerInfo.bType_02_A_AllShow = true; }	// 방수
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "BRIC", 4) == 0)) {	layerInfo.bType_02_A_BRIC = true;	layerInfo.bType_02_A_AllShow = true; }	// 벽돌
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "PAPE", 4) == 0)) {	layerInfo.bType_02_A_PAPE = true;	layerInfo.bType_02_A_AllShow = true; }	// 벽지
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "BLOC", 4) == 0)) {	layerInfo.bType_02_A_BLOC = true;	layerInfo.bType_02_A_AllShow = true; }	// 블록
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "GYPS", 4) == 0)) {	layerInfo.bType_02_A_GYPS = true;	layerInfo.bType_02_A_AllShow = true; }	// 석고보드
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "STON", 4) == 0)) {	layerInfo.bType_02_A_STON = true;	layerInfo.bType_02_A_AllShow = true; }	// 석재
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "INTE", 4) == 0)) {	layerInfo.bType_02_A_INTE = true;	layerInfo.bType_02_A_AllShow = true; }	// 수장
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "GLAS", 4) == 0)) {	layerInfo.bType_02_A_GLAS = true;	layerInfo.bType_02_A_AllShow = true; }	// 유리
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "HARD", 4) == 0)) {	layerInfo.bType_02_A_HARD = true;	layerInfo.bType_02_A_AllShow = true; }	// 철물
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "TILE", 4) == 0)) {	layerInfo.bType_02_A_TILE = true;	layerInfo.bType_02_A_AllShow = true; }	// 타일
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "PANE", 4) == 0)) {	layerInfo.bType_02_A_PANE = true;	layerInfo.bType_02_A_AllShow = true; }	// 판넬
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "PLYW", 4) == 0)) {	layerInfo.bType_02_A_PLYW = true;	layerInfo.bType_02_A_AllShow = true; }	// 합판
+				if ((strncmp (constructionCode, "02-A", 4) == 0) && (strncmp (tok7, "PCON", 4) == 0)) {	layerInfo.bType_02_A_PCON = true;	layerInfo.bType_02_A_AllShow = true; }	// 무근콘크리트
 
 				// 05-T 가설재
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "TUNB", 4) == 0))	layerInfo.bType_05_T_TIMB = true;	// 각재
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "BIMJ", 4) == 0))	layerInfo.bType_05_T_BIMJ = true;	// 각파이프행거
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "BDCM", 4) == 0))	layerInfo.bType_05_T_BDCM = true;	// 기둥밴드
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "DMGA", 4) == 0))	layerInfo.bType_05_T_DMGA = true;	// 다마가
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "RIBL", 4) == 0))	layerInfo.bType_05_T_RIBL = true;	// 리브라스
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "BMSP", 4) == 0))	layerInfo.bType_05_T_BMSP = true;	// 보받침필러
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "BSTA", 4) == 0))	layerInfo.bType_05_T_BSTA = true;	// 비계계단
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "SPIP", 4) == 0))	layerInfo.bType_05_T_SPIP = true;	// 사각파이프
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "SUPT", 4) == 0))	layerInfo.bType_05_T_SUPT = true;	// 서포트
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "SYSU", 4) == 0))	layerInfo.bType_05_T_SYSU = true;	// 시스템서포트
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "OUTA", 4) == 0))	layerInfo.bType_05_T_OUTA = true;	// 아웃코너앵글
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "OUTP", 4) == 0))	layerInfo.bType_05_T_OUTP = true;	// 아웃코너판넬
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "AFOM", 4) == 0))	layerInfo.bType_05_T_AFOM = true;	// 알폼
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "CPIP", 4) == 0))	layerInfo.bType_05_T_CPIP = true;	// 원형파이프
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "UGON", 4) == 0))	layerInfo.bType_05_T_UGON = true;	// 유공발판
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "UFOM", 4) == 0))	layerInfo.bType_05_T_UFOM = true;	// 유로폼
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "INCO", 4) == 0))	layerInfo.bType_05_T_INCO = true;	// 인코너판넬
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "JOIB", 4) == 0))	layerInfo.bType_05_T_JOIB = true;	// 조인트바
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "EFOM", 4) == 0))	layerInfo.bType_05_T_EFOM = true;	// 종이거푸집
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "JSUPT", 4) == 0))	layerInfo.bType_05_T_JSUPT = true;	// 잭서포트
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "WTST", 4) == 0))	layerInfo.bType_05_T_WTST = true;	// 지수판
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "CLAM", 4) == 0))	layerInfo.bType_05_T_CLAM = true;	// 클램프
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "LUMB", 4) == 0))	layerInfo.bType_05_T_LUMB = true;	// 토류판
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "TRUS", 4) == 0))	layerInfo.bType_05_T_TRUS = true;	// 트러스
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "TBBM", 4) == 0))	layerInfo.bType_05_T_TBBM = true;	// 팀버빔
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "BCWF", 4) == 0))	layerInfo.bType_05_T_BCWF = true;	// 합벽지지대
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "PLYW", 4) == 0))	layerInfo.bType_05_T_PLYW = true;	// 합판
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "FISP", 4) == 0))	layerInfo.bType_05_T_FISP = true;	// 휠러스페이서
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "STSE", 4) == 0))	layerInfo.bType_05_T_STSE = true;	// 계단제작폼
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "SLSE", 4) == 0))	layerInfo.bType_05_T_SLSE = true;	// 슬래브제작폼
-				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "RAIL", 4) == 0))	layerInfo.bType_05_T_RAIL = true;	// 목심레일
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "TUNB", 4) == 0)) {	layerInfo.bType_05_T_TIMB = true;	layerInfo.bType_05_T_AllShow = true; }	// 각재
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "BIMJ", 4) == 0)) {	layerInfo.bType_05_T_BIMJ = true;	layerInfo.bType_05_T_AllShow = true; }	// 각파이프행거
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "BDCM", 4) == 0)) {	layerInfo.bType_05_T_BDCM = true;	layerInfo.bType_05_T_AllShow = true; }	// 기둥밴드
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "DMGA", 4) == 0)) {	layerInfo.bType_05_T_DMGA = true;	layerInfo.bType_05_T_AllShow = true; }	// 다마가
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "RIBL", 4) == 0)) {	layerInfo.bType_05_T_RIBL = true;	layerInfo.bType_05_T_AllShow = true; }	// 리브라스
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "BMSP", 4) == 0)) {	layerInfo.bType_05_T_BMSP = true;	layerInfo.bType_05_T_AllShow = true; }	// 보받침필러
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "BSTA", 4) == 0)) {	layerInfo.bType_05_T_BSTA = true;	layerInfo.bType_05_T_AllShow = true; }	// 비계계단
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "SPIP", 4) == 0)) {	layerInfo.bType_05_T_SPIP = true;	layerInfo.bType_05_T_AllShow = true; }	// 사각파이프
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "SUPT", 4) == 0)) {	layerInfo.bType_05_T_SUPT = true;	layerInfo.bType_05_T_AllShow = true; }	// 서포트
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "SYSU", 4) == 0)) {	layerInfo.bType_05_T_SYSU = true;	layerInfo.bType_05_T_AllShow = true; }	// 시스템서포트
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "OUTA", 4) == 0)) {	layerInfo.bType_05_T_OUTA = true;	layerInfo.bType_05_T_AllShow = true; }	// 아웃코너앵글
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "OUTP", 4) == 0)) {	layerInfo.bType_05_T_OUTP = true;	layerInfo.bType_05_T_AllShow = true; }	// 아웃코너판넬
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "AFOM", 4) == 0)) {	layerInfo.bType_05_T_AFOM = true;	layerInfo.bType_05_T_AllShow = true; }	// 알폼
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "CPIP", 4) == 0)) {	layerInfo.bType_05_T_CPIP = true;	layerInfo.bType_05_T_AllShow = true; }	// 원형파이프
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "UGON", 4) == 0)) {	layerInfo.bType_05_T_UGON = true;	layerInfo.bType_05_T_AllShow = true; }	// 유공발판
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "UFOM", 4) == 0)) {	layerInfo.bType_05_T_UFOM = true;	layerInfo.bType_05_T_AllShow = true; }	// 유로폼
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "INCO", 4) == 0)) {	layerInfo.bType_05_T_INCO = true;	layerInfo.bType_05_T_AllShow = true; }	// 인코너판넬
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "JOIB", 4) == 0)) {	layerInfo.bType_05_T_JOIB = true;	layerInfo.bType_05_T_AllShow = true; }	// 조인트바
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "EFOM", 4) == 0)) {	layerInfo.bType_05_T_EFOM = true;	layerInfo.bType_05_T_AllShow = true; }	// 종이거푸집
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "JSUPT", 4) == 0)) {layerInfo.bType_05_T_JSUPT = true;	layerInfo.bType_05_T_AllShow = true; }	// 잭서포트
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "WTST", 4) == 0)) {	layerInfo.bType_05_T_WTST = true;	layerInfo.bType_05_T_AllShow = true; }	// 지수판
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "CLAM", 4) == 0)) {	layerInfo.bType_05_T_CLAM = true;	layerInfo.bType_05_T_AllShow = true; }	// 클램프
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "LUMB", 4) == 0)) {	layerInfo.bType_05_T_LUMB = true;	layerInfo.bType_05_T_AllShow = true; }	// 토류판
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "TRUS", 4) == 0)) {	layerInfo.bType_05_T_TRUS = true;	layerInfo.bType_05_T_AllShow = true; }	// 트러스
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "TBBM", 4) == 0)) {	layerInfo.bType_05_T_TBBM = true;	layerInfo.bType_05_T_AllShow = true; }	// 팀버빔
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "BCWF", 4) == 0)) {	layerInfo.bType_05_T_BCWF = true;	layerInfo.bType_05_T_AllShow = true; }	// 합벽지지대
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "PLYW", 4) == 0)) {	layerInfo.bType_05_T_PLYW = true;	layerInfo.bType_05_T_AllShow = true; }	// 합판
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "FISP", 4) == 0)) {	layerInfo.bType_05_T_FISP = true;	layerInfo.bType_05_T_AllShow = true; }	// 휠러스페이서
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "STSE", 4) == 0)) {	layerInfo.bType_05_T_STSE = true;	layerInfo.bType_05_T_AllShow = true; }	// 계단제작폼
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "SLSE", 4) == 0)) {	layerInfo.bType_05_T_SLSE = true;	layerInfo.bType_05_T_AllShow = true; }	// 슬래브제작폼
+				if ((strncmp (constructionCode, "05-T", 4) == 0) && (strncmp (tok7, "RAIL", 4) == 0)) {	layerInfo.bType_05_T_RAIL = true;	layerInfo.bType_05_T_AllShow = true; }	// 목심레일
 
 				// 06-F 가시설
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "STRU", 4) == 0))	layerInfo.bType_06_F_STRU = true;	// 수평H형강
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "HFIL", 4) == 0))	layerInfo.bType_06_F_HFIL = true;	// 수직H형강
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "SJAK", 4) == 0))	layerInfo.bType_06_F_SJAK = true;	// 스크류잭
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "PJAK", 4) == 0))	layerInfo.bType_06_F_PJAK = true;	// 프리로딩잭
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "BRKT", 4) == 0))	layerInfo.bType_06_F_BRKT = true;	// 브라켓
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "PBKT", 4) == 0))	layerInfo.bType_06_F_PBKT = true;	// 피스 브라켓
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "CIP", 4) == 0))	layerInfo.bType_06_F_CIP = true;	// 흙막이 벽체
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "LAND", 4) == 0))	layerInfo.bType_06_F_LAND = true;	// 대지
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "ANGL", 4) == 0))	layerInfo.bType_06_F_ANGL = true;	// 앵글
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "ERAC", 4) == 0))	layerInfo.bType_06_F_ERAC = true;	// 지반앵커
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "LUMB", 4) == 0))	layerInfo.bType_06_F_LUMB = true;	// 도류판
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "BPAN", 4) == 0))	layerInfo.bType_06_F_BPAN = true;	// 복공판
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "WALE", 4) == 0))	layerInfo.bType_06_F_WALE = true;	// 띠장
-				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "PILE", 4) == 0))	layerInfo.bType_06_F_PILE = true;	// 파일
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "STRU", 4) == 0)) {	layerInfo.bType_06_F_STRU = true;	layerInfo.bType_06_F_AllShow = true; }	// 수평H형강
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "HFIL", 4) == 0)) {	layerInfo.bType_06_F_HFIL = true;	layerInfo.bType_06_F_AllShow = true; }	// 수직H형강
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "SJAK", 4) == 0)) {	layerInfo.bType_06_F_SJAK = true;	layerInfo.bType_06_F_AllShow = true; }	// 스크류잭
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "PJAK", 4) == 0)) {	layerInfo.bType_06_F_PJAK = true;	layerInfo.bType_06_F_AllShow = true; }	// 프리로딩잭
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "BRKT", 4) == 0)) {	layerInfo.bType_06_F_BRKT = true;	layerInfo.bType_06_F_AllShow = true; }	// 브라켓
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "PBKT", 4) == 0)) {	layerInfo.bType_06_F_PBKT = true;	layerInfo.bType_06_F_AllShow = true; }	// 피스 브라켓
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "CIP", 4) == 0)) {	layerInfo.bType_06_F_CIP = true;	layerInfo.bType_06_F_AllShow = true; }	// 흙막이 벽체
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "LAND", 4) == 0)) {	layerInfo.bType_06_F_LAND = true;	layerInfo.bType_06_F_AllShow = true; }	// 대지
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "ANGL", 4) == 0)) {	layerInfo.bType_06_F_ANGL = true;	layerInfo.bType_06_F_AllShow = true; }	// 앵글
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "ERAC", 4) == 0)) {	layerInfo.bType_06_F_ERAC = true;	layerInfo.bType_06_F_AllShow = true; }	// 지반앵커
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "LUMB", 4) == 0)) {	layerInfo.bType_06_F_LUMB = true;	layerInfo.bType_06_F_AllShow = true; }	// 도류판
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "BPAN", 4) == 0)) {	layerInfo.bType_06_F_BPAN = true;	layerInfo.bType_06_F_AllShow = true; }	// 복공판
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "WALE", 4) == 0)) {	layerInfo.bType_06_F_WALE = true;	layerInfo.bType_06_F_AllShow = true; }	// 띠장
+				if ((strncmp (constructionCode, "06-F", 4) == 0) && (strncmp (tok7, "PILE", 4) == 0)) {	layerInfo.bType_06_F_PILE = true;	layerInfo.bType_06_F_AllShow = true; }	// 파일
 			}
 		}
 		if (err == APIERR_DELETED)
@@ -988,7 +991,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "레이어 쉽게 선택하기");
+			DGSetDialogTitle (dialogID, "레이어 쉽게 선택하기: LayerName Ex) 01-S-(0101)-F01-(01)-(01)-WALL");
 
 			// 확인 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 0, 20, 40, 25);
@@ -1142,6 +1145,17 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					itmPosX = 150;
 					itmPosY += 30;
 				}
+			}
+			// 모두 선택
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_BOLD);
+			DGSetItemText (dialogID, itmIdx, "모두 선택");
+			DGShowItem (dialogID, itmIdx);
+			SELECTALL_1_CONTYPE = itmIdx;
+			itmPosX += 100;
+			if (itmPosX >= 600) {
+				itmPosX = 150;
+				itmPosY += 30;
 			}
 
 			itmPosY += 30;
@@ -1423,6 +1437,19 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					itmPosY += 30;
 				}
 			}
+			// 모두 선택
+			if (layerInfo.bDongAllShow) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "모두 선택");
+				DGShowItem (dialogID, itmIdx);
+				SELECTALL_2_DONG = itmIdx;
+				itmPosX += 100;
+				if (itmPosX >= 600) {
+					itmPosX = 150;
+					itmPosY += 30;
+				}
+			}
 
 			itmPosY += 30;
 
@@ -1485,6 +1512,17 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					}
 				}
 			}
+			// 모두 선택
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_BOLD);
+			DGSetItemText (dialogID, itmIdx, "모두 선택");
+			DGShowItem (dialogID, itmIdx);
+			SELECTALL_3_FLOOR = itmIdx;
+			itmPosX += 100;
+			if (itmPosX >= 600) {
+				itmPosX = 150;
+				itmPosY += 30;
+			}
 
 			itmPosY += 30;
 
@@ -1515,6 +1553,19 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					}
 				}
 			}
+			// 모두 선택
+			if (layerInfo.bCJAllShow) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "모두 선택");
+				DGShowItem (dialogID, itmIdx);
+				SELECTALL_4_CJ = itmIdx;
+				itmPosX += 100;
+				if (itmPosX >= 600) {
+					itmPosX = 150;
+					itmPosY += 30;
+				}
+			}
 
 			itmPosY += 30;
 
@@ -1543,6 +1594,19 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 						itmPosX = 150;
 						itmPosY += 30;
 					}
+				}
+			}
+			// 모두 선택
+			if (layerInfo.bOrderInCJAllShow) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "모두 선택");
+				DGShowItem (dialogID, itmIdx);
+				SELECTALL_5_ORDER = itmIdx;
+				itmPosX += 100;
+				if (itmPosX >= 600) {
+					itmPosX = 150;
+					itmPosY += 30;
 				}
 			}
 
@@ -1806,6 +1870,19 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					itmPosY += 30;
 				}
 			}
+			// 모두 선택
+			if (layerInfo.bType_01_S_AllShow) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "모두 선택");
+				DGShowItem (dialogID, itmIdx);
+				SELECTALL_6_OBJ_01_S = itmIdx;
+				itmPosX += 100;
+				if (itmPosX >= 600) {
+					itmPosX = 150;
+					itmPosY += 30;
+				}
+			}
 
 			itmPosY += 30;
 
@@ -2048,6 +2125,19 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				DGShowItem (dialogID, itmIdx);
 				layerInfo.iType_02_A_PCON = itmIdx;
 
+				itmPosX += 100;
+				if (itmPosX >= 600) {
+					itmPosX = 150;
+					itmPosY += 30;
+				}
+			}
+			// 모두 선택
+			if (layerInfo.bType_02_A_AllShow) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "모두 선택");
+				DGShowItem (dialogID, itmIdx);
+				SELECTALL_6_OBJ_02_A = itmIdx;
 				itmPosX += 100;
 				if (itmPosX >= 600) {
 					itmPosX = 150;
@@ -2471,6 +2561,19 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					itmPosY += 30;
 				}
 			}
+			// 모두 선택
+			if (layerInfo.bType_05_T_AllShow) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "모두 선택");
+				DGShowItem (dialogID, itmIdx);
+				SELECTALL_6_OBJ_05_T = itmIdx;
+				itmPosX += 100;
+				if (itmPosX >= 600) {
+					itmPosX = 150;
+					itmPosY += 30;
+				}
+			}
 
 			itmPosY += 30;
 
@@ -2667,6 +2770,19 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					itmPosY += 30;
 				}
 			}
+			// 모두 선택
+			if (layerInfo.bType_06_F_AllShow) {
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "모두 선택");
+				DGShowItem (dialogID, itmIdx);
+				SELECTALL_6_OBJ_06_F = itmIdx;
+				itmPosX += 100;
+				if (itmPosX >= 600) {
+					itmPosX = 150;
+					itmPosY += 30;
+				}
+			}
 
 			dialogSizeX = 700;
 			dialogSizeY = itmPosY + 150;
@@ -2674,6 +2790,398 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 
 			break;
 		
+		case DG_MSG_CHANGE:
+			changedBtnItemIdx = item;
+			item = 0;	// 그리드 버튼을 눌렀을 때 창이 닫히지 않게 함
+
+			if (changedBtnItemIdx == SELECTALL_1_CONTYPE) {
+				if (DGGetItemValLong (dialogID, SELECTALL_1_CONTYPE) == TRUE) {
+					// 모두 선택
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_03_M, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_04_E, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_07_Q, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_08_L, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_09_C, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_10_K, TRUE);
+				} else {
+					// 모두 제외
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_03_M, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_04_E, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_07_Q, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_08_L, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_09_C, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_10_K, FALSE);
+				}
+			}
+			if (changedBtnItemIdx == SELECTALL_2_DONG) {
+				if (DGGetItemValLong (dialogID, SELECTALL_2_DONG) == TRUE) {
+					// 모두 선택
+					for (xx = 1 ; xx < 100 ; ++xx) {
+						DGSetItemValLong (dialogID, layerInfo.iDong_1xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_2xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_3xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_4xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_5xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_6xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_7xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_8xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_9xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_10xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_11xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_12xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_13xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_14xx [xx], TRUE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_15xx [xx], TRUE);
+					}
+					DGSetItemValLong (dialogID, layerInfo.iDong_SHOP, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iDong_SECU, TRUE);
+				} else {
+					// 모두 제외
+					for (xx = 1 ; xx < 100 ; ++xx) {
+						DGSetItemValLong (dialogID, layerInfo.iDong_1xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_2xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_3xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_4xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_5xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_6xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_7xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_8xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_9xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_10xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_11xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_12xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_13xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_14xx [xx], FALSE);
+						DGSetItemValLong (dialogID, layerInfo.iDong_15xx [xx], FALSE);
+					}
+					DGSetItemValLong (dialogID, layerInfo.iDong_SHOP, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iDong_SECU, FALSE);
+				}
+			}
+			if (changedBtnItemIdx == SELECTALL_3_FLOOR) {
+				if (DGGetItemValLong (dialogID, SELECTALL_3_FLOOR) == TRUE) {
+					// 모두 선택
+					for (xx = 9 ; xx >= 1 ; --xx)	DGSetItemValLong (dialogID, layerInfo.iFloor_Bxx [xx], TRUE);
+					for (xx = 1 ; xx < 100 ; ++xx)	DGSetItemValLong (dialogID, layerInfo.iFloor_Fxx [xx], TRUE);
+					for (xx = 1 ; xx < 10 ; ++xx)	DGSetItemValLong (dialogID, layerInfo.iFloor_PHxx [xx], TRUE);
+				} else {
+					// 모두 제외
+					for (xx = 9 ; xx >= 1 ; --xx)	DGSetItemValLong (dialogID, layerInfo.iFloor_Bxx [xx], FALSE);
+					for (xx = 1 ; xx < 100 ; ++xx)	DGSetItemValLong (dialogID, layerInfo.iFloor_Fxx [xx], FALSE);
+					for (xx = 1 ; xx < 10 ; ++xx)	DGSetItemValLong (dialogID, layerInfo.iFloor_PHxx [xx], FALSE);
+				}
+			}
+			if (changedBtnItemIdx == SELECTALL_4_CJ) {
+				if (DGGetItemValLong (dialogID, SELECTALL_4_CJ) == TRUE) {
+					// 모두 선택
+					for (xx = 1 ; xx < 100 ; ++xx)	DGSetItemValLong (dialogID, layerInfo.iCJ [xx], TRUE);
+				} else {
+					// 모두 제외
+					for (xx = 1 ; xx < 100 ; ++xx)	DGSetItemValLong (dialogID, layerInfo.iCJ [xx], FALSE);
+				}
+			}
+			if (changedBtnItemIdx == SELECTALL_5_ORDER) {
+				if (DGGetItemValLong (dialogID, SELECTALL_5_ORDER) == TRUE) {
+					// 모두 선택
+					for (xx = 1 ; xx < 100 ; ++xx)	DGSetItemValLong (dialogID, layerInfo.iOrderInCJ [xx], TRUE);
+				} else {
+					// 모두 제외
+					for (xx = 1 ; xx < 100 ; ++xx)	DGSetItemValLong (dialogID, layerInfo.iOrderInCJ [xx], FALSE);
+				}
+			}
+			if (changedBtnItemIdx == SELECTALL_6_OBJ_01_S) {
+				if (DGGetItemValLong (dialogID, SELECTALL_6_OBJ_01_S) == TRUE) {
+					// 모두 선택
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_STAR, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_COLU, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_FOOT, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_WALL, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_BEAM, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_SLAB, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_CLST, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_BMST, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_RAMP, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_CWAL, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_WTWL, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_CSTN, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_MPAD, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_GADN, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_PARA, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_CLPC, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_BMPC, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_BMWL, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_STST, TRUE);
+				} else {
+					// 모두 제외
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_STAR, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_COLU, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_FOOT, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_WALL, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_BEAM, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_SLAB, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_CLST, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_BMST, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_RAMP, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_CWAL, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_WTWL, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_CSTN, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_MPAD, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_GADN, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_PARA, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_CLPC, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_BMPC, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_BMWL, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_01_S_STST, FALSE);
+				}
+			}
+			if (changedBtnItemIdx == SELECTALL_6_OBJ_02_A) {
+				if (DGGetItemValLong (dialogID, SELECTALL_6_OBJ_02_A) == TRUE) {
+					// 모두 선택
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_FURN, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_INSU, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_PAIN, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_MOLD, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_MORT, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_WATE, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_BRIC, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_PAPE, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_BLOC, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_GYPS, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_STON, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_INTE, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_GLAS, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_HARD, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_TILE, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_PANE, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_PLYW, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_PCON, TRUE);
+				} else {
+					// 모두 제외
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_FURN, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_INSU, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_PAIN, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_MOLD, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_MORT, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_WATE, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_BRIC, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_PAPE, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_BLOC, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_GYPS, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_STON, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_INTE, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_GLAS, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_HARD, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_TILE, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_PANE, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_PLYW, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_02_A_PCON, FALSE);
+				}
+			}
+			if (changedBtnItemIdx == SELECTALL_6_OBJ_05_T) {
+				if (DGGetItemValLong (dialogID, SELECTALL_6_OBJ_05_T) == TRUE) {
+					// 모두 선택
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_TIMB, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_BIMJ, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_BDCM, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_DMGA, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_RIBL, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_BMSP, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_BSTA, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_SPIP, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_SUPT, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_SYSU, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_OUTA, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_OUTP, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_AFOM, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_CPIP, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_UGON, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_UFOM, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_INCO, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_JOIB, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_EFOM, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_JSUPT, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_WTST, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_CLAM, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_LUMB, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_TRUS, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_TBBM, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_BCWF, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_PLYW, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_FISP, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_STSE, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_SLSE, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_RAIL, TRUE);
+				} else {
+					// 모두 제외
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_TIMB, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_BIMJ, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_BDCM, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_DMGA, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_RIBL, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_BMSP, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_BSTA, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_SPIP, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_SUPT, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_SYSU, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_OUTA, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_OUTP, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_AFOM, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_CPIP, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_UGON, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_UFOM, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_INCO, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_JOIB, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_EFOM, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_JSUPT, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_WTST, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_CLAM, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_LUMB, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_TRUS, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_TBBM, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_BCWF, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_PLYW, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_FISP, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_STSE, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_SLSE, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_05_T_RAIL, FALSE);
+				}
+			}
+			if (changedBtnItemIdx == SELECTALL_6_OBJ_06_F) {
+				if (DGGetItemValLong (dialogID, SELECTALL_6_OBJ_06_F) == TRUE) {
+					// 모두 선택
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_STRU, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_HFIL, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_SJAK, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_PJAK, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_BRKT, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_PBKT, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_CIP, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_LAND, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_ANGL, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_ERAC, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_LUMB, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_BPAN, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_WALE, TRUE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_PILE, TRUE);
+				} else {
+					// 모두 제외
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_STRU, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_HFIL, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_SJAK, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_PJAK, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_BRKT, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_PBKT, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_CIP, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_LAND, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_ANGL, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_ERAC, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_LUMB, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_BPAN, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_WALE, FALSE);
+					DGSetItemValLong (dialogID, layerInfo.iType_06_F_PILE, FALSE);
+				}
+			}
+
+			// 부재를 선택하면 공사 코드를 자동 선택
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_STAR) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_STAR) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_COLU) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_COLU) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_FOOT) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_FOOT) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_WALL) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_WALL) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_BEAM) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_BEAM) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_SLAB) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_SLAB) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_CLST) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_CLST) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_BMST) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_BMST) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_RAMP) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_RAMP) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_CWAL) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_CWAL) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_WTWL) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_WTWL) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_CSTN) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_CSTN) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_MPAD) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_MPAD) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_GADN) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_GADN) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_PARA) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_PARA) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_CLPC) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_CLPC) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_BMPC) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_BMPC) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_BMWL) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_BMWL) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_01_S_STST) && (DGGetItemValLong (dialogID, layerInfo.iType_01_S_STST) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+			if ((changedBtnItemIdx == SELECTALL_6_OBJ_01_S) && (DGGetItemValLong (dialogID, SELECTALL_6_OBJ_01_S) == TRUE))				DGSetItemValLong (dialogID, layerInfo.iType_01_S, TRUE);
+
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_FURN) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_FURN) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_INSU) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_INSU) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_PAIN) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_PAIN) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_MOLD) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_MOLD) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_MORT) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_MORT) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_WATE) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_WATE) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_BRIC) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_BRIC) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_PAPE) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_PAPE) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_BLOC) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_BLOC) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_GYPS) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_GYPS) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_STON) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_STON) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_INTE) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_INTE) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_GLAS) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_GLAS) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_HARD) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_HARD) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_TILE) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_TILE) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_PANE) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_PANE) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_PLYW) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_PLYW) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_02_A_PCON) && (DGGetItemValLong (dialogID, layerInfo.iType_02_A_PCON) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+			if ((changedBtnItemIdx == SELECTALL_6_OBJ_02_A) && (DGGetItemValLong (dialogID, SELECTALL_6_OBJ_02_A) == TRUE))				DGSetItemValLong (dialogID, layerInfo.iType_02_A, TRUE);
+
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_TIMB) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_TIMB) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_BIMJ) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_BIMJ) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_BDCM) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_BDCM) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_DMGA) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_DMGA) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_RIBL) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_RIBL) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_BMSP) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_BMSP) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_BSTA) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_BSTA) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_SPIP) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_SPIP) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_SUPT) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_SUPT) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_SYSU) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_SYSU) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_OUTA) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_OUTA) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_OUTP) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_OUTP) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_AFOM) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_AFOM) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_CPIP) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_CPIP) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_UGON) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_UGON) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_UFOM) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_UFOM) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_INCO) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_INCO) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_JOIB) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_JOIB) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_EFOM) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_EFOM) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_JSUPT) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_JSUPT) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_WTST) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_WTST) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_CLAM) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_CLAM) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_LUMB) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_LUMB) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_TRUS) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_TRUS) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_TBBM) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_TBBM) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_BCWF) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_BCWF) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_PLYW) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_PLYW) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_FISP) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_FISP) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_STSE) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_STSE) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_SLSE) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_SLSE) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_05_T_RAIL) && (DGGetItemValLong (dialogID, layerInfo.iType_05_T_RAIL) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+			if ((changedBtnItemIdx == SELECTALL_6_OBJ_05_T) && (DGGetItemValLong (dialogID, SELECTALL_6_OBJ_05_T) == TRUE))				DGSetItemValLong (dialogID, layerInfo.iType_05_T, TRUE);
+
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_STRU) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_STRU) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_HFIL) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_HFIL) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_SJAK) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_SJAK) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_PJAK) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_PJAK) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_BRKT) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_BRKT) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_PBKT) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_PBKT) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_CIP)  && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_CIP) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_LAND) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_LAND) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_ANGL) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_ANGL) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_ERAC) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_ERAC) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_LUMB) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_LUMB) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_BPAN) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_BPAN) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_WALE) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_WALE) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == layerInfo.iType_06_F_PILE) && (DGGetItemValLong (dialogID, layerInfo.iType_06_F_PILE) == TRUE))	DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+			if ((changedBtnItemIdx == SELECTALL_6_OBJ_06_F) && (DGGetItemValLong (dialogID, SELECTALL_6_OBJ_06_F) == TRUE))				DGSetItemValLong (dialogID, layerInfo.iType_06_F, TRUE);
+
+			break;
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:

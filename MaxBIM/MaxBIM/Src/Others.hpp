@@ -55,6 +55,7 @@ struct LayerNameSystem
 	bool	bDong_15xx [100];	// 1500 ~ 1599동 (1500~1599)
 	bool	bDong_SHOP;			// 근린공원 (SHOP)
 	bool	bDong_SECU;			// 경비실 (SECU)
+	bool	bDongAllShow;		// 모두 선택 버튼 보여주기
 
 	short	iDong_1xx [100];	// 100 ~ 199동 (0100~0199)
 	short	iDong_2xx [100];	// 200 ~ 299동 (0200~0299)
@@ -85,11 +86,13 @@ struct LayerNameSystem
 
 	// CJ 구간 (선택)
 	bool	bCJ [100];			// 01~99 (인덱스 0은 사용하지 않음)
+	bool	bCJAllShow;			// 모두 선택 버튼 보여주기
 
 	short	iCJ [100];			// 01~99 (인덱스 0은 사용하지 않음)
 
 	// CJ 속 시공순서 (선택)
 	bool	bOrderInCJ [100];	// 01~99 (인덱스 0은 사용하지 않음)
+	bool	bOrderInCJAllShow;	// 모두 선택 버튼 보여주기
 
 	short	iOrderInCJ [100];	// 01~99 (인덱스 0은 사용하지 않음)
 
@@ -114,6 +117,7 @@ struct LayerNameSystem
 	bool	bType_01_S_BMPC;	// 보PC
 	bool	bType_01_S_BMWL;	// 보벽체
 	bool	bType_01_S_STST;	// 철골계단
+	bool	bType_01_S_AllShow;	// 모두 선택 버튼 보여주기
 
 	short	iType_01_S_STAR;	// 계단
 	short	iType_01_S_COLU;	// 기둥
@@ -154,6 +158,7 @@ struct LayerNameSystem
 	bool	bType_02_A_PANE;	// 판넬
 	bool	bType_02_A_PLYW;	// 합판
 	bool	bType_02_A_PCON;	// 무근콘크리트
+	bool	bType_02_A_AllShow;	// 모두 선택 버튼 보여주기
 	
 	short	iType_02_A_FURN;	// 가구
 	short	iType_02_A_INSU;	// 단열재
@@ -206,6 +211,7 @@ struct LayerNameSystem
 	bool	bType_05_T_STSE;	// 계단제작폼
 	bool	bType_05_T_SLSE;	// 슬래브제작폼
 	bool	bType_05_T_RAIL;	// 목심레일
+	bool	bType_05_T_AllShow;	// 모두 선택 버튼 보여주기
 	
 	short	iType_05_T_TIMB;	// 각재
 	short	iType_05_T_BIMJ;	// 각파이프행거
@@ -254,6 +260,7 @@ struct LayerNameSystem
 	bool	bType_06_F_BPAN;	// 복공판
 	bool	bType_06_F_WALE;	// 띠장
 	bool	bType_06_F_PILE;	// 파일
+	bool	bType_06_F_AllShow;	// 모두 선택 버튼 보여주기
 
 	short	iType_06_F_STRU;	// 수평H형강
 	short	iType_06_F_HFIL;	// 수직H형강
