@@ -749,7 +749,8 @@ GSErrCode	showLayersEasily (void)
 	short	LenCode6;
 
 	char	fullLayerName [30];
-	short	x1, x2, x3, x4, x5, x6;
+	short	x1, x2, x3, x4, x5, x6, x7;
+	bool	bCode2, bCode4, bCode5;
 
 	// 1. 공사 코드 문자열 만들기
 	z = 0;
@@ -920,49 +921,56 @@ GSErrCode	showLayersEasily (void)
 				for (x4 = 0 ; x4 < LenCode4 ; ++x4) {
 					for (x5 = 0 ; x5 < LenCode5 ; ++x5) {
 						for (x6 = 0 ; x6 < LenCode6 ; ++x6) {
-							// 공사 구분
-							strcpy (fullLayerName, "");
-							strcpy (fullLayerName, code1 [x1]);
+							for (x7 = 1 ; x7 <= 6 ; ++x7) {
+								// bCode2 (동 코드 포함), bCode4 (CJ 코드 포함), bCode5 (CJ 속 시공순서 코드 포함)
+								if (x7 == 1) { bCode2 = false;	bCode4 = false;	bCode5 = false;	}
+								if (x7 == 2) { bCode2 = false;	bCode4 = true;	bCode5 = false;	}
+								if (x7 == 3) { bCode2 = false;	bCode4 = true;	bCode5 = true;		}
+								if (x7 == 4) { bCode2 = true;	bCode4 = false;	bCode5 = false;	}
+								if (x7 == 5) { bCode2 = true;	bCode4 = true;	bCode5 = false;	}
+								if (x7 == 6) { bCode2 = true;	bCode4 = true;	bCode5 = true;		}
 
-							// 동 구분
-							if (LenCode2 > 1) {
+								// 공사 구분
+								strcpy (fullLayerName, "");
+								strcpy (fullLayerName, code1 [x1]);
+
+								// 동 구분
+								if ((LenCode2 > 1) && (bCode2 == true)) {
+									strcat (fullLayerName, "-");
+									strcat (fullLayerName, code2 [x2]);
+								}
+
+								// 층 구분
 								strcat (fullLayerName, "-");
-								strcat (fullLayerName, code2 [x2]);
-							}
+								strcat (fullLayerName, code3 [x3]);
 
-							// 층 구분
-							strcat (fullLayerName, "-");
-							strcat (fullLayerName, code3 [x3]);
+								// CJ 구간
+								if ((LenCode4 > 1) && (bCode4 == true)) {
+									strcat (fullLayerName, "-");
+									strcat (fullLayerName, code4 [x4]);
+								}
 
-							// CJ 구간
-							if (LenCode4 > 1) {
+								// CJ 속 시공순서
+								if ((LenCode5 > 1) && (bCode5 == true)) {
+									strcat (fullLayerName, "-");
+									strcat (fullLayerName, code5 [x5]);
+								}
+
+								// 부재
 								strcat (fullLayerName, "-");
-								strcat (fullLayerName, code4 [x4]);
-							}
+								strcat (fullLayerName, code6 [x6]);
 
-							// CJ 속 시공순서
-							if (LenCode5 > 1) {
-								strcat (fullLayerName, "-");
-								strcat (fullLayerName, code5 [x5]);
-							}
+								// 조합한 레이어 이름 검색하기
+								BNZeroMemory (&attrib, sizeof (API_Attribute));
+								attrib.header.typeID = API_LayerID;
+								CHCopyC (fullLayerName, attrib.header.name);
+								err = ACAPI_Attribute_Get (&attrib);
 
-							// 부재
-							strcat (fullLayerName, "-");
-							strcat (fullLayerName, code6 [x6]);
-
-							// !!!
-							//ACAPI_WriteReport (fullLayerName, true);
-
-							// 조합한 레이어 이름 검색하기
-							BNZeroMemory (&attrib, sizeof (API_Attribute));
-							attrib.header.typeID = API_LayerID;
-							CHCopyC (fullLayerName, attrib.header.name);
-							err = ACAPI_Attribute_Get (&attrib);
-
-							// 해당 레이어 보여주기
-							if ((attrib.layer.head.flags & APILay_Hidden) == true) {
-								attrib.layer.head.flags ^= APILay_Hidden;
-								ACAPI_Attribute_Modify (&attrib, NULL);
+								// 해당 레이어 보여주기
+								if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+									attrib.layer.head.flags ^= APILay_Hidden;
+									ACAPI_Attribute_Modify (&attrib, NULL);
+								}
 							}
 						}
 					}
