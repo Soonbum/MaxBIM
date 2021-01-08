@@ -6,8 +6,6 @@
 #include "UtilityFunctions.hpp"
 #include "Layers.hpp"
 
-using namespace othersDG;
-
 static LayerNameSystem	layerInfo;
 static LayerNameSystem	selectedInfo;
 

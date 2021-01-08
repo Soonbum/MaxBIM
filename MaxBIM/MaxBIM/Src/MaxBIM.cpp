@@ -11,6 +11,8 @@
 
 #include "Layers.hpp"
 
+#include "Export.hpp"
+
 #include "Information.hpp"
 
 #define	MDID_DEVELOPER_ID	829517673
@@ -47,7 +49,8 @@ GSErrCode	__ACENV_CALL	RegisterInterface (void)
 	GSErrCode err;
 	
 	err = ACAPI_Register_Menu (32001, 32002, MenuCode_UserDef, MenuFlag_Default);	// 유로폼 배치
-	err = ACAPI_Register_Menu (32005, 32006, MenuCode_UserDef, MenuFlag_Default);	// 기타
+	err = ACAPI_Register_Menu (32005, 32006, MenuCode_UserDef, MenuFlag_Default);	// 레이어 유틸
+	err = ACAPI_Register_Menu (32007, 32008, MenuCode_UserDef, MenuFlag_Default);	// 내보내기
 	err = ACAPI_Register_Menu (32003, 32004, MenuCode_UserDef, MenuFlag_Default);	// 정보
 
 	return err;
@@ -107,6 +110,14 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					break;
 			}
 			break;
+		case 32007:
+			// 내보내기
+			switch (menuParams->menuItemRef.itemIndex) {
+				case 1:		// 테스트
+					err = exportElementInfo ();
+					break;
+			}
+			break;
 		case 32003:
 			// 정보
 			switch (menuParams->menuItemRef.itemIndex) {
@@ -134,6 +145,7 @@ GSErrCode __ACENV_CALL	Initialize (void)
 	
 	err = ACAPI_Install_MenuHandler (32001, MenuCommandHandler);	// 유로폼 배치
 	err = ACAPI_Install_MenuHandler (32005, MenuCommandHandler);	// 레이어 유틸
+	err = ACAPI_Install_MenuHandler (32007, MenuCommandHandler);	// 내보내기
 	err = ACAPI_Install_MenuHandler (32003, MenuCommandHandler);	// 정보
 
 	// register special help location if needed

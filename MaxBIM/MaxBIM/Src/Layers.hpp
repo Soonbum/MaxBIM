@@ -3,12 +3,6 @@
 
 #include "MaxBIM.hpp"
 
-namespace othersDG {
-	// 다이얼로그 항목 인덱스
-	enum	idxItems_1_others {
-	};
-}
-
 // 레이어 코드 체계
 struct LayerNameSystem
 {

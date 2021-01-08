@@ -51,6 +51,9 @@
     <ClInclude Include="Src\Layers.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Export.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\MaxBIM.cpp">
@@ -78,6 +81,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Src\Layers.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Export.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
