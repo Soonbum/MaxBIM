@@ -100,7 +100,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			}
 			break;
 		case 32005:
-			// 기타
+			// 레이어 유틸
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:		// 레이어 쉽게 선택하기
 					err = showLayersEasily ();
@@ -133,7 +133,7 @@ GSErrCode __ACENV_CALL	Initialize (void)
 	GSErrCode err;
 	
 	err = ACAPI_Install_MenuHandler (32001, MenuCommandHandler);	// 유로폼 배치
-	err = ACAPI_Install_MenuHandler (32005, MenuCommandHandler);	// 기타
+	err = ACAPI_Install_MenuHandler (32005, MenuCommandHandler);	// 레이어 유틸
 	err = ACAPI_Install_MenuHandler (32003, MenuCommandHandler);	// 정보
 
 	// register special help location if needed

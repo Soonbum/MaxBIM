@@ -12,7 +12,7 @@ namespace othersDG {
 // 레이어 코드 체계
 struct LayerNameSystem
 {
-	// 정규 코드 예시: 01-S-(0101)-9B1-(01)-(01)-WALL  단, 괄호 안은 선택사항
+	// 정규 코드 예시: 05-T-(0101)-9B1-(01)-(01)-COLU-(UFOM)  단, 괄호 안은 선택사항
 
 	// 공사 구분 (필수)
 	bool	bType_01_S;		// 구조 (01-S)
@@ -96,7 +96,7 @@ struct LayerNameSystem
 
 	short	iOrderInCJ [100];	// 01~99 (인덱스 0은 사용하지 않음)
 
-	// 부재 및 객체 구분 (필수)
+	// 부재 구분 (필수)
 	// 01-S 구조
 	bool	bType_01_S_STAR;	// 계단
 	bool	bType_01_S_COLU;	// 기둥
@@ -117,6 +117,8 @@ struct LayerNameSystem
 	bool	bType_01_S_BMPC;	// 보PC
 	bool	bType_01_S_BMWL;	// 보벽체
 	bool	bType_01_S_STST;	// 철골계단
+	bool	bType_01_S_TOPP;	// 토핑
+	bool	bType_01_S_DECK;	// 데크
 	bool	bType_01_S_AllShow;	// 모두 선택 버튼 보여주기
 
 	short	iType_01_S_STAR;	// 계단
@@ -138,6 +140,8 @@ struct LayerNameSystem
 	short	iType_01_S_BMPC;	// 보PC
 	short	iType_01_S_BMWL;	// 보벽체
 	short	iType_01_S_STST;	// 철골계단
+	short	iType_01_S_TOPP;	// 토핑
+	short	iType_01_S_DECK;	// 데크
 
 	// 02-A 건축마감
 	bool	bType_02_A_FURN;	// 가구
@@ -211,7 +215,7 @@ struct LayerNameSystem
 	bool	bType_05_T_STSE;	// 계단제작폼
 	bool	bType_05_T_SLSE;	// 슬래브제작폼
 	bool	bType_05_T_RAIL;	// 목심레일
-	bool	bType_05_T_AllShow;	// 모두 선택 버튼 보여주기
+	bool	bType_05_T_AllShow;		// 모두 선택 버튼 보여주기 (부재)
 	
 	short	iType_05_T_TIMB;	// 각재
 	short	iType_05_T_BIMJ;	// 각파이프행거
@@ -276,6 +280,72 @@ struct LayerNameSystem
 	short	iType_06_F_BPAN;	// 복공판
 	short	iType_06_F_WALE;	// 띠장
 	short	iType_06_F_PILE;	// 파일
+
+	// 객체 구분 (선택)
+	bool	bType_05_T_2_TIMB;	// 각재
+	bool	bType_05_T_2_BIMJ;	// 각파이프행거
+	bool	bType_05_T_2_BDCM;	// 기둥밴드
+	bool	bType_05_T_2_DMGA;	// 다마가
+	bool	bType_05_T_2_RIBL;	// 리브라스
+	bool	bType_05_T_2_BMSP;	// 보받침필러
+	bool	bType_05_T_2_BSTA;	// 비계계단
+	bool	bType_05_T_2_SPIP;	// 사각파이프
+	bool	bType_05_T_2_SUPT;	// 서포트
+	bool	bType_05_T_2_SYSU;	// 시스템서포트
+	bool	bType_05_T_2_OUTA;	// 아웃코너앵글
+	bool	bType_05_T_2_OUTP;	// 아웃코너판넬
+	bool	bType_05_T_2_AFOM;	// 알폼
+	bool	bType_05_T_2_CPIP;	// 원형파이프
+	bool	bType_05_T_2_UGON;	// 유공발판
+	bool	bType_05_T_2_UFOM;	// 유로폼
+	bool	bType_05_T_2_INCO;	// 인코너판넬
+	bool	bType_05_T_2_JOIB;	// 조인트바
+	bool	bType_05_T_2_EFOM;	// 종이거푸집
+	bool	bType_05_T_2_JSUPT;	// 잭서포트
+	bool	bType_05_T_2_WTST;	// 지수판
+	bool	bType_05_T_2_CLAM;	// 클램프
+	bool	bType_05_T_2_LUMB;	// 토류판
+	bool	bType_05_T_2_TRUS;	// 트러스
+	bool	bType_05_T_2_TBBM;	// 팀버빔
+	bool	bType_05_T_2_BCWF;	// 합벽지지대
+	bool	bType_05_T_2_PLYW;	// 합판
+	bool	bType_05_T_2_FISP;	// 휠러스페이서
+	bool	bType_05_T_2_STSE;	// 계단제작폼
+	bool	bType_05_T_2_SLSE;	// 슬래브제작폼
+	bool	bType_05_T_2_RAIL;	// 목심레일
+	bool	bType_05_T_2_AllShow;		// 모두 선택 버튼 보여주기 (부재)
+	
+	short	iType_05_T_2_TIMB;	// 각재
+	short	iType_05_T_2_BIMJ;	// 각파이프행거
+	short	iType_05_T_2_BDCM;	// 기둥밴드
+	short	iType_05_T_2_DMGA;	// 다마가
+	short	iType_05_T_2_RIBL;	// 리브라스
+	short	iType_05_T_2_BMSP;	// 보받침필러
+	short	iType_05_T_2_BSTA;	// 비계계단
+	short	iType_05_T_2_SPIP;	// 사각파이프
+	short	iType_05_T_2_SUPT;	// 서포트
+	short	iType_05_T_2_SYSU;	// 시스템서포트
+	short	iType_05_T_2_OUTA;	// 아웃코너앵글
+	short	iType_05_T_2_OUTP;	// 아웃코너판넬
+	short	iType_05_T_2_AFOM;	// 알폼
+	short	iType_05_T_2_CPIP;	// 원형파이프
+	short	iType_05_T_2_UGON;	// 유공발판
+	short	iType_05_T_2_UFOM;	// 유로폼
+	short	iType_05_T_2_INCO;	// 인코너판넬
+	short	iType_05_T_2_JOIB;	// 조인트바
+	short	iType_05_T_2_EFOM;	// 종이거푸집
+	short	iType_05_T_2_JSUPT;	// 잭서포트
+	short	iType_05_T_2_WTST;	// 지수판
+	short	iType_05_T_2_CLAM;	// 클램프
+	short	iType_05_T_2_LUMB;	// 토류판
+	short	iType_05_T_2_TRUS;	// 트러스
+	short	iType_05_T_2_TBBM;	// 팀버빔
+	short	iType_05_T_2_BCWF;	// 합벽지지대
+	short	iType_05_T_2_PLYW;	// 합판
+	short	iType_05_T_2_FISP;	// 휠러스페이서
+	short	iType_05_T_2_STSE;	// 계단제작폼
+	short	iType_05_T_2_SLSE;	// 슬래브제작폼
+	short	iType_05_T_2_RAIL;	// 목심레일
 };
 
 void		initLayerInfo (LayerNameSystem *layerInfo);		// 레이어 정보 초기화
