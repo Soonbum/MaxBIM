@@ -6,12 +6,25 @@
 #include "UtilityFunctions.hpp"
 #include "Export.hpp"
 
+
+const double DIST_BTW_COLUMN = 3.000;
+
+
+// 배열 초기화 함수
+void initArray (double arr [], short arrSize)
+{
+	short	xx;
+
+	for (xx = 0 ; xx < arrSize ; ++xx)
+		arr [xx] = 0.0;
+}
+
 // 오름차순으로 정렬할 때 사용하는 비교함수
 int compare (const void* first, const void* second)
 {
-    if (*(int*)first > *(int*)second)
+    if (*(double*)first > *(double*)second)
         return 1;
-    else if (*(int*)first < *(int*)second)
+    else if (*(double*)first < *(double*)second)
         return -1;
     else
         return 0;
@@ -26,7 +39,9 @@ GSErrCode	exportElementInfo (void)
 	char	msg [200];
 	char	buffer [200];
 	char	piece [20];
-	short	xx, yy;
+	short	xx, yy, zz;
+	short	i, j;
+	short	iSel, jSel;
 
 	// 객체 정보 가져오기
 	API_Element			elem;
@@ -37,54 +52,143 @@ GSErrCode	exportElementInfo (void)
 	API_StoryInfo	storyInfo;
 
 	// 주열 번호를 선정하기 위한 변수들
-	double	coords1_hor [100];
-	short	nCoords1_hor;
-	double	coords1_ver [100];
-	short	nCoords1_ver;
+	double	coords_hor [100];
+	short	nCoords_hor;
+	double	coords_ver [100];
+	short	nCoords_ver;
 
-	double	coords2_hor [100];
-	short	nCoords2_hor;
-	double	coords2_ver [100];
-	short	nCoords2_ver;
+	short	iHor, iVer;
 
 	// 정보를 저장하기 위한 구조체
-	ColumnInfo		columnInfo;
+	ColumnPos		columnPos;
 	
 
-	// 1. 기둥 정보 가져오기
-	ACAPI_Element_GetElemList (API_ColumnID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음
+	// ================================================== 1. 기둥 정보 가져오기
 
-	nCoords1_hor = 0;
-	nCoords1_ver = 0;
-
+	// 층 정보 가져오기
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
 
+	columnPos.firstStory = storyInfo.firstStory;
+	columnPos.lastStory = storyInfo.lastStory;
+	columnPos.nStories = storyInfo.lastStory - storyInfo.firstStory;
+	columnPos.nColumns = 0;
+
+	// 층별로 기둥의 위치(주열)를 대략적으로 지정해 놓음
 	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
-		for (yy = 0 ; yy < elemList.GetSize () ; ++yy) {
+
+		nCoords_hor = 0;
+		nCoords_ver = 0;
+
+		ACAPI_Element_GetElemList (API_ColumnID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음
+		for (yy = 0 ; yy < (short)elemList.GetSize () ; ++yy) {
 			BNZeroMemory (&elem, sizeof (API_Element));
 			BNZeroMemory (&memo, sizeof (API_ElementMemo));
 			elem.header.guid = elemList.Pop ();
 			err = ACAPI_Element_Get (&elem);
 			err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-			if (storyInfo.data [0][yy].index == elem.header.floorInd) {
-				coords1_hor [nCoords1_hor++] = elem.column.origoPos.x;
-				coords1_ver [nCoords1_ver++] = elem.column.origoPos.y;
+			if (storyInfo.data [0][xx].index == elem.header.floorInd) {
+				coords_hor [nCoords_hor++] = elem.column.origoPos.x;
+				coords_ver [nCoords_ver++] = elem.column.origoPos.y;
 			}
 
 			ACAPI_DisposeElemMemoHdls (&memo);
 		}
 
-		// ... 매 층별로 처리해야 함
-		// 정렬 전 -- 출력!
-		qsort (&coords1_hor, nCoords1_hor, sizeof (double), compare);
-		// 정렬 후 -- 출력!
-		// - traversing하면서 다른 배열에 또 저장: 간격이 3000 이하이면, 무시 초과하면 삽입
+		// 오름차순 정렬
+		qsort (&coords_hor, nCoords_hor, sizeof (double), compare);
+		qsort (&coords_ver, nCoords_ver, sizeof (double), compare);
+
+		iHor = 0;
+		iVer = 0;
+
+		// 가로 방향 주열 정보 저장 (간격이 3000 초과하면 삽입)
+		if (nCoords_hor >= 2) {
+			columnPos.node_hor [xx][iHor++]	= coords_hor [0];
+
+			for (zz = 1 ; zz < nCoords_hor ; ++zz) {
+				if ( abs (coords_hor [zz] - columnPos.node_hor [xx][iHor - 1]) > DIST_BTW_COLUMN) {
+					columnPos.node_hor [xx][iHor++]	= coords_hor [zz];
+				}
+			}
+			columnPos.nNodes_hor [xx] = iHor;
+		}
+
+		// 세로 방향 주열 정보 저장 (간격이 3000 초과하면 삽입)
+		if (nCoords_ver >= 2) {
+			columnPos.node_ver [xx][iVer++]	= coords_ver [0];
+
+			for (zz = 1 ; zz < nCoords_ver ; ++zz) {
+				if ( abs (coords_ver [zz] - columnPos.node_ver [xx][iVer - 1]) > DIST_BTW_COLUMN) {
+					columnPos.node_ver [xx][iVer++]	= coords_ver [zz];
+				}
+			}
+			columnPos.nNodes_ver [xx] = iVer;
+		}
+
+		// 기둥 정보를 저장함 !!! -- iSel, jSel 값이 달라야 하는데?
+		ACAPI_Element_GetElemList (API_ColumnID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음
+		for (yy = 0 ; yy < (short)elemList.GetSize () ; ++yy) {
+			BNZeroMemory (&elem, sizeof (API_Element));
+			BNZeroMemory (&memo, sizeof (API_ElementMemo));
+			elem.header.guid = elemList.Pop ();
+			err = ACAPI_Element_Get (&elem);
+			err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+			if (storyInfo.data [0][xx].index == elem.header.floorInd) {
+				iSel = 0;
+				jSel = 0;
+
+				for (i = 0 ; i < iHor ; ++i) {
+					if (abs (elem.column.origoPos.x - columnPos.node_hor [xx][i]) <= DIST_BTW_COLUMN) {
+						iSel = i;
+						break;
+					}
+				}
+
+				for (j = 0; j < iVer ; ++j) {
+					if (abs (elem.column.origoPos.y - columnPos.node_ver [xx][j]) <= DIST_BTW_COLUMN) {
+						jSel = i;
+						break;
+					}
+				}
+
+				columnPos.columns [columnPos.nColumns].floorInd		= elem.header.floorInd;
+				columnPos.columns [columnPos.nColumns].posX			= elem.column.origoPos.x;
+				columnPos.columns [columnPos.nColumns].posY			= elem.column.origoPos.y;
+				columnPos.columns [columnPos.nColumns].horLen		= elem.column.coreWidth + elem.column.venThick*2;
+				columnPos.columns [columnPos.nColumns].verLen		= elem.column.coreDepth + elem.column.venThick*2;
+				columnPos.columns [columnPos.nColumns].height		= elem.column.height;
+				columnPos.columns [columnPos.nColumns].iHor			= iSel;
+				columnPos.columns [columnPos.nColumns].iVer			= jSel;
+
+				columnPos.nColumns ++;
+			}
+
+			ACAPI_DisposeElemMemoHdls (&memo);
+		}
 	}
 
-	BMKillHandle ((GSHandle *) &storyInfo.data);
+	sprintf (msg, "기둥 개수: %d", columnPos.nColumns);
+	ACAPI_WriteReport (msg, true);
 
+	for (xx = 0 ; xx < 20 ; ++xx) {
+		sprintf (msg, "[%d]: %d층, 번호(%d, %d), 위치(%.3f, %.3f), 크기(%.3f, %.3f, %.3f)",
+			xx,
+			columnPos.columns [xx].floorInd,
+			columnPos.columns [xx].iHor,
+			columnPos.columns [xx].iVer,
+			columnPos.columns [xx].posX,
+			columnPos.columns [xx].posY,
+			columnPos.columns [xx].horLen,
+			columnPos.columns [xx].verLen,
+			columnPos.columns [xx].height);
+		ACAPI_WriteReport (msg, true);
+	}
+
+	// 층 정보 폐기
+	BMKillHandle ((GSHandle *) &storyInfo.data);
 
 
 	//// 기둥
@@ -199,6 +303,6 @@ GSErrCode	exportElementInfo (void)
 	*/
 
 	// 기둥 정보를 구조체에 저장하기
-	// ... columnInfo
+	// ... columnPos
 	return	err;
 }
