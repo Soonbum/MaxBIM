@@ -24,18 +24,20 @@ struct ColumnPos
 	ColumnInfo	columns [5000];		// 기둥 정보
 	short	nColumns;				// 기둥 개수
 
+	// 주열 정보
 	double	node_hor [100][100];	// 층별 가로 방향 기둥 좌표 (X) : dim1 - 층, dim2 - 노드 X좌표
 	short	nNodes_hor [100];		// 층별 가로 방향 기둥 개수
 	double	node_ver [100][100];	// 층별 세로 방향 기둥 좌표 (Y) : dim1 - 층, dim2 - 노드 Y좌표
 	short	nNodes_ver [100];		// 층별 세로 방향 기둥 개수
 
-	short	nStories;				// 층 수
-	short	firstStory;				// 최하층
-	short	lastStory;				// 최상층
+	short	nStories;				// 층 수를 의미함, = storyInfo.lastStory - storyInfo.firstStory + (storyInfo.skipNullFloor) * 1 (0층을 생략했다면 +1)
+	short	firstStory;				// 최하위 층 인덱스 (예: 지하 4층인 경우, -4)
+	short	lastStory;				// 최상위 층 인덱스 (예: 지상 35층인 경우, 34)
 };
 
-void initArray (double arr [], short arrSize);			// 배열 초기화 함수
-int compare (const void* first, const void* second);	// 오름차순으로 정렬할 때 사용하는 비교함수
-GSErrCode	exportElementInfo (void);					// 부재(기둥,보,슬래브)들의 정보를 추출하고 정리해서 엑셀 파일로 내보내기
+void initArray (double arr [], short arrSize);											// 배열 초기화 함수
+int compare (const void* first, const void* second);									// 오름차순으로 정렬할 때 사용하는 비교함수 (퀵소트)
+ColumnInfo	findColumn (ColumnPos* columnPos, short iHor, short iVer, short floorInd);	// 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
+GSErrCode	exportElementInfo (void);													// 부재(기둥,보,슬래브)들의 정보를 추출하고 정리해서 엑셀 파일로 내보내기
 
 #endif

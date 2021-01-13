@@ -36,6 +36,7 @@
 #include "UC.h"
 #include "DG.h"
 #include "APICommon.h"
+#include <string.h>
 
 #define TRUE	1
 #define FALSE	0
