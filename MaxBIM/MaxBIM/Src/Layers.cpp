@@ -384,7 +384,7 @@ GSErrCode	showLayersEasily (void)
 
 	bool	success;
 	char	*token;
-	char	tempStr [5];
+	char	tempStr [10];
 	char	tok1 [5];
 	char	tok2 [5];
 	char	tok3 [5];
