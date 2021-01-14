@@ -7,7 +7,9 @@
 #include "Export.hpp"
 
 
-double DIST_BTW_COLUMN = 3.000;		// 이 변수는 나중에 사용자가 입력하도록 변경할 것 (기둥 간 최소 간격)
+using namespace exportDG;
+
+double DIST_BTW_COLUMN = 2.000;		// 기둥 간 최소 간격 (기본값), 추후 다이얼로그에서 변경할 수 있음
 
 
 // 배열 초기화 함수
@@ -67,11 +69,13 @@ GSErrCode	exportElementInfo (void)
 	GSErrCode	err = NoError;
 
 	GS::Array<API_Guid> elemList;
-	char	msg [200];
-	char	buffer [200];
+	long	nElems;
+	char	msg [512];
+	char	buffer [256];
 	char	piece [20];
 	short	xx, yy, zz;
 	short	i, j;
+	short	result;
 
 	// 객체 정보 가져오기
 	API_Element			elem;
@@ -94,18 +98,22 @@ GSErrCode	exportElementInfo (void)
 	// 파일 저장을 위한 변수
 	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
 	IO::Location		location;
-	GS::UniString		result;
+	GS::UniString		resultString;
 	API_MiscAppInfo		miscAppInfo;
 
 	FILE	*fp;
 	char	file_column [256];
+	bool	bFileCreationSuccess_column;
 
 	// 정보를 저장하기 위한 구조체
 	ColumnPos		columnPos;
 	ColumnInfo		resultColumn;
 	
 
-	// ================================================== 기둥 정보 가져오기
+	// ================================================== 기둥
+	// [다이얼로그] 기둥 간 최소 간격 거리를 사용자에게 입력 받음 (기본값: 2000 mm)
+	result = DGBlankModalDialog (250, 100, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, inputThresholdHandler, 0);
+
 	// 층 정보 가져오기
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
@@ -123,7 +131,8 @@ GSErrCode	exportElementInfo (void)
 
 		// 좌표값을 일단 저장하되, X와 Y축 방향으로 나눠서 저장
 		ACAPI_Element_GetElemList (API_ColumnID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음
-		for (yy = 0 ; yy < (short)elemList.GetSize () ; ++yy) {
+		nElems = elemList.GetSize ();
+		for (yy = 0 ; yy < nElems ; ++yy) {
 			BNZeroMemory (&elem, sizeof (API_Element));
 			BNZeroMemory (&memo, sizeof (API_ElementMemo));
 			elem.header.guid = elemList.Pop ();
@@ -173,10 +182,10 @@ GSErrCode	exportElementInfo (void)
 			columnPos.nNodes_ver [xx] = iVer;
 		}
 
-		// !!! 만약 두 기둥이 한 주열에 중첩되면 정보가 사라질 수 있음
 		// 기둥 정보를 저장함
 		ACAPI_Element_GetElemList (API_ColumnID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음
-		for (yy = 0 ; yy < (short)elemList.GetSize () ; ++yy) {
+		nElems = elemList.GetSize ();
+		for (yy = 0 ; yy < nElems ; ++yy) {
 			BNZeroMemory (&elem, sizeof (API_Element));
 			BNZeroMemory (&memo, sizeof (API_ElementMemo));
 			elem.header.guid = elemList.Pop ();
@@ -231,7 +240,7 @@ GSErrCode	exportElementInfo (void)
 
 	// 엑셀 파일로 기둥 정보 내보내기
 	ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
-	sprintf (file_column, "%s - Column.csv", miscAppInfo.caption);	// 파일명 지정
+	sprintf (file_column, "%s - Column.csv", miscAppInfo.caption);
 	fp = fopen (file_column, "w+");
 
 	if (fp != NULL) {
@@ -248,7 +257,6 @@ GSErrCode	exportElementInfo (void)
 		strcat (buffer, "\n");
 		fprintf (fp, buffer);
 
-		// !!! 왜 초반에는 마지막 Y열 기둥을 못찾는가?
 		for (xx = 0 ; xx < maxHor ; ++xx) {
 			for (yy = 0 ; yy < maxVer ; ++yy) {
 				// 헤더 및 가로
@@ -283,27 +291,24 @@ GSErrCode	exportElementInfo (void)
 			}
 		}
 
-		// ... 진행 바 표시?
-
 		fclose (fp);
 
-		// !!! 기둥 개수가 안 맞음: 43개? 화면에는 46개인데...
-		sprintf (msg, "기둥 개수: %d", columnPos.nColumns);
-		ACAPI_WriteReport (msg, true);
+		bFileCreationSuccess_column = true;
+	} else {
+		bFileCreationSuccess_column = false;
+	}
 
+	if (bFileCreationSuccess_column == true) {
 		ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-		location.ToDisplayText (&result);
-		sprintf (msg, "파일은 다음 위치에 있습니다\n%s", result.ToCStr ().Get ());
+		location.ToDisplayText (&resultString);
+		sprintf (msg, "%s를 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", file_column, resultString.ToCStr ().Get ());
 		ACAPI_WriteReport (msg, true);
 	} else {
-		sprintf (msg, "%s 를 생성할 수 없습니다.", file_column);
+		sprintf (msg, "%s를 생성할 수 없습니다.", file_column);
 		ACAPI_WriteReport (msg, true);
 	}
 
-
-
-
-
+	// ================================================== 보
 	//// 보
 	//// 모든 보들의 시작/끝점 좌표, 너비, 높이, 길이 값을 가져옴
 	//ACAPI_Element_GetElemList (API_BeamID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음
@@ -357,4 +362,70 @@ GSErrCode	exportElementInfo (void)
 	//}
 
 	return	err;
+}
+
+// [다이얼로그] 기둥 간 최소 간격 거리를 사용자에게 입력 받음 (기본값: 2000 mm)
+short DGCALLBACK inputThresholdHandler (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	short	result;
+	short	itmIdx;
+	short	itmPosX, itmPosY;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "주열 최소 간격 입력하기");
+
+			// 확인 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 60, 80, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "확인");
+			DGShowItem (dialogID, DG_OK);
+
+			// 취소 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 140, 60, 80, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGShowItem (dialogID, DG_CANCEL);
+
+			// 라벨: 주열 최소 간격
+			itmPosX = 10;
+			itmPosY = 15;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, itmPosX, itmPosY, 120, 23);
+			DGSetItemFont (dialogID, LABEL_DIST_BTW_COLUMN, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_DIST_BTW_COLUMN, "주열 최소 간격 (mm)");
+			DGShowItem (dialogID, LABEL_DIST_BTW_COLUMN);
+
+			// Edit컨트롤: 주열 최소 간격
+			itmPosX = 140;
+			itmPosY = 10;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, itmPosY, 50, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_DIST_BTW_COLUMN, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemValDouble (dialogID, EDITCONTROL_DIST_BTW_COLUMN, DIST_BTW_COLUMN);
+			DGShowItem (dialogID, EDITCONTROL_DIST_BTW_COLUMN);
+
+			break;
+		
+		case DG_MSG_CHANGE:
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					DIST_BTW_COLUMN = DGGetItemValDouble (dialogID, EDITCONTROL_DIST_BTW_COLUMN);
+					break;
+
+				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
 }

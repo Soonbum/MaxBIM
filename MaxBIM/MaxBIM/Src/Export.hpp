@@ -4,6 +4,14 @@
 #include "MaxBIM.hpp"
 
 
+namespace exportDG {
+	// 다이얼로그 항목 인덱스
+	enum	idxItems_1_exportDG {
+		LABEL_DIST_BTW_COLUMN		= 3,
+		EDITCONTROL_DIST_BTW_COLUMN
+	};
+}
+
 // 개별 기둥의 정보
 struct ColumnInfo
 {
@@ -35,9 +43,10 @@ struct ColumnPos
 	short	lastStory;				// 최상위 층 인덱스 (예: 지상 35층인 경우, 34)
 };
 
-void initArray (double arr [], short arrSize);											// 배열 초기화 함수
-int compare (const void* first, const void* second);									// 오름차순으로 정렬할 때 사용하는 비교함수 (퀵소트)
-ColumnInfo	findColumn (ColumnPos* columnPos, short iHor, short iVer, short floorInd);	// 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
-GSErrCode	exportElementInfo (void);													// 부재(기둥,보,슬래브)들의 정보를 추출하고 정리해서 엑셀 파일로 내보내기
+void		initArray (double arr [], short arrSize);											// 배열 초기화 함수
+int			compare (const void* first, const void* second);									// 오름차순으로 정렬할 때 사용하는 비교함수 (퀵소트)
+ColumnInfo	findColumn (ColumnPos* columnPos, short iHor, short iVer, short floorInd);			// 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
+GSErrCode	exportElementInfo (void);															// 부재(기둥,보,슬래브)들의 정보를 추출하고 정리해서 엑셀 파일로 내보내기
+short		DGCALLBACK inputThresholdHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그] 기둥 간 최소 간격 거리를 사용자에게 입력 받음 (기본값: 2000 mm)
 
 #endif
