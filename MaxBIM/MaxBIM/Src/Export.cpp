@@ -114,6 +114,11 @@ GSErrCode	exportElementInfo (void)
 	// [다이얼로그] 기둥 간 최소 간격 거리를 사용자에게 입력 받음 (기본값: 2000 mm)
 	result = DGBlankModalDialog (250, 100, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, inputThresholdHandler, 0);
 
+	if (result != DG_OK) {
+		ACAPI_WriteReport ("내보내기를 중단합니다.", true);
+		return	err;
+	}
+
 	// 층 정보 가져오기
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);

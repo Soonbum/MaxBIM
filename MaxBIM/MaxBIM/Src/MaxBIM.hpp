@@ -37,6 +37,7 @@
 #include "DG.h"
 #include "APICommon.h"
 #include <string.h>
+#include <vector>
 
 #define TRUE	1
 #define FALSE	0
