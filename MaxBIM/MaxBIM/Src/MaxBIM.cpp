@@ -108,12 +108,18 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 1:		// 레이어 쉽게 선택하기
 					err = showLayersEasily ();
 					break;
+				case 2:		// 레이어 쉽게 만들기
+					err = makeLayersEasily ();
+					break;
+				case 3:		// 레이어 쉽게 지정하기
+					err = assignLayerEasily ();
+					break;
 			}
 			break;
 		case 32007:
 			// 내보내기
 			switch (menuParams->menuItemRef.itemIndex) {
-				case 1:		// 테스트
+				case 1:		// 테스트 ...
 					err = exportElementInfo ();
 					break;
 			}

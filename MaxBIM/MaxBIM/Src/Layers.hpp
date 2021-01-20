@@ -5,6 +5,32 @@
 
 using namespace std;
 
+namespace layersDG {
+	// 다이얼로그 항목 인덱스
+	enum	idxItems_layerMakeDG {
+		BUTTON_CODE	= 3,
+		BUTTON_DONG,
+		BUTTON_FLOOR,
+		BUTTON_CJ,
+		BUTTON_ORDER,
+		BUTTON_OBJ,
+		BUTTON_SUBOBJ,
+
+		SEPARATOR_1,
+		SEPARATOR_2,
+		SEPARATOR_3,
+		SEPARATOR_4,
+		SEPARATOR_5,
+		SEPARATOR_6,
+		SEPARATOR_7,
+
+		CHECKBOX_DONG,
+		CHECKBOX_CJ,
+		CHECKBOX_ORDER,
+		CHECKBOX_SUBOBJ
+	};
+}
+
 // 레이어 코드 체계
 struct LayerNameSystem
 {
@@ -80,10 +106,18 @@ struct StatusOfLayerNameSystem
 	bool	subObj_state [500];
 };
 
-void		allocateMemory (void);			// 메모리 할당
-void		deallocateMemory (void);		// 메모리 해제
+void		allocateMemory (LayerNameSystem *layerInfo);		// 메모리 할당
+void		deallocateMemory (LayerNameSystem *layerInfo);		// 메모리 해제
+
 GSErrCode	showLayersEasily (void);		// 레이어 쉽게 선택하기
-short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그 박스] 레이어 보여주기
+short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그 박스] 레이어 쉽게 선택하기
 GSErrCode	saveButtonStatus (void);		// 최근 버튼 상태 저장하기
+
+GSErrCode	makeLayersEasily (void);		// 레이어 쉽게 만들기
+short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그 박스] 레이어 쉽게 만들기
+short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그 박스] 레이어 쉽게 만들기 2차
+
+GSErrCode	assignLayerEasily (void);		// 레이어 쉽게 지정하기
+//short DGCALLBACK layerAssignHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그 박스] 레이어 쉽게 지정하기
 
 #endif
