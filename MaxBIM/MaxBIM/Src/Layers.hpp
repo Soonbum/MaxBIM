@@ -118,6 +118,7 @@ short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DG
 short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그 박스] 레이어 쉽게 만들기 2차
 
 GSErrCode	assignLayerEasily (void);		// 레이어 쉽게 지정하기
-//short DGCALLBACK layerAssignHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그 박스] 레이어 쉽게 지정하기
+short DGCALLBACK layerAssignHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그 박스] 레이어 쉽게 지정하기
+short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그 박스] 레이어 쉽게 지정하기 2차
 
 #endif

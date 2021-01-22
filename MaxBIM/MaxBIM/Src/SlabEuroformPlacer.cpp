@@ -99,11 +99,9 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
 	if (err == APIERR_NOPLAN) {
 		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
-		return err;
 	}
 	if (err == APIERR_NOSEL) {
 		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 슬래브 (1개), 슬래브 하부를 덮는 모프 (1개)", true);
-		return err;
 	}
 	if (err != NoError) {
 		BMKillHandle ((GSHandle *) &selNeigs);

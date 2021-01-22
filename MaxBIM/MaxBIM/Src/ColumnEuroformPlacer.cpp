@@ -99,11 +99,9 @@ GSErrCode	placeEuroformOnColumn (void)
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
 	if (err == APIERR_NOPLAN) {
 		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
-		return err;
 	}
 	if (err == APIERR_NOSEL) {
 		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 기둥 (1개), 기둥 측면을 덮는 모프 (1개)\n옵션 선택: 기둥과 맞닿거나 간섭하는 벽(1개), 기둥과 맞닿는 보 (다수)", true);
-		return err;
 	}
 	if (err != NoError) {
 		BMKillHandle ((GSHandle *) &selNeigs);

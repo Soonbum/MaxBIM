@@ -112,7 +112,10 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = makeLayersEasily ();
 					break;
 				case 3:		// 레이어 쉽게 지정하기
-					err = assignLayerEasily ();
+					err = ACAPI_CallUndoableCommand ("선택한 객체들의 레이어 속성 변경", [&] () -> GSErrCode {
+						err = assignLayerEasily ();
+						return err;
+					});
 					break;
 			}
 			break;
