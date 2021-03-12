@@ -331,7 +331,7 @@
 /* [ 27] */	UserControl		210		494		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
 }
 
-/* ---------------------------------------------------------- Munual Palette */
+/* ---------------------------------------------------------- Manual Palette */
 'GDLG'  32516  Palette | grow		  0		  0		420		500		"Manual Palette" {
 /* [  1] */	Button			180		460		100		 25		LargePlain		"OK"
 /* [  2] */	LeftText		 10		 10		 80		 23		LargePlain		"Placing Euroform"

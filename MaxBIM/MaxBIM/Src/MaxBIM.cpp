@@ -13,6 +13,8 @@
 
 #include "Export.hpp"
 
+#include "Quantities.hpp"
+
 #include "Information.hpp"
 
 #define	MDID_DEVELOPER_ID	829517673
@@ -50,7 +52,8 @@ GSErrCode	__ACENV_CALL	RegisterInterface (void)
 	
 	err = ACAPI_Register_Menu (32001, 32002, MenuCode_UserDef, MenuFlag_Default);	// 유로폼 배치
 	err = ACAPI_Register_Menu (32005, 32006, MenuCode_UserDef, MenuFlag_Default);	// 레이어 유틸
-	err = ACAPI_Register_Menu (32007, 32008, MenuCode_UserDef, MenuFlag_Default);	// 그 외
+	err = ACAPI_Register_Menu (32007, 32008, MenuCode_UserDef, MenuFlag_Default);	// 내보내기
+	err = ACAPI_Register_Menu (32009, 32010, MenuCode_UserDef, MenuFlag_Default);	// 물량 산출
 	err = ACAPI_Register_Menu (32003, 32004, MenuCode_UserDef, MenuFlag_Default);	// 정보
 
 	return err;
@@ -120,13 +123,18 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			}
 			break;
 		case 32007:
-			// 그 외
+			// 내보내기
 			switch (menuParams->menuItemRef.itemIndex) {
-				case 1:		// 테스트 중...
+				case 1:		// 부재(기둥,보,슬래브) 정보 내보내기 (CSV) ... 개발중
 					err = exportElementInfo ();
 					break;
-				case 2:
-					//err = ?;
+			}
+			break;
+		case 32009:
+			// 물량 산출
+			switch (menuParams->menuItemRef.itemIndex) {
+				case 1:		// 물량합판 부착하기 ... 개발중
+					err = placeQuantityPlywood ();
 					break;
 			}
 			break;
@@ -157,7 +165,8 @@ GSErrCode __ACENV_CALL	Initialize (void)
 	
 	err = ACAPI_Install_MenuHandler (32001, MenuCommandHandler);	// 유로폼 배치
 	err = ACAPI_Install_MenuHandler (32005, MenuCommandHandler);	// 레이어 유틸
-	err = ACAPI_Install_MenuHandler (32007, MenuCommandHandler);	// 그 외
+	err = ACAPI_Install_MenuHandler (32007, MenuCommandHandler);	// 내보내기
+	err = ACAPI_Install_MenuHandler (32009, MenuCommandHandler);	// 물량 산출
 	err = ACAPI_Install_MenuHandler (32003, MenuCommandHandler);	// 정보
 
 	// register special help location if needed
