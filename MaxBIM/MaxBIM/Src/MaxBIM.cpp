@@ -9,6 +9,8 @@
 #include "BeamEuroformPlacer.hpp"
 #include "ColumnEuroformPlacer.hpp"
 
+#include "WallTableformPlacer.hpp"
+
 #include "Layers.hpp"
 
 #include "Export.hpp"
@@ -51,6 +53,7 @@ GSErrCode	__ACENV_CALL	RegisterInterface (void)
 	GSErrCode err;
 	
 	err = ACAPI_Register_Menu (32001, 32002, MenuCode_UserDef, MenuFlag_Default);	// 유로폼 배치
+	err = ACAPI_Register_Menu (32011, 32012, MenuCode_UserDef, MenuFlag_Default);	// 테이블폼 배치
 	err = ACAPI_Register_Menu (32005, 32006, MenuCode_UserDef, MenuFlag_Default);	// 레이어 유틸
 	err = ACAPI_Register_Menu (32007, 32008, MenuCode_UserDef, MenuFlag_Default);	// 내보내기
 	err = ACAPI_Register_Menu (32009, 32010, MenuCode_UserDef, MenuFlag_Default);	// 물량 산출
@@ -76,30 +79,42 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			// 유로폼 배치
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:
-					// place Euroform on Wall
+					// 벽에 유로폼 배치하기
 					err = ACAPI_CallUndoableCommand ("벽에 유로폼 배치", [&] () -> GSErrCode {
 						err = placeEuroformOnWall ();
 						return err;
 					});
 					break;
 				case 2:
-					// place Euroform on Slab Bottom
+					// 슬래브 하부에 유로폼 배치하기
 					err = ACAPI_CallUndoableCommand ("슬래브 하부에 유로폼 배치", [&] () -> GSErrCode {
 						err = placeEuroformOnSlabBottom ();
 						return err;
 					});
 					break;
 				case 3:
-					// place Euroform on Beam
+					// 보에 유로폼 배치하기
 					err = ACAPI_CallUndoableCommand ("보에 유로폼 배치", [&] () -> GSErrCode {
 						err = placeEuroformOnBeam ();
 						return err;
 					});
 					break;
 				case 4:
-					// place Euroform on Column
+					// 기둥에 유로폼 배치하기
 					err = ACAPI_CallUndoableCommand ("기둥에 유로폼 배치", [&] () -> GSErrCode {
 						err = placeEuroformOnColumn ();
+						return err;
+					});
+					break;
+			}
+			break;
+		case 32011:
+			// 테이블폼 배치
+			switch (menuParams->menuItemRef.itemIndex) {
+				case 1:
+					// 벽에 테이블폼 배치하기 ... 개발중
+					err = ACAPI_CallUndoableCommand ("벽에 테이블폼 배치", [&] () -> GSErrCode {
+						err = placeTableformOnWall ();
 						return err;
 					});
 					break;
@@ -164,6 +179,7 @@ GSErrCode __ACENV_CALL	Initialize (void)
 	GSErrCode err;
 	
 	err = ACAPI_Install_MenuHandler (32001, MenuCommandHandler);	// 유로폼 배치
+	err = ACAPI_Install_MenuHandler (32011, MenuCommandHandler);	// 테이블폼 배치
 	err = ACAPI_Install_MenuHandler (32005, MenuCommandHandler);	// 레이어 유틸
 	err = ACAPI_Install_MenuHandler (32007, MenuCommandHandler);	// 내보내기
 	err = ACAPI_Install_MenuHandler (32009, MenuCommandHandler);	// 물량 산출
