@@ -346,3 +346,33 @@
 /* [ 10] */	Icon			110		 20		300		230  	32506		/* Morph for Beam */
 /* [ 11] */	Icon			110		 20		300		230  	32507		/* Morph for Column */
 }
+
+/* ---------------------------------------------------------- place Tableform on Wall */
+'GDLG'  32517  Modal | grow	  0		  0		350		500		"테이블폼 벽에 배치" {
+/* [  1] */	Button			 15		 15		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			 15		 50		 70		 25		LargePlain		"Cancel"
+
+/* [  3] */	LeftText		110		 82		 50		 23		LargePlain		"Height"
+/* [  4] */	LengthEdit		110		100		 50		 25		LargePlain		"0"	"20.0"
+/* [  5] */ LeftText		 30		160		300		 50		LargePlain		"Error message about height"
+/* [  6] */ LeftText		180		 20		 30		 23		LargePlain		"Width"
+/* [  7] */ LengthEdit		210		 13		 50		 25		LargePlain		"0"	"100.0"
+
+/* [  8] */	RightText		 10		220		100		 23		LargePlain		"Gap from Wall"
+/* [  9] */	LengthEdit		140		213		 50		 25		LargePlain		"0"	"1.0"
+
+/* [ 10] */	Icon			 85		263		 29		 14  	32502
+/* [ 11] */	LeftText		120		265		200		 23		LargePlain		"Layer Settings"
+/* [ 12] */	RightText		 10		295		100		 23		LargePlain		"Euroform"
+/* [ 13] */	RightText		 10		325		100		 23		LargePlain		"Rect Pipe"
+/* [ 14] */	RightText		 10		355		100		 23		LargePlain		"Pinbolt"
+/* [ 15] */	RightText		 10		385		100		 23		LargePlain		"Wall Tie"
+/* [ 16] */	RightText		 10		415		100		 23		LargePlain		"Clamp"
+/* [ 17] */	RightText		 10		445		100		 23		LargePlain		"Headpiece"
+/* [ 18] */	UserControl		120		289		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
+/* [ 19] */	UserControl		120		319		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE	*/
+/* [ 20] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT		*/
+/* [ 21] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE		*/
+/* [ 22] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - CLAMP		*/
+/* [ 23] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
+}
