@@ -106,7 +106,251 @@ struct WallTableformPlacingZone
 	short	n2300w;
 };
 
-GSErrCode	placeTableformOnWall (void);	// 벽에 테이블폼을 배치하는 통합 루틴
+// 파라미터: 유로폼
+struct paramsUFOM_ForWallTableform
+{
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	width;			// 너비
+	double	height;			// 높이
+};
+
+// 파라미터: 비계 파이프
+struct paramsSPIP_ForWallTableform
+{
+	// X, Y, Z, 각도 + Z축 회전 + 품명, 길이, 각도
+};
+
+// 파라미터: 핀볼트 세트
+struct paramsPINB_ForWallTableform
+{
+	// X, Y, Z, 각도 + Z축 회전 + 핀볼트 90도 회전, 볼트 길이, 볼트 직경, 와셔 위치, 와셔 크기, X축 회전, Y축 회전
+};
+
+// 파라미터: 벽체 타이
+struct paramsTIE_ForWallTableform
+{
+	// X, Y, Z, 각도 + Z축 회전 + 볼트 길이, 볼트 직경, 사각와샤, 사각와샤 크기, 너트 타입, 벽체 내장 파이프, 파이프 내경, 파이프 두께, 파이프 시작점, 파이프 끝점, 좌측 조임쇠 위치, 우측 조임쇠 위치, 회전 Y
+};
+
+// 파라미터: 직교 클램프
+struct paramsCLAM_ForWallTableform
+{
+	// X, Y, Z, 각도 + Z축 회전 + 본체 회전 (X), 본체 회전 (Y), 고정볼트 조이기, 고정볼트 회전
+};
+
+// 파라미터: 헤드피스
+struct paramsPUSH_ForWallTableform
+{
+	// X, Y, Z, 각도 + Z축 회전 + A, B, ZZYZX + 철판 두께, 회전X, 회전Y
+};
+
+GSErrCode	placeTableformOnWall (void);											// 벽에 테이블폼을 배치하는 통합 루틴
+void		initCellsForWallTableform (WallTableformPlacingZone* placingZone);		// Cell 배열을 초기화함
+GSErrCode	placeTableformOnWall (CellForWallTableform cell);						// 테이블폼 배치하기
+double		getCellPositionLeftBottomXForWallTableForm (WallTableformPlacingZone *placingZone, short idx);			// 해당 셀의 좌하단 좌표X 위치를 리턴
 short DGCALLBACK wallTableformPlacerHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼 배치를 위한 질의를 요청하는 다이얼로그
+
+double		moveX (double prevPosX, double ang, double offset);			// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려)
+double		moveY (double prevPosY, double ang, double offset);			// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려)
+double		moveZ (double prevPosZ, double offset);						// 이동 후의 Z 좌표를 알려줌 (Z 회전각도 고려)
+
+API_Guid	placeUFOM (paramsUFOM_ForWallTableform	params);			// 배치: 유로폼
+API_Guid	placeSPIP (paramsSPIP_ForWallTableform	params);			// 배치: 비계 파이프
+API_Guid	placePINB (paramsPINB_ForWallTableform	params);			// 배치: 핀볼트 세트
+API_Guid	placeTIE  (paramsTIE_ForWallTableform	params);			// 배치: 벽체 타이
+API_Guid	placeCLAM (paramsCLAM_ForWallTableform	params);			// 배치: 직교 클램프
+API_Guid	placePUSH (paramsPUSH_ForWallTableform	params);			// 배치: 헤드피스
+
+GSErrCode	tableformOnWall_w2300_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 6000)
+GSErrCode	tableformOnWall_w2300_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 5700)
+GSErrCode	tableformOnWall_w2300_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 5400)
+GSErrCode	tableformOnWall_w2300_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 5100)
+GSErrCode	tableformOnWall_w2300_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 4800)
+GSErrCode	tableformOnWall_w2300_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 4500)
+GSErrCode	tableformOnWall_w2300_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 4200)
+GSErrCode	tableformOnWall_w2300_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 3900)
+GSErrCode	tableformOnWall_w2300_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 3600)
+GSErrCode	tableformOnWall_w2300_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 3300)
+GSErrCode	tableformOnWall_w2300_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 3000)
+GSErrCode	tableformOnWall_w2300_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 2700)
+GSErrCode	tableformOnWall_w2300_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 2400)
+GSErrCode	tableformOnWall_w2300_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 2100)
+GSErrCode	tableformOnWall_w2300_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 1800)
+GSErrCode	tableformOnWall_w2300_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2300, 높이 1500)
+
+GSErrCode	tableformOnWall_w2250_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 6000)
+GSErrCode	tableformOnWall_w2250_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 5700)
+GSErrCode	tableformOnWall_w2250_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 5400)
+GSErrCode	tableformOnWall_w2250_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 5100)
+GSErrCode	tableformOnWall_w2250_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 4800)
+GSErrCode	tableformOnWall_w2250_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 4500)
+GSErrCode	tableformOnWall_w2250_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 4200)
+GSErrCode	tableformOnWall_w2250_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 3900)
+GSErrCode	tableformOnWall_w2250_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 3600)
+GSErrCode	tableformOnWall_w2250_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 3300)
+GSErrCode	tableformOnWall_w2250_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 3000)
+GSErrCode	tableformOnWall_w2250_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 2700)
+GSErrCode	tableformOnWall_w2250_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 2400)
+GSErrCode	tableformOnWall_w2250_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 2100)
+GSErrCode	tableformOnWall_w2250_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 1800)
+GSErrCode	tableformOnWall_w2250_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2250, 높이 1500)
+
+GSErrCode	tableformOnWall_w2200_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 6000)
+GSErrCode	tableformOnWall_w2200_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 5700)
+GSErrCode	tableformOnWall_w2200_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 5400)
+GSErrCode	tableformOnWall_w2200_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 5100)
+GSErrCode	tableformOnWall_w2200_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 4800)
+GSErrCode	tableformOnWall_w2200_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 4500)
+GSErrCode	tableformOnWall_w2200_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 4200)
+GSErrCode	tableformOnWall_w2200_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 3900)
+GSErrCode	tableformOnWall_w2200_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 3600)
+GSErrCode	tableformOnWall_w2200_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 3300)
+GSErrCode	tableformOnWall_w2200_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 3000)
+GSErrCode	tableformOnWall_w2200_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 2700)
+GSErrCode	tableformOnWall_w2200_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 2400)
+GSErrCode	tableformOnWall_w2200_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 2100)
+GSErrCode	tableformOnWall_w2200_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 1800)
+GSErrCode	tableformOnWall_w2200_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2200, 높이 1500)
+
+GSErrCode	tableformOnWall_w2150_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 6000)
+GSErrCode	tableformOnWall_w2150_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 5700)
+GSErrCode	tableformOnWall_w2150_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 5400)
+GSErrCode	tableformOnWall_w2150_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 5100)
+GSErrCode	tableformOnWall_w2150_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 4800)
+GSErrCode	tableformOnWall_w2150_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 4500)
+GSErrCode	tableformOnWall_w2150_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 4200)
+GSErrCode	tableformOnWall_w2150_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 3900)
+GSErrCode	tableformOnWall_w2150_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 3600)
+GSErrCode	tableformOnWall_w2150_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 3300)
+GSErrCode	tableformOnWall_w2150_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 3000)
+GSErrCode	tableformOnWall_w2150_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 2700)
+GSErrCode	tableformOnWall_w2150_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 2400)
+GSErrCode	tableformOnWall_w2150_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 2100)
+GSErrCode	tableformOnWall_w2150_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 1800)
+GSErrCode	tableformOnWall_w2150_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2150, 높이 1500)
+
+GSErrCode	tableformOnWall_w2100_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 6000)
+GSErrCode	tableformOnWall_w2100_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 5700)
+GSErrCode	tableformOnWall_w2100_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 5400)
+GSErrCode	tableformOnWall_w2100_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 5100)
+GSErrCode	tableformOnWall_w2100_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 4800)
+GSErrCode	tableformOnWall_w2100_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 4500)
+GSErrCode	tableformOnWall_w2100_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 4200)
+GSErrCode	tableformOnWall_w2100_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 3900)
+GSErrCode	tableformOnWall_w2100_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 3600)
+GSErrCode	tableformOnWall_w2100_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 3300)
+GSErrCode	tableformOnWall_w2100_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 3000)
+GSErrCode	tableformOnWall_w2100_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 2700)
+GSErrCode	tableformOnWall_w2100_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 2400)
+GSErrCode	tableformOnWall_w2100_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 2100)
+GSErrCode	tableformOnWall_w2100_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 1800)
+GSErrCode	tableformOnWall_w2100_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2100, 높이 1500)
+
+GSErrCode	tableformOnWall_w2050_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 6000)
+GSErrCode	tableformOnWall_w2050_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 5700)
+GSErrCode	tableformOnWall_w2050_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 5400)
+GSErrCode	tableformOnWall_w2050_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 5100)
+GSErrCode	tableformOnWall_w2050_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 4800)
+GSErrCode	tableformOnWall_w2050_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 4500)
+GSErrCode	tableformOnWall_w2050_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 4200)
+GSErrCode	tableformOnWall_w2050_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 3900)
+GSErrCode	tableformOnWall_w2050_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 3600)
+GSErrCode	tableformOnWall_w2050_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 3300)
+GSErrCode	tableformOnWall_w2050_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 3000)
+GSErrCode	tableformOnWall_w2050_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 2700)
+GSErrCode	tableformOnWall_w2050_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 2400)
+GSErrCode	tableformOnWall_w2050_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 2100)
+GSErrCode	tableformOnWall_w2050_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 1800)
+GSErrCode	tableformOnWall_w2050_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2050, 높이 1500)
+
+GSErrCode	tableformOnWall_w2000_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 6000)
+GSErrCode	tableformOnWall_w2000_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 5700)
+GSErrCode	tableformOnWall_w2000_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 5400)
+GSErrCode	tableformOnWall_w2000_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 5100)
+GSErrCode	tableformOnWall_w2000_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 4800)
+GSErrCode	tableformOnWall_w2000_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 4500)
+GSErrCode	tableformOnWall_w2000_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 4200)
+GSErrCode	tableformOnWall_w2000_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 3900)
+GSErrCode	tableformOnWall_w2000_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 3600)
+GSErrCode	tableformOnWall_w2000_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 3300)
+GSErrCode	tableformOnWall_w2000_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 3000)
+GSErrCode	tableformOnWall_w2000_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 2700)
+GSErrCode	tableformOnWall_w2000_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 2400)
+GSErrCode	tableformOnWall_w2000_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 2100)
+GSErrCode	tableformOnWall_w2000_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 1800)
+GSErrCode	tableformOnWall_w2000_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 2000, 높이 1500)
+
+GSErrCode	tableformOnWall_w1950_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 6000)
+GSErrCode	tableformOnWall_w1950_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 5700)
+GSErrCode	tableformOnWall_w1950_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 5400)
+GSErrCode	tableformOnWall_w1950_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 5100)
+GSErrCode	tableformOnWall_w1950_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 4800)
+GSErrCode	tableformOnWall_w1950_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 4500)
+GSErrCode	tableformOnWall_w1950_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 4200)
+GSErrCode	tableformOnWall_w1950_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 3900)
+GSErrCode	tableformOnWall_w1950_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 3600)
+GSErrCode	tableformOnWall_w1950_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 3300)
+GSErrCode	tableformOnWall_w1950_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 3000)
+GSErrCode	tableformOnWall_w1950_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 2700)
+GSErrCode	tableformOnWall_w1950_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 2400)
+GSErrCode	tableformOnWall_w1950_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 2100)
+GSErrCode	tableformOnWall_w1950_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 1800)
+GSErrCode	tableformOnWall_w1950_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1950, 높이 1500)
+
+GSErrCode	tableformOnWall_w1900_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 6000)
+GSErrCode	tableformOnWall_w1900_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 5700)
+GSErrCode	tableformOnWall_w1900_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 5400)
+GSErrCode	tableformOnWall_w1900_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 5100)
+GSErrCode	tableformOnWall_w1900_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 4800)
+GSErrCode	tableformOnWall_w1900_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 4500)
+GSErrCode	tableformOnWall_w1900_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 4200)
+GSErrCode	tableformOnWall_w1900_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 3900)
+GSErrCode	tableformOnWall_w1900_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 3600)
+GSErrCode	tableformOnWall_w1900_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 3300)
+GSErrCode	tableformOnWall_w1900_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 3000)
+GSErrCode	tableformOnWall_w1900_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 2700)
+GSErrCode	tableformOnWall_w1900_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 2400)
+GSErrCode	tableformOnWall_w1900_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 2100)
+GSErrCode	tableformOnWall_w1900_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 1800)
+GSErrCode	tableformOnWall_w1900_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1900, 높이 1500)
+
+GSErrCode	tableformOnWall_w1850_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 6000)
+GSErrCode	tableformOnWall_w1850_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 5700)
+GSErrCode	tableformOnWall_w1850_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 5400)
+GSErrCode	tableformOnWall_w1850_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 5100)
+GSErrCode	tableformOnWall_w1850_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 4800)
+GSErrCode	tableformOnWall_w1850_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 4500)
+GSErrCode	tableformOnWall_w1850_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 4200)
+GSErrCode	tableformOnWall_w1850_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 3900)
+GSErrCode	tableformOnWall_w1850_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 3600)
+GSErrCode	tableformOnWall_w1850_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 3300)
+GSErrCode	tableformOnWall_w1850_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 3000)
+GSErrCode	tableformOnWall_w1850_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 2700)
+GSErrCode	tableformOnWall_w1850_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 2400)
+GSErrCode	tableformOnWall_w1850_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 2100)
+GSErrCode	tableformOnWall_w1850_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 1800)
+GSErrCode	tableformOnWall_w1850_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1850, 높이 1500)
+
+GSErrCode	tableformOnWall_w1800_h6000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 6000)
+GSErrCode	tableformOnWall_w1800_h5700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 5700)
+GSErrCode	tableformOnWall_w1800_h5400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 5400)
+GSErrCode	tableformOnWall_w1800_h5100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 5100)
+GSErrCode	tableformOnWall_w1800_h4800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 4800)
+GSErrCode	tableformOnWall_w1800_h4500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 4500)
+GSErrCode	tableformOnWall_w1800_h4200 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 4200)
+GSErrCode	tableformOnWall_w1800_h3900 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 3900)
+GSErrCode	tableformOnWall_w1800_h3600 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 3600)
+GSErrCode	tableformOnWall_w1800_h3300 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 3300)
+GSErrCode	tableformOnWall_w1800_h3000 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 3000)
+GSErrCode	tableformOnWall_w1800_h2700 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 2700)
+GSErrCode	tableformOnWall_w1800_h2400 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 2400)
+GSErrCode	tableformOnWall_w1800_h2100 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 2100)
+GSErrCode	tableformOnWall_w1800_h1800 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 1800)
+GSErrCode	tableformOnWall_w1800_h1500 (CellForWallTableform cell);	// 테이블폼 배치 (너비 1800, 높이 1500)
 
 #endif

@@ -8,8 +8,8 @@
 
 using namespace wallTableformPlacerDG;
 
-static WallTableformPlacingZone		placingZone;		// 기본 벽면 영역 정보
-static InfoWallForWallTableform		infoWall;			// 벽 객체 정보
+static WallTableformPlacingZone		placingZone;	// 기본 벽면 영역 정보
+static InfoWallForWallTableform		infoWall;		// 벽 객체 정보
 
 static short	layerInd_Euroform;		// 레이어 번호: 유로폼
 static short	layerInd_RectPipe;		// 레이어 번호: 비계 파이프
@@ -17,6 +17,15 @@ static short	layerInd_PinBolt;		// 레이어 번호: 핀볼트 세트
 static short	layerInd_WallTie;		// 레이어 번호: 빅체 타이
 static short	layerInd_Clamp;			// 레이어 번호: 직교 클램프
 static short	layerInd_HeadPiece;		// 레이어 번호: 헤드피스
+
+const GS::uchar_t*	gsmUFOM = L("유로폼v2.0.gsm");
+const GS::uchar_t*	gsmSPIP = L("비계파이프v1.0.gsm");
+const GS::uchar_t*	gsmPINB = L("핀볼트세트v1.0.gsm");
+const GS::uchar_t*	gsmTIE = L("벽체 타이 v1.0.gsm");
+const GS::uchar_t*	gsmCLAM = L("직교클램프v1.0.gsm");
+const GS::uchar_t*	gsmPUSH = L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm");
+
+//static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
 // 다이얼로그 동적 요소 인덱스 번호 저장
 static short	EDITCONTROL_REMAIN_WIDTH;
@@ -29,11 +38,12 @@ GSErrCode	placeTableformOnWall (void)
 	GSErrCode	err = NoError;
 	short		result;
 	long		nSel;
-	short		xx, yy;
+	short		xx;
 	double		dx, dy, ang1, ang2;
 	//double		xPosLB, yPosLB, zPosLB;
 	//double		xPosRT, yPosRT, zPosRT;
 	double		width;
+	short		tableColumn;
 
 	// Selection Manager 관련 변수
 	API_SelectionInfo		selectionInfo;
@@ -239,36 +249,37 @@ GSErrCode	placeTableformOnWall (void)
 	placingZone.n2300w = 0;
 
 	// 테이블폼 개수 계산
+	tableColumn = 0;
 	width = placingZone.horLen;
 	while (width > EPS) {
-		if (width > 2.300) {
-			width -= 2.300;		placingZone.n2300w ++;
-		} else if (width > 2.250) {
-			width -= 2.250;		placingZone.n2250w ++;
-		} else if (width > 2.200) {
-			width -= 2.200;		placingZone.n2200w ++;
-		} else if (width > 2.150) {
-			width -= 2.150;		placingZone.n2150w ++;
-		} else if (width > 2.100) {
-			width -= 2.100;		placingZone.n2100w ++;
-		} else if (width > 2.050) {
-			width -= 2.050;		placingZone.n2050w ++;
-		} else if (width > 2.000) {
-			width -= 2.000;		placingZone.n2000w ++;
-		} else if (width > 1.950) {
-			width -= 1.950;		placingZone.n1950w ++;
-		} else if (width > 1.900) {
-			width -= 1.900;		placingZone.n1900w ++;
-		} else if (width > 1.850) {
-			width -= 1.850;		placingZone.n1850w ++;
-		} else if (width > 1.800) {
-			width -= 1.800;		placingZone.n1800w ++;
+		if (width + EPS > 2.300) {
+			width -= 2.300;		placingZone.n2300w ++;	tableColumn ++;
+		} else if (width + EPS > 2.250) {
+			width -= 2.250;		placingZone.n2250w ++;	tableColumn ++;
+		} else if (width + EPS > 2.200) {
+			width -= 2.200;		placingZone.n2200w ++;	tableColumn ++;
+		} else if (width + EPS > 2.150) {
+			width -= 2.150;		placingZone.n2150w ++;	tableColumn ++;
+		} else if (width + EPS > 2.100) {
+			width -= 2.100;		placingZone.n2100w ++;	tableColumn ++;
+		} else if (width + EPS > 2.050) {
+			width -= 2.050;		placingZone.n2050w ++;	tableColumn ++;
+		} else if (width + EPS > 2.000) {
+			width -= 2.000;		placingZone.n2000w ++;	tableColumn ++;
+		} else if (width + EPS > 1.950) {
+			width -= 1.950;		placingZone.n1950w ++;	tableColumn ++;
+		} else if (width + EPS > 1.900) {
+			width -= 1.900;		placingZone.n1900w ++;	tableColumn ++;
+		} else if (width + EPS > 1.850) {
+			width -= 1.850;		placingZone.n1850w ++;	tableColumn ++;
+		} else if (width + EPS > 1.800) {
+			width -= 1.800;		placingZone.n1800w ++;	tableColumn ++;
 		} else {
 			break;
 		}
 	}
 
-	// [DIALOG] 1번째 다이얼로그에서 벽 너비 방향의 테이블폼 수량을 설정함
+	// [DIALOG] 1번째 다이얼로그에서 벽 너비 방향의 테이블폼 수량 및 각 셀의 너비/높이를 설정함
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32517, ACAPI_GetOwnResModule (), wallTableformPlacerHandler, 0);
 
 	// 벽과의 간격으로 인해 정보 업데이트
@@ -277,9 +288,252 @@ GSErrCode	placeTableformOnWall (void)
 	if (result != DG_OK)
 		return err;
 
-	// ... 셀 정보, 셀 개수를 읽어온 후 테이블폼 배치하기
+	// 셀 위치 및 각도 설정
+	initCellsForWallTableform (&placingZone);
+
+	// 테이블폼 배치하기
+	for (xx = 0 ; xx < placingZone.nCells ; ++xx)
+		placeTableformOnWall (placingZone.cells [xx]);
+
+	// 결과물 전체 그룹화
+	//if (!elemList.IsEmpty ()) {
+	//	GSSize nElems = elemList.GetSize ();
+	//	API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+	//	if (elemHead != NULL) {
+	//		for (GSIndex i = 0; i < nElems; i++)
+	//			(*elemHead)[i].guid = elemList[i];
+
+	//		ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+	//		BMKillHandle ((GSHandle *) &elemHead);
+	//	}
+	//}
 
 	return	err;
+}
+
+// Cell 배열을 초기화함
+void	initCellsForWallTableform (WallTableformPlacingZone* placingZone)
+{
+	short	xx;
+
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		placingZone->cells [xx].ang = placingZone->ang;
+		placingZone->cells [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (getCellPositionLeftBottomXForWallTableForm (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cells [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (getCellPositionLeftBottomXForWallTableForm (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cells [xx].leftBottomZ = placingZone->leftBottomZ;
+	}
+}
+
+// 테이블폼 배치하기
+GSErrCode	placeTableformOnWall (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	// 테이블폼 너비와 높이에 따라 테이블폼 배치하기
+	if (abs (cell.horLen - 2.300) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w2300_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w2300_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w2300_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w2300_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w2300_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w2300_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w2300_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w2300_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w2300_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w2300_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w2300_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w2300_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w2300_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w2300_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w2300_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w2300_h1500 (cell);
+	} else if (abs (cell.horLen - 2.250) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w2250_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w2250_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w2250_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w2250_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w2250_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w2250_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w2250_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w2250_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w2250_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w2250_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w2250_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w2250_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w2250_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w2250_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w2250_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w2250_h1500 (cell);
+	} else if (abs (cell.horLen - 2.200) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w2200_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w2200_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w2200_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w2200_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w2200_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w2200_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w2200_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w2200_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w2200_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w2200_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w2200_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w2200_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w2200_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w2200_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w2200_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w2200_h1500 (cell);
+	} else if (abs (cell.horLen - 2.150) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w2150_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w2150_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w2150_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w2150_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w2150_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w2150_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w2150_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w2150_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w2150_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w2150_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w2150_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w2150_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w2150_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w2150_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w2150_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w2150_h1500 (cell);
+	} else if (abs (cell.horLen - 2.100) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w2100_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w2100_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w2100_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w2100_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w2100_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w2100_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w2100_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w2100_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w2100_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w2100_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w2100_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w2100_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w2100_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w2100_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w2100_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w2100_h1500 (cell);
+	} else if (abs (cell.horLen - 2.050) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w2050_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w2050_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w2050_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w2050_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w2050_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w2050_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w2050_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w2050_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w2050_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w2050_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w2050_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w2050_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w2050_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w2050_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w2050_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w2050_h1500 (cell);
+	} else if (abs (cell.horLen - 2.000) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w2000_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w2000_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w2000_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w2000_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w2000_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w2000_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w2000_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w2000_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w2000_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w2000_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w2000_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w2000_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w2000_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w2000_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w2000_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w2000_h1500 (cell);
+	} else if (abs (cell.horLen - 1.950) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w1950_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w1950_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w1950_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w1950_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w1950_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w1950_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w1950_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w1950_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w1950_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w1950_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w1950_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w1950_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w1950_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w1950_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w1950_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w1950_h1500 (cell);
+	} else if (abs (cell.horLen - 1.900) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w1900_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w1900_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w1900_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w1900_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w1900_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w1900_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w1900_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w1900_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w1900_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w1900_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w1900_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w1900_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w1900_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w1900_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w1900_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w1900_h1500 (cell);
+	} else if (abs (cell.horLen - 1.850) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w1850_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w1850_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w1850_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w1850_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w1850_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w1850_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w1850_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w1850_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w1850_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w1850_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w1850_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w1850_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w1850_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w1850_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w1850_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w1850_h1500 (cell);
+	} else if (abs (cell.horLen - 1.800) < EPS) {
+		if (abs (cell.verLen - 6.000) < EPS)		err = tableformOnWall_w1800_h6000 (cell);
+		else if (abs (cell.verLen - 5.700) < EPS)	err = tableformOnWall_w1800_h5700 (cell);
+		else if (abs (cell.verLen - 5.400) < EPS)	err = tableformOnWall_w1800_h5400 (cell);
+		else if (abs (cell.verLen - 5.100) < EPS)	err = tableformOnWall_w1800_h5100 (cell);
+		else if (abs (cell.verLen - 4.800) < EPS)	err = tableformOnWall_w1800_h4800 (cell);
+		else if (abs (cell.verLen - 4.500) < EPS)	err = tableformOnWall_w1800_h4500 (cell);
+		else if (abs (cell.verLen - 4.200) < EPS)	err = tableformOnWall_w1800_h4200 (cell);
+		else if (abs (cell.verLen - 3.900) < EPS)	err = tableformOnWall_w1800_h3900 (cell);
+		else if (abs (cell.verLen - 3.600) < EPS)	err = tableformOnWall_w1800_h3600 (cell);
+		else if (abs (cell.verLen - 3.300) < EPS)	err = tableformOnWall_w1800_h3300 (cell);
+		else if (abs (cell.verLen - 3.000) < EPS)	err = tableformOnWall_w1800_h3000 (cell);
+		else if (abs (cell.verLen - 2.700) < EPS)	err = tableformOnWall_w1800_h2700 (cell);
+		else if (abs (cell.verLen - 2.400) < EPS)	err = tableformOnWall_w1800_h2400 (cell);
+		else if (abs (cell.verLen - 2.100) < EPS)	err = tableformOnWall_w1800_h2100 (cell);
+		else if (abs (cell.verLen - 1.800) < EPS)	err = tableformOnWall_w1800_h1800 (cell);
+		else if (abs (cell.verLen - 1.500) < EPS)	err = tableformOnWall_w1800_h1500 (cell);
+	}
+	
+	return	err;
+}
+
+// 해당 셀의 좌하단 좌표X 위치를 리턴
+double	getCellPositionLeftBottomXForWallTableForm (WallTableformPlacingZone *placingZone, short idx)
+{
+	double		distance = 0.0;
+	short		xx;
+
+	for (xx = 0 ; xx < idx ; ++xx) {
+		distance += placingZone->cells [xx].horLen;
+	}
+
+	return distance;
 }
 
 // 테이블폼 배치를 위한 질의를 요청하는 다이얼로그
@@ -367,27 +621,27 @@ short DGCALLBACK wallTableformPlacerHandler (short message, short dialogID, shor
 			// 테이블폼 개수 계산
 			width = placingZone.horLen;
 			while (width > EPS) {
-				if (width > 2.300) {
+				if (width + EPS > 2.300) {
 					width -= 2.300;
-				} else if (width > 2.250) {
+				} else if (width + EPS > 2.250) {
 					width -= 2.250;
-				} else if (width > 2.200) {
+				} else if (width + EPS > 2.200) {
 					width -= 2.200;
-				} else if (width > 2.150) {
+				} else if (width + EPS > 2.150) {
 					width -= 2.150;
-				} else if (width > 2.100) {
+				} else if (width + EPS > 2.100) {
 					width -= 2.100;
-				} else if (width > 2.050) {
+				} else if (width + EPS > 2.050) {
 					width -= 2.050;
-				} else if (width > 2.000) {
+				} else if (width + EPS > 2.000) {
 					width -= 2.000;
-				} else if (width > 1.950) {
+				} else if (width + EPS > 1.950) {
 					width -= 1.950;
-				} else if (width > 1.900) {
+				} else if (width + EPS > 1.900) {
 					width -= 1.900;
-				} else if (width > 1.850) {
+				} else if (width + EPS > 1.850) {
 					width -= 1.850;
-				} else if (width > 1.800) {
+				} else if (width + EPS > 1.800) {
 					width -= 1.800;
 				} else {
 					break;
@@ -451,37 +705,37 @@ short DGCALLBACK wallTableformPlacerHandler (short message, short dialogID, shor
 
 				// 콤보박스의 값 설정
 				if (width > EPS) {
-					if (width > 2.300) {
+					if (width + EPS > 2.300) {
 						width -= 2.300;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 1);
-					} else if (width > 2.250) {
+					} else if (width  + EPS> 2.250) {
 						width -= 2.250;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 2);
-					} else if (width > 2.200) {
+					} else if (width + EPS > 2.200) {
 						width -= 2.200;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 3);
-					} else if (width > 2.150) {
+					} else if (width + EPS > 2.150) {
 						width -= 2.150;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 4);
-					} else if (width > 2.100) {
+					} else if (width + EPS > 2.100) {
 						width -= 2.100;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 5);
-					} else if (width > 2.050) {
+					} else if (width + EPS > 2.050) {
 						width -= 2.050;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 6);
-					} else if (width > 2.000) {
+					} else if (width + EPS > 2.000) {
 						width -= 2.000;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 7);
-					} else if (width > 1.950) {
+					} else if (width + EPS > 1.950) {
 						width -= 1.950;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 8);
-					} else if (width > 1.900) {
+					} else if (width + EPS > 1.900) {
 						width -= 1.900;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 9);
-					} else if (width > 1.850) {
+					} else if (width + EPS > 1.850) {
 						width -= 1.850;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 10);
-					} else if (width > 1.800) {
+					} else if (width + EPS > 1.800) {
 						width -= 1.800;
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 11);
 					}
@@ -512,15 +766,83 @@ short DGCALLBACK wallTableformPlacerHandler (short message, short dialogID, shor
 
 		case DG_MSG_CHANGE:
 
-			// ... POPUP_WIDTH [50] : 너비 콤보박스를 변경할 때마다 남은 너비 계산
+			// 너비 콤보박스를 변경할 때마다 남은 너비 계산
+			tableColumn = 0;
+			if (placingZone.n2300w > 0)		tableColumn += placingZone.n2300w;
+			if (placingZone.n2250w > 0)		tableColumn += placingZone.n2250w;
+			if (placingZone.n2200w > 0)		tableColumn += placingZone.n2200w;
+			if (placingZone.n2150w > 0)		tableColumn += placingZone.n2150w;
+			if (placingZone.n2100w > 0)		tableColumn += placingZone.n2100w;
+			if (placingZone.n2050w > 0)		tableColumn += placingZone.n2050w;
+			if (placingZone.n2000w > 0)		tableColumn += placingZone.n2000w;
+			if (placingZone.n1950w > 0)		tableColumn += placingZone.n1950w;
+			if (placingZone.n1900w > 0)		tableColumn += placingZone.n1900w;
+			if (placingZone.n1850w > 0)		tableColumn += placingZone.n1850w;
+			if (placingZone.n1800w > 0)		tableColumn += placingZone.n1800w;
+
+			width = 0;
+			for (xx = 0 ; xx < tableColumn ; ++xx)
+				width += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ()) / 1000.0;
+			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH, placingZone.horLen - width);
 
 			break;
 
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
-					//////////////////////////////////////// 다이얼로그 창 정보를 입력 받음
-					// ... POPUP_WIDTH [50] : 셀 정보와 셀 개수 입력
+					// 셀의 개수와 너비/높이 저장
+					tableColumn = 0;
+					if (placingZone.n2300w > 0)		tableColumn += placingZone.n2300w;
+					if (placingZone.n2250w > 0)		tableColumn += placingZone.n2250w;
+					if (placingZone.n2200w > 0)		tableColumn += placingZone.n2200w;
+					if (placingZone.n2150w > 0)		tableColumn += placingZone.n2150w;
+					if (placingZone.n2100w > 0)		tableColumn += placingZone.n2100w;
+					if (placingZone.n2050w > 0)		tableColumn += placingZone.n2050w;
+					if (placingZone.n2000w > 0)		tableColumn += placingZone.n2000w;
+					if (placingZone.n1950w > 0)		tableColumn += placingZone.n1950w;
+					if (placingZone.n1900w > 0)		tableColumn += placingZone.n1900w;
+					if (placingZone.n1850w > 0)		tableColumn += placingZone.n1850w;
+					if (placingZone.n1800w > 0)		tableColumn += placingZone.n1800w;
+
+					placingZone.nCells = tableColumn;
+					for (xx = 0 ; xx < tableColumn ; ++xx) {
+						placingZone.cells [xx].horLen = atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ()) / 1000.0;
+						
+						if ((6.000 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 6.000;
+						else if ((5.700 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 5.700;
+						else if ((5.400 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 5.400;
+						else if ((5.100 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 5.100;
+						else if ((4.800 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 4.800;
+						else if ((4.500 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 4.500;
+						else if ((4.200 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 4.200;
+						else if ((3.900 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 3.900;
+						else if ((3.600 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 3.600;
+						else if ((3.300 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 3.300;
+						else if ((3.000 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 3.000;
+						else if ((2.700 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 2.700;
+						else if ((2.400 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 2.400;
+						else if ((2.100 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 2.100;
+						else if ((1.800 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 1.800;
+						else if ((1.500 - placingZone.verLen) < EPS)
+							placingZone.cells [xx].verLen = 1.500;
+						else
+							placingZone.cells [xx].verLen = 0;
+					}
 
 					// 벽와의 간격
 					placingZone.gap = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_LENGTH);
@@ -547,4 +869,1329 @@ short DGCALLBACK wallTableformPlacerHandler (short message, short dialogID, shor
 	result = item;
 
 	return	result;
+}
+
+// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려)
+double		moveX (double prevPosX, double ang, double offset)
+{
+	return	prevPosX + (offset * cos(ang));
+}
+
+// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려)
+double		moveY (double prevPosY, double ang, double offset)
+{
+	return	prevPosY + (offset * sin(ang));
+}
+
+// 이동 후의 Z 좌표를 알려줌 (Z 회전각도 고려)
+double		moveZ (double prevPosZ, double offset)
+{
+	return	prevPosZ + offset;
+}
+
+// 배치: 유로폼
+API_Guid	placeUFOM (paramsUFOM_ForWallTableform	params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = gsmUFOM;
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	std::string			tempStr;
+
+	elem.header.guid.clock_seq_hi_and_reserved = 0;
+	elem.header.guid.clock_seq_low = 0;
+	elem.header.guid.node[0] = 0;
+	elem.header.guid.node[1] = 0;
+	elem.header.guid.node[2] = 0;
+	elem.header.guid.node[3] = 0;
+	elem.header.guid.node[4] = 0;
+	elem.header.guid.node[5] = 0;
+	elem.header.guid.time_hi_and_version = 0;
+	elem.header.guid.time_low = 0;
+	elem.header.guid.time_mid = 0;
+
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	elem.header.layer = layerInd_Euroform;
+
+	// 규격폼
+	memo.params [0][27].value.real = TRUE;
+
+	// 너비
+	tempStr = format_string ("%.0f", params.width * 1000);
+	GS::ucscpy (memo.params [0][28].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+	// 높이
+	tempStr = format_string ("%.0f", params.height * 1000);
+	GS::ucscpy (memo.params [0][29].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+	// 설치방향
+	tempStr = "벽세우기";
+	GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+		
+	// 회전X
+	memo.params [0][33].value.real = DegreeToRad (90.0);
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 배치: 비계 파이프
+API_Guid	placeSPIP (paramsSPIP_ForWallTableform	params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = gsmSPIP;
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	std::string			tempStr;
+
+	// ...
+
+	return	elem.header.guid;
+}
+
+// 배치: 핀볼트 세트
+API_Guid	placePINB (paramsPINB_ForWallTableform	params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = gsmPINB;
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	std::string			tempStr;
+
+	// ...
+
+	return	elem.header.guid;
+}
+
+// 배치: 벽체 타이
+API_Guid	placeTIE (paramsTIE_ForWallTableform	params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = gsmTIE;
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	std::string			tempStr;
+
+	// ...
+
+	return	elem.header.guid;
+}
+
+// 배치: 직교 클램프
+API_Guid	placeCLAM (paramsCLAM_ForWallTableform	params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = gsmCLAM;
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	std::string			tempStr;
+
+	// ...
+
+	return	elem.header.guid;
+}
+
+// 배치: 헤드피스
+API_Guid	placePUSH (paramsPUSH_ForWallTableform	params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = gsmPUSH;
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	std::string			tempStr;
+
+	// ...
+
+	return	elem.header.guid;
+}
+
+// 이하는 모두 테이블폼 배치 함수 (w: 너비, h: 높이)
+GSErrCode	tableformOnWall_w2300_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	paramsUFOM_ForWallTableform		params_UFOM;
+
+	// 유로폼 배치 (현재면)
+	params_UFOM.leftBottomX = cell.leftBottomX;
+	params_UFOM.leftBottomY = cell.leftBottomY;
+	params_UFOM.leftBottomZ = cell.leftBottomZ;
+	params_UFOM.ang = cell.ang;
+	params_UFOM.width = 0.600;
+	params_UFOM.height = 1.200;
+	// 1행 1열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 2행 1열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 3행 1열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 4행 1열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 5행 1열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomX = moveX (params_UFOM.leftBottomX, params_UFOM.ang, 0.600);	params_UFOM.leftBottomY = moveY (params_UFOM.leftBottomY, params_UFOM.ang, 0.600);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);
+	
+	// 1행 2열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 2행 2열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 3행 2열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 4행 2열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 5행 2열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomX = moveX (params_UFOM.leftBottomX, params_UFOM.ang, 0.600);	params_UFOM.leftBottomY = moveY (params_UFOM.leftBottomY, params_UFOM.ang, 0.600);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);	params_UFOM.width = 0.500;
+
+	// 1행 3열: 500 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 2행 3열: 500 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 3행 3열: 500 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 4행 3열: 500 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 5행 3열: 500 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomX = moveX (params_UFOM.leftBottomX, params_UFOM.ang, 0.500);	params_UFOM.leftBottomY = moveY (params_UFOM.leftBottomY, params_UFOM.ang, 0.500);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);	params_UFOM.width = 0.600;
+
+	// 1행 4열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 2행 4열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 3행 4열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 4행 4열: 600 * 1200
+	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 5행 4열: 600 * 1200
+	placeUFOM (params_UFOM);
+
+	// ... 여기부터 코딩할 것
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2300_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+
+GSErrCode	tableformOnWall_w2250_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2250_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+
+GSErrCode	tableformOnWall_w2200_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2200_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+
+GSErrCode	tableformOnWall_w2150_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2150_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+
+GSErrCode	tableformOnWall_w2100_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2100_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+
+GSErrCode	tableformOnWall_w2050_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2050_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+
+GSErrCode	tableformOnWall_w2000_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w2000_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+
+GSErrCode	tableformOnWall_w1950_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1950_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+
+GSErrCode	tableformOnWall_w1900_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1900_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+
+GSErrCode	tableformOnWall_w1850_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1850_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+
+GSErrCode	tableformOnWall_w1800_h6000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h5700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h5400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h5100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h4800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h4500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h4200 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h3900 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h3600 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h3300 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h3000 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h2700 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h2400 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h2100 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h1800 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
+}
+GSErrCode	tableformOnWall_w1800_h1500 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+
+	return	err;
 }
