@@ -25,7 +25,7 @@ const GS::uchar_t*	gsmTIE = L("벽체 타이 v1.0.gsm");
 const GS::uchar_t*	gsmCLAM = L("직교클램프v1.0.gsm");
 const GS::uchar_t*	gsmPUSH = L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm");
 
-//static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
+static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
 // 다이얼로그 동적 요소 인덱스 번호 저장
 static short	EDITCONTROL_REMAIN_WIDTH;
@@ -295,7 +295,7 @@ GSErrCode	placeTableformOnWall (void)
 	for (xx = 0 ; xx < placingZone.nCells ; ++xx)
 		placeTableformOnWall (placingZone.cells [xx]);
 
-	// 결과물 전체 그룹화
+	// 그룹화하기
 	//if (!elemList.IsEmpty ()) {
 	//	GSSize nElems = elemList.GetSize ();
 	//	API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
@@ -871,16 +871,28 @@ short DGCALLBACK wallTableformPlacerHandler (short message, short dialogID, shor
 	return	result;
 }
 
-// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려)
-double		moveX (double prevPosX, double ang, double offset)
+// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려) - 벽과 평행한 방향으로 이동
+double		moveXinParallel (double prevPosX, double ang, double offset)
 {
 	return	prevPosX + (offset * cos(ang));
 }
 
-// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려)
-double		moveY (double prevPosY, double ang, double offset)
+// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려) - 벽과 평행한 방향으로 이동
+double		moveYinParallel (double prevPosY, double ang, double offset)
 {
 	return	prevPosY + (offset * sin(ang));
+}
+
+// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려) - 벽과 수직한 방향으로 이동
+double		moveXinPerpend (double prevPosX, double ang, double offset)
+{
+	return	prevPosX - (offset * sin(ang));
+}
+
+// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려) - 벽과 수직한 방향으로 이동
+double		moveYinPerpend (double prevPosY, double ang, double offset)
+{
+	return	prevPosY + (offset * cos(ang));
 }
 
 // 이동 후의 Z 좌표를 알려줌 (Z 회전각도 고려)
@@ -903,18 +915,77 @@ API_Guid	placeUFOM (paramsUFOM_ForWallTableform	params)
 	Int32				addParNum;
 
 	std::string			tempStr;
+	
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
 
-	elem.header.guid.clock_seq_hi_and_reserved = 0;
-	elem.header.guid.clock_seq_low = 0;
-	elem.header.guid.node[0] = 0;
-	elem.header.guid.node[1] = 0;
-	elem.header.guid.node[2] = 0;
-	elem.header.guid.node[3] = 0;
-	elem.header.guid.node[4] = 0;
-	elem.header.guid.node[5] = 0;
-	elem.header.guid.time_hi_and_version = 0;
-	elem.header.guid.time_low = 0;
-	elem.header.guid.time_mid = 0;
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_Euroform;
+
+	memo.params [0][27].value.real = TRUE;	// 규격폼
+
+	// 너비
+	tempStr = format_string ("%.0f", params.width * 1000);
+	GS::ucscpy (memo.params [0][28].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+	// 높이
+	tempStr = format_string ("%.0f", params.height * 1000);
+	GS::ucscpy (memo.params [0][29].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+	// 설치방향
+	tempStr = "벽세우기";
+	GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+		
+	memo.params [0][33].value.real = DegreeToRad (90.0);	// 회전X
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 배치: 비계 파이프
+API_Guid	placeSPIP (paramsSPIP_ForWallTableform	params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = gsmSPIP;
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	std::string			tempStr;
 
 	// 객체 로드
 	BNZeroMemory (&libPart, sizeof (libPart));
@@ -946,49 +1017,19 @@ API_Guid	placeUFOM (paramsUFOM_ForWallTableform	params)
 	elem.object.angle = params.ang;
 	elem.header.floorInd = infoWall.floorInd;
 
-	elem.header.layer = layerInd_Euroform;
+	// 레이어
+	elem.header.layer = layerInd_RectPipe;
 
-	// 규격폼
-	memo.params [0][27].value.real = TRUE;
+	// 사각파이프
+	tempStr = "사각파이프";
+	GS::ucscpy (memo.params [0][24].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
 
-	// 너비
-	tempStr = format_string ("%.0f", params.width * 1000);
-	GS::ucscpy (memo.params [0][28].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
-
-	// 높이
-	tempStr = format_string ("%.0f", params.height * 1000);
-	GS::ucscpy (memo.params [0][29].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
-
-	// 설치방향
-	tempStr = "벽세우기";
-	GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
-		
-	// 회전X
-	memo.params [0][33].value.real = DegreeToRad (90.0);
+	memo.params [0][27].value.real = params.length;		// 길이
+	memo.params [0][28].value.real = params.pipeAng;	// 각도
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
 	ACAPI_DisposeElemMemoHdls (&memo);
-
-	return	elem.header.guid;
-}
-
-// 배치: 비계 파이프
-API_Guid	placeSPIP (paramsSPIP_ForWallTableform	params)
-{
-	GSErrCode	err = NoError;
-	API_Element			elem;
-	API_ElementMemo		memo;
-	API_LibPart			libPart;
-
-	const GS::uchar_t*	gsmName = gsmSPIP;
-	double				aParam;
-	double				bParam;
-	Int32				addParNum;
-
-	std::string			tempStr;
-
-	// ...
 
 	return	elem.header.guid;
 }
@@ -1008,7 +1049,55 @@ API_Guid	placePINB (paramsPINB_ForWallTableform	params)
 
 	std::string			tempStr;
 
-	// ...
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_PinBolt;
+
+	// 핀볼트 90도 회전
+	if (params.bPinBoltRot90)
+		memo.params [0][9].value.real = TRUE;
+	else
+		memo.params [0][9].value.real = FALSE;
+
+	memo.params [0][10].value.real = params.boltLen;	// 볼트 길이
+	memo.params [0][11].value.real = 0.010;				// 볼트 직경
+	memo.params [0][12].value.real = 0.050;				// 와셔 위치
+	memo.params [0][13].value.real = 0.100;				// 와셔 크기
+	memo.params [0][17].value.real = params.angX;		// X축 회전
+	memo.params [0][18].value.real = params.angY;		// Y축 회전
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
 
 	return	elem.header.guid;
 }
@@ -1028,7 +1117,65 @@ API_Guid	placeTIE (paramsTIE_ForWallTableform	params)
 
 	std::string			tempStr;
 
-	// ...
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang + DegreeToRad (90.0);
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_WallTie;
+
+	memo.params [0][9].value.real = params.boltLen;		// 볼트 길이 (벽 두께 + 327mm 초과이며 100 단위로 나눠지는 가장 작은 수)
+	memo.params [0][10].value.real = 0.012;		// 볼트 직경
+	memo.params [0][11].value.real = TRUE;		// 사각와샤
+	memo.params [0][12].value.real = 0.100;		// 사각와샤 크기
+	
+	// 너트 타입
+	tempStr = "타입 1";
+	GS::ucscpy (memo.params [0][13].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+	
+	memo.params [0][14].value.real = TRUE;		// 벽체 내장 파이프
+	memo.params [0][16].value.real = 0.012;		// 파이프 내경
+	memo.params [0][17].value.real = 0.002;		// 파이프 두께
+	
+	// 파이프 시작점, 끝점 (벽 두께만큼 차이)
+	memo.params [0][18].value.real = params.pipeBeg;
+	memo.params [0][19].value.real = params.pipeEnd;
+	
+	// 좌,우측 조임쇠 위치 (벽 두께 + 327mm 만큼 차이)
+	memo.params [0][20].value.real = params.clampBeg;
+	memo.params [0][21].value.real = params.clampEnd;
+	
+	memo.params [0][22].value.real = DegreeToRad (0.0);		// 회전 Y
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
 
 	return	elem.header.guid;
 }
@@ -1048,7 +1195,46 @@ API_Guid	placeCLAM (paramsCLAM_ForWallTableform	params)
 
 	std::string			tempStr;
 
-	// ...
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_WallTie;
+
+	memo.params [0][9].value.real = params.angX;	// 본체 회전 (X)
+	memo.params [0][10].value.real = params.angY;	// 본체 회전 (Y)
+	memo.params [0][11].value.real = 0.018;			// 고정볼트 조이기
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
 
 	return	elem.header.guid;
 }
@@ -1068,7 +1254,46 @@ API_Guid	placePUSH (paramsPUSH_ForWallTableform	params)
 
 	std::string			tempStr;
 
-	// ...
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_HeadPiece;
+
+	memo.params [0][9].value.real = 0.009;					// 철판 두께
+	memo.params [0][10].value.real = DegreeToRad (0.0);		// 회전X
+	memo.params [0][11].value.real = DegreeToRad (0.0);		// 회전Y
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
 
 	return	elem.header.guid;
 }
@@ -1077,61 +1302,591 @@ API_Guid	placePUSH (paramsPUSH_ForWallTableform	params)
 GSErrCode	tableformOnWall_w2300_h6000 (CellForWallTableform cell)
 {
 	GSErrCode	err = NoError;
+	double		remainder;
 
 	paramsUFOM_ForWallTableform		params_UFOM;
+	paramsSPIP_ForWallTableform		params_SPIP;
+	paramsPINB_ForWallTableform		params_PINB;
+	paramsTIE_ForWallTableform		params_TIE;
+	paramsCLAM_ForWallTableform		params_CLAM;
+	paramsPUSH_ForWallTableform		params_PUSH;
 
-	// 유로폼 배치 (현재면)
+	////////////////////////////// 현재면
+	// 유로폼 배치
 	params_UFOM.leftBottomX = cell.leftBottomX;
 	params_UFOM.leftBottomY = cell.leftBottomY;
 	params_UFOM.leftBottomZ = cell.leftBottomZ;
 	params_UFOM.ang = cell.ang;
 	params_UFOM.width = 0.600;
 	params_UFOM.height = 1.200;
+
 	// 1행 1열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 2행 1열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 3행 1열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 4행 1열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 5행 1열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomX = moveX (params_UFOM.leftBottomX, params_UFOM.ang, 0.600);	params_UFOM.leftBottomY = moveY (params_UFOM.leftBottomY, params_UFOM.ang, 0.600);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomX = moveXinParallel (params_UFOM.leftBottomX, params_UFOM.ang, 0.600);	params_UFOM.leftBottomY = moveYinParallel (params_UFOM.leftBottomY, params_UFOM.ang, 0.600);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);
 	
 	// 1행 2열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 2행 2열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 3행 2열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 4행 2열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 5행 2열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomX = moveX (params_UFOM.leftBottomX, params_UFOM.ang, 0.600);	params_UFOM.leftBottomY = moveY (params_UFOM.leftBottomY, params_UFOM.ang, 0.600);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);	params_UFOM.width = 0.500;
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomX = moveXinParallel (params_UFOM.leftBottomX, params_UFOM.ang, 0.600);	params_UFOM.leftBottomY = moveYinParallel (params_UFOM.leftBottomY, params_UFOM.ang, 0.600);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);	params_UFOM.width = 0.500;
 
 	// 1행 3열: 500 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 2행 3열: 500 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 3행 3열: 500 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 4행 3열: 500 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 5행 3열: 500 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomX = moveX (params_UFOM.leftBottomX, params_UFOM.ang, 0.500);	params_UFOM.leftBottomY = moveY (params_UFOM.leftBottomY, params_UFOM.ang, 0.500);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);	params_UFOM.width = 0.600;
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomX = moveXinParallel (params_UFOM.leftBottomX, params_UFOM.ang, 0.500);	params_UFOM.leftBottomY = moveYinParallel (params_UFOM.leftBottomY, params_UFOM.ang, 0.500);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);	params_UFOM.width = 0.600;
 
 	// 1행 4열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 2행 4열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 3행 4열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 4행 4열: 600 * 1200
-	placeUFOM (params_UFOM);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
 	// 5행 4열: 600 * 1200
-	placeUFOM (params_UFOM);
+	elemList.Push (placeUFOM (params_UFOM));
 
-	// ... 여기부터 코딩할 것
+	// 비계 파이프 (수평) 배치
+	params_SPIP.leftBottomX = cell.leftBottomX;
+	params_SPIP.leftBottomY = cell.leftBottomY;
+	params_SPIP.leftBottomZ = cell.leftBottomZ;
+	params_SPIP.ang = cell.ang;
+	params_SPIP.length = cell.horLen - 0.100;
+	params_SPIP.pipeAng = DegreeToRad (0);
+
+	params_SPIP.leftBottomX = moveXinPerpend (params_SPIP.leftBottomX, params_SPIP.ang, -(0.0635 + 0.025));
+	params_SPIP.leftBottomY = moveYinPerpend (params_SPIP.leftBottomY, params_SPIP.ang, -(0.0635 + 0.025));
+	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, 0.050);
+	params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, 0.050);
+	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.150 - 0.031);
+
+	// 1행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, -0.031 - 0.150 + 1.200 - 0.031);
+	// 2행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, -0.031 + 1.200 - 0.031);
+	// 3행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, -0.031 + 1.200 - 0.031);
+	// 4행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, -0.031 + 1.200 - 0.031);
+	// 5행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, -0.031 + 1.200 - 0.150 - 0.031);
+	// 6행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));
+
+	// 비계 파이프 (수직) 배치
+	params_SPIP.leftBottomX = cell.leftBottomX;
+	params_SPIP.leftBottomY = cell.leftBottomY;
+	params_SPIP.leftBottomZ = cell.leftBottomZ;
+	params_SPIP.ang = cell.ang;
+	params_SPIP.length = cell.verLen - 0.100;
+	params_SPIP.pipeAng = DegreeToRad (90);
+
+	params_SPIP.leftBottomX = moveXinPerpend (params_SPIP.leftBottomX, params_SPIP.ang, -(0.0635 + 0.075));
+	params_SPIP.leftBottomY = moveYinPerpend (params_SPIP.leftBottomY, params_SPIP.ang, -(0.0635 + 0.075));
+	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, 0.450 - 0.031);
+	params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, 0.450 - 0.031);
+	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.050);
+
+	// 1열
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, 0.062);						params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, cell.horLen - 0.900 - 0.062);	params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, cell.horLen - 0.900 - 0.062);
+	// 2열
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, 0.062);						params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));
+
+	// 핀볼트 배치 (수평 - 최하단, 최상단)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = TRUE;
+	params_PINB.boltLen = 0.100;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	params_PINB.leftBottomX = moveXinPerpend (params_PINB.leftBottomX, params_PINB.ang, -(0.1635));
+	params_PINB.leftBottomY = moveYinPerpend (params_PINB.leftBottomY, params_PINB.ang, -(0.1635));
+	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);
+	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 0.150);
+
+	// 최하단 1열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	// 최하단 2열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.500);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.500);
+	// 최하단 3열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, -1.100);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, -1.100);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, cell.verLen - 0.300);
+	// 최상단 1열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	// 최상단 2열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.500);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.500);
+	// 최상단 3열
+	elemList.Push (placePINB (params_PINB));
+
+	// 핀볼트 배치 (수평 - 나머지)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = FALSE;
+	params_PINB.boltLen = 0.100;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	params_PINB.leftBottomX = moveXinPerpend (params_PINB.leftBottomX, params_PINB.ang, -(0.1635));
+	params_PINB.leftBottomY = moveYinPerpend (params_PINB.leftBottomY, params_PINB.ang, -(0.1635));
+	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.150);
+	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.150);
+	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+
+	// 2행
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.200);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, -2.000);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, -2.000);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+
+	// 3행
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.200);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, -2.000);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, -2.000);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	
+	// 4행
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.200);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, -2.000);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, -2.000);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	
+	// 5행
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.200);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, -2.000);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, -2.000);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+
+	// 핀볼트 배치 (수직)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = FALSE;
+	params_PINB.boltLen = 0.150;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	params_PINB.leftBottomX = moveXinPerpend (params_PINB.leftBottomX, params_PINB.ang, -(0.2135));
+	params_PINB.leftBottomY = moveYinPerpend (params_PINB.leftBottomY, params_PINB.ang, -(0.2135));
+	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.450);
+	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.450);
+	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+
+	// 1열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, cell.horLen - 0.900);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, cell.horLen - 0.900);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, -3.600);
+	// 2열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));
+
+	// 벽체 타이
+	params_TIE.leftBottomX = cell.leftBottomX;
+	params_TIE.leftBottomY = cell.leftBottomY;
+	params_TIE.leftBottomZ = cell.leftBottomZ;
+	params_TIE.ang = cell.ang;
+	remainder = fmod ((infoWall.wallThk + 0.327), 0.100);
+	params_TIE.boltLen = (infoWall.wallThk + 0.327 + (0.100 - remainder));
+	params_TIE.pipeBeg = 0.0365 + 0.1635;
+	params_TIE.pipeEnd = 0.0365 + 0.1635 + infoWall.wallThk;
+	params_TIE.clampBeg = 0.0365;
+	params_TIE.clampEnd = 0.0365 + infoWall.wallThk + 0.327;
+
+	params_TIE.leftBottomX = moveXinPerpend (params_TIE.leftBottomX, params_TIE.ang, -(0.1635 + 0.0365));
+	params_TIE.leftBottomY = moveYinPerpend (params_TIE.leftBottomY, params_TIE.ang, -(0.1635 + 0.0365));
+	params_TIE.leftBottomX = moveXinParallel (params_TIE.leftBottomX, params_TIE.ang, 0.450);
+	params_TIE.leftBottomY = moveYinParallel (params_TIE.leftBottomY, params_TIE.ang, 0.450);
+	params_TIE.leftBottomZ = moveZ (params_TIE.leftBottomZ, 0.220);
+
+	// 1열
+	elemList.Push (placeTIE (params_TIE));	params_TIE.leftBottomZ = moveZ (params_TIE.leftBottomZ, -0.220 + 1.200 + 0.150);
+	elemList.Push (placeTIE (params_TIE));	params_TIE.leftBottomZ = moveZ (params_TIE.leftBottomZ, -0.150 + 1.200 + 0.150);
+	elemList.Push (placeTIE (params_TIE));	params_TIE.leftBottomZ = moveZ (params_TIE.leftBottomZ, -0.150 + 1.200 + 0.150);
+	elemList.Push (placeTIE (params_TIE));	params_TIE.leftBottomZ = moveZ (params_TIE.leftBottomZ, -0.150 + 2.400 - 0.230);
+	elemList.Push (placeTIE (params_TIE));	params_TIE.leftBottomX = moveXinParallel (params_TIE.leftBottomX, params_TIE.ang, cell.horLen - 0.900);		params_TIE.leftBottomY = moveYinParallel (params_TIE.leftBottomY, params_TIE.ang, cell.horLen - 0.900);		params_TIE.leftBottomZ = moveZ (params_TIE.leftBottomZ, 0.230 - 6.000 + 0.220);
+	// 2열
+	elemList.Push (placeTIE (params_TIE));	params_TIE.leftBottomZ = moveZ (params_TIE.leftBottomZ, -0.220 + 1.200 + 0.150);
+	elemList.Push (placeTIE (params_TIE));	params_TIE.leftBottomZ = moveZ (params_TIE.leftBottomZ, -0.150 + 1.200 + 0.150);
+	elemList.Push (placeTIE (params_TIE));	params_TIE.leftBottomZ = moveZ (params_TIE.leftBottomZ, -0.150 + 1.200 + 0.150);
+	elemList.Push (placeTIE (params_TIE));	params_TIE.leftBottomZ = moveZ (params_TIE.leftBottomZ, -0.150 + 2.400 - 0.230);
+	elemList.Push (placeTIE (params_TIE));
+
+	// 직교 클램프
+	params_CLAM.leftBottomX = cell.leftBottomX;
+	params_CLAM.leftBottomY = cell.leftBottomY;
+	params_CLAM.leftBottomZ = cell.leftBottomZ;
+	params_CLAM.ang = cell.ang;
+	params_CLAM.angX = DegreeToRad (0.0);
+	params_CLAM.angY = DegreeToRad (0.0);
+
+	params_CLAM.leftBottomX = moveXinPerpend (params_CLAM.leftBottomX, params_CLAM.ang, -0.1835);
+	params_CLAM.leftBottomY = moveYinPerpend (params_CLAM.leftBottomY, params_CLAM.ang, -0.1835);
+	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.450 - 0.031);
+	params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.450 - 0.031);
+	params_CLAM.leftBottomZ = moveZ (params_CLAM.leftBottomZ, 0.099);
+
+	// 처음 행
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.062);											params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.062);
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, -0.031 - 0.450 + cell.horLen - 0.450 - 0.031);		params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, -0.031 - 0.450 + cell.horLen - 0.450 - 0.031);
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.062);											params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.062);
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, -0.031 + 0.450 - cell.horLen + 0.450 - 0.031);		params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, -0.031 + 0.450 - cell.horLen + 0.450 - 0.031);		params_CLAM.leftBottomZ = moveZ (params_CLAM.leftBottomZ, -0.099 + cell.verLen - 0.099);	params_CLAM.angY = DegreeToRad (180.0);
+	// 마지막 행
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.062);											params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.062);
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, -0.031 - 0.450 + cell.horLen - 0.450 - 0.031);		params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, -0.031 - 0.450 + cell.horLen - 0.450 - 0.031);
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.062);											params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.062);
+	elemList.Push (placeCLAM (params_CLAM));
+
+	// 헤드 피스
+	params_PUSH.leftBottomX = cell.leftBottomX;
+	params_PUSH.leftBottomY = cell.leftBottomY;
+	params_PUSH.leftBottomZ = cell.leftBottomZ;
+	params_PUSH.ang = cell.ang;
+
+	params_PUSH.leftBottomX = moveXinPerpend (params_PUSH.leftBottomX, params_CLAM.ang, -0.1725);
+	params_PUSH.leftBottomY = moveYinPerpend (params_PUSH.leftBottomY, params_CLAM.ang, -0.1725);
+	params_PUSH.leftBottomX = moveXinParallel (params_PUSH.leftBottomX, params_CLAM.ang, 0.450 - 0.100);
+	params_PUSH.leftBottomY = moveYinParallel (params_PUSH.leftBottomY, params_CLAM.ang, 0.450 - 0.100);
+	params_PUSH.leftBottomZ = moveZ (params_PUSH.leftBottomZ, 0.300);
+
+	// 처음 행
+	elemList.Push (placePUSH (params_PUSH));	params_PUSH.leftBottomX = moveXinParallel (params_PUSH.leftBottomX, params_PUSH.ang, cell.horLen - 0.900);	params_PUSH.leftBottomY = moveYinParallel (params_PUSH.leftBottomY, params_PUSH.ang, cell.horLen - 0.900);
+	elemList.Push (placePUSH (params_PUSH));	params_PUSH.leftBottomX = moveXinParallel (params_PUSH.leftBottomX, params_PUSH.ang, 0.900 - cell.horLen);	params_PUSH.leftBottomY = moveYinParallel (params_PUSH.leftBottomY, params_PUSH.ang, 0.900 - cell.horLen);	params_PUSH.leftBottomZ = moveZ (params_PUSH.leftBottomZ, -0.300 + (4.000 * 0.80));
+	// 마지막 행
+	elemList.Push (placePUSH (params_PUSH));	params_PUSH.leftBottomX = moveXinParallel (params_PUSH.leftBottomX, params_PUSH.ang, cell.horLen - 0.900);	params_PUSH.leftBottomY = moveYinParallel (params_PUSH.leftBottomY, params_PUSH.ang, cell.horLen - 0.900);
+	elemList.Push (placePUSH (params_PUSH));
+
+	// 그룹화하기
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+	elemList.Clear (false);
+
+	////////////////////////////// 반대면
+	cell.leftBottomX = moveXinParallel (cell.leftBottomX, cell.ang, cell.horLen);
+	cell.leftBottomY = moveYinParallel (cell.leftBottomY, cell.ang, cell.horLen);
+	cell.leftBottomX = moveXinPerpend (cell.leftBottomX, cell.ang, infoWall.wallThk);
+	cell.leftBottomY = moveYinPerpend (cell.leftBottomY, cell.ang, infoWall.wallThk);
+	cell.ang += DegreeToRad (180.0);
+
+	// 유로폼 배치 (반대편에서 변경됨)
+	params_UFOM.leftBottomX = cell.leftBottomX;
+	params_UFOM.leftBottomY = cell.leftBottomY;
+	params_UFOM.leftBottomZ = cell.leftBottomZ;
+	params_UFOM.ang = cell.ang;
+	params_UFOM.width = 0.600;
+	params_UFOM.height = 1.200;
+
+	// 1행 1열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 2행 1열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 3행 1열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 4행 1열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 5행 1열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomX = moveXinParallel (params_UFOM.leftBottomX, params_UFOM.ang, 0.600);	params_UFOM.leftBottomY = moveYinParallel (params_UFOM.leftBottomY, params_UFOM.ang, 0.600);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);	params_UFOM.width = 0.500;
+	
+	// 1행 2열: 500 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 2행 2열: 500 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 3행 2열: 500 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 4행 2열: 500 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 5행 2열: 500 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomX = moveXinParallel (params_UFOM.leftBottomX, params_UFOM.ang, 0.500);	params_UFOM.leftBottomY = moveYinParallel (params_UFOM.leftBottomY, params_UFOM.ang, 0.500);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);	params_UFOM.width = 0.600;
+
+	// 1행 3열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 2행 3열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 3행 3열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 4행 3열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 5행 3열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomX = moveXinParallel (params_UFOM.leftBottomX, params_UFOM.ang, 0.600);	params_UFOM.leftBottomY = moveYinParallel (params_UFOM.leftBottomY, params_UFOM.ang, 0.600);	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, -4.800);
+
+	// 1행 4열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 2행 4열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 3행 4열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 4행 4열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));	params_UFOM.leftBottomZ = moveZ (params_UFOM.leftBottomZ, 1.200);
+	// 5행 4열: 600 * 1200
+	elemList.Push (placeUFOM (params_UFOM));
+
+	// 비계 파이프 (수평) 배치
+	params_SPIP.leftBottomX = cell.leftBottomX;
+	params_SPIP.leftBottomY = cell.leftBottomY;
+	params_SPIP.leftBottomZ = cell.leftBottomZ;
+	params_SPIP.ang = cell.ang;
+	params_SPIP.length = cell.horLen - 0.100;
+	params_SPIP.pipeAng = DegreeToRad (0);
+
+	params_SPIP.leftBottomX = moveXinPerpend (params_SPIP.leftBottomX, params_SPIP.ang, -(0.0635 + 0.025));
+	params_SPIP.leftBottomY = moveYinPerpend (params_SPIP.leftBottomY, params_SPIP.ang, -(0.0635 + 0.025));
+	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, 0.050);
+	params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, 0.050);
+	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.150 - 0.031);
+
+	// 1행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, -0.031 - 0.150 + 1.200 - 0.031);
+	// 2행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, -0.031 + 1.200 - 0.031);
+	// 3행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, -0.031 + 1.200 - 0.031);
+	// 4행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, -0.031 + 1.200 - 0.031);
+	// 5행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, -0.031 + 1.200 - 0.150 - 0.031);
+	// 6행
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));
+
+	// 비계 파이프 (수직) 배치
+	params_SPIP.leftBottomX = cell.leftBottomX;
+	params_SPIP.leftBottomY = cell.leftBottomY;
+	params_SPIP.leftBottomZ = cell.leftBottomZ;
+	params_SPIP.ang = cell.ang;
+	params_SPIP.length = cell.verLen - 0.100;
+	params_SPIP.pipeAng = DegreeToRad (90);
+
+	params_SPIP.leftBottomX = moveXinPerpend (params_SPIP.leftBottomX, params_SPIP.ang, -(0.0635 + 0.075));
+	params_SPIP.leftBottomY = moveYinPerpend (params_SPIP.leftBottomY, params_SPIP.ang, -(0.0635 + 0.075));
+	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, 0.450 - 0.031);
+	params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, 0.450 - 0.031);
+	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.050);
+
+	// 1열
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, 0.062);						params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, cell.horLen - 0.900 - 0.062);	params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, cell.horLen - 0.900 - 0.062);
+	// 2열
+	elemList.Push (placeSPIP (params_SPIP));	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, 0.062);						params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, 0.062);
+	elemList.Push (placeSPIP (params_SPIP));
+
+	// 핀볼트 배치 (수평 - 최하단, 최상단) (반대편에서 변경됨)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = TRUE;
+	params_PINB.boltLen = 0.100;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	params_PINB.leftBottomX = moveXinPerpend (params_PINB.leftBottomX, params_PINB.ang, -(0.1635));
+	params_PINB.leftBottomY = moveYinPerpend (params_PINB.leftBottomY, params_PINB.ang, -(0.1635));
+	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);
+	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 0.150);
+
+	// 최하단 1열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.500);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.500);
+	// 최하단 2열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	// 최하단 3열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, -1.100);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, -1.100);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, cell.verLen - 0.300);
+	// 최상단 1열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.500);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.500);
+	// 최상단 2열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	// 최상단 3열
+	elemList.Push (placePINB (params_PINB));
+
+	// 핀볼트 배치 (수평 - 나머지) (반대편에서 변경됨)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = FALSE;
+	params_PINB.boltLen = 0.100;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	params_PINB.leftBottomX = moveXinPerpend (params_PINB.leftBottomX, params_PINB.ang, -(0.1635));
+	params_PINB.leftBottomY = moveYinPerpend (params_PINB.leftBottomY, params_PINB.ang, -(0.1635));
+	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.150);
+	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.150);
+	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+
+	// 2행
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.200);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, -2.000);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, -2.000);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+
+	// 3행
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.200);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, -2.000);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, -2.000);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	
+	// 4행
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.200);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, -2.000);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, -2.000);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	
+	// 5행
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.200);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.300);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.300);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.600);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.600);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, -2.000);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, -2.000);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+
+	// 핀볼트 배치 (수직)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = FALSE;
+	params_PINB.boltLen = 0.150;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	params_PINB.leftBottomX = moveXinPerpend (params_PINB.leftBottomX, params_PINB.ang, -(0.2135));
+	params_PINB.leftBottomY = moveYinPerpend (params_PINB.leftBottomY, params_PINB.ang, -(0.2135));
+	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, 0.450);
+	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, 0.450);
+	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+
+	// 1열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomX = moveXinParallel (params_PINB.leftBottomX, params_PINB.ang, cell.horLen - 0.900);	params_PINB.leftBottomY = moveYinParallel (params_PINB.leftBottomY, params_PINB.ang, cell.horLen - 0.900);	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, -3.600);
+	// 2열
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));	params_PINB.leftBottomZ = moveZ (params_PINB.leftBottomZ, 1.200);
+	elemList.Push (placePINB (params_PINB));
+
+	// 직교 클램프
+	params_CLAM.leftBottomX = cell.leftBottomX;
+	params_CLAM.leftBottomY = cell.leftBottomY;
+	params_CLAM.leftBottomZ = cell.leftBottomZ;
+	params_CLAM.ang = cell.ang;
+	params_CLAM.angX = DegreeToRad (0.0);
+	params_CLAM.angY = DegreeToRad (0.0);
+
+	params_CLAM.leftBottomX = moveXinPerpend (params_CLAM.leftBottomX, params_CLAM.ang, -0.1835);
+	params_CLAM.leftBottomY = moveYinPerpend (params_CLAM.leftBottomY, params_CLAM.ang, -0.1835);
+	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.450 - 0.031);
+	params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.450 - 0.031);
+	params_CLAM.leftBottomZ = moveZ (params_CLAM.leftBottomZ, 0.099);
+
+	// 처음 행
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.062);											params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.062);
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, -0.031 - 0.450 + cell.horLen - 0.450 - 0.031);		params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, -0.031 - 0.450 + cell.horLen - 0.450 - 0.031);
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.062);											params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.062);
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, -0.031 + 0.450 - cell.horLen + 0.450 - 0.031);		params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, -0.031 + 0.450 - cell.horLen + 0.450 - 0.031);		params_CLAM.leftBottomZ = moveZ (params_CLAM.leftBottomZ, -0.099 + cell.verLen - 0.099);	params_CLAM.angY = DegreeToRad (180.0);
+	// 마지막 행
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.062);											params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.062);
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, -0.031 - 0.450 + cell.horLen - 0.450 - 0.031);		params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, -0.031 - 0.450 + cell.horLen - 0.450 - 0.031);
+	elemList.Push (placeCLAM (params_CLAM));	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.062);											params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.062);
+	elemList.Push (placeCLAM (params_CLAM));
+
+	// 헤드 피스
+	params_PUSH.leftBottomX = cell.leftBottomX;
+	params_PUSH.leftBottomY = cell.leftBottomY;
+	params_PUSH.leftBottomZ = cell.leftBottomZ;
+	params_PUSH.ang = cell.ang;
+
+	params_PUSH.leftBottomX = moveXinPerpend (params_PUSH.leftBottomX, params_CLAM.ang, -0.1725);
+	params_PUSH.leftBottomY = moveYinPerpend (params_PUSH.leftBottomY, params_CLAM.ang, -0.1725);
+	params_PUSH.leftBottomX = moveXinParallel (params_PUSH.leftBottomX, params_CLAM.ang, 0.450 - 0.100);
+	params_PUSH.leftBottomY = moveYinParallel (params_PUSH.leftBottomY, params_CLAM.ang, 0.450 - 0.100);
+	params_PUSH.leftBottomZ = moveZ (params_PUSH.leftBottomZ, 0.300);
+
+	// 처음 행
+	elemList.Push (placePUSH (params_PUSH));	params_PUSH.leftBottomX = moveXinParallel (params_PUSH.leftBottomX, params_PUSH.ang, cell.horLen - 0.900);	params_PUSH.leftBottomY = moveYinParallel (params_PUSH.leftBottomY, params_PUSH.ang, cell.horLen - 0.900);
+	elemList.Push (placePUSH (params_PUSH));	params_PUSH.leftBottomX = moveXinParallel (params_PUSH.leftBottomX, params_PUSH.ang, 0.900 - cell.horLen);	params_PUSH.leftBottomY = moveYinParallel (params_PUSH.leftBottomY, params_PUSH.ang, 0.900 - cell.horLen);	params_PUSH.leftBottomZ = moveZ (params_PUSH.leftBottomZ, -0.300 + (4.000 * 0.80));
+	// 마지막 행
+	elemList.Push (placePUSH (params_PUSH));	params_PUSH.leftBottomX = moveXinParallel (params_PUSH.leftBottomX, params_PUSH.ang, cell.horLen - 0.900);	params_PUSH.leftBottomY = moveYinParallel (params_PUSH.leftBottomY, params_PUSH.ang, cell.horLen - 0.900);
+	elemList.Push (placePUSH (params_PUSH));
+
+	// 그룹화하기
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+	elemList.Clear (false);
 
 	return	err;
 }

@@ -122,31 +122,68 @@ struct paramsUFOM_ForWallTableform
 // 파라미터: 비계 파이프
 struct paramsSPIP_ForWallTableform
 {
-	// X, Y, Z, 각도 + Z축 회전 + 품명, 길이, 각도
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	length;			// 파이프 길이
+	double	pipeAng;		// 각도 (수평: 0, 수직: 90)
 };
 
 // 파라미터: 핀볼트 세트
 struct paramsPINB_ForWallTableform
 {
-	// X, Y, Z, 각도 + Z축 회전 + 핀볼트 90도 회전, 볼트 길이, 볼트 직경, 와셔 위치, 와셔 크기, X축 회전, Y축 회전
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	bool	bPinBoltRot90;	// 핀볼트 90도 회전
+	double	boltLen;		// 볼트 길이
+	double	angX;			// X축 회전
+	double	angY;			// Y축 회전
 };
 
 // 파라미터: 벽체 타이
 struct paramsTIE_ForWallTableform
 {
-	// X, Y, Z, 각도 + Z축 회전 + 볼트 길이, 볼트 직경, 사각와샤, 사각와샤 크기, 너트 타입, 벽체 내장 파이프, 파이프 내경, 파이프 두께, 파이프 시작점, 파이프 끝점, 좌측 조임쇠 위치, 우측 조임쇠 위치, 회전 Y
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	boltLen;		// 볼트 길이
+	double	pipeBeg;		// 파이프 시작점
+	double	pipeEnd;		// 파이프 끝점
+	double	clampBeg;		// 조임쇠 시작점
+	double	clampEnd;		// 조임쇠 끝점
 };
 
 // 파라미터: 직교 클램프
 struct paramsCLAM_ForWallTableform
 {
-	// X, Y, Z, 각도 + Z축 회전 + 본체 회전 (X), 본체 회전 (Y), 고정볼트 조이기, 고정볼트 회전
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	angX;			// 본체 회전 (X)
+	double	angY;			// 본체 회전 (Y)
 };
 
 // 파라미터: 헤드피스
 struct paramsPUSH_ForWallTableform
 {
-	// X, Y, Z, 각도 + Z축 회전 + A, B, ZZYZX + 철판 두께, 회전X, 회전Y
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
 };
 
 GSErrCode	placeTableformOnWall (void);											// 벽에 테이블폼을 배치하는 통합 루틴
@@ -155,9 +192,11 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell);						// 테이블폼 배�
 double		getCellPositionLeftBottomXForWallTableForm (WallTableformPlacingZone *placingZone, short idx);			// 해당 셀의 좌하단 좌표X 위치를 리턴
 short DGCALLBACK wallTableformPlacerHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼 배치를 위한 질의를 요청하는 다이얼로그
 
-double		moveX (double prevPosX, double ang, double offset);			// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려)
-double		moveY (double prevPosY, double ang, double offset);			// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려)
-double		moveZ (double prevPosZ, double offset);						// 이동 후의 Z 좌표를 알려줌 (Z 회전각도 고려)
+double		moveXinParallel (double prevPosX, double ang, double offset);			// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려) - 벽과 평행한 방향으로 이동
+double		moveYinParallel (double prevPosY, double ang, double offset);			// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려) - 벽과 평행한 방향으로 이동
+double		moveXinPerpend (double prevPosX, double ang, double offset);			// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려) - 벽과 수직한 방향으로 이동
+double		moveYinPerpend (double prevPosY, double ang, double offset);			// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려) - 벽과 수직한 방향으로 이동
+double		moveZ (double prevPosZ, double offset);									// 이동 후의 Z 좌표를 알려줌 (Z 회전각도 고려)
 
 API_Guid	placeUFOM (paramsUFOM_ForWallTableform	params);			// 배치: 유로폼
 API_Guid	placeSPIP (paramsSPIP_ForWallTableform	params);			// 배치: 비계 파이프
