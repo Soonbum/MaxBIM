@@ -13,6 +13,105 @@ GSErrCode	placeQuantityPlywood (void)
 {
 	GSErrCode	err = NoError;
 
+	API_Element				elem;
+	API_ElementMemo			memo;
+	API_ElemInfo3D			info3D;
+	
+	GS::Array<API_Guid>	elemList_All;		// 요소들의 GUID (전체 구조 요소)
+	GS::Array<API_Guid>	elemList_Wall;		// 요소들의 GUID (벽)
+	GS::Array<API_Guid>	elemList_Slab;		// 요소들의 GUID (슬래브)
+	GS::Array<API_Guid>	elemList_Beam;		// 요소들의 GUID (보)
+	GS::Array<API_Guid>	elemList_Column;	// 요소들의 GUID (기둥)
+
+
+	// 보이는 레이어 상의 벽, 슬래브, 보, 기둥 객체를 가져옴
+	ACAPI_Element_GetElemList (API_WallID, &elemList_Wall, APIFilt_OnVisLayer);
+	ACAPI_Element_GetElemList (API_SlabID, &elemList_Slab, APIFilt_OnVisLayer);
+	ACAPI_Element_GetElemList (API_BeamID, &elemList_Beam, APIFilt_OnVisLayer);
+	ACAPI_Element_GetElemList (API_ColumnID, &elemList_Column, APIFilt_OnVisLayer);
+	while (!elemList_Wall.IsEmpty ())
+		elemList_All.Push (elemList_Wall.Pop ());
+	while (!elemList_Slab.IsEmpty ())
+		elemList_All.Push (elemList_Slab.Pop ());
+	while (!elemList_Beam.IsEmpty ())
+		elemList_All.Push (elemList_Beam.Pop ());
+	while (!elemList_Column.IsEmpty ())
+		elemList_All.Push (elemList_Column.Pop ());
+
+	// 직육면체 형태의 꼭지점 8곳에 좌표 객체 배치 (라벨: 기둥 xx - 점 ?)
+	// ...
+	//BNZeroMemory (&elem, sizeof (API_Element));
+	//BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	//ACAPI_Element_Get (&elem);
+	//ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+	//// 폴리라인일 경우,
+	//if (elem.header.typeID == API_PolyLineID) {
+	//	for (int yy = 1 ; yy <= elem.polyLine.poly.nCoords ; ++yy) {
+	//		err = placeCoordinateLabel (memo.coords [0][yy].x, memo.coords [0][yy].y, 0, false, "", layerInd);
+	//	}
+	//}
+
+	//// 모프일 경우,
+	//if (elem.header.typeID == API_MorphID) {
+	//	ACAPI_Element_Get3DInfo (elem.header, &info3D);
+
+	//	// 모프의 3D 바디를 가져옴
+	//	BNZeroMemory (&component, sizeof (API_Component3D));
+	//	component.header.typeID = API_BodyID;
+	//	component.header.index = info3D.fbody;
+	//	err = ACAPI_3D_GetComponent (&component);
+
+	//	// 모프의 3D 모델을 가져오지 못하면 종료
+	//	if (err != NoError) {
+	//		ACAPI_WriteReport ("모프의 3D 모델을 가져오지 못했습니다.", true);
+	//		return err;
+	//	}
+
+	//	nVert = component.body.nVert;
+	//	nEdge = component.body.nEdge;
+	//	nPgon = component.body.nPgon;
+	//	tm = component.body.tranmat;
+	//	elemIdx = component.body.head.elemIndex - 1;
+	//	bodyIdx = component.body.head.bodyIndex - 1;
+	//
+	//	// 정점 좌표를 임의 순서대로 저장함
+	//	for (xx = 1 ; xx <= nVert ; ++xx) {
+	//		component.header.typeID	= API_VertID;
+	//		component.header.index	= xx;
+	//		err = ACAPI_3D_GetComponent (&component);
+	//		if (err == NoError) {
+	//			trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
+	//			trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
+	//			trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
+	//			coords.Push (trCoord);
+	//		}
+	//	}
+	//	nNodes = coords.GetSize ();
+
+	//	tempString = format_string ("%s", "MIN 값");
+	//	err = placeCoordinateLabel (info3D.bounds.xMin, info3D.bounds.yMin, info3D.bounds.zMin, true, tempString, layerInd);
+	//	tempString = format_string ("%s", "MAX 값");
+	//	err = placeCoordinateLabel (info3D.bounds.xMax, info3D.bounds.yMax, info3D.bounds.zMax, true, tempString, layerInd);
+
+	//	for (xx = 1 ; xx <= nNodes ; ++xx) {
+	//		point3D = coords.Pop ();
+
+	//		tempString = format_string ("%d번", xx);
+	//		err = placeCoordinateLabel (point3D.x, point3D.y, point3D.z, true, tempString, layerInd);
+	//	}
+	//}
+
+	//// 보일 경우,
+	//if (elem.header.typeID == API_BeamID) {
+	//	tempString = format_string ("시작");
+	//	err = placeCoordinateLabel (elem.beam.begC.x, elem.beam.begC.y, elem.beam.level, true, tempString, layerInd);
+	//	tempString = format_string ("끝");
+	//	err = placeCoordinateLabel (elem.beam.endC.x, elem.beam.endC.y, elem.beam.level, true, tempString, layerInd);
+	//}
+
+	ACAPI_DisposeElemMemoHdls (&memo);
+
 	// UI (대상 레이어 - 물량합판 레이어는 1:1로 매칭시켜야 함)
 	// 레이어 선택 방식은 기존 애드온 - 레이어 기능 참조
 	// *** 대상 레이어는 현재 보이는 레이어를 다 읽어 들인 후 취사 선택할 것

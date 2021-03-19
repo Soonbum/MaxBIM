@@ -40,9 +40,6 @@ GSErrCode	placeTableformOnWall (void)
 	long		nSel;
 	short		xx;
 	double		dx, dy;
-	//, ang1, ang2;
-	//double		xPosLB, yPosLB, zPosLB;
-	//double		xPosRT, yPosRT, zPosRT;
 	double		width;
 	double		halfWidth;
 	short		tableColumn;
