@@ -359,6 +359,7 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 	double		width, height;
 	double		remainder;		// fmod 함수에 쓸 변수
 	double		elev_headpiece;
+	double		horizontalGap;	// 수평재 양쪽 이격거리
 
 	paramsUFOM_ForWallTableform		params_UFOM;
 	paramsSPIP_ForWallTableform		params_SPIP;
@@ -370,36 +371,47 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 	if (abs (cell.horLen - 2.300) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.050;
 	} else if (abs (cell.horLen - 2.250) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.025;
 	} else if (abs (cell.horLen - 2.200) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.075;
 	} else if (abs (cell.horLen - 2.150) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.050;
 	} else if (abs (cell.horLen - 2.100) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.025;
 	} else if (abs (cell.horLen - 2.050) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.075;
 	} else if (abs (cell.horLen - 2.000) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.050;
 	} else if (abs (cell.horLen - 1.950) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.025;
 	} else if (abs (cell.horLen - 1.900) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.075;
 	} else if (abs (cell.horLen - 1.850) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.050;
 	} else if (abs (cell.horLen - 1.800) < EPS) {
 		placementInfo.nHorEuroform = 3;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.600;
+		horizontalGap = 0.025;
 	} else {
 		placementInfo.nHorEuroform = 0;
 	}
@@ -525,13 +537,13 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 	params_SPIP.leftBottomY = cell.leftBottomY;
 	params_SPIP.leftBottomZ = cell.leftBottomZ;
 	params_SPIP.ang = cell.ang;
-	params_SPIP.length = cell.horLen - 0.100;
+	params_SPIP.length = cell.horLen - (horizontalGap * 2);
 	params_SPIP.pipeAng = DegreeToRad (0);
 
 	params_SPIP.leftBottomX = moveXinPerpend (params_SPIP.leftBottomX, params_SPIP.ang, -(0.0635 + 0.025));
 	params_SPIP.leftBottomY = moveYinPerpend (params_SPIP.leftBottomY, params_SPIP.ang, -(0.0635 + 0.025));
-	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, 0.050);
-	params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, 0.050);
+	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, horizontalGap);
+	params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, horizontalGap);
 	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.150 - 0.031);
 
 	for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
@@ -868,13 +880,13 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 	params_SPIP.leftBottomY = cell.leftBottomY;
 	params_SPIP.leftBottomZ = cell.leftBottomZ;
 	params_SPIP.ang = cell.ang;
-	params_SPIP.length = cell.horLen - 0.100;
+	params_SPIP.length = cell.horLen - (horizontalGap * 2);
 	params_SPIP.pipeAng = DegreeToRad (0);
 
 	params_SPIP.leftBottomX = moveXinPerpend (params_SPIP.leftBottomX, params_SPIP.ang, -(0.0635 + 0.025));
 	params_SPIP.leftBottomY = moveYinPerpend (params_SPIP.leftBottomY, params_SPIP.ang, -(0.0635 + 0.025));
-	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, 0.050);
-	params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, 0.050);
+	params_SPIP.leftBottomX = moveXinParallel (params_SPIP.leftBottomX, params_SPIP.ang, horizontalGap);
+	params_SPIP.leftBottomY = moveYinParallel (params_SPIP.leftBottomY, params_SPIP.ang, horizontalGap);
 	params_SPIP.leftBottomZ = moveZ (params_SPIP.leftBottomZ, 0.150 - 0.031);
 
 	for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
