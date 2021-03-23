@@ -11,8 +11,12 @@ namespace wallTableformPlacerDG {
 		LABEL_ERR_MESSAGE,
 		LABEL_WIDTH,
 		EDITCONTROL_WIDTH,
+
 		LABEL_GAP_LENGTH,
 		EDITCONTROL_GAP_LENGTH,
+		LABEL_FILL_SIDE,
+		RADIOBUTTON_DOUBLE,
+		RADIOBUTTON_SINGLE,
 
 		ICON_LAYER,
 		LABEL_LAYER_SETTINGS,
@@ -85,6 +89,8 @@ struct WallTableformPlacingZone
 	double	horLen;			// 가로 길이
 	double	verLen;			// 세로 길이
 	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	bool	bDoubleSide;	// 양면이면 true, 단면이면 false
 
 	double	gap;			// 벽과의 간격
 

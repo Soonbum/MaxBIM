@@ -348,7 +348,7 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Wall */
-'GDLG'  32517  Modal | grow	  0		  0		350		500		"테이블폼 벽에 배치" {
+'GDLG'  32517  Modal | grow	  0		  0		350		530		"테이블폼 벽에 배치" {
 /* [  1] */	Button			 15		 15		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			 15		 50		 70		 25		LargePlain		"Cancel"
 
@@ -360,19 +360,22 @@
 
 /* [  8] */	RightText		 10		220		100		 23		LargePlain		"Gap from Wall"
 /* [  9] */	LengthEdit		140		213		 50		 25		LargePlain		"0"	"1.0"
+/* [ 10] */ RightText		 10		255		100		 23		LargePlain		"Double/Single"
+/* [ 11] */ PushRadio		140		250		 40		 25		LargePlain		1	"Double"
+/* [ 12] */ PushRadio		190		250		 40		 25		LargePlain		1	"Single"
 
-/* [ 10] */	Icon			 85		263		 29		 14  	32502
-/* [ 11] */	LeftText		120		265		200		 23		LargePlain		"Layer Settings"
-/* [ 12] */	RightText		 10		295		100		 23		LargePlain		"Euroform"
-/* [ 13] */	RightText		 10		325		100		 23		LargePlain		"Rect Pipe"
-/* [ 14] */	RightText		 10		355		100		 23		LargePlain		"Pinbolt"
-/* [ 15] */	RightText		 10		385		100		 23		LargePlain		"Wall Tie"
-/* [ 16] */	RightText		 10		415		100		 23		LargePlain		"Clamp"
-/* [ 17] */	RightText		 10		445		100		 23		LargePlain		"Headpiece"
-/* [ 18] */	UserControl		120		289		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
-/* [ 19] */	UserControl		120		319		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE	*/
-/* [ 20] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT		*/
-/* [ 21] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE		*/
-/* [ 22] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - CLAMP		*/
-/* [ 23] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
+/* [ 13] */	Icon			 85		293		 29		 14  	32502
+/* [ 14] */	LeftText		120		295		200		 23		LargePlain		"Layer Settings"
+/* [ 15] */	RightText		 10		325		100		 23		LargePlain		"Euroform"
+/* [ 16] */	RightText		 10		355		100		 23		LargePlain		"Rect Pipe"
+/* [ 17] */	RightText		 10		385		100		 23		LargePlain		"Pinbolt"
+/* [ 18] */	RightText		 10		415		100		 23		LargePlain		"Wall Tie"
+/* [ 19] */	RightText		 10		445		100		 23		LargePlain		"Clamp"
+/* [ 20] */	RightText		 10		475		100		 23		LargePlain		"Headpiece"
+/* [ 21] */	UserControl		120		319		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
+/* [ 22] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE	*/
+/* [ 23] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT		*/
+/* [ 24] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE		*/
+/* [ 25] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - CLAMP		*/
+/* [ 26] */	UserControl		120		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
 }
