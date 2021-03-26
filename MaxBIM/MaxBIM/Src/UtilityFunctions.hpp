@@ -28,6 +28,6 @@ API_Coord	getUnrotatedPoint (API_Coord rotatedPoint, API_Coord axisPoint, double
 
 std::string	format_string(const std::string fmt, ...);														// std::string 변수 값에 formatted string을 입력 받음
 short	isStringDouble (char *str);																			// 문자열 s가 숫자로 된 문자열인지 알려줌 (숫자는 1, 문자열은 0)
-GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd);		// 좌표 라벨을 배치함
+GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment = false, std::string comment = "", short layerInd = 1, short floorInd = 0);		// 좌표 라벨을 배치함
 
 #endif

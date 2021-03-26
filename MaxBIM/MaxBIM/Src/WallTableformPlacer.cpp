@@ -357,9 +357,9 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 
 	short		xx, yy;
 	double		width, height;
-	double		remainder;		// fmod 함수에 쓸 변수
+	double		remainder;				// fmod 함수에 쓸 변수
 	double		elev_headpiece;
-	double		horizontalGap;	// 수평재 양쪽 이격거리
+	double		horizontalGap = 0.050;	// 수평재 양쪽 이격거리
 
 	paramsUFOM_ForWallTableform		params_UFOM;
 	paramsSPIP_ForWallTableform		params_SPIP;
@@ -367,6 +367,13 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 	paramsTIE_ForWallTableform		params_TIE;
 	paramsCLAM_ForWallTableform		params_CLAM;
 	paramsPUSH_ForWallTableform		params_PUSH;
+
+	placementInfo.nHorEuroform = 0;
+	placementInfo.nVerEuroform = 0;
+	for (xx = 0 ; xx < 7 ; ++xx) {
+		placementInfo.width [xx] = 0.0;
+		placementInfo.height [xx] = 0.0;
+	}
 
 	if (abs (cell.horLen - 2.300) < EPS) {
 		placementInfo.nHorEuroform = 4;
@@ -418,92 +425,92 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 
 	if (abs (cell.verLen - 6.000) < EPS) {
 		placementInfo.nVerEuroform = 5;
-		placementInfo.height [4] = 1.200;
-		placementInfo.height [3] = 1.200;
-		placementInfo.height [2] = 1.200;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 1.200;
+		placementInfo.height [4] = 1.200;
 	} else if (abs (cell.verLen - 5.700) < EPS) {
 		placementInfo.nVerEuroform = 5;
-		placementInfo.height [4] = 0.900;
-		placementInfo.height [3] = 1.200;
-		placementInfo.height [2] = 1.200;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 1.200;
+		placementInfo.height [4] = 0.900;
 	} else if (abs (cell.verLen - 5.400) < EPS) {
 		placementInfo.nVerEuroform = 5;
-		placementInfo.height [4] = 0.900;
-		placementInfo.height [3] = 0.900;
-		placementInfo.height [2] = 1.200;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 0.900;
+		placementInfo.height [4] = 0.900;
 	} else if (abs (cell.verLen - 5.100) < EPS) {
 		placementInfo.nVerEuroform = 5;
-		placementInfo.height [4] = 0.600;
-		placementInfo.height [3] = 0.900;
-		placementInfo.height [2] = 1.200;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 0.900;
+		placementInfo.height [4] = 0.600;
 	} else if (abs (cell.verLen - 4.800) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [3] = 1.200;
-		placementInfo.height [2] = 1.200;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 1.200;
 	} else if (abs (cell.verLen - 4.500) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [3] = 0.900;
-		placementInfo.height [2] = 1.200;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 0.900;
 	} else if (abs (cell.verLen - 4.200) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [3] = 0.900;
-		placementInfo.height [2] = 0.900;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 0.900;
+		placementInfo.height [3] = 0.900;
 	} else if (abs (cell.verLen - 3.900) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [3] = 0.600;
-		placementInfo.height [2] = 0.900;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 0.900;
+		placementInfo.height [3] = 0.600;
 	} else if (abs (cell.verLen - 3.600) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [2] = 1.200;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
 	} else if (abs (cell.verLen - 3.300) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [2] = 0.900;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 0.900;
 	} else if (abs (cell.verLen - 3.000) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [2] = 0.600;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 0.600;
 	} else if (abs (cell.verLen - 2.700) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [2] = 0.600;
-		placementInfo.height [1] = 0.900;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 0.900;
+		placementInfo.height [2] = 0.600;
 	} else if (abs (cell.verLen - 2.400) < EPS) {
 		placementInfo.nVerEuroform = 2;
-		placementInfo.height [1] = 1.200;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
 	} else if (abs (cell.verLen - 2.100) < EPS) {
 		placementInfo.nVerEuroform = 2;
-		placementInfo.height [1] = 0.900;
 		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 0.900;
 	} else if (abs (cell.verLen - 1.800) < EPS) {
 		placementInfo.nVerEuroform = 2;
-		placementInfo.height [1] = 0.900;
 		placementInfo.height [0] = 0.900;
+		placementInfo.height [1] = 0.900;
 	} else if (abs (cell.verLen - 1.500) < EPS) {
 		placementInfo.nVerEuroform = 2;
-		placementInfo.height [1] = 0.600;
 		placementInfo.height [0] = 0.900;
+		placementInfo.height [1] = 0.600;
 	} else {
 		placementInfo.nVerEuroform = 0;
 	}
@@ -1523,6 +1530,8 @@ API_Guid	placeUFOM (paramsUFOM_ForWallTableform	params)
 	std::string			tempStr;
 	
 	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
 	GS::ucscpy (libPart.file_UName, gsmName);
 	err = ACAPI_LibPart_Search (&libPart, false);
@@ -1532,9 +1541,6 @@ API_Guid	placeUFOM (paramsUFOM_ForWallTableform	params)
 		delete libPart.location;
 
 	ACAPI_LibPart_Get (&libPart);
-
-	BNZeroMemory (&elem, sizeof (API_Element));
-	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 
 	elem.header.typeID = API_ObjectID;
 	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
@@ -1594,6 +1600,8 @@ API_Guid	placeSPIP (paramsSPIP_ForWallTableform	params)
 	std::string			tempStr;
 
 	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
 	GS::ucscpy (libPart.file_UName, gsmName);
 	err = ACAPI_LibPart_Search (&libPart, false);
@@ -1603,9 +1611,6 @@ API_Guid	placeSPIP (paramsSPIP_ForWallTableform	params)
 		delete libPart.location;
 
 	ACAPI_LibPart_Get (&libPart);
-
-	BNZeroMemory (&elem, sizeof (API_Element));
-	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 
 	elem.header.typeID = API_ObjectID;
 	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
@@ -1656,6 +1661,8 @@ API_Guid	placePINB (paramsPINB_ForWallTableform	params)
 	std::string			tempStr;
 
 	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
 	GS::ucscpy (libPart.file_UName, gsmName);
 	err = ACAPI_LibPart_Search (&libPart, false);
@@ -1665,9 +1672,6 @@ API_Guid	placePINB (paramsPINB_ForWallTableform	params)
 		delete libPart.location;
 
 	ACAPI_LibPart_Get (&libPart);
-
-	BNZeroMemory (&elem, sizeof (API_Element));
-	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 
 	elem.header.typeID = API_ObjectID;
 	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
@@ -1724,6 +1728,8 @@ API_Guid	placeTIE (paramsTIE_ForWallTableform	params)
 	std::string			tempStr;
 
 	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
 	GS::ucscpy (libPart.file_UName, gsmName);
 	err = ACAPI_LibPart_Search (&libPart, false);
@@ -1733,9 +1739,6 @@ API_Guid	placeTIE (paramsTIE_ForWallTableform	params)
 		delete libPart.location;
 
 	ACAPI_LibPart_Get (&libPart);
-
-	BNZeroMemory (&elem, sizeof (API_Element));
-	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 
 	elem.header.typeID = API_ObjectID;
 	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
@@ -1802,6 +1805,8 @@ API_Guid	placeCLAM (paramsCLAM_ForWallTableform	params)
 	std::string			tempStr;
 
 	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
 	GS::ucscpy (libPart.file_UName, gsmName);
 	err = ACAPI_LibPart_Search (&libPart, false);
@@ -1811,9 +1816,6 @@ API_Guid	placeCLAM (paramsCLAM_ForWallTableform	params)
 		delete libPart.location;
 
 	ACAPI_LibPart_Get (&libPart);
-
-	BNZeroMemory (&elem, sizeof (API_Element));
-	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 
 	elem.header.typeID = API_ObjectID;
 	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
@@ -1861,6 +1863,8 @@ API_Guid	placePUSH (paramsPUSH_ForWallTableform	params)
 	std::string			tempStr;
 
 	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
 	GS::ucscpy (libPart.file_UName, gsmName);
 	err = ACAPI_LibPart_Search (&libPart, false);
@@ -1870,9 +1874,6 @@ API_Guid	placePUSH (paramsPUSH_ForWallTableform	params)
 		delete libPart.location;
 
 	ACAPI_LibPart_Get (&libPart);
-
-	BNZeroMemory (&elem, sizeof (API_Element));
-	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 
 	elem.header.typeID = API_ObjectID;
 	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));

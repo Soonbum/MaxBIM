@@ -149,8 +149,11 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			// 물량 산출
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:		// 물량합판 부착하기 ... 개발중
+				err = ACAPI_CallUndoableCommand ("물량합판 부착하기", [&] () -> GSErrCode {
 					err = placeQuantityPlywood ();
-					break;
+					return err;
+				});
+				break;
 			}
 			break;
 		case 32003:

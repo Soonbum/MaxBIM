@@ -199,7 +199,7 @@ struct	placementInfoForWallTableform
 	short	nHorEuroform;	// 수평 방향 유로폼 개수
 	short	nVerEuroform;	// 수직 방향 유로폼 개수
 
-	double	width [7];		// 수평 방향 각 유로폼 너비 
+	double	width [7];		// 수평 방향 각 유로폼 너비
 	double	height [7];		// 수직 방향 각 유로폼 높이
 };
 
