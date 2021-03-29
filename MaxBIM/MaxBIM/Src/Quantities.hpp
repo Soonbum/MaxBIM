@@ -20,6 +20,9 @@ struct qElem
 	API_Guid	guid;		// 요소의 GUID
 
 	short	typeOfElem;		// 요소의 타입 (enum elemType 참조)
+	short	floorInd;		// 층 인덱스
+	short	layerInd;		// 레이어 인덱스
+	short	qLayerInd;		// 물량합판 레이어 인덱스
 	double	ang;			// 회전 각도 (현재는 사용하지 않음)
 
 	API_Coord3D		bottomPoint;	// 최하단 점

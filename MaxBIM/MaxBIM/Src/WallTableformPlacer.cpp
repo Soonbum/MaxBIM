@@ -1834,7 +1834,7 @@ API_Guid	placeCLAM (paramsCLAM_ForWallTableform	params)
 	elem.header.floorInd = infoWall.floorInd;
 
 	// 레이어
-	elem.header.layer = layerInd_WallTie;
+	elem.header.layer = layerInd_Clamp;
 
 	memo.params [0][9].value.real = params.angX;	// 본체 회전 (X)
 	memo.params [0][10].value.real = params.angY;	// 본체 회전 (Y)
