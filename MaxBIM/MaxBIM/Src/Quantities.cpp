@@ -8,11 +8,21 @@
 
 using namespace quantitiesDG;
 
+long	nElems;		// 요소 개수
+qElem*	elems;		// 요소 배열
+
 short				nLayers;		// 레이어 개수
+short				nObjects;		// 물량합판 객체 타입 개수
 GS::Array<short>	layerInds;		// 보이는 레이어 인덱스
 GS::Array<string>	layerNames;		// 보이는 레이어 이름
+GS::Array<string>	objType;		// 객체 타입
 
-short				selectedCombobox;	// 선택한 콤보박스 개수
+short	itmPosX, itmPosY;
+
+short	nPopupControl;				// 팝업 컨트롤 수
+short	existingLayerPopup [50];	// 팝업 컨트롤: 기존 레이어
+short	qLayerPopup [50];			// 팝업 컨트롤: 물량합판 레이어
+short	objTypePopup [50];			// 팝업 컨트롤: 객체 타입
 
 // 부재(벽,슬래브,보,기둥)들의 가설재가 붙을 수 있는 면에 물량합판을 자동으로 부착함
 GSErrCode	placeQuantityPlywood (void)
@@ -24,8 +34,6 @@ GSErrCode	placeQuantityPlywood (void)
 	API_ElemInfo3D			info3D;
 
 	short	xx, yy;
-	long	nElems;		// 요소 개수
-	qElem*	elems;		// 요소 배열
 	short	result;		// 다이얼로그 리턴 값
 	
 	API_Attribute	attrib;
@@ -56,7 +64,7 @@ GSErrCode	placeQuantityPlywood (void)
 	}
 
 	// 레이어 개수 업데이트
-	nLayers = layerInds.GetSize ();
+	nLayers = static_cast<short> (layerInds.GetSize ());
 
 	// 보이는 레이어 상의 벽, 슬래브, 보, 기둥 객체를 가져옴
 	ACAPI_Element_GetElemList (API_WallID, &elemList_Wall, APIFilt_OnVisLayer);
@@ -113,105 +121,116 @@ GSErrCode	placeQuantityPlywood (void)
 		elems [xx].topPoint.y = info3D.bounds.yMax;
 		elems [xx].topPoint.z = info3D.bounds.zMax;
 
+		// ...
+		// bottomPoint, topPoint 변수를 조회하여 다음 항목 채울 것
+
+		// 북쪽 측면
+		//elems [xx].NorthLeftBottom;		// 좌하단
+		//elems [xx].NorthRightTop;		// 우상단
+
+		// 남쪽 측면
+		//elems [xx].SouthLeftBottom;		// 좌하단
+		//elems [xx].SouthRightTop;		// 우상단
+
+		// 동쪽 측면
+		//elems [xx].EastLeftBottom;		// 좌하단
+		//elems [xx].EastRightTop;		// 우상단
+
+		// 서쪽 측면
+		//elems [xx].WestLeftBottom;		// 좌하단
+		//elems [xx].WestRightTop;		// 우상단
+
+		// 밑면
+		//elems [xx].BaseLeftBottom;		// 좌하단
+		//elems [xx].BaseRightTop;		// 우하단
+
 		// memo 객체 해제
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
 
+	// 객체 타입 저장
+	objType.Push ("벽 (내벽)");
+	objType.Push ("벽 (외벽)");
+	objType.Push ("벽 (합벽)");
+	objType.Push ("벽 (파라펫)");
+	objType.Push ("벽 (방수턱)");
+	objType.Push ("슬래프 (기초)");
+	objType.Push ("슬래프 (RC)");
+	objType.Push ("슬래프 (데크)");
+	objType.Push ("슬래프 (램프)");
+	objType.Push ("보");
+	objType.Push ("기둥 (독립)");
+	objType.Push ("기둥 (벽체)");
+
+	nObjects = static_cast<short> (objType.GetSize ());
+
 	// [다이얼로그] 물량합판 레이어 설정
-	result = DGBlankModalDialog (600, 100, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, quantityPlywoodUIHandler, 0);
+	result = DGBlankModalDialog (750, 100, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, quantityPlywoodUIHandler, 0);
 
-	//for (xx = 0 ; xx < nElems ; ++xx) {
-	//	for (yy = 0 ; yy < nElems ; ++yy) {
-	// 단, 자기 자신과의 비교는 하지 않는다. (만약 xx번째 guid와 yy번째 guid가 동일하면 continue)
+	if (result != DG_OK)
+		return err;
 
-	// *** (중요) 각각의 요소는 측면 또는 밑면에 대한 X, Y, Z의 값 범위 정보를 갖고 있어야 함
+	// 벽 (내벽)					측면(장)
+	// 벽 (외벽)					...
+	// 벽 (합벽)					...
+	// 벽 (파라펫)					...
+	// 벽 (방수턱)					...
+	// 슬래브 (기초)				하부
+	// 슬래브 (RC)					...
+	// 슬래브 (데크)				...
+	// 슬래브 (램프)				...
+	// 보							측면(장), 하부
+	// 기둥 (독립)					측면(전)
+	// 기둥 (벽체)					...
 
-	// 알고리즘
-	// 1. xx가 벽일 경우
-		// yy가 벽일 경우
-			// 측면 1
-			// 측면 2
-				// yy에 의해 xx의 X-Y 범위가 깎임
-		// yy가 슬래브일 경우
-			// 측면 1
-			// 측면 2
-				// yy에 의해 xx의 Z 범위가 깎임
-		// yy가 보일 경우
-			// 측면 1
-			// 측면 2
-				// yy에 의해 xx의 Z 범위가 깎임
-		// yy가 기둥일 경우
-			// 측면 1
-			// 측면 2
-				// yy에 의해 xx의 X-Y 범위가 깎임
-	// 2. xx가 슬래브일 경우
-		// yy가 벽일 경우
-			// 밑면
-				// yy에 의해 xx의 X-Y 범위가 깎임
-		// yy가 슬래브일 경우
-			// 밑면
-				// yy에 의해 xx의 X-Y 범위가 깎임
-		// yy가 보일 경우
-			// 밑면
-				// yy에 의해 xx의 X-Y 범위가 깎임
-		// yy가 기둥일 경우
-			// 밑면
-				// yy에 의해 xx의 X-Y 범위가 깎임
-	// 3. xx가 보일 경우
-		// yy가 벽일 경우
-			// 밑면
-				// yy에 의해 xx의 X-Y 범위가 깎임
-			// 측면 1
-			// 측면 2
-				// yy에 의해 xx의 Z 범위가 깎임
-		// yy가 슬래브일 경우
-			// 밑면
-				// yy에 의해 xx의 X-Y 범위가 깎임
-			// 측면 1
-			// 측면 2
-				// yy에 의해 xx의 Z 범위가 깎임
-		// yy가 보일 경우
-			// 밑면
-				// yy에 의해 xx의 X-Y 범위가 깎임
-			// 측면 1
-			// 측면 2
-				// yy에 의해 xx의 Z 범위가 깎임
-		// yy가 기둥일 경우
-			// 밑면
-				// yy에 의해 xx의 X-Y 범위가 깎임
-			// 측면 1
-			// 측면 2
-				// yy에 의해 xx의 Z 범위가 깎임
-	// 4. xx가 기둥일 경우
-		// yy가 벽일 경우
-			// 측면 1
-			// 측면 2
-			// 측면 3
-			// 측면 4
-				// yy에 의해 xx의 Z 범위가 깎임
-		// yy가 슬래브일 경우
-			// 측면 1
-			// 측면 2
-			// 측면 3
-			// 측면 4
-				// yy에 의해 xx의 Z 범위가 깎임
-		// yy가 보일 경우
-			// 측면 1
-			// 측면 2
-			// 측면 3
-			// 측면 4
-				// yy에 의해 xx의 Z 범위가 깎임
-		// yy가 기둥일 경우
-			// 측면 1
-			// 측면 2
-			// 측면 3
-			// 측면 4
-				// yy에 의해 xx의 Z 범위가 깎임
+	for (xx = 0 ; xx < nElems ; ++xx) {
+		for (yy = 0 ; yy < nElems ; ++yy) {
+			if (xx == yy)
+				continue;
 
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//bool	regenerate = true;
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+			// ...
+
+			// xx가 벽일 경우
+			if (elems [xx].typeOfElem == ELEM_WALL) {
+
+				if ((elems [yy].typeOfElem == ELEM_WALL) || (elems [yy].typeOfElem == ELEM_SLAB) || (elems [yy].typeOfElem == ELEM_BEAM) || (elems [yy].typeOfElem == ELEM_COLUMN)) {
+					// 측면 1
+					// 측면 2
+						// yy에 의해 xx의 X-Y 범위가 깎임
+				}
+
+			// xx가 슬래브일 경우
+			} else if (elems [xx].typeOfElem == ELEM_SLAB) {
+
+				if ((elems [yy].typeOfElem == ELEM_WALL) || (elems [yy].typeOfElem == ELEM_SLAB) || (elems [yy].typeOfElem == ELEM_BEAM) || (elems [yy].typeOfElem == ELEM_COLUMN)) {
+					// 밑면
+						// yy에 의해 xx의 X-Y 범위가 깎임
+				}
+			
+			// xx가 보일 경우
+			} else if (elems [xx].typeOfElem == ELEM_BEAM) {
+
+				if ((elems [yy].typeOfElem == ELEM_WALL) || (elems [yy].typeOfElem == ELEM_SLAB) || (elems [yy].typeOfElem == ELEM_BEAM) || (elems [yy].typeOfElem == ELEM_COLUMN)) {
+					// 밑면
+						// yy에 의해 xx의 X-Y 범위가 깎임
+					// 측면 1
+					// 측면 2
+						// yy에 의해 xx의 Z 범위가 깎임
+				}
+
+			// xx가 기둥일 경우
+			} else if (elems [xx].typeOfElem == ELEM_COLUMN) {
+
+				if ((elems [yy].typeOfElem == ELEM_WALL) || (elems [yy].typeOfElem == ELEM_SLAB) || (elems [yy].typeOfElem == ELEM_BEAM) || (elems [yy].typeOfElem == ELEM_COLUMN)) {
+					// 측면 1
+					// 측면 2
+					// 측면 3
+					// 측면 4
+						// yy에 의해 xx의 Z 범위가 깎임
+				}
+			}
+		}
+	}
 
 	delete []	elems;
 
@@ -223,13 +242,10 @@ short DGCALLBACK quantityPlywoodUIHandler (short message, short dialogID, short 
 {
 	short	result;
 	short	itmIdx;
-	short	itmPosX, itmPosY;
-	short	xx;
-	//char	tempStr [20];
-	short	dialogSizeX, dialogSizeY;
-
-	GSErrCode err = NoError;
-	//API_ModulData  info;
+	short	xx, yy;
+	short	foundExistLayerInd;
+	short	foundQLayerInd;
+	short	selectedObjType;
 
 	switch (message) {
 		case DG_MSG_INIT:
@@ -249,22 +265,28 @@ short DGCALLBACK quantityPlywoodUIHandler (short message, short dialogID, short 
 			DGShowItem (dialogID, DG_CANCEL);
 			
 			// 라벨: 부재 레이어
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 120, 25, 150, 23);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 120, 25, 200, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "부재 레이어");
 			DGShowItem (dialogID, itmIdx);
 
 			// 라벨: 물량합판 레이어
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 280, 25, 150, 23);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 330, 25, 200, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "물량합판 레이어");
+			DGShowItem (dialogID, itmIdx);
+
+			// 라벨: 물량합판 타입
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 550, 25, 150, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "물량합판 타입");
 			DGShowItem (dialogID, itmIdx);
 
 			itmPosX = 120;
 			itmPosY = 50;
 
 			// 기존 레이어: 처음에는 1행만 표시할 것
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 500, 25, 120, itmPosY, 150, 25);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 500, 25, 120, itmPosY, 200, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "없음");
@@ -274,50 +296,80 @@ short DGCALLBACK quantityPlywoodUIHandler (short message, short dialogID, short 
 			}
 			DGShowItem (dialogID, itmIdx);
 
+			existingLayerPopup [0] = itmIdx;
+			nPopupControl = 1;
+
 			break;
 		
 		case DG_MSG_CHANGE:
 
-			// ...
-			// selectedCombobox : 선택한 콤보박스 개수?
+			if (item == existingLayerPopup [nPopupControl - 1] && (nPopupControl < 50)) {
 
-			// itmPosX, itmPosY
-			// dialogSizeX, dialogSizeY
-			// DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
+				// 팝업 컨트롤: 물량합판 레이어
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 500, 25, 330, itmPosY, 200, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				for (xx = 0 ; xx < nLayers ; ++xx) {
+					DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, layerNames.Get (xx).c_str ());
+				}
+				DGShowItem (dialogID, itmIdx);
+				qLayerPopup [nPopupControl - 1] = itmIdx;
 
-			// 레이어 개수만큼 for문 반복
-			// 1열 (레이어 이름)		2열 (물량합판 레이어)
-									//	팝업: 기존 레이어 / EditControl: 레이어 이름
+				// 팝업 컨트롤: 객체 타입
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 500, 25, 550, itmPosY, 150, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				for (xx = 0 ; xx < nObjects ; ++xx) {
+					DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, objType.Get (xx).c_str ());
+				}
+				DGShowItem (dialogID, itmIdx);
+				objTypePopup [nPopupControl - 1] = itmIdx;
 
-			// UI (대상 레이어 - 물량합판 레이어는 1:1로 매칭시켜야 함)
-			// 레이어 선택 방식은 기존 애드온 - 레이어 기능 참조
-			// *** 대상 레이어는 현재 보이는 레이어를 다 읽어 들인 후 취사 선택할 것
-				// 기존 레이어		물량합판 레이어				물량합판 타입
-				//					없음 | 기존 | 커스텀 입력	벽, 슬래브, 보, 기둥
+				itmPosY += 30;
 
-			// 아래는 예전 내용 (유효하지 않음)
-			// 대상 레이어 선택(다중)	-->	물량합판 레이어 선택(다중)		(물량합판 부착면)
-				// 벽 (내벽)					벽 (내벽)						측면(장)
-				// 벽 (외벽)					벽 (외벽)						...
-				// 벽 (합벽)					벽 (합벽)						...
-				// 벽 (파라펫)					벽 (파라펫)						...
-				// 벽 (방수턱)					벽 (방수턱)						...
-				// 슬래브 (기초)				슬래브 (기초)					하부
-				// 슬래브 (RC)					슬래브 (RC)						...
-				// 슬래브 (데크)				슬래브 (데크)					...
-				// 슬래브 (램프)				슬래브 (램프)					...
-				// 보							보								측면(장), 하부
-				// 기둥 (독립)					기둥 (독립)						측면(전)
-				// 기둥 (벽체)					기둥 (벽체)						...
-				// 기둥 (원형)					기둥 (원형)						...
+				// 팝업 컨트롤: 기존 레이어 (새로 생성)
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 500, 25, 120, itmPosY, 200, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "없음");
+				for (xx = 0 ; xx < nLayers ; ++xx) {
+					DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, layerNames.Get (xx).c_str ());
+				}
+				DGShowItem (dialogID, itmIdx);
+				existingLayerPopup [nPopupControl] = itmIdx;
+
+				nPopupControl ++;
+
+				DGGrowDialog (dialogID, 0, 30);
+			}
 
 			break;
 
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
+					for (xx = 0 ; xx < nPopupControl ; ++xx) {
+						// 기존 레이어 "없음"이 아닌 경우
+						if (DGGetItemValLong (dialogID, existingLayerPopup [xx]) != 0) {
 
-					// elems의 layerInd와 매칭하는 qLayerInd 저장할 것
+							// 기존 레이어 팝업에서 선택한 이름에 해당하는 레이어 인덱스 찾기
+							foundExistLayerInd = findLayerIndex (DGPopUpGetItemText (dialogID, existingLayerPopup [xx], static_cast<short>(DGGetItemValLong (dialogID, existingLayerPopup [xx]))).ToCStr ().Get ());
+
+							// 물량합판 레이어 팝업에서 선택한 이름에 해당하는 레이어 인덱스 찾기
+							foundQLayerInd = findLayerIndex (DGPopUpGetItemText (dialogID, qLayerPopup [xx], static_cast<short>(DGGetItemValLong (dialogID, qLayerPopup [xx]))).ToCStr ().Get ());
+
+							// 물량합판 객체 타입
+							selectedObjType = static_cast<short> (DGGetItemValLong (dialogID, objTypePopup [xx]));
+
+							for (yy = 0 ; yy < nElems ; ++yy) {
+								if (elems [yy].layerInd == foundExistLayerInd) {
+									elems [yy].qLayerInd = foundQLayerInd;
+									elems [yy].typeOfQPlywood = selectedObjType - 1;	// 열거형 값 할당됨
+								}
+							}
+						}
+					}
 
 					break;
 
@@ -339,4 +391,33 @@ short DGCALLBACK quantityPlywoodUIHandler (short message, short dialogID, short 
 	result = item;
 
 	return	result;
+}
+
+// 레이어 이름으로 레이어 인덱스 찾기
+short findLayerIndex (const char* layerName)
+{
+	short	nLayers;
+	short	xx;
+	GSErrCode	err;
+
+	API_Attribute	attrib;
+
+	// 프로젝트 내 레이어 개수를 알아냄
+	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	attrib.header.typeID = API_LayerID;
+	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+
+	// 입력한 레이어 이름과 일치하는 레이어의 인덱스 번호 리턴
+	for (xx = 1; xx <= nLayers ; ++xx) {
+		attrib.header.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+
+		if (err == NoError) {
+			if (strncmp (attrib.layer.head.name, layerName, strlen (layerName)) == 0) {
+				return	attrib.layer.head.index;
+			}
+		}
+	}
+
+	return 0;
 }
