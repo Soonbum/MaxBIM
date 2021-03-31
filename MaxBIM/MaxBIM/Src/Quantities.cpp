@@ -95,18 +95,6 @@ GSErrCode	placeQuantityPlywood (void)
 		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);	// memo.coords : 폴리곤 좌표를 가져올 수 있음
 		err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
 
-		// 요소 타입 지정
-		if (elem.header.typeID == API_WallID)
-			elems [xx].typeOfElem = ELEM_WALL;
-		else if (elem.header.typeID == API_SlabID)
-			elems [xx].typeOfElem = ELEM_SLAB;
-		else if (elem.header.typeID == API_BeamID)
-			elems [xx].typeOfElem = ELEM_BEAM;
-		else if (elem.header.typeID == API_ColumnID)
-			elems [xx].typeOfElem = ELEM_COLUMN;
-		else
-			elems [xx].typeOfElem = ELEM_UNKNOWN;
-
 		// 층 인덱스 저장
 		elems [xx].floorInd = elem.header.floorInd;
 
@@ -121,28 +109,82 @@ GSErrCode	placeQuantityPlywood (void)
 		elems [xx].topPoint.y = info3D.bounds.yMax;
 		elems [xx].topPoint.z = info3D.bounds.zMax;
 
-		// ...
-		// bottomPoint, topPoint 변수를 조회하여 다음 항목 채울 것
-
 		// 북쪽 측면
-		//elems [xx].NorthLeftBottom;		// 좌하단
-		//elems [xx].NorthRightTop;		// 우상단
+		elems [xx].NorthLeftBottom.x = elems [xx].topPoint.x;
+		elems [xx].NorthLeftBottom.y = elems [xx].topPoint.y;
+		elems [xx].NorthLeftBottom.z = elems [xx].bottomPoint.z;
+		elems [xx].NorthRightTop.x = elems [xx].bottomPoint.x;
+		elems [xx].NorthRightTop.y = elems [xx].topPoint.y;
+		elems [xx].NorthRightTop.z = elems [xx].topPoint.z;
 
 		// 남쪽 측면
-		//elems [xx].SouthLeftBottom;		// 좌하단
-		//elems [xx].SouthRightTop;		// 우상단
+		elems [xx].SouthLeftBottom.x = elems [xx].bottomPoint.x;
+		elems [xx].SouthLeftBottom.y = elems [xx].bottomPoint.y;
+		elems [xx].SouthLeftBottom.z = elems [xx].bottomPoint.z;
+		elems [xx].SouthRightTop.x = elems [xx].topPoint.x;
+		elems [xx].SouthRightTop.y = elems [xx].bottomPoint.y;
+		elems [xx].SouthRightTop.z = elems [xx].topPoint.z;
 
 		// 동쪽 측면
-		//elems [xx].EastLeftBottom;		// 좌하단
-		//elems [xx].EastRightTop;		// 우상단
+		elems [xx].EastLeftBottom.x = elems [xx].topPoint.x;
+		elems [xx].EastLeftBottom.y = elems [xx].bottomPoint.y;
+		elems [xx].EastLeftBottom.z = elems [xx].bottomPoint.z;
+		elems [xx].EastRightTop.x = elems [xx].topPoint.x;
+		elems [xx].EastRightTop.y = elems [xx].topPoint.y;
+		elems [xx].EastRightTop.z = elems [xx].topPoint.z;
 
 		// 서쪽 측면
-		//elems [xx].WestLeftBottom;		// 좌하단
-		//elems [xx].WestRightTop;		// 우상단
+		elems [xx].WestLeftBottom.x = elems [xx].bottomPoint.x;
+		elems [xx].WestLeftBottom.y = elems [xx].topPoint.y;
+		elems [xx].WestLeftBottom.z = elems [xx].bottomPoint.z;
+		elems [xx].WestRightTop.x = elems [xx].bottomPoint.x;
+		elems [xx].WestRightTop.y = elems [xx].bottomPoint.y;
+		elems [xx].WestRightTop.z = elems [xx].topPoint.z;
 
 		// 밑면
-		//elems [xx].BaseLeftBottom;		// 좌하단
-		//elems [xx].BaseRightTop;		// 우하단
+		elems [xx].BaseLeftBottom.x = elems [xx].bottomPoint.x;
+		elems [xx].BaseLeftBottom.y = elems [xx].bottomPoint.y;
+		elems [xx].BaseLeftBottom.z = elems [xx].bottomPoint.z;
+		elems [xx].BaseRightTop.x = elems [xx].topPoint.x;
+		elems [xx].BaseRightTop.y = elems [xx].topPoint.y;
+		elems [xx].BaseRightTop.z = elems [xx].bottomPoint.z;
+
+		// 유효성 지정
+		elems [xx].validNorth = true;
+		elems [xx].validSouth = true;
+		elems [xx].validEast = true;
+		elems [xx].validWest = true;
+		elems [xx].validBase = true;
+
+		// 요소 타입 지정
+		if (elem.header.typeID == API_WallID) {
+			elems [xx].typeOfElem = ELEM_WALL;
+
+			// 벽: 짧은 면과 밑면은 유효하지 않음
+			invalidateShortTwoSide (&elems [xx]);
+			invalidateBase (&elems [xx]);
+		} else if (elem.header.typeID == API_SlabID) {
+			elems [xx].typeOfElem = ELEM_SLAB;
+
+			// 슬래브: 모든 측면은 유효하지 않음
+			invalidateAllSide (&elems [xx]);
+		} else if (elem.header.typeID == API_BeamID) {
+			elems [xx].typeOfElem = ELEM_BEAM;
+
+			// 보: 짧은 면은 유효하지 않음
+			invalidateShortTwoSide (&elems [xx]);
+		} else if (elem.header.typeID == API_ColumnID) {
+			elems [xx].typeOfElem = ELEM_COLUMN;
+
+			// 기둥: 밑면은 유효하지 않음
+			invalidateBase (&elems [xx]);
+		} else {
+			elems [xx].typeOfElem = ELEM_UNKNOWN;
+
+			// 다른 객체들은 모든 측면과 밑면이 유효하지 않음
+			invalidateAllSide (&elems [xx]);
+			invalidateBase (&elems [xx]);
+		}
 
 		// memo 객체 해제
 		ACAPI_DisposeElemMemoHdls (&memo);
@@ -170,6 +212,18 @@ GSErrCode	placeQuantityPlywood (void)
 	if (result != DG_OK)
 		return err;
 
+	for (xx = 0 ; xx < nElems ; ++xx) {
+		for (yy = 0 ; yy < nElems ; ++yy) {
+			// 동일한 요소끼리는 비교하지 않음
+			if (xx == yy)	continue;
+
+			// 간섭 영역 피하기
+			subtractArea (&elems [xx], elems [yy]);
+		}
+	}
+
+	// ... 객체 배치
+	// ... 비규격 타입 + 측면은 벽에 세우기, 밑면은 바닥깔기
 	// 벽 (내벽)					측면(장)
 	// 벽 (외벽)					...
 	// 벽 (합벽)					...
@@ -182,55 +236,6 @@ GSErrCode	placeQuantityPlywood (void)
 	// 보							측면(장), 하부
 	// 기둥 (독립)					측면(전)
 	// 기둥 (벽체)					...
-
-	for (xx = 0 ; xx < nElems ; ++xx) {
-		for (yy = 0 ; yy < nElems ; ++yy) {
-			if (xx == yy)
-				continue;
-
-			// ...
-
-			// xx가 벽일 경우
-			if (elems [xx].typeOfElem == ELEM_WALL) {
-
-				if ((elems [yy].typeOfElem == ELEM_WALL) || (elems [yy].typeOfElem == ELEM_SLAB) || (elems [yy].typeOfElem == ELEM_BEAM) || (elems [yy].typeOfElem == ELEM_COLUMN)) {
-					// 측면 1
-					// 측면 2
-						// yy에 의해 xx의 X-Y 범위가 깎임
-				}
-
-			// xx가 슬래브일 경우
-			} else if (elems [xx].typeOfElem == ELEM_SLAB) {
-
-				if ((elems [yy].typeOfElem == ELEM_WALL) || (elems [yy].typeOfElem == ELEM_SLAB) || (elems [yy].typeOfElem == ELEM_BEAM) || (elems [yy].typeOfElem == ELEM_COLUMN)) {
-					// 밑면
-						// yy에 의해 xx의 X-Y 범위가 깎임
-				}
-			
-			// xx가 보일 경우
-			} else if (elems [xx].typeOfElem == ELEM_BEAM) {
-
-				if ((elems [yy].typeOfElem == ELEM_WALL) || (elems [yy].typeOfElem == ELEM_SLAB) || (elems [yy].typeOfElem == ELEM_BEAM) || (elems [yy].typeOfElem == ELEM_COLUMN)) {
-					// 밑면
-						// yy에 의해 xx의 X-Y 범위가 깎임
-					// 측면 1
-					// 측면 2
-						// yy에 의해 xx의 Z 범위가 깎임
-				}
-
-			// xx가 기둥일 경우
-			} else if (elems [xx].typeOfElem == ELEM_COLUMN) {
-
-				if ((elems [yy].typeOfElem == ELEM_WALL) || (elems [yy].typeOfElem == ELEM_SLAB) || (elems [yy].typeOfElem == ELEM_BEAM) || (elems [yy].typeOfElem == ELEM_COLUMN)) {
-					// 측면 1
-					// 측면 2
-					// 측면 3
-					// 측면 4
-						// yy에 의해 xx의 Z 범위가 깎임
-				}
-			}
-		}
-	}
 
 	delete []	elems;
 
@@ -420,4 +425,475 @@ short findLayerIndex (const char* layerName)
 	}
 
 	return 0;
+}
+
+// 4개의 측면 중 짧은 2개의 측면을 무효화하고, 유효한 면 정보를 리턴함. 리턴 값은 다음 값의 조합입니다. 북쪽/남쪽(2), 동쪽/서쪽(1), 오류(0)
+short invalidateShortTwoSide (qElem* element)
+{
+	short	result = 0;
+
+	double	northWidth = GetDistance (element->NorthLeftBottom.x, element->NorthLeftBottom.y, element->NorthRightTop.x, element->NorthRightTop.y);
+	double	eastWidth = GetDistance (element->EastLeftBottom.x, element->EastLeftBottom.y, element->EastRightTop.x, element->EastRightTop.y);
+
+	// 북쪽/남쪽이 길 경우
+	if (northWidth - eastWidth > EPS) {
+		// 동쪽/서쪽 면을 무효화
+		element->validEast = false;
+		element->validWest = false;
+
+		result = 2;
+
+	// 동쪽/서쪽이 길 경우
+	} else {
+		// 북쪽/남쪽 면을 무효화
+		element->validNorth = false;
+		element->validSouth = false;
+
+		result = 1;
+	}
+
+	return result;
+}
+
+// 4개의 측면을 모두 무효화함
+void invalidateAllSide (qElem* element)
+{
+	element->validNorth = false;
+	element->validSouth = false;
+	element->validEast = false;
+	element->validWest = false;
+}
+
+// 밑면을 무효화함
+void invalidateBase (qElem* element)
+{
+	element->validBase = false;
+}
+
+// src 요소의 측면, 밑면 영역이 operand 요소에 의해 감소됨
+bool subtractArea (qElem* src, qElem operand)
+{
+	bool precondition = false;
+	bool result = false;
+
+	// 전제 조건: src, operand는 벽, 슬래브, 보, 기둥이어야 함
+	if ((src->typeOfElem == ELEM_WALL) || (src->typeOfElem == ELEM_SLAB) || (src->typeOfElem == ELEM_BEAM) || (src->typeOfElem == ELEM_COLUMN))
+		if ((operand.typeOfElem == ELEM_WALL) || (operand.typeOfElem == ELEM_SLAB) || (operand.typeOfElem == ELEM_BEAM) || (operand.typeOfElem == ELEM_COLUMN))
+			precondition = true;
+
+	// 전제 조건을 만족하지 않으면 실패
+	if (precondition == false)
+		return result;
+
+	// 북쪽 측면에 물량합판을 붙일 경우
+	if (src->validNorth == true) {
+		//선행조건
+		//	(1) src 측면의 X값 범위 안에 operand의 X값 범위가 침범하는가?
+		//	(2) src 측면의 Y값이 operand의 Y값 범위 안에 들어가는가?
+		//	(3) src 측면의 Z값 범위 안에 operand의 Z값 범위가 침범하는가?
+		//선행 조건이 모두 참이면,
+		//	(1) src 측면의 X값 범위에서 operand의 X값 범위를 제외한다.
+		//	(2) src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
+
+		if (overlapRange (src->NorthRightTop.x, src->NorthLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x) &&
+			inRange (src->NorthLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y) &&
+			overlapRange (src->NorthLeftBottom.z, src->NorthRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
+
+				excludeRange (&src->NorthLeftBottom, &src->NorthRightTop, NORTH_SIDE, MODE_X, operand.NorthRightTop.x, operand.NorthLeftBottom.x);
+				excludeRange (&src->NorthLeftBottom, &src->NorthRightTop, NORTH_SIDE, MODE_Z, operand.NorthLeftBottom.z, operand.NorthRightTop.z);
+		}
+
+		result = true;
+	}
+
+	// 남쪽 측면에 물량합판을 붙일 경우
+	if (src->validSouth == true) {
+		//선행조건
+		//	(1) src 측면의 X값 범위 안에 operand의 X값 범위가 침범하는가?
+		//	(2) src 측면의 Y값이 operand의 Y값 범위 안에 들어가는가?
+		//	(3) src 측면의 Z값 범위 안에 operand의 Z값 범위가 침범하는가?
+		//선행 조건이 모두 참이면,
+		//	(1) src 측면의 X값 범위에서 operand의 X값 범위를 제외한다.
+		//	(2) src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
+
+		if (overlapRange (src->SouthLeftBottom.x, src->SouthRightTop.x, operand.bottomPoint.x, operand.topPoint.x) &&
+			inRange (src->SouthLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y) &&
+			overlapRange (src->SouthLeftBottom.z, src->SouthRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
+
+				excludeRange (&src->SouthLeftBottom, &src->SouthRightTop, SOUTH_SIDE, MODE_X, operand.SouthLeftBottom.x, operand.SouthRightTop.x);
+				excludeRange (&src->SouthLeftBottom, &src->SouthRightTop, SOUTH_SIDE, MODE_Z, operand.SouthLeftBottom.z, operand.SouthRightTop.z);
+		}
+
+		result = true;
+	}
+
+	// 동쪽 측면에 물량합판을 붙일 경우
+	if (src->validEast == true) {
+		//선행조건
+		//	(1) src 측면의 X값이 operand의 X값 범위 안에 들어가는가?
+		//	(2) src 측면의 Y값 범위 안에 operand의 Y값 범위가 침범하는가?
+		//	(3) src 측면의 Z값 범위 안에 operand의 Z값 범위가 침범하는가?
+		//선행 조건이 모두 참이면,
+		//	(1) src 측면의 Y값 범위에서 operand의 Y값 범위를 제외한다.
+		//	(2) src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
+
+		if (inRange (src->EastLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x) &&
+			overlapRange (src->EastLeftBottom.y, src->EastRightTop.y, operand.bottomPoint.y, operand.topPoint.y) &&
+			overlapRange (src->EastLeftBottom.z, src->EastRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
+
+				excludeRange (&src->EastLeftBottom, &src->EastRightTop, EAST_SIDE, MODE_X, operand.EastLeftBottom.x, operand.EastRightTop.x);
+				excludeRange (&src->EastLeftBottom, &src->EastRightTop, EAST_SIDE, MODE_Z, operand.EastLeftBottom.z, operand.EastRightTop.z);
+		}
+
+		result = true;
+	}
+
+	// 서쪽 측면에 물량합판을 붙일 경우
+	if (src->validWest == true) {
+		//선행조건
+		//	(1) src 측면의 X값이 operand의 X값 범위 안에 들어가는가?
+		//	(2) src 측면의 Y값 범위 안에 operand의 Y값 범위가 침범하는가?
+		//	(3) src 측면의 Z값 범위 안에 operand의 Z값 범위가 침범하는가?
+		//선행 조건이 모두 참이면,
+		//	(1) src 측면의 Y값 범위에서 operand의 Y값 범위를 제외한다.
+		//	(2) src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
+
+		if (inRange (src->WestLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x) &&
+			overlapRange (src->WestRightTop.y, src->WestLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y) &&
+			overlapRange (src->WestLeftBottom.z, src->WestRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
+
+				excludeRange (&src->WestLeftBottom, &src->WestRightTop, WEST_SIDE, MODE_X, operand.WestRightTop.x, operand.WestLeftBottom.x);
+				excludeRange (&src->WestLeftBottom, &src->WestRightTop, WEST_SIDE, MODE_Z, operand.WestLeftBottom.z, operand.WestRightTop.z);
+		}
+
+		result = true;
+	}
+
+	// 밑면에 물량합판을 붙일 경우
+	if (src->validBase == true) {
+		//선행조건
+		//	(1) src 밑면의 X값 범위 안에 operand의 X값 범위가 침범하는가?
+		//	(2) src 밑면의 Y값 범위 안에 operand의 Y값 범위가 침범하는가?
+		//	(3) src 밑면의 Z값이 operand의 Z값 범위 안에 들어가는가?
+		//선행 조건이 모두 참이면,
+		//	(1) src 밑면의 X값 범위에서 operand의 X값 범위를 제외한다.
+		//	(2) src 밑면의 Y값 범위에서 operand의 Y값 범위를 제외한다.
+
+		if (overlapRange (src->BaseLeftBottom.x, src->BaseRightTop.x, operand.bottomPoint.x, operand.topPoint.x) &&
+			overlapRange (src->BaseLeftBottom.y, src->BaseRightTop.y, operand.bottomPoint.y, operand.topPoint.y) &&
+			inRange (src->BaseLeftBottom.z, operand.bottomPoint.z, operand.topPoint.z)) {
+
+				excludeRange (&src->BaseLeftBottom, &src->BaseRightTop, BASE_SIDE, MODE_X, operand.BaseLeftBottom.x, operand.BaseRightTop.x);
+				excludeRange (&src->BaseLeftBottom, &src->BaseRightTop, BASE_SIDE, MODE_Z, operand.BaseLeftBottom.z, operand.BaseRightTop.z);
+		}
+
+		result = true;
+	}
+
+	return	result;
+}
+
+// srcPoint 값이 target 범위 안에 들어 있는가?
+bool	inRange (double srcPoint, double targetMin, double targetMax)
+{
+	if ((srcPoint > targetMin - EPS) && (srcPoint < targetMax + EPS))
+		return true;
+	else
+		return false;
+}
+
+// src 범위와 target 범위가 겹치는가?
+bool	overlapRange (double srcMin, double srcMax, double targetMin, double targetMax)
+{
+	bool	result = false;
+
+	// srcMin과 srcMax 중 하나라도 target 범위 안에 들어가는 경우
+	if (inRange (srcMin, targetMin, targetMax) || inRange (srcMax, targetMin, targetMax))
+		result = true;
+	// srcMin이 targetMin보다 작고 srcMax가 targetMax보다 큰 경우
+	if ((srcMin < targetMin + EPS) && (srcMax > targetMax - EPS))
+		result = true;
+	// targetMin이 srcMin보다 작고 targetMax가 srcMax보다 큰 경우
+	if ((targetMin < srcMin + EPS) && (targetMax > srcMax - EPS))
+		result = true;
+
+	return result;
+}
+
+// 측면 또는 밑면의 범위를 축소함, side는 적용할 면 선택 (북쪽(0), 남쪽(1), 동쪽(2), 서쪽(3), 밑면(5)), mode에 따라 X(0), Y(1), Z(2)에 적용함, minVal ~ maxVal에 의해 범위가 깎임
+bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short side, short mode, double minVal, double maxVal)
+{
+	bool	result = false;
+
+	// 최소값, 최대값이 반대로 되어 있으면 오류
+	if (minVal > maxVal)
+		return false;
+
+	// 북쪽 측면
+	if (side == NORTH_SIDE) {
+		if (mode == MODE_X) {
+			// srcRightTop.x ~ srcLeftBottom.x 범위 안
+				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal이 들어 있으나 maxVal은 srcLeftBottom.x - EPS보다 큰 경우 -> srcLeftBottom.x = minVal
+				// maxVal이 들어 있으나 minVal은 srcRightTop.x + EPS보다 작은 경우 -> srcRightTop.x = maxVal
+				// minVal이 srcRightTop.x + EPS보다 작고 maxVal이 srcLeftBottom.x - EPS보다 큰 경우 -> 범위 모두 깎음
+
+			if ((srcRightTop->x < minVal) && (minVal < srcLeftBottom->x) && (srcRightTop->x < maxVal) && (maxVal < srcLeftBottom->x)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+			if ((srcRightTop->x < minVal) && (minVal < srcLeftBottom->x) && (srcLeftBottom->x - EPS < maxVal)) {
+				srcLeftBottom->x = minVal;
+			}
+			if ((srcRightTop->x < maxVal) && (maxVal < srcRightTop->x) && (minVal < srcRightTop->x + EPS)) {
+				srcRightTop->x = maxVal;
+			}
+			if ((minVal < srcRightTop->x + EPS) && (srcLeftBottom->x - EPS < maxVal)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+
+			result = true;
+		} else if (mode == MODE_Y) {
+			// 무효
+			result = false;
+		} else if (mode == MODE_Z) {
+			// srcLeftBottom.z ~ srcRightTop.z 범위 안
+				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal이 들어 있으나 maxVal은 srcRightTop.z - EPS보다 큰 경우 -> srcRightTop.z = minVal
+				// maxVal이 들어 있으나 minVal은 srcLeftBottom.z + EPS보다 작은 경우 -> srcLeftBottom.z = maxVal
+				// minVal이 srcLeftBottom.z + EPS보다 작고 maxVal이 srcRightTop.z - EPS보다 큰 경우 -> 범위 모두 깎음
+
+			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcRightTop->z - EPS < maxVal)) {
+				srcRightTop->z = minVal;
+			}
+			if ((srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z) && (minVal < srcLeftBottom->z + EPS)) {
+				srcLeftBottom->z = maxVal;
+			}
+			if ((minVal < srcLeftBottom->z + EPS) && (srcRightTop->z - EPS < maxVal)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+
+			result = true;
+		}
+
+	// 남쪽 측면
+	} else if (side == SOUTH_SIDE) {
+		if (mode == MODE_X) {
+			// srcLeftBottom.x ~ srcRightTop.x 범위 안
+				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal이 들어 있으나 maxVal은 srcRightTop.x - EPS보다 큰 경우 -> srcRightTop.x = minVal
+				// maxVal이 들어 있으나 minVal은 srcLeftBottom.x + EPS보다 작은 경우 -> srcLeftBottom.x = maxVal
+				// minVal이 srcLeftBottom.x + EPS보다 작고 maxVal이 srcRightTop.x - EPS보다 큰 경우 -> 범위 모두 깎음
+
+			if ((srcLeftBottom->x < minVal) && (minVal < srcRightTop->x) && (srcLeftBottom->x < maxVal) && (maxVal < srcRightTop->x)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+			if ((srcRightTop->x < minVal) && (minVal < srcLeftBottom->x) && (srcLeftBottom->x - EPS < maxVal)) {
+				srcLeftBottom->x = minVal;
+			}
+			if ((srcRightTop->x < maxVal) && (maxVal < srcRightTop->x) && (minVal < srcRightTop->x + EPS)) {
+				srcRightTop->x = maxVal;
+			}
+			if ((minVal < srcRightTop->x + EPS) && (srcLeftBottom->x - EPS < maxVal)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+
+			result = true;
+		} else if (mode == MODE_Y) {
+			// 무효
+			result = false;
+		} else if (mode == MODE_Z) {
+			// srcLeftBottom.z ~ srcRightTop.z 범위 안
+				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal이 들어 있으나 maxVal은 srcRightTop.z - EPS보다 큰 경우 -> srcRightTop.z = minVal
+				// maxVal이 들어 있으나 minVal은 srcLeftBottom.z + EPS보다 작은 경우 -> srcLeftBottom.z = maxVal
+				// minVal이 srcLeftBottom.z + EPS보다 작고 maxVal이 srcRightTop.z - EPS보다 큰 경우 -> 범위 모두 깎음
+
+			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcRightTop->z - EPS < maxVal)) {
+				srcRightTop->z = minVal;
+			}
+			if ((srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z) && (minVal < srcLeftBottom->z + EPS)) {
+				srcLeftBottom->z = maxVal;
+			}
+			if ((minVal < srcLeftBottom->z + EPS) && (srcRightTop->z - EPS < maxVal)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+
+			result = true;
+		}
+
+	// 동쪽 측면
+	} else if (side == EAST_SIDE) {
+		if (mode == MODE_X) {
+			// 무효
+			result = false;
+		} else if (mode == MODE_Y) {
+			// srcLeftBottom.y ~ srcRightTop.y 범위 안
+				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal이 들어 있으나 maxVal은 srcRightTop.y - EPS보다 큰 경우 -> srcRightTop.y = minVal
+				// maxVal이 들어 있으나 minVal은 srcLeftBottom.y + EPS보다 작은 경우 -> srcLeftBottom.y = maxVal
+				// minVal이 srcLeftBottom.y + EPS보다 작고 maxVal이 srcRightTop.y - EPS보다 큰 경우 -> 범위 모두 깎음
+
+			if ((srcLeftBottom->y < minVal) && (minVal < srcRightTop->y) && (srcLeftBottom->y < maxVal) && (maxVal < srcRightTop->y)) {
+				srcRightTop->y = srcLeftBottom->y;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+			if ((srcRightTop->y < minVal) && (minVal < srcLeftBottom->y) && (srcLeftBottom->y - EPS < maxVal)) {
+				srcLeftBottom->y = minVal;
+			}
+			if ((srcRightTop->y < maxVal) && (maxVal < srcRightTop->y) && (minVal < srcRightTop->y + EPS)) {
+				srcRightTop->y = maxVal;
+			}
+			if ((minVal < srcRightTop->y + EPS) && (srcLeftBottom->y - EPS < maxVal)) {
+				srcRightTop->y = srcLeftBottom->y;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+
+			result = true;
+		} else if (mode == MODE_Z) {
+			// srcLeftBottom.z ~ srcRightTop.z 범위 안
+				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal이 들어 있으나 maxVal은 srcRightTop.z - EPS보다 큰 경우 -> srcRightTop.z = minVal
+				// maxVal이 들어 있으나 minVal은 srcLeftBottom.z + EPS보다 작은 경우 -> srcLeftBottom.z = maxVal
+				// minVal이 srcLeftBottom.z + EPS보다 작고 maxVal이 srcRightTop.z - EPS보다 큰 경우 -> 범위 모두 깎음
+
+			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcRightTop->z - EPS < maxVal)) {
+				srcRightTop->z = minVal;
+			}
+			if ((srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z) && (minVal < srcLeftBottom->z + EPS)) {
+				srcLeftBottom->z = maxVal;
+			}
+			if ((minVal < srcLeftBottom->z + EPS) && (srcRightTop->z - EPS < maxVal)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+
+			result = true;
+		}
+	
+	// 서쪽 측면
+	} else if (side == WEST_SIDE) {
+		if (mode == MODE_X) {
+			// 무효
+			result = false;
+		} else if (mode == MODE_Y) {
+			// srcRightTop.y ~ srcLeftBottom.y 범위 안
+				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal이 들어 있으나 maxVal은 srcLeftBottom.y - EPS보다 큰 경우 -> srcLeftBottom.y = minVal
+				// maxVal이 들어 있으나 minVal은 srcRightTop.y + EPS보다 작은 경우 -> srcRightTop.y = maxVal
+				// minVal이 srcRightTop.y + EPS보다 작고 maxVal이 srcLeftBottom.y - EPS보다 큰 경우 -> 범위 모두 깎음
+
+			if ((srcRightTop->y < minVal) && (minVal < srcLeftBottom->y) && (srcRightTop->y < maxVal) && (maxVal < srcLeftBottom->y)) {
+				srcRightTop->y = srcLeftBottom->y;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+			if ((srcRightTop->y < minVal) && (minVal < srcLeftBottom->y) && (srcLeftBottom->y - EPS < maxVal)) {
+				srcLeftBottom->y = minVal;
+			}
+			if ((srcRightTop->y < maxVal) && (maxVal < srcRightTop->y) && (minVal < srcRightTop->y + EPS)) {
+				srcRightTop->y = maxVal;
+			}
+			if ((minVal < srcRightTop->y + EPS) && (srcLeftBottom->y - EPS < maxVal)) {
+				srcRightTop->y = srcLeftBottom->y;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+
+			result = true;
+		} else if (mode == MODE_Z) {
+			// srcLeftBottom.z ~ srcRightTop.z 범위 안
+				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal이 들어 있으나 maxVal은 srcRightTop.z - EPS보다 큰 경우 -> srcRightTop.z = minVal
+				// maxVal이 들어 있으나 minVal은 srcLeftBottom.z + EPS보다 작은 경우 -> srcLeftBottom.z = maxVal
+				// minVal이 srcLeftBottom.z + EPS보다 작고 maxVal이 srcRightTop.z - EPS보다 큰 경우 -> 범위 모두 깎음
+
+			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcRightTop->z - EPS < maxVal)) {
+				srcRightTop->z = minVal;
+			}
+			if ((srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z) && (minVal < srcLeftBottom->z + EPS)) {
+				srcLeftBottom->z = maxVal;
+			}
+			if ((minVal < srcLeftBottom->z + EPS) && (srcRightTop->z - EPS < maxVal)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+
+			result = true;
+		}
+	
+	// 밑면
+	} else if (side == BASE_SIDE) {
+		if (mode == MODE_X) {
+			// srcLeftBottom.x ~ srcRightTop.x 범위 안
+				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal이 들어 있으나 maxVal은 srcRightTop.x - EPS보다 큰 경우 -> srcRightTop.x = minVal
+				// maxVal이 들어 있으나 minVal은 srcLeftBottom.x + EPS보다 작은 경우 -> srcLeftBottom.x = maxVal
+				// minVal이 srcLeftBottom.x + EPS보다 작고 maxVal이 srcRightTop.x - EPS보다 큰 경우 -> 범위 모두 깎음
+
+			if ((srcLeftBottom->x < minVal) && (minVal < srcRightTop->x) && (srcLeftBottom->x < maxVal) && (maxVal < srcRightTop->x)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+			if ((srcRightTop->x < minVal) && (minVal < srcLeftBottom->x) && (srcLeftBottom->x - EPS < maxVal)) {
+				srcLeftBottom->x = minVal;
+			}
+			if ((srcRightTop->x < maxVal) && (maxVal < srcRightTop->x) && (minVal < srcRightTop->x + EPS)) {
+				srcRightTop->x = maxVal;
+			}
+			if ((minVal < srcRightTop->x + EPS) && (srcLeftBottom->x - EPS < maxVal)) {
+				srcRightTop->x = srcLeftBottom->x;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+
+			result = true;
+		} else if (mode == MODE_Y) {
+			// srcLeftBottom.y ~ srcRightTop.y 범위 안
+				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal이 들어 있으나 maxVal은 srcRightTop.y - EPS보다 큰 경우 -> srcRightTop.y = minVal
+				// maxVal이 들어 있으나 minVal은 srcLeftBottom.y + EPS보다 작은 경우 -> srcLeftBottom.y = maxVal
+				// minVal이 srcLeftBottom.y + EPS보다 작고 maxVal이 srcRightTop.y - EPS보다 큰 경우 -> 범위 모두 깎음
+
+			if ((srcLeftBottom->y < minVal) && (minVal < srcRightTop->y) && (srcLeftBottom->y < maxVal) && (maxVal < srcRightTop->y)) {
+				srcRightTop->y = srcLeftBottom->y;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+			if ((srcRightTop->y < minVal) && (minVal < srcLeftBottom->y) && (srcLeftBottom->y - EPS < maxVal)) {
+				srcLeftBottom->y = minVal;
+			}
+			if ((srcRightTop->y < maxVal) && (maxVal < srcRightTop->y) && (minVal < srcRightTop->y + EPS)) {
+				srcRightTop->y = maxVal;
+			}
+			if ((minVal < srcRightTop->y + EPS) && (srcLeftBottom->y - EPS < maxVal)) {
+				srcRightTop->y = srcLeftBottom->y;
+				srcRightTop->z = srcLeftBottom->z;
+			}
+
+			result = true;
+		} else if (mode == MODE_Z) {
+			// 무효
+			result = false;
+		}
+	}
+
+	return result;
 }
