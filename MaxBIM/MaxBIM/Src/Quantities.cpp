@@ -24,6 +24,8 @@ short	existingLayerPopup [50];	// 팝업 컨트롤: 기존 레이어
 short	qLayerPopup [50];			// 팝업 컨트롤: 물량합판 레이어
 short	objTypePopup [50];			// 팝업 컨트롤: 객체 타입
 
+const GS::uchar_t*	gsmQuantityPlywood = L("물량합판(핫스팟축소).gsm");
+
 // 부재(벽,슬래브,보,기둥)들의 가설재가 붙을 수 있는 면에 물량합판을 자동으로 부착함
 GSErrCode	placeQuantityPlywood (void)
 {
@@ -222,20 +224,15 @@ GSErrCode	placeQuantityPlywood (void)
 		}
 	}
 
-	// ... 객체 배치
-	// ... 비규격 타입 + 측면은 벽에 세우기, 밑면은 바닥깔기
-	// 벽 (내벽)					측면(장)
-	// 벽 (외벽)					...
-	// 벽 (합벽)					...
-	// 벽 (파라펫)					...
-	// 벽 (방수턱)					...
-	// 슬래브 (기초)				하부
-	// 슬래브 (RC)					...
-	// 슬래브 (데크)				...
-	// 슬래브 (램프)				...
-	// 보							측면(장), 하부
-	// 기둥 (독립)					측면(전)
-	// 기둥 (벽체)					...
+	//for (xx = 0 ; xx < nElems ; ++xx) {
+	//	placeCoordinateLabel (elems [xx].NorthRightTop.x, elems [xx].NorthRightTop.y, elems [xx].NorthRightTop.z);
+	//	placeCoordinateLabel (elems [xx].NorthLeftBottom.x, elems [xx].NorthLeftBottom.y, elems [xx].NorthLeftBottom.z);
+	//}
+
+	// 객체 배치
+	for (xx = 0 ; xx < nElems ; ++xx) {
+		placeQuantityPlywood (elems [xx]);
+	}
 
 	delete []	elems;
 
@@ -483,7 +480,7 @@ bool subtractArea (qElem* src, qElem operand)
 
 	// 전제 조건을 만족하지 않으면 실패
 	if (precondition == false)
-		return result;
+		return false;
 
 	// 북쪽 측면에 물량합판을 붙일 경우
 	if (src->validNorth == true) {
@@ -495,12 +492,23 @@ bool subtractArea (qElem* src, qElem operand)
 		//	(1) src 측면의 X값 범위에서 operand의 X값 범위를 제외한다.
 		//	(2) src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
 
-		if (overlapRange (src->NorthRightTop.x, src->NorthLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x) &&
-			inRange (src->NorthLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y) &&
-			overlapRange (src->NorthLeftBottom.z, src->NorthRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
+		//if (overlapRange (src->NorthRightTop.x, src->NorthLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x) &&
+		//	inRange (src->NorthLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y) &&
+		//	overlapRange (src->NorthLeftBottom.z, src->NorthRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
 
-				excludeRange (&src->NorthLeftBottom, &src->NorthRightTop, NORTH_SIDE, MODE_X, operand.NorthRightTop.x, operand.NorthLeftBottom.x);
-				excludeRange (&src->NorthLeftBottom, &src->NorthRightTop, NORTH_SIDE, MODE_Z, operand.NorthLeftBottom.z, operand.NorthRightTop.z);
+		//		excludeRange (&src->NorthLeftBottom, &src->NorthRightTop, NORTH_SIDE, MODE_X, operand.bottomPoint.x, operand.topPoint.x);
+		//		excludeRange (&src->NorthLeftBottom, &src->NorthRightTop, NORTH_SIDE, MODE_Z, operand.bottomPoint.z, operand.topPoint.z);
+		//}
+
+		// src 측면의 Y값이 operand의 Y값 범위 안에 들어가는가?
+		if (inRange (src->NorthLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y)) {
+			// src 측면의 X값 범위 안에 operand의 X값 범위가 침범하는가?
+			// src 측면의 Z값 범위 안에 operand의 Z값 범위가 침범하는가?
+			// 덜 침범한 쪽의 범위만 제외함
+			if (overlapRange (src->NorthRightTop.x, src->NorthLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x) > overlapRange (src->NorthLeftBottom.z, src->NorthRightTop.z, operand.bottomPoint.z, operand.topPoint.z))
+				excludeRange (&src->NorthLeftBottom, &src->NorthRightTop, NORTH_SIDE, MODE_Z, operand.bottomPoint.z, operand.topPoint.z);	// src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
+			else
+				excludeRange (&src->NorthLeftBottom, &src->NorthRightTop, NORTH_SIDE, MODE_X, operand.bottomPoint.x, operand.topPoint.x);	// src 측면의 X값 범위에서 operand의 X값 범위를 제외한다.
 		}
 
 		result = true;
@@ -516,12 +524,23 @@ bool subtractArea (qElem* src, qElem operand)
 		//	(1) src 측면의 X값 범위에서 operand의 X값 범위를 제외한다.
 		//	(2) src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
 
-		if (overlapRange (src->SouthLeftBottom.x, src->SouthRightTop.x, operand.bottomPoint.x, operand.topPoint.x) &&
-			inRange (src->SouthLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y) &&
-			overlapRange (src->SouthLeftBottom.z, src->SouthRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
+		//if (overlapRange (src->SouthLeftBottom.x, src->SouthRightTop.x, operand.bottomPoint.x, operand.topPoint.x) &&
+		//	inRange (src->SouthLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y) &&
+		//	overlapRange (src->SouthLeftBottom.z, src->SouthRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
 
-				excludeRange (&src->SouthLeftBottom, &src->SouthRightTop, SOUTH_SIDE, MODE_X, operand.SouthLeftBottom.x, operand.SouthRightTop.x);
-				excludeRange (&src->SouthLeftBottom, &src->SouthRightTop, SOUTH_SIDE, MODE_Z, operand.SouthLeftBottom.z, operand.SouthRightTop.z);
+		//		excludeRange (&src->SouthLeftBottom, &src->SouthRightTop, SOUTH_SIDE, MODE_X, operand.bottomPoint.x, operand.topPoint.x);
+		//		excludeRange (&src->SouthLeftBottom, &src->SouthRightTop, SOUTH_SIDE, MODE_Z, operand.bottomPoint.z, operand.topPoint.z);
+		//}
+
+		// src 측면의 Y값이 operand의 Y값 범위 안에 들어가는가?
+		if (inRange (src->SouthLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y)) {
+			// src 측면의 X값 범위 안에 operand의 X값 범위가 침범하는가?
+			// src 측면의 Z값 범위 안에 operand의 Z값 범위가 침범하는가?
+			// 덜 침범한 쪽의 범위만 제외함
+			if (overlapRange (src->SouthLeftBottom.x, src->SouthRightTop.x, operand.bottomPoint.x, operand.topPoint.x) > overlapRange (src->SouthLeftBottom.z, src->SouthRightTop.z, operand.bottomPoint.z, operand.topPoint.z))
+				excludeRange (&src->SouthLeftBottom, &src->SouthRightTop, SOUTH_SIDE, MODE_Z, operand.bottomPoint.z, operand.topPoint.z);	// src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
+			else
+				excludeRange (&src->SouthLeftBottom, &src->SouthRightTop, SOUTH_SIDE, MODE_X, operand.bottomPoint.x, operand.topPoint.x);	// src 측면의 X값 범위에서 operand의 X값 범위를 제외한다.
 		}
 
 		result = true;
@@ -537,12 +556,23 @@ bool subtractArea (qElem* src, qElem operand)
 		//	(1) src 측면의 Y값 범위에서 operand의 Y값 범위를 제외한다.
 		//	(2) src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
 
-		if (inRange (src->EastLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x) &&
-			overlapRange (src->EastLeftBottom.y, src->EastRightTop.y, operand.bottomPoint.y, operand.topPoint.y) &&
-			overlapRange (src->EastLeftBottom.z, src->EastRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
+		//if (inRange (src->EastLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x) &&
+		//	overlapRange (src->EastLeftBottom.y, src->EastRightTop.y, operand.bottomPoint.y, operand.topPoint.y) &&
+		//	overlapRange (src->EastLeftBottom.z, src->EastRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
 
-				excludeRange (&src->EastLeftBottom, &src->EastRightTop, EAST_SIDE, MODE_X, operand.EastLeftBottom.x, operand.EastRightTop.x);
-				excludeRange (&src->EastLeftBottom, &src->EastRightTop, EAST_SIDE, MODE_Z, operand.EastLeftBottom.z, operand.EastRightTop.z);
+		//		excludeRange (&src->EastLeftBottom, &src->EastRightTop, EAST_SIDE, MODE_Y, operand.bottomPoint.y, operand.topPoint.y);
+		//		excludeRange (&src->EastLeftBottom, &src->EastRightTop, EAST_SIDE, MODE_Z, operand.bottomPoint.z, operand.topPoint.z);
+		//}
+
+		// src 측면의 X값이 operand의 X값 범위 안에 들어가는가?
+		if (inRange (src->EastLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x)) {
+			// src 측면의 Y값 범위 안에 operand의 Y값 범위가 침범하는가?
+			// src 측면의 Z값 범위 안에 operand의 Z값 범위가 침범하는가?
+			// 덜 침범한 쪽의 범위만 제외함
+			if (overlapRange (src->EastLeftBottom.y, src->EastRightTop.y, operand.bottomPoint.y, operand.topPoint.y) > overlapRange (src->EastLeftBottom.z, src->EastRightTop.z, operand.bottomPoint.z, operand.topPoint.z))
+				excludeRange (&src->EastLeftBottom, &src->EastRightTop, EAST_SIDE, MODE_Z, operand.bottomPoint.z, operand.topPoint.z);	// src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
+			else
+				excludeRange (&src->EastLeftBottom, &src->EastRightTop, EAST_SIDE, MODE_Y, operand.bottomPoint.y, operand.topPoint.y);	// src 측면의 Y값 범위에서 operand의 Y값 범위를 제외한다.
 		}
 
 		result = true;
@@ -558,12 +588,23 @@ bool subtractArea (qElem* src, qElem operand)
 		//	(1) src 측면의 Y값 범위에서 operand의 Y값 범위를 제외한다.
 		//	(2) src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
 
-		if (inRange (src->WestLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x) &&
-			overlapRange (src->WestRightTop.y, src->WestLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y) &&
-			overlapRange (src->WestLeftBottom.z, src->WestRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
+		//if (inRange (src->WestLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x) &&
+		//	overlapRange (src->WestRightTop.y, src->WestLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y) &&
+		//	overlapRange (src->WestLeftBottom.z, src->WestRightTop.z, operand.bottomPoint.z, operand.topPoint.z)) {
 
-				excludeRange (&src->WestLeftBottom, &src->WestRightTop, WEST_SIDE, MODE_X, operand.WestRightTop.x, operand.WestLeftBottom.x);
-				excludeRange (&src->WestLeftBottom, &src->WestRightTop, WEST_SIDE, MODE_Z, operand.WestLeftBottom.z, operand.WestRightTop.z);
+		//		excludeRange (&src->WestLeftBottom, &src->WestRightTop, WEST_SIDE, MODE_Y, operand.bottomPoint.y, operand.topPoint.y);
+		//		excludeRange (&src->WestLeftBottom, &src->WestRightTop, WEST_SIDE, MODE_Z, operand.bottomPoint.z, operand.topPoint.z);
+		//}
+
+		// src 측면의 X값이 operand의 X값 범위 안에 들어가는가?
+		if (inRange (src->WestLeftBottom.x, operand.bottomPoint.x, operand.topPoint.x)) {
+			// src 측면의 Y값 범위 안에 operand의 Y값 범위가 침범하는가?
+			// src 측면의 Z값 범위 안에 operand의 Z값 범위가 침범하는가?
+			// 덜 침범한 쪽의 범위만 제외함
+			if (overlapRange (src->WestRightTop.y, src->WestLeftBottom.y, operand.bottomPoint.y, operand.topPoint.y) > overlapRange (src->WestLeftBottom.z, src->WestRightTop.z, operand.bottomPoint.z, operand.topPoint.z))
+				excludeRange (&src->WestLeftBottom, &src->WestRightTop, WEST_SIDE, MODE_Z, operand.bottomPoint.z, operand.topPoint.z);	// src 측면의 Z값 범위에서 operand의 Z값 범위를 제외한다.
+			else
+				excludeRange (&src->WestLeftBottom, &src->WestRightTop, WEST_SIDE, MODE_Y, operand.bottomPoint.y, operand.topPoint.y);	// src 측면의 Y값 범위에서 operand의 Y값 범위를 제외한다.
 		}
 
 		result = true;
@@ -579,12 +620,23 @@ bool subtractArea (qElem* src, qElem operand)
 		//	(1) src 밑면의 X값 범위에서 operand의 X값 범위를 제외한다.
 		//	(2) src 밑면의 Y값 범위에서 operand의 Y값 범위를 제외한다.
 
-		if (overlapRange (src->BaseLeftBottom.x, src->BaseRightTop.x, operand.bottomPoint.x, operand.topPoint.x) &&
-			overlapRange (src->BaseLeftBottom.y, src->BaseRightTop.y, operand.bottomPoint.y, operand.topPoint.y) &&
-			inRange (src->BaseLeftBottom.z, operand.bottomPoint.z, operand.topPoint.z)) {
+		//if (overlapRange (src->BaseLeftBottom.x, src->BaseRightTop.x, operand.bottomPoint.x, operand.topPoint.x) &&
+		//	overlapRange (src->BaseLeftBottom.y, src->BaseRightTop.y, operand.bottomPoint.y, operand.topPoint.y) &&
+		//	inRange (src->BaseLeftBottom.z, operand.bottomPoint.z, operand.topPoint.z)) {
 
-				excludeRange (&src->BaseLeftBottom, &src->BaseRightTop, BASE_SIDE, MODE_X, operand.BaseLeftBottom.x, operand.BaseRightTop.x);
-				excludeRange (&src->BaseLeftBottom, &src->BaseRightTop, BASE_SIDE, MODE_Z, operand.BaseLeftBottom.z, operand.BaseRightTop.z);
+		//		excludeRange (&src->BaseLeftBottom, &src->BaseRightTop, BASE_SIDE, MODE_X, operand.bottomPoint.x, operand.topPoint.x);
+		//		excludeRange (&src->BaseLeftBottom, &src->BaseRightTop, BASE_SIDE, MODE_Y, operand.bottomPoint.y, operand.topPoint.y);
+		//}
+
+		// src 밑면의 Z값이 operand의 Z값 범위 안에 들어가는가?
+		if (inRange (src->BaseLeftBottom.z, operand.bottomPoint.z, operand.topPoint.z)) {
+			// src 밑면의 X값 범위 안에 operand의 X값 범위가 침범하는가?
+			// src 밑면의 Y값 범위 안에 operand의 Y값 범위가 침범하는가?
+			// 덜 침범한 쪽의 범위만 제외함
+			if (overlapRange (src->BaseLeftBottom.x, src->BaseRightTop.x, operand.bottomPoint.x, operand.topPoint.x) > overlapRange (src->BaseLeftBottom.y, src->BaseRightTop.y, operand.bottomPoint.y, operand.topPoint.y))
+				excludeRange (&src->BaseLeftBottom, &src->BaseRightTop, BASE_SIDE, MODE_Y, operand.bottomPoint.y, operand.topPoint.y);	// src 밑면의 Y값 범위에서 operand의 Y값 범위를 제외한다.
+			else
+				excludeRange (&src->BaseLeftBottom, &src->BaseRightTop, BASE_SIDE, MODE_X, operand.bottomPoint.x, operand.topPoint.x);	// src 밑면의 X값 범위에서 operand의 X값 범위를 제외한다.
 		}
 
 		result = true;
@@ -602,45 +654,60 @@ bool	inRange (double srcPoint, double targetMin, double targetMax)
 		return false;
 }
 
-// src 범위와 target 범위가 겹치는가?
-bool	overlapRange (double srcMin, double srcMax, double targetMin, double targetMax)
+// src 범위와 target 범위가 겹치는 길이를 리턴함
+double	overlapRange (double srcMin, double srcMax, double targetMin, double targetMax)
 {
-	bool	result = false;
-
 	// srcMin과 srcMax 중 하나라도 target 범위 안에 들어가는 경우
-	if (inRange (srcMin, targetMin, targetMax) || inRange (srcMax, targetMin, targetMax))
-		result = true;
+	if (inRange (srcMin, targetMin, targetMax) || inRange (srcMax, targetMin, targetMax)) {
+		
+		// srcMin과 srcMax가 모두 targetMin ~ targetMax 안에 들어가 있는 경우
+		if (inRange (srcMin, targetMin, targetMax) && inRange (srcMax, targetMin, targetMax))
+			return abs (srcMax - srcMin);
+		
+		// srcMin만 targetMin ~ targetMax 안에 들어가 있는 경우
+		if (inRange (srcMin, targetMin, targetMax) && !inRange (srcMax, targetMin, targetMax))
+			return abs (targetMax - srcMin);
+		
+		// srcMax만 targetMin ~ targetMax 안에 들어가 있는 경우
+		if (!inRange (srcMin, targetMin, targetMax) && inRange (srcMax, targetMin, targetMax))
+			return abs (srcMax - targetMin);
+	}
 	// srcMin이 targetMin보다 작고 srcMax가 targetMax보다 큰 경우
-	if ((srcMin < targetMin + EPS) && (srcMax > targetMax - EPS))
-		result = true;
+	if ((srcMin < targetMin + EPS) && (srcMax > targetMax - EPS)) {
+		return abs (targetMax - targetMin);
+	}
 	// targetMin이 srcMin보다 작고 targetMax가 srcMax보다 큰 경우
-	if ((targetMin < srcMin + EPS) && (targetMax > srcMax - EPS))
-		result = true;
+	if ((targetMin < srcMin + EPS) && (targetMax > srcMax - EPS)) {
+		return abs (srcMax - srcMin);
+	}
 
-	return result;
+	return 0.0;
 }
 
 // 측면 또는 밑면의 범위를 축소함, side는 적용할 면 선택 (북쪽(0), 남쪽(1), 동쪽(2), 서쪽(3), 밑면(5)), mode에 따라 X(0), Y(1), Z(2)에 적용함, minVal ~ maxVal에 의해 범위가 깎임
 bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short side, short mode, double minVal, double maxVal)
 {
 	bool	result = false;
+	double	temp;
 
-	// 최소값, 최대값이 반대로 되어 있으면 오류
-	if (minVal > maxVal)
-		return false;
+	// 최소값, 최대값이 반대로 되어 있으면 반전시킬 것
+	if (minVal > maxVal) {
+		temp = minVal;
+		minVal = maxVal;
+		maxVal = temp;
+	}
 
 	// 북쪽 측면
 	if (side == NORTH_SIDE) {
 		if (mode == MODE_X) {
 			// srcRightTop.x ~ srcLeftBottom.x 범위 안
-				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal과 maxVal이 모두 들어 있는 경우 -> srcRightTop.x = maxVal
 				// minVal이 들어 있으나 maxVal은 srcLeftBottom.x - EPS보다 큰 경우 -> srcLeftBottom.x = minVal
 				// maxVal이 들어 있으나 minVal은 srcRightTop.x + EPS보다 작은 경우 -> srcRightTop.x = maxVal
 				// minVal이 srcRightTop.x + EPS보다 작고 maxVal이 srcLeftBottom.x - EPS보다 큰 경우 -> 범위 모두 깎음
 
 			if ((srcRightTop->x < minVal) && (minVal < srcLeftBottom->x) && (srcRightTop->x < maxVal) && (maxVal < srcLeftBottom->x)) {
-				srcRightTop->x = srcLeftBottom->x;
-				srcRightTop->z = srcLeftBottom->z;
+				srcRightTop->x = maxVal;
 			}
 			if ((srcRightTop->x < minVal) && (minVal < srcLeftBottom->x) && (srcLeftBottom->x - EPS < maxVal)) {
 				srcLeftBottom->x = minVal;
@@ -649,8 +716,7 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 				srcRightTop->x = maxVal;
 			}
 			if ((minVal < srcRightTop->x + EPS) && (srcLeftBottom->x - EPS < maxVal)) {
-				srcRightTop->x = srcLeftBottom->x;
-				srcRightTop->z = srcLeftBottom->z;
+				//srcRightTop->x = srcLeftBottom->x;
 			}
 
 			result = true;
@@ -659,14 +725,13 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 			result = false;
 		} else if (mode == MODE_Z) {
 			// srcLeftBottom.z ~ srcRightTop.z 범위 안
-				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal과 maxVal이 모두 들어 있는 경우 -> srcRightTop.z = minVal
 				// minVal이 들어 있으나 maxVal은 srcRightTop.z - EPS보다 큰 경우 -> srcRightTop.z = minVal
 				// maxVal이 들어 있으나 minVal은 srcLeftBottom.z + EPS보다 작은 경우 -> srcLeftBottom.z = maxVal
 				// minVal이 srcLeftBottom.z + EPS보다 작고 maxVal이 srcRightTop.z - EPS보다 큰 경우 -> 범위 모두 깎음
 
 			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z)) {
-				srcRightTop->x = srcLeftBottom->x;
-				srcRightTop->z = srcLeftBottom->z;
+				srcRightTop->z = minVal;
 			}
 			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcRightTop->z - EPS < maxVal)) {
 				srcRightTop->z = minVal;
@@ -675,7 +740,6 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 				srcLeftBottom->z = maxVal;
 			}
 			if ((minVal < srcLeftBottom->z + EPS) && (srcRightTop->z - EPS < maxVal)) {
-				srcRightTop->x = srcLeftBottom->x;
 				srcRightTop->z = srcLeftBottom->z;
 			}
 
@@ -686,14 +750,13 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 	} else if (side == SOUTH_SIDE) {
 		if (mode == MODE_X) {
 			// srcLeftBottom.x ~ srcRightTop.x 범위 안
-				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal과 maxVal이 모두 들어 있는 경우 -> srcRightTop.x = minVal
 				// minVal이 들어 있으나 maxVal은 srcRightTop.x - EPS보다 큰 경우 -> srcRightTop.x = minVal
 				// maxVal이 들어 있으나 minVal은 srcLeftBottom.x + EPS보다 작은 경우 -> srcLeftBottom.x = maxVal
 				// minVal이 srcLeftBottom.x + EPS보다 작고 maxVal이 srcRightTop.x - EPS보다 큰 경우 -> 범위 모두 깎음
 
 			if ((srcLeftBottom->x < minVal) && (minVal < srcRightTop->x) && (srcLeftBottom->x < maxVal) && (maxVal < srcRightTop->x)) {
-				srcRightTop->x = srcLeftBottom->x;
-				srcRightTop->z = srcLeftBottom->z;
+				srcRightTop->x = minVal;
 			}
 			if ((srcRightTop->x < minVal) && (minVal < srcLeftBottom->x) && (srcLeftBottom->x - EPS < maxVal)) {
 				srcLeftBottom->x = minVal;
@@ -702,8 +765,7 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 				srcRightTop->x = maxVal;
 			}
 			if ((minVal < srcRightTop->x + EPS) && (srcLeftBottom->x - EPS < maxVal)) {
-				srcRightTop->x = srcLeftBottom->x;
-				srcRightTop->z = srcLeftBottom->z;
+				//srcRightTop->x = srcLeftBottom->x;
 			}
 
 			result = true;
@@ -712,14 +774,13 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 			result = false;
 		} else if (mode == MODE_Z) {
 			// srcLeftBottom.z ~ srcRightTop.z 범위 안
-				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal과 maxVal이 모두 들어 있는 경우 -> srcRightTop.z = minVal
 				// minVal이 들어 있으나 maxVal은 srcRightTop.z - EPS보다 큰 경우 -> srcRightTop.z = minVal
 				// maxVal이 들어 있으나 minVal은 srcLeftBottom.z + EPS보다 작은 경우 -> srcLeftBottom.z = maxVal
 				// minVal이 srcLeftBottom.z + EPS보다 작고 maxVal이 srcRightTop.z - EPS보다 큰 경우 -> 범위 모두 깎음
 
 			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z)) {
-				srcRightTop->x = srcLeftBottom->x;
-				srcRightTop->z = srcLeftBottom->z;
+				srcRightTop->z = minVal;
 			}
 			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcRightTop->z - EPS < maxVal)) {
 				srcRightTop->z = minVal;
@@ -728,7 +789,6 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 				srcLeftBottom->z = maxVal;
 			}
 			if ((minVal < srcLeftBottom->z + EPS) && (srcRightTop->z - EPS < maxVal)) {
-				srcRightTop->x = srcLeftBottom->x;
 				srcRightTop->z = srcLeftBottom->z;
 			}
 
@@ -742,14 +802,13 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 			result = false;
 		} else if (mode == MODE_Y) {
 			// srcLeftBottom.y ~ srcRightTop.y 범위 안
-				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal과 maxVal이 모두 들어 있는 경우 -> srcRightTop.y = minVal
 				// minVal이 들어 있으나 maxVal은 srcRightTop.y - EPS보다 큰 경우 -> srcRightTop.y = minVal
 				// maxVal이 들어 있으나 minVal은 srcLeftBottom.y + EPS보다 작은 경우 -> srcLeftBottom.y = maxVal
 				// minVal이 srcLeftBottom.y + EPS보다 작고 maxVal이 srcRightTop.y - EPS보다 큰 경우 -> 범위 모두 깎음
 
 			if ((srcLeftBottom->y < minVal) && (minVal < srcRightTop->y) && (srcLeftBottom->y < maxVal) && (maxVal < srcRightTop->y)) {
-				srcRightTop->y = srcLeftBottom->y;
-				srcRightTop->z = srcLeftBottom->z;
+				srcRightTop->y = minVal;
 			}
 			if ((srcRightTop->y < minVal) && (minVal < srcLeftBottom->y) && (srcLeftBottom->y - EPS < maxVal)) {
 				srcLeftBottom->y = minVal;
@@ -758,21 +817,19 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 				srcRightTop->y = maxVal;
 			}
 			if ((minVal < srcRightTop->y + EPS) && (srcLeftBottom->y - EPS < maxVal)) {
-				srcRightTop->y = srcLeftBottom->y;
-				srcRightTop->z = srcLeftBottom->z;
+				//srcRightTop->y = srcLeftBottom->y;
 			}
 
 			result = true;
 		} else if (mode == MODE_Z) {
 			// srcLeftBottom.z ~ srcRightTop.z 범위 안
-				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal과 maxVal이 모두 들어 있는 경우 -> srcRightTop.z = minVal
 				// minVal이 들어 있으나 maxVal은 srcRightTop.z - EPS보다 큰 경우 -> srcRightTop.z = minVal
 				// maxVal이 들어 있으나 minVal은 srcLeftBottom.z + EPS보다 작은 경우 -> srcLeftBottom.z = maxVal
 				// minVal이 srcLeftBottom.z + EPS보다 작고 maxVal이 srcRightTop.z - EPS보다 큰 경우 -> 범위 모두 깎음
 
 			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z)) {
-				srcRightTop->x = srcLeftBottom->x;
-				srcRightTop->z = srcLeftBottom->z;
+				srcRightTop->z = minVal;
 			}
 			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcRightTop->z - EPS < maxVal)) {
 				srcRightTop->z = minVal;
@@ -781,7 +838,6 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 				srcLeftBottom->z = maxVal;
 			}
 			if ((minVal < srcLeftBottom->z + EPS) && (srcRightTop->z - EPS < maxVal)) {
-				srcRightTop->x = srcLeftBottom->x;
 				srcRightTop->z = srcLeftBottom->z;
 			}
 
@@ -795,14 +851,13 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 			result = false;
 		} else if (mode == MODE_Y) {
 			// srcRightTop.y ~ srcLeftBottom.y 범위 안
-				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal과 maxVal이 모두 들어 있는 경우 -> srcRightTop.y = maxVal
 				// minVal이 들어 있으나 maxVal은 srcLeftBottom.y - EPS보다 큰 경우 -> srcLeftBottom.y = minVal
 				// maxVal이 들어 있으나 minVal은 srcRightTop.y + EPS보다 작은 경우 -> srcRightTop.y = maxVal
 				// minVal이 srcRightTop.y + EPS보다 작고 maxVal이 srcLeftBottom.y - EPS보다 큰 경우 -> 범위 모두 깎음
 
 			if ((srcRightTop->y < minVal) && (minVal < srcLeftBottom->y) && (srcRightTop->y < maxVal) && (maxVal < srcLeftBottom->y)) {
-				srcRightTop->y = srcLeftBottom->y;
-				srcRightTop->z = srcLeftBottom->z;
+				srcRightTop->y = maxVal;
 			}
 			if ((srcRightTop->y < minVal) && (minVal < srcLeftBottom->y) && (srcLeftBottom->y - EPS < maxVal)) {
 				srcLeftBottom->y = minVal;
@@ -811,21 +866,19 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 				srcRightTop->y = maxVal;
 			}
 			if ((minVal < srcRightTop->y + EPS) && (srcLeftBottom->y - EPS < maxVal)) {
-				srcRightTop->y = srcLeftBottom->y;
-				srcRightTop->z = srcLeftBottom->z;
+				//srcRightTop->y = srcLeftBottom->y;
 			}
 
 			result = true;
 		} else if (mode == MODE_Z) {
 			// srcLeftBottom.z ~ srcRightTop.z 범위 안
-				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal과 maxVal이 모두 들어 있는 경우 -> srcRightTop.z = minVal
 				// minVal이 들어 있으나 maxVal은 srcRightTop.z - EPS보다 큰 경우 -> srcRightTop.z = minVal
 				// maxVal이 들어 있으나 minVal은 srcLeftBottom.z + EPS보다 작은 경우 -> srcLeftBottom.z = maxVal
 				// minVal이 srcLeftBottom.z + EPS보다 작고 maxVal이 srcRightTop.z - EPS보다 큰 경우 -> 범위 모두 깎음
 
 			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcLeftBottom->z < maxVal) && (maxVal < srcRightTop->z)) {
-				srcRightTop->x = srcLeftBottom->x;
-				srcRightTop->z = srcLeftBottom->z;
+				srcRightTop->z = minVal;
 			}
 			if ((srcLeftBottom->z < minVal) && (minVal < srcRightTop->z) && (srcRightTop->z - EPS < maxVal)) {
 				srcRightTop->z = minVal;
@@ -834,7 +887,6 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 				srcLeftBottom->z = maxVal;
 			}
 			if ((minVal < srcLeftBottom->z + EPS) && (srcRightTop->z - EPS < maxVal)) {
-				srcRightTop->x = srcLeftBottom->x;
 				srcRightTop->z = srcLeftBottom->z;
 			}
 
@@ -845,14 +897,13 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 	} else if (side == BASE_SIDE) {
 		if (mode == MODE_X) {
 			// srcLeftBottom.x ~ srcRightTop.x 범위 안
-				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal과 maxVal이 모두 들어 있는 경우 -> srcRightTop.x = minVal
 				// minVal이 들어 있으나 maxVal은 srcRightTop.x - EPS보다 큰 경우 -> srcRightTop.x = minVal
 				// maxVal이 들어 있으나 minVal은 srcLeftBottom.x + EPS보다 작은 경우 -> srcLeftBottom.x = maxVal
 				// minVal이 srcLeftBottom.x + EPS보다 작고 maxVal이 srcRightTop.x - EPS보다 큰 경우 -> 범위 모두 깎음
 
 			if ((srcLeftBottom->x < minVal) && (minVal < srcRightTop->x) && (srcLeftBottom->x < maxVal) && (maxVal < srcRightTop->x)) {
-				srcRightTop->x = srcLeftBottom->x;
-				srcRightTop->z = srcLeftBottom->z;
+				srcRightTop->x = minVal;
 			}
 			if ((srcRightTop->x < minVal) && (minVal < srcLeftBottom->x) && (srcLeftBottom->x - EPS < maxVal)) {
 				srcLeftBottom->x = minVal;
@@ -861,21 +912,19 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 				srcRightTop->x = maxVal;
 			}
 			if ((minVal < srcRightTop->x + EPS) && (srcLeftBottom->x - EPS < maxVal)) {
-				srcRightTop->x = srcLeftBottom->x;
-				srcRightTop->z = srcLeftBottom->z;
+				//srcRightTop->x = srcLeftBottom->x;
 			}
 
 			result = true;
 		} else if (mode == MODE_Y) {
 			// srcLeftBottom.y ~ srcRightTop.y 범위 안
-				// minVal과 maxVal이 모두 들어 있는 경우 -> 범위 모두 깎음
+				// minVal과 maxVal이 모두 들어 있는 경우 -> srcRightTop.y = minVal
 				// minVal이 들어 있으나 maxVal은 srcRightTop.y - EPS보다 큰 경우 -> srcRightTop.y = minVal
 				// maxVal이 들어 있으나 minVal은 srcLeftBottom.y + EPS보다 작은 경우 -> srcLeftBottom.y = maxVal
 				// minVal이 srcLeftBottom.y + EPS보다 작고 maxVal이 srcRightTop.y - EPS보다 큰 경우 -> 범위 모두 깎음
 
 			if ((srcLeftBottom->y < minVal) && (minVal < srcRightTop->y) && (srcLeftBottom->y < maxVal) && (maxVal < srcRightTop->y)) {
-				srcRightTop->y = srcLeftBottom->y;
-				srcRightTop->z = srcLeftBottom->z;
+				srcRightTop->y = minVal;
 			}
 			if ((srcRightTop->y < minVal) && (minVal < srcLeftBottom->y) && (srcLeftBottom->y - EPS < maxVal)) {
 				srcLeftBottom->y = minVal;
@@ -884,8 +933,7 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 				srcRightTop->y = maxVal;
 			}
 			if ((minVal < srcRightTop->y + EPS) && (srcLeftBottom->y - EPS < maxVal)) {
-				srcRightTop->y = srcLeftBottom->y;
-				srcRightTop->z = srcLeftBottom->z;
+				//srcRightTop->y = srcLeftBottom->y;
 			}
 
 			result = true;
@@ -896,4 +944,248 @@ bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short s
 	}
 
 	return result;
+}
+
+// 요소의 측면들과 밑면 영역에 물량합판을 부착함
+API_Guid	placeQuantityPlywood (qElem element)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = gsmQuantityPlywood;
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	std::string			tempStr;
+	double				horLen, verLen;
+
+	// 작업 층 정보
+	short			xx;
+	API_StoryInfo	storyInfo;
+	double			workLevel;		// 벽의 작업 층 높이
+
+
+	// 작업 층 높이 반영
+	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+	workLevel = 0.0;
+	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+		if (storyInfo.data [0][xx].index == element.floorInd) {
+			workLevel = storyInfo.data [0][xx].level;
+			break;
+		}
+	}
+	BMKillHandle ((GSHandle *) &storyInfo.data);
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력 (공통)
+	elem.header.floorInd = element.floorInd;
+	elem.object.libInd = libPart.index;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.header.layer = element.qLayerInd;	// 물량합판 레이어
+
+	// 분류: 물량합판 객체의 타입 (enum qPlywoodType 참조)
+	if (element.typeOfQPlywood == Q_WALL_INNER) {
+		tempStr = "벽체(내벽)";
+		memo.params [0][82].value.real = 75;
+	} else if (element.typeOfQPlywood == Q_WALL_OUTER) {
+		tempStr = "벽체(외벽)";
+		memo.params [0][82].value.real = 76;
+	} else if (element.typeOfQPlywood == Q_WALL_COMPOSITE) {
+		tempStr = "벽체(합벽)";
+		memo.params [0][82].value.real = 72;
+	} else if (element.typeOfQPlywood == Q_WALL_PARAPET) {
+		tempStr = "벽체(파라펫)";
+		memo.params [0][82].value.real = 32;
+	} else if (element.typeOfQPlywood == Q_WALL_WATERPROOF) {
+		tempStr = "벽체(방수턱)";
+		memo.params [0][82].value.real = 12;
+	} else if (element.typeOfQPlywood == Q_SLAB_BASE) {
+		tempStr = "스라브(기초)";
+		memo.params [0][82].value.real = 66;
+	} else if (element.typeOfQPlywood == Q_SLAB_RC) {
+		tempStr = "스라브(RC)";
+		memo.params [0][82].value.real = 100;
+	} else if (element.typeOfQPlywood == Q_SLAB_DECK) {
+		tempStr = "스라브(데크)";
+		memo.params [0][82].value.real = 99;
+	} else if (element.typeOfQPlywood == Q_SLAB_RAMP) {
+		tempStr = "스라브(램프)";
+		memo.params [0][82].value.real = 3;
+	} else if (element.typeOfQPlywood == Q_BEAM) {
+		tempStr = "보";
+		memo.params [0][82].value.real = 78;
+	} else if (element.typeOfQPlywood == Q_COLUMN_ISOLATED) {
+		tempStr = "기둥(독립)";
+		memo.params [0][82].value.real = 20;
+	} else if (element.typeOfQPlywood == Q_COLUMN_INWALL) {
+		tempStr = "기둥(벽체)";
+		memo.params [0][82].value.real = 77;
+	} else {
+		tempStr = "벽체(외벽)";
+	}
+	GS::ucscpy (memo.params [0][30].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+	// 합판두께 (문자열)
+	tempStr = "12";		// 12mm
+	GS::ucscpy (memo.params [0][31].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+	// 설치위치
+	tempStr = "비규격";
+	GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+	// 품명
+	tempStr = "합판면적";
+	GS::ucscpy (memo.params [0][33].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+	// 북쪽 측면
+	if (element.validNorth == true) {
+		// 각도 및 시작점
+		elem.object.angle = DegreeToRad (180.0);
+		elem.object.pos.x = element.NorthLeftBottom.x;
+		elem.object.pos.y = element.NorthLeftBottom.y;
+		elem.object.level = element.NorthLeftBottom.z - workLevel;
+
+		// 설치방향
+		tempStr = "벽에 세우기";
+		GS::ucscpy (memo.params [0][34].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+		// 가로길이
+		horLen = abs (element.NorthLeftBottom.x - element.NorthRightTop.x);
+		memo.params [0][38].value.real = horLen;
+
+		// 세로길이
+		verLen = abs (element.NorthRightTop.z - element.NorthLeftBottom.z);
+		memo.params [0][42].value.real = verLen;
+
+		// 객체 배치
+		if ((horLen > EPS) && (verLen > EPS))
+			ACAPI_Element_Create (&elem, &memo);
+	}
+
+	// 남쪽 측면
+	if (element.validSouth == true) {
+		// 각도 및 시작점
+		elem.object.angle = DegreeToRad (0.0);
+		elem.object.pos.x = element.SouthLeftBottom.x;
+		elem.object.pos.y = element.SouthLeftBottom.y;
+		elem.object.level = element.SouthLeftBottom.z - workLevel;
+
+		// 설치방향
+		tempStr = "벽에 세우기";
+		GS::ucscpy (memo.params [0][34].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+		// 가로길이
+		horLen = abs (element.SouthRightTop.x - element.SouthLeftBottom.x);
+		memo.params [0][38].value.real = horLen;
+
+		// 세로길이
+		verLen = abs (element.SouthRightTop.z - element.SouthLeftBottom.z);
+		memo.params [0][42].value.real = verLen;
+
+		// 객체 배치
+		if ((horLen > EPS) && (verLen > EPS))
+			ACAPI_Element_Create (&elem, &memo);
+	}
+
+	// 동쪽 측면
+	if (element.validEast == true) {
+		// 각도 및 시작점
+		elem.object.angle = DegreeToRad (90.0);
+		elem.object.pos.x = element.EastLeftBottom.x;
+		elem.object.pos.y = element.EastLeftBottom.y;
+		elem.object.level = element.EastLeftBottom.z - workLevel;
+
+		// 설치방향
+		tempStr = "벽에 세우기";
+		GS::ucscpy (memo.params [0][34].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+		// 가로길이
+		horLen = abs (element.EastRightTop.y - element.EastLeftBottom.y);
+		memo.params [0][38].value.real = horLen;
+
+		// 세로길이
+		verLen = abs (element.EastRightTop.z - element.EastLeftBottom.z);
+		memo.params [0][42].value.real = verLen;
+
+		// 객체 배치
+		if ((horLen > EPS) && (verLen > EPS))
+			ACAPI_Element_Create (&elem, &memo);
+	}
+
+	// 서쪽 측면
+	if (element.validWest == true) {
+		// 각도 및 시작점
+		elem.object.angle = DegreeToRad (270.0);
+		elem.object.pos.x = element.WestLeftBottom.x;
+		elem.object.pos.y = element.WestLeftBottom.y;
+		elem.object.level = element.WestLeftBottom.z - workLevel;
+
+		// 설치방향
+		tempStr = "벽에 세우기";
+		GS::ucscpy (memo.params [0][34].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+		// 가로길이
+		horLen = abs (element.WestLeftBottom.y - element.WestRightTop.y);
+		memo.params [0][38].value.real = horLen;
+
+		// 세로길이
+		verLen = abs (element.WestRightTop.z - element.WestLeftBottom.z);
+		memo.params [0][42].value.real = verLen;
+
+		// 객체 배치
+		if ((horLen > EPS) && (verLen > EPS))
+			ACAPI_Element_Create (&elem, &memo);
+	}
+
+	// 밑면
+	if (element.validBase == true) {
+		// 각도 및 시작점
+		elem.object.angle = DegreeToRad (0.0);
+		elem.object.pos.x = element.BaseLeftBottom.x;
+		elem.object.pos.y = element.BaseLeftBottom.y;
+		elem.object.level = element.BaseLeftBottom.z - workLevel;
+
+		// 설치방향
+		tempStr = "바닥깔기";
+		GS::ucscpy (memo.params [0][34].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+
+		// 가로길이
+		horLen = abs (element.BaseRightTop.x - element.BaseLeftBottom.x);
+		memo.params [0][38].value.real = horLen;
+
+		// 세로길이
+		verLen = abs (element.BaseRightTop.y - element.BaseLeftBottom.y);
+		memo.params [0][42].value.real = verLen;
+
+		// 객체 배치
+		if ((horLen > EPS) && (verLen > EPS))
+			ACAPI_Element_Create (&elem, &memo);
+	}
+
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
 }
