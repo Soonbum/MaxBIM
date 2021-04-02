@@ -83,6 +83,14 @@ struct qElem
 	API_Coord3D		BaseLeftBottom;		// 좌하단
 	API_Coord3D		BaseRightTop;		// 우하단
 	bool			validBase;			// 유효한 경우 물량합판을 부착함
+
+	// 부착할 물량합판들의 GUID
+	short		nQPlywoods;
+	API_Guid	qPlywoodGuids [5];
+
+	// 간섭을 일으키는 다른 요소들의 GUID
+	short		nOtherElems;
+	API_Guid	otherGuids [200];
 };
 
 GSErrCode	placeQuantityPlywood (void);			// 부재(벽,슬래브,보,기둥)들의 가설재가 붙을 수 있는 면에 물량합판을 자동으로 부착함
@@ -91,10 +99,9 @@ short	findLayerIndex (const char* layerName);		// 레이어 이름으로 레이어 인덱스 
 short	invalidateShortTwoSide (qElem* element);	// 4개의 측면 중 짧은 2개의 측면을 무효화하고, 유효한 면 정보를 리턴함. 리턴 값은 다음 값의 조합입니다. 북쪽/남쪽(2), 동쪽/서쪽(1), 오류(0)
 void	invalidateAllSide (qElem* element);			// 4개의 측면을 모두 무효화함
 void	invalidateBase (qElem* element);			// 밑면을 무효화함
-bool	subtractArea (qElem* src, qElem operand);	// src 요소의 측면, 밑면 영역이 operand 요소에 의해 감소됨
+bool	subtractArea (qElem* src, qElem operand);	// src 요소의 측면, 밑면 영역이 operand 요소에 의해 침범 당할 경우, 솔리드 연산을 위해 operand의 GUID를 저장함
 bool	inRange (double srcPoint, double targetMin, double targetMax);						// srcPoint 값이 target 범위 안에 들어 있는가?
 double	overlapRange (double srcMin, double srcMax, double targetMin, double targetMax);	// src 범위와 target 범위가 겹치는 길이를 리턴함
-bool	excludeRange (API_Coord3D* srcLeftBottom, API_Coord3D* srcRightTop, short side, short mode, double minVal, double maxVal);		// 측면 또는 밑면의 범위를 축소함, side는 적용할 면 선택 (북쪽(0), 남쪽(1), 동쪽(2), 서쪽(3), 밑면(5)), mode에 따라 X(0), Y(1), Z(2)에 적용함, minVal ~ maxVal에 의해 범위가 깎임
-API_Guid	placeQuantityPlywood (qElem element);	// 요소의 측면들과 밑면 영역에 물량합판을 부착함
+void	placeQuantityPlywood (qElem* element);	// 요소의 측면들과 밑면 영역에 물량합판을 부착함
 
 #endif
