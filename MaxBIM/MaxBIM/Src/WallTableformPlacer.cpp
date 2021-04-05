@@ -386,19 +386,19 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 	} else if (abs (cell.horLen - 2.200) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.600;
-		horizontalGap = 0.075;
+		horizontalGap = 0.050;
 	} else if (abs (cell.horLen - 2.150) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.600;
-		horizontalGap = 0.050;
+		horizontalGap = 0.025;
 	} else if (abs (cell.horLen - 2.100) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.600;
-		horizontalGap = 0.025;
+		horizontalGap = 0.050;
 	} else if (abs (cell.horLen - 2.050) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.600;
-		horizontalGap = 0.075;
+		horizontalGap = 0.025;
 	} else if (abs (cell.horLen - 2.000) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
@@ -410,15 +410,15 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 	} else if (abs (cell.horLen - 1.900) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
-		horizontalGap = 0.075;
+		horizontalGap = 0.050;
 	} else if (abs (cell.horLen - 1.850) < EPS) {
 		placementInfo.nHorEuroform = 4;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
-		horizontalGap = 0.050;
+		horizontalGap = 0.025;
 	} else if (abs (cell.horLen - 1.800) < EPS) {
 		placementInfo.nHorEuroform = 3;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.600;
-		horizontalGap = 0.025;
+		horizontalGap = 0.050;
 	} else {
 		placementInfo.nHorEuroform = 0;
 	}

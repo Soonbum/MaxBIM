@@ -141,7 +141,10 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			// 내보내기
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:		// 부재(기둥,보,슬래브) 정보 내보내기 (CSV) ... 개발중
-					err = exportElementInfo ();
+					err = exportGridElementInfo ();
+					break;
+				case 2:		// 선택한 부재 렌더링 및 정보 내보내기 ... 개발중
+					err = exportSelectedElementInfo ();
 					break;
 			}
 			break;
