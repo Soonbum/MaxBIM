@@ -6,7 +6,6 @@
 #include "UtilityFunctions.hpp"
 #include "Export.hpp"
 
-
 using namespace exportDG;
 
 double DIST_BTW_COLUMN = 2.000;		// 기둥 간 최소 간격 (기본값), 추후 다이얼로그에서 변경할 수 있음
@@ -373,10 +372,106 @@ GSErrCode	exportGridElementInfo (void)
 GSErrCode	exportSelectedElementInfo (void)
 {
 	GSErrCode	err = NoError;
+	long		nSel;
+	short		xx;
+
+	// 선택한 요소가 없으면 오류
+	API_SelectionInfo		selectionInfo;
+	API_Neig				**selNeigs;
+	API_Element				tElem;
+	GS::Array<API_Guid>&	objects = GS::Array<API_Guid> ();
+	long					nObjects = 0;
+
+	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
+	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	if (err != NoError) {
+		BMKillHandle ((GSHandle *) &selNeigs);
+		ACAPI_WriteReport ("요소들을 선택해야 합니다.", true);
+		return err;
+	}
+
+	// 객체 타입의 요소 GUID만 저장함
+	if (selectionInfo.typeID != API_SelEmpty) {
+		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
+		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
+			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
+
+			tElem.header.guid = (*selNeigs)[xx].guid;
+			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
+				continue;
+
+			if (tElem.header.typeID == API_ObjectID)	// 객체 타입 요소인가?
+				objects.Push (tElem.header.guid);
+		}
+	}
+	BMKillHandle ((GSHandle *) &selNeigs);
+	nObjects = objects.GetSize ();
+
+	// 선택한 요소들을 3D로 보여줌
+	err = ACAPI_Automate (APIDo_ShowSelectionIn3DID);
+
+	// 렌더링 옵션 변경
+	API_RendEffects      rendEffects;
+	API_RendImage        rendImage;
+	API_RendBrightness   rendBright;
+
+	BNZeroMemory (&rendEffects, sizeof (API_RendEffects));
+	err = ACAPI_Environment (APIEnv_GetRenderingSetsID, &rendEffects, (void *) (Int32) APIRendSet_EffectsID);
+	if (err == NoError) {
+		rendEffects.method = API_RendMethod_Best;
+		rendEffects.antialiasing = API_RendAnt_Best;
+		rendEffects.emissionOn = true;
+		rendEffects.highAccuracyOn = true;
+		rendEffects.highlightOn = true;
+		rendEffects.fogOn = false;
+		rendEffects.lightFallOn = false;
+		rendEffects.lightShadowOn = false;
+		rendEffects.lightsOn = true;
+		rendEffects.smoothOn = true;
+		rendEffects.sunOn = false;
+		rendEffects.sunShadowOn = false;
+		err = ACAPI_Environment (APIEnv_ChangeRenderingSetsID, &rendEffects, (void *) (Int32) APIRendSet_EffectsID);
+	}
+
+	BNZeroMemory (&rendImage, sizeof (API_RendImage));
+	err = ACAPI_Environment (APIEnv_GetRenderingSetsID, &rendImage, (void *) (Int32) APIRendSet_ImageID);
+	if (err == NoError) {
+		rendImage.bkgSkyRGB.f_red		= 1.0;
+		rendImage.bkgSkyRGB.f_green		= 1.0;
+		rendImage.bkgSkyRGB.f_blue		= 1.0;
+		rendImage.bkgEarthRGB.f_red		= 1.0;
+		rendImage.bkgEarthRGB.f_green	= 1.0;
+		rendImage.bkgEarthRGB.f_blue	= 1.0;
+		rendImage.bkgPict = false;
+		err = ACAPI_Environment (APIEnv_ChangeRenderingSetsID, &rendImage, (void *) (Int32) APIRendSet_ImageID);
+	}
+	delete rendImage.bkgPictFile;
+
+	BNZeroMemory (&rendBright, sizeof (API_RendBrightness));
+	err = ACAPI_Environment (APIEnv_GetRenderingSetsID, &rendBright, (void *) (Int32) APIRendSet_BrightnessID);
+	if (err == NoError) {
+		rendBright.brightness = 20;
+		rendBright.overExpoCorrMethod = API_RendCorr_DarkenOverExpSurf;
+		err = ACAPI_Environment (APIEnv_ChangeRenderingSetsID, &rendBright, (void *) (Int32) APIRendSet_BrightnessID);
+	}
+
+	// 렌더링 이미지 생성
+	API_PhotoRenderPars		rendPars;
+	IO::Location			fileLoc ("C:\\RenderImg.jpg");	// 그림파일 경로 및 파일명
+
+	BNZeroMemory (&rendPars, sizeof (API_PhotoRenderPars));
+	rendPars.fileTypeID = APIFType_JPEGFile;
+	rendPars.file = &fileLoc;
+	rendPars.colorDepth = APIColorDepth_TC32;
+	rendPars.dithered = true;
+	err = ACAPI_Automate (APIDo_PhotoRenderID, &rendPars, NULL);
 
 	/*
-		* APIDo_ShowSelectionIn3DID : 선택한 요소들을 3D로 보여줌
-		* APIDo_PhotoRenderID : 렌더링 이미지 생성 (JPG)
+		* 사용자의 입력을 요구함
+			- 현장명: <텍스트>
+			- 구간: <텍스트>
+			- 위치: <텍스트>
+
 		* ACAPI_Selection_Get : 요소별 데이터를 추출할 것
 			(파라미터 읽어오는 관련 함수들)
 				APIAny_OpenParametersID
@@ -396,6 +491,7 @@ GSErrCode	exportSelectedElementInfo (void)
 			- 합판
 			- 목재
 			- ...
+		
 		* 양식을 갖춘 Excel 파일 Export ???
 			- ...
 	*/

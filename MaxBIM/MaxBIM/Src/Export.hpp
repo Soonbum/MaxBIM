@@ -3,7 +3,6 @@
 
 #include "MaxBIM.hpp"
 
-
 namespace exportDG {
 	// 다이얼로그 항목 인덱스
 	enum	idxItems_1_exportDG {

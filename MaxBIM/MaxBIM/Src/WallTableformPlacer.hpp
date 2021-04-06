@@ -207,7 +207,8 @@ GSErrCode	placeTableformOnWall (void);											// º®¿¡ Å×ÀÌºíÆûÀ» ¹èÄ¡ÇÏ´Â ÅëÇ
 void		initCellsForWallTableform (WallTableformPlacingZone* placingZone);		// Cell ¹è¿­À» ÃÊ±âÈ­ÇÔ
 GSErrCode	placeTableformOnWall (CellForWallTableform cell);						// Å×ÀÌºíÆû ¹èÄ¡ÇÏ±â
 double		getCellPositionLeftBottomXForWallTableForm (WallTableformPlacingZone *placingZone, short idx);		// ÇØ´ç ¼¿ÀÇ ÁÂÇÏ´Ü ÁÂÇ¥X À§Ä¡¸¦ ¸®ÅÏ
-short DGCALLBACK wallTableformPlacerHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// Å×ÀÌºíÆû ¹èÄ¡¸¦ À§ÇÑ ÁúÀÇ¸¦ ¿äÃ»ÇÏ´Â ´ÙÀÌ¾ó·Î±×
+short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// ¼±È£ÇÏ´Â Å×ÀÌºíÆû ³Êºñ¸¦ ¼±ÅÃÇÏ±â À§ÇÑ ´ÙÀÌ¾ó·Î±×
+short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// Å×ÀÌºíÆû ¹èÄ¡¸¦ À§ÇÑ ÁúÀÇ¸¦ ¿äÃ»ÇÏ´Â ´ÙÀÌ¾ó·Î±×
 
 double		moveXinParallel (double prevPosX, double ang, double offset);	// ÀÌµ¿ ÈÄÀÇ X ÁÂÇ¥¸¦ ¾Ë·ÁÁÜ (Z È¸Àü°¢µµ °í·Á) - º®°ú ÆòÇàÇÑ ¹æÇâÀ¸·Î ÀÌµ¿
 double		moveYinParallel (double prevPosY, double ang, double offset);	// ÀÌµ¿ ÈÄÀÇ Y ÁÂÇ¥¸¦ ¾Ë·ÁÁÜ (Z È¸Àü°¢µµ °í·Á) - º®°ú ÆòÇàÇÑ ¹æÇâÀ¸·Î ÀÌµ¿

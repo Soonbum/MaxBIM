@@ -30,6 +30,11 @@ static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 �
 // 다이얼로그 동적 요소 인덱스 번호 저장
 static short	EDITCONTROL_REMAIN_WIDTH;
 static short	POPUP_WIDTH [50];
+static short	POPUP_PREFER_WIDTH;
+static short	EDITCONTROL_RECT_PIPE_WIDTH;
+static short	EDITCONTROL_RECT_PIPE_HEIGHT;
+
+static double	preferWidth;
 
 
 // 벽에 테이블폼을 배치하는 통합 루틴
@@ -41,7 +46,7 @@ GSErrCode	placeTableformOnWall (void)
 	short		xx;
 	double		dx, dy;
 	double		width;
-	double		halfWidth;
+	//double		halfWidth;
 	short		tableColumn;
 
 	// Selection Manager 관련 변수
@@ -251,6 +256,58 @@ GSErrCode	placeTableformOnWall (void)
 	tableColumn = 0;
 	width = placingZone.horLen;
 
+	// [DIALOG] 1번째 다이얼로그에서 선호하는 테이블폼 너비를 선택함 (선택한 테이블폼에 대하여 수평, 수직 비계파이프의 길이를 미리 보여줌)
+	result = DGBlankModalDialog (500, 100, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler1, 0);
+
+	if (result != DG_OK)
+		return err;
+
+	// 선호하는 테이블폼 너비에 따라 테이블 개수를 결정함
+	while (width > EPS) {
+		if (width + EPS >= preferWidth) {
+			if (abs (preferWidth - 2.300) < EPS) {
+				placingZone.n2300w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 2.250) < EPS) {
+				placingZone.n2250w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 2.200) < EPS) {
+				placingZone.n2200w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 2.150) < EPS) {
+				placingZone.n2150w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 2.100) < EPS) {
+				placingZone.n2100w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 2.050) < EPS) {
+				placingZone.n2050w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 2.000) < EPS) {
+				placingZone.n2000w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.950) < EPS) {
+				placingZone.n1950w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.900) < EPS) {
+				placingZone.n1900w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.850) < EPS) {
+				placingZone.n1850w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.800) < EPS) {
+				placingZone.n1800w ++;
+				tableColumn ++;
+			}
+		} else {
+			placingZone.n1800w ++;
+			tableColumn ++;
+		}
+		width -= preferWidth;
+	}
+
+	/*
+	// 테이블폼 너비 2300을 기본적으로 사용한다고 가정함
 	while (width > EPS) {
 		if (width + EPS >= 4.600) {
 			width -= 2.300;		placingZone.n2300w ++;	tableColumn ++;
@@ -310,6 +367,7 @@ GSErrCode	placeTableformOnWall (void)
 			}
 		}
 	}
+	*/
 
 	// 남은 길이 저장
 	placingZone.remainWidth = width;
@@ -317,8 +375,8 @@ GSErrCode	placeTableformOnWall (void)
 	// 셀 개수 저장
 	placingZone.nCells = tableColumn;
 
-	// [DIALOG] 1번째 다이얼로그에서 벽 너비 방향의 테이블폼 수량 및 각 셀의 너비/높이를 설정함
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32517, ACAPI_GetOwnResModule (), wallTableformPlacerHandler, 0);
+	// [DIALOG] 2번째 다이얼로그에서 벽 너비 방향의 테이블폼 수량 및 각 셀의 너비/높이를 설정함
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32517, ACAPI_GetOwnResModule (), wallTableformPlacerHandler2, 0);
 
 	// 벽과의 간격으로 인해 정보 업데이트
 	infoWall.wallThk		+= (placingZone.gap * 2);
@@ -1195,8 +1253,189 @@ double	getCellPositionLeftBottomXForWallTableForm (WallTableformPlacingZone *pla
 	return distance;
 }
 
+// 선호하는 테이블폼 너비를 선택하기 위한 다이얼로그
+short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	short	result;
+	short	itmIdx;
+	double	width, height;
+	double	pipeWidth, pipeHeight;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "선호하는 테이블폼 너비 선택하기");
+
+			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
+			// 적용 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 10, 70, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "확 인");
+			DGShowItem (dialogID, DG_OK);
+
+			// 종료 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 50, 70, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "취 소");
+			DGShowItem (dialogID, DG_CANCEL);
+
+			//////////////////////////////////////////////////////////// 아이템 배치 (나머지)
+			// 라벨: 메인 테이블폼 너비
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 100, 20, 120, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "메인 테이블폼 너비");
+			DGShowItem (dialogID, itmIdx);
+
+			// 라벨: 가로 파이프 길이
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 230, 20, 120, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "가로 파이프 길이");
+			DGShowItem (dialogID, itmIdx);
+
+			// 라벨: 세로 파이프 길이
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 360, 20, 120, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "세로 파이프 길이");
+			DGShowItem (dialogID, itmIdx);
+
+			// 팝업 컨트롤: 선호하는 테이블폼 너비
+			POPUP_PREFER_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100, 45, 120, 25);
+			DGSetItemFont (dialogID, POPUP_PREFER_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "2300");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "2250");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "2200");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "2150");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "2100");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "2050");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "2000");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1950");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1900");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1850");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1800");
+			DGShowItem (dialogID, POPUP_PREFER_WIDTH);
+
+			// Edit 컨트롤: 가로 파이프 길이
+			EDITCONTROL_RECT_PIPE_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 230, 45, 100, 25);
+			DGDisableItem (dialogID, EDITCONTROL_RECT_PIPE_WIDTH);
+			DGSetItemValDouble (dialogID, EDITCONTROL_RECT_PIPE_WIDTH, 2.200);
+			DGShowItem (dialogID, EDITCONTROL_RECT_PIPE_WIDTH);
+
+			// Edit 컨트롤: 세로 파이프 길이
+			if ((6.000 - placingZone.verLen) < EPS)
+				height = 6.000;
+			else if ((5.700 - placingZone.verLen) < EPS)
+				height = 5.700;
+			else if ((5.400 - placingZone.verLen) < EPS)
+				height = 5.400;
+			else if ((5.100 - placingZone.verLen) < EPS)
+				height = 5.100;
+			else if ((4.800 - placingZone.verLen) < EPS)
+				height = 4.800;
+			else if ((4.500 - placingZone.verLen) < EPS)
+				height = 4.500;
+			else if ((4.200 - placingZone.verLen) < EPS)
+				height = 4.200;
+			else if ((3.900 - placingZone.verLen) < EPS)
+				height = 3.900;
+			else if ((3.600 - placingZone.verLen) < EPS)
+				height = 3.600;
+			else if ((3.300 - placingZone.verLen) < EPS)
+				height = 3.300;
+			else if ((3.000 - placingZone.verLen) < EPS)
+				height = 3.000;
+			else if ((2.700 - placingZone.verLen) < EPS)
+				height = 2.700;
+			else if ((2.400 - placingZone.verLen) < EPS)
+				height = 2.400;
+			else if ((2.100 - placingZone.verLen) < EPS)
+				height = 2.100;
+			else if ((1.800 - placingZone.verLen) < EPS)
+				height = 1.800;
+			else if ((1.500 - placingZone.verLen) < EPS)
+				height = 1.500;
+			else
+				height = 0;
+
+			// 비계 파이프의 세로 방향 길이 (바뀌지 않음)
+			pipeHeight = height - 0.100;
+
+			EDITCONTROL_RECT_PIPE_HEIGHT = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 360, 45, 100, 25);
+			DGDisableItem (dialogID, EDITCONTROL_RECT_PIPE_HEIGHT);
+			DGSetItemValDouble (dialogID, EDITCONTROL_RECT_PIPE_HEIGHT, pipeHeight);
+			DGShowItem (dialogID, EDITCONTROL_RECT_PIPE_HEIGHT);
+
+			break;
+
+		case DG_MSG_CHANGE:
+
+			width = atof (DGPopUpGetItemText (dialogID, POPUP_PREFER_WIDTH, DGPopUpGetSelected (dialogID, POPUP_PREFER_WIDTH)).ToCStr ()) / 1000.0;
+
+			// 비계 파이프의 가로 방향 길이
+			if (abs (width - 2.300) < EPS) {
+				pipeWidth = 2.200;
+			} else if (abs (width - 2.250) < EPS) {
+				pipeWidth = 2.200;
+			} else if (abs (width - 2.200) < EPS) {
+				pipeWidth = 2.100;
+			} else if (abs (width - 2.150) < EPS) {
+				pipeWidth = 2.100;
+			} else if (abs (width - 2.100) < EPS) {
+				pipeWidth = 2.000;
+			} else if (abs (width - 2.050) < EPS) {
+				pipeWidth = 2.000;
+			} else if (abs (width - 2.000) < EPS) {
+				pipeWidth = 1.900;
+			} else if (abs (width - 1.950) < EPS) {
+				pipeWidth = 1.900;
+			} else if (abs (width - 1.900) < EPS) {
+				pipeWidth = 1.800;
+			} else if (abs (width - 1.850) < EPS) {
+				pipeWidth = 1.800;
+			} else {
+				pipeWidth = 1.700;
+			}
+
+			DGSetItemValDouble (dialogID, EDITCONTROL_RECT_PIPE_WIDTH, pipeWidth);
+
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+
+					// 선호하는 테이블폼 너비
+					preferWidth = atof (DGPopUpGetItemText (dialogID, POPUP_PREFER_WIDTH, DGPopUpGetSelected (dialogID, POPUP_PREFER_WIDTH)).ToCStr ()) / 1000.0;
+					
+
+					break;
+				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
+}
+
 // 테이블폼 배치를 위한 질의를 요청하는 다이얼로그
-short DGCALLBACK wallTableformPlacerHandler (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short	result;
 	API_UCCallbackType	ucb;
