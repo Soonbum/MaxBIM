@@ -402,3 +402,9 @@ short	isStringDouble (char *str)
 	
 	return 1;	// 그밖의 경우는 숫자
 }
+
+// 반올림
+double	round (double x, int digit)
+{
+	return	floor((x) * pow (float (10), digit) + 0.5f) / pow (float (10), digit);
+}

@@ -25,6 +25,7 @@ bool		isNextPoint (API_Coord3D prevPoint, API_Coord3D curPoint, API_Coord3D next
 short		moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2);							// curPoint에 가까운 점이 p1, p2 중 어떤 점입니까?
 API_Coord3D	getUnrotatedPoint (API_Coord3D rotatedPoint, API_Coord3D axisPoint, double ang);				// 회전이 적용되지 않았을 때의 위치 (배치되어야 할 본래 위치를 리턴), 각도는 Degree
 API_Coord	getUnrotatedPoint (API_Coord rotatedPoint, API_Coord axisPoint, double ang);					// 회전이 적용되지 않았을 때의 위치 (배치되어야 할 본래 위치를 리턴), 각도는 Degree
+double	round (double x, int digit);																		// 반올림
 
 std::string	format_string(const std::string fmt, ...);														// std::string 변수 값에 formatted string을 입력 받음
 short	isStringDouble (char *str);																			// 문자열 s가 숫자로 된 문자열인지 알려줌 (숫자는 1, 문자열은 0)
