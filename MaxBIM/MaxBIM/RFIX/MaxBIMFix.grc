@@ -370,12 +370,12 @@
 /* [ 16] */	RightText		 10		355		100		 23		LargePlain		"Rect Pipe"
 /* [ 17] */	RightText		 10		385		100		 23		LargePlain		"Pinbolt"
 /* [ 18] */	RightText		 10		415		100		 23		LargePlain		"Wall Tie"
-/* [ 19] */	RightText		 10		445		100		 23		LargePlain		"Clamp"
+/* [ 19] */	RightText		 10		445		100		 23		LargePlain		"Join"
 /* [ 20] */	RightText		 10		475		100		 23		LargePlain		"Headpiece"
 /* [ 21] */	UserControl		120		319		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
 /* [ 22] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE	*/
 /* [ 23] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT		*/
 /* [ 24] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE		*/
-/* [ 25] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - CLAMP		*/
+/* [ 25] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN			*/
 /* [ 26] */	UserControl		120		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
 }

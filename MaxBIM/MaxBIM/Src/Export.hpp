@@ -50,45 +50,83 @@ struct ColumnPos
 struct SummaryOfSelectedObjects
 {
 	// 유로폼
-	vector<int>	uformWidth;				// 유로폼 너비
-	vector<int>	uformHeight;			// 유로폼 높이
-	vector<int>	uformCount;				// 해당 유로폼 너비/높이 조합에 대한 개수
-	int	sizeOfUformVectors;				// 유로폼 종류별 개수
+	int uformWidth [100];				// 유로폼 너비
+	int uformHeight [100];				// 유로폼 높이
+	int uformCount [100];				// 해당 유로폼 너비/높이 조합에 대한 개수
+	int sizeOfUformKinds;				// 유로폼 종류별 개수
 
 	// 스틸폼
-	vector<int>	steelformWidth;			// 스틸폼 너비
-	vector<int>	steelformHeight;		// 스틸폼 높이
-	vector<int>	steelformCount;			// 해당 스틸폼 너비/높이 조합에 대한 개수
-	int	sizeOfSteelformVectors;			// 스틸폼 종류별 개수
+	int steelformWidth [100];			// 스틸폼 너비
+	int steelformHeight [100];			// 스틸폼 높이
+	int steelformCount [100];			// 해당 스틸폼 너비/높이 조합에 대한 개수
+	int	sizeOfSteelformKinds;			// 스틸폼 종류별 개수
 
 	// 인코너판넬
-	vector<int>	incornerPanelHor;		// 인코너판넬 가로
-	vector<int> incornerPanelVer;		// 인코너판넬 세로
-	vector<int> incornerPanelHei;		// 인코너판넬 높이
-	vector<int>	incornerPanelCount;		// 해당 인코너판넬 가로/세로/높이 조합에 대한 개수
-	int	sizeOfIncornerPanelVectors;		// 인코너판넬 종류별 개수
+	int incornerPanelHor [100];			// 인코너판넬 가로
+	int incornerPanelVer [100];			// 인코너판넬 세로
+	int incornerPanelHei [100];			// 인코너판넬 높이
+	int incornerPanelCount [100];		// 해당 인코너판넬 가로/세로/높이 조합에 대한 개수
+	int	sizeOfIncornerPanelKinds;		// 인코너판넬 종류별 개수
 
 	// 아웃코너판넬
+	int outcornerPanelHor [100];		// 아웃코너판넬 가로
+	int outcornerPanelVer [100];		// 아웃코너판넬 세로
+	int outcornerPanelHei [100];		// 아웃코너판넬 높이
+	int outcornerPanelCount [100];		// 해당 아웃코너판넬 가로/세로/높이 조합에 대한 개수
+	int	sizeOfOutcornerPanelKinds;		// 아웃코너판넬 종류별 개수
 
 	// 아웃코너앵글
+	int outcornerAngleLength [100];		// 아웃코너앵글 길이
+	int outcornerAngleCount [100];		// 해당 아웃코너앵글 길이에 대한 개수
+	int sizeOfOutcornerAngleKinds;		// 아웃코너앵글 종류별 개수
 
 	// 목재
+	int woodThk [100];					// 목재 두께
+	int woodWidth [100];				// 목재 너비
+	int woodLength [100];				// 목재 길이
+	int woodCount [100];				// 해당 목재 두께/너비/길이 조합에 대한 개수
+	int sizeOfWoodKinds;				// 목재 종류별 개수
 
 	// 휠러스페이서
+	int fsThk [100];					// 휠러스페이서 두께
+	int fsLength [100];					// 휠러스페이서 길이
+	int fsCount [100];					// 해당 휠러스페이서 두께/길이 조합에 대한 개수
+	int sizeOfFsKinds;					// 휠러스페이서 종류별 개수
 
-	// 사각파이프
+	// 사각파이프 (비계파이프, 직사각파이프)
+	int sqrPipeHor [100];				// 사각파이프 단면 가로
+	int sqrPipeVer [100];				// 사각파이프 단면 세로
+	int sqrPipeLength [100];			// 사각파이프 길이
+	int sqrPipeCount [100];				// 해당 사각파이프 가로/세로/길이 조합에 대한 개수
+	int sizeOfSqrPipeKinds;				// 사각파이프 종류별 개수
 
 	// 합판
+	int plywoodHor [100];				// 가로
+	int plywoodVer [100];				// 세로
+	double plywoodThk [100];			// 두께
+	int plywoodCount [100];				// 해당 합판 가로/세로/두께 조합에 대한 개수
+	int sizeOfPlywoodKinds;				// 합판 종류별 개수
 
 	// RS Push-Pull Props 헤드피스 (인양고리 포함)
+	int nHeadpiece;
 
 	// RS Push-Pull Props
+	int nProps;
 
 	// 벽체 타이
+	int nTie;
 
 	// 직교클램프
+	int nClamp;
 
 	// 핀볼트세트
+	int nPinbolt;
+
+	// 결합철물 (사각와셔활용)
+	int nJoin;
+
+	// 알 수 없는 객체
+	int nUnknownObjects;				// 지정되지 않은 객체의 개수
 };
 
 void		initArray (double arr [], short arrSize);											// 배열 초기화 함수

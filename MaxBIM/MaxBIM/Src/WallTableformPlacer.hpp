@@ -24,14 +24,14 @@ namespace wallTableformPlacerDG {
 		LABEL_LAYER_RECTPIPE,
 		LABEL_LAYER_PINBOLT,
 		LABEL_LAYER_WALLTIE,
-		LABEL_LAYER_CLAMP,
+		LABEL_LAYER_JOIN,
 		LABEL_LAYER_HEADPIECE,
 
 		USERCONTROL_LAYER_EUROFORM,
 		USERCONTROL_LAYER_RECTPIPE,
 		USERCONTROL_LAYER_PINBOLT,
 		USERCONTROL_LAYER_WALLTIE,
-		USERCONTROL_LAYER_CLAMP,
+		USERCONTROL_LAYER_JOIN,
 		USERCONTROL_LAYER_HEADPIECE
 	};
 }
@@ -193,6 +193,19 @@ struct paramsPUSH_ForWallTableform
 	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
 };
 
+// 파라미터: 결합철물
+struct paramsJOIN_ForWallTableform
+{
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	angX;			// 본체 회전 (X)
+	double	angY;			// 본체 회전 (Y)
+};
+
 // 배치 정보
 struct	placementInfoForWallTableform
 {
@@ -222,5 +235,6 @@ API_Guid	placePINB (paramsPINB_ForWallTableform	params);	// 배치: 핀볼트 세트
 API_Guid	placeTIE  (paramsTIE_ForWallTableform	params);	// 배치: 벽체 타이
 API_Guid	placeCLAM (paramsCLAM_ForWallTableform	params);	// 배치: 직교 클램프
 API_Guid	placePUSH (paramsPUSH_ForWallTableform	params);	// 배치: 헤드피스
+API_Guid	placeJOIN (paramsJOIN_ForWallTableform	params);	// 배치: 결합철물
 
 #endif

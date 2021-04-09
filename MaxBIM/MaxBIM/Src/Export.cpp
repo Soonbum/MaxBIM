@@ -420,9 +420,23 @@ GSErrCode	exportSelectedElementInfo (void)
 	API_WindowInfo		windowInfo;
 	char				buffer [256];
 
-	summary.sizeOfUformVectors = 0;				// 유로폼 개수 초기화
-	summary.sizeOfSteelformVectors = 0;			// 스틸폼 개수 초기화
-	summary.sizeOfIncornerPanelVectors = 0;		// 인코너판넬 개수 초기화
+	summary.sizeOfUformKinds = 0;				// 유로폼 개수 초기화
+	summary.sizeOfSteelformKinds = 0;			// 스틸폼 개수 초기화
+	summary.sizeOfIncornerPanelKinds = 0;		// 인코너판넬 개수 초기화
+	summary.sizeOfOutcornerPanelKinds = 0;		// 아웃코너판넬 개수 초기화
+	summary.sizeOfOutcornerAngleKinds = 0;		// 아웃코너앵글 개수 초기화
+	summary.sizeOfWoodKinds = 0;				// 목재 개수 초기화
+	summary.sizeOfFsKinds = 0;					// 휠러스페이서 개수 초기화
+	summary.sizeOfSqrPipeKinds = 0;				// 사각파이프 개수 초기화
+	summary.sizeOfPlywoodKinds = 0;				// 합판 개수 초기화
+	summary.nHeadpiece = 0;						// 개수 초기화: RS Push-Pull Props 헤드피스 (인양고리 포함)
+	summary.nProps = 0;							// 개수 초기화: RS Push-Pull Props
+	summary.nTie = 0;							// 개수 초기화: 벽체 타이
+	summary.nClamp = 0;							// 개수 초기화: 직교클램프
+	summary.nPinbolt = 0;						// 개수 초기화: 핀볼트세트
+	summary.nJoin = 0;							// 개수 초기화: 결합철물 (사각와셔활용)
+
+	summary.nUnknownObjects = 0;				// 알 수 없는 객채 개수 초기화
 
 	BNZeroMemory (&windowPars, sizeof (API_NewWindowPars));
 	windowPars.typeID = APIWind_MyTextID;
@@ -457,19 +471,20 @@ GSErrCode	exportSelectedElementInfo (void)
 					}
 
 					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfUformVectors ; ++zz) {
+					for (zz = 0 ; zz < summary.sizeOfUformKinds ; ++zz) {
 						if ((summary.uformWidth [zz] == width) && (summary.uformHeight [zz] == height)) {
 							summary.uformCount [zz] ++;
 							foundExistValue = true;
+							break;
 						}
 					}
 
-					// 신규 항목은 너비, 높이 추가하고 개수도 증가
+					// 신규 항목 추가하고 개수도 증가
 					if ( !foundExistValue ) {
-						summary.uformWidth.push_back (width);
-						summary.uformHeight.push_back (height);
-						summary.uformCount.push_back (1);
-						summary.sizeOfUformVectors ++;
+						summary.uformWidth [summary.sizeOfUformKinds] = width;
+						summary.uformHeight [summary.sizeOfUformKinds] = height;
+						summary.uformCount [summary.sizeOfUformKinds] = 1;
+						summary.sizeOfUformKinds ++;
 					}
 
 					break;
@@ -490,19 +505,20 @@ GSErrCode	exportSelectedElementInfo (void)
 					}
 
 					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfSteelformVectors ; ++zz) {
+					for (zz = 0 ; zz < summary.sizeOfSteelformKinds ; ++zz) {
 						if ((summary.steelformWidth [zz] == width) && (summary.steelformHeight [zz] == height)) {
 							summary.steelformCount [zz] ++;
 							foundExistValue = true;
+							break;
 						}
 					}
 
-					// 신규 항목은 너비, 높이 추가하고 개수도 증가
+					// 신규 항목 추가하고 개수도 증가
 					if ( !foundExistValue ) {
-						summary.steelformWidth.push_back (width);
-						summary.steelformHeight.push_back (height);
-						summary.steelformCount.push_back (1);
-						summary.sizeOfSteelformVectors ++;
+						summary.steelformWidth [summary.sizeOfSteelformKinds] = width;
+						summary.steelformHeight [summary.sizeOfSteelformKinds] = height;
+						summary.steelformCount [summary.sizeOfSteelformKinds] = 1;
+						summary.sizeOfSteelformKinds ++;
 					}
 
 					break;
@@ -518,70 +534,293 @@ GSErrCode	exportSelectedElementInfo (void)
 					hei = static_cast<int> (memo.params [0][29].value.real * 1000);
 
 					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfIncornerPanelVectors ; ++zz) {
+					for (zz = 0 ; zz < summary.sizeOfIncornerPanelKinds ; ++zz) {
 						if ((summary.incornerPanelHor [zz] == hor) && (summary.incornerPanelVer [zz] == ver) && (summary.incornerPanelHei [zz] == hei)) {
 							summary.incornerPanelCount [zz] ++;
 							foundExistValue = true;
+							break;
 						}
 					}
 
-					// 신규 항목은 가로, 세로, 높이 추가하고 개수도 증가
+					// 신규 항목 추가하고 개수도 증가
 					if ( !foundExistValue ) {
-						summary.incornerPanelHor.push_back (hor);
-						summary.incornerPanelVer.push_back (ver);
-						summary.incornerPanelHei.push_back (hei);
-						summary.incornerPanelCount.push_back (1);
-						summary.sizeOfIncornerPanelVectors ++;
+						summary.incornerPanelHor [summary.sizeOfIncornerPanelKinds] = hor;
+						summary.incornerPanelVer [summary.sizeOfIncornerPanelKinds] = ver;
+						summary.incornerPanelHei [summary.sizeOfIncornerPanelKinds] = hei;
+						summary.incornerPanelCount [summary.sizeOfIncornerPanelKinds] = 1;
+						summary.sizeOfIncornerPanelKinds ++;
 					}
 
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("아웃코너판넬")) == 0) {
-					//
+					foundExistValue = false;
+
+					int hor, ver, hei;
+
+					hor = static_cast<int> (memo.params [0][27].value.real * 1000);
+					ver = static_cast<int> (memo.params [0][28].value.real * 1000);
+					hei = static_cast<int> (memo.params [0][29].value.real * 1000);
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfOutcornerPanelKinds ; ++zz) {
+						if ((summary.outcornerPanelHor [zz] == hor) && (summary.outcornerPanelVer [zz] == ver) && (summary.outcornerPanelHei [zz] == hei)) {
+							summary.outcornerPanelCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						summary.outcornerPanelHor [summary.sizeOfOutcornerPanelKinds] = hor;
+						summary.outcornerPanelVer [summary.sizeOfOutcornerPanelKinds] = ver;
+						summary.outcornerPanelHei [summary.sizeOfOutcornerPanelKinds] = hei;
+						summary.outcornerPanelCount [summary.sizeOfOutcornerPanelKinds] = 1;
+						summary.sizeOfOutcornerPanelKinds ++;
+					}
+
 					break;
 				}
 			} else if (strncmp (memo.params [0][yy].name, "w_comp", strlen ("w_comp")) == 0) {
 				if (GS::ucscmp (memo.params [0][yy].value.uStr, L("아웃코너앵글")) == 0) {
-					//
+					foundExistValue = false;
+
+					int length;
+
+					length = static_cast<int> (memo.params [0][27].value.real * 1000);
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfOutcornerAngleKinds ; ++zz) {
+						if (summary.outcornerAngleLength [zz] == length) {
+							summary.outcornerAngleCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						summary.outcornerAngleLength [summary.sizeOfOutcornerAngleKinds] = length;
+						summary.outcornerAngleCount [summary.sizeOfOutcornerAngleKinds] = 1;
+						summary.sizeOfOutcornerAngleKinds ++;
+					}
+
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("목재")) == 0) {
-					//
+					foundExistValue = false;
+
+					int thk, wid, len;
+
+					thk = static_cast<int> (memo.params [0][28].value.real * 1000);
+					wid = static_cast<int> (memo.params [0][29].value.real * 1000);
+					len = static_cast<int> (memo.params [0][30].value.real * 1000);
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfWoodKinds ; ++zz) {
+						if ((summary.woodThk [zz] == thk) && (summary.woodWidth [zz] == wid) && (summary.woodLength [zz] == len)) {
+							summary.woodCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						summary.woodThk [summary.sizeOfWoodKinds] = thk;
+						summary.woodWidth [summary.sizeOfWoodKinds] = wid;
+						summary.woodLength [summary.sizeOfWoodKinds] = len;
+						summary.woodCount [summary.sizeOfWoodKinds] = 1;
+						summary.sizeOfWoodKinds ++;
+					}
+
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("휠러스페이서")) == 0) {
-					//
+					foundExistValue = false;
+
+					int thk, len;
+
+					thk = static_cast<int> (memo.params [0][27].value.real * 1000);
+					len = static_cast<int> (memo.params [0][28].value.real * 1000);
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfFsKinds ; ++zz) {
+						if ((summary.fsThk [zz] == thk) && (summary.fsLength [zz] == len)) {
+							summary.fsCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						summary.fsThk [summary.sizeOfFsKinds] = thk;
+						summary.fsLength [summary.sizeOfFsKinds] = len;
+						summary.fsCount [summary.sizeOfFsKinds] = 1;
+						summary.sizeOfFsKinds ++;
+					}
+
 					break;
 				}
 			} else if (strncmp (memo.params [0][yy].name, "p_comp", strlen ("p_comp")) == 0) {
 				if (GS::ucscmp (memo.params [0][yy].value.uStr, L("사각파이프")) == 0) {
-					//
-					break;
+					// 비계파이프의 경우
+					if (memo.params [0][27].typeID == APIParT_Length) {
+						foundExistValue = false;
+
+						int hor, ver, len;
+
+						hor = 50;
+						ver = 50;
+						len = static_cast<int> (memo.params [0][27].value.real * 1000);
+
+						// 중복 항목은 개수만 증가
+						for (zz = 0 ; zz < summary.sizeOfSqrPipeKinds ; ++zz) {
+							if ((summary.sqrPipeHor [zz] == hor) && (summary.sqrPipeVer [zz] == ver) && (summary.sqrPipeLength [zz] == len)) {
+								summary.sqrPipeCount [zz] ++;
+								foundExistValue = true;
+								break;
+							}
+						}
+
+						// 신규 항목 추가하고 개수도 증가
+						if ( !foundExistValue ) {
+							summary.sqrPipeHor [summary.sizeOfSqrPipeKinds] = hor;
+							summary.sqrPipeVer [summary.sizeOfSqrPipeKinds] = ver;
+							summary.sqrPipeLength [summary.sizeOfSqrPipeKinds] = len;
+							summary.sqrPipeCount [summary.sizeOfSqrPipeKinds] = 1;
+							summary.sizeOfSqrPipeKinds ++;
+						}
+
+						break;
+					}
+
+					// 직사각파이프의 경우
+					if (memo.params [0][27].typeID == APIParT_CString) {
+						foundExistValue = false;
+
+						char nom [20];
+						char tempStr [10];
+						int hor = 0, ver = 0, len;
+
+						sprintf (nom, "%s", GS::UniString (memo.params [0][27].value.uStr).ToCStr ().Get ());
+
+						char	*token;
+						int		tokCount;
+
+						token = strtok (nom, "x");
+						tokCount = 1;
+						while (token != NULL) {
+							if (strlen (token) > 0) {
+								if (tokCount == 1)
+									hor = atoi (token);
+								if (tokCount == 2)
+									ver = atoi (token);
+								tokCount ++;
+							}
+							token = strtok (NULL, ",");
+						}
+
+						len = static_cast<int> (memo.params [0][29].value.real * 1000);
+
+						// 중복 항목은 개수만 증가
+						for (zz = 0 ; zz < summary.sizeOfSqrPipeKinds ; ++zz) {
+							if ((summary.sqrPipeHor [zz] == hor) && (summary.sqrPipeVer [zz] == ver) && (summary.sqrPipeLength [zz] == len)) {
+								summary.sqrPipeCount [zz] ++;
+								foundExistValue = true;
+								break;
+							}
+						}
+
+						// 신규 항목 추가하고 개수도 증가
+						if ( !foundExistValue ) {
+							summary.sqrPipeHor [summary.sizeOfSqrPipeKinds] = hor;
+							summary.sqrPipeVer [summary.sizeOfSqrPipeKinds] = ver;
+							summary.sqrPipeLength [summary.sizeOfSqrPipeKinds] = len;
+							summary.sqrPipeCount [summary.sizeOfSqrPipeKinds] = 1;
+							summary.sizeOfSqrPipeKinds ++;
+						}
+
+						break;
+					}
 				}
 			} else if (strncmp (memo.params [0][yy].name, "g_comp", strlen ("g_comp")) == 0) {
 				if (GS::ucscmp (memo.params [0][yy].value.uStr, L("합판")) == 0) {
-					//
+					foundExistValue = false;
+
+					int hor, ver;
+					double thk = 0.0;
+
+					// 규격에 따른 가로, 세로
+					if (GS::ucscmp (memo.params [0][32].value.uStr, L("3x6 [910x1820]")) == 0) {
+						hor = 910;
+						ver = 1820;
+					} else if (GS::ucscmp (memo.params [0][32].value.uStr, L("4x8 [1220x2440]")) == 0) {
+						hor = 1220;
+						ver = 2440;
+					} else if (GS::ucscmp (memo.params [0][32].value.uStr, L("비규격")) == 0) {
+						hor = static_cast<int> (memo.params [0][35].value.real * 1000);
+						ver = static_cast<int> (memo.params [0][36].value.real * 1000);
+					} else {
+						// 그 외(비정형)는 알 수 없는 객체로 취급함
+						summary.nUnknownObjects ++;
+						break;
+					}
+					
+					// 두께
+					if (GS::ucscmp (memo.params [0][34].value.uStr, L("2.7T")) == 0)		thk = 2.7;
+					if (GS::ucscmp (memo.params [0][34].value.uStr, L("4.8T")) == 0)		thk = 4.8;
+					if (GS::ucscmp (memo.params [0][34].value.uStr, L("7.5T")) == 0)		thk = 7.5;
+					if (GS::ucscmp (memo.params [0][34].value.uStr, L("8.5T")) == 0)		thk = 8.5;
+					if (GS::ucscmp (memo.params [0][34].value.uStr, L("11.5T")) == 0)		thk = 11.5;
+					if (GS::ucscmp (memo.params [0][34].value.uStr, L("14.5T")) == 0)		thk = 14.5;
+					if (GS::ucscmp (memo.params [0][34].value.uStr, L("17.5T")) == 0)		thk = 17.5;
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfPlywoodKinds ; ++zz) {
+						if ((summary.plywoodHor [zz] == hor) && (summary.plywoodVer [zz] == ver) && (abs (summary.plywoodThk [zz] - thk) < EPS)) {
+							summary.plywoodCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						summary.plywoodHor [summary.sizeOfPlywoodKinds] = hor;
+						summary.plywoodVer [summary.sizeOfPlywoodKinds] = ver;
+						summary.plywoodThk [summary.sizeOfPlywoodKinds] = thk;
+						summary.plywoodCount [summary.sizeOfPlywoodKinds] = 1;
+						summary.sizeOfPlywoodKinds ++;
+					}
+
 					break;
 				}
 			} else if (strncmp (memo.params [0][yy].name, "sup_type", strlen ("sup_type")) == 0) {
 				if (GS::ucscmp (memo.params [0][yy].value.uStr, L("RS Push-Pull Props 헤드피스 (인양고리 포함)")) == 0) {
-					//
+					summary.nHeadpiece ++;
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("RS Push-Pull Props")) == 0) {
-					//
+					summary.nProps ++;
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("벽체 타이")) == 0) {
-					//
+					summary.nTie ++;
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("직교클램프")) == 0) {
-					//
+					summary.nClamp ++;
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("핀볼트세트")) == 0) {
-					//
+					summary.nPinbolt ++;
+					break;
+				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("결합철물 (사각와셔활용)")) == 0) {
+					summary.nJoin ++;
 					break;
 				}
 			}
 
 			if (yy == 50) {
 				// 알 수 없는 객체
-				// ...
+				summary.nUnknownObjects ++;
+				break;
 			}
 
 			++ yy;
@@ -595,25 +834,104 @@ GSErrCode	exportSelectedElementInfo (void)
 	windowInfo.typeID = APIWind_MyTextID;
 	windowInfo.index = 1;
 
-	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "[유로폼]\n");
-	for (xx = 0 ; xx < summary.sizeOfUformVectors ; ++xx) {
+	for (xx = 0 ; xx < summary.sizeOfUformKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "[유로폼]\n");
 		sprintf (buffer, "%d x %d : %d EA\n", summary.uformWidth [xx], summary.uformHeight [xx], summary.uformCount [xx]);
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
-	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[스틸폼]\n");
-	for (xx = 0 ; xx < summary.sizeOfSteelformVectors ; ++xx) {
+	for (xx = 0 ; xx < summary.sizeOfSteelformKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[스틸폼]\n");
 		sprintf (buffer, "%d x %d : %d EA\n", summary.steelformWidth [xx], summary.steelformHeight [xx], summary.steelformCount [xx]);
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
-	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[인코너판넬]\n");
-	for (xx = 0 ; xx < summary.sizeOfIncornerPanelVectors ; ++xx) {
-		sprintf (buffer, "%d x %d x %d : %d EA\n", summary.incornerPanelHor [xx], summary.incornerPanelVer [xx], summary.incornerPanelHei [xx], summary.steelformCount [xx]);
+	for (xx = 0 ; xx < summary.sizeOfIncornerPanelKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[인코너판넬]\n");
+		sprintf (buffer, "%d x %d x %d : %d EA\n", summary.incornerPanelHor [xx], summary.incornerPanelVer [xx], summary.incornerPanelHei [xx], summary.incornerPanelCount [xx]);
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
-	// ...
+	for (xx = 0 ; xx < summary.sizeOfOutcornerPanelKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[아웃코너판넬]\n");
+		sprintf (buffer, "%d x %d x %d : %d EA\n", summary.outcornerPanelHor [xx], summary.outcornerPanelVer [xx], summary.outcornerPanelHei [xx], summary.outcornerPanelCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	for (xx = 0 ; xx < summary.sizeOfOutcornerAngleKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[아웃코너앵글]\n");
+		sprintf (buffer, "%d : %d EA\n", summary.outcornerAngleLength [xx], summary.outcornerAngleCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	for (xx = 0 ; xx < summary.sizeOfWoodKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[목재]\n");
+		sprintf (buffer, "%d x %d x %d : %d EA\n", summary.woodThk [xx], summary.woodWidth [xx], summary.woodLength [xx], summary.woodCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	for (xx = 0 ; xx < summary.sizeOfFsKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[휠러스페이서]\n");
+		sprintf (buffer, "%d x %d : %d EA\n", summary.fsThk [xx], summary.fsLength [xx], summary.fsCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	for (xx = 0 ; xx < summary.sizeOfSqrPipeKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[사각파이프]\n");
+		sprintf (buffer, "%d x %d x %d : %d EA\n", summary.sqrPipeHor [xx], summary.sqrPipeVer [xx], summary.sqrPipeLength [xx], summary.sqrPipeCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	// 합판 개수
+	for (xx = 0 ; xx < summary.sizeOfPlywoodKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[합판]\n");
+		sprintf (buffer, "%d x %d x %.1fT : %d EA\n", summary.plywoodHor [xx], summary.plywoodVer [xx], summary.plywoodThk [xx], summary.plywoodCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	if (summary.nHeadpiece > 0) {
+		sprintf (buffer, "\n[RS Push-Pull Props 헤드피스]\n%d EA\n", summary.nHeadpiece);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	if (summary.nProps > 0) {
+		sprintf (buffer, "\n[RS Push-Pull Props]\n%d EA\n", summary.nProps);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	if (summary.nTie > 0) {
+		sprintf (buffer, "\n[벽체 타이]\n%d EA\n", summary.nTie);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	if (summary.nClamp > 0) {
+		sprintf (buffer, "\n[직교클램프]\n%d EA\n", summary.nClamp);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	if (summary.nPinbolt > 0) {
+		sprintf (buffer, "\n[핀볼트세트]\n%d EA\n", summary.nPinbolt);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	if (summary.nJoin > 0) {
+		sprintf (buffer, "\n[결합철물 (사각와셔활용)]\n%d EA\n", summary.nJoin);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	if (summary.nUnknownObjects > 0) {
+		sprintf (buffer, "\n[알 수 없는 객체]\n%d EA\n", summary.nUnknownObjects);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
 
 	return	err;
 }
