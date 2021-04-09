@@ -433,7 +433,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	summary.nProps = 0;							// 개수 초기화: RS Push-Pull Props
 	summary.nTie = 0;							// 개수 초기화: 벽체 타이
 	summary.nClamp = 0;							// 개수 초기화: 직교클램프
-	summary.nPinbolt = 0;						// 개수 초기화: 핀볼트세트
+	summary.sizeOfPinboltKinds = 0;				// 핀볼트세트 개수 초기화
 	summary.nJoin = 0;							// 개수 초기화: 결합철물 (사각와셔활용)
 
 	summary.nUnknownObjects = 0;				// 알 수 없는 객채 개수 초기화
@@ -466,8 +466,8 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					// 비규격폼의 경우
 					} else {
-						width = static_cast<int> (memo.params [0][30].value.real * 1000);
-						height = static_cast<int> (memo.params [0][31].value.real * 1000);
+						width = static_cast<int> (round (memo.params [0][30].value.real * 1000, 0));
+						height = static_cast<int> (round (memo.params [0][31].value.real * 1000, 0));
 					}
 
 					// 중복 항목은 개수만 증가
@@ -500,8 +500,8 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					// 비규격폼의 경우
 					} else {
-						width = static_cast<int> (memo.params [0][30].value.real * 1000);
-						height = static_cast<int> (memo.params [0][31].value.real * 1000);
+						width = static_cast<int> (round (memo.params [0][30].value.real * 1000, 0));
+						height = static_cast<int> (round (memo.params [0][31].value.real * 1000, 0));
 					}
 
 					// 중복 항목은 개수만 증가
@@ -529,9 +529,9 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int hor, ver, hei;
 
-					hor = static_cast<int> (memo.params [0][27].value.real * 1000);
-					ver = static_cast<int> (memo.params [0][28].value.real * 1000);
-					hei = static_cast<int> (memo.params [0][29].value.real * 1000);
+					hor = static_cast<int> (round (memo.params [0][27].value.real * 1000, 0));
+					ver = static_cast<int> (round (memo.params [0][28].value.real * 1000, 0));
+					hei = static_cast<int> (round (memo.params [0][29].value.real * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfIncornerPanelKinds ; ++zz) {
@@ -557,9 +557,9 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int hor, ver, hei;
 
-					hor = static_cast<int> (memo.params [0][27].value.real * 1000);
-					ver = static_cast<int> (memo.params [0][28].value.real * 1000);
-					hei = static_cast<int> (memo.params [0][29].value.real * 1000);
+					hor = static_cast<int> (round (memo.params [0][27].value.real * 1000, 0));
+					ver = static_cast<int> (round (memo.params [0][28].value.real * 1000, 0));
+					hei = static_cast<int> (round (memo.params [0][29].value.real * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfOutcornerPanelKinds ; ++zz) {
@@ -587,7 +587,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int length;
 
-					length = static_cast<int> (memo.params [0][27].value.real * 1000);
+					length = static_cast<int> (round (memo.params [0][27].value.real * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfOutcornerAngleKinds ; ++zz) {
@@ -611,9 +611,9 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int thk, wid, len;
 
-					thk = static_cast<int> (memo.params [0][28].value.real * 1000);
-					wid = static_cast<int> (memo.params [0][29].value.real * 1000);
-					len = static_cast<int> (memo.params [0][30].value.real * 1000);
+					thk = static_cast<int> (round (memo.params [0][28].value.real * 1000, 0));
+					wid = static_cast<int> (round (memo.params [0][29].value.real * 1000, 0));
+					len = static_cast<int> (round (memo.params [0][30].value.real * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfWoodKinds ; ++zz) {
@@ -639,8 +639,8 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int thk, len;
 
-					thk = static_cast<int> (memo.params [0][27].value.real * 1000);
-					len = static_cast<int> (memo.params [0][28].value.real * 1000);
+					thk = static_cast<int> (round (memo.params [0][27].value.real * 1000, 0));
+					len = static_cast<int> (round (memo.params [0][28].value.real * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfFsKinds ; ++zz) {
@@ -671,7 +671,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 						hor = 50;
 						ver = 50;
-						len = static_cast<int> (memo.params [0][27].value.real * 1000);
+						len = static_cast<int> (round (memo.params [0][27].value.real * 1000, 0));
 
 						// 중복 항목은 개수만 증가
 						for (zz = 0 ; zz < summary.sizeOfSqrPipeKinds ; ++zz) {
@@ -720,7 +720,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							token = strtok (NULL, ",");
 						}
 
-						len = static_cast<int> (memo.params [0][29].value.real * 1000);
+						len = static_cast<int> (round (memo.params [0][29].value.real * 1000, 0));
 
 						// 중복 항목은 개수만 증가
 						for (zz = 0 ; zz < summary.sizeOfSqrPipeKinds ; ++zz) {
@@ -758,8 +758,8 @@ GSErrCode	exportSelectedElementInfo (void)
 						hor = 1220;
 						ver = 2440;
 					} else if (GS::ucscmp (memo.params [0][32].value.uStr, L("비규격")) == 0) {
-						hor = static_cast<int> (memo.params [0][35].value.real * 1000);
-						ver = static_cast<int> (memo.params [0][36].value.real * 1000);
+						hor = static_cast<int> (round (memo.params [0][35].value.real * 1000, 0));
+						ver = static_cast<int> (round (memo.params [0][36].value.real * 1000, 0));
 					} else {
 						// 그 외(비정형)는 알 수 없는 객체로 취급함
 						summary.nUnknownObjects ++;
@@ -809,7 +809,39 @@ GSErrCode	exportSelectedElementInfo (void)
 					summary.nClamp ++;
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("핀볼트세트")) == 0) {
-					summary.nPinbolt ++;
+					foundExistValue = false;
+
+					int bolt_len, washer_pos;
+					int len;
+
+					bolt_len = static_cast<int> (round (memo.params [0][10].value.real * 1000, 0));
+					washer_pos = static_cast<int> (round (memo.params [0][12].value.real * 1000, 0));
+					len = bolt_len - washer_pos + 40;
+
+					if (len < 100) {
+						len = 100;
+					} else if (len < 150) {
+						len = 150;
+					} else if (len < 180) {
+						len = 180;
+					}
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfPinboltKinds ; ++zz) {
+						if (summary.pinboltLen [zz] == len) {
+							summary.pinboltCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						summary.pinboltLen [summary.sizeOfPinboltKinds] = len;
+						summary.pinboltCount [summary.sizeOfPinboltKinds] = 1;
+						summary.sizeOfPinboltKinds ++;
+					}
+
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("결합철물 (사각와셔활용)")) == 0) {
 					summary.nJoin ++;
@@ -890,7 +922,6 @@ GSErrCode	exportSelectedElementInfo (void)
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
-	// 합판 개수
 	for (xx = 0 ; xx < summary.sizeOfPlywoodKinds ; ++xx) {
 		if (xx == 0)
 			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[합판]\n");
@@ -918,8 +949,10 @@ GSErrCode	exportSelectedElementInfo (void)
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
-	if (summary.nPinbolt > 0) {
-		sprintf (buffer, "\n[핀볼트세트]\n%d EA\n", summary.nPinbolt);
+	for (xx = 0 ; xx < summary.sizeOfPinboltKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[핀볼트세트]\n");
+		sprintf (buffer, "%d : %d EA\n", summary.pinboltLen [xx], summary.pinboltCount [xx]);
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 

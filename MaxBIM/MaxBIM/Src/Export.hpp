@@ -2,8 +2,6 @@
 #define __EXPORT__
 
 #include "MaxBIM.hpp"
-#include <vector>
-#include <cmath>
 
 using namespace std;
 
@@ -120,7 +118,9 @@ struct SummaryOfSelectedObjects
 	int nClamp;
 
 	// 핀볼트세트
-	int nPinbolt;
+	int pinboltLen [100];				// 핀볼트 길이
+	int pinboltCount [100];				// 해당 길이에 대한 개수
+	int sizeOfPinboltKinds;				// 핀볼트 종류별 개수
 
 	// 결합철물 (사각와셔활용)
 	int nJoin;
