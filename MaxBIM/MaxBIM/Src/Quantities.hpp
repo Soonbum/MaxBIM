@@ -56,6 +56,8 @@ struct qElem
 	short	typeOfQPlywood;		// 물량합판 객체의 타입 (enum qPlywoodType 참조)
 	//double	ang;			// 회전 각도 (현재는 사용하지 않음)
 
+	bool	hasHole;			// (문, 창문에 의한) 구멍이 나 있는가?
+
 	API_Coord3D		bottomPoint;	// 최하단 점 (좌하단 바닥)
 	API_Coord3D		topPoint;		// 최상단 점 (우상단 꼭대기)
 
@@ -97,8 +99,11 @@ GSErrCode	placeQuantityPlywood (void);			// 부재(벽,슬래브,보,기둥)들의 가설재가
 short	DGCALLBACK quantityPlywoodUIHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그] 물량산출 합판 레이어 지정
 short	findLayerIndex (const char* layerName);		// 레이어 이름으로 레이어 인덱스 찾기
 short	invalidateShortTwoSide (qElem* element);	// 4개의 측면 중 짧은 2개의 측면을 무효화하고, 유효한 면 정보를 리턴함. 리턴 값은 다음 값의 조합입니다. 북쪽/남쪽(2), 동쪽/서쪽(1), 오류(0)
+short	invalidateLongTwoSide (qElem* element);		// 4개의 측면 중 긴 2개의 측면을 무효화하고, 유효한 면 정보를 리턴함. 리턴 값은 다음 값의 조합입니다. 북쪽/남쪽(2), 동쪽/서쪽(1), 오류(0)
 void	invalidateAllSide (qElem* element);			// 4개의 측면을 모두 무효화함
 void	invalidateBase (qElem* element);			// 밑면을 무효화함
+void	validateAllSide (qElem* element);			// 4개의 측면을 모두 유효화함
+void	validateBase (qElem* element);				// 밑면을 유효화함
 bool	subtractArea (qElem* src, qElem operand);	// src 요소의 측면, 밑면 영역이 operand 요소에 의해 침범 당할 경우, 솔리드 연산을 위해 operand의 GUID를 저장함
 bool	inRange (double srcPoint, double targetMin, double targetMax);						// srcPoint 값이 target 범위 안에 들어 있는가?
 double	overlapRange (double srcMin, double srcMax, double targetMin, double targetMax);	// src 범위와 target 범위가 겹치는 길이를 리턴함

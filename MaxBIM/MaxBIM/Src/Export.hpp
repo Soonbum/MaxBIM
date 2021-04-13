@@ -109,7 +109,13 @@ struct SummaryOfSelectedObjects
 	int nHeadpiece;
 
 	// RS Push-Pull Props
-	int nProps;
+	bool bPropsUpperSupp [100];			// 상부(메인) 지지대 여부
+	char PropsNomUpperSupp [100][30];	// 상부(메인) 지지대 규격
+	bool bPropsLowerSupp [100];			// 하부(보조) 지지대 여부
+	char PropsNomLowerSupp [100][30];	// 하부(보조) 지지대 규격
+	bool bPropsBase [100];				// 베이스 플레이트 여부
+	int propsCount [100];				// 해당 Props 지지대 여부/규격, 베이스 플레이트 여부 조합에 대한 개수
+	int sizeOfPropsKinds;				// Props 종류별 개수
 
 	// 벽체 타이
 	int nTie;
@@ -124,6 +130,11 @@ struct SummaryOfSelectedObjects
 
 	// 결합철물 (사각와셔활용)
 	int nJoin;
+
+	// 보 멍에제
+	int beamYokeLength [10];			// 보 멍에제 길이
+	int beamYokeCount [10];				// 해당 보 멍에제 길이에 대한 개수
+	int sizeOfBeamYokeKinds;			// 보 멍에제 종류별 개수
 
 	// 알 수 없는 객체
 	int nUnknownObjects;				// 지정되지 않은 객체의 개수

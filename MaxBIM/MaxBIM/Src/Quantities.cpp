@@ -47,6 +47,10 @@ GSErrCode	placeQuantityPlywood (void)
 	GS::Array<API_Guid>	elemList_Beam;		// 요소들의 GUID (보)
 	GS::Array<API_Guid>	elemList_Column;	// 요소들의 GUID (기둥)
 
+	GS::Array<API_Guid> elemList_Mesh;		// 요소들의 GUID (메시)
+	GS::Array<API_Guid> elemList_Roof;		// 요소들의 GUID (지붕)
+	GS::Array<API_Guid> elemList_Object;	// 요소들의 GUID (객체, 계단 포함)
+
 
 	// 프로젝트 내 레이어 개수를 알아냄
 	BNZeroMemory (&attrib, sizeof (API_Attribute));
@@ -69,11 +73,14 @@ GSErrCode	placeQuantityPlywood (void)
 	// 레이어 개수 업데이트
 	nLayers = static_cast<short> (layerInds.GetSize ());
 
-	// 보이는 레이어 상의 벽, 슬래브, 보, 기둥 객체를 가져옴
-	ACAPI_Element_GetElemList (API_WallID, &elemList_Wall, APIFilt_OnVisLayer);
-	ACAPI_Element_GetElemList (API_SlabID, &elemList_Slab, APIFilt_OnVisLayer);
-	ACAPI_Element_GetElemList (API_BeamID, &elemList_Beam, APIFilt_OnVisLayer);
-	ACAPI_Element_GetElemList (API_ColumnID, &elemList_Column, APIFilt_OnVisLayer);
+	// 벽, 슬래브, 보, 기둥 객체를 가져옴
+	ACAPI_Element_GetElemList (API_WallID, &elemList_Wall, APIFilt_In3D);
+	ACAPI_Element_GetElemList (API_SlabID, &elemList_Slab, APIFilt_In3D);
+	ACAPI_Element_GetElemList (API_BeamID, &elemList_Beam, APIFilt_In3D);
+	ACAPI_Element_GetElemList (API_ColumnID, &elemList_Column, APIFilt_In3D);
+	ACAPI_Element_GetElemList (API_MeshID, &elemList_Mesh, APIFilt_In3D);
+	ACAPI_Element_GetElemList (API_RoofID, &elemList_Roof, APIFilt_In3D);
+	ACAPI_Element_GetElemList (API_ObjectID, &elemList_Object, APIFilt_In3D);
 	while (!elemList_Wall.IsEmpty ())
 		elemList_All.Push (elemList_Wall.Pop ());
 	while (!elemList_Slab.IsEmpty ())
@@ -82,6 +89,12 @@ GSErrCode	placeQuantityPlywood (void)
 		elemList_All.Push (elemList_Beam.Pop ());
 	while (!elemList_Column.IsEmpty ())
 		elemList_All.Push (elemList_Column.Pop ());
+	while (!elemList_Mesh.IsEmpty ())
+		elemList_All.Push (elemList_Mesh.Pop ());
+	while (!elemList_Roof.IsEmpty ())
+		elemList_All.Push (elemList_Roof.Pop ());
+	while (!elemList_Object.IsEmpty ())
+		elemList_All.Push (elemList_Object.Pop ());
 
 	// 모든 리스트 값을 동적 구조체 배열에 복사할 것
 	nElems = elemList_All.GetSize ();
@@ -159,13 +172,22 @@ GSErrCode	placeQuantityPlywood (void)
 		elems [xx].validWest = true;
 		elems [xx].validBase = true;
 
+		// 벽 구멍 여부
+		if ((elem.wall.hasDoor == TRUE) || (elem.wall.hasWindow == TRUE))
+			elems [xx].hasHole = true;
+		else
+			elems [xx].hasHole = false;
+
 		// 요소 타입 지정
 		if (elem.header.typeID == API_WallID) {
 			elems [xx].typeOfElem = ELEM_WALL;
 
-			// 벽: 짧은 면과 밑면은 유효하지 않음
-			invalidateShortTwoSide (&elems [xx]);
+			// 벽: 밑면은 유효하지 않음
 			invalidateBase (&elems [xx]);
+
+			// 벽에 문이나 창에 의한 구멍이 있으면 긴 면이 유효하지 않음
+			if (elems [xx].hasHole == true)
+				invalidateLongTwoSide (&elems [xx]);
 		} else if (elem.header.typeID == API_SlabID) {
 			elems [xx].typeOfElem = ELEM_SLAB;
 
@@ -202,10 +224,10 @@ GSErrCode	placeQuantityPlywood (void)
 	objType.Push ("벽 (합벽)");
 	objType.Push ("벽 (파라펫)");
 	objType.Push ("벽 (방수턱)");
-	objType.Push ("슬래프 (기초)");
-	objType.Push ("슬래프 (RC)");
-	objType.Push ("슬래프 (데크)");
-	objType.Push ("슬래프 (램프)");
+	objType.Push ("슬래브 (기초)");
+	objType.Push ("슬래브 (RC)");
+	objType.Push ("슬래브 (데크)");
+	objType.Push ("슬래브 (램프)");
 	objType.Push ("보");
 	objType.Push ("기둥 (독립)");
 	objType.Push ("기둥 (벽체)");
@@ -391,10 +413,18 @@ short DGCALLBACK quantityPlywoodUIHandler (short message, short dialogID, short 
 							// 물량합판 객체 타입
 							selectedObjType = static_cast<short> (DGGetItemValLong (dialogID, objTypePopup [xx]));
 
+							// 요소별 레이어 정보 할당
 							for (yy = 0 ; yy < nElems ; ++yy) {
 								if (elems [yy].layerInd == foundExistLayerInd) {
 									elems [yy].qLayerInd = foundQLayerInd;
 									elems [yy].typeOfQPlywood = selectedObjType - 1;	// 열거형 값 할당됨
+									
+									// 만약 물량합판 타입이 슬래브 (기초)인 경우, [Q_SLAB_BASE]
+									if (elems [yy].typeOfQPlywood == Q_SLAB_BASE) {
+										// 밑면은 붙이지 않고 옆면은 모두 붙임
+										invalidateBase (&elems [yy]);
+										validateAllSide (&elems [yy]);
+									}
 								}
 							}
 						}
@@ -479,6 +509,34 @@ short invalidateShortTwoSide (qElem* element)
 	return result;
 }
 
+// 4개의 측면 중 긴 2개의 측면을 무효화하고, 유효한 면 정보를 리턴함. 리턴 값은 다음 값의 조합입니다. 북쪽/남쪽(2), 동쪽/서쪽(1), 오류(0)
+short invalidateLongTwoSide (qElem* element)
+{
+	short	result = 0;
+
+	double	northWidth = GetDistance (element->NorthLeftBottom.x, element->NorthLeftBottom.y, element->NorthRightTop.x, element->NorthRightTop.y);
+	double	eastWidth = GetDistance (element->EastLeftBottom.x, element->EastLeftBottom.y, element->EastRightTop.x, element->EastRightTop.y);
+
+	// 북쪽/남쪽이 길 경우
+	if (northWidth - eastWidth > EPS) {
+		// 북쪽/남쪽 면을 무효화
+		element->validNorth = false;
+		element->validSouth = false;
+
+		result = 1;
+
+	// 동쪽/서쪽이 길 경우
+	} else {
+		// 동쪽/서쪽 면을 무효화
+		element->validEast = false;
+		element->validWest = false;
+
+		result = 2;
+	}
+
+	return result;
+}
+
 // 4개의 측면을 모두 무효화함
 void invalidateAllSide (qElem* element)
 {
@@ -494,16 +552,30 @@ void invalidateBase (qElem* element)
 	element->validBase = false;
 }
 
+// 4개의 측면을 모두 유효화함
+void validateAllSide (qElem* element)
+{
+	element->validNorth = true;
+	element->validSouth = true;
+	element->validEast = true;
+	element->validWest = true;
+}
+
+// 밑면을 유효화함
+void validateBase (qElem* element)
+{
+	element->validBase = true;
+}
+
 // src 요소의 측면, 밑면 영역이 operand 요소에 의해 침범 당할 경우, 솔리드 연산을 위해 operand의 GUID를 저장함
 bool subtractArea (qElem* src, qElem operand)
 {
 	bool precondition = false;
 	bool result = false;
 
-	// 전제 조건: src, operand는 벽, 슬래브, 보, 기둥이어야 함
+	// 전제 조건: src는 벽, 슬래브, 보, 기둥이어야 함
 	if ((src->typeOfElem == ELEM_WALL) || (src->typeOfElem == ELEM_SLAB) || (src->typeOfElem == ELEM_BEAM) || (src->typeOfElem == ELEM_COLUMN))
-		if ((operand.typeOfElem == ELEM_WALL) || (operand.typeOfElem == ELEM_SLAB) || (operand.typeOfElem == ELEM_BEAM) || (operand.typeOfElem == ELEM_COLUMN))
-			precondition = true;
+		precondition = true;
 
 	// 전제 조건을 만족하지 않으면 실패
 	if (precondition == false)

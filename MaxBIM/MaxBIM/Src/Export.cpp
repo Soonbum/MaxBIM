@@ -430,11 +430,12 @@ GSErrCode	exportSelectedElementInfo (void)
 	summary.sizeOfSqrPipeKinds = 0;				// 사각파이프 개수 초기화
 	summary.sizeOfPlywoodKinds = 0;				// 합판 개수 초기화
 	summary.nHeadpiece = 0;						// 개수 초기화: RS Push-Pull Props 헤드피스 (인양고리 포함)
-	summary.nProps = 0;							// 개수 초기화: RS Push-Pull Props
+	summary.sizeOfPropsKinds = 0;				// RS Push-Pull Props 개수 초기화
 	summary.nTie = 0;							// 개수 초기화: 벽체 타이
 	summary.nClamp = 0;							// 개수 초기화: 직교클램프
 	summary.sizeOfPinboltKinds = 0;				// 핀볼트세트 개수 초기화
 	summary.nJoin = 0;							// 개수 초기화: 결합철물 (사각와셔활용)
+	summary.sizeOfBeamYokeKinds = 0;			// 보 멍에제 개수 초기화
 
 	summary.nUnknownObjects = 0;				// 알 수 없는 객채 개수 초기화
 
@@ -699,7 +700,6 @@ GSErrCode	exportSelectedElementInfo (void)
 						foundExistValue = false;
 
 						char nom [20];
-						char tempStr [10];
 						int hor = 0, ver = 0, len;
 
 						sprintf (nom, "%s", GS::UniString (memo.params [0][27].value.uStr).ToCStr ().Get ());
@@ -800,7 +800,47 @@ GSErrCode	exportSelectedElementInfo (void)
 					summary.nHeadpiece ++;
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("RS Push-Pull Props")) == 0) {
-					summary.nProps ++;
+					foundExistValue = false;
+
+					bool bUpper = TRUE;
+					char nomUpper [30];
+					bool bLower;
+					char nomLower [30];
+					bool bBase;
+					
+					if (memo.params [0][17].value.real == TRUE)
+						bLower = true;
+					else
+						bLower = false;
+
+					if (memo.params [0][9].value.real == TRUE)
+						bBase = true;
+					else
+						bBase = false;
+
+					sprintf (nomUpper, "%s", GS::UniString (memo.params [0][12].value.uStr).ToCStr ().Get ());
+					sprintf (nomLower, "%s", GS::UniString (memo.params [0][18].value.uStr).ToCStr ().Get ());
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfPropsKinds ; ++zz) {
+						if ((summary.bPropsUpperSupp [zz] == bUpper) && (strncmp (summary.PropsNomUpperSupp [xx], nomUpper, strlen(nomUpper)) == 0) && (summary.bPropsLowerSupp [zz] == bLower) && (strncmp (summary.PropsNomLowerSupp [xx], nomLower, strlen(nomLower)) == 0) && (summary.bPropsBase [zz] == bBase)) {
+							summary.propsCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						summary.bPropsUpperSupp [summary.sizeOfPropsKinds] = bUpper;
+						sprintf (summary.PropsNomUpperSupp [summary.sizeOfPropsKinds], nomUpper);
+						summary.bPropsLowerSupp [summary.sizeOfPropsKinds] = bLower;
+						sprintf (summary.PropsNomLowerSupp [summary.sizeOfPropsKinds], nomLower);
+						summary.bPropsBase [summary.sizeOfPropsKinds] = bBase;
+						summary.propsCount [summary.sizeOfPropsKinds] = 1;
+						summary.sizeOfPropsKinds ++;
+					}
+
 					break;
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("벽체 타이")) == 0) {
 					summary.nTie ++;
@@ -846,11 +886,36 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("결합철물 (사각와셔활용)")) == 0) {
 					summary.nJoin ++;
 					break;
+				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("보 멍에제")) == 0) {
+					foundExistValue = false;
+
+					int len;
+
+					len = static_cast<int> (round (memo.params [0][9].value.real * 1000, 0));
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfBeamYokeKinds ; ++zz) {
+						if (summary.beamYokeLength [zz] == len) {
+							summary.beamYokeCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						summary.beamYokeLength [summary.sizeOfBeamYokeKinds] = len;
+						summary.beamYokeCount [summary.sizeOfBeamYokeKinds] = 1;
+						summary.sizeOfBeamYokeKinds ++;
+					}
+
+					break;
 				}
 			}
 
 			if (yy == 50) {
 				// 알 수 없는 객체
+
 				summary.nUnknownObjects ++;
 				break;
 			}
@@ -934,8 +999,30 @@ GSErrCode	exportSelectedElementInfo (void)
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
-	if (summary.nProps > 0) {
-		sprintf (buffer, "\n[RS Push-Pull Props]\n%d EA\n", summary.nProps);
+	for (xx = 0 ; xx < summary.sizeOfPropsKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[RS Push-Pull Props]\n");
+
+		char	buf1 [128];
+		char	buf2 [128];
+		char	buf3 [128];
+
+		if (summary.bPropsUpperSupp [xx] == true)
+			sprintf (buf1, "상부(%s)", summary.PropsNomUpperSupp [xx]);
+		else
+			sprintf (buf1, "상부(없음)");
+
+		if (summary.bPropsLowerSupp [xx] == true)
+			sprintf (buf2, "하부(%s)", summary.PropsNomLowerSupp [xx]);
+		else
+			sprintf (buf2, "하부(없음)");
+
+		if (summary.bPropsBase [xx] == true)
+			sprintf (buf3, "베이스(있음)");
+		else
+			sprintf (buf3, "베이스(없음)");
+
+		sprintf (buffer, "%s %s %s : %d EA\n", buf1, buf2, buf3, summary.propsCount [xx]);
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
@@ -958,6 +1045,13 @@ GSErrCode	exportSelectedElementInfo (void)
 
 	if (summary.nJoin > 0) {
 		sprintf (buffer, "\n[결합철물 (사각와셔활용)]\n%d EA\n", summary.nJoin);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	for (xx = 0 ; xx < summary.sizeOfBeamYokeKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보 멍에제]\n");
+		sprintf (buffer, "%d : %d EA\n", summary.beamYokeLength [xx], summary.beamYokeCount [xx]);
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
