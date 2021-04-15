@@ -380,7 +380,9 @@ GSErrCode	exportSelectedElementInfo (void)
 	API_Neig				**selNeigs;
 	API_Element				tElem;
 	GS::Array<API_Guid>&	objects = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>&	beams = GS::Array<API_Guid> ();
 	long					nObjects = 0;
+	long					nBeams = 0;
 
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
@@ -402,10 +404,14 @@ GSErrCode	exportSelectedElementInfo (void)
 
 			if (tElem.header.typeID == API_ObjectID)	// 객체 타입 요소인가?
 				objects.Push (tElem.header.guid);
+
+			if (tElem.header.typeID == API_BeamID)		// 보 타입 요소인가?
+				beams.Push (tElem.header.guid);
 		}
 	}
 	BMKillHandle ((GSHandle *) &selNeigs);
 	nObjects = objects.GetSize ();
+	nBeams = beams.GetSize ();
 
 	// 선택한 요소들을 3D로 보여줌
 	err = ACAPI_Automate (APIDo_ShowSelectionIn3DID);
@@ -436,6 +442,8 @@ GSErrCode	exportSelectedElementInfo (void)
 	summary.sizeOfPinboltKinds = 0;				// 핀볼트세트 개수 초기화
 	summary.nJoin = 0;							// 개수 초기화: 결합철물 (사각와셔활용)
 	summary.sizeOfBeamYokeKinds = 0;			// 보 멍에제 개수 초기화
+	
+	summary.sizeOfBeamKinds = 0;				// 보 개수 초기화
 
 	summary.nUnknownObjects = 0;				// 알 수 없는 객채 개수 초기화
 
@@ -926,6 +934,38 @@ GSErrCode	exportSelectedElementInfo (void)
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
 
+	// 보 개수 세기
+	for (xx = 0 ; xx < nBeams ; ++xx) {
+		BNZeroMemory (&elem, sizeof (API_Element));
+		BNZeroMemory (&memo, sizeof (API_ElementMemo));
+		elem.header.guid = beams.Pop ();
+		err = ACAPI_Element_Get (&elem);
+		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+		foundExistValue = false;
+
+		int len;
+
+		len = static_cast<int> (round (GetDistance (elem.beam.begC, elem.beam.endC) * 1000, 0));
+
+		// 중복 항목은 개수만 증가
+		for (zz = 0 ; zz < summary.sizeOfBeamKinds ; ++zz) {
+			if (summary.beamLength [zz] == len) {
+				summary.beamCount [zz] ++;
+				foundExistValue = true;
+			}
+		}
+
+		// 신규 항목 추가하고 개수도 증가
+		if ( !foundExistValue ) {
+			summary.beamLength [summary.sizeOfBeamKinds] = len;
+			summary.beamCount [summary.sizeOfBeamKinds] = 1;
+			summary.sizeOfBeamKinds ++;
+		}
+
+		ACAPI_DisposeElemMemoHdls (&memo);
+	}
+
 	// 최종 텍스트 표시
 	BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
 	windowInfo.typeID = APIWind_MyTextID;
@@ -1052,6 +1092,13 @@ GSErrCode	exportSelectedElementInfo (void)
 		if (xx == 0)
 			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보 멍에제]\n");
 		sprintf (buffer, "%d : %d EA\n", summary.beamYokeLength [xx], summary.beamYokeCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	for (xx = 0 ; xx < summary.sizeOfBeamKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보]\n");
+		sprintf (buffer, "%d : %d EA\n", summary.beamLength [xx], summary.beamCount [xx]);
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 

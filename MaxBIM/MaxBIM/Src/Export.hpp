@@ -136,6 +136,12 @@ struct SummaryOfSelectedObjects
 	int beamYokeCount [10];				// 해당 보 멍에제 길이에 대한 개수
 	int sizeOfBeamYokeKinds;			// 보 멍에제 종류별 개수
 
+	// 일반 요소
+	// 보
+	int beamLength [100];				// 보 길이
+	int beamCount [100];				// 해당 보 길이에 대한 개수
+	int sizeOfBeamKinds;				// 보 종류별 개수
+
 	// 알 수 없는 객체
 	int nUnknownObjects;				// 지정되지 않은 객체의 개수
 };
