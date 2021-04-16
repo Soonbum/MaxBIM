@@ -10,6 +10,7 @@
 #include "ColumnEuroformPlacer.hpp"
 
 #include "WallTableformPlacer.hpp"
+#include "SlabTableformPlacer.hpp"
 
 #include "Layers.hpp"
 
@@ -118,6 +119,13 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						return err;
 					});
 					break;
+				case 2:
+					// 슬래브 하부에 테이블폼 배치하기
+					err = ACAPI_CallUndoableCommand ("슬래브 하부에 테이블폼 배치", [&] () -> GSErrCode {
+						//err = placeTableformOnSlabBottom ();
+						return err;
+					});
+					break;
 			}
 			break;
 		case 32005:
@@ -152,11 +160,14 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			// 물량 산출
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:		// 물량합판 부착하기
-				err = ACAPI_CallUndoableCommand ("물량합판 부착하기", [&] () -> GSErrCode {
-					err = placeQuantityPlywood ();
-					return err;
-				});
-				break;
+					err = ACAPI_CallUndoableCommand ("물량합판 부착하기", [&] () -> GSErrCode {
+						err = placeQuantityPlywood ();
+						return err;
+					});
+					break;
+				case 2:		// 물량합판 면적 계산하기
+					// ... 개발중
+					break;
 			}
 			break;
 		case 32003:

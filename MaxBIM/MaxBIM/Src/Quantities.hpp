@@ -107,6 +107,6 @@ void	validateBase (qElem* element);				// 밑면을 유효화함
 bool	subtractArea (qElem* src, qElem operand);	// src 요소의 측면, 밑면 영역이 operand 요소에 의해 침범 당할 경우, 솔리드 연산을 위해 operand의 GUID를 저장함
 bool	inRange (double srcPoint, double targetMin, double targetMax);						// srcPoint 값이 target 범위 안에 들어 있는가?
 double	overlapRange (double srcMin, double srcMax, double targetMin, double targetMax);	// src 범위와 target 범위가 겹치는 길이를 리턴함
-void	placeQuantityPlywood (qElem* element);	// 요소의 측면들과 밑면 영역에 물량합판을 부착함
+void	placeQuantityPlywood (qElem* element);		// 요소의 측면들과 밑면 영역에 물량합판을 부착함
 
 #endif

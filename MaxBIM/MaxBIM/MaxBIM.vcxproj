@@ -140,6 +140,7 @@
     <ClInclude Include="Src\MaxBIM.hpp" />
     <ClInclude Include="Src\Quantities.hpp" />
     <ClInclude Include="Src\SlabEuroformPlacer.hpp" />
+    <ClInclude Include="Src\SlabTableformPlacer.hpp" />
     <ClInclude Include="Src\UtilityFunctions.hpp" />
     <ClInclude Include="Src\WallEuroformPlacer.hpp" />
     <ClInclude Include="Src\WallTableformPlacer.hpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="Src\Layers.cpp" />
     <ClCompile Include="Src\Quantities.cpp" />
     <ClCompile Include="Src\SlabEuroformPlacer.cpp" />
+    <ClCompile Include="Src\SlabTableformPlacer.cpp" />
     <ClCompile Include="Src\WallEuroformPlacer.cpp" />
     <ClCompile Include="Src\MaxBIM.cpp" />
     <ClCompile Include="Src\UtilityFunctions.cpp" />
