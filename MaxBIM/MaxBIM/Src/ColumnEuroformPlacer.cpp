@@ -331,7 +331,7 @@ GSErrCode	placeEuroformOnColumn (void)
 	placingZone.areaHeight		= infoMorph.height;			// 영역 높이
 
 	// placingZone의 Cell 정보 초기화
-	initCellsForColumn (&placingZone);
+	placingZone.initCells (&placingZone);
 
 	// 간섭 보 정보 초기화
 	placingZone.bInterfereBeam = false;
@@ -422,35 +422,35 @@ FIRST_SOLE_COLUMN:
 
 		// 1, 2번째 다이얼로그를 통해 입력된 데이터를 기반으로 객체를 배치
 		for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
-			placingZone.cellsLT [xx].guid = placeLibPartForColumn (placingZone.cellsLT [xx]);
+			placingZone.cellsLT [xx].guid = placingZone.placeLibPart (placingZone.cellsLT [xx]);
 			elemList.Push (placingZone.cellsLT [xx].guid);
-			placingZone.cellsRT [xx].guid = placeLibPartForColumn (placingZone.cellsRT [xx]);
+			placingZone.cellsRT [xx].guid = placingZone.placeLibPart (placingZone.cellsRT [xx]);
 			elemList.Push (placingZone.cellsRT [xx].guid);
-			placingZone.cellsLB [xx].guid = placeLibPartForColumn (placingZone.cellsLB [xx]);
+			placingZone.cellsLB [xx].guid = placingZone.placeLibPart (placingZone.cellsLB [xx]);
 			elemList.Push (placingZone.cellsLB [xx].guid);
-			placingZone.cellsRB [xx].guid = placeLibPartForColumn (placingZone.cellsRB [xx]);
+			placingZone.cellsRB [xx].guid = placingZone.placeLibPart (placingZone.cellsRB [xx]);
 			elemList.Push (placingZone.cellsRB [xx].guid);
 
-			placingZone.cellsT1 [xx].guid = placeLibPartForColumn (placingZone.cellsT1 [xx]);
+			placingZone.cellsT1 [xx].guid = placingZone.placeLibPart (placingZone.cellsT1 [xx]);
 			elemList.Push (placingZone.cellsT1 [xx].guid);
-			placingZone.cellsT2 [xx].guid = placeLibPartForColumn (placingZone.cellsT2 [xx]);
+			placingZone.cellsT2 [xx].guid = placingZone.placeLibPart (placingZone.cellsT2 [xx]);
 			elemList.Push (placingZone.cellsT2 [xx].guid);
-			placingZone.cellsL1 [xx].guid = placeLibPartForColumn (placingZone.cellsL1 [xx]);
+			placingZone.cellsL1 [xx].guid = placingZone.placeLibPart (placingZone.cellsL1 [xx]);
 			elemList.Push (placingZone.cellsL1 [xx].guid);
-			placingZone.cellsL2 [xx].guid = placeLibPartForColumn (placingZone.cellsL2 [xx]);
+			placingZone.cellsL2 [xx].guid = placingZone.placeLibPart (placingZone.cellsL2 [xx]);
 			elemList.Push (placingZone.cellsL2 [xx].guid);
-			placingZone.cellsR1 [xx].guid = placeLibPartForColumn (placingZone.cellsR1 [xx]);
+			placingZone.cellsR1 [xx].guid = placingZone.placeLibPart  (placingZone.cellsR1 [xx]);
 			elemList.Push (placingZone.cellsR1 [xx].guid);
-			placingZone.cellsR2 [xx].guid = placeLibPartForColumn (placingZone.cellsR2 [xx]);
+			placingZone.cellsR2 [xx].guid = placingZone.placeLibPart (placingZone.cellsR2 [xx]);
 			elemList.Push (placingZone.cellsR2 [xx].guid);
-			placingZone.cellsB1 [xx].guid = placeLibPartForColumn (placingZone.cellsB1 [xx]);
+			placingZone.cellsB1 [xx].guid = placingZone.placeLibPart (placingZone.cellsB1 [xx]);
 			elemList.Push (placingZone.cellsB1 [xx].guid);
-			placingZone.cellsB2 [xx].guid = placeLibPartForColumn (placingZone.cellsB2 [xx]);
+			placingZone.cellsB2 [xx].guid = placingZone.placeLibPart (placingZone.cellsB2 [xx]);
 			elemList.Push (placingZone.cellsB2 [xx].guid);
 		}
 
 		// 나머지 영역 채우기 - 합판, 목재
-		err = fillRestAreasForColumn_soleColumn (&placingZone);
+		err = placingZone.fillRestAreas_soleColumn (&placingZone);
 
 	// 벽체와 맞닿거나 벽체 속 기둥인 경우
 	} else {
@@ -538,53 +538,53 @@ FIRST_WALL_COLUMN:
 
 		// 1, 2번째 다이얼로그를 통해 입력된 데이터를 기반으로 객체를 배치
 		for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
-			placingZone.cellsLT [xx].guid = placeLibPartForColumn (placingZone.cellsLT [xx]);
+			placingZone.cellsLT [xx].guid = placingZone.placeLibPart (placingZone.cellsLT [xx]);
 			elemList.Push (placingZone.cellsLT [xx].guid);
-			placingZone.cellsRT [xx].guid = placeLibPartForColumn (placingZone.cellsRT [xx]);
+			placingZone.cellsRT [xx].guid = placingZone.placeLibPart (placingZone.cellsRT [xx]);
 			elemList.Push (placingZone.cellsRT [xx].guid);
-			placingZone.cellsLB [xx].guid = placeLibPartForColumn (placingZone.cellsLB [xx]);
+			placingZone.cellsLB [xx].guid = placingZone.placeLibPart (placingZone.cellsLB [xx]);
 			elemList.Push (placingZone.cellsLB [xx].guid);
-			placingZone.cellsRB [xx].guid = placeLibPartForColumn (placingZone.cellsRB [xx]);
+			placingZone.cellsRB [xx].guid = placingZone.placeLibPart (placingZone.cellsRB [xx]);
 			elemList.Push (placingZone.cellsRB [xx].guid);
 
-			placingZone.cellsT1 [xx].guid = placeLibPartForColumn (placingZone.cellsT1 [xx]);
+			placingZone.cellsT1 [xx].guid = placingZone.placeLibPart (placingZone.cellsT1 [xx]);
 			elemList.Push (placingZone.cellsT1 [xx].guid);
-			placingZone.cellsT2 [xx].guid = placeLibPartForColumn (placingZone.cellsT2 [xx]);
+			placingZone.cellsT2 [xx].guid = placingZone.placeLibPart (placingZone.cellsT2 [xx]);
 			elemList.Push (placingZone.cellsT2 [xx].guid);
-			placingZone.cellsL1 [xx].guid = placeLibPartForColumn (placingZone.cellsL1 [xx]);
+			placingZone.cellsL1 [xx].guid = placingZone.placeLibPart (placingZone.cellsL1 [xx]);
 			elemList.Push (placingZone.cellsL1 [xx].guid);
-			placingZone.cellsL2 [xx].guid = placeLibPartForColumn (placingZone.cellsL2 [xx]);
+			placingZone.cellsL2 [xx].guid = placingZone.placeLibPart (placingZone.cellsL2 [xx]);
 			elemList.Push (placingZone.cellsL2 [xx].guid);
-			placingZone.cellsR1 [xx].guid = placeLibPartForColumn (placingZone.cellsR1 [xx]);
+			placingZone.cellsR1 [xx].guid = placingZone.placeLibPart (placingZone.cellsR1 [xx]);
 			elemList.Push (placingZone.cellsR1 [xx].guid);
-			placingZone.cellsR2 [xx].guid = placeLibPartForColumn (placingZone.cellsR2 [xx]);
+			placingZone.cellsR2 [xx].guid = placingZone.placeLibPart (placingZone.cellsR2 [xx]);
 			elemList.Push (placingZone.cellsR2 [xx].guid);
-			placingZone.cellsB1 [xx].guid = placeLibPartForColumn (placingZone.cellsB1 [xx]);
+			placingZone.cellsB1 [xx].guid = placingZone.placeLibPart (placingZone.cellsB1 [xx]);
 			elemList.Push (placingZone.cellsB1 [xx].guid);
-			placingZone.cellsB2 [xx].guid = placeLibPartForColumn (placingZone.cellsB2 [xx]);
+			placingZone.cellsB2 [xx].guid = placingZone.placeLibPart (placingZone.cellsB2 [xx]);
 			elemList.Push (placingZone.cellsB2 [xx].guid);
 
-			placingZone.cellsLin1 [xx].guid = placeLibPartForColumn (placingZone.cellsLin1 [xx]);
+			placingZone.cellsLin1 [xx].guid = placingZone.placeLibPart (placingZone.cellsLin1 [xx]);
 			elemList.Push (placingZone.cellsLin1 [xx].guid);
-			placingZone.cellsLin2 [xx].guid = placeLibPartForColumn (placingZone.cellsLin2 [xx]);
+			placingZone.cellsLin2 [xx].guid = placingZone.placeLibPart (placingZone.cellsLin2 [xx]);
 			elemList.Push (placingZone.cellsLin2 [xx].guid);
-			placingZone.cellsRin1 [xx].guid = placeLibPartForColumn (placingZone.cellsRin1 [xx]);
+			placingZone.cellsRin1 [xx].guid = placingZone.placeLibPart (placingZone.cellsRin1 [xx]);
 			elemList.Push (placingZone.cellsRin1 [xx].guid);
-			placingZone.cellsRin2 [xx].guid = placeLibPartForColumn (placingZone.cellsRin2 [xx]);
+			placingZone.cellsRin2 [xx].guid = placingZone.placeLibPart (placingZone.cellsRin2 [xx]);
 			elemList.Push (placingZone.cellsRin2 [xx].guid);
 
-			placingZone.cellsW1 [xx].guid = placeLibPartForColumn (placingZone.cellsW1 [xx]);
+			placingZone.cellsW1 [xx].guid = placingZone.placeLibPart (placingZone.cellsW1 [xx]);
 			elemList.Push (placingZone.cellsW1 [xx].guid);
-			placingZone.cellsW2 [xx].guid = placeLibPartForColumn (placingZone.cellsW2 [xx]);
+			placingZone.cellsW2 [xx].guid = placingZone.placeLibPart (placingZone.cellsW2 [xx]);
 			elemList.Push (placingZone.cellsW2 [xx].guid);
-			placingZone.cellsW3 [xx].guid = placeLibPartForColumn (placingZone.cellsW3 [xx]);
+			placingZone.cellsW3 [xx].guid = placingZone.placeLibPart (placingZone.cellsW3 [xx]);
 			elemList.Push (placingZone.cellsW3 [xx].guid);
-			placingZone.cellsW4 [xx].guid = placeLibPartForColumn (placingZone.cellsW4 [xx]);
+			placingZone.cellsW4 [xx].guid = placingZone.placeLibPart (placingZone.cellsW4 [xx]);
 			elemList.Push (placingZone.cellsW4 [xx].guid);
 		}
 
 		// 나머지 영역 채우기 - 합판, 목재
-		err = fillRestAreasForColumn_wallColumn (&placingZone);
+		err = placingZone.fillRestAreas_wallColumn (&placingZone);
 	}
 
 	// 결과물 전체 그룹화
@@ -605,7 +605,7 @@ FIRST_WALL_COLUMN:
 }
 
 // Cell 배열을 초기화함
-void	initCellsForColumn (ColumnPlacingZone* placingZone)
+void	ColumnPlacingZone::initCells (ColumnPlacingZone* placingZone)
 {
 	short	xx;
 
@@ -809,7 +809,7 @@ void	initCellsForColumn (ColumnPlacingZone* placingZone)
 }
 
 // 꼭대기에 셀 추가
-void	addTopCell (ColumnPlacingZone* target_zone)
+void	ColumnPlacingZone::addTopCell (ColumnPlacingZone* target_zone)
 {
 	if (target_zone->nCells >= 20) return;
 
@@ -840,7 +840,7 @@ void	addTopCell (ColumnPlacingZone* target_zone)
 }
 
 // 꼭대기의 셀 삭제
-void	delTopCell (ColumnPlacingZone* target_zone)
+void	ColumnPlacingZone::delTopCell (ColumnPlacingZone* target_zone)
 {
 	if (target_zone->nCells <= 1) return;
 
@@ -848,7 +848,7 @@ void	delTopCell (ColumnPlacingZone* target_zone)
 }
 
 // Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-void	alignPlacingZoneForColumn_soleColumn (ColumnPlacingZone* placingZone)
+void	ColumnPlacingZone::alignPlacingZone_soleColumn (ColumnPlacingZone* placingZone)
 {
 	short	xx;
 	double	formWidth, formHeight;
@@ -974,7 +974,7 @@ void	alignPlacingZoneForColumn_soleColumn (ColumnPlacingZone* placingZone)
 }
 
 // Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-void	alignPlacingZoneForColumn_wallColumn (ColumnPlacingZone* placingZone)
+void	ColumnPlacingZone::alignPlacingZone_wallColumn (ColumnPlacingZone* placingZone)
 {
 	short	xx;
 	double	formWidth, formHeight;
@@ -1210,7 +1210,7 @@ void	alignPlacingZoneForColumn_wallColumn (ColumnPlacingZone* placingZone)
 }
 
 // 해당 셀 정보를 기반으로 라이브러리 배치
-API_Guid	placeLibPartForColumn (CellForColumn objInfo)
+API_Guid	ColumnPlacingZone::placeLibPart (CellForColumn objInfo)
 {
 	GSErrCode	err = NoError;
 
@@ -1417,7 +1417,7 @@ API_Guid	placeLibPartForColumn (CellForColumn objInfo)
 }
 
 // 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
-GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
+GSErrCode	ColumnPlacingZone::fillRestAreas_soleColumn (ColumnPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
 
@@ -1467,7 +1467,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = leftLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (아래쪽)
 			insCell.objType = PLYWOOD;
@@ -1478,7 +1478,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = placingZone->beams [NORTH].width;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (오른쪽)
 			insCell.objType = PLYWOOD;
@@ -1489,7 +1489,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = rightLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		} else {
 			// 합판 (전체)
 			insCell.objType = PLYWOOD;
@@ -1500,7 +1500,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = columnWidth;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
 
@@ -1533,7 +1533,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = leftLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (아래쪽)
 			insCell.objType = PLYWOOD;
@@ -1544,7 +1544,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = placingZone->beams [SOUTH].width;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (오른쪽)
 			insCell.objType = PLYWOOD;
@@ -1555,7 +1555,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = rightLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		} else {
 			// 합판 (전체)
 			insCell.objType = PLYWOOD;
@@ -1566,7 +1566,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = columnWidth;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
 
@@ -1599,7 +1599,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = leftLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (아래쪽)
 			insCell.objType = PLYWOOD;
@@ -1610,7 +1610,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = placingZone->beams [WEST].width;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (오른쪽)
 			insCell.objType = PLYWOOD;
@@ -1621,7 +1621,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = rightLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		} else {
 			// 합판 (전체)
 			insCell.objType = PLYWOOD;
@@ -1632,7 +1632,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = columnWidth;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
 
@@ -1665,7 +1665,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = leftLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (아래쪽)
 			insCell.objType = PLYWOOD;
@@ -1676,7 +1676,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = placingZone->beams [EAST].width;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (오른쪽)
 			insCell.objType = PLYWOOD;
@@ -1687,7 +1687,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = rightLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		} else {
 			// 합판 (전체)
 			insCell.objType = PLYWOOD;
@@ -1698,7 +1698,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = columnWidth;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
 
@@ -1706,7 +1706,7 @@ GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone)
 }
 
 // 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
-GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
+GSErrCode	ColumnPlacingZone::fillRestAreas_wallColumn (ColumnPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
 
@@ -1761,7 +1761,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = leftLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (아래쪽)
 			insCell.objType = PLYWOOD;
@@ -1772,7 +1772,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = placingZone->beams [NORTH].width;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (오른쪽)
 			insCell.objType = PLYWOOD;
@@ -1783,7 +1783,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = rightLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 
 		// 보가 없는 경우 1
@@ -1797,7 +1797,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = columnWidth;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 
 		// 보가 없는 경우 2
@@ -1821,7 +1821,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 				insCell.libPart.plywood.p_wid = columnWidth;
 				insCell.libPart.plywood.p_leng = marginHeight;
 
-				elemList.Push (placeLibPartForColumn (insCell));
+				elemList.Push (placingZone->placeLibPart (insCell));
 			}
 			if ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7)) {
 				// 합판
@@ -1842,7 +1842,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 				insCell.libPart.plywood.p_wid = columnWidth;
 				insCell.libPart.plywood.p_leng = marginHeight;
 
-				elemList.Push (placeLibPartForColumn (insCell));
+				elemList.Push (placingZone->placeLibPart (insCell));
 			}
 		}
 	}
@@ -1877,7 +1877,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = leftLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (아래쪽)
 			insCell.objType = PLYWOOD;
@@ -1888,7 +1888,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = placingZone->beams [SOUTH].width;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (오른쪽)
 			insCell.objType = PLYWOOD;
@@ -1899,7 +1899,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = rightLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 		
 		// 보가 없는 경우 1
@@ -1913,7 +1913,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = columnWidth;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 
 		// 보가 없는 경우 2
@@ -1937,7 +1937,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 				insCell.libPart.plywood.p_wid = columnWidth;
 				insCell.libPart.plywood.p_leng = marginHeight;
 
-				elemList.Push (placeLibPartForColumn (insCell));
+				elemList.Push (placingZone->placeLibPart (insCell));
 			}
 			if ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7)) {
 				// 합판
@@ -1958,7 +1958,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 				insCell.libPart.plywood.p_wid = columnWidth;
 				insCell.libPart.plywood.p_leng = marginHeight;
 
-				elemList.Push (placeLibPartForColumn (insCell));
+				elemList.Push (placingZone->placeLibPart (insCell));
 			}
 		}
 }
@@ -1993,7 +1993,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = leftLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (아래쪽)
 			insCell.objType = PLYWOOD;
@@ -2004,7 +2004,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = placingZone->beams [WEST].width;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (오른쪽)
 			insCell.objType = PLYWOOD;
@@ -2015,7 +2015,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = rightLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 
 		// 보가 없는 경우 1
@@ -2029,7 +2029,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = columnWidth;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 
 		// 보가 없는 경우 2
@@ -2053,7 +2053,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 				insCell.libPart.plywood.p_wid = columnWidth;
 				insCell.libPart.plywood.p_leng = marginHeight;
 
-				elemList.Push (placeLibPartForColumn (insCell));
+				elemList.Push (placingZone->placeLibPart (insCell));
 			}
 			if ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7)) {
 				// 합판
@@ -2074,7 +2074,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 				insCell.libPart.plywood.p_wid = columnWidth;
 				insCell.libPart.plywood.p_leng = marginHeight;
 
-				elemList.Push (placeLibPartForColumn (insCell));
+				elemList.Push (placingZone->placeLibPart (insCell));
 			}
 		}
 	}
@@ -2109,7 +2109,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = leftLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (아래쪽)
 			insCell.objType = PLYWOOD;
@@ -2120,7 +2120,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = placingZone->beams [EAST].width;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 합판 (오른쪽)
 			insCell.objType = PLYWOOD;
@@ -2131,7 +2131,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = rightLenOfBeam;
 			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 
 		// 보가 없는 경우 1
@@ -2145,7 +2145,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 			insCell.libPart.plywood.p_wid = columnWidth;
 			insCell.libPart.plywood.p_leng = marginHeight;
 
-			elemList.Push (placeLibPartForColumn (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 
 		// 보가 없는 경우 2
@@ -2169,7 +2169,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 				insCell.libPart.plywood.p_wid = columnWidth;
 				insCell.libPart.plywood.p_leng = marginHeight;
 
-				elemList.Push (placeLibPartForColumn (insCell));
+				elemList.Push (placingZone->placeLibPart (insCell));
 
 			}
 			if ((placingZone->relationCase == 4) || (placingZone->relationCase == 5) || (placingZone->relationCase == 6) || (placingZone->relationCase == 7)) {
@@ -2191,7 +2191,7 @@ GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone)
 				insCell.libPart.plywood.p_wid = columnWidth;
 				insCell.libPart.plywood.p_leng = marginHeight;
 
-				elemList.Push (placeLibPartForColumn (insCell));
+				elemList.Push (placingZone->placeLibPart (insCell));
 			}
 		}
 	}
@@ -2895,7 +2895,7 @@ short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID
 					placingZone.bFillMarginTopAtEast = false;
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForColumn_soleColumn (&placingZone);
+				placingZone.alignPlacingZone_soleColumn (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);
@@ -3102,7 +3102,7 @@ short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID
 					placingZone.bFillMarginTopAtEast = false;
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForColumn_soleColumn (&placingZone);
+				placingZone.alignPlacingZone_soleColumn (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);
@@ -3284,10 +3284,10 @@ short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID
 
 			// 셀 추가/삭제 버튼
 			if (item == ADD_CELLS) {
-				addTopCell (&placingZone);
+				placingZone.addTopCell (&placingZone);
 			}
 			if (item == DEL_CELLS) {
-				delTopCell (&placingZone);
+				placingZone.delTopCell (&placingZone);
 			}
 
 			if ((item == ADD_CELLS) || (item == DEL_CELLS)) {
@@ -3315,7 +3315,7 @@ short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID
 					placingZone.bFillMarginTopAtEast = false;
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForColumn_soleColumn (&placingZone);
+				placingZone.alignPlacingZone_soleColumn (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);
@@ -3520,7 +3520,7 @@ short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID
 					placingZone.bFillMarginTopAtEast = false;
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForColumn_soleColumn (&placingZone);
+				placingZone.alignPlacingZone_soleColumn (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);
@@ -7138,7 +7138,7 @@ short DGCALLBACK columnPlacerHandler_wallColumn_2 (short message, short dialogID
 					placingZone.bFillMarginTopAtEast = false;
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForColumn_wallColumn (&placingZone);
+				placingZone.alignPlacingZone_wallColumn (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);
@@ -7369,7 +7369,7 @@ short DGCALLBACK columnPlacerHandler_wallColumn_2 (short message, short dialogID
 					placingZone.bFillMarginTopAtEast = false;
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForColumn_wallColumn (&placingZone);
+				placingZone.alignPlacingZone_wallColumn (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);
@@ -7575,10 +7575,10 @@ short DGCALLBACK columnPlacerHandler_wallColumn_2 (short message, short dialogID
 
 			// 셀 추가/삭제 버튼
 			if (item == ADD_CELLS) {
-				addTopCell (&placingZone);
+				placingZone.addTopCell (&placingZone);
 			}
 			if (item == DEL_CELLS) {
-				delTopCell (&placingZone);
+				placingZone.delTopCell (&placingZone);
 			}
 
 			if ((item == ADD_CELLS) || (item == DEL_CELLS)) {
@@ -7606,7 +7606,7 @@ short DGCALLBACK columnPlacerHandler_wallColumn_2 (short message, short dialogID
 					placingZone.bFillMarginTopAtEast = false;
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForColumn_wallColumn (&placingZone);
+				placingZone.alignPlacingZone_wallColumn (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);
@@ -7835,7 +7835,7 @@ short DGCALLBACK columnPlacerHandler_wallColumn_2 (short message, short dialogID
 					placingZone.bFillMarginTopAtEast = false;
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForColumn_wallColumn (&placingZone);
+				placingZone.alignPlacingZone_wallColumn (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);

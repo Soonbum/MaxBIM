@@ -431,7 +431,7 @@ GSErrCode	placeEuroformOnBeam (void)
 FIRST:
 
 	// placingZone의 Cell 정보 초기화
-	initCellsForBeam (&placingZone);
+	placingZone.initCells (&placingZone);
 
 	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32513, ACAPI_GetOwnResModule (), beamPlacerHandler1, 0);
@@ -440,7 +440,7 @@ FIRST:
 		return err;
 
 	// 1차 배치 설정
-	firstPlacingSettingsForBeam (&placingZone);
+	placingZone.firstPlacingSettings (&placingZone);
 
 	// [DIALOG] 2번째 다이얼로그에서 유로폼 배치를 수정합니다.
 	clickedOKButton = false;
@@ -459,23 +459,23 @@ FIRST:
 	// 측면 객체 배치
 	for (xx = 0 ; xx < 4 ; ++xx) {
 		for (yy = 0 ; yy < placingZone.nCellsFromBeginAtSide ; ++yy) {
-			placingZone.cellsFromBeginAtLSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromBeginAtLSide [xx][yy]);
+			placingZone.cellsFromBeginAtLSide [xx][yy].guid = placingZone.placeLibPart (placingZone.cellsFromBeginAtLSide [xx][yy]);
 			elemList.Push (placingZone.cellsFromBeginAtLSide [xx][yy].guid);
-			placingZone.cellsFromBeginAtRSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromBeginAtRSide [xx][yy]);
+			placingZone.cellsFromBeginAtRSide [xx][yy].guid = placingZone.placeLibPart (placingZone.cellsFromBeginAtRSide [xx][yy]);
 			elemList.Push (placingZone.cellsFromBeginAtRSide [xx][yy].guid);
 		}
 	}
 	for (xx = 0 ; xx < 4 ; ++xx) {
-		placingZone.cellCenterAtLSide [xx].guid = placeLibPartForBeam (placingZone.cellCenterAtLSide [xx]);
+		placingZone.cellCenterAtLSide [xx].guid = placingZone.placeLibPart (placingZone.cellCenterAtLSide [xx]);
 		elemList.Push (placingZone.cellCenterAtLSide [xx].guid);
-		placingZone.cellCenterAtRSide [xx].guid = placeLibPartForBeam (placingZone.cellCenterAtRSide [xx]);
+		placingZone.cellCenterAtRSide [xx].guid = placingZone.placeLibPart (placingZone.cellCenterAtRSide [xx]);
 		elemList.Push (placingZone.cellCenterAtRSide [xx].guid);
 	}
 	for (xx = 0 ; xx < 4 ; ++xx) {
 		for (yy = 0 ; yy < placingZone.nCellsFromEndAtSide ; ++yy) {
-			placingZone.cellsFromEndAtLSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromEndAtLSide [xx][yy]);
+			placingZone.cellsFromEndAtLSide [xx][yy].guid = placingZone.placeLibPart (placingZone.cellsFromEndAtLSide [xx][yy]);
 			elemList.Push (placingZone.cellsFromEndAtLSide [xx][yy].guid);
-			placingZone.cellsFromEndAtRSide [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromEndAtRSide [xx][yy]);
+			placingZone.cellsFromEndAtRSide [xx][yy].guid = placingZone.placeLibPart (placingZone.cellsFromEndAtRSide [xx][yy]);
 			elemList.Push (placingZone.cellsFromEndAtRSide [xx][yy].guid);
 		}
 	}
@@ -483,23 +483,23 @@ FIRST:
 	// 하부 객체 배치
 	for (xx = 0 ; xx < 3 ; ++xx) {
 		for (yy = 0 ; yy < placingZone.nCellsFromBeginAtBottom ; ++yy) {
-			placingZone.cellsFromBeginAtBottom [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromBeginAtBottom [xx][yy]);
+			placingZone.cellsFromBeginAtBottom [xx][yy].guid = placingZone.placeLibPart (placingZone.cellsFromBeginAtBottom [xx][yy]);
 			elemList.Push (placingZone.cellsFromBeginAtBottom [xx][yy].guid);
 		}
 	}
 	for (xx = 0 ; xx < 3 ; ++xx) {
-		placingZone.cellCenterAtBottom [xx].guid = placeLibPartForBeam (placingZone.cellCenterAtBottom [xx]);
+		placingZone.cellCenterAtBottom [xx].guid = placingZone.placeLibPart (placingZone.cellCenterAtBottom [xx]);
 		elemList.Push (placingZone.cellCenterAtBottom [xx].guid);
 	}
 	for (xx = 0 ; xx < 3 ; ++xx) {
 		for (yy = 0 ; yy < placingZone.nCellsFromEndAtBottom ; ++yy) {
-			placingZone.cellsFromEndAtBottom [xx][yy].guid = placeLibPartForBeam (placingZone.cellsFromEndAtBottom [xx][yy]);
+			placingZone.cellsFromEndAtBottom [xx][yy].guid = placingZone.placeLibPart (placingZone.cellsFromEndAtBottom [xx][yy]);
 			elemList.Push (placingZone.cellsFromEndAtBottom [xx][yy].guid);
 		}
 	}
 
 	// 나머지 영역 채우기 - 합판, 목재
-	err = fillRestAreasForBeam (&placingZone);
+	err = placingZone.fillRestAreas (&placingZone);
 
 	// 결과물 전체 그룹화
 	if (!elemList.IsEmpty ()) {
@@ -519,7 +519,7 @@ FIRST:
 }
 
 // Cell 배열을 초기화함
-void	initCellsForBeam (BeamPlacingZone* placingZone)
+void	BeamPlacingZone::initCells (BeamPlacingZone* placingZone)
 {
 	short xx, yy;
 
@@ -636,7 +636,7 @@ void	initCellsForBeam (BeamPlacingZone* placingZone)
 }
 
 // 1차 배치 설정
-void	firstPlacingSettingsForBeam (BeamPlacingZone* placingZone)
+void	BeamPlacingZone::firstPlacingSettings (BeamPlacingZone* placingZone)
 {
 	short			xx, yy;
 	API_Coord3D		axisPoint, rotatedPoint, unrotatedPoint;
@@ -1161,7 +1161,7 @@ void	firstPlacingSettingsForBeam (BeamPlacingZone* placingZone)
 }
 
 // 측면 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		addNewColFromBeginAtSide (BeamPlacingZone* target_zone)
+void		BeamPlacingZone::addNewColFromBeginAtSide (BeamPlacingZone* target_zone)
 {
 	short xx;
 
@@ -1173,13 +1173,13 @@ void		addNewColFromBeginAtSide (BeamPlacingZone* target_zone)
 }
 
 // 측면 시작 부분 - 마지막 열을 삭제함
-void		delLastColFromBeginAtSide (BeamPlacingZone* target_zone)
+void		BeamPlacingZone::delLastColFromBeginAtSide (BeamPlacingZone* target_zone)
 {
 	target_zone->nCellsFromBeginAtSide --;
 }
 
 // 측면 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		addNewColFromEndAtSide (BeamPlacingZone* target_zone)
+void		BeamPlacingZone::addNewColFromEndAtSide (BeamPlacingZone* target_zone)
 {
 	short xx;
 
@@ -1191,13 +1191,13 @@ void		addNewColFromEndAtSide (BeamPlacingZone* target_zone)
 }
 
 // 측면 끝 부분 - 마지막 열을 삭제함
-void		delLastColFromEndAtSide (BeamPlacingZone* target_zone)
+void		BeamPlacingZone::delLastColFromEndAtSide (BeamPlacingZone* target_zone)
 {
 	target_zone->nCellsFromEndAtSide --;
 }
 
 // 하부 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		addNewColFromBeginAtBottom (BeamPlacingZone* target_zone)
+void		BeamPlacingZone::addNewColFromBeginAtBottom (BeamPlacingZone* target_zone)
 {
 	short xx;
 
@@ -1208,13 +1208,13 @@ void		addNewColFromBeginAtBottom (BeamPlacingZone* target_zone)
 }
 
 // 하부 시작 부분 - 마지막 열을 삭제함
-void		delLastColFromBeginAtBottom (BeamPlacingZone* target_zone)
+void		BeamPlacingZone::delLastColFromBeginAtBottom (BeamPlacingZone* target_zone)
 {
 	target_zone->nCellsFromBeginAtBottom --;
 }
 
 // 하부 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		addNewColFromEndAtBottom (BeamPlacingZone* target_zone)
+void		BeamPlacingZone::addNewColFromEndAtBottom (BeamPlacingZone* target_zone)
 {
 	short xx;
 
@@ -1225,13 +1225,13 @@ void		addNewColFromEndAtBottom (BeamPlacingZone* target_zone)
 }
 
 // 하부 끝 부분 - 마지막 열을 삭제함
-void		delLastColFromEndAtBottom (BeamPlacingZone* target_zone)
+void		BeamPlacingZone::delLastColFromEndAtBottom (BeamPlacingZone* target_zone)
 {
 	target_zone->nCellsFromEndAtBottom --;
 }
 
 // Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
+void		BeamPlacingZone::alignPlacingZone (BeamPlacingZone* placingZone)
 {
 	short			xx, yy;
 	API_Coord3D		axisPoint, rotatedPoint, unrotatedPoint;
@@ -1563,7 +1563,7 @@ void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone)
 }
 
 // 해당 셀 정보를 기반으로 라이브러리 배치
-API_Guid	placeLibPartForBeam (CellForBeam objInfo)
+API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 {
 	GSErrCode	err = NoError;
 
@@ -1781,7 +1781,7 @@ API_Guid	placeLibPartForBeam (CellForBeam objInfo)
 }
 
 // 유로폼/휠러/목재를 채운 후 자투리 공간 채우기 (나머지 합판/목재 및 아웃코너앵글)
-GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
+GSErrCode	BeamPlacingZone::fillRestAreas (BeamPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
 	short	xx;
@@ -1864,7 +1864,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 좌측 2/2번째
 			insCell.ang = placingZone->ang;
@@ -1902,7 +1902,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 우측 1/2번째
 			insCell.ang = placingZone->ang;
@@ -1939,7 +1939,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 우측 2/2번째
 			insCell.ang = placingZone->ang;
@@ -1976,7 +1976,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
 
@@ -2018,7 +2018,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 우측
 			insCell.ang = placingZone->ang;
@@ -2055,7 +2055,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
 
@@ -2097,7 +2097,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 우측
 			insCell.ang = placingZone->ang;
@@ -2134,7 +2134,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
 
@@ -2176,7 +2176,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
 	
@@ -2218,7 +2218,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
 
@@ -2254,7 +2254,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 우측
 			insCell.objType = OUTCORNER_ANGLE;
@@ -2278,7 +2278,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 거리 이동
 			xPos += placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
@@ -2317,7 +2317,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 우측
 			insCell.objType = OUTCORNER_ANGLE;
@@ -2341,7 +2341,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 거리 이동
 			if (xx < placingZone->nCellsFromEndAtSide-1)
@@ -2375,7 +2375,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 
 			// 우측
 			insCell.objType = OUTCORNER_ANGLE;
@@ -2399,7 +2399,7 @@ GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone)
 			insCell.leftBottomY = unrotatedPoint.y;
 			insCell.leftBottomZ = unrotatedPoint.z;
 
-			elemList.Push (placeLibPartForBeam (insCell));
+			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
 
@@ -3277,7 +3277,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				placingZone.centerLengthAtSide = DGGetItemValDouble (dialogID, EDITCONTROL_CENTER_LENGTH_SIDE);
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForBeam (&placingZone);
+				placingZone.alignPlacingZone (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);
@@ -3630,7 +3630,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				placingZone.centerLengthAtSide = DGGetItemValDouble (dialogID, EDITCONTROL_CENTER_LENGTH_SIDE);
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForBeam (&placingZone);
+				placingZone.alignPlacingZone (&placingZone);
 			}
 
 			// 취소 버튼
@@ -3639,28 +3639,28 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 
 			// 셀 추가/삭제 버튼 8종
 			if (item == ADD_CELLS_FROM_BEGIN_AT_SIDE) {
-				addNewColFromBeginAtSide (&placingZone);
+				placingZone.addNewColFromBeginAtSide (&placingZone);
 			}
 			if (item == DEL_CELLS_FROM_BEGIN_AT_SIDE) {
-				delLastColFromBeginAtSide (&placingZone);
+				placingZone.delLastColFromBeginAtSide (&placingZone);
 			}
 			if (item == ADD_CELLS_FROM_END_AT_SIDE) {
-				addNewColFromEndAtSide (&placingZone);
+				placingZone.addNewColFromEndAtSide (&placingZone);
 			}
 			if (item == DEL_CELLS_FROM_END_AT_SIDE) {
-				delLastColFromEndAtSide (&placingZone);
+				placingZone.delLastColFromEndAtSide (&placingZone);
 			}
 			if (item == ADD_CELLS_FROM_BEGIN_AT_BOTTOM) {
-				addNewColFromBeginAtBottom (&placingZone);
+				placingZone.addNewColFromBeginAtBottom (&placingZone);
 			}
 			if (item == DEL_CELLS_FROM_BEGIN_AT_BOTTOM) {
-				delLastColFromBeginAtBottom (&placingZone);
+				placingZone.delLastColFromBeginAtBottom (&placingZone);
 			}
 			if (item == ADD_CELLS_FROM_END_AT_BOTTOM) {
-				addNewColFromEndAtBottom (&placingZone);
+				placingZone.addNewColFromEndAtBottom (&placingZone);
 			}
 			if (item == DEL_CELLS_FROM_END_AT_BOTTOM) {
-				delLastColFromEndAtBottom (&placingZone);
+				placingZone.delLastColFromEndAtBottom (&placingZone);
 			}
 
 			if ( (item == ADD_CELLS_FROM_BEGIN_AT_SIDE) || (item == DEL_CELLS_FROM_BEGIN_AT_SIDE) || (item == ADD_CELLS_FROM_END_AT_SIDE) || (item == DEL_CELLS_FROM_END_AT_SIDE) ||
@@ -3669,7 +3669,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				item = 0;
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForBeam (&placingZone);
+				placingZone.alignPlacingZone (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);
@@ -4001,7 +4001,7 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				placingZone.centerLengthAtSide = DGGetItemValDouble (dialogID, EDITCONTROL_CENTER_LENGTH_SIDE);
 
 				// 셀 정보 변경 발생, 모든 셀의 위치 값을 업데이트
-				alignPlacingZoneForBeam (&placingZone);
+				placingZone.alignPlacingZone (&placingZone);
 
 				// 변경 가능성이 있는 DG 항목 모두 제거
 				DGRemoveDialogItems (dialogID, AFTER_ALL);

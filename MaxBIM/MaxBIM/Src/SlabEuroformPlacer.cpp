@@ -510,10 +510,10 @@ FIRST:
 	placingZone.leftBottomZ = unrotatedPoint.z;
 
 	// placingZone의 Cell 정보 초기화
-	initCellsForSlabBottom (&placingZone);
+	placingZone.initCells (&placingZone);
 
 	// 배치를 위한 정보 입력
-	firstPlacingSettingsForSlabBottom (&placingZone);
+	placingZone.firstPlacingSettings (&placingZone);
 
 	// [DIALOG] 2번째 다이얼로그에서 유로폼 배치를 수정하거나 보강 목재를 삽입합니다.
 	clickedOKButton = false;
@@ -529,7 +529,7 @@ FIRST:
 		return err;
 
 	// 나머지 영역 채우기 - 합판, 목재
-	err = fillRestAreasForSlabBottom ();
+	err = placingZone.fillRestAreas ();
 
 	// 결과물 전체 그룹화
 	if (!elemList.IsEmpty ()) {
@@ -549,7 +549,7 @@ FIRST:
 }
 
 // Cell 배열을 초기화함
-void	initCellsForSlabBottom (SlabPlacingZone* placingZone)
+void	SlabPlacingZone::initCells (SlabPlacingZone* placingZone)
 {
 	short xx, yy;
 
@@ -566,7 +566,7 @@ void	initCellsForSlabBottom (SlabPlacingZone* placingZone)
 }
 
 // 1차 배치: 유로폼
-void	firstPlacingSettingsForSlabBottom (SlabPlacingZone* placingZone)
+void	SlabPlacingZone::firstPlacingSettings (SlabPlacingZone* placingZone)
 {
 	short			xx, yy;
 	API_Coord3D		axisPoint, rotatedPoint, unrotatedPoint;
@@ -614,7 +614,7 @@ void	firstPlacingSettingsForSlabBottom (SlabPlacingZone* placingZone)
 }
 
 // 해당 셀과 동일한 행에 있는 다른 셀들의 타입 및 높이를 조정함 (너비는 변경하지 않음)
-void	adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short col)
+void	SlabPlacingZone::adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short col)
 {
 	short	xx;
 	bool	bStandardWidth;		// 규격폼 너비인가?
@@ -699,7 +699,7 @@ void	adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short c
 }
 
 // 해당 셀과 동일한 열에 있는 다른 셀들의 타입 및 너비를 조정함 (높이는 변경하지 않음)
-void	adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col)
+void	SlabPlacingZone::adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col)
 {
 	short	xx;
 	bool	bStandardWidth;		// 규격폼 너비인가?
@@ -784,7 +784,7 @@ void	adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short c
 }
 
 // 새로운 행을 추가함 (행 하나를 늘리고 추가된 행에 마지막 행 정보 복사)
-void		addNewRow (SlabPlacingZone* target_zone)
+void	SlabPlacingZone::addNewRow (SlabPlacingZone* target_zone)
 {
 	short	xx;
 
@@ -796,7 +796,7 @@ void		addNewRow (SlabPlacingZone* target_zone)
 }
 
 // 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		addNewCol (SlabPlacingZone* target_zone)
+void	SlabPlacingZone::addNewCol (SlabPlacingZone* target_zone)
 {
 	short	xx;
 
@@ -808,19 +808,19 @@ void		addNewCol (SlabPlacingZone* target_zone)
 }
 
 // 마지막 행을 삭제함
-void		delLastRow (SlabPlacingZone* target_zone)
+void	SlabPlacingZone::delLastRow (SlabPlacingZone* target_zone)
 {
 	target_zone->eu_count_ver --;
 }
 
 // 마지막 열을 삭제함
-void		delLastCol (SlabPlacingZone* target_zone)
+void	SlabPlacingZone::delLastCol (SlabPlacingZone* target_zone)
 {
 	target_zone->eu_count_hor --;
 }
 
 // Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-void	alignPlacingZoneForSlabBottom (SlabPlacingZone* target_zone)
+void	SlabPlacingZone::alignPlacingZone (SlabPlacingZone* target_zone)
 {
 	short			xx, yy, zz;
 	double			dist_horizontal;
@@ -915,7 +915,7 @@ void	alignPlacingZoneForSlabBottom (SlabPlacingZone* target_zone)
 }
 
 // 해당 셀 정보를 기반으로 라이브러리 배치
-API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo)
+API_Guid	SlabPlacingZone::placeLibPart (CellForSlab objInfo)
 {
 	GSErrCode	err = NoError;
 
@@ -1046,7 +1046,7 @@ API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo)
 }
 
 // 유로폼을 채운 후 자투리 공간 채우기
-GSErrCode	fillRestAreasForSlabBottom (void)
+GSErrCode	SlabPlacingZone::fillRestAreas (void)
 {
 	GSErrCode	err = NoError;
 	short		xx;
@@ -1086,7 +1086,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	topAtLeftTop = placeLibPartForSlabBottom (insCell);
+	topAtLeftTop = placingZone.placeLibPart (insCell);
 	elemList.Push (topAtLeftTop);
 
 	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.cells [0][0].horLen;
@@ -1111,7 +1111,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placeLibPartForSlabBottom (insCell));
+		elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startXPos += placingZone.cells [0][xx].horLen;
@@ -1136,7 +1136,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	topAtRightTop = placeLibPartForSlabBottom (insCell);
+	topAtRightTop = placingZone.placeLibPart (insCell);
 	elemList.Push (topAtRightTop);
 
 
@@ -1160,7 +1160,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	bottomAtLeftBottom = placeLibPartForSlabBottom (insCell);
+	bottomAtLeftBottom = placingZone.placeLibPart (insCell);
 	elemList.Push (bottomAtLeftBottom);
 
 	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.cells [0][0].horLen;
@@ -1185,7 +1185,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placeLibPartForSlabBottom (insCell));
+		elemList.Push (placingZone.placeLibPart (insCell));
 			
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startXPos += placingZone.cells [0][xx].horLen;
@@ -1210,7 +1210,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	bottomAtRightBottom = placeLibPartForSlabBottom (insCell);
+	bottomAtRightBottom = placingZone.placeLibPart (insCell);
 	elemList.Push (bottomAtRightBottom);
 
 
@@ -1234,7 +1234,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	leftAtLeftTop = placeLibPartForSlabBottom (insCell);
+	leftAtLeftTop = placingZone.placeLibPart (insCell);
 	elemList.Push (leftAtLeftTop);
 
 	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft;
@@ -1259,7 +1259,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placeLibPartForSlabBottom (insCell));
+		elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startYPos -= placingZone.cells [xx+1][0].verLen;
@@ -1284,7 +1284,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	leftAtLeftBottom = placeLibPartForSlabBottom (insCell);
+	leftAtLeftBottom = placingZone.placeLibPart (insCell);
 	elemList.Push (leftAtLeftBottom);
 
 
@@ -1308,7 +1308,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	rightAtRightTop = placeLibPartForSlabBottom (insCell);
+	rightAtRightTop = placingZone.placeLibPart (insCell);
 	elemList.Push (rightAtRightTop);
 
 	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2);
@@ -1333,7 +1333,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placeLibPartForSlabBottom (insCell));
+		elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startYPos -= placingZone.cells [xx+1][0].verLen;
@@ -1358,7 +1358,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	rightAtRightBottom = placeLibPartForSlabBottom (insCell);
+	rightAtRightBottom = placingZone.placeLibPart (insCell);
 	elemList.Push (rightAtRightBottom);
 
 	// 합판 코너 겹치는 부분은 솔리드 연산으로 빼기
@@ -1392,7 +1392,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placeLibPartForSlabBottom (insCell));
+		elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startXPos += placingZone.cells [0][xx].horLen;
@@ -1423,7 +1423,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placeLibPartForSlabBottom (insCell));
+		elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startXPos += placingZone.cells [0][xx].horLen;
@@ -1451,7 +1451,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	elemList.Push (placeLibPartForSlabBottom (insCell));
+	elemList.Push (placingZone.placeLibPart (insCell));
 
 	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen;
 	startYPos = axisPoint.y - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) + (placingZone.corner_leftTop.x - placingZone.outerLeft) + 0.080;
@@ -1476,7 +1476,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placeLibPartForSlabBottom (insCell));
+		elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startXPos -= placingZone.cells [xx+1][0].verLen;
@@ -1502,7 +1502,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	elemList.Push (placeLibPartForSlabBottom (insCell));
+	elemList.Push (placingZone.placeLibPart (insCell));
 
 
 	// 유로폼 둘레 목재 설치 (RIGHT) : 셀 각도가 90 회전하여 시작 좌표 뒷부분의 X,Y축이 바뀌어야 함
@@ -1526,7 +1526,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	elemList.Push (placeLibPartForSlabBottom (insCell));
+	elemList.Push (placingZone.placeLibPart (insCell));
 
 	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen;
 	startYPos = axisPoint.y - (- placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2));
@@ -1551,7 +1551,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placeLibPartForSlabBottom (insCell));
+		elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startXPos -= placingZone.cells [xx+1][0].verLen;
@@ -1577,7 +1577,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	elemList.Push (placeLibPartForSlabBottom (insCell));
+	elemList.Push (placingZone.placeLibPart (insCell));
 
 
 	// 코너쪽 목재 설치 (LEFT-TOP)
@@ -1622,7 +1622,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 
 		// 셀 배치
 		if (placingZone.topBoundsCells [xx] == true)
-			elemList.Push (placeLibPartForSlabBottom (insCell));
+			elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 2번
 		insCell.leftBottomX = startXPos;
@@ -1639,7 +1639,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 
 		// 셀 배치
 		if (placingZone.topBoundsCells [xx] == true)
-			elemList.Push (placeLibPartForSlabBottom (insCell));
+			elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startYPos -= placingZone.cells [0][xx+1].horLen;
@@ -1671,7 +1671,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 
 		// 셀 배치
 		if (placingZone.bottomBoundsCells [xx] == true)
-			elemList.Push (placeLibPartForSlabBottom (insCell));
+			elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 2번
 		insCell.leftBottomX = startXPos;
@@ -1688,7 +1688,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 
 		// 셀 배치
 		if (placingZone.bottomBoundsCells [xx] == true)
-			elemList.Push (placeLibPartForSlabBottom (insCell));
+			elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startYPos -= placingZone.cells [0][xx+1].horLen;
@@ -1720,7 +1720,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 
 		// 셀 배치
 		if (placingZone.leftBoundsCells [xx] == true)
-			elemList.Push (placeLibPartForSlabBottom (insCell));
+			elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 2번
 		insCell.leftBottomX = startXPos;
@@ -1737,7 +1737,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 
 		// 셀 배치
 		if (placingZone.leftBoundsCells [xx] == true)
-			elemList.Push (placeLibPartForSlabBottom (insCell));
+			elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startYPos -= placingZone.cells [xx][0].verLen;
@@ -1769,7 +1769,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 
 		// 셀 배치
 		if (placingZone.rightBoundsCells [xx] == true)
-			elemList.Push (placeLibPartForSlabBottom (insCell));
+			elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 2번
 		insCell.leftBottomX = startXPos;
@@ -1786,7 +1786,7 @@ GSErrCode	fillRestAreasForSlabBottom (void)
 
 		// 셀 배치
 		if (placingZone.rightBoundsCells [xx] == true)
-			elemList.Push (placeLibPartForSlabBottom (insCell));
+			elemList.Push (placingZone.placeLibPart (insCell));
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startYPos -= placingZone.cells [xx][0].verLen;
@@ -2097,7 +2097,7 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					item = 0;
 
 					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-					alignPlacingZoneForSlabBottom (&placingZone);
+					placingZone.alignPlacingZone (&placingZone);
 
 					// 버튼 인덱스 iteration 준비
 					idxBtn = itemInitIdx;
@@ -2144,7 +2144,7 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					item = 0;
 
 					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-					alignPlacingZoneForSlabBottom (&placingZone);
+					placingZone.alignPlacingZone (&placingZone);
 
 					// 버튼 인덱스 iteration 준비
 					idxBtn = itemInitIdx;
@@ -2201,7 +2201,7 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					// 업데이트된 셀 정보대로 객체 재배치
 					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx)
 						for (yy = 0 ; yy < placingZone.eu_count_hor ; ++yy)
-							placingZone.cells [xx][yy].guid = placeLibPartForSlabBottom (placingZone.cells [xx][yy]);
+							placingZone.cells [xx][yy].guid = placingZone.placeLibPart (placingZone.cells [xx][yy]);
 
 					// T, B, L, R 버튼 배열의 푸시 여부를 저장함
 					for (xx = 0 ; xx < placingZone.eu_count_hor-1 ; ++xx) {
@@ -2254,10 +2254,10 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					item = 0;
 
 					// 새로운 행 추가 (행 하나를 늘리고 추가된 행에 마지막 행 정보 복사)
-					addNewRow (&placingZone);
+					placingZone.addNewRow (&placingZone);
 
 					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-					alignPlacingZoneForSlabBottom (&placingZone);
+					placingZone.alignPlacingZone (&placingZone);
 
 					// 버튼 인덱스 iteration 준비
 					idxBtn = itemInitIdx;
@@ -2381,10 +2381,10 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					item = 0;
 
 					// 마지막 행 삭제
-					delLastRow (&placingZone);
+					placingZone.delLastRow (&placingZone);
 
 					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-					alignPlacingZoneForSlabBottom (&placingZone);
+					placingZone.alignPlacingZone (&placingZone);
 
 					// 버튼 인덱스 iteration 준비
 					idxBtn = itemInitIdx;
@@ -2508,10 +2508,10 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					item = 0;
 
 					// 새로운 열 추가 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-					addNewCol (&placingZone);
+					placingZone.addNewCol (&placingZone);
 
 					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-					alignPlacingZoneForSlabBottom (&placingZone);
+					placingZone.alignPlacingZone (&placingZone);
 
 					// 버튼 인덱스 iteration 준비
 					idxBtn = itemInitIdx;
@@ -2635,10 +2635,10 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					item = 0;
 
 					// 마지막 열 삭제
-					delLastCol (&placingZone);
+					placingZone.delLastCol (&placingZone);
 
 					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-					alignPlacingZoneForSlabBottom (&placingZone);
+					placingZone.alignPlacingZone (&placingZone);
 
 					// 버튼 인덱스 iteration 준비
 					idxBtn = itemInitIdx;
@@ -2765,7 +2765,7 @@ short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short 
 					item = 0;	// 그리드 버튼을 눌렀을 때 창이 닫히지 않게 함
 
 					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-					alignPlacingZoneForSlabBottom (&placingZone);
+					placingZone.alignPlacingZone (&placingZone);
 
 					// 버튼 인덱스 iteration 준비
 					idxBtn = itemInitIdx;
@@ -3162,8 +3162,8 @@ short DGCALLBACK slabBottomPlacerHandler3 (short message, short dialogID, short 
 					// 입력한 값을 다시 셀에 저장
 					if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == NONE + 1) {
 						placingZone.cells [rIdx][cIdx].objType = NONE;
-						adjustOtherCellsInSameRow (&placingZone, rIdx, cIdx);
-						adjustOtherCellsInSameCol (&placingZone, rIdx, cIdx);
+						placingZone.adjustOtherCellsInSameRow (&placingZone, rIdx, cIdx);
+						placingZone.adjustOtherCellsInSameCol (&placingZone, rIdx, cIdx);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == EUROFORM + 1) {
 						placingZone.cells [rIdx][cIdx].objType = EUROFORM;
@@ -3201,8 +3201,8 @@ short DGCALLBACK slabBottomPlacerHandler3 (short message, short dialogID, short 
 							placingZone.cells [rIdx][cIdx].verLen = temp;
 						}
 
-						adjustOtherCellsInSameRow (&placingZone, rIdx, cIdx);
-						adjustOtherCellsInSameCol (&placingZone, rIdx, cIdx);
+						placingZone.adjustOtherCellsInSameRow (&placingZone, rIdx, cIdx);
+						placingZone.adjustOtherCellsInSameCol (&placingZone, rIdx, cIdx);
 					}
 
 					break;

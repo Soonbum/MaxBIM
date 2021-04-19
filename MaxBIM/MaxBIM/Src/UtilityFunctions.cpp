@@ -1,6 +1,7 @@
 #include "UtilityFunctions.hpp"
 
 
+////////////////////////////////////////////////// 각도 변환
 // degree 각도를 radian 각도로 변환
 double	DegreeToRad (double degree)
 {
@@ -13,6 +14,7 @@ double	RadToDegree (double rad)
 	return rad * 180 / M_PI;
 }
 
+////////////////////////////////////////////////// 거리 측정
 // 2차원에서 2점 간의 거리를 알려줌
 double	GetDistance (const double begX, const double begY, const double endX, const double endY)
 {
@@ -37,6 +39,19 @@ double	GetDistance (const API_Coord3D begPoint, API_Coord3D endPoint)
 	return sqrt ( (begPoint.x - endPoint.x) * (begPoint.x - endPoint.x) + (begPoint.y - endPoint.y) * (begPoint.y - endPoint.y) + (begPoint.z - endPoint.z) * (begPoint.z - endPoint.z) );
 }
 
+// 선분 AB와 점 P와의 거리를 구하는 함수
+double	distOfPointBetweenLine (API_Coord p, API_Coord a, API_Coord b)
+{
+	double	area;
+	double	dist_ab;
+
+	area = abs ( (a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x) );
+	dist_ab = sqrt ( (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) );
+
+	return	area / dist_ab;
+}
+
+////////////////////////////////////////////////// 비교하기
 // 어떤 수가 더 큰지 비교함 : 오류(-100), A<B(-1), A==B(0), A>B(+1)
 long	compareDoubles (const double a, const double b)
 {
@@ -119,6 +134,7 @@ long	compareRanges (double aMin, double aMax, double bMin, double bMax)
 	return	result;
 }
 
+////////////////////////////////////////////////// 교환하기
 // a와 b 값을 교환함
 void	exchangeDoubles (double* a, double* b)
 {
@@ -131,6 +147,7 @@ void	exchangeDoubles (double* a, double* b)
 	return;
 }
 
+////////////////////////////////////////////////// 기하 (일반)
 // 시작점에서 끝점으로 향하는 벡터의 방향을 확인
 long	findDirection (const double begX, const double begY, const double endX, const double endY)
 {
@@ -162,18 +179,6 @@ long	findDirection (const double begX, const double begY, const double endX, con
 	if ((deltaX		> EPS)	&&	(deltaY		< -EPS))	return 8;	// Southeast-ward
 
 	return -1;
-}
-
-// 선분 AB와 점 P와의 거리를 구하는 함수
-double	distOfPointBetweenLine (API_Coord p, API_Coord a, API_Coord b)
-{
-	double	area;
-	double	dist_ab;
-
-	area = abs ( (a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x) );
-	dist_ab = sqrt ( (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) );
-
-	return	area / dist_ab;
 }
 
 // (p1, p2)를 이은 직선과 (p3, p4)를 이은 직선의 교차점을 구하는 함수
@@ -216,6 +221,25 @@ bool	isSamePoint (API_Coord3D aPoint, API_Coord3D bPoint)
 		return false;
 }
 
+// curPoint에 가까운 점이 p1, p2 중 어떤 점입니까?
+short	moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2)
+{
+	double dist1, dist2;
+
+	dist1 = GetDistance (curPoint, p1);
+	dist2 = GetDistance (curPoint, p2);
+
+	// curPoint와 p1가 더 가까우면 1 리턴
+	if ((dist2 - dist1) > EPS)	return 1;
+	
+	// curPoint와 p2가 더 가까우면 2 리턴
+	if ((dist1 - dist2) > EPS)	return 2;
+
+	// 그 외에는 0 리턴
+	return 0;
+}
+
+////////////////////////////////////////////////// 기하 (슬래브 관련)
 // aPoint가 pointList에 보관이 되었는지 확인함
 bool	isAlreadyStored (API_Coord3D aPoint, API_Coord3D pointList [], short startInd, short endInd)
 {
@@ -262,24 +286,6 @@ bool	isNextPoint (API_Coord3D prevPoint, API_Coord3D curPoint, API_Coord3D nextP
 		return false;
 }
 
-// curPoint에 가까운 점이 p1, p2 중 어떤 점입니까?
-short	moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2)
-{
-	double dist1, dist2;
-
-	dist1 = GetDistance (curPoint, p1);
-	dist2 = GetDistance (curPoint, p2);
-
-	// curPoint와 p1가 더 가까우면 1 리턴
-	if ((dist2 - dist1) > EPS)	return 1;
-	
-	// curPoint와 p2가 더 가까우면 2 리턴
-	if ((dist1 - dist2) > EPS)	return 2;
-
-	// 그 외에는 0 리턴
-	return 0;
-}
-
 // 회전이 적용되지 않았을 때의 위치 (배치되어야 할 본래 위치를 리턴), 각도는 Degree
 API_Coord3D		getUnrotatedPoint (API_Coord3D rotatedPoint, API_Coord3D axisPoint, double ang)
 {
@@ -303,6 +309,60 @@ API_Coord	getUnrotatedPoint (API_Coord rotatedPoint, API_Coord axisPoint, double
 	return unrotatedPoint;
 }
 
+////////////////////////////////////////////////// 산술
+// 반올림
+double	round (double x, int digit)
+{
+	return	floor((x) * pow (float (10), digit) + 0.5f) / pow (float (10), digit);
+}
+
+////////////////////////////////////////////////// 문자열
+// std::string 변수 값에 formatted string을 입력 받음
+std::string	format_string (const std::string fmt, ...)
+{
+	int			size = ((int)fmt.size ()) * 2;
+	va_list		ap;
+	std::string	buffer;
+
+	while (1) {
+		buffer.resize(size);
+		va_start (ap, fmt);
+		int n = vsnprintf ((char*)buffer.data (), size, fmt.c_str (), ap);
+		va_end (ap);
+
+		if (n > -1 && n < size) {
+			buffer.resize (n);
+			return buffer;
+		}
+
+		if (n > -1)
+			size = n + 1;
+		else
+			size *= 2;
+	}
+
+	return buffer;
+}
+
+// 문자열 s가 숫자로 된 문자열인지 알려줌 (숫자는 1, 문자열은 0)
+short	isStringDouble (char *str)
+{
+	size_t size = strlen (str);
+	
+	if (size == 0)
+		return 0;		// 0바이트 문자열은 숫자가 아님
+	
+	for (size_t i = 0 ; i < size ; i++) {
+		if (str [i] == '.' || str [i] == '-' || str [i] == '+')
+			continue;		// .-+ 문자는 무시함
+		if (str [i] < '0' || str [i] > '9')
+			return 0;		// 알파벳 등이 있으면 숫자 아님
+	}
+	
+	return 1;	// 그밖의 경우는 숫자
+}
+
+////////////////////////////////////////////////// 객체 배치
 // 좌표 라벨을 배치함
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd)
 {
@@ -358,53 +418,5 @@ GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bCom
 	return	err;
 }
 
-// std::string 변수 값에 formatted string을 입력 받음
-std::string	format_string (const std::string fmt, ...)
-{
-	int			size = ((int)fmt.size ()) * 2;
-	va_list		ap;
-	std::string	buffer;
-
-	while (1) {
-		buffer.resize(size);
-		va_start (ap, fmt);
-		int n = vsnprintf ((char*)buffer.data (), size, fmt.c_str (), ap);
-		va_end (ap);
-
-		if (n > -1 && n < size) {
-			buffer.resize (n);
-			return buffer;
-		}
-
-		if (n > -1)
-			size = n + 1;
-		else
-			size *= 2;
-	}
-
-	return buffer;
-}
-
-// 문자열 s가 숫자로 된 문자열인지 알려줌 (숫자는 1, 문자열은 0)
-short	isStringDouble (char *str)
-{
-	size_t size = strlen (str);
-	
-	if (size == 0)
-		return 0;		// 0바이트 문자열은 숫자가 아님
-	
-	for (size_t i = 0 ; i < size ; i++) {
-		if (str [i] == '.' || str [i] == '-' || str [i] == '+')
-			continue;		// .-+ 문자는 무시함
-		if (str [i] < '0' || str [i] > '9')
-			return 0;		// 알파벳 등이 있으면 숫자 아님
-	}
-	
-	return 1;	// 그밖의 경우는 숫자
-}
-
-// 반올림
-double	round (double x, int digit)
-{
-	return	floor((x) * pow (float (10), digit) + 0.5f) / pow (float (10), digit);
-}
+////////////////////////////////////////////////// 라이브러리 변수 접근 (Getter/Setter)
+// ...

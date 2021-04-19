@@ -129,24 +129,6 @@ namespace columnPlacerDG {
 	};
 }
 
-// 기둥 관련 정보
-struct InfoColumn
-{
-	API_Guid	guid;		// 기둥의 GUID
-	short	floorInd;		// 층 인덱스
-
-	bool	bRectangle;		// 직사각형 형태가 맞는가?
-	short	coreAnchor;		// 코어의 앵커 포인트
-	double	coreWidth;		// 기둥의 X 길이
-	double	coreDepth;		// 기둥의 Y 길이
-	double	venThick;		// 기둥 베니어 두께
-	double	height;			// 기둥의 높이
-	double	bottomOffset;	// 바닥 레벨에 대한 기둥 베이스 레벨
-	double	topOffset;		// 만약 기둥이 윗층과 연결되어 있는 경우 윗층으로부터의 오프셋
-	double	angle;			// 기둥 축을 중심으로 한 회전 각도 (단위: Radian)
-	API_Coord	origoPos;	// 기둥의 위치
-};
-
 // 벽 관련 정보
 struct InfoWallForColumn
 {
@@ -221,8 +203,9 @@ struct CellForColumn
 };
 
 // 기둥 영역 정보
-struct ColumnPlacingZone
+class ColumnPlacingZone
 {
+public:
 	// 기둥 기하 정보
 	bool	bRectangle;		// 직사각형인가?
 	short	coreAnchor;		// 코어의 앵커 포인트
@@ -312,18 +295,20 @@ struct ColumnPlacingZone
 
 	// 수직 방향으로의 셀 개수
 	short	nCells;
+
+public:
+	void		initCells (ColumnPlacingZone* placingZone);						// Cell 배열을 초기화함
+	void		addTopCell (ColumnPlacingZone* target_zone);					// 꼭대기에 셀 추가
+	void		delTopCell (ColumnPlacingZone* target_zone);					// 꼭대기의 셀 삭제
+	void		alignPlacingZone_soleColumn (ColumnPlacingZone* placingZone);	// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+	void		alignPlacingZone_wallColumn (ColumnPlacingZone* placingZone);	// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+	API_Guid	placeLibPart (CellForColumn objInfo);							// 해당 셀 정보를 기반으로 라이브러리 배치
+	GSErrCode	fillRestAreas_soleColumn (ColumnPlacingZone* placingZone);		// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
+	GSErrCode	fillRestAreas_wallColumn (ColumnPlacingZone* placingZone);		// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
 };
 
 // 유로폼 기둥 배치 함수
-GSErrCode	placeEuroformOnColumn (void);												// 4번 메뉴: 기둥에 유로폼을 배치하는 통합 루틴
-void		initCellsForColumn (ColumnPlacingZone* placingZone);						// Cell 배열을 초기화함
-void		addTopCell (ColumnPlacingZone* target_zone);								// 꼭대기에 셀 추가
-void		delTopCell (ColumnPlacingZone* target_zone);								// 꼭대기의 셀 삭제
-void		alignPlacingZoneForColumn_soleColumn (ColumnPlacingZone* placingZone);		// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-void		alignPlacingZoneForColumn_wallColumn (ColumnPlacingZone* placingZone);		// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-API_Guid	placeLibPartForColumn (CellForColumn objInfo);								// 해당 셀 정보를 기반으로 라이브러리 배치
-GSErrCode	fillRestAreasForColumn_soleColumn (ColumnPlacingZone* placingZone);			// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
-GSErrCode	fillRestAreasForColumn_wallColumn (ColumnPlacingZone* placingZone);			// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
+GSErrCode	placeEuroformOnColumn (void);	// 기둥에 유로폼을 배치하는 통합 루틴
 short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK columnPlacerHandler_soleColumn_2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK columnPlacerHandler_soleColumn_3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그

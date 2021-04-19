@@ -355,15 +355,15 @@ FIRST:
 
 	// placingZone의 Cell 정보 초기화
 	placingZone.nCells = (placingZone.eu_count_hor * 2) + 3;
-	initCellsForWall (&placingZone);
+	placingZone.initCells (&placingZone);
 	
 	// 반대쪽 벽에 대한 벽면 영역 정보 초기화
-	initCellsForWall (&placingZoneBackside);
+	placingZoneBackside.initCells (&placingZoneBackside);
 	placingZoneBackside.nCells = placingZone.nCells;
 
 	// 배치를 위한 정보 입력
-	firstPlacingSettingsForWall (&placingZone);
-	copyPlacingZoneSymmetricForWall (&placingZone, &placingZoneBackside, &infoWall);
+	placingZone.firstPlacingSettings (&placingZone);
+	placingZone.copyPlacingZoneSymmetric (&placingZone, &placingZoneBackside, &infoWall);
 
 	// [DIALOG] 2번째 다이얼로그에서 유로폼/인코너 배치를 수정하거나 휠러스페이서 등을 삽입합니다.
 	clickedOKButton = false;
@@ -379,7 +379,7 @@ FIRST:
 		return err;
 
 	// 자투리 공간 채우기
-	err = fillRestAreasForWall ();
+	err = placingZone.fillRestAreas ();
 
 	// [DIALOG] 4번째 다이얼로그에서 채워진 자투리 공간 중에서 합판 영역을 다른 규격의 유로폼으로 대체할 것인지 묻습니다.
 	for (xx = 0 ; xx < placingZone.nInterfereBeams ; ++xx) {
@@ -408,7 +408,7 @@ FIRST:
 }
 
 // 가로 채우기까지 완료된 후 자투리 공간 채우기
-GSErrCode	fillRestAreasForWall (void)
+GSErrCode	WallPlacingZone::fillRestAreas (void)
 {
 	GSErrCode	err = NoError;
 
@@ -476,12 +476,12 @@ GSErrCode	fillRestAreasForWall (void)
 				if ( (placingZone.leftBottomZ + placingZone.verLen >= (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen * 2)) || (abs (placingZone.leftBottomZ + placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen * 2)) < EPS) ) {
 					placingZone.cells [xx][yy] = placingZone.cells [xx-1][yy];
 					placingZone.cells [xx][yy].leftBottomZ = placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen;
-					placingZone.cells [xx][yy].guid = placeLibPartForWall (placingZone.cells [xx][yy]);
+					placingZone.cells [xx][yy].guid = placingZone.placeLibPart (placingZone.cells [xx][yy]);
 					elemList.Push (placingZone.cells [xx][yy].guid);
 
 					placingZoneBackside.cells [xx][yy] = placingZoneBackside.cells [xx-1][yy];
 					placingZoneBackside.cells [xx][yy].leftBottomZ = placingZoneBackside.cells [xx-1][yy].leftBottomZ + placingZoneBackside.cells [xx-1][yy].verLen;
-					placingZoneBackside.cells [xx][yy].guid = placeLibPartForWall (placingZoneBackside.cells [xx][yy]);
+					placingZoneBackside.cells [xx][yy].guid = placingZone.placeLibPart (placingZoneBackside.cells [xx][yy]);
 					elemList.Push (placingZoneBackside.cells [xx][yy].guid);
 					
 				// 높이가 부족하면
@@ -537,12 +537,12 @@ GSErrCode	fillRestAreasForWall (void)
 						
 					placingZone.cells [xx][yy].horLen = placingZone.cells [xx-1][yy].horLen;
 					placingZone.cells [xx][yy].verLen = placingZone.leftBottomZ + placingZone.verLen - placingZone.cells [xx][yy].leftBottomZ;
-					placingZone.cells [xx][yy].guid = placeLibPartForWall (placingZone.cells [xx][yy]);
+					placingZone.cells [xx][yy].guid = placingZone.placeLibPart (placingZone.cells [xx][yy]);
 					elemList.Push (placingZone.cells [xx][yy].guid);
 
 					placingZoneBackside.cells [xx][yy].horLen = placingZoneBackside.cells [xx-1][yy].horLen;
 					placingZoneBackside.cells [xx][yy].verLen = placingZoneBackside.leftBottomZ + placingZoneBackside.verLen - placingZoneBackside.cells [xx][yy].leftBottomZ;
-					placingZoneBackside.cells [xx][yy].guid = placeLibPartForWall (placingZoneBackside.cells [xx][yy]);
+					placingZoneBackside.cells [xx][yy].guid = placingZone.placeLibPart (placingZoneBackside.cells [xx][yy]);
 					elemList.Push (placingZoneBackside.cells [xx][yy].guid);
 
 					// 상단 자투리 공간 셀 - 정보 저장
@@ -576,8 +576,8 @@ GSErrCode	fillRestAreasForWall (void)
 								insCellB.ang = placingZoneBackside.cells [xx-1][yy].ang;
 								insCellB.libPart.form.u_ins_wall = false;
 
-								elemList.Push (placeLibPartForWall (insCell));
-								elemList.Push (placeLibPartForWall (insCellB));
+								elemList.Push (placingZone.placeLibPart (insCell));
+								elemList.Push (placingZone.placeLibPart (insCellB));
 
 								if (insCell.libPart.form.eu_stan_onoff == true)
 									insertedHeight += insCell.libPart.form.eu_wid;
@@ -609,8 +609,8 @@ GSErrCode	fillRestAreasForWall (void)
 									insCellB.ang = placingZoneBackside.cells [xx-1][yy].ang;
 									insCellB.libPart.form.u_ins_wall = true;
 
-									elemList.Push (placeLibPartForWall (insCell));
-									elemList.Push (placeLibPartForWall (insCellB));
+									elemList.Push (placingZone.placeLibPart (insCell));
+									elemList.Push (placingZone.placeLibPart (insCellB));
 
 									// 위에 목재/합판 추가
 									insCell.leftBottomX = placingZone.cells [xx-1][yy].leftBottomX;
@@ -648,8 +648,8 @@ GSErrCode	fillRestAreasForWall (void)
 										insCellB.libPart.plywood.p_leng = placingZone.leftBottomZ + placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + placingZone.cells [xx-1][yy].horLen);
 										insCellB.libPart.plywood.w_dir_wall = true;
 									}
-									elemList.Push (placeLibPartForWall (insCell));
-									elemList.Push (placeLibPartForWall (insCellB));
+									elemList.Push (placingZone.placeLibPart (insCell));
+									elemList.Push (placingZone.placeLibPart (insCellB));
 
 									// 좌표값 수정
 									insertedLeft = placingZone.cells [xx-1][yy].verLen;
@@ -701,8 +701,8 @@ GSErrCode	fillRestAreasForWall (void)
 							insCellB.horLen = insCellB.libPart.plywood.p_wid;
 							insCellB.verLen = insCellB.libPart.plywood.p_leng;
 						}
-						insCell.guid = placeLibPartForWall (insCell);
-						insCellB.guid = placeLibPartForWall (insCellB);
+						insCell.guid = placingZone.placeLibPart (insCell);
+						insCellB.guid = placingZone.placeLibPart (insCellB);
 						elemList.Push (insCell.guid);
 						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][0] = insCell;
@@ -752,8 +752,8 @@ GSErrCode	fillRestAreasForWall (void)
 							insCellB.horLen = insCellB.libPart.plywood.p_wid;
 							insCellB.verLen = insCellB.libPart.plywood.p_leng;
 						}
-						insCell.guid = placeLibPartForWall (insCell);
-						insCellB.guid = placeLibPartForWall (insCellB);
+						insCell.guid = placingZone.placeLibPart (insCell);
+						insCellB.guid = placingZone.placeLibPart (insCellB);
 						elemList.Push (insCell.guid);
 						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][1] = insCell;
@@ -794,8 +794,8 @@ GSErrCode	fillRestAreasForWall (void)
 									insCellB.ang = placingZoneBackside.cells [xx-1][yy].ang;
 									insCellB.libPart.form.u_ins_wall = true;
 
-									elemList.Push (placeLibPartForWall (insCell));
-									elemList.Push (placeLibPartForWall (insCellB));
+									elemList.Push (placingZone.placeLibPart (insCell));
+									elemList.Push (placingZone.placeLibPart (insCellB));
 
 									// 위에 목재/합판 추가
 									insCell.leftBottomX = placingZone.cells [xx-1][yy].leftBottomX + (placingZone.cells [xx-1][yy].verLen * cos(placingZone.cells [xx-1][yy].ang));
@@ -833,8 +833,8 @@ GSErrCode	fillRestAreasForWall (void)
 										insCellB.libPart.plywood.p_leng = placingZone.leftBottomZ + placingZone.verLen - (placingZone.cells [xx-1][yy].leftBottomZ + placingZone.cells [xx-1][yy].verLen + placingZone.cells [xx-1][yy].horLen);
 										insCellB.libPart.plywood.w_dir_wall = true;
 									}
-									elemList.Push (placeLibPartForWall (insCell));
-									elemList.Push (placeLibPartForWall (insCellB));
+									elemList.Push (placingZone.placeLibPart (insCell));
+									elemList.Push (placingZone.placeLibPart (insCellB));
 
 									// 좌표값 수정
 									insertedRight = placingZone.cells [xx-1][yy].verLen;
@@ -886,8 +886,8 @@ GSErrCode	fillRestAreasForWall (void)
 							insCellB.horLen = insCellB.libPart.plywood.p_wid;
 							insCellB.verLen = insCellB.libPart.plywood.p_leng;
 						}
-						insCell.guid = placeLibPartForWall (insCell);
-						insCellB.guid = placeLibPartForWall (insCellB);
+						insCell.guid = placingZone.placeLibPart (insCell);
+						insCellB.guid = placingZone.placeLibPart (insCellB);
 						elemList.Push (insCell.guid);
 						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][2] = insCell;
@@ -941,8 +941,8 @@ GSErrCode	fillRestAreasForWall (void)
 							insCellB.horLen = insCellB.libPart.plywood.p_wid;
 							insCellB.verLen = insCellB.libPart.plywood.p_leng;
 						}
-						insCell.guid = placeLibPartForWall (insCell);
-						insCellB.guid = placeLibPartForWall (insCellB);
+						insCell.guid = placingZone.placeLibPart (insCell);
+						insCellB.guid = placingZone.placeLibPart (insCellB);
 						elemList.Push (insCell.guid);
 						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][0] = insCell;
@@ -992,8 +992,8 @@ GSErrCode	fillRestAreasForWall (void)
 							insCellB.horLen = insCellB.libPart.plywood.p_wid;
 							insCellB.verLen = insCellB.libPart.plywood.p_leng;
 						}
-						insCell.guid = placeLibPartForWall (insCell);
-						insCellB.guid = placeLibPartForWall (insCellB);
+						insCell.guid = placingZone.placeLibPart (insCell);
+						insCellB.guid = placingZone.placeLibPart (insCellB);
 						elemList.Push (insCell.guid);
 						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][1] = insCell;
@@ -1043,8 +1043,8 @@ GSErrCode	fillRestAreasForWall (void)
 							insCellB.horLen = insCellB.libPart.plywood.p_wid;
 							insCellB.verLen = insCellB.libPart.plywood.p_leng;
 						}
-						insCell.guid = placeLibPartForWall (insCell);
-						insCellB.guid = placeLibPartForWall (insCellB);
+						insCell.guid = placingZone.placeLibPart (insCell);
+						insCellB.guid = placingZone.placeLibPart (insCellB);
 						elemList.Push (insCell.guid);
 						elemList.Push (insCellB.guid);
 						placingZone.woods [indInterfereBeam][2] = insCell;
@@ -1064,7 +1064,7 @@ GSErrCode	fillRestAreasForWall (void)
 }
 
 // 해당 셀 정보를 기반으로 라이브러리 배치
-API_Guid	placeLibPartForWall (CellForWall objInfo)
+API_Guid	WallPlacingZone::placeLibPart (CellForWall objInfo)
 {
 	GSErrCode	err = NoError;
 
@@ -1221,7 +1221,7 @@ API_Guid	placeLibPartForWall (CellForWall objInfo)
 }
 
 // [arr1]행 - 해당 셀의 좌하단 좌표X 위치를 리턴
-double	getCellPositionLeftBottomXForWall (WallPlacingZone *src_zone, short arr1, short idx)
+double	WallPlacingZone::getCellPositionLeftBottomX (WallPlacingZone *src_zone, short arr1, short idx)
 {
 	double		distance = 0.0;
 	short		xx;
@@ -1235,7 +1235,7 @@ double	getCellPositionLeftBottomXForWall (WallPlacingZone *src_zone, short arr1,
 }
 
 // [arr1]행 - 전체 셀의 최하단 좌표Z 위치를 설정
-void	setCellPositionLeftBottomZForWall (WallPlacingZone *src_zone, short arr1, double new_hei)
+void	WallPlacingZone::setCellPositionLeftBottomZ (WallPlacingZone *src_zone, short arr1, double new_hei)
 {
 	short		xx;
 
@@ -1244,7 +1244,7 @@ void	setCellPositionLeftBottomZForWall (WallPlacingZone *src_zone, short arr1, d
 }
 
 // Cell 배열을 초기화함
-void	initCellsForWall (WallPlacingZone* placingZone)
+void	WallPlacingZone::initCells (WallPlacingZone* placingZone)
 {
 	short xx, yy;
 
@@ -1261,7 +1261,7 @@ void	initCellsForWall (WallPlacingZone* placingZone)
 }
 
 // 1차 배치: 인코너, 유로폼
-void	firstPlacingSettingsForWall (WallPlacingZone* placingZone)
+void	WallPlacingZone::firstPlacingSettings (WallPlacingZone* placingZone)
 {
 	short			xx, yy, zz;
 	std::string		tempString;
@@ -1306,8 +1306,8 @@ void	firstPlacingSettingsForWall (WallPlacingZone* placingZone)
 				placingZone->cells [xx][zz].verLen = placingZone->eu_wid_numeric;
 			}
 
-			placingZone->cells [xx][zz].leftBottomX = placingZone->leftBottomX + (getCellPositionLeftBottomXForWall (placingZone, xx, zz) * cos(placingZone->ang));
-			placingZone->cells [xx][zz].leftBottomY = placingZone->leftBottomY + (getCellPositionLeftBottomXForWall (placingZone, xx, zz) * sin(placingZone->ang));
+			placingZone->cells [xx][zz].leftBottomX = placingZone->leftBottomX + (placingZone->getCellPositionLeftBottomX (placingZone, xx, zz) * cos(placingZone->ang));
+			placingZone->cells [xx][zz].leftBottomY = placingZone->leftBottomY + (placingZone->getCellPositionLeftBottomX (placingZone, xx, zz) * sin(placingZone->ang));
 			placingZone->cells [xx][zz].leftBottomZ = placingZone->leftBottomZ + (xx * placingZone->cells [0][zz].verLen);
 			placingZone->cells [xx][zz].libPart.form.eu_stan_onoff = true;
 			placingZone->cells [xx][zz].libPart.form.eu_wid = placingZone->eu_wid_numeric;
@@ -1325,8 +1325,8 @@ void	firstPlacingSettingsForWall (WallPlacingZone* placingZone)
 			else
 				placingZone->cells [xx][placingZone->nCells - 1].verLen = placingZone->eu_wid_numeric;
 			placingZone->cells [xx][placingZone->nCells - 1].ang = placingZone->ang + DegreeToRad (-180);
-			placingZone->cells [xx][placingZone->nCells - 1].leftBottomX = placingZone->leftBottomX + ((getCellPositionLeftBottomXForWall (placingZone, xx, placingZone->nCells - 1) + placingZone->lenRIncorner) * cos(placingZone->ang));
-			placingZone->cells [xx][placingZone->nCells - 1].leftBottomY = placingZone->leftBottomY + ((getCellPositionLeftBottomXForWall (placingZone, xx, placingZone->nCells - 1) + placingZone->lenRIncorner) * sin(placingZone->ang));
+			placingZone->cells [xx][placingZone->nCells - 1].leftBottomX = placingZone->leftBottomX + ((placingZone->getCellPositionLeftBottomX (placingZone, xx, placingZone->nCells - 1) + placingZone->lenRIncorner) * cos(placingZone->ang));
+			placingZone->cells [xx][placingZone->nCells - 1].leftBottomY = placingZone->leftBottomY + ((placingZone->getCellPositionLeftBottomX (placingZone, xx, placingZone->nCells - 1) + placingZone->lenRIncorner) * sin(placingZone->ang));
 			placingZone->cells [xx][placingZone->nCells - 1].leftBottomZ = placingZone->leftBottomZ + (xx * placingZone->cells [0][placingZone->nCells - 1].verLen);
 			placingZone->cells [xx][placingZone->nCells - 1].libPart.incorner.wid_s = placingZone->lenRIncorner;			// 인코너패널 - 가로(빨강)
 			placingZone->cells [xx][placingZone->nCells - 1].libPart.incorner.leng_s = 0.100;								// 인코너패널 - 세로(파랑)
@@ -1339,7 +1339,7 @@ void	firstPlacingSettingsForWall (WallPlacingZone* placingZone)
 }
 
 // 원본 벽면 영역 정보를 대칭하는 반대쪽에도 복사함
-void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone* dst_zone, InfoWall* infoWall)
+void	WallPlacingZone::copyPlacingZoneSymmetric (WallPlacingZone* src_zone, WallPlacingZone* dst_zone, InfoWall* infoWall)
 {
 	short	xx, yy;
 
@@ -1387,8 +1387,8 @@ void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone
 				dst_zone->cells [xx][yy].horLen				= 0;
 				dst_zone->cells [xx][yy].verLen				= 0;
 				dst_zone->cells [xx][yy].ang				= dst_zone->ang;
-				dst_zone->cells [xx][yy].leftBottomX		= dst_zone->leftBottomX + (getCellPositionLeftBottomXForWall (src_zone, xx, yy) * cos(src_zone->ang));
-				dst_zone->cells [xx][yy].leftBottomY		= dst_zone->leftBottomY + (getCellPositionLeftBottomXForWall (src_zone, xx, yy) * sin(src_zone->ang));
+				dst_zone->cells [xx][yy].leftBottomX		= dst_zone->leftBottomX + (placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) * cos(src_zone->ang));
+				dst_zone->cells [xx][yy].leftBottomY		= dst_zone->leftBottomY + (placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) * sin(src_zone->ang));
 				dst_zone->cells [xx][yy].leftBottomZ		= src_zone->leftBottomZ;
 
 			// 인코너인 경우,
@@ -1412,8 +1412,8 @@ void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone
 					dst_zone->cells [xx][yy].horLen							= src_zone->cells [xx][yy].horLen;
 					dst_zone->cells [xx][yy].verLen							= src_zone->cells [xx][yy].verLen;
 					dst_zone->cells [xx][yy].ang							= dst_zone->ang + DegreeToRad (90);
-					dst_zone->cells [xx][yy].leftBottomX					= dst_zone->leftBottomX + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->lenRIncorner) * cos(src_zone->ang));
-					dst_zone->cells [xx][yy].leftBottomY					= dst_zone->leftBottomY + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->lenRIncorner) * sin(src_zone->ang));
+					dst_zone->cells [xx][yy].leftBottomX					= dst_zone->leftBottomX + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->lenRIncorner) * cos(src_zone->ang));
+					dst_zone->cells [xx][yy].leftBottomY					= dst_zone->leftBottomY + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->lenRIncorner) * sin(src_zone->ang));
 					dst_zone->cells [xx][yy].leftBottomZ					= src_zone->cells [xx][yy].leftBottomZ;
 					dst_zone->cells [xx][yy].libPart.incorner.wid_s			= src_zone->cells [xx][yy].libPart.incorner.leng_s;		// 인코너패널 - 가로(빨강)
 					dst_zone->cells [xx][yy].libPart.incorner.leng_s		= src_zone->cells [xx][yy].libPart.incorner.wid_s;		// 인코너패널 - 세로(파랑)
@@ -1425,8 +1425,8 @@ void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone
 					dst_zone->cells [xx][yy].horLen							= src_zone->cells [xx][yy].horLen;
 					dst_zone->cells [xx][yy].verLen							= src_zone->cells [xx][yy].verLen;
 					dst_zone->cells [xx][yy].ang							= dst_zone->ang + DegreeToRad (90);
-					dst_zone->cells [xx][yy].leftBottomX					= dst_zone->leftBottomX + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->lenRIncorner) * cos(src_zone->ang));
-					dst_zone->cells [xx][yy].leftBottomY					= dst_zone->leftBottomY + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->lenRIncorner) * sin(src_zone->ang));
+					dst_zone->cells [xx][yy].leftBottomX					= dst_zone->leftBottomX + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->lenRIncorner) * cos(src_zone->ang));
+					dst_zone->cells [xx][yy].leftBottomY					= dst_zone->leftBottomY + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->lenRIncorner) * sin(src_zone->ang));
 					dst_zone->cells [xx][yy].leftBottomZ					= src_zone->cells [xx][yy].leftBottomZ;
 					dst_zone->cells [xx][yy].libPart.incorner.wid_s			= src_zone->cells [xx][yy].libPart.incorner.leng_s;		// 인코너패널 - 가로(빨강)
 					dst_zone->cells [xx][yy].libPart.incorner.leng_s		= src_zone->cells [xx][yy].libPart.incorner.wid_s;		// 인코너패널 - 세로(파랑)
@@ -1441,8 +1441,8 @@ void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone
 				dst_zone->cells [xx][yy].verLen						= src_zone->cells [xx][yy].verLen;
 				dst_zone->cells [xx][yy].ang						= dst_zone->ang + DegreeToRad (180);
 
-				dst_zone->cells [xx][yy].leftBottomX = dst_zone->leftBottomX + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * cos(src_zone->ang));
-				dst_zone->cells [xx][yy].leftBottomY = dst_zone->leftBottomY + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * sin(src_zone->ang));
+				dst_zone->cells [xx][yy].leftBottomX = dst_zone->leftBottomX + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * cos(src_zone->ang));
+				dst_zone->cells [xx][yy].leftBottomY = dst_zone->leftBottomY + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * sin(src_zone->ang));
 				dst_zone->cells [xx][yy].leftBottomZ					= src_zone->cells [xx][yy].leftBottomZ;
 				dst_zone->cells [xx][yy].libPart.form.eu_stan_onoff		= src_zone->cells [xx][yy].libPart.form.eu_stan_onoff;
 				dst_zone->cells [xx][yy].libPart.form.eu_wid			= src_zone->cells [xx][yy].libPart.form.eu_wid;
@@ -1458,8 +1458,8 @@ void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone
 				dst_zone->cells [xx][yy].horLen				= src_zone->cells [xx][yy].horLen;
 				dst_zone->cells [xx][yy].verLen				= src_zone->cells [xx][yy].verLen;
 				dst_zone->cells [xx][yy].ang				= dst_zone->ang + DegreeToRad (180);
-				dst_zone->cells [xx][yy].leftBottomX		= dst_zone->leftBottomX + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * cos(src_zone->ang));
-				dst_zone->cells [xx][yy].leftBottomY		= dst_zone->leftBottomY + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * sin(src_zone->ang));
+				dst_zone->cells [xx][yy].leftBottomX		= dst_zone->leftBottomX + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * cos(src_zone->ang));
+				dst_zone->cells [xx][yy].leftBottomY		= dst_zone->leftBottomY + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * sin(src_zone->ang));
 				dst_zone->cells [xx][yy].leftBottomZ		= src_zone->cells [xx][yy].leftBottomZ;
 				dst_zone->cells [xx][yy].libPart.fillersp.f_leng	= src_zone->cells [xx][yy].libPart.fillersp.f_leng;
 				dst_zone->cells [xx][yy].libPart.fillersp.f_thk		= src_zone->cells [xx][yy].libPart.fillersp.f_thk;
@@ -1471,8 +1471,8 @@ void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone
 				dst_zone->cells [xx][yy].horLen				= src_zone->cells [xx][yy].horLen;
 				dst_zone->cells [xx][yy].verLen				= src_zone->cells [xx][yy].verLen;
 				dst_zone->cells [xx][yy].ang				= dst_zone->ang + DegreeToRad (180);
-				dst_zone->cells [xx][yy].leftBottomX		= dst_zone->leftBottomX + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * cos(src_zone->ang));
-				dst_zone->cells [xx][yy].leftBottomY		= dst_zone->leftBottomY + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * sin(src_zone->ang));
+				dst_zone->cells [xx][yy].leftBottomX		= dst_zone->leftBottomX + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * cos(src_zone->ang));
+				dst_zone->cells [xx][yy].leftBottomY		= dst_zone->leftBottomY + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * sin(src_zone->ang));
 				dst_zone->cells [xx][yy].leftBottomZ		= src_zone->cells [xx][yy].leftBottomZ;
 				dst_zone->cells [xx][yy].libPart.plywood.p_leng		= src_zone->cells [xx][yy].libPart.plywood.p_leng;
 				dst_zone->cells [xx][yy].libPart.plywood.p_wid		= src_zone->cells [xx][yy].libPart.plywood.p_wid;
@@ -1485,8 +1485,8 @@ void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone
 				dst_zone->cells [xx][yy].horLen				= src_zone->cells [xx][yy].horLen;
 				dst_zone->cells [xx][yy].verLen				= src_zone->cells [xx][yy].verLen;
 				dst_zone->cells [xx][yy].ang				= dst_zone->ang + DegreeToRad (180);
-				dst_zone->cells [xx][yy].leftBottomX		= dst_zone->leftBottomX + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * cos(src_zone->ang));
-				dst_zone->cells [xx][yy].leftBottomY		= dst_zone->leftBottomY + ((getCellPositionLeftBottomXForWall (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * sin(src_zone->ang));
+				dst_zone->cells [xx][yy].leftBottomX		= dst_zone->leftBottomX + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * cos(src_zone->ang));
+				dst_zone->cells [xx][yy].leftBottomY		= dst_zone->leftBottomY + ((placingZone.getCellPositionLeftBottomX (src_zone, xx, yy) + src_zone->cells [xx][yy].horLen) * sin(src_zone->ang));
 				dst_zone->cells [xx][yy].leftBottomZ		= src_zone->cells [xx][yy].leftBottomZ;
 				dst_zone->cells [xx][yy].libPart.wood.w_h		= src_zone->cells [xx][yy].libPart.wood.w_h;
 				dst_zone->cells [xx][yy].libPart.wood.w_leng	= src_zone->cells [xx][yy].libPart.wood.w_leng;
@@ -1498,7 +1498,7 @@ void	copyPlacingZoneSymmetricForWall (WallPlacingZone* src_zone, WallPlacingZone
 }
 
 // Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-void	alignPlacingZoneForWall (WallPlacingZone* target_zone)
+void	WallPlacingZone::alignPlacingZone (WallPlacingZone* target_zone)
 {
 	short			xx, yy;
 
@@ -1514,8 +1514,8 @@ void	alignPlacingZoneForWall (WallPlacingZone* target_zone)
 					target_zone->cells [xx][yy].leftBottomY	= target_zone->leftBottomY;
 				} else {
 					target_zone->cells [xx][yy].ang			= target_zone->ang + DegreeToRad (-180);
-					target_zone->cells [xx][yy].leftBottomX	= target_zone->leftBottomX + ((getCellPositionLeftBottomXForWall (target_zone, xx, yy) + target_zone->lenRIncorner) * cos(target_zone->ang));
-					target_zone->cells [xx][yy].leftBottomY	= target_zone->leftBottomY + ((getCellPositionLeftBottomXForWall (target_zone, xx, yy) + target_zone->lenRIncorner) * sin(target_zone->ang));
+					target_zone->cells [xx][yy].leftBottomX	= target_zone->leftBottomX + ((placingZone.getCellPositionLeftBottomX (target_zone, xx, yy) + target_zone->lenRIncorner) * cos(target_zone->ang));
+					target_zone->cells [xx][yy].leftBottomY	= target_zone->leftBottomY + ((placingZone.getCellPositionLeftBottomX (target_zone, xx, yy) + target_zone->lenRIncorner) * sin(target_zone->ang));
 				}
 				target_zone->cells [xx][yy].leftBottomZ = target_zone->leftBottomZ + (target_zone->cells [0][yy].verLen * xx);
 
@@ -1523,8 +1523,8 @@ void	alignPlacingZoneForWall (WallPlacingZone* target_zone)
 			} else {
 
 				target_zone->cells [xx][yy].ang			= target_zone->ang;
-				target_zone->cells [xx][yy].leftBottomX	= target_zone->leftBottomX + (getCellPositionLeftBottomXForWall (target_zone, xx, yy) * cos(target_zone->ang));;
-				target_zone->cells [xx][yy].leftBottomY	= target_zone->leftBottomY + (getCellPositionLeftBottomXForWall (target_zone, xx, yy) * sin(target_zone->ang));;
+				target_zone->cells [xx][yy].leftBottomX	= target_zone->leftBottomX + (placingZone.getCellPositionLeftBottomX (target_zone, xx, yy) * cos(target_zone->ang));;
+				target_zone->cells [xx][yy].leftBottomY	= target_zone->leftBottomY + (placingZone.getCellPositionLeftBottomX (target_zone, xx, yy) * sin(target_zone->ang));;
 				target_zone->cells [xx][yy].leftBottomZ = target_zone->leftBottomZ + (target_zone->cells [0][yy].verLen * xx);
 			}
 		}
@@ -1542,7 +1542,7 @@ void	alignPlacingZoneForWall (WallPlacingZone* target_zone)
 }
 
 // src행의 Cell 전체 라인을 dst행으로 복사
-void	copyCellsToAnotherLineForWall (WallPlacingZone* target_zone, short src_row, short dst_row)
+void	WallPlacingZone::copyCellsToAnotherLine (WallPlacingZone* target_zone, short src_row, short dst_row)
 {
 	short xx;
 
@@ -1833,8 +1833,8 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 					item = 0;
 
 					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-					alignPlacingZoneForWall (&placingZone);
-					copyPlacingZoneSymmetricForWall (&placingZone, &placingZoneBackside, &infoWall);
+					placingZone.alignPlacingZone (&placingZone);
+					placingZone.copyPlacingZoneSymmetric (&placingZone, &placingZoneBackside, &infoWall);
 
 					// 버튼 인덱스 iteration 준비
 					idxBtn = itemInitIdx;
@@ -1908,8 +1908,8 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 					item = 0;
 
 					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-					alignPlacingZoneForWall (&placingZone);
-					copyPlacingZoneSymmetricForWall (&placingZone, &placingZoneBackside, &infoWall);
+					placingZone.alignPlacingZone (&placingZone);
+					placingZone.copyPlacingZoneSymmetric (&placingZone, &placingZoneBackside, &infoWall);
 
 					// 버튼 인덱스 iteration 준비
 					idxBtn = itemInitIdx;
@@ -2007,12 +2007,12 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 					//////////////////////////////////////////////////////////// 벽 앞쪽
 					for (xx = 0 ; xx < placingZone.eu_count_ver ; ++xx)
 						for (yy = 0 ; yy < placingZone.nCells ; ++yy)
-							placingZone.cells [xx][yy].guid = placeLibPartForWall (placingZone.cells [xx][yy]);
+							placingZone.cells [xx][yy].guid = placingZone.placeLibPart (placingZone.cells [xx][yy]);
 
 					//////////////////////////////////////////////////////////// 벽 뒤쪽
 					for (xx = 0 ; xx < placingZoneBackside.eu_count_ver ; ++xx)
 						for (yy = 0 ; yy < placingZoneBackside.nCells ; ++yy)
-							placingZoneBackside.cells [xx][yy].guid = placeLibPartForWall (placingZoneBackside.cells [xx][yy]);
+							placingZoneBackside.cells [xx][yy].guid = placingZone.placeLibPart (placingZoneBackside.cells [xx][yy]);
 
 					clickedOKButton = true;
 
@@ -2042,8 +2042,8 @@ short DGCALLBACK wallPlacerHandler2 (short message, short dialogID, short item, 
 					item = 0;	// 그리드 버튼을 눌렀을 때 창이 닫히지 않게 함
 
 					// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-					alignPlacingZoneForWall (&placingZone);
-					copyPlacingZoneSymmetricForWall (&placingZone, &placingZoneBackside, &infoWall);
+					placingZone.alignPlacingZone (&placingZone);
+					placingZone.copyPlacingZoneSymmetric (&placingZone, &placingZoneBackside, &infoWall);
 
 					// 버튼 인덱스 iteration 준비
 					idxBtn = itemInitIdx;
@@ -4271,8 +4271,8 @@ short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, 
 					}
 						
 					// 사용자가 입력한 추가 유로폼 삽입
-					elemList.Push (placeLibPartForWall (insCell));
-					elemList.Push (placeLibPartForWall (insCellB));
+					elemList.Push (placingZone.placeLibPart (insCell));
+					elemList.Push (placingZone.placeLibPart (insCellB));
 
 					// 유로폼 크기에 의해 기존 합판/목재의 크기를 변경하고 위로 올림
 					// 보 좌측면
@@ -4285,8 +4285,8 @@ short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, 
 					}
 					placingZone.woods [numberOfinterfereBeam][0].leftBottomZ += insCell.verLen;
 					placingZoneBackside.woods [numberOfinterfereBeam][0].leftBottomZ += insCellB.verLen;
-					elemList.Push (placeLibPartForWall (placingZone.woods [numberOfinterfereBeam][0]));
-					elemList.Push (placeLibPartForWall (placingZoneBackside.woods [numberOfinterfereBeam][0]));
+					elemList.Push (placingZone.placeLibPart (placingZone.woods [numberOfinterfereBeam][0]));
+					elemList.Push (placingZone.placeLibPart (placingZoneBackside.woods [numberOfinterfereBeam][0]));
 
 					// 보 아래면
 					if (remainHeight > EPS) {
@@ -4318,8 +4318,8 @@ short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, 
 						placingZone.woods [numberOfinterfereBeam][1].leftBottomZ += insCell.verLen;
 						placingZoneBackside.woods [numberOfinterfereBeam][1].leftBottomZ += insCell.verLen;
 
-						elemList.Push (placeLibPartForWall (placingZone.woods [numberOfinterfereBeam][1]));
-						elemList.Push (placeLibPartForWall (placingZoneBackside.woods [numberOfinterfereBeam][1]));
+						elemList.Push (placingZone.placeLibPart (placingZone.woods [numberOfinterfereBeam][1]));
+						elemList.Push (placingZone.placeLibPart (placingZoneBackside.woods [numberOfinterfereBeam][1]));
 					}
 
 					// 보 우측면
@@ -4332,8 +4332,8 @@ short DGCALLBACK wallPlacerHandler4 (short message, short dialogID, short item, 
 					}
 					placingZone.woods [numberOfinterfereBeam][2].leftBottomZ += insCell.verLen;
 					placingZoneBackside.woods [numberOfinterfereBeam][2].leftBottomZ += insCellB.verLen;
-					elemList.Push (placeLibPartForWall (placingZone.woods [numberOfinterfereBeam][2]));
-					elemList.Push (placeLibPartForWall (placingZoneBackside.woods [numberOfinterfereBeam][2]));
+					elemList.Push (placingZone.placeLibPart (placingZone.woods [numberOfinterfereBeam][2]));
+					elemList.Push (placingZone.placeLibPart (placingZoneBackside.woods [numberOfinterfereBeam][2]));
 
 					break;
 				case DG_CANCEL:
@@ -4837,8 +4837,8 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 									insCellB.horLen = totalWidth;
 									insCellB.verLen = euroformWidth1;
 
-									elemList.Push (placeLibPartForWall (insCell));
-									elemList.Push (placeLibPartForWall (insCellB));
+									elemList.Push (placingZone.placeLibPart (insCell));
+									elemList.Push (placingZone.placeLibPart (insCellB));
 								}
 								
 								// 유로폼 (2단)
@@ -4881,8 +4881,8 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 									insCellB.horLen = totalWidth;
 									insCellB.verLen = euroformWidth2;
 
-									elemList.Push (placeLibPartForWall (insCell));
-									elemList.Push (placeLibPartForWall (insCellB));
+									elemList.Push (placingZone.placeLibPart (insCell));
+									elemList.Push (placingZone.placeLibPart (insCellB));
 								}
 
 								// 합판 또는 목재 (공간이 없으면 폼 위에 높이 50mm의 목재를 붙임)
@@ -4911,8 +4911,8 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 									insCellB.horLen = totalWidth;
 									insCellB.verLen = 0.050;
 
-									elemList.Push (placeLibPartForWall (insCell));
-									elemList.Push (placeLibPartForWall (insCellB));
+									elemList.Push (placingZone.placeLibPart (insCell));
+									elemList.Push (placingZone.placeLibPart (insCellB));
 
 								} else if (changedPlywoodHeight < 0.110) {
 									insCell.objType = WOOD;
@@ -4939,8 +4939,8 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 									insCellB.horLen = totalWidth;
 									insCellB.verLen = changedPlywoodHeight;
 
-									elemList.Push (placeLibPartForWall (insCell));
-									elemList.Push (placeLibPartForWall (insCellB));
+									elemList.Push (placingZone.placeLibPart (insCell));
+									elemList.Push (placingZone.placeLibPart (insCellB));
 								} else {
 									insCell.objType = PLYWOOD;
 									insCell.leftBottomX = placingZone.topRestCells [xx].leftBottomX;
@@ -4964,8 +4964,8 @@ short DGCALLBACK wallPlacerHandler5 (short message, short dialogID, short item, 
 									insCellB.horLen = totalWidth;
 									insCellB.verLen = changedPlywoodHeight;
 
-									elemList.Push (placeLibPartForWall (insCell));
-									elemList.Push (placeLibPartForWall (insCellB));
+									elemList.Push (placingZone.placeLibPart (insCell));
+									elemList.Push (placingZone.placeLibPart (insCellB));
 								}
 
 								xx += processedIndex;

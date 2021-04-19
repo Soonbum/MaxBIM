@@ -105,21 +105,6 @@ namespace beamPlacerDG {
 	};
 }
 
-// 보 관련 정보
-struct InfoBeam
-{
-	API_Guid	guid;	// 보의 GUID
-
-	short	floorInd;	// 층 인덱스
-	double	height;		// 보 높이
-	double	width;		// 보 너비
-	double	offset;		// 보 중심으로부터 보의 레퍼런스 라인의 오프셋입니다.
-	double	level;		// 바닥 레벨에 대한 보의 위쪽면 높이입니다.
-
-	API_Coord	begC;	// 보 시작 좌표
-	API_Coord	endC;	// 보 끝 좌표
-};
-
 // 모프 관련 정보
 struct InfoMorphForBeam
 {
@@ -154,8 +139,9 @@ struct CellForBeam
 };
 
 // 보 영역 정보
-struct BeamPlacingZone
+class BeamPlacingZone
 {
+public:
 	// 보의 시작 좌표는 왼쪽, 끝 좌표는 오른쪽이라고 가정함
 
 	// 보 기하 정보
@@ -207,23 +193,25 @@ struct BeamPlacingZone
 
 	double			gapSide;			// 보와의 간격 (측면)
 	double			gapBottom;			// 보와의 간격 (하부)
+
+public:
+	void		initCells (BeamPlacingZone* placingZone);						// Cell 배열을 초기화함
+	void		firstPlacingSettings (BeamPlacingZone* placingZone);			// 1차 배치 설정
+	void		addNewColFromBeginAtSide (BeamPlacingZone* target_zone);		// 측면 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+	void		delLastColFromBeginAtSide (BeamPlacingZone* target_zone);		// 측면 시작 부분 - 마지막 열을 삭제함
+	void		addNewColFromEndAtSide (BeamPlacingZone* target_zone);			// 측면 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+	void		delLastColFromEndAtSide (BeamPlacingZone* target_zone);			// 측면 끝 부분 - 마지막 열을 삭제함
+	void		addNewColFromBeginAtBottom (BeamPlacingZone* target_zone);		// 하부 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+	void		delLastColFromBeginAtBottom (BeamPlacingZone* target_zone);		// 하부 시작 부분 - 마지막 열을 삭제함
+	void		addNewColFromEndAtBottom (BeamPlacingZone* target_zone);		// 하부 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+	void		delLastColFromEndAtBottom (BeamPlacingZone* target_zone);		// 하부 끝 부분 - 마지막 열을 삭제함
+	void		alignPlacingZone (BeamPlacingZone* placingZone);				// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+	API_Guid	placeLibPart (CellForBeam objInfo);								// 해당 셀 정보를 기반으로 라이브러리 배치
+	GSErrCode	fillRestAreas (BeamPlacingZone* placingZone);					// 유로폼/휠러/목재를 채운 후 자투리 공간 채우기 (나머지 합판/목재 및 아웃코너앵글)
 };
 
 // 유로폼 보 배치 함수
-GSErrCode	placeEuroformOnBeam (void);										// 3번 메뉴: 보에 유로폼을 배치하는 통합 루틴
-void		initCellsForBeam (BeamPlacingZone* placingZone);				// Cell 배열을 초기화함
-void		firstPlacingSettingsForBeam (BeamPlacingZone* placingZone);		// 1차 배치 설정
-void		addNewColFromBeginAtSide (BeamPlacingZone* target_zone);		// 측면 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		delLastColFromBeginAtSide (BeamPlacingZone* target_zone);		// 측면 시작 부분 - 마지막 열을 삭제함
-void		addNewColFromEndAtSide (BeamPlacingZone* target_zone);			// 측면 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		delLastColFromEndAtSide (BeamPlacingZone* target_zone);			// 측면 끝 부분 - 마지막 열을 삭제함
-void		addNewColFromBeginAtBottom (BeamPlacingZone* target_zone);		// 하부 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		delLastColFromBeginAtBottom (BeamPlacingZone* target_zone);		// 하부 시작 부분 - 마지막 열을 삭제함
-void		addNewColFromEndAtBottom (BeamPlacingZone* target_zone);		// 하부 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		delLastColFromEndAtBottom (BeamPlacingZone* target_zone);		// 하부 끝 부분 - 마지막 열을 삭제함
-void		alignPlacingZoneForBeam (BeamPlacingZone* placingZone);			// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-API_Guid	placeLibPartForBeam (CellForBeam objInfo);						// 해당 셀 정보를 기반으로 라이브러리 배치
-GSErrCode	fillRestAreasForBeam (BeamPlacingZone* placingZone);			// 유로폼/휠러/목재를 채운 후 자투리 공간 채우기 (나머지 합판/목재 및 아웃코너앵글)
+GSErrCode	placeEuroformOnBeam (void);		// 보에 유로폼을 배치하는 통합 루틴
 short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그

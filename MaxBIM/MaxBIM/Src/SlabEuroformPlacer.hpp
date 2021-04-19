@@ -78,15 +78,6 @@ namespace slabBottomPlacerDG {
 	};
 }
 
-// 슬래브 관련 정보
-struct InfoSlab
-{
-	short	floorInd;			// 층 인덱스
-	double	offsetFromTop;		// 슬래브 윗면과 레퍼런스 레벨과의 수직 거리
-	double	thickness;			// 슬래브 두께
-	double	level;				// 레퍼런스 레벨의 고도
-};
-
 // 모프 관련 정보
 struct InfoMorphForSlab
 {
@@ -118,8 +109,9 @@ struct CellForSlab
 };
 
 // 슬래브 하부 영역 정보
-struct SlabPlacingZone
+class SlabPlacingZone
 {
+public:
 	// 좌우상하: 슬래브 위에서 봤을 때의 방향을 따름
 
 	// 슬래브 기하 정보
@@ -175,21 +167,23 @@ struct SlabPlacingZone
 	bool	bottomBoundsCells [50];	// 아래쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_hor-2] : LeftTop에서 RightTop까지
 	bool	leftBoundsCells [50];	// 왼쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_ver-2] : LeftBottom에서 LeftTop까지
 	bool	rightBoundsCells [50];	// 오른쪽 목재 보강재 유무 - 마지막 인덱스: [eu_count_ver-2] : RightBottom에서 RightTop까지
+
+public:
+	void		initCells (SlabPlacingZone* placingZone);											// Cell 배열을 초기화함
+	void		firstPlacingSettings (SlabPlacingZone* placingZone);								// 1차 배치: 유로폼
+	void		adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short col);		// 해당 셀과 동일한 행에 있는 다른 셀들의 타입 및 높이를 조정함
+	void		adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col);		// 해당 셀과 동일한 열에 있는 다른 셀들의 타입 및 너비를 조정함
+	void		addNewRow (SlabPlacingZone* target_zone);											// 새로운 행을 추가함 (행 하나를 늘리고 추가된 행에 마지막 행 정보 복사)
+	void		addNewCol (SlabPlacingZone* target_zone);											// 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+	void		delLastRow (SlabPlacingZone* target_zone);											// 마지막 행을 삭제함
+	void		delLastCol (SlabPlacingZone* target_zone);											// 마지막 열을 삭제함
+	void		alignPlacingZone (SlabPlacingZone* target_zone);									// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+	API_Guid	placeLibPart (CellForSlab objInfo);													// 해당 셀 정보를 기반으로 라이브러리 배치
+	GSErrCode	fillRestAreas (void);																// 유로폼을 채운 후 자투리 공간 채우기
 };
 
 // 유로폼 슬래브 하부 배치 함수
-GSErrCode	placeEuroformOnSlabBottom (void);				// 2번 메뉴: 슬래브 하부에 유로폼을 배치하는 통합 루틴
-void		initCellsForSlabBottom (SlabPlacingZone* placingZone);								// Cell 배열을 초기화함
-void		firstPlacingSettingsForSlabBottom (SlabPlacingZone* placingZone);					// 1차 배치: 유로폼
-void		adjustOtherCellsInSameRow (SlabPlacingZone* target_zone, short row, short col);		// 해당 셀과 동일한 행에 있는 다른 셀들의 타입 및 높이를 조정함
-void		adjustOtherCellsInSameCol (SlabPlacingZone* target_zone, short row, short col);		// 해당 셀과 동일한 열에 있는 다른 셀들의 타입 및 너비를 조정함
-void		addNewRow (SlabPlacingZone* target_zone);											// 새로운 행을 추가함 (행 하나를 늘리고 추가된 행에 마지막 행 정보 복사)
-void		addNewCol (SlabPlacingZone* target_zone);											// 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		delLastRow (SlabPlacingZone* target_zone);											// 마지막 행을 삭제함
-void		delLastCol (SlabPlacingZone* target_zone);											// 마지막 열을 삭제함
-void		alignPlacingZoneForSlabBottom (SlabPlacingZone* target_zone);						// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-API_Guid	placeLibPartForSlabBottom (CellForSlab objInfo);									// 해당 셀 정보를 기반으로 라이브러리 배치
-GSErrCode	fillRestAreasForSlabBottom (void);													// 유로폼을 채운 후 자투리 공간 채우기
+GSErrCode	placeEuroformOnSlabBottom (void);	// 슬래브 하부에 유로폼을 배치하는 통합 루틴
 short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK slabBottomPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그

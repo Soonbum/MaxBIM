@@ -9,7 +9,7 @@
 using namespace wallTableformPlacerDG;
 
 static WallTableformPlacingZone		placingZone;	// 기본 벽면 영역 정보
-static InfoWallForWallTableform		infoWall;		// 벽 객체 정보
+static InfoWall						infoWall;		// 벽 객체 정보
 
 static short	layerInd_Euroform;		// 레이어 번호: 유로폼
 static short	layerInd_RectPipe;		// 레이어 번호: 비계 파이프
@@ -41,6 +41,7 @@ static short	EDITCONTROL_RECT_PIPE_WIDTH;
 static short	EDITCONTROL_RECT_PIPE_HEIGHT;
 
 static double	preferWidth;
+static bool		clickedPrevButton;		// 이전 버튼을 눌렀습니까?
 
 
 // 벽에 테이블폼을 배치하는 통합 루틴
@@ -244,6 +245,10 @@ GSErrCode	placeTableformOnWall (void)
 	err = ACAPI_Element_Delete (&headList, 1);
 	delete headList;
 
+FIRST:
+
+	clickedPrevButton = false;
+
 	// 테이블폼 개수 초기화
 	placingZone.n1800w = 0;
 	placingZone.n1850w = 0;
@@ -357,6 +362,10 @@ GSErrCode	placeTableformOnWall (void)
 	// [DIALOG] 2번째 다이얼로그에서 벽 너비 방향의 테이블폼 수량 및 각 셀의 너비/높이를 설정함
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32517, ACAPI_GetOwnResModule (), wallTableformPlacerHandler2, 0);
 
+	// 이전 버튼을 누르면 1번째 다이얼로그 다시 실행
+	if (clickedPrevButton == true)
+		goto FIRST;
+
 	// 벽과의 간격으로 인해 정보 업데이트
 	infoWall.wallThk		+= (placingZone.gap * 2);
 
@@ -364,11 +373,11 @@ GSErrCode	placeTableformOnWall (void)
 		return err;
 
 	// 셀 위치 및 각도 초기화
-	initCellsForWallTableform (&placingZone);
+	placingZone.initCells (&placingZone);
 
 	// 테이블폼 배치하기
 	for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
-		err = placeTableformOnWall (placingZone.cells [xx]);
+		err = placingZone.placeTableformOnWall (placingZone.cells [xx]);
 	}
 
 	// [DIALOG] 3번째 다이얼로그에서 벽 상단의 자투리 공간을 다른 규격의 유로폼으로 대체할 것인지 묻습니다.
@@ -379,26 +388,26 @@ GSErrCode	placeTableformOnWall (void)
 
 	// 벽 상부 남는 영역에 유로폼1단, 유로폼2단, 합판 또는 목재 설치
 	for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
-		err = placeTableformOnWall (placingZone.cells [xx], placingZone.upperCells [xx]);
+		err = placingZone.placeTableformOnWall (placingZone.cells [xx], placingZone.upperCells [xx]);
 	}
 
 	return	err;
 }
 
 // Cell 배열을 초기화함
-void	initCellsForWallTableform (WallTableformPlacingZone* placingZone)
+void	WallTableformPlacingZone::initCells (WallTableformPlacingZone* placingZone)
 {
 	short	xx;
 
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
 		placingZone->cells [xx].ang = placingZone->ang;
-		placingZone->cells [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (getCellPositionLeftBottomXForWallTableForm (placingZone, xx) * cos(placingZone->ang));
-		placingZone->cells [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (getCellPositionLeftBottomXForWallTableForm (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cells [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cells [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
 		placingZone->cells [xx].leftBottomZ = placingZone->leftBottomZ;
 
 		placingZone->upperCells [xx].ang = placingZone->ang;
-		placingZone->upperCells [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (getCellPositionLeftBottomXForWallTableForm (placingZone, xx) * cos(placingZone->ang));
-		placingZone->upperCells [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (getCellPositionLeftBottomXForWallTableForm (placingZone, xx) * sin(placingZone->ang));
+		placingZone->upperCells [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->upperCells [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
 		placingZone->upperCells [xx].leftBottomZ = placingZone->leftBottomZ;
 		
 		placingZone->upperCells [xx].bFill = false;
@@ -412,7 +421,7 @@ void	initCellsForWallTableform (WallTableformPlacingZone* placingZone)
 }
 
 // 테이블폼 배치하기
-GSErrCode	placeTableformOnWall (CellForWallTableform cell)
+GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform cell)
 {
 	GSErrCode	err = NoError;
 	placementInfoForWallTableform	placementInfo;
@@ -423,13 +432,13 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 	double		elev_headpiece;
 	double		horizontalGap = 0.050;	// 수평재 양쪽 이격거리
 
-	paramsUFOM_ForWallTableform		params_UFOM;
-	paramsSPIP_ForWallTableform		params_SPIP;
-	paramsPINB_ForWallTableform		params_PINB;
-	paramsTIE_ForWallTableform		params_TIE;
-	//paramsCLAM_ForWallTableform		params_CLAM;
-	paramsPUSH_ForWallTableform		params_PUSH;
-	paramsJOIN_ForWallTableform		params_JOIN;
+	Euroform		params_UFOM;
+	SquarePipe		params_SPIP;
+	PinBoltSet		params_PINB;
+	WallTie			params_TIE;
+	//CrossClamp		params_CLAM;
+	HeadpieceOfPushPullProps	params_PUSH;
+	MetalFittings	params_JOIN;
 
 	placementInfo.nHorEuroform = 0;
 	placementInfo.nVerEuroform = 0;
@@ -1315,17 +1324,17 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell)
 }
 
 // 테이블폼 상단 배치하기
-GSErrCode	placeTableformOnWall (CellForWallTableform cell, UpperCellForWallTableform upperCell)
+GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform cell, UpperCellForWallTableform upperCell)
 {
 	GSErrCode	err = NoError;
 	short	xx;
 	double	remainWidth = abs (placingZone.marginTop - upperCell.formWidth1 - upperCell.formWidth2);
 	placementInfoForWallTableform	placementInfo;
 
-	paramsUFOM_ForWallTableform			params_UFOM1 [4];
-	paramsUFOM_ForWallTableform			params_UFOM2 [4];
-	paramsPLYW_ForWallTableform			params_PLYW [4];
-	paramsTIMB_ForWallTableform			params_TIMB [4];
+	Euroform	params_UFOM1 [4];
+	Euroform	params_UFOM2 [4];
+	Plywood		params_PLYW [4];
+	Wood		params_TIMB [4];
 
 
 	// 상단 여백을 채우기로 한 경우
@@ -1716,7 +1725,7 @@ GSErrCode	placeTableformOnWall (CellForWallTableform cell, UpperCellForWallTable
 }
 
 // 해당 셀의 좌하단 좌표X 위치를 리턴
-double	getCellPositionLeftBottomXForWallTableForm (WallTableformPlacingZone *placingZone, short idx)
+double	WallTableformPlacingZone::getCellPositionLeftBottomX (WallTableformPlacingZone *placingZone, short idx)
 {
 	double		distance = 0.0;
 	short		xx;
@@ -1933,6 +1942,9 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 
 			// 종료 버튼
 			DGSetItemText (dialogID, DG_CANCEL, "취 소");
+
+			// 이전 버튼
+			DGSetItemText (dialogID, DG_PREV, "이 전");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (나머지)
 			DGSetItemText (dialogID, LABEL_HEIGHT, "높이");
@@ -2196,6 +2208,10 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 	
 					break;
 				case DG_CANCEL:
+					break;
+
+				case DG_PREV:
+					clickedPrevButton = true;
 					break;
 			}
 		case DG_MSG_CLOSE:
@@ -2514,37 +2530,37 @@ short DGCALLBACK wallTableformPlacerHandler3 (short message, short dialogID, sho
 }
 
 // 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려) - 벽과 평행한 방향으로 이동
-double		moveXinParallel (double prevPosX, double ang, double offset)
+double		WallTableformPlacingZone::moveXinParallel (double prevPosX, double ang, double offset)
 {
 	return	prevPosX + (offset * cos(ang));
 }
 
 // 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려) - 벽과 평행한 방향으로 이동
-double		moveYinParallel (double prevPosY, double ang, double offset)
+double		WallTableformPlacingZone::moveYinParallel (double prevPosY, double ang, double offset)
 {
 	return	prevPosY + (offset * sin(ang));
 }
 
 // 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려) - 벽과 수직한 방향으로 이동
-double		moveXinPerpend (double prevPosX, double ang, double offset)
+double		WallTableformPlacingZone::moveXinPerpend (double prevPosX, double ang, double offset)
 {
 	return	prevPosX - (offset * sin(ang));
 }
 
 // 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려) - 벽과 수직한 방향으로 이동
-double		moveYinPerpend (double prevPosY, double ang, double offset)
+double		WallTableformPlacingZone::moveYinPerpend (double prevPosY, double ang, double offset)
 {
 	return	prevPosY + (offset * cos(ang));
 }
 
 // 이동 후의 Z 좌표를 알려줌 (Z 회전각도 고려)
-double		moveZ (double prevPosZ, double offset)
+double		WallTableformPlacingZone::moveZ (double prevPosZ, double offset)
 {
 	return	prevPosZ + offset;
 }
 
 // 배치: 유로폼
-API_Guid	placeUFOM (paramsUFOM_ForWallTableform	params)
+API_Guid	WallTableformPlacingZone::placeUFOM (Euroform params)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
@@ -2614,7 +2630,7 @@ API_Guid	placeUFOM (paramsUFOM_ForWallTableform	params)
 }
 
 // 배치: 유로폼 (상부)
-API_Guid	placeUFOM_up (paramsUFOM_ForWallTableform	params)
+API_Guid	WallTableformPlacingZone::placeUFOM_up (Euroform params)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
@@ -2704,7 +2720,7 @@ API_Guid	placeUFOM_up (paramsUFOM_ForWallTableform	params)
 }
 
 // 배치: 비계 파이프
-API_Guid	placeSPIP (paramsSPIP_ForWallTableform	params)
+API_Guid	WallTableformPlacingZone::placeSPIP (SquarePipe params)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
@@ -2765,7 +2781,7 @@ API_Guid	placeSPIP (paramsSPIP_ForWallTableform	params)
 }
 
 // 배치: 핀볼트 세트
-API_Guid	placePINB (paramsPINB_ForWallTableform	params)
+API_Guid	WallTableformPlacingZone::placePINB (PinBoltSet params)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
@@ -2832,7 +2848,7 @@ API_Guid	placePINB (paramsPINB_ForWallTableform	params)
 }
 
 // 배치: 벽체 타이
-API_Guid	placeTIE (paramsTIE_ForWallTableform	params)
+API_Guid	WallTableformPlacingZone::placeTIE (WallTie params)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
@@ -2909,7 +2925,7 @@ API_Guid	placeTIE (paramsTIE_ForWallTableform	params)
 }
 
 // 배치: 직교 클램프
-API_Guid	placeCLAM (paramsCLAM_ForWallTableform	params)
+API_Guid	WallTableformPlacingZone::placeCLAM (CrossClamp params)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
@@ -2967,7 +2983,7 @@ API_Guid	placeCLAM (paramsCLAM_ForWallTableform	params)
 }
 
 // 배치: 헤드피스
-API_Guid	placePUSH (paramsPUSH_ForWallTableform	params)
+API_Guid	WallTableformPlacingZone::placePUSH (HeadpieceOfPushPullProps params)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
@@ -3027,7 +3043,7 @@ API_Guid	placePUSH (paramsPUSH_ForWallTableform	params)
 }
 
 // 배치: 결합철물
-API_Guid	placeJOIN (paramsJOIN_ForWallTableform	params)
+API_Guid	WallTableformPlacingZone::placeJOIN (MetalFittings params)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
@@ -3085,7 +3101,7 @@ API_Guid	placeJOIN (paramsJOIN_ForWallTableform	params)
 }
 
 // 배치: 합판
-API_Guid	placePLYW (paramsPLYW_ForWallTableform	params)
+API_Guid	WallTableformPlacingZone::placePLYW (Plywood params)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
@@ -3150,7 +3166,7 @@ API_Guid	placePLYW (paramsPLYW_ForWallTableform	params)
 }
 
 // 배치: 목재
-API_Guid	placeTIMB (paramsTIMB_ForWallTableform	params)
+API_Guid	WallTableformPlacingZone::placeTIMB (Wood params)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
