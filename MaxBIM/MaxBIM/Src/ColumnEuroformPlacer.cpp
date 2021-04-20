@@ -1226,7 +1226,7 @@ API_Guid	ColumnPlacingZone::placeLibPart (CellForColumn objInfo)
 	double	validLength = 0.0;	// 유효한 길이인가?
 	double	validWidth = 0.0;	// 유효한 너비인가?
 
-	std::string		tempString;
+	char	tempString [20];
 
 	short		xx;
 	API_StoryInfo	storyInfo;
@@ -1300,31 +1300,26 @@ API_Guid	ColumnPlacingZone::placeLibPart (CellForColumn objInfo)
 		// 규격품일 경우,
 		if (objInfo.libPart.form.eu_stan_onoff == true) {
 			// 규격폼 On/Off
-			memo.params [0][27].value.real = TRUE;
+			setParameterByName (&memo, "eu_stan_onoff", 1.0);	// 규격폼 On/Off
 
 			// 너비
-			tempString = format_string ("%.0f", objInfo.libPart.form.eu_wid * 1000);
-			GS::ucscpy (memo.params [0][28].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+			sprintf (tempString, "%.0f", objInfo.libPart.form.eu_wid * 1000);
+			setParameterByName (&memo, "eu_wid", tempString);
 
 			// 높이
-			tempString = format_string ("%.0f", objInfo.libPart.form.eu_hei * 1000);
-			GS::ucscpy (memo.params [0][29].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+			sprintf (tempString, "%.0f", objInfo.libPart.form.eu_hei * 1000);
+			setParameterByName (&memo, "eu_hei", tempString);
 
 		// 비규격품일 경우,
 		} else {
-			// 규격폼 On/Off
-			memo.params [0][27].value.real = FALSE;
-
-			// 너비
-			memo.params [0][30].value.real = objInfo.libPart.form.eu_wid2;
-
-			// 높이
-			memo.params [0][31].value.real = objInfo.libPart.form.eu_hei2;
+			setParameterByName (&memo, "eu_stan_onoff", 0.0);	// 규격폼 On/Off
+			setParameterByName (&memo, "eu_wid2", objInfo.libPart.form.eu_wid2);	// 너비
+			setParameterByName (&memo, "eu_hei2", objInfo.libPart.form.eu_hei2);	// 높이
 		}
 
 		// 설치방향
 		if (objInfo.libPart.form.u_ins_wall == true) {
-			tempString = "벽세우기";
+			strcpy (tempString, "벽세우기");
 			if (objInfo.libPart.form.eu_stan_onoff == true) {
 				validWidth = objInfo.libPart.form.eu_wid;
 				validLength = objInfo.libPart.form.eu_hei;
@@ -1333,7 +1328,7 @@ API_Guid	ColumnPlacingZone::placeLibPart (CellForColumn objInfo)
 				validLength = objInfo.libPart.form.eu_hei2;
 			}
 		} else {
-			tempString = "벽눕히기";
+			strcpy (tempString, "벽눕히기");
 			if (objInfo.libPart.form.eu_stan_onoff == true) {
 				element.object.pos.x += ( objInfo.libPart.form.eu_hei * cos(objInfo.ang) );
 				element.object.pos.y += ( objInfo.libPart.form.eu_hei * sin(objInfo.ang) );
@@ -1346,63 +1341,63 @@ API_Guid	ColumnPlacingZone::placeLibPart (CellForColumn objInfo)
 				validLength = objInfo.libPart.form.eu_wid2;
 			}
 		}
-		GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+		setParameterByName (&memo, "u_ins", tempString);
 
 		// 회전X
-		memo.params [0][33].value.real = DegreeToRad (90.0);
+		setParameterByName (&memo, "ang_x", DegreeToRad (90.0));	// 회전X
 
 	} else if (objInfo.objType == INCORNER) {
 		element.header.layer = layerInd_Incorner;
-		memo.params [0][27].value.real = objInfo.libPart.incorner.wid_s;	// 가로(빨강)
-		memo.params [0][28].value.real = objInfo.libPart.incorner.leng_s;	// 세로(파랑)
-		memo.params [0][29].value.real = objInfo.libPart.incorner.hei_s;	// 높이
-		GS::ucscpy (memo.params [0][30].value.uStr, L("세우기"));			// 설치방향
+		setParameterByName (&memo, "wid_s", objInfo.libPart.incorner.wid_s);	// 가로(빨강)
+		setParameterByName (&memo, "leng_s", objInfo.libPart.incorner.leng_s);	// 세로(파랑)
+		setParameterByName (&memo, "hei_s", objInfo.libPart.incorner.hei_s);	// 높이
+		setParameterByName (&memo, "dir_s", "세우기");							// 설치방향
 
 		validWidth = objInfo.libPart.incorner.leng_s + objInfo.libPart.incorner.wid_s;
 		validLength = objInfo.libPart.incorner.hei_s;
 	} else if (objInfo.objType == OUTCORNER) {
 		element.header.layer = layerInd_Outcorner;
-		memo.params [0][27].value.real = objInfo.libPart.outcorner.wid_s;	// 가로(빨강)
-		memo.params [0][28].value.real = objInfo.libPart.outcorner.leng_s;	// 세로(파랑)
-		memo.params [0][29].value.real = objInfo.libPart.outcorner.hei_s;	// 높이
-		GS::ucscpy (memo.params [0][30].value.uStr, L("세우기"));			// 설치방향
+		setParameterByName (&memo, "wid_s", objInfo.libPart.outcorner.wid_s);	// 가로(빨강)
+		setParameterByName (&memo, "leng_s", objInfo.libPart.outcorner.leng_s);	// 세로(파랑)
+		setParameterByName (&memo, "hei_s", objInfo.libPart.outcorner.hei_s);	// 높이
+		setParameterByName (&memo, "dir_s", "세우기");							// 설치방향
 
 		validWidth = objInfo.libPart.outcorner.leng_s + objInfo.libPart.outcorner.wid_s;
 		validLength = objInfo.libPart.outcorner.hei_s;
 	} else if (objInfo.objType == PLYWOOD) {
 		element.header.layer = layerInd_Plywood;
-		GS::ucscpy (memo.params [0][32].value.uStr, L("비규격"));
-		GS::ucscpy (memo.params [0][33].value.uStr, L("벽세우기"));
-		GS::ucscpy (memo.params [0][34].value.uStr, L("11.5T"));
-		memo.params [0][35].value.real = objInfo.libPart.plywood.p_wid;		// 가로
-		memo.params [0][36].value.real = objInfo.libPart.plywood.p_leng;	// 세로
-		memo.params [0][38].value.real = FALSE;								// 제작틀 OFF
-		memo.params [0][37].value.real = DegreeToRad (0.0);					// 각도
+		setParameterByName (&memo, "p_stan", "비규격");							// 규격
+		setParameterByName (&memo, "w_dir", "벽세우기");						// 설치방향
+		setParameterByName (&memo, "p_thk", "11.5T");							// 두께
+		setParameterByName (&memo, "p_wid", objInfo.libPart.plywood.p_wid);		// 가로
+		setParameterByName (&memo, "p_leng", objInfo.libPart.plywood.p_leng);	// 세로
+		setParameterByName (&memo, "sogak", 0.0);								// 제작틀 OFF
+		setParameterByName (&memo, "p_ang", DegreeToRad (0.0));					// 각도
 
 		validLength = objInfo.libPart.plywood.p_leng;
 		validWidth = objInfo.libPart.plywood.p_wid;
 	} else if (objInfo.objType == MAGIC_BAR) {
 		element.header.layer = layerInd_MagicBar;
-		memo.params [0][2].value.real = objInfo.libPart.mbar.ZZYZX;					// 높이
-		memo.params [0][11].value.real = objInfo.libPart.mbar.angX;					// 회전X
-		memo.params [0][12].value.real = objInfo.libPart.mbar.angY;					// 회전Y
-		memo.params [0][13].value.real = objInfo.libPart.mbar.bPlywood;				// 합판 on/off
-		memo.params [0][14].value.real = objInfo.libPart.mbar.plywoodWidth;			// 합판 너비
-		memo.params [0][15].value.real = objInfo.libPart.mbar.plywoodOverhangH;		// 합판 오버행
-		memo.params [0][16].value.real = objInfo.libPart.mbar.plywoodUnderhangH;	// 합판 언더행
+		setParameterByName (&memo, "ZZYZX", objInfo.libPart.mbar.ZZYZX);							// 높이
+		setParameterByName (&memo, "angX", objInfo.libPart.mbar.angX);								// 회전X
+		setParameterByName (&memo, "angY", objInfo.libPart.mbar.angY);								// 회전Y
+		setParameterByName (&memo, "bPlywood", objInfo.libPart.mbar.bPlywood);						// 합판 on/off
+		setParameterByName (&memo, "plywoodWidth", objInfo.libPart.mbar.plywoodWidth);				// 합판 너비
+		setParameterByName (&memo, "plywoodOverhangH", objInfo.libPart.mbar.plywoodOverhangH);		// 합판 오버행
+		setParameterByName (&memo, "plywoodUnderhangH", objInfo.libPart.mbar.plywoodUnderhangH);	// 합판 언더행
 
 		validLength = objInfo.libPart.mbar.ZZYZX;
 		validWidth = 0.039;
 	} else if (objInfo.objType == MAGIC_INCORNER) {
 		element.header.layer = layerInd_MagicIncorner;
-		memo.params [0][2].value.real = objInfo.libPart.mincorner.ZZYZX;				// 높이
-		GS::ucscpy (memo.params [0][9].value.uStr, L("100"));							// 타입 "100"
-		memo.params [0][12].value.real = objInfo.libPart.mincorner.angX;				// 회전X
-		memo.params [0][13].value.real = objInfo.libPart.mincorner.angY;				// 회전Y
-		memo.params [0][14].value.real = objInfo.libPart.mincorner.bPlywood;			// 합판 on/off
-		memo.params [0][15].value.real = objInfo.libPart.mincorner.plywoodWidth;		// 합판 너비
-		memo.params [0][16].value.real = objInfo.libPart.mincorner.plywoodOverhangH;	// 합판 오버행
-		memo.params [0][17].value.real = objInfo.libPart.mincorner.plywoodUnderhangH;	// 합판 언더행
+		setParameterByName (&memo, "ZZYZX", objInfo.libPart.mincorner.ZZYZX);							// 높이
+		setParameterByName (&memo, "type", "100");														// 타입 "100"
+		setParameterByName (&memo, "angX", objInfo.libPart.mincorner.angX);								// 회전X
+		setParameterByName (&memo, "angY", objInfo.libPart.mincorner.angY);								// 회전Y
+		setParameterByName (&memo, "bPlywood", objInfo.libPart.mincorner.bPlywood);						// 합판 on/off
+		setParameterByName (&memo, "plywoodWidth", objInfo.libPart.mincorner.plywoodWidth);				// 합판 너비
+		setParameterByName (&memo, "plywoodOverhangH", objInfo.libPart.mincorner.plywoodOverhangH);		// 합판 오버행
+		setParameterByName (&memo, "plywoodUnderhangH", objInfo.libPart.mincorner.plywoodUnderhangH);	// 합판 언더행
 
 		validLength = objInfo.libPart.mincorner.ZZYZX;
 		validWidth = 0.100;

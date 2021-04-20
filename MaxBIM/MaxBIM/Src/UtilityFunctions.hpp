@@ -48,12 +48,16 @@ short	isStringDouble (char *str);																			// 문자열 s가 숫자로 된 문자
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment = false, std::string comment = "", short layerInd = 1, short floorInd = 0);		// 좌표 라벨을 배치함
 
 // 라이브러리 변수 접근 (Getter/Setter)
-// bool			setParameterByName (std::string pName, double value);		// pName 파라미터의 값을 value로 설정함 (실수형)
-// bool			setParameterByName (std::string pName, std::string value);	// pName 파라미터의 값을 value로 설정함 (문자열)
-// double		getParameterByName (std::string pName);						// pName 파라미터의 값을 가져옴 (실수형)
-// std::string	getParameterByName (std::string pName);						// pName 파라미터의 값을 가져옴 (문자열)
-// std::string	getParameterNameByValue (double value);						// value 값(실수형)을 갖는 파라미터의 이름을 가져옴
-// std::string	getParameterNameByValue (std::string value);				// value 값(문자열)을 갖는 파라미터의 이름을 가져옴
-// ...
+bool		setParameterByName (API_ElementMemo* memo, char* pName, double value);			// pName 파라미터의 값을 value로 설정함 (실수형) - 성공하면 true, 실패하면 false
+bool		setParameterByName (API_ElementMemo* memo, char* pName, char* value);			// pName 파라미터의 값을 value로 설정함 (문자열) - 성공하면 true, 실패하면 false
+double		getParameterValueByName (API_ElementMemo* memo, char* pName, double* value);	// pName 파라미터의 값을 가져옴 - 실수형
+const char*	getParameterStringByName (API_ElementMemo* memo, char* pName, char* value);		// pName 파라미터의 값을 가져옴 - 문자열
+
+// 기하 (이동)
+void		moveIn3D (char direction, double ang, double offset, API_Coord3D* curPos);							// X, Y, Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
+void		moveIn3D (char direction, double ang, double offset, double* curX, double* curY, double* curZ);		// X, Y, Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
+void		moveIn3D (double offset, double* curZ);																// Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
+void		moveIn2D (char direction, double ang, double offset, API_Coord* curPos);							// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
+void		moveIn2D (char direction, double ang, double offset, double* curX, double* curY);					// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
 
 #endif

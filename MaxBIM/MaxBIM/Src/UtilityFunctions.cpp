@@ -419,4 +419,126 @@ GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bCom
 }
 
 ////////////////////////////////////////////////// 라이브러리 변수 접근 (Getter/Setter)
-// ...
+// pName 파라미터의 값을 value로 설정함 (실수형) - 성공하면 true, 실패하면 false
+bool	setParameterByName (API_ElementMemo* memo, char* pName, double value)
+{
+	for (short xx = 0 ; xx < 500 ; ++xx) {
+		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+			memo->params [0][xx].value.real = value;
+			return	true;
+		}
+	}
+
+	return	false;
+}
+
+// pName 파라미터의 값을 value로 설정함 (문자열) - 성공하면 true, 실패하면 false
+bool	setParameterByName (API_ElementMemo* memo, char* pName, char* value)
+{
+	for (short xx = 0 ; xx < 500 ; ++xx) {
+		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+			GS::ucscpy (memo->params [0][xx].value.uStr, GS::UniString (value).ToUStr ().Get ());
+			return	true;
+		}
+	}
+
+	return	false;
+}
+
+// pName 파라미터의 값을 가져옴 (실수형) - 성공하면 true, 실패하면 false
+double	getParameterValueByName (API_ElementMemo* memo, char* pName)
+{
+	for (short xx = 0 ; xx < 500 ; ++xx) {
+		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+			return memo->params [0][xx].value.real;
+		}
+	}
+
+	return 0.0;
+}
+
+// pName 파라미터의 값을 가져옴 (문자열) - 성공하면 true, 실패하면 false
+const char*	getParameterStringByName (API_ElementMemo* memo, char* pName)
+{
+	const char*	retStr = NULL;
+
+	for (short xx = 0 ; xx < 500 ; ++xx) {
+		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+			retStr = GS::UniString (memo->params [0][xx].value.uStr).ToCStr ().Get ();
+			return retStr;
+		}
+	}
+
+	return	retStr;
+}
+
+////////////////////////////////////////////////// 기하 (이동)
+// X, Y, Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
+void		moveIn3D (char direction, double ang, double offset, API_Coord3D* curPos)
+{
+	if (direction == 'x' || direction == 'X') {
+		curPos->x = curPos->x + (offset * cos(ang));
+		curPos->y = curPos->y + (offset * sin(ang));
+	}
+
+	if (direction == 'y' || direction == 'Y') {
+		curPos->x = curPos->x - (offset * sin(ang));
+		curPos->y = curPos->y + (offset * cos(ang));
+	}
+
+	if (direction == 'z' || direction == 'Z') {
+		curPos->z = curPos->z + offset;
+	}
+}
+
+// X, Y, Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
+void		moveIn3D (char direction, double ang, double offset, double* curX, double* curY, double* curZ)
+{
+	if (direction == 'x' || direction == 'X') {
+		*curX = *curX + (offset * cos(ang));
+		*curX = *curX + (offset * sin(ang));
+	}
+
+	if (direction == 'y' || direction == 'Y') {
+		*curY = *curX - (offset * sin(ang));
+		*curY = *curY + (offset * cos(ang));
+	}
+
+	if (direction == 'z' || direction == 'Z') {
+		*curZ = *curZ + offset;
+	}
+}
+
+// Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
+void		moveIn3D (double offset, double* curZ)
+{
+	*curZ = *curZ + offset;
+}
+
+// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
+void		moveIn2D (char direction, double ang, double offset, API_Coord* curPos)
+{
+	if (direction == 'x' || direction == 'X') {
+		curPos->x = curPos->x + (offset * cos(ang));
+		curPos->y = curPos->y + (offset * sin(ang));
+	}
+
+	if (direction == 'y' || direction == 'Y') {
+		curPos->x = curPos->x - (offset * sin(ang));
+		curPos->y = curPos->y + (offset * cos(ang));
+	}
+}
+
+// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
+void		moveIn2D (char direction, double ang, double offset, double* curX, double* curY)
+{
+	if (direction == 'x' || direction == 'X') {
+		*curX = *curX + (offset * cos(ang));
+		*curX = *curX + (offset * sin(ang));
+	}
+
+	if (direction == 'y' || direction == 'Y') {
+		*curY = *curX - (offset * sin(ang));
+		*curY = *curY + (offset * cos(ang));
+	}
+}

@@ -122,7 +122,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 2:
 					// 슬래브 하부에 테이블폼 배치하기
 					err = ACAPI_CallUndoableCommand ("슬래브 하부에 테이블폼 배치", [&] () -> GSErrCode {
-						//err = placeTableformOnSlabBottom ();
+						err = placeTableformOnSlabBottom ();
 						return err;
 					});
 					break;

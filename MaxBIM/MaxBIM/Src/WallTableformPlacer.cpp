@@ -2572,7 +2572,7 @@ API_Guid	WallTableformPlacingZone::placeUFOM (Euroform params)
 	double				bParam;
 	Int32				addParNum;
 
-	std::string			tempStr;
+	char				tempStr [20];
 	
 	// 객체 로드
 	BNZeroMemory (&elem, sizeof (API_Element));
@@ -2609,18 +2609,15 @@ API_Guid	WallTableformPlacingZone::placeUFOM (Euroform params)
 	memo.params [0][27].value.real = TRUE;	// 규격폼
 
 	// 너비
-	tempStr = format_string ("%.0f", params.width * 1000);
-	GS::ucscpy (memo.params [0][28].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+	sprintf (tempStr, "%.0f", params.width * 1000);
+	setParameterByName (&memo, "eu_wid", tempStr);
 
 	// 높이
-	tempStr = format_string ("%.0f", params.height * 1000);
-	GS::ucscpy (memo.params [0][29].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+	sprintf (tempStr, "%.0f", params.height * 1000);
+	setParameterByName (&memo, "eu_hei", tempStr);
 
-	// 설치방향
-	tempStr = "벽세우기";
-	GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
-		
-	memo.params [0][33].value.real = DegreeToRad (90.0);	// 회전X
+	setParameterByName (&memo, "u_ins", "벽세우기");			// 설치방향
+	setParameterByName (&memo, "ang_x", DegreeToRad (90.0));	// 회전X
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
@@ -2642,7 +2639,7 @@ API_Guid	WallTableformPlacingZone::placeUFOM_up (Euroform params)
 	double				bParam;
 	Int32				addParNum;
 
-	std::string			tempStr;
+	char				tempStr [20];
 	
 	// 객체 로드
 	BNZeroMemory (&elem, sizeof (API_Element));
@@ -2690,27 +2687,24 @@ API_Guid	WallTableformPlacingZone::placeUFOM_up (Euroform params)
 		bStandardHeight = false;
 
 	if (bStandardWidth && bStandardHeight) {
-		memo.params [0][27].value.real = TRUE;	// 규격폼
+		setParameterByName (&memo, "eu_stan_onoff", 1.0);		// 규격품
 
 		// 너비
-		tempStr = format_string ("%.0f", params.width * 1000);
-		GS::ucscpy (memo.params [0][28].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+		sprintf (tempStr, "%.0f", params.width * 1000);
+		setParameterByName (&memo, "eu_wid", tempStr);
 
 		// 높이
-		tempStr = format_string ("%.0f", params.height * 1000);
-		GS::ucscpy (memo.params [0][29].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+		sprintf (tempStr, "%.0f", params.height * 1000);
+		setParameterByName (&memo, "eu_hei", tempStr);
 	} else {
-		memo.params [0][27].value.real = FALSE;	// 비규격폼
-
-		memo.params [0][30].value.real = params.width;	// 너비
-		memo.params [0][31].value.real = params.height;	// 높이
+		setParameterByName (&memo, "eu_stan_onoff", 0.0);		// 비규격품
+		setParameterByName (&memo, "eu_wid2", params.width);	// 너비
+		setParameterByName (&memo, "eu_hei2", params.width);	// 높이
 	}
 
 	// 설치방향
-	tempStr = "벽눕히기";
-	GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
-		
-	memo.params [0][33].value.real = DegreeToRad (90.0);	// 회전X
+	setParameterByName (&memo, "u_ins", "벽눕히기");			// 설치방향
+	setParameterByName (&memo, "ang_x", DegreeToRad (90.0));	// 회전X
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
@@ -2731,8 +2725,6 @@ API_Guid	WallTableformPlacingZone::placeSPIP (SquarePipe params)
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
-
-	std::string			tempStr;
 
 	// 객체 로드
 	BNZeroMemory (&elem, sizeof (API_Element));
@@ -2766,12 +2758,9 @@ API_Guid	WallTableformPlacingZone::placeSPIP (SquarePipe params)
 	// 레이어
 	elem.header.layer = layerInd_RectPipe;
 
-	// 사각파이프
-	tempStr = "사각파이프";
-	GS::ucscpy (memo.params [0][24].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
-
-	memo.params [0][27].value.real = params.length;		// 길이
-	memo.params [0][28].value.real = params.pipeAng;	// 각도
+	setParameterByName (&memo, "p_comp", "사각파이프");		// 사각파이프
+	setParameterByName (&memo, "p_leng", params.length);	// 길이
+	setParameterByName (&memo, "p_ang", params.pipeAng);	// 각도
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
@@ -2792,8 +2781,6 @@ API_Guid	WallTableformPlacingZone::placePINB (PinBoltSet params)
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
-
-	std::string			tempStr;
 
 	// 객체 로드
 	BNZeroMemory (&elem, sizeof (API_Element));
@@ -2829,16 +2816,16 @@ API_Guid	WallTableformPlacingZone::placePINB (PinBoltSet params)
 
 	// 핀볼트 90도 회전
 	if (params.bPinBoltRot90)
-		memo.params [0][9].value.real = TRUE;
+		setParameterByName (&memo, "bRotated", 1.0);
 	else
-		memo.params [0][9].value.real = FALSE;
+		setParameterByName (&memo, "bRotated", 0.0);
 
-	memo.params [0][10].value.real = params.boltLen;	// 볼트 길이
-	memo.params [0][11].value.real = 0.010;				// 볼트 직경
-	memo.params [0][12].value.real = 0.050;				// 와셔 위치
-	memo.params [0][13].value.real = 0.100;				// 와셔 크기
-	memo.params [0][17].value.real = params.angX;		// X축 회전
-	memo.params [0][18].value.real = params.angY;		// Y축 회전
+	setParameterByName (&memo, "bolt_len", params.boltLen);		// 볼트 길이
+	setParameterByName (&memo, "bolt_dia", 0.010);				// 볼트 직경
+	setParameterByName (&memo, "washer_pos", 0.050);			// 와셔 위치
+	setParameterByName (&memo, "washer_size", 0.100);			// 와셔 크기
+	setParameterByName (&memo, "angX", params.angX);			// X축 회전
+	setParameterByName (&memo, "angY", params.angY);			// Y축 회전
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
@@ -2859,8 +2846,6 @@ API_Guid	WallTableformPlacingZone::placeTIE (WallTie params)
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
-
-	std::string			tempStr;
 
 	// 객체 로드
 	BNZeroMemory (&elem, sizeof (API_Element));
@@ -2894,28 +2879,24 @@ API_Guid	WallTableformPlacingZone::placeTIE (WallTie params)
 	// 레이어
 	elem.header.layer = layerInd_WallTie;
 
-	memo.params [0][9].value.real = params.boltLen;		// 볼트 길이 (벽 두께 + 327mm 초과이며 100 단위로 나눠지는 가장 작은 수)
-	memo.params [0][10].value.real = 0.012;		// 볼트 직경
-	memo.params [0][11].value.real = TRUE;		// 사각와샤
-	memo.params [0][12].value.real = 0.100;		// 사각와샤 크기
-	
-	// 너트 타입
-	tempStr = "타입 1";
-	GS::ucscpy (memo.params [0][13].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
-	
-	memo.params [0][14].value.real = TRUE;		// 벽체 내장 파이프
-	memo.params [0][16].value.real = 0.012;		// 파이프 내경
-	memo.params [0][17].value.real = 0.002;		// 파이프 두께
+	setParameterByName (&memo, "boltLen", params.boltLen);		// 볼트 길이 (벽 두께 + 327mm 초과이며 100 단위로 나눠지는 가장 작은 수)
+	setParameterByName (&memo, "boltDia", 0.012);				// 볼트 직경
+	setParameterByName (&memo, "bSqrWasher", 1.0);				// 사각와샤
+	setParameterByName (&memo, "washer_size", 0.100);			// 사각와샤 크기
+	setParameterByName (&memo, "nutType", "타입 1");			// 너트 타입
+	setParameterByName (&memo, "bEmbedPipe", 1.0);				// 벽체 내장 파이프
+	setParameterByName (&memo, "pipeInnerDia", 0.012);			// 파이프 내경
+	setParameterByName (&memo, "pipeThk", 0.002);				// 파이프 두께
 	
 	// 파이프 시작점, 끝점 (벽 두께만큼 차이)
-	memo.params [0][18].value.real = params.pipeBeg;
-	memo.params [0][19].value.real = params.pipeEnd;
+	setParameterByName (&memo, "pipeBeginPos", params.pipeBeg);
+	setParameterByName (&memo, "pipeEndPos", params.pipeEnd);
 	
 	// 좌,우측 조임쇠 위치 (벽 두께 + 327mm 만큼 차이)
-	memo.params [0][20].value.real = params.clampBeg;
-	memo.params [0][21].value.real = params.clampEnd;
+	setParameterByName (&memo, "posLClamp", params.clampBeg);
+	setParameterByName (&memo, "posRClamp", params.clampEnd);
 	
-	memo.params [0][22].value.real = DegreeToRad (0.0);		// 회전 Y
+	setParameterByName (&memo, "angY", DegreeToRad (0.0));		// 회전 Y
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
@@ -2936,8 +2917,6 @@ API_Guid	WallTableformPlacingZone::placeCLAM (CrossClamp params)
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
-
-	std::string			tempStr;
 
 	// 객체 로드
 	BNZeroMemory (&elem, sizeof (API_Element));
@@ -2971,9 +2950,9 @@ API_Guid	WallTableformPlacingZone::placeCLAM (CrossClamp params)
 	// 레이어
 	elem.header.layer = layerInd_Clamp;
 
-	memo.params [0][9].value.real = params.angX;	// 본체 회전 (X)
-	memo.params [0][10].value.real = params.angY;	// 본체 회전 (Y)
-	memo.params [0][11].value.real = 0.018;			// 고정볼트 조이기
+	setParameterByName (&memo, "angX", params.angX);		// 본체 회전 (X)
+	setParameterByName (&memo, "body_ang", params.angY);	// 본체 회전 (Y)
+	setParameterByName (&memo, "anchor_bolt_ang", 0.018);	// 고정볼트 조이기
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
@@ -2994,8 +2973,6 @@ API_Guid	WallTableformPlacingZone::placePUSH (HeadpieceOfPushPullProps params)
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
-
-	std::string			tempStr;
 
 	// 객체 로드
 	BNZeroMemory (&elem, sizeof (API_Element));
@@ -3029,11 +3006,10 @@ API_Guid	WallTableformPlacingZone::placePUSH (HeadpieceOfPushPullProps params)
 	// 레이어
 	elem.header.layer = layerInd_HeadPiece;
 
-	tempStr = "타입 A";
-	GS::ucscpy (memo.params [0][9].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
-	memo.params [0][10].value.real = 0.009;					// 철판 두께
-	memo.params [0][11].value.real = DegreeToRad (0.0);		// 회전X
-	memo.params [0][12].value.real = DegreeToRad (0.0);		// 회전Y
+	setParameterByName (&memo, "type", "타입 A");			// 타입
+	setParameterByName (&memo, "plateThk", 0.009);			// 철판 두께
+	setParameterByName (&memo, "angX", DegreeToRad (0.0));	// 회전X
+	setParameterByName (&memo, "angY", DegreeToRad (0.0));	// 회전Y
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
@@ -3054,8 +3030,6 @@ API_Guid	WallTableformPlacingZone::placeJOIN (MetalFittings params)
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
-
-	std::string			tempStr;
 
 	// 객체 로드
 	BNZeroMemory (&elem, sizeof (API_Element));
@@ -3089,9 +3063,9 @@ API_Guid	WallTableformPlacingZone::placeJOIN (MetalFittings params)
 	// 레이어
 	elem.header.layer = layerInd_Join;
 
-	memo.params [0][13].value.real = 0.108;					// 와셔2 위치
-	memo.params [0][19].value.real = DegreeToRad (0.0);		// 회전X
-	memo.params [0][20].value.real = DegreeToRad (0.0);		// 회전Y
+	setParameterByName (&memo, "washer_pos2", 0.108);		// 와셔2 위치
+	setParameterByName (&memo, "angX", DegreeToRad (0.0));	// 회전X
+	setParameterByName (&memo, "angY", DegreeToRad (0.0));	// 회전Y
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
@@ -3112,8 +3086,6 @@ API_Guid	WallTableformPlacingZone::placePLYW (Plywood params)
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
-
-	std::string			tempStr;
 
 	// 객체 로드
 	BNZeroMemory (&elem, sizeof (API_Element));
@@ -3147,16 +3119,15 @@ API_Guid	WallTableformPlacingZone::placePLYW (Plywood params)
 	// 레이어
 	elem.header.layer = layerInd_Plywood;
 
-	GS::ucscpy (memo.params [0][32].value.uStr, L("비규격"));
-	memo.params [0][35].value.real = params.p_wid;		// 가로
-	memo.params [0][36].value.real = params.p_leng;		// 세로
+	setParameterByName (&memo, "p_stan", "비규격");			// 규격
+	setParameterByName (&memo, "p_wid", params.p_wid);		// 가로
+	setParameterByName (&memo, "p_leng", params.p_leng);	// 세로
 		
 	// 설치방향
 	if (params.w_dir_wall == true)
-		tempStr = "벽세우기";
+		setParameterByName (&memo, "w_dir", "벽세우기");
 	else
-		tempStr = "벽눕히기";
-	GS::ucscpy (memo.params [0][33].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+		setParameterByName (&memo, "w_dir", "벽눕히기");
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
@@ -3177,8 +3148,6 @@ API_Guid	WallTableformPlacingZone::placeTIMB (Wood params)
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
-
-	std::string			tempStr;
 
 	// 객체 로드
 	BNZeroMemory (&elem, sizeof (API_Element));
@@ -3212,11 +3181,11 @@ API_Guid	WallTableformPlacingZone::placeTIMB (Wood params)
 	// 레이어
 	elem.header.layer = layerInd_Wood;
 
-	GS::ucscpy (memo.params [0][27].value.uStr, L("벽세우기"));		// 설치방향
-	memo.params [0][28].value.real = params.w_w;		// 두께
-	memo.params [0][29].value.real = params.w_h;		// 너비
-	memo.params [0][30].value.real = params.w_leng;		// 길이
-	memo.params [0][31].value.real = params.w_ang;		// 각도
+	setParameterByName (&memo, "w_ins", "벽세우기");		// 설치방향
+	setParameterByName (&memo, "w_w", params.w_w);			// 두께
+	setParameterByName (&memo, "w_h", params.w_h);			// 너비
+	setParameterByName (&memo, "w_leng", params.w_leng);	// 길이
+	setParameterByName (&memo, "w_ang", params.w_ang);		// 각도
 
 	// 목재가 세로로 길게 배치될 경우
 	if ( abs (RadToDegree (params.w_ang) - 90.0) < EPS ) {

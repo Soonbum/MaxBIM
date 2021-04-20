@@ -928,7 +928,7 @@ API_Guid	SlabPlacingZone::placeLibPart (CellForSlab objInfo)
 	double	bParam;
 	Int32	addParNum;
 
-	std::string		tempString;
+	char	tempString [20];
 
 	// GUID 변수 초기화
 	element.header.guid.clock_seq_hi_and_reserved = 0;
@@ -985,57 +985,52 @@ API_Guid	SlabPlacingZone::placeLibPart (CellForSlab objInfo)
 		// 규격품일 경우,
 		if (objInfo.libPart.form.eu_stan_onoff == true) {
 			// 규격폼 On/Off
-			memo.params [0][27].value.real = TRUE;
+			setParameterByName (&memo, "eu_stan_onoff", 1.0);	// 규격폼 On/Off
 
 			// 너비
-			tempString = format_string ("%.0f", objInfo.libPart.form.eu_wid * 1000);
-			GS::ucscpy (memo.params [0][28].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+			sprintf (tempString, "%.0f", objInfo.libPart.form.eu_wid * 1000);
+			setParameterByName (&memo, "eu_wid", tempString);
 
 			// 높이
-			tempString = format_string ("%.0f", objInfo.libPart.form.eu_hei * 1000);
-			GS::ucscpy (memo.params [0][29].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+			sprintf (tempString, "%.0f", objInfo.libPart.form.eu_hei * 1000);
+			setParameterByName (&memo, "eu_hei", tempString);
 
 		// 비규격품일 경우,
 		} else {
-			// 규격폼 On/Off
-			memo.params [0][27].value.real = FALSE;
-
-			// 너비
-			memo.params [0][30].value.real = objInfo.libPart.form.eu_wid2;
-
-			// 높이
-			memo.params [0][31].value.real = objInfo.libPart.form.eu_hei2;
+			setParameterByName (&memo, "eu_stan_onoff", 0.0);	// 규격폼 On/Off
+			setParameterByName (&memo, "eu_wid2", objInfo.libPart.form.eu_wid2);	// 너비
+			setParameterByName (&memo, "eu_hei2", objInfo.libPart.form.eu_hei2);	// 높이
 		}
 
 		// 설치방향
 		if (objInfo.libPart.form.u_ins_wall == true) {
-			tempString = "벽세우기";
+			strcpy (tempString, "벽세우기");
 		} else {
-			tempString = "벽눕히기";
+			strcpy (tempString, "벽눕히기");
 			element.object.pos.x += ( objInfo.horLen * cos(objInfo.ang) );
 			element.object.pos.y += ( objInfo.horLen * sin(objInfo.ang) );
 		}
-		GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+		setParameterByName (&memo, "u_ins", tempString);
 		
 		// 회전X
-		memo.params [0][33].value.real = DegreeToRad (0.0);
+		setParameterByName (&memo, "ang_x", DegreeToRad (0.0));		// 회전X
 
 	} else if (objInfo.objType == PLYWOOD) {
 		element.header.layer = layerInd_Plywood;
-		GS::ucscpy (memo.params [0][32].value.uStr, L("비규격"));
-		GS::ucscpy (memo.params [0][33].value.uStr, L("바닥깔기"));
-		GS::ucscpy (memo.params [0][34].value.uStr, L("11.5T"));
-		memo.params [0][35].value.real = objInfo.libPart.plywood.p_wid;		// 가로
-		memo.params [0][36].value.real = objInfo.libPart.plywood.p_leng;	// 세로
-		memo.params [0][38].value.real = FALSE;		// 제작틀 OFF
+		setParameterByName (&memo, "p_stan", "비규격");							// 규격
+		setParameterByName (&memo, "w_dir", "바닥깔기");						// 설치방향
+		setParameterByName (&memo, "p_thk", "11.5T");							// 두께
+		setParameterByName (&memo, "p_wid", objInfo.libPart.plywood.p_wid);		// 가로
+		setParameterByName (&memo, "p_leng", objInfo.libPart.plywood.p_leng);	// 세로
+		setParameterByName (&memo, "sogak", 0.0);								// 제작틀 OFF
 		
 	} else if (objInfo.objType == WOOD) {
 		element.header.layer = layerInd_Wood;
-		GS::ucscpy (memo.params [0][27].value.uStr, L("바닥눕히기"));	// 설치방향
-		memo.params [0][28].value.real = objInfo.libPart.wood.w_w;		// 두께
-		memo.params [0][29].value.real = objInfo.libPart.wood.w_h;		// 너비
-		memo.params [0][30].value.real = objInfo.libPart.wood.w_leng;	// 길이
-		memo.params [0][31].value.real = objInfo.libPart.wood.w_ang;	// 각도
+		setParameterByName (&memo, "w_ins", "바닥눕히기");					// 설치방향
+		setParameterByName (&memo, "w_w", objInfo.libPart.wood.w_w);		// 두께
+		setParameterByName (&memo, "w_h", objInfo.libPart.wood.w_h);		// 너비
+		setParameterByName (&memo, "w_leng", objInfo.libPart.wood.w_leng);	// 길이
+		setParameterByName (&memo, "w_ang", objInfo.libPart.wood.w_ang);	// 각도
 	}
 
 	// 객체 배치

@@ -1579,7 +1579,7 @@ API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 	double	validLength = 0.0;	// 유효한 길이인가?
 	double	validWidth = 0.0;	// 유효한 너비인가?
 
-	std::string		tempString;
+	char	tempString [20];
 
 	// GUID 변수 초기화
 	element.header.guid.clock_seq_hi_and_reserved = 0;
@@ -1637,34 +1637,28 @@ API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 
 		// 규격품일 경우,
 		if (objInfo.libPart.form.eu_stan_onoff == true) {
-			// 규격폼 On/Off
-			memo.params [0][27].value.real = TRUE;
+			setParameterByName (&memo, "eu_stan_onoff", 1.0);	// 규격폼 On/Off
 
 			// 너비
-			tempString = format_string ("%.0f", objInfo.libPart.form.eu_wid * 1000);
-			GS::ucscpy (memo.params [0][28].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+			sprintf (tempString, "%.0f", objInfo.libPart.form.eu_wid * 1000);
+			setParameterByName (&memo, "eu_wid", tempString);
 
 			// 높이
-			tempString = format_string ("%.0f", objInfo.libPart.form.eu_hei * 1000);
-			GS::ucscpy (memo.params [0][29].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+			sprintf (tempString, "%.0f", objInfo.libPart.form.eu_hei * 1000);
+			setParameterByName (&memo, "eu_hei", tempString);
 
 		// 비규격품일 경우,
 		} else {
-			// 규격폼 On/Off
-			memo.params [0][27].value.real = FALSE;
-
-			// 너비
-			memo.params [0][30].value.real = objInfo.libPart.form.eu_wid2;
-
-			// 높이
-			memo.params [0][31].value.real = objInfo.libPart.form.eu_hei2;
+			setParameterByName (&memo, "eu_stan_onoff", 0.0);	// 규격폼 On/Off
+			setParameterByName (&memo, "eu_wid2", objInfo.libPart.form.eu_wid2);	// 너비
+			setParameterByName (&memo, "eu_hei2", objInfo.libPart.form.eu_hei2);	// 높이
 		}
 
 		// 설치방향
 		if (objInfo.libPart.form.u_ins_wall == true) {
-			tempString = "벽세우기";
+			strcpy (tempString, "벽세우기");
 		} else {
-			tempString = "벽눕히기";
+			strcpy (tempString, "벽눕히기");
 			if (objInfo.libPart.form.eu_stan_onoff == true) {
 				element.object.pos.x += ( objInfo.libPart.form.eu_hei * cos(objInfo.ang) );
 				element.object.pos.y += ( objInfo.libPart.form.eu_hei * sin(objInfo.ang) );
@@ -1677,13 +1671,13 @@ API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 				validWidth = objInfo.libPart.form.eu_wid2;
 			}
 		}
-		GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempString.c_str ()).ToUStr ().Get ());
+		setParameterByName (&memo, "u_ins", tempString);
 
 		// 회전X
 		if (objInfo.attached_side == BOTTOM_SIDE) {
-			memo.params [0][33].value.real = DegreeToRad (0.0);
+			setParameterByName (&memo, "ang_x", DegreeToRad (0.0));
 		} else if (objInfo.attached_side == LEFT_SIDE) {
-			memo.params [0][33].value.real = DegreeToRad (90.0);
+			setParameterByName (&memo, "ang_x", DegreeToRad (90.0));
 			if (objInfo.libPart.form.eu_stan_onoff == true) {
 				element.object.pos.x -= ( objInfo.libPart.form.eu_hei * cos(objInfo.ang) );
 				element.object.pos.y -= ( objInfo.libPart.form.eu_hei * sin(objInfo.ang) );
@@ -1693,24 +1687,25 @@ API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 			}
 			element.object.angle += DegreeToRad (180.0);
 		} else {
-			memo.params [0][33].value.real = DegreeToRad (90.0);
+			setParameterByName (&memo, "ang_x", DegreeToRad (90.0));
 		}
 
 	} else if (objInfo.objType == FILLERSPACER) {
 		element.header.layer = layerInd_Fillerspacer;
-		memo.params [0][27].value.real = objInfo.libPart.fillersp.f_thk;	// 두께
-		memo.params [0][28].value.real = objInfo.libPart.fillersp.f_leng;	// 길이
-		memo.params [0][29].value.real = 0.0;								// 각도
+		setParameterByName (&memo, "f_thk", objInfo.libPart.fillersp.f_thk);	// 두께
+		setParameterByName (&memo, "f_leng", objInfo.libPart.fillersp.f_leng);	// 길이
+		setParameterByName (&memo, "f_ang", 0.0);								// 각도
 
+		// 회전
 		if (objInfo.attached_side == BOTTOM_SIDE) {
-			memo.params [0][30].value.real = DegreeToRad (90.0);	// 회전
+			setParameterByName (&memo, "f_rota", DegreeToRad (90.0));
 		} else if (objInfo.attached_side == LEFT_SIDE) {
-			memo.params [0][30].value.real = 0.0;					// 회전
+			setParameterByName (&memo, "f_rota", DegreeToRad (0.0));
 			element.object.pos.x += ( objInfo.libPart.fillersp.f_leng * cos(objInfo.ang) );
 			element.object.pos.y += ( objInfo.libPart.fillersp.f_leng * sin(objInfo.ang) );
 			element.object.angle += DegreeToRad (180.0);
 		} else {
-			memo.params [0][30].value.real = 0.0;					// 회전
+			setParameterByName (&memo, "f_rota", DegreeToRad (0.0));
 		}
 
 		validLength = objInfo.libPart.fillersp.f_leng;
@@ -1718,16 +1713,18 @@ API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 
 	} else if (objInfo.objType == PLYWOOD) {
 		element.header.layer = layerInd_Plywood;
-		GS::ucscpy (memo.params [0][32].value.uStr, L("비규격"));
-		GS::ucscpy (memo.params [0][33].value.uStr, L("벽눕히기"));
-		GS::ucscpy (memo.params [0][34].value.uStr, L("11.5T"));
-		memo.params [0][35].value.real = objInfo.libPart.plywood.p_wid;		// 가로
-		memo.params [0][36].value.real = objInfo.libPart.plywood.p_leng;	// 세로
-		memo.params [0][38].value.real = TRUE;		// 제작틀 ON
+		setParameterByName (&memo, "p_stan", "비규격");							// 규격
+		setParameterByName (&memo, "w_dir", "벽눕히기");						// 설치방향
+		setParameterByName (&memo, "p_thk", "11.5T");							// 두께
+		setParameterByName (&memo, "p_wid", objInfo.libPart.plywood.p_wid);		// 가로
+		setParameterByName (&memo, "p_leng", objInfo.libPart.plywood.p_leng);	// 세로
+		setParameterByName (&memo, "sogak", 1.0);								// 제작틀 ON
 		
+		// 각도
 		if (objInfo.attached_side == BOTTOM_SIDE) {
-			memo.params [0][37].value.real = DegreeToRad (90.0);
+			setParameterByName (&memo, "p_ang", DegreeToRad (90.0));
 		} else if (objInfo.attached_side == LEFT_SIDE) {
+			setParameterByName (&memo, "p_ang", DegreeToRad (0.0));
 			element.object.pos.x += ( objInfo.libPart.plywood.p_leng * cos(objInfo.ang) );
 			element.object.pos.y += ( objInfo.libPart.plywood.p_leng * sin(objInfo.ang) );
 			element.object.angle += DegreeToRad (180.0);
@@ -1744,14 +1741,14 @@ API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 		memo.params [0][31].value.real = objInfo.libPart.wood.w_ang;	// 각도
 	
 		if (objInfo.attached_side == BOTTOM_SIDE) {
-			GS::ucscpy (memo.params [0][27].value.uStr, L("바닥눕히기"));	// 설치방향
+			setParameterByName (&memo, "w_ins", "바닥눕히기");				// 설치방향
 		} else if (objInfo.attached_side == LEFT_SIDE) {
-			GS::ucscpy (memo.params [0][27].value.uStr, L("벽세우기"));		// 설치방향
+			setParameterByName (&memo, "w_ins", "벽세우기");				// 설치방향
 			element.object.pos.x += ( objInfo.libPart.wood.w_leng * cos(objInfo.ang) );
 			element.object.pos.y += ( objInfo.libPart.wood.w_leng * sin(objInfo.ang) );
 			element.object.angle += DegreeToRad (180.0);
 		} else {
-			GS::ucscpy (memo.params [0][27].value.uStr, L("벽세우기"));		// 설치방향
+			setParameterByName (&memo, "w_ins", "벽세우기");				// 설치방향
 		}
 
 		validLength = objInfo.libPart.wood.w_leng;
@@ -1759,8 +1756,8 @@ API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 
 	} else if (objInfo.objType == OUTCORNER_ANGLE) {
 		element.header.layer = layerInd_OutcornerAngle;
-		memo.params [0][27].value.real = objInfo.libPart.outangle.a_leng;	// 길이
-		memo.params [0][28].value.real = 0.0;								// 각도
+		setParameterByName (&memo, "a_leng", objInfo.libPart.outangle.a_leng);	// 길이
+		setParameterByName (&memo, "a_ang", 0.0);								// 각도
 
 		if (objInfo.attached_side == RIGHT_SIDE) {
 			element.object.pos.x += ( objInfo.libPart.outangle.a_leng * cos(objInfo.ang) );
