@@ -56,7 +56,6 @@ const char*	getParameterStringByName (API_ElementMemo* memo, char* pName, char* 
 // 기하 (이동)
 void		moveIn3D (char direction, double ang, double offset, API_Coord3D* curPos);							// X, Y, Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
 void		moveIn3D (char direction, double ang, double offset, double* curX, double* curY, double* curZ);		// X, Y, Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
-void		moveIn3D (double offset, double* curZ);																// Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
 void		moveIn2D (char direction, double ang, double offset, API_Coord* curPos);							// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
 void		moveIn2D (char direction, double ang, double offset, double* curX, double* curY);					// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
 

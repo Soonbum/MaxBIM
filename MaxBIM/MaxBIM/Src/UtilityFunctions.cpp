@@ -496,23 +496,17 @@ void		moveIn3D (char direction, double ang, double offset, double* curX, double*
 {
 	if (direction == 'x' || direction == 'X') {
 		*curX = *curX + (offset * cos(ang));
-		*curX = *curX + (offset * sin(ang));
+		*curY = *curY + (offset * sin(ang));
 	}
 
 	if (direction == 'y' || direction == 'Y') {
-		*curY = *curX - (offset * sin(ang));
+		*curX = *curX - (offset * sin(ang));
 		*curY = *curY + (offset * cos(ang));
 	}
 
 	if (direction == 'z' || direction == 'Z') {
 		*curZ = *curZ + offset;
 	}
-}
-
-// Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
-void		moveIn3D (double offset, double* curZ)
-{
-	*curZ = *curZ + offset;
 }
 
 // X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
@@ -534,11 +528,11 @@ void		moveIn2D (char direction, double ang, double offset, double* curX, double*
 {
 	if (direction == 'x' || direction == 'X') {
 		*curX = *curX + (offset * cos(ang));
-		*curX = *curX + (offset * sin(ang));
+		*curY = *curY + (offset * sin(ang));
 	}
 
 	if (direction == 'y' || direction == 'Y') {
-		*curY = *curX - (offset * sin(ang));
+		*curX = *curX - (offset * sin(ang));
 		*curY = *curY + (offset * cos(ang));
 	}
 }
