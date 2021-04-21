@@ -1293,22 +1293,20 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			// 1번째 행: 유로폼
 			params_UFOM1 [0].leftBottomX = cell.leftBottomX;
 			params_UFOM1 [0].leftBottomY = cell.leftBottomY;
-			params_UFOM1 [0].leftBottomX = moveXinParallel (params_UFOM1 [0].leftBottomX, params_UFOM1 [0].ang, placementInfo.width [0]);
-			params_UFOM1 [0].leftBottomY = moveYinParallel (params_UFOM1 [0].leftBottomY, params_UFOM1 [0].ang, placementInfo.width [0]);
 			params_UFOM1 [0].leftBottomZ = upperCell.leftBottomZ + cell.verLen;
 			params_UFOM1 [0].ang = cell.ang;
 			params_UFOM1 [0].width = upperCell.formWidth1;
 			params_UFOM1 [0].height = placementInfo.width [0];
+			moveIn3D ('x', params_UFOM1 [0].ang, placementInfo.width [0], &params_UFOM1 [0].leftBottomX, &params_UFOM1 [0].leftBottomY, &params_UFOM1 [0].leftBottomZ);
 
 			// 2번째 행: 유로폼
 			params_UFOM2 [0].leftBottomX = cell.leftBottomX;
 			params_UFOM2 [0].leftBottomY = cell.leftBottomY;
-			params_UFOM2 [0].leftBottomX = moveXinParallel (params_UFOM2 [0].leftBottomX, params_UFOM2 [0].ang, placementInfo.width [0]);
-			params_UFOM2 [0].leftBottomY = moveYinParallel (params_UFOM2 [0].leftBottomY, params_UFOM2 [0].ang, placementInfo.width [0]);
 			params_UFOM2 [0].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1;
 			params_UFOM2 [0].ang = cell.ang;
 			params_UFOM2 [0].width = upperCell.formWidth2;
 			params_UFOM2 [0].height = placementInfo.width [0];
+			moveIn3D ('x', params_UFOM2 [0].ang, placementInfo.width [0], &params_UFOM2 [0].leftBottomX, &params_UFOM2 [0].leftBottomY, &params_UFOM2 [0].leftBottomZ);
 
 			// 3번째 행: 합판 또는 목재
 			params_PLYW [0].leftBottomX = cell.leftBottomX;
@@ -1332,112 +1330,124 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		// 2열
 		if (placementInfo.nHorEuroform >= 2) {
 			// 1번째 행: 유로폼
-			params_UFOM1 [1].leftBottomX = moveXinParallel (params_UFOM1 [0].leftBottomX, params_UFOM1 [0].ang, placementInfo.width [1]);
-			params_UFOM1 [1].leftBottomY = moveYinParallel (params_UFOM1 [0].leftBottomY, params_UFOM1 [0].ang, placementInfo.width [1]);
+			params_UFOM1 [1].leftBottomX = params_UFOM1 [0].leftBottomX;
+			params_UFOM1 [1].leftBottomY = params_UFOM1 [0].leftBottomY;
 			params_UFOM1 [1].leftBottomZ = upperCell.leftBottomZ + cell.verLen;
 			params_UFOM1 [1].ang = cell.ang;
 			params_UFOM1 [1].width = upperCell.formWidth1;
 			params_UFOM1 [1].height = placementInfo.width [1];
+			moveIn3D ('x', params_UFOM1 [1].ang, placementInfo.width [1], &params_UFOM1 [1].leftBottomX, &params_UFOM1 [1].leftBottomY, &params_UFOM1 [1].leftBottomZ);
 
 			// 2번째 행: 유로폼
-			params_UFOM2 [1].leftBottomX = moveXinParallel (params_UFOM2 [0].leftBottomX, params_UFOM2 [0].ang, placementInfo.width [1]);
-			params_UFOM2 [1].leftBottomY = moveYinParallel (params_UFOM2 [0].leftBottomY, params_UFOM2 [0].ang, placementInfo.width [1]);
+			params_UFOM2 [1].leftBottomX = params_UFOM2 [0].leftBottomX;
+			params_UFOM2 [1].leftBottomY = params_UFOM2 [0].leftBottomY;
 			params_UFOM2 [1].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1;
 			params_UFOM2 [1].ang = cell.ang;
 			params_UFOM2 [1].width = upperCell.formWidth2;
 			params_UFOM2 [1].height = placementInfo.width [1];
+			moveIn3D ('x', params_UFOM2 [1].ang, placementInfo.width [1], &params_UFOM2 [1].leftBottomX, &params_UFOM2 [1].leftBottomY, &params_UFOM2 [1].leftBottomZ);
 
 			// 3번째 행: 합판 또는 목재
-			params_PLYW [1].leftBottomX = moveXinParallel (params_PLYW [0].leftBottomX, params_PLYW [0].ang, placementInfo.width [0]);
-			params_PLYW [1].leftBottomY = moveYinParallel (params_PLYW [0].leftBottomY, params_PLYW [0].ang, placementInfo.width [0]);
+			params_PLYW [1].leftBottomX = params_PLYW [0].leftBottomX;
+			params_PLYW [1].leftBottomY = params_PLYW [0].leftBottomY;
 			params_PLYW [1].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_PLYW [1].ang = cell.ang;
 			params_PLYW [1].p_wid = remainWidth;
 			params_PLYW [1].p_leng = placementInfo.width [1];
 			params_PLYW [1].w_dir_wall = false;
+			moveIn3D ('x', params_PLYW [1].ang, placementInfo.width [0], &params_PLYW [1].leftBottomX, &params_PLYW [1].leftBottomY, &params_PLYW [1].leftBottomZ);
 
-			params_TIMB [1].leftBottomX = moveXinParallel (params_TIMB [0].leftBottomX, params_TIMB [0].ang, placementInfo.width [0]);
-			params_TIMB [1].leftBottomY = moveYinParallel (params_TIMB [0].leftBottomY, params_TIMB [0].ang, placementInfo.width [0]);
+			params_TIMB [1].leftBottomX = params_TIMB [0].leftBottomX;
+			params_TIMB [1].leftBottomY = params_TIMB [0].leftBottomY;
 			params_TIMB [1].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_TIMB [1].ang = cell.ang;
 			params_TIMB [1].w_w = 0.040;
 			params_TIMB [1].w_h = remainWidth;
 			params_TIMB [1].w_leng = placementInfo.width [1];
 			params_TIMB [1].w_ang = 0.0;
+			moveIn3D ('x', params_TIMB [1].ang, placementInfo.width [0], &params_TIMB [1].leftBottomX, &params_TIMB [1].leftBottomY, &params_TIMB [1].leftBottomZ);
 		}
 
 		// 3열
 		if (placementInfo.nHorEuroform >= 3) {
 			// 1번째 행: 유로폼
-			params_UFOM1 [2].leftBottomX = moveXinParallel (params_UFOM1 [1].leftBottomX, params_UFOM1 [1].ang, placementInfo.width [2]);
-			params_UFOM1 [2].leftBottomY = moveYinParallel (params_UFOM1 [1].leftBottomY, params_UFOM1 [1].ang, placementInfo.width [2]);
+			params_UFOM1 [2].leftBottomX = params_UFOM1 [1].leftBottomX;
+			params_UFOM1 [2].leftBottomY = params_UFOM1 [1].leftBottomY;
 			params_UFOM1 [2].leftBottomZ = upperCell.leftBottomZ + cell.verLen;
 			params_UFOM1 [2].ang = cell.ang;
 			params_UFOM1 [2].width = upperCell.formWidth1;
 			params_UFOM1 [2].height = placementInfo.width [2];
+			moveIn3D ('x', params_UFOM1 [2].ang, placementInfo.width [2], &params_UFOM1 [2].leftBottomX, &params_UFOM1 [2].leftBottomY, &params_UFOM1 [2].leftBottomZ);
 
 			// 2번째 행: 유로폼
-			params_UFOM2 [2].leftBottomX = moveXinParallel (params_UFOM2 [1].leftBottomX, params_UFOM2 [1].ang, placementInfo.width [2]);
-			params_UFOM2 [2].leftBottomY = moveYinParallel (params_UFOM2 [1].leftBottomY, params_UFOM2 [1].ang, placementInfo.width [2]);
+			params_UFOM2 [2].leftBottomX = params_UFOM2 [1].leftBottomX;
+			params_UFOM2 [2].leftBottomY = params_UFOM2 [1].leftBottomY;
 			params_UFOM2 [2].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1;
 			params_UFOM2 [2].ang = cell.ang;
 			params_UFOM2 [2].width = upperCell.formWidth2;
 			params_UFOM2 [2].height = placementInfo.width [2];
+			moveIn3D ('x', params_UFOM2 [2].ang, placementInfo.width [2], &params_UFOM2 [2].leftBottomX, &params_UFOM2 [2].leftBottomY, &params_UFOM2 [2].leftBottomZ);
 
 			// 3번째 행: 합판 또는 목재
-			params_PLYW [2].leftBottomX = moveXinParallel (params_PLYW [1].leftBottomX, params_PLYW [1].ang, placementInfo.width [1]);
-			params_PLYW [2].leftBottomY = moveYinParallel (params_PLYW [1].leftBottomY, params_PLYW [1].ang, placementInfo.width [1]);
+			params_PLYW [2].leftBottomX = params_PLYW [1].leftBottomX;
+			params_PLYW [2].leftBottomY = params_PLYW [1].leftBottomY;
 			params_PLYW [2].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_PLYW [2].ang = cell.ang;
 			params_PLYW [2].p_wid = remainWidth;
 			params_PLYW [2].p_leng = placementInfo.width [2];
 			params_PLYW [2].w_dir_wall = false;
+			moveIn3D ('x', params_PLYW [2].ang, placementInfo.width [1], &params_PLYW [2].leftBottomX, &params_PLYW [2].leftBottomY, &params_PLYW [2].leftBottomZ);
 
-			params_TIMB [2].leftBottomX = moveXinParallel (params_TIMB [1].leftBottomX, params_TIMB [1].ang, placementInfo.width [1]);
-			params_TIMB [2].leftBottomY = moveYinParallel (params_TIMB [1].leftBottomY, params_TIMB [1].ang, placementInfo.width [1]);
+			params_TIMB [2].leftBottomX = params_TIMB [1].leftBottomX;
+			params_TIMB [2].leftBottomY = params_TIMB [1].leftBottomY;
 			params_TIMB [2].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_TIMB [2].ang = cell.ang;
 			params_TIMB [2].w_w = 0.040;
 			params_TIMB [2].w_h = remainWidth;
 			params_TIMB [2].w_leng = placementInfo.width [2];
 			params_TIMB [2].w_ang = 0.0;
+			moveIn3D ('x', params_TIMB [2].ang, placementInfo.width [1], &params_TIMB [2].leftBottomX, &params_TIMB [2].leftBottomY, &params_TIMB [2].leftBottomZ);
 		}
 
 		// 4열
 		if (placementInfo.nHorEuroform >= 4) {
 			// 1번째 행: 유로폼
-			params_UFOM1 [3].leftBottomX = moveXinParallel (params_UFOM1 [2].leftBottomX, params_UFOM1 [2].ang, placementInfo.width [3]);
-			params_UFOM1 [3].leftBottomY = moveYinParallel (params_UFOM1 [2].leftBottomY, params_UFOM1 [2].ang, placementInfo.width [3]);
+			params_UFOM1 [3].leftBottomX = params_UFOM1 [2].leftBottomX;
+			params_UFOM1 [3].leftBottomY = params_UFOM1 [2].leftBottomY;
 			params_UFOM1 [3].leftBottomZ = upperCell.leftBottomZ + cell.verLen;
 			params_UFOM1 [3].ang = cell.ang;
 			params_UFOM1 [3].width = upperCell.formWidth1;
 			params_UFOM1 [3].height = placementInfo.width [3];
+			moveIn3D ('x', params_UFOM1 [3].ang, placementInfo.width [3], &params_UFOM1 [3].leftBottomX, &params_UFOM1 [3].leftBottomY, &params_UFOM1 [3].leftBottomZ);
 
 			// 2번째 행: 유로폼
-			params_UFOM2 [3].leftBottomX = moveXinParallel (params_UFOM2 [2].leftBottomX, params_UFOM2 [2].ang, placementInfo.width [3]);
-			params_UFOM2 [3].leftBottomY = moveYinParallel (params_UFOM2 [2].leftBottomY, params_UFOM2 [2].ang, placementInfo.width [3]);
+			params_UFOM2 [3].leftBottomX = params_UFOM2 [2].leftBottomX;
+			params_UFOM2 [3].leftBottomY = params_UFOM2 [2].leftBottomY;
 			params_UFOM2 [3].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1;
 			params_UFOM2 [3].ang = cell.ang;
 			params_UFOM2 [3].width = upperCell.formWidth2;
 			params_UFOM2 [3].height = placementInfo.width [3];
+			moveIn3D ('x', params_UFOM2 [3].ang, placementInfo.width [3], &params_UFOM2 [3].leftBottomX, &params_UFOM2 [3].leftBottomY, &params_UFOM2 [3].leftBottomZ);
 
 			// 3번째 행: 합판 또는 목재
-			params_PLYW [3].leftBottomX = moveXinParallel (params_PLYW [2].leftBottomX, params_PLYW [2].ang, placementInfo.width [2]);
-			params_PLYW [3].leftBottomY = moveYinParallel (params_PLYW [2].leftBottomY, params_PLYW [2].ang, placementInfo.width [2]);
+			params_PLYW [3].leftBottomX = params_PLYW [2].leftBottomX;
+			params_PLYW [3].leftBottomY = params_PLYW [2].leftBottomY;
 			params_PLYW [3].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_PLYW [3].ang = cell.ang;
 			params_PLYW [3].p_wid = remainWidth;
 			params_PLYW [3].p_leng = placementInfo.width [3];
 			params_PLYW [3].w_dir_wall = false;
+			moveIn3D ('x', params_PLYW [3].ang, placementInfo.width [2], &params_PLYW [3].leftBottomX, &params_PLYW [3].leftBottomY, &params_PLYW [3].leftBottomZ);
 
-			params_TIMB [3].leftBottomX = moveXinParallel (params_TIMB [2].leftBottomX, params_TIMB [2].ang, placementInfo.width [2]);
-			params_TIMB [3].leftBottomY = moveYinParallel (params_TIMB [2].leftBottomY, params_TIMB [2].ang, placementInfo.width [2]);
+			params_TIMB [3].leftBottomX = params_TIMB [2].leftBottomX;
+			params_TIMB [3].leftBottomY = params_TIMB [2].leftBottomY;
 			params_TIMB [3].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_TIMB [3].ang = cell.ang;
 			params_TIMB [3].w_w = 0.040;
 			params_TIMB [3].w_h = remainWidth;
 			params_TIMB [3].w_leng = placementInfo.width [3];
 			params_TIMB [3].w_ang = 0.0;
+			moveIn3D ('x', params_TIMB [3].ang, placementInfo.width [2], &params_TIMB [3].leftBottomX, &params_TIMB [3].leftBottomY, &params_TIMB [3].leftBottomZ);
 		}
 
 		for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
@@ -1454,7 +1464,6 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 
 			// 목재의 경우
 			} else if (remainWidth + EPS > 0) {
-
 				elemList.Push (placeTIMB (params_TIMB [xx]));
 			}
 		}
@@ -1479,121 +1488,89 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			// 1열
 			if (placementInfo.nHorEuroform >= 1) {
 				// 1번째 행: 유로폼
-				params_UFOM1 [0].leftBottomX = moveXinParallel (params_UFOM1 [0].leftBottomX, cell.ang, -placementInfo.width [0]);
-				params_UFOM1 [0].leftBottomY = moveYinParallel (params_UFOM1 [0].leftBottomY, cell.ang, -placementInfo.width [0]);
-				params_UFOM1 [0].leftBottomX = moveXinPerpend (params_UFOM1 [0].leftBottomX, cell.ang, infoWall.wallThk);
-				params_UFOM1 [0].leftBottomY = moveYinPerpend (params_UFOM1 [0].leftBottomY, cell.ang, infoWall.wallThk);
 				params_UFOM1 [0].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, -placementInfo.width [0], &params_UFOM1 [0].leftBottomX, &params_UFOM1 [0].leftBottomY, &params_UFOM1 [0].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_UFOM1 [0].leftBottomX, &params_UFOM1 [0].leftBottomY, &params_UFOM1 [0].leftBottomZ);
 
 				// 2번째 행: 유로폼
-				params_UFOM2 [0].leftBottomX = moveXinParallel (params_UFOM2 [0].leftBottomX, cell.ang, -placementInfo.width [0]);
-				params_UFOM2 [0].leftBottomY = moveYinParallel (params_UFOM2 [0].leftBottomY, cell.ang, -placementInfo.width [0]);
-				params_UFOM2 [0].leftBottomX = moveXinPerpend (params_UFOM2 [0].leftBottomX, cell.ang, infoWall.wallThk);
-				params_UFOM2 [0].leftBottomY = moveYinPerpend (params_UFOM2 [0].leftBottomY, cell.ang, infoWall.wallThk);
 				params_UFOM2 [0].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, -placementInfo.width [0], &params_UFOM2 [0].leftBottomX, &params_UFOM2 [0].leftBottomY, &params_UFOM2 [0].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_UFOM2 [0].leftBottomX, &params_UFOM2 [0].leftBottomY, &params_UFOM2 [0].leftBottomZ);
 
 				// 3번째 행: 합판 또는 목재
-				params_PLYW [0].leftBottomX = moveXinParallel (params_PLYW [0].leftBottomX, cell.ang, placementInfo.width [0]);
-				params_PLYW [0].leftBottomY = moveYinParallel (params_PLYW [0].leftBottomY, cell.ang, placementInfo.width [0]);
-				params_PLYW [0].leftBottomX = moveXinPerpend (params_PLYW [0].leftBottomX, cell.ang, infoWall.wallThk);
-				params_PLYW [0].leftBottomY = moveYinPerpend (params_PLYW [0].leftBottomY, cell.ang, infoWall.wallThk);
 				params_PLYW [0].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, placementInfo.width [0], &params_PLYW [0].leftBottomX, &params_PLYW [0].leftBottomY, &params_PLYW [0].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_PLYW [0].leftBottomX, &params_PLYW [0].leftBottomY, &params_PLYW [0].leftBottomZ);
 
-				params_TIMB [0].leftBottomX = moveXinParallel (params_TIMB [0].leftBottomX, cell.ang, placementInfo.width [0]);
-				params_TIMB [0].leftBottomY = moveYinParallel (params_TIMB [0].leftBottomY, cell.ang, placementInfo.width [0]);
-				params_TIMB [0].leftBottomX = moveXinPerpend (params_TIMB [0].leftBottomX, cell.ang, infoWall.wallThk);
-				params_TIMB [0].leftBottomY = moveYinPerpend (params_TIMB [0].leftBottomY, cell.ang, infoWall.wallThk);
 				params_TIMB [0].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, placementInfo.width [0], &params_TIMB [0].leftBottomX, &params_TIMB [0].leftBottomY, &params_TIMB [0].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_TIMB [0].leftBottomX, &params_TIMB [0].leftBottomY, &params_TIMB [0].leftBottomZ);
 			}
 
 			// 2열
 			if (placementInfo.nHorEuroform >= 2) {
 				// 1번째 행: 유로폼
-				params_UFOM1 [1].leftBottomX = moveXinParallel (params_UFOM1 [1].leftBottomX, cell.ang, -placementInfo.width [1]);
-				params_UFOM1 [1].leftBottomY = moveYinParallel (params_UFOM1 [1].leftBottomY, cell.ang, -placementInfo.width [1]);
-				params_UFOM1 [1].leftBottomX = moveXinPerpend (params_UFOM1 [1].leftBottomX, cell.ang, infoWall.wallThk);
-				params_UFOM1 [1].leftBottomY = moveYinPerpend (params_UFOM1 [1].leftBottomY, cell.ang, infoWall.wallThk);
 				params_UFOM1 [1].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, -placementInfo.width [1], &params_UFOM1 [1].leftBottomX, &params_UFOM1 [1].leftBottomY, &params_UFOM1 [1].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_UFOM1 [1].leftBottomX, &params_UFOM1 [1].leftBottomY, &params_UFOM1 [1].leftBottomZ);
 
 				// 2번째 행: 유로폼
-				params_UFOM2 [1].leftBottomX = moveXinParallel (params_UFOM2 [1].leftBottomX, cell.ang, -placementInfo.width [1]);
-				params_UFOM2 [1].leftBottomY = moveYinParallel (params_UFOM2 [1].leftBottomY, cell.ang, -placementInfo.width [1]);
-				params_UFOM2 [1].leftBottomX = moveXinPerpend (params_UFOM2 [1].leftBottomX, cell.ang, infoWall.wallThk);
-				params_UFOM2 [1].leftBottomY = moveYinPerpend (params_UFOM2 [1].leftBottomY, cell.ang, infoWall.wallThk);
 				params_UFOM2 [1].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, -placementInfo.width [1], &params_UFOM2 [1].leftBottomX, &params_UFOM2 [1].leftBottomY, &params_UFOM2 [1].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_UFOM2 [1].leftBottomX, &params_UFOM2 [1].leftBottomY, &params_UFOM2 [1].leftBottomZ);
 
 				// 3번째 행: 합판 또는 목재
-				params_PLYW [1].leftBottomX = moveXinParallel (params_PLYW [1].leftBottomX, cell.ang, placementInfo.width [1]);
-				params_PLYW [1].leftBottomY = moveYinParallel (params_PLYW [1].leftBottomY, cell.ang, placementInfo.width [1]);
-				params_PLYW [1].leftBottomX = moveXinPerpend (params_PLYW [1].leftBottomX, cell.ang, infoWall.wallThk);
-				params_PLYW [1].leftBottomY = moveYinPerpend (params_PLYW [1].leftBottomY, cell.ang, infoWall.wallThk);
 				params_PLYW [1].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, placementInfo.width [1], &params_PLYW [1].leftBottomX, &params_PLYW [1].leftBottomY, &params_PLYW [1].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_PLYW [1].leftBottomX, &params_PLYW [1].leftBottomY, &params_PLYW [1].leftBottomZ);
 
-				params_TIMB [1].leftBottomX = moveXinParallel (params_TIMB [1].leftBottomX, cell.ang, placementInfo.width [1]);
-				params_TIMB [1].leftBottomY = moveYinParallel (params_TIMB [1].leftBottomY, cell.ang, placementInfo.width [1]);
-				params_TIMB [1].leftBottomX = moveXinPerpend (params_TIMB [1].leftBottomX, cell.ang, infoWall.wallThk);
-				params_TIMB [1].leftBottomY = moveYinPerpend (params_TIMB [1].leftBottomY, cell.ang, infoWall.wallThk);
 				params_TIMB [1].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, placementInfo.width [1], &params_TIMB [1].leftBottomX, &params_TIMB [1].leftBottomY, &params_TIMB [1].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_TIMB [1].leftBottomX, &params_TIMB [1].leftBottomY, &params_TIMB [1].leftBottomZ);
 			}
 
 			// 3열
 			if (placementInfo.nHorEuroform >= 3) {
 				// 1번째 행: 유로폼
-				params_UFOM1 [2].leftBottomX = moveXinParallel (params_UFOM1 [2].leftBottomX, cell.ang, -placementInfo.width [2]);
-				params_UFOM1 [2].leftBottomY = moveYinParallel (params_UFOM1 [2].leftBottomY, cell.ang, -placementInfo.width [2]);
-				params_UFOM1 [2].leftBottomX = moveXinPerpend (params_UFOM1 [2].leftBottomX, cell.ang, infoWall.wallThk);
-				params_UFOM1 [2].leftBottomY = moveYinPerpend (params_UFOM1 [2].leftBottomY, cell.ang, infoWall.wallThk);
 				params_UFOM1 [2].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, -placementInfo.width [2], &params_UFOM1 [2].leftBottomX, &params_UFOM1 [2].leftBottomY, &params_UFOM1 [2].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_UFOM1 [2].leftBottomX, &params_UFOM1 [2].leftBottomY, &params_UFOM1 [2].leftBottomZ);
 
 				// 2번째 행: 유로폼
-				params_UFOM2 [2].leftBottomX = moveXinParallel (params_UFOM2 [2].leftBottomX, cell.ang, -placementInfo.width [2]);
-				params_UFOM2 [2].leftBottomY = moveYinParallel (params_UFOM2 [2].leftBottomY, cell.ang, -placementInfo.width [2]);
-				params_UFOM2 [2].leftBottomX = moveXinPerpend (params_UFOM2 [2].leftBottomX, cell.ang, infoWall.wallThk);
-				params_UFOM2 [2].leftBottomY = moveYinPerpend (params_UFOM2 [2].leftBottomY, cell.ang, infoWall.wallThk);
 				params_UFOM2 [2].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, -placementInfo.width [2], &params_UFOM2 [2].leftBottomX, &params_UFOM2 [2].leftBottomY, &params_UFOM2 [2].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_UFOM2 [2].leftBottomX, &params_UFOM2 [2].leftBottomY, &params_UFOM2 [2].leftBottomZ);
 
 				// 3번째 행: 합판 또는 목재
-				params_PLYW [2].leftBottomX = moveXinParallel (params_PLYW [2].leftBottomX, cell.ang, placementInfo.width [2]);
-				params_PLYW [2].leftBottomY = moveYinParallel (params_PLYW [2].leftBottomY, cell.ang, placementInfo.width [2]);
-				params_PLYW [2].leftBottomX = moveXinPerpend (params_PLYW [2].leftBottomX, cell.ang, infoWall.wallThk);
-				params_PLYW [2].leftBottomY = moveYinPerpend (params_PLYW [2].leftBottomY, cell.ang, infoWall.wallThk);
 				params_PLYW [2].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, placementInfo.width [2], &params_PLYW [2].leftBottomX, &params_PLYW [2].leftBottomY, &params_PLYW [2].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_PLYW [2].leftBottomX, &params_PLYW [2].leftBottomY, &params_PLYW [2].leftBottomZ);
 
-				params_TIMB [2].leftBottomX = moveXinParallel (params_TIMB [2].leftBottomX, cell.ang, placementInfo.width [2]);
-				params_TIMB [2].leftBottomY = moveYinParallel (params_TIMB [2].leftBottomY, cell.ang, placementInfo.width [2]);
-				params_TIMB [2].leftBottomX = moveXinPerpend (params_TIMB [2].leftBottomX, cell.ang, infoWall.wallThk);
-				params_TIMB [2].leftBottomY = moveYinPerpend (params_TIMB [2].leftBottomY, cell.ang, infoWall.wallThk);
 				params_TIMB [2].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, placementInfo.width [2], &params_TIMB [2].leftBottomX, &params_TIMB [2].leftBottomY, &params_TIMB [2].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_TIMB [2].leftBottomX, &params_TIMB [2].leftBottomY, &params_TIMB [2].leftBottomZ);
 			}
 
 			// 4열
 			if (placementInfo.nHorEuroform >= 4) {
 				// 1번째 행: 유로폼
-				params_UFOM1 [3].leftBottomX = moveXinParallel (params_UFOM1 [3].leftBottomX, cell.ang, -placementInfo.width [3]);
-				params_UFOM1 [3].leftBottomY = moveYinParallel (params_UFOM1 [3].leftBottomY, cell.ang, -placementInfo.width [3]);
-				params_UFOM1 [3].leftBottomX = moveXinPerpend (params_UFOM1 [3].leftBottomX, cell.ang, infoWall.wallThk);
-				params_UFOM1 [3].leftBottomY = moveYinPerpend (params_UFOM1 [3].leftBottomY, cell.ang, infoWall.wallThk);
 				params_UFOM1 [3].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, -placementInfo.width [3], &params_UFOM1 [3].leftBottomX, &params_UFOM1 [3].leftBottomY, &params_UFOM1 [3].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_UFOM1 [3].leftBottomX, &params_UFOM1 [3].leftBottomY, &params_UFOM1 [3].leftBottomZ);
 
 				// 2번째 행: 유로폼
-				params_UFOM2 [3].leftBottomX = moveXinParallel (params_UFOM2 [3].leftBottomX, cell.ang, -placementInfo.width [3]);
-				params_UFOM2 [3].leftBottomY = moveYinParallel (params_UFOM2 [3].leftBottomY, cell.ang, -placementInfo.width [3]);
-				params_UFOM2 [3].leftBottomX = moveXinPerpend (params_UFOM2 [3].leftBottomX, cell.ang, infoWall.wallThk);
-				params_UFOM2 [3].leftBottomY = moveYinPerpend (params_UFOM2 [3].leftBottomY, cell.ang, infoWall.wallThk);
 				params_UFOM2 [3].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, -placementInfo.width [3], &params_UFOM2 [3].leftBottomX, &params_UFOM2 [3].leftBottomY, &params_UFOM2 [3].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_UFOM2 [3].leftBottomX, &params_UFOM2 [3].leftBottomY, &params_UFOM2 [3].leftBottomZ);
 
 				// 3번째 행: 합판 또는 목재
-				params_PLYW [3].leftBottomX = moveXinParallel (params_PLYW [3].leftBottomX, cell.ang, placementInfo.width [3]);
-				params_PLYW [3].leftBottomY = moveYinParallel (params_PLYW [3].leftBottomY, cell.ang, placementInfo.width [3]);
-				params_PLYW [3].leftBottomX = moveXinPerpend (params_PLYW [3].leftBottomX, cell.ang, infoWall.wallThk);
-				params_PLYW [3].leftBottomY = moveYinPerpend (params_PLYW [3].leftBottomY, cell.ang, infoWall.wallThk);
 				params_PLYW [3].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, placementInfo.width [3], &params_PLYW [3].leftBottomX, &params_PLYW [3].leftBottomY, &params_PLYW [3].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_PLYW [3].leftBottomX, &params_PLYW [3].leftBottomY, &params_PLYW [3].leftBottomZ);
 
-				params_TIMB [3].leftBottomX = moveXinParallel (params_TIMB [3].leftBottomX, cell.ang, placementInfo.width [3]);
-				params_TIMB [3].leftBottomY = moveYinParallel (params_TIMB [3].leftBottomY, cell.ang, placementInfo.width [3]);
-				params_TIMB [3].leftBottomX = moveXinPerpend (params_TIMB [3].leftBottomX, cell.ang, infoWall.wallThk);
-				params_TIMB [3].leftBottomY = moveYinPerpend (params_TIMB [3].leftBottomY, cell.ang, infoWall.wallThk);
 				params_TIMB [3].ang += DegreeToRad (180.0);
+				moveIn3D ('x', cell.ang, placementInfo.width [3], &params_TIMB [3].leftBottomX, &params_TIMB [3].leftBottomY, &params_TIMB [3].leftBottomZ);
+				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_TIMB [3].leftBottomX, &params_TIMB [3].leftBottomY, &params_TIMB [3].leftBottomZ);
 			}
 
 			for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
@@ -2440,36 +2417,6 @@ short DGCALLBACK wallTableformPlacerHandler3 (short message, short dialogID, sho
 	return	result;
 }
 
-// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려) - 벽과 평행한 방향으로 이동
-double		WallTableformPlacingZone::moveXinParallel (double prevPosX, double ang, double offset)
-{
-	return	prevPosX + (offset * cos(ang));
-}
-
-// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려) - 벽과 평행한 방향으로 이동
-double		WallTableformPlacingZone::moveYinParallel (double prevPosY, double ang, double offset)
-{
-	return	prevPosY + (offset * sin(ang));
-}
-
-// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려) - 벽과 수직한 방향으로 이동
-double		WallTableformPlacingZone::moveXinPerpend (double prevPosX, double ang, double offset)
-{
-	return	prevPosX - (offset * sin(ang));
-}
-
-// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려) - 벽과 수직한 방향으로 이동
-double		WallTableformPlacingZone::moveYinPerpend (double prevPosY, double ang, double offset)
-{
-	return	prevPosY + (offset * cos(ang));
-}
-
-// 이동 후의 Z 좌표를 알려줌 (Z 회전각도 고려)
-double		WallTableformPlacingZone::moveZ (double prevPosZ, double offset)
-{
-	return	prevPosZ + offset;
-}
-
 // 배치: 유로폼
 API_Guid	WallTableformPlacingZone::placeUFOM (Euroform params)
 {
@@ -2610,7 +2557,7 @@ API_Guid	WallTableformPlacingZone::placeUFOM_up (Euroform params)
 	} else {
 		setParameterByName (&memo, "eu_stan_onoff", 0.0);		// 비규격품
 		setParameterByName (&memo, "eu_wid2", params.width);	// 너비
-		setParameterByName (&memo, "eu_hei2", params.width);	// 높이
+		setParameterByName (&memo, "eu_hei2", params.height);	// 높이
 	}
 
 	// 설치방향
