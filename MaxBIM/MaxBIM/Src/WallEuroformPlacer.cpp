@@ -24,7 +24,7 @@ static short			numberOfinterfereBeam;	// 몇 번째 간섭 보인가?
 static GS::Array<API_Guid>	elemList;			// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
 
-// 1번 메뉴: 벽에 유로폼을 배치하는 통합 루틴
+// 벽에 유로폼을 배치하는 통합 루틴
 GSErrCode	placeEuroformOnWall (void)
 {
 	GSErrCode	err = NoError;

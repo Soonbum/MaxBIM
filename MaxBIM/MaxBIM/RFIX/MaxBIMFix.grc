@@ -348,7 +348,7 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Wall */
-'GDLG'  32517  Modal | grow	  0		  0		350		590		"테이블폼 벽에 배치" {
+'GDLG'  32517  Modal | grow	  0		  0		350		590		"벽에 배치" {
 /* [  1] */	Button			 15		 15		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			 15		 50		 70		 25		LargePlain		"Cancel"
 /* [  3] */	Button			 15		 85		 70		 25		LargePlain		"Prev"
@@ -384,4 +384,36 @@
 /* [ 29] */	UserControl		120		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
 /* [ 30] */	UserControl		120		499		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
 /* [ 31] */	UserControl		120		529		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+}
+
+/* ---------------------------------------------------------- place Tableform on Slab Bottom */
+'GDLG'  32518  Modal | grow	  0		  0		300		355		"슬래브 하부에 배치" {
+/* [  1] */	Button			 70		315		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		315		 70		 25		LargePlain		"Cancel"
+
+/* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Euroform Settings"
+/* [  4] */	RightText		 50		 40		 70		 23		LargePlain		"Width"
+/* [  5] */	PopupControl	140		 33		100		 25		200		10		/* 너비 */
+							NoIcon	"3032"
+/* [  6] */	RightText		 50		 70		 70		 23		LargePlain		"Height"
+/* [  7] */	PopupControl	140		 63		100		 25		100		10		/* 높이 */
+							NoIcon	"1818"
+/* [  8] */	RightText		 50		100		 70		 23		LargePlain		"Orientation"
+/* [  9] */	PopupControl	140		 93		100		 25		100		10		/* 설치방향 */
+							NoIcon	"Horizontal"
+							NoIcon	"Vertical"
+/* [ 10] */	Separator		  5		130		290		  1
+
+/* [ 11] */	RightText		 10		145		100		 23		LargePlain		"Gap from Slab"
+/* [ 12] */	LengthEdit		140		138		 50		 25		LargePlain		"0"	"1.0"
+/* [ 13] */	Separator		  5		170		290		  1
+
+/* [ 14] */	Icon			 85		183		 29		 14  	32502
+/* [ 15] */	LeftText		120		185		200		 23		LargePlain		"Layer Settings"
+/* [ 16] */	RightText		 10		215		100		 23		LargePlain		"Euroform"
+/* [ 17] */	RightText		 10		245		100		 23		LargePlain		"Plywood"
+/* [ 18] */	RightText		 10		275		100		 23		LargePlain		"Wood"
+/* [ 19] */	UserControl		120		209		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFOM		*/
+/* [ 20] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
+/* [ 21] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
 }

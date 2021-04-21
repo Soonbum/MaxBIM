@@ -25,7 +25,7 @@ static short			RButtonStartIdx = 0;	// R 버튼 시작 인덱스
 static GS::Array<API_Guid>	elemList;			// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
 
-// 2번 메뉴: 슬래브 하부에 유로폼을 배치하는 통합 루틴
+// 슬래브 하부에 유로폼을 배치하는 통합 루틴
 GSErrCode	placeEuroformOnSlabBottom (void)
 {
 	GSErrCode	err = NoError;
@@ -1830,10 +1830,10 @@ short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short 
 			// 라벨: 레이어 - 유로폼
 			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
 
-			// 라벨: 레이어 - 목재
+			// 라벨: 레이어 - 합판
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
 
-			// 라벨: 레이어 - 합판
+			// 라벨: 레이어 - 목재
 			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
 
 			// 유저 컨트롤 초기화

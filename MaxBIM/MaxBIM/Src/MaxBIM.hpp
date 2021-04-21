@@ -267,6 +267,21 @@ struct MagicIncorner
 	double	plywoodUnderhangH;	// 합판 언더행
 };
 
+// 슬래브 테이블폼 정보
+struct SlabTableform
+{
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	bool	direction;		// 설치방향 : 가로방향(true), 세로방향(false)
+	double	horLen;			// 가로 길이
+	double	verLen;			// 세로 길이
+	char	type [20];		// 타입
+};
+
 // 파라미터: 비계 파이프
 struct SquarePipe
 {

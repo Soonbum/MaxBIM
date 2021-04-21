@@ -60,7 +60,7 @@ static short	END_INDEX_FROM_END_AT_BOTTOM;
 static short	EDITCONTROL_CENTER_LENGTH_SIDE;
 
 
-// 3번 메뉴: 보에 유로폼을 배치하는 통합 루틴
+// 보에 유로폼을 배치하는 통합 루틴
 GSErrCode	placeEuroformOnBeam (void)
 {
 	GSErrCode		err = NoError;
@@ -1161,7 +1161,7 @@ void	BeamPlacingZone::firstPlacingSettings (BeamPlacingZone* placingZone)
 }
 
 // 측면 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		BeamPlacingZone::addNewColFromBeginAtSide (BeamPlacingZone* target_zone)
+void	BeamPlacingZone::addNewColFromBeginAtSide (BeamPlacingZone* target_zone)
 {
 	short xx;
 
@@ -1173,13 +1173,13 @@ void		BeamPlacingZone::addNewColFromBeginAtSide (BeamPlacingZone* target_zone)
 }
 
 // 측면 시작 부분 - 마지막 열을 삭제함
-void		BeamPlacingZone::delLastColFromBeginAtSide (BeamPlacingZone* target_zone)
+void	BeamPlacingZone::delLastColFromBeginAtSide (BeamPlacingZone* target_zone)
 {
 	target_zone->nCellsFromBeginAtSide --;
 }
 
 // 측면 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		BeamPlacingZone::addNewColFromEndAtSide (BeamPlacingZone* target_zone)
+void	BeamPlacingZone::addNewColFromEndAtSide (BeamPlacingZone* target_zone)
 {
 	short xx;
 
@@ -1191,13 +1191,13 @@ void		BeamPlacingZone::addNewColFromEndAtSide (BeamPlacingZone* target_zone)
 }
 
 // 측면 끝 부분 - 마지막 열을 삭제함
-void		BeamPlacingZone::delLastColFromEndAtSide (BeamPlacingZone* target_zone)
+void	BeamPlacingZone::delLastColFromEndAtSide (BeamPlacingZone* target_zone)
 {
 	target_zone->nCellsFromEndAtSide --;
 }
 
 // 하부 시작 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		BeamPlacingZone::addNewColFromBeginAtBottom (BeamPlacingZone* target_zone)
+void	BeamPlacingZone::addNewColFromBeginAtBottom (BeamPlacingZone* target_zone)
 {
 	short xx;
 
@@ -1208,13 +1208,13 @@ void		BeamPlacingZone::addNewColFromBeginAtBottom (BeamPlacingZone* target_zone)
 }
 
 // 하부 시작 부분 - 마지막 열을 삭제함
-void		BeamPlacingZone::delLastColFromBeginAtBottom (BeamPlacingZone* target_zone)
+void	BeamPlacingZone::delLastColFromBeginAtBottom (BeamPlacingZone* target_zone)
 {
 	target_zone->nCellsFromBeginAtBottom --;
 }
 
 // 하부 끝 부분 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-void		BeamPlacingZone::addNewColFromEndAtBottom (BeamPlacingZone* target_zone)
+void	BeamPlacingZone::addNewColFromEndAtBottom (BeamPlacingZone* target_zone)
 {
 	short xx;
 
@@ -1225,13 +1225,13 @@ void		BeamPlacingZone::addNewColFromEndAtBottom (BeamPlacingZone* target_zone)
 }
 
 // 하부 끝 부분 - 마지막 열을 삭제함
-void		BeamPlacingZone::delLastColFromEndAtBottom (BeamPlacingZone* target_zone)
+void	BeamPlacingZone::delLastColFromEndAtBottom (BeamPlacingZone* target_zone)
 {
 	target_zone->nCellsFromEndAtBottom --;
 }
 
 // Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-void		BeamPlacingZone::alignPlacingZone (BeamPlacingZone* placingZone)
+void	BeamPlacingZone::alignPlacingZone (BeamPlacingZone* placingZone)
 {
 	short			xx, yy;
 	API_Coord3D		axisPoint, rotatedPoint, unrotatedPoint;
@@ -1735,10 +1735,11 @@ API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 
 	} else if (objInfo.objType == WOOD) {
 		element.header.layer = layerInd_Wood;
-		memo.params [0][28].value.real = objInfo.libPart.wood.w_w;		// 두께
-		memo.params [0][29].value.real = objInfo.libPart.wood.w_h;		// 너비
-		memo.params [0][30].value.real = objInfo.libPart.wood.w_leng;	// 길이
-		memo.params [0][31].value.real = objInfo.libPart.wood.w_ang;	// 각도
+
+		setParameterByName (&memo, "w_w", objInfo.libPart.wood.w_w);		// 두께
+		setParameterByName (&memo, "w_h", objInfo.libPart.wood.w_h);		// 너비
+		setParameterByName (&memo, "w_leng", objInfo.libPart.wood.w_leng);	// 길이
+		setParameterByName (&memo, "w_ang", objInfo.libPart.wood.w_ang);	// 각도
 	
 		if (objInfo.attached_side == BOTTOM_SIDE) {
 			setParameterByName (&memo, "w_ins", "바닥눕히기");				// 설치방향

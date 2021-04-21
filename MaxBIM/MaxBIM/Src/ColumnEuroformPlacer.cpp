@@ -54,7 +54,7 @@ static short	EDITCONTROL_WEST_MARGIN;
 static short	EDITCONTROL_EAST_MARGIN;
 
 
-// 4번 메뉴: 기둥에 유로폼을 배치하는 통합 루틴
+// 기둥에 유로폼을 배치하는 통합 루틴
 GSErrCode	placeEuroformOnColumn (void)
 {
 	GSErrCode		err = NoError;

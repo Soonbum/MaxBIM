@@ -1247,6 +1247,12 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 	Plywood		params_PLYW [4];
 	Wood		params_TIMB [4];
 
+	placementInfo.nHorEuroform = 0;
+	placementInfo.nVerEuroform = 0;
+	for (xx = 0 ; xx < 7 ; ++xx) {
+		placementInfo.width [xx] = 0.0;
+		placementInfo.height [xx] = 0.0;
+	}
 
 	// 상단 여백을 채우기로 한 경우
 	if (upperCell.bFill == true) {
@@ -1822,7 +1828,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "테이블폼 벽에 배치");
+			DGSetDialogTitle (dialogID, "벽에 배치 (테이블폼)");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 적용 버튼
@@ -2464,7 +2470,7 @@ API_Guid	WallTableformPlacingZone::placeUFOM (Euroform params)
 	// 레이어
 	elem.header.layer = layerInd_Euroform;
 
-	memo.params [0][27].value.real = TRUE;	// 규격폼
+	setParameterByName (&memo, "eu_stan_onoff", 1.0);			// 규격품
 
 	// 너비
 	sprintf (tempStr, "%.0f", params.width * 1000);
