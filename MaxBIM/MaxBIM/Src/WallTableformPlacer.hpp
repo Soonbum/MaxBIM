@@ -151,6 +151,7 @@ public:
 	GSErrCode	placeTableformOnWall (CellForWallTableform cell);											// 테이블폼 배치하기
 	GSErrCode	placeTableformOnWall (CellForWallTableform cell, UpperCellForWallTableform upperCell);		// 테이블폼 상단 배치하기
 	double		getCellPositionLeftBottomX (WallTableformPlacingZone *placingZone, short idx);				// 해당 셀의 좌하단 좌표X 위치를 리턴
+
 	double		moveXinParallel (double prevPosX, double ang, double offset);		// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려) - 벽과 평행한 방향으로 이동
 	double		moveYinParallel (double prevPosY, double ang, double offset);		// 이동 후의 Y 좌표를 알려줌 (Z 회전각도 고려) - 벽과 평행한 방향으로 이동
 	double		moveXinPerpend (double prevPosX, double ang, double offset);		// 이동 후의 X 좌표를 알려줌 (Z 회전각도 고려) - 벽과 수직한 방향으로 이동

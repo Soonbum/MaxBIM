@@ -50,8 +50,8 @@ GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bCom
 // 라이브러리 변수 접근 (Getter/Setter)
 bool		setParameterByName (API_ElementMemo* memo, char* pName, double value);			// pName 파라미터의 값을 value로 설정함 (실수형) - 성공하면 true, 실패하면 false
 bool		setParameterByName (API_ElementMemo* memo, char* pName, char* value);			// pName 파라미터의 값을 value로 설정함 (문자열) - 성공하면 true, 실패하면 false
-double		getParameterValueByName (API_ElementMemo* memo, char* pName, double* value);	// pName 파라미터의 값을 가져옴 - 실수형
-const char*	getParameterStringByName (API_ElementMemo* memo, char* pName, char* value);		// pName 파라미터의 값을 가져옴 - 문자열
+double		getParameterValueByName (API_ElementMemo* memo, char* pName);					// pName 파라미터의 값을 가져옴 - 실수형
+const char*	getParameterStringByName (API_ElementMemo* memo, char* pName);					// pName 파라미터의 값을 가져옴 - 문자열
 
 // 기하 (이동)
 void		moveIn3D (char direction, double ang, double offset, API_Coord3D* curPos);							// X, Y, Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)

@@ -470,13 +470,13 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					// 규격폼의 경우
 					if (memo.params [0][27].value.real == TRUE) {
-						width = atoi (GS::UniString (memo.params [0][28].value.uStr).ToCStr ().Get ());
-						height = atoi (GS::UniString (memo.params [0][29].value.uStr).ToCStr ().Get ());
+						width = atoi (getParameterStringByName (&memo, "eu_wid"));
+						height = atoi (getParameterStringByName (&memo, "eu_hei"));
 
 					// 비규격폼의 경우
 					} else {
-						width = static_cast<int> (round (memo.params [0][30].value.real * 1000, 0));
-						height = static_cast<int> (round (memo.params [0][31].value.real * 1000, 0));
+						width = static_cast<int> (round (getParameterValueByName (&memo, "eu_wid2") * 1000, 0));
+						height = static_cast<int> (round (getParameterValueByName (&memo, "eu_hei2") * 1000, 0));
 					}
 
 					// 중복 항목은 개수만 증가
@@ -504,13 +504,13 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					// 규격폼의 경우
 					if (memo.params [0][27].value.real == TRUE) {
-						width = atoi (GS::UniString (memo.params [0][28].value.uStr).ToCStr ().Get ());
-						height = atoi (GS::UniString (memo.params [0][29].value.uStr).ToCStr ().Get ());
+						width = atoi (getParameterStringByName (&memo, "eu_wid"));
+						height = atoi (getParameterStringByName (&memo, "eu_hei"));
 
 					// 비규격폼의 경우
 					} else {
-						width = static_cast<int> (round (memo.params [0][30].value.real * 1000, 0));
-						height = static_cast<int> (round (memo.params [0][31].value.real * 1000, 0));
+						width = static_cast<int> (round (getParameterValueByName (&memo, "eu_wid2") * 1000, 0));
+						height = static_cast<int> (round (getParameterValueByName (&memo, "eu_hei2") * 1000, 0));
 					}
 
 					// 중복 항목은 개수만 증가
@@ -538,9 +538,9 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int hor, ver, hei;
 
-					hor = static_cast<int> (round (memo.params [0][27].value.real * 1000, 0));
-					ver = static_cast<int> (round (memo.params [0][28].value.real * 1000, 0));
-					hei = static_cast<int> (round (memo.params [0][29].value.real * 1000, 0));
+					hor = static_cast<int> (round (getParameterValueByName (&memo, "wid_s") * 1000, 0));
+					ver = static_cast<int> (round (getParameterValueByName (&memo, "leng_s") * 1000, 0));
+					hei = static_cast<int> (round (getParameterValueByName (&memo, "hei_s") * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfIncornerPanelKinds ; ++zz) {
@@ -566,9 +566,9 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int hor, ver, hei;
 
-					hor = static_cast<int> (round (memo.params [0][27].value.real * 1000, 0));
-					ver = static_cast<int> (round (memo.params [0][28].value.real * 1000, 0));
-					hei = static_cast<int> (round (memo.params [0][29].value.real * 1000, 0));
+					hor = static_cast<int> (round (getParameterValueByName (&memo, "wid_s") * 1000, 0));
+					ver = static_cast<int> (round (getParameterValueByName (&memo, "leng_s") * 1000, 0));
+					hei = static_cast<int> (round (getParameterValueByName (&memo, "hei_s") * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfOutcornerPanelKinds ; ++zz) {
@@ -596,7 +596,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int length;
 
-					length = static_cast<int> (round (memo.params [0][27].value.real * 1000, 0));
+					length = static_cast<int> (round (getParameterValueByName (&memo, "a_leng") * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfOutcornerAngleKinds ; ++zz) {
@@ -620,9 +620,9 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int thk, wid, len;
 
-					thk = static_cast<int> (round (memo.params [0][28].value.real * 1000, 0));
-					wid = static_cast<int> (round (memo.params [0][29].value.real * 1000, 0));
-					len = static_cast<int> (round (memo.params [0][30].value.real * 1000, 0));
+					thk = static_cast<int> (round (getParameterValueByName (&memo, "w_w") * 1000, 0));
+					wid = static_cast<int> (round (getParameterValueByName (&memo, "w_h") * 1000, 0));
+					len = static_cast<int> (round (getParameterValueByName (&memo, "w_leng") * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfWoodKinds ; ++zz) {
@@ -648,8 +648,8 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int thk, len;
 
-					thk = static_cast<int> (round (memo.params [0][27].value.real * 1000, 0));
-					len = static_cast<int> (round (memo.params [0][28].value.real * 1000, 0));
+					thk = static_cast<int> (round (getParameterValueByName (&memo, "f_thk") * 1000, 0));
+					len = static_cast<int> (round (getParameterValueByName (&memo, "f_leng") * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfFsKinds ; ++zz) {
@@ -680,7 +680,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 						hor = 50;
 						ver = 50;
-						len = static_cast<int> (round (memo.params [0][27].value.real * 1000, 0));
+						len = static_cast<int> (round (getParameterValueByName (&memo, "p_leng") * 1000, 0));
 
 						// 중복 항목은 개수만 증가
 						for (zz = 0 ; zz < summary.sizeOfSqrPipeKinds ; ++zz) {
@@ -710,7 +710,8 @@ GSErrCode	exportSelectedElementInfo (void)
 						char nom [20];
 						int hor = 0, ver = 0, len;
 
-						sprintf (nom, "%s", GS::UniString (memo.params [0][27].value.uStr).ToCStr ().Get ());
+						//sprintf (nom, "%s", GS::UniString (memo.params [0][27].value.uStr).ToCStr ().Get ());
+						strcpy (nom, getParameterStringByName (&memo, "p_nom"));
 
 						char	*token;
 						int		tokCount;
@@ -728,7 +729,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							token = strtok (NULL, ",");
 						}
 
-						len = static_cast<int> (round (memo.params [0][29].value.real * 1000, 0));
+						len = static_cast<int> (round (getParameterValueByName (&memo, "p_leng") * 1000, 0));
 
 						// 중복 항목은 개수만 증가
 						for (zz = 0 ; zz < summary.sizeOfSqrPipeKinds ; ++zz) {
@@ -759,15 +760,15 @@ GSErrCode	exportSelectedElementInfo (void)
 					double thk = 0.0;
 
 					// 규격에 따른 가로, 세로
-					if (GS::ucscmp (memo.params [0][32].value.uStr, L("3x6 [910x1820]")) == 0) {
+					if (strncmp (getParameterStringByName (&memo, "p_stan"), "3x6 [910x1820]", strlen ("3x6 [910x1820]")) == 0) {
 						hor = 910;
 						ver = 1820;
-					} else if (GS::ucscmp (memo.params [0][32].value.uStr, L("4x8 [1220x2440]")) == 0) {
+					} else if (strncmp (getParameterStringByName (&memo, "p_stan"), "4x8 [1220x2440]", strlen ("4x8 [1220x2440]")) == 0) {
 						hor = 1220;
 						ver = 2440;
-					} else if (GS::ucscmp (memo.params [0][32].value.uStr, L("비규격")) == 0) {
-						hor = static_cast<int> (round (memo.params [0][35].value.real * 1000, 0));
-						ver = static_cast<int> (round (memo.params [0][36].value.real * 1000, 0));
+					} else if (strncmp (getParameterStringByName (&memo, "p_stan"), "비규격", strlen ("비규격")) == 0) {
+						hor = static_cast<int> (round (getParameterValueByName (&memo, "p_wid") * 1000, 0));
+						ver = static_cast<int> (round (getParameterValueByName (&memo, "p_leng") * 1000, 0));
 					} else {
 						// 그 외(비정형)는 알 수 없는 객체로 취급함
 						summary.nUnknownObjects ++;
@@ -775,13 +776,15 @@ GSErrCode	exportSelectedElementInfo (void)
 					}
 					
 					// 두께
-					if (GS::ucscmp (memo.params [0][34].value.uStr, L("2.7T")) == 0)		thk = 2.7;
-					if (GS::ucscmp (memo.params [0][34].value.uStr, L("4.8T")) == 0)		thk = 4.8;
-					if (GS::ucscmp (memo.params [0][34].value.uStr, L("7.5T")) == 0)		thk = 7.5;
-					if (GS::ucscmp (memo.params [0][34].value.uStr, L("8.5T")) == 0)		thk = 8.5;
-					if (GS::ucscmp (memo.params [0][34].value.uStr, L("11.5T")) == 0)		thk = 11.5;
-					if (GS::ucscmp (memo.params [0][34].value.uStr, L("14.5T")) == 0)		thk = 14.5;
-					if (GS::ucscmp (memo.params [0][34].value.uStr, L("17.5T")) == 0)		thk = 17.5;
+					const char* p_thk = getParameterStringByName (&memo, "p_thk");
+
+					if (strncmp (p_thk, "2.7T", strlen ("2.7T")) == 0)		thk = 2.7;
+					if (strncmp (p_thk, "4.8T", strlen ("4.8T")) == 0)		thk = 4.8;
+					if (strncmp (p_thk, "7.5T", strlen ("7.5T")) == 0)		thk = 7.5;
+					if (strncmp (p_thk, "8.5T", strlen ("8.5T")) == 0)		thk = 8.5;
+					if (strncmp (p_thk, "11.5T", strlen ("11.5T")) == 0)	thk = 11.5;
+					if (strncmp (p_thk, "14.5T", strlen ("14.5T")) == 0)	thk = 14.5;
+					if (strncmp (p_thk, "17.5T", strlen ("17.5T")) == 0)	thk = 17.5;
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfPlywoodKinds ; ++zz) {
@@ -826,8 +829,8 @@ GSErrCode	exportSelectedElementInfo (void)
 					else
 						bBase = false;
 
-					sprintf (nomUpper, "%s", GS::UniString (memo.params [0][12].value.uStr).ToCStr ().Get ());
-					sprintf (nomLower, "%s", GS::UniString (memo.params [0][18].value.uStr).ToCStr ().Get ());
+					sprintf (nomUpper, "%s", getParameterStringByName (&memo, "mainType"));
+					sprintf (nomLower, "%s", getParameterStringByName (&memo, "auxType"));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfPropsKinds ; ++zz) {
@@ -862,8 +865,8 @@ GSErrCode	exportSelectedElementInfo (void)
 					int bolt_len, washer_pos;
 					int len;
 
-					bolt_len = static_cast<int> (round (memo.params [0][10].value.real * 1000, 0));
-					washer_pos = static_cast<int> (round (memo.params [0][12].value.real * 1000, 0));
+					bolt_len = static_cast<int> (round (getParameterValueByName (&memo, "bolt_len") * 1000, 0));
+					washer_pos = static_cast<int> (round (getParameterValueByName (&memo, "washer_pos") * 1000, 0));
 					len = bolt_len - washer_pos + 40;
 
 					if (len < 100) {
@@ -899,7 +902,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					int len;
 
-					len = static_cast<int> (round (memo.params [0][9].value.real * 1000, 0));
+					len = static_cast<int> (round (getParameterValueByName (&memo, "beamLength") * 1000, 0));
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < summary.sizeOfBeamYokeKinds ; ++zz) {
