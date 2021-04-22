@@ -391,7 +391,7 @@
 /* [  1] */	Button			 70		315		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			160		315		 70		 25		LargePlain		"Cancel"
 
-/* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Euroform Settings"
+/* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Tableform Settings"
 /* [  4] */	RightText		 50		 40		 70		 23		LargePlain		"Width"
 /* [  5] */	PopupControl	140		 33		100		 25		200		10		/* 너비 */
 							NoIcon	"3032"
@@ -410,10 +410,10 @@
 
 /* [ 14] */	Icon			 85		183		 29		 14  	32502
 /* [ 15] */	LeftText		120		185		200		 23		LargePlain		"Layer Settings"
-/* [ 16] */	RightText		 10		215		100		 23		LargePlain		"Euroform"
+/* [ 16] */	RightText		 10		215		100		 23		LargePlain		"Tableform"
 /* [ 17] */	RightText		 10		245		100		 23		LargePlain		"Plywood"
 /* [ 18] */	RightText		 10		275		100		 23		LargePlain		"Wood"
-/* [ 19] */	UserControl		120		209		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFOM		*/
+/* [ 19] */	UserControl		120		209		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM	*/
 /* [ 20] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
 /* [ 21] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
 }

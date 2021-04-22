@@ -473,7 +473,7 @@ FIRST:
 	placingZone.tb_count_hor = 0;
 	placingZone.tb_count_ver = 0;
 
-	if (placingZone.tb_ori.compare (std::string ("가로방향")) == 0) {
+	if (placingZone.tb_ori.compare (std::string ("Horizontal")) == 0) {
 		placingZone.tb_count_hor = static_cast<short>(placingZone.remain_hor / placingZone.tb_wid_numeric);				// 가로 방향 개수
 		placingZone.remain_hor = placingZone.remain_hor - (placingZone.tb_count_hor * placingZone.tb_wid_numeric);		// 가로 방향 나머지
 		placingZone.tb_count_ver = static_cast<short>(placingZone.remain_ver / placingZone.tb_hei_numeric);				// 세로 방향 개수
@@ -489,7 +489,7 @@ FIRST:
 	placingZone.remain_ver_updated = placingZone.remain_ver;
 
 	// 유로폼 시작 좌표 설정
-	if (placingZone.tb_ori.compare (std::string ("가로방향")) == 0) {
+	if (placingZone.tb_ori.compare (std::string ("Horizontal")) == 0) {
 		placingZone.formArrayWidth = (placingZone.tb_count_hor * placingZone.tb_wid_numeric);
 		placingZone.formArrayHeight = (placingZone.tb_count_ver * placingZone.tb_hei_numeric);
 	} else {
@@ -578,7 +578,7 @@ void	SlabTableformPlacingZone::firstPlacingSettings (SlabTableformPlacingZone* p
 			placingZone->cells [xx][yy].objType = SLAB_TABLEFORM;
 			placingZone->cells [xx][yy].ang = placingZone->ang;
 
-			if (placingZone->tb_ori.compare (std::string ("가로방향")) == 0) {
+			if (placingZone->tb_ori.compare (std::string ("Horizontal")) == 0) {
 				placingZone->cells [xx][yy].libPart.tableform.direction = true;
 				placingZone->cells [xx][yy].horLen = placingZone->tb_wid_numeric;
 				placingZone->cells [xx][yy].verLen = placingZone->tb_hei_numeric;
@@ -871,22 +871,29 @@ API_Guid	SlabTableformPlacingZone::placeLibPart (CellForSlabTableform objInfo)
 	element.object.angle = objInfo.ang;
 	element.header.floorInd = infoSlab.floorInd;
 
-	// !!! 테이블폼 배치 알고리즘 수정 필요
 	if (objInfo.objType == SLAB_TABLEFORM) {
 		element.header.layer = layerInd_SlabTableform;
 
-		// 가로방향인 경우
+		// 가로방향 (Horizontal)
 		if (objInfo.libPart.tableform.direction == true) {
 			// 타입: 가로 길이 x 세로 길이
 			sprintf (tempString, "%d x %d", round (objInfo.libPart.tableform.horLen, 0) * 1000, round (objInfo.libPart.tableform.verLen, 0) * 1000);
+
+			// 이동하여 위치 바로잡기
+			element.object.pos.x += ( objInfo.verLen * sin(objInfo.ang) );
+			element.object.pos.y -= ( objInfo.verLen * cos(objInfo.ang) );
 			
-		// 세로방향인 경우
+		// 세로방향 (Vertical)
 		} else {
 			// 타입: 세로 길이 x 가로 길이
 			sprintf (tempString, "%d x %d", round (objInfo.libPart.tableform.verLen, 0) * 1000, round (objInfo.libPart.tableform.horLen, 0) * 1000);
 			
-			// 90도 회전된 상태로 배치 !!!
+			// 90도 회전된 상태로 배치
 			element.object.angle += DegreeToRad (90.0);
+
+			// 이동하여 위치 바로잡기
+			element.object.pos.x += ( objInfo.verLen * sin(objInfo.ang) );
+			element.object.pos.y -= ( objInfo.verLen * cos(objInfo.ang) );
 			element.object.pos.x += ( objInfo.horLen * cos(objInfo.ang) );
 			element.object.pos.y += ( objInfo.horLen * sin(objInfo.ang) );
 		}
@@ -2773,11 +2780,11 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			// 라디오 버튼: 설치방향 (가로방향)
 			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 777, 100, 140-6, 70, 25);
 			DGSetItemFont (dialogID, RADIO_ORIENTATION_1_PLYWOOD, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, RADIO_ORIENTATION_1_PLYWOOD, "가로방향");
+			DGSetItemText (dialogID, RADIO_ORIENTATION_1_PLYWOOD, "Horizontal");
 			// 라디오 버튼: 설치방향 (세로방향)
 			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 777, 100, 170-6, 70, 25);
 			DGSetItemFont (dialogID, RADIO_ORIENTATION_2_PLYWOOD, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, RADIO_ORIENTATION_2_PLYWOOD, "세로방향");
+			DGSetItemText (dialogID, RADIO_ORIENTATION_2_PLYWOOD, "Vertical");
 
 			// 체크박스: 규격폼
 			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 20, 50, 70, 25-5);
@@ -2822,11 +2829,11 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			// 라디오 버튼: 설치방향 (가로방향)
 			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 778, 100, 140-6, 70, 25);
 			DGSetItemFont (dialogID, RADIO_ORIENTATION_1_TABLEFORM, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, RADIO_ORIENTATION_1_TABLEFORM, "가로방향");
+			DGSetItemText (dialogID, RADIO_ORIENTATION_1_TABLEFORM, "Horizontal");
 			// 라디오 버튼: 설치방향 (세로방향)
 			idxItem = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 778, 100, 170-6, 70, 25);
 			DGSetItemFont (dialogID, RADIO_ORIENTATION_2_TABLEFORM, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, RADIO_ORIENTATION_2_TABLEFORM, "세로방향");
+			DGSetItemText (dialogID, RADIO_ORIENTATION_2_TABLEFORM, "Vertical");
 
 			// 초기 입력 필드 표시
 			if (placingZone.cells [rIdx][cIdx].objType == SLAB_TABLEFORM) {
