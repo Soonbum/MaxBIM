@@ -239,6 +239,46 @@ short	moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2)
 	return 0;
 }
 
+////////////////////////////////////////////////// 기하 (범위)
+// srcPoint 값이 target 범위 안에 들어 있는가?
+bool	inRange (double srcPoint, double targetMin, double targetMax)
+{
+	if ((srcPoint > targetMin - EPS) && (srcPoint < targetMax + EPS))
+		return true;
+	else
+		return false;
+}
+
+// src 범위와 target 범위가 겹치는 길이를 리턴함
+double	overlapRange (double srcMin, double srcMax, double targetMin, double targetMax)
+{
+	// srcMin과 srcMax 중 하나라도 target 범위 안에 들어가는 경우
+	if (inRange (srcMin, targetMin, targetMax) || inRange (srcMax, targetMin, targetMax)) {
+		
+		// srcMin과 srcMax가 모두 targetMin ~ targetMax 안에 들어가 있는 경우
+		if (inRange (srcMin, targetMin, targetMax) && inRange (srcMax, targetMin, targetMax))
+			return abs (srcMax - srcMin);
+		
+		// srcMin만 targetMin ~ targetMax 안에 들어가 있는 경우
+		if (inRange (srcMin, targetMin, targetMax) && !inRange (srcMax, targetMin, targetMax))
+			return abs (targetMax - srcMin);
+		
+		// srcMax만 targetMin ~ targetMax 안에 들어가 있는 경우
+		if (!inRange (srcMin, targetMin, targetMax) && inRange (srcMax, targetMin, targetMax))
+			return abs (srcMax - targetMin);
+	}
+	// srcMin이 targetMin보다 작고 srcMax가 targetMax보다 큰 경우
+	if ((srcMin < targetMin + EPS) && (srcMax > targetMax - EPS)) {
+		return abs (targetMax - targetMin);
+	}
+	// targetMin이 srcMin보다 작고 targetMax가 srcMax보다 큰 경우
+	if ((targetMin < srcMin + EPS) && (targetMax > srcMax - EPS)) {
+		return abs (srcMax - srcMin);
+	}
+
+	return 0.0;
+}
+
 ////////////////////////////////////////////////// 기하 (슬래브 관련)
 // aPoint가 pointList에 보관이 되었는지 확인함
 bool	isAlreadyStored (API_Coord3D aPoint, API_Coord3D pointList [], short startInd, short endInd)
@@ -535,4 +575,34 @@ void		moveIn2D (char direction, double ang, double offset, double* curX, double*
 		*curX = *curX - (offset * sin(ang));
 		*curY = *curY + (offset * cos(ang));
 	}
+}
+
+////////////////////////////////////////////////// 레이어
+// 레이어 이름으로 레이어 인덱스 찾기
+short findLayerIndex (const char* layerName)
+{
+	short	nLayers;
+	short	xx;
+	GSErrCode	err;
+
+	API_Attribute	attrib;
+
+	// 프로젝트 내 레이어 개수를 알아냄
+	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	attrib.header.typeID = API_LayerID;
+	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+
+	// 입력한 레이어 이름과 일치하는 레이어의 인덱스 번호 리턴
+	for (xx = 1; xx <= nLayers ; ++xx) {
+		attrib.header.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+
+		if (err == NoError) {
+			if (strncmp (attrib.layer.head.name, layerName, strlen (layerName)) == 0) {
+				return	attrib.layer.head.index;
+			}
+		}
+	}
+
+	return 0;
 }

@@ -31,6 +31,10 @@ API_Coord	IntersectionPoint3 (double a1, double b1, double c1, double a2, double
 bool		isSamePoint (API_Coord3D aPoint, API_Coord3D bPoint);											// aPoint가 bPoint와 같은 점인지 확인함
 short		moreCloserPoint (API_Coord3D curPoint, API_Coord3D p1, API_Coord3D p2);							// curPoint에 가까운 점이 p1, p2 중 어떤 점입니까?
 
+// 기하 (범위)
+bool	inRange (double srcPoint, double targetMin, double targetMax);										// srcPoint 값이 target 범위 안에 들어 있는가?
+double	overlapRange (double srcMin, double srcMax, double targetMin, double targetMax);					// src 범위와 target 범위가 겹치는 길이를 리턴함
+
 // 기하 (슬래브 관련)
 bool		isAlreadyStored (API_Coord3D aPoint, API_Coord3D pointList [], short startInd, short endInd);	// aPoint가 pointList에 보관이 되었는지 확인함
 bool		isNextPoint (API_Coord3D prevPoint, API_Coord3D curPoint, API_Coord3D nextPoint);				// nextPoint가 curPoint의 다음 점입니까?
@@ -58,5 +62,8 @@ void		moveIn3D (char direction, double ang, double offset, API_Coord3D* curPos);
 void		moveIn3D (char direction, double ang, double offset, double* curX, double* curY, double* curZ);		// X, Y, Z축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
 void		moveIn2D (char direction, double ang, double offset, API_Coord* curPos);							// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
 void		moveIn2D (char direction, double ang, double offset, double* curX, double* curY);					// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
+
+// 레이어
+short		findLayerIndex (const char* layerName);		// 레이어 이름으로 레이어 인덱스 찾기
 
 #endif

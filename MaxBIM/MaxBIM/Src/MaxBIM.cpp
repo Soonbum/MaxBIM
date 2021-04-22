@@ -166,7 +166,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					});
 					break;
 				case 2:		// 물량합판 면적 계산하기
-					// ... 개발중
+					err = calcAreasOfQuantityPlywood ();
 					break;
 			}
 			break;

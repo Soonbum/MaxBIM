@@ -183,32 +183,32 @@ GSErrCode	placeQuantityPlywood (void)
 			elems [xx].typeOfElem = ELEM_WALL;
 
 			// 벽: 밑면은 유효하지 않음
-			invalidateBase (&elems [xx]);
+			elems [xx].invalidateBase (&elems [xx]);
 
 			// 벽에 문이나 창에 의한 구멍이 있으면 긴 면이 유효하지 않음
 			if (elems [xx].hasHole == true)
-				invalidateLongTwoSide (&elems [xx]);
+				elems [xx].invalidateLongTwoSide (&elems [xx]);
 		} else if (elem.header.typeID == API_SlabID) {
 			elems [xx].typeOfElem = ELEM_SLAB;
 
 			// 슬래브: 모든 측면은 유효하지 않음
-			invalidateAllSide (&elems [xx]);
+			elems [xx].invalidateAllSide (&elems [xx]);
 		} else if (elem.header.typeID == API_BeamID) {
 			elems [xx].typeOfElem = ELEM_BEAM;
 
 			// 보: 짧은 면은 유효하지 않음
-			invalidateShortTwoSide (&elems [xx]);
+			elems [xx].invalidateShortTwoSide (&elems [xx]);
 		} else if (elem.header.typeID == API_ColumnID) {
 			elems [xx].typeOfElem = ELEM_COLUMN;
 
 			// 기둥: 밑면은 유효하지 않음
-			invalidateBase (&elems [xx]);
+			elems [xx].invalidateBase (&elems [xx]);
 		} else {
 			elems [xx].typeOfElem = ELEM_UNKNOWN;
 
 			// 다른 객체들은 모든 측면과 밑면이 유효하지 않음
-			invalidateAllSide (&elems [xx]);
-			invalidateBase (&elems [xx]);
+			elems [xx].invalidateAllSide (&elems [xx]);
+			elems [xx].invalidateBase (&elems [xx]);
 		}
 
 		elems [xx].nQPlywoods = 0;		// 부착할 물량합판들의 GUID
@@ -248,13 +248,13 @@ GSErrCode	placeQuantityPlywood (void)
 			if (xx == yy)	continue;
 
 			// 간섭하는 요소를 찾아내어 GUID를 저장함
-			subtractArea (&elems [xx], elems [yy]);
+			elems [xx].subtractArea (&elems [xx], elems [yy]);
 		}
 	}
 
 	// 물량합판 객체 배치
 	for (xx = 0 ; xx < nElems ; ++xx) {
-		placeQuantityPlywood (&elems [xx]);
+		elems [xx].placeQuantityPlywood (&elems [xx]);
 	}
 
 	// 솔리드 연산을 통해 물량합판을 공제함
@@ -422,8 +422,8 @@ short DGCALLBACK quantityPlywoodUIHandler (short message, short dialogID, short 
 									// 만약 물량합판 타입이 슬래브 (기초)인 경우, [Q_SLAB_BASE]
 									if (elems [yy].typeOfQPlywood == Q_SLAB_BASE) {
 										// 밑면은 붙이지 않고 옆면은 모두 붙임
-										invalidateBase (&elems [yy]);
-										validateAllSide (&elems [yy]);
+										elems [yy].invalidateBase (&elems [yy]);
+										elems [yy].validateAllSide (&elems [yy]);
 									}
 								}
 							}
@@ -452,37 +452,8 @@ short DGCALLBACK quantityPlywoodUIHandler (short message, short dialogID, short 
 	return	result;
 }
 
-// 레이어 이름으로 레이어 인덱스 찾기
-short findLayerIndex (const char* layerName)
-{
-	short	nLayers;
-	short	xx;
-	GSErrCode	err;
-
-	API_Attribute	attrib;
-
-	// 프로젝트 내 레이어 개수를 알아냄
-	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	attrib.header.typeID = API_LayerID;
-	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
-
-	// 입력한 레이어 이름과 일치하는 레이어의 인덱스 번호 리턴
-	for (xx = 1; xx <= nLayers ; ++xx) {
-		attrib.header.index = xx;
-		err = ACAPI_Attribute_Get (&attrib);
-
-		if (err == NoError) {
-			if (strncmp (attrib.layer.head.name, layerName, strlen (layerName)) == 0) {
-				return	attrib.layer.head.index;
-			}
-		}
-	}
-
-	return 0;
-}
-
 // 4개의 측면 중 짧은 2개의 측면을 무효화하고, 유효한 면 정보를 리턴함. 리턴 값은 다음 값의 조합입니다. 북쪽/남쪽(2), 동쪽/서쪽(1), 오류(0)
-short invalidateShortTwoSide (qElem* element)
+short qElem::invalidateShortTwoSide (qElem* element)
 {
 	short	result = 0;
 
@@ -510,7 +481,7 @@ short invalidateShortTwoSide (qElem* element)
 }
 
 // 4개의 측면 중 긴 2개의 측면을 무효화하고, 유효한 면 정보를 리턴함. 리턴 값은 다음 값의 조합입니다. 북쪽/남쪽(2), 동쪽/서쪽(1), 오류(0)
-short invalidateLongTwoSide (qElem* element)
+short qElem::invalidateLongTwoSide (qElem* element)
 {
 	short	result = 0;
 
@@ -538,7 +509,7 @@ short invalidateLongTwoSide (qElem* element)
 }
 
 // 4개의 측면을 모두 무효화함
-void invalidateAllSide (qElem* element)
+void qElem::invalidateAllSide (qElem* element)
 {
 	element->validNorth = false;
 	element->validSouth = false;
@@ -547,13 +518,13 @@ void invalidateAllSide (qElem* element)
 }
 
 // 밑면을 무효화함
-void invalidateBase (qElem* element)
+void qElem::invalidateBase (qElem* element)
 {
 	element->validBase = false;
 }
 
 // 4개의 측면을 모두 유효화함
-void validateAllSide (qElem* element)
+void qElem::validateAllSide (qElem* element)
 {
 	element->validNorth = true;
 	element->validSouth = true;
@@ -562,13 +533,13 @@ void validateAllSide (qElem* element)
 }
 
 // 밑면을 유효화함
-void validateBase (qElem* element)
+void qElem::validateBase (qElem* element)
 {
 	element->validBase = true;
 }
 
 // src 요소의 측면, 밑면 영역이 operand 요소에 의해 침범 당할 경우, 솔리드 연산을 위해 operand의 GUID를 저장함
-bool subtractArea (qElem* src, qElem operand)
+bool qElem::subtractArea (qElem* src, qElem operand)
 {
 	bool precondition = false;
 	bool result = false;
@@ -669,47 +640,8 @@ bool subtractArea (qElem* src, qElem operand)
 	return	result;
 }
 
-// srcPoint 값이 target 범위 안에 들어 있는가?
-bool	inRange (double srcPoint, double targetMin, double targetMax)
-{
-	if ((srcPoint > targetMin - EPS) && (srcPoint < targetMax + EPS))
-		return true;
-	else
-		return false;
-}
-
-// src 범위와 target 범위가 겹치는 길이를 리턴함
-double	overlapRange (double srcMin, double srcMax, double targetMin, double targetMax)
-{
-	// srcMin과 srcMax 중 하나라도 target 범위 안에 들어가는 경우
-	if (inRange (srcMin, targetMin, targetMax) || inRange (srcMax, targetMin, targetMax)) {
-		
-		// srcMin과 srcMax가 모두 targetMin ~ targetMax 안에 들어가 있는 경우
-		if (inRange (srcMin, targetMin, targetMax) && inRange (srcMax, targetMin, targetMax))
-			return abs (srcMax - srcMin);
-		
-		// srcMin만 targetMin ~ targetMax 안에 들어가 있는 경우
-		if (inRange (srcMin, targetMin, targetMax) && !inRange (srcMax, targetMin, targetMax))
-			return abs (targetMax - srcMin);
-		
-		// srcMax만 targetMin ~ targetMax 안에 들어가 있는 경우
-		if (!inRange (srcMin, targetMin, targetMax) && inRange (srcMax, targetMin, targetMax))
-			return abs (srcMax - targetMin);
-	}
-	// srcMin이 targetMin보다 작고 srcMax가 targetMax보다 큰 경우
-	if ((srcMin < targetMin + EPS) && (srcMax > targetMax - EPS)) {
-		return abs (targetMax - targetMin);
-	}
-	// targetMin이 srcMin보다 작고 targetMax가 srcMax보다 큰 경우
-	if ((targetMin < srcMin + EPS) && (targetMax > srcMax - EPS)) {
-		return abs (srcMax - srcMin);
-	}
-
-	return 0.0;
-}
-
 // 요소의 측면들과 밑면 영역에 물량합판을 부착함
-void	placeQuantityPlywood (qElem* element)
+void qElem::placeQuantityPlywood (qElem* element)
 {
 	GSErrCode	err = NoError;
 	API_Element			elem;
@@ -958,4 +890,199 @@ void	placeQuantityPlywood (qElem* element)
 	}
 
 	ACAPI_DisposeElemMemoHdls (&memo);
+}
+
+// 종류별 물량합판의 표면적 합계 값을 구함
+GSErrCode	calcAreasOfQuantityPlywood (void)
+{
+	GSErrCode	err = NoError;
+	short	xx;
+
+	API_Element				elem;
+	API_ElementMemo			memo;
+
+	GS::Array<API_Guid>		elemList_QuantityPlywood;	// 물량합판들의 GUID
+
+	qElemType		qElemType;	// 물량합판 정보 분류별 저장
+
+	// 파라미터 값 저장
+	const char*		typeStr;
+	double			thk;
+
+	// 수량 파라미터 가져오기
+	API_ElementQuantity	quantity;
+	API_Quantities		quantities;
+	API_QuantitiesMask	mask;
+	API_QuantityPar		params;
+
+	// 텍스트 창
+	API_NewWindowPars	windowPars;
+	API_WindowInfo		windowInfo;
+	char				buffer [256];
+
+
+	// 면적 값 초기화
+	qElemType.initAreas (&qElemType);
+
+	// 텍스트 창 열기
+	BNZeroMemory (&windowPars, sizeof (API_NewWindowPars));
+	windowPars.typeID = APIWind_MyTextID;
+	windowPars.userRefCon = 1;
+	GS::snuprintf (windowPars.wTitle, sizeof (windowPars.wTitle) / sizeof (GS::uchar_t), L("물량합판 종류별 덮은 면적 정보"));
+	err = ACAPI_Database (APIDb_NewWindowID, &windowPars, NULL);
+
+	// 물량합판 객체를 가져옴
+	ACAPI_Element_GetElemList (API_ObjectID, &elemList_QuantityPlywood, APIFilt_In3D);
+
+	// 물량합판 객체가 갖고 있는 파라미터의 값들을 가져옴
+	nElems = elemList_QuantityPlywood.GetSize ();
+	for (xx = 0 ; xx < nElems ; ++xx) {
+		// 요소 가져오기
+		BNZeroMemory (&elem, sizeof (API_Element));
+		BNZeroMemory (&memo, sizeof (API_ElementMemo));
+		elem.header.guid = elemList_QuantityPlywood.Pop ();
+		err = ACAPI_Element_Get (&elem);
+		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+		// 수량 정보 가져오기
+		ACAPI_ELEMENT_QUANTITY_MASK_CLEAR (mask);
+		ACAPI_ELEMENT_QUANTITY_MASK_SET (mask, symb, surface);
+		ACAPI_ELEMENT_QUANTITY_MASK_SET (mask, symb, volume);
+		quantities.elements = &quantity;
+		params.minOpeningSize = EPS;
+		err = ACAPI_Element_GetQuantities (elem.header.guid, &params, &quantities, &mask);
+
+		// 분류 가져오기
+		typeStr = getParameterStringByName (&memo, "m_type");
+
+		if (strncmp (typeStr, "벽체(내벽)", strlen ("벽체(내벽)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_wall_in += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "벽체(외벽)", strlen ("벽체(외벽)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_wall_out += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "벽체(합벽)", strlen ("벽체(합벽)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_wall_composite += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "벽체(파라펫)", strlen ("벽체(파라펫)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_wall_parapet += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "벽체(방수턱)", strlen ("벽체(방수턱)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_wall_waterproof += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "스라브(기초)", strlen ("스라브(기초)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_slab_base += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "스라브(RC)", strlen ("스라브(RC)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_slab_rc += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "스라브(데크)", strlen ("스라브(데크)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_slab_deck += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "스라브(램프)", strlen ("스라브(램프)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_slab_ramp += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "보", strlen ("보")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_beam += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "기둥(독립)", strlen ("기둥(독립)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_column_iso += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "기둥(벽체)", strlen ("기둥(벽체)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_column_inwall += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "기둥(원형)", strlen ("기둥(원형)")) == 0) {
+			thk = atoi (getParameterStringByName (&memo, "m_size"));
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_column_circle += quantity.symb.volume / thk;
+
+		} else if (strncmp (typeStr, "램프구간(벽)", strlen ("램프구간(벽)")) == 0) {
+			thk = getParameterValueByName (&memo, "m_size");
+			thk = thk / 1000;	// mm 단위를 m 단위로 변환
+			qElemType.areas_ramp_wall += quantity.symb.volume / thk;
+		}
+
+		// memo 객체 해제
+		ACAPI_DisposeElemMemoHdls (&memo);
+	}
+
+	// 텍스트 창으로 정리해서 보여주기
+	BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
+	windowInfo.typeID = APIWind_MyTextID;
+	windowInfo.index = 1;
+
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "[물량합판 분류별 면적]\n");
+
+	sprintf (buffer, "벽체(내벽): %lf ㎡\n", qElemType.areas_wall_in);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "벽체(외벽): %lf ㎡\n", qElemType.areas_wall_out);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "벽체(합벽): %lf ㎡\n", qElemType.areas_wall_composite);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "벽체(파라펫): %lf ㎡\n", qElemType.areas_wall_parapet);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "벽체(방수턱): %lf ㎡\n", qElemType.areas_wall_waterproof);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "슬래브(기초): %lf ㎡\n", qElemType.areas_slab_base);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "슬래브(RC): %lf ㎡\n", qElemType.areas_slab_rc);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "슬래브(데크): %lf ㎡\n", qElemType.areas_slab_deck);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "슬래브(램프): %lf ㎡\n", qElemType.areas_slab_ramp);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "보: %lf ㎡\n", qElemType.areas_beam);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "기둥(독립): %lf ㎡\n", qElemType.areas_column_iso);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "기둥(벽체): %lf ㎡\n", qElemType.areas_column_inwall);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "기둥(원형): %lf ㎡\n", qElemType.areas_column_circle);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	sprintf (buffer, "램프구간(벽): %lf ㎡\n", qElemType.areas_ramp_wall);
+	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+
+	return	err;
+}
+
+// 면적 값을 초기화
+void	qElemType::initAreas (qElemType* elem)
+{
+	elem->areas_wall_in = 0.0;			// 면적: 벽체(내벽)
+	elem->areas_wall_out = 0.0;			// 면적: 벽체(외벽)
+	elem->areas_wall_composite = 0.0;	// 면적: 벽체(합벽)
+	elem->areas_wall_parapet = 0.0;		// 면적: 벽체(파라펫)
+	elem->areas_wall_waterproof = 0.0;	// 면적: 벽체(방수턱)
+	elem->areas_slab_base = 0.0;		// 면적: 스라브(기초)
+	elem->areas_slab_rc = 0.0;			// 면적: 스라브(RC)
+	elem->areas_slab_deck = 0.0;		// 면적: 스라브(데크)
+	elem->areas_slab_ramp = 0.0;		// 면적: 스라브(램프)
+	elem->areas_beam = 0.0;				// 면적: 보
+	elem->areas_column_iso = 0.0;		// 면적: 기둥(독립)
+	elem->areas_column_inwall = 0.0;	// 면적: 기둥(벽체)
+	elem->areas_column_circle = 0.0;	// 면적: 기둥(원형)
 }
