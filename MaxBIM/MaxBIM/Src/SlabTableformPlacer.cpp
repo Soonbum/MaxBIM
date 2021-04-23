@@ -638,6 +638,14 @@ void	SlabTableformPlacingZone::adjustOtherCellsInSameRow (SlabTableformPlacingZo
 					target_zone->cells [row][xx].verLen = target_zone->cells [row][col].verLen;
 					target_zone->cells [row][xx].libPart.tableform.horLen = target_zone->cells [row][col].verLen;
 			}
+
+		} else if (target_zone->cells [row][col].objType == PLYWOOD) {
+
+			target_zone->cells [row][xx].objType = PLYWOOD;
+
+			target_zone->cells [row][xx].verLen = target_zone->cells [row][col].verLen;
+			target_zone->cells [row][xx].libPart.plywood.p_wid = target_zone->cells [row][xx].horLen;
+			target_zone->cells [row][xx].libPart.plywood.p_leng = target_zone->cells [row][xx].verLen;
 		}
 	}
 }
@@ -671,6 +679,14 @@ void	SlabTableformPlacingZone::adjustOtherCellsInSameCol (SlabTableformPlacingZo
 				target_zone->cells [xx][col].horLen = target_zone->cells [row][col].horLen;
 				target_zone->cells [xx][col].libPart.tableform.verLen = target_zone->cells [row][col].horLen;
 			}
+
+		} else if (target_zone->cells [row][col].objType == PLYWOOD) {
+
+			target_zone->cells [xx][col].objType = PLYWOOD;
+
+			target_zone->cells [xx][col].horLen = target_zone->cells [row][col].horLen;
+			target_zone->cells [xx][col].libPart.plywood.p_wid = target_zone->cells [xx][col].horLen;
+			target_zone->cells [xx][col].libPart.plywood.p_leng = target_zone->cells [xx][col].verLen;
 		}
 	}
 }
@@ -1780,6 +1796,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 	short	btnInitPosX = 220 + 25;
 	short	btnPosX, btnPosY;
 	short	xx, yy;
+	short	pp, qq;
+	short	xx1, yy1;
 	short	idxBtn;
 	short	lastIdxBtn = 0;
 	std::string		txtButton = "";
@@ -1898,6 +1916,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 							txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 						else
 							txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+					} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+						txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 					}
 					DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
 					DGShowItem (dialogID, idxBtn);
@@ -1993,6 +2013,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 									txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 								else
 									txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+								txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 							}
 
 							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
@@ -2040,6 +2062,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 									txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 								else
 									txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+								txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 							}
 
 							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
@@ -2077,10 +2101,64 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 						}
 					}
 
+					elemList.Clear (true);
+
 					// 업데이트된 셀 정보대로 객체 재배치
+					CellForSlabTableform	plywoodCell;	// 합판의 크기가 초과된 경우 사용할 임시 합판용 셀 (분할된 크기 적용)
+
 					for (xx = 0 ; xx < placingZone.tb_count_ver ; ++xx)
-						for (yy = 0 ; yy < placingZone.tb_count_hor ; ++yy)
-							placingZone.cells [xx][yy].guid = placingZone.placeLibPart (placingZone.cells [xx][yy]);
+						for (yy = 0 ; yy < placingZone.tb_count_hor ; ++yy) {
+							if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+								if ((placingZone.cells [xx][yy].horLen > 1.220) || (placingZone.cells [xx][yy].verLen > 2.440)) {
+									// 최대 규격을 초과한 합판의 경우
+									pp = 1;
+									qq = 1;
+									plywoodCell.leftBottomX = placingZone.cells [xx][yy].leftBottomX;
+									plywoodCell.leftBottomY = placingZone.cells [xx][yy].leftBottomY;
+									plywoodCell.leftBottomZ = placingZone.cells [xx][yy].leftBottomZ;
+									plywoodCell.ang = placingZone.cells [xx][yy].ang;
+									plywoodCell.objType = placingZone.cells [xx][yy].objType;
+
+									if (placingZone.cells [xx][yy].horLen > 1.220) {
+										pp = static_cast<short>(ceil (placingZone.cells [xx][yy].horLen / 1.220));
+									}
+
+									if (placingZone.cells [xx][yy].verLen > 2.440) {
+										qq = static_cast<short>(ceil (placingZone.cells [xx][yy].verLen / 2.440));
+									}
+
+									plywoodCell.horLen = placingZone.cells [xx][yy].horLen / pp;
+									plywoodCell.verLen = placingZone.cells [xx][yy].verLen / qq;
+									plywoodCell.libPart.plywood.p_wid = placingZone.cells [xx][yy].horLen / pp;
+									plywoodCell.libPart.plywood.p_leng = placingZone.cells [xx][yy].verLen / qq;
+
+									for (xx1 = 0 ; xx1 < qq ; ++xx1) {
+										for (yy1 = 0 ; yy1 < pp ; ++yy1) {
+											plywoodCell.ang -= DegreeToRad (90.0);
+											elemList.Push (placingZone.placeLibPart (plywoodCell));
+											plywoodCell.ang += DegreeToRad (90.0);
+											if ((placingZone.tb_ori.compare (std::string ("Vertical")) == 0) && (placingZone.cells [xx][yy].horLen < placingZone.cells [xx][yy].verLen)) {
+												// 이동하지 않음 (합판이 분할되면 문제가 발생할 수 있음)
+											} else {
+												moveIn3D ('x', plywoodCell.ang, plywoodCell.horLen, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+											}
+										}
+										moveIn3D ('x', plywoodCell.ang, -plywoodCell.horLen * (pp - 1), &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+										moveIn3D ('y', plywoodCell.ang, -plywoodCell.verLen, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+									}
+								} else {
+									// 일반 규격 내 크기의 합판
+									placingZone.cells [xx][yy].ang -= DegreeToRad (90.0);
+									placingZone.cells [xx][yy].guid = placingZone.placeLibPart (placingZone.cells [xx][yy]);
+									placingZone.cells [xx][yy].ang += DegreeToRad (90.0);
+									elemList.Push (placingZone.cells [xx][yy].guid);
+								}
+							} else {
+								// 나머지 객체
+								placingZone.cells [xx][yy].guid = placingZone.placeLibPart (placingZone.cells [xx][yy]);
+								elemList.Push (placingZone.cells [xx][yy].guid);
+							}
+						}
 
 					// T, B, L, R 버튼 배열의 푸시 여부를 저장함
 					for (xx = 0 ; xx < placingZone.tb_count_hor-1 ; ++xx) {
@@ -2117,11 +2195,6 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 					break;
 
 				case DG_CANCEL:
-					// 자투리 채우기로 넘어갈 때 배치된 유로폼들의 모든 GUID를 저장함
-					for (xx = 0 ; xx < placingZone.tb_count_ver ; ++xx)
-						for (yy = 0 ; yy < placingZone.tb_count_hor ; ++yy)
-							elemList.Push (placingZone.cells [xx][yy].guid);
-
 					break;
 
 				case DG_PREV:
@@ -2165,6 +2238,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 									txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 								else
 									txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+								txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 							}
 							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
 							DGShowItem (dialogID, idxBtn);
@@ -2292,6 +2367,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 									txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 								else
 									txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+								txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 							}
 							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
 							DGShowItem (dialogID, idxBtn);
@@ -2419,6 +2496,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 									txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 								else
 									txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+								txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 							}
 							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
 							DGShowItem (dialogID, idxBtn);
@@ -2546,6 +2625,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 									txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 								else
 									txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+								txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 							}
 							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
 							DGShowItem (dialogID, idxBtn);
@@ -2661,6 +2742,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 									txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 								else
 									txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+							} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+								txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 							}
 
 							DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
@@ -2742,7 +2825,6 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			DGSetItemFont (dialogID, LABEL_OBJ_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_OBJ_TYPE, "객체 타입");
 			DGShowItem (dialogID, LABEL_OBJ_TYPE);
-			DGDisableItem (dialogID, LABEL_OBJ_TYPE);
 
 			// 팝업컨트롤: 객체 타입을 바꿀 수 있는 콤보박스가 맨 위에 나옴
 			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100, 20-7, 120, 25);
@@ -2751,8 +2833,9 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "없음");
 			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "테이블폼");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "합판");
 			DGShowItem (dialogID, POPUP_OBJ_TYPE);
-			DGDisableItem (dialogID, POPUP_OBJ_TYPE);
 
 			// 라벨: 너비
 			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 50, 70, 23);
@@ -2790,6 +2873,14 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 20, 50, 70, 25-5);
 			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD, "규격폼");
+			DGDisableItem (dialogID, CHECKBOX_SET_STANDARD);
+			
+			// 테이블폼은 규격폼만 사용할 수 있음
+			if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == SLAB_TABLEFORM + 1) {
+				DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, TRUE);
+			} else {
+				DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, FALSE);
+			}
 
 			// 라벨: 너비
 			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 80, 70, 23);
@@ -2842,6 +2933,7 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 				// 체크박스: 규격폼
 				DGShowItem (dialogID, CHECKBOX_SET_STANDARD);
 				DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, TRUE);
+				DGDisableItem (dialogID, CHECKBOX_SET_STANDARD);
 
 				// 라벨: 너비
 				DGShowItem (dialogID, LABEL_TABLEFORM_WIDTH_OPTIONS);
@@ -2865,8 +2957,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 				//	// Edit 컨트롤: 너비
 				//	DGShowItem (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS);
 				//	DGSetItemValDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, placingZone.cells [rIdx][cIdx].libPart.form.eu_wid2);
-				//	DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.050);
-				//	DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.900);
+				//	DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.110);
+				//	DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 1.220);
 
 				//	// 라벨: 높이
 				//	DGShowItem (dialogID, LABEL_TABLEFORM_HEIGHT_OPTIONS);
@@ -2874,9 +2966,71 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 				//	// Edit 컨트롤: 높이
 				//	DGShowItem (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS);
 				//	DGSetItemValDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, placingZone.cells[rIdx][cIdx].libPart.form.eu_hei2);
-				//	DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 0.050);
-				//	DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 1.500);
+				//	DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 0.110);
+				//	DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 2.440);
 				//}
+
+				// 라벨: 설치방향
+				DGShowItem (dialogID, LABEL_TABLEFORM_ORIENTATION_OPTIONS);
+				
+				// 라디오 버튼: 설치방향 (벽세우기)
+				DGShowItem (dialogID, RADIO_ORIENTATION_1_TABLEFORM);
+				// 라디오 버튼: 설치방향 (벽눕히기)
+				DGShowItem (dialogID, RADIO_ORIENTATION_2_TABLEFORM);
+
+				if (placingZone.cells [rIdx][cIdx].libPart.tableform.direction == true) {
+					DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_TABLEFORM, true);
+					DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_TABLEFORM, false);
+				} else if (placingZone.cells [rIdx][cIdx].libPart.tableform.direction == false) {
+					DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_TABLEFORM, false);
+					DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_TABLEFORM, true);
+				}
+
+				DGDisableItem (dialogID, RADIO_ORIENTATION_1_TABLEFORM);
+				DGDisableItem (dialogID, RADIO_ORIENTATION_2_TABLEFORM);
+
+			} else if (placingZone.cells [rIdx][cIdx].objType == PLYWOOD) {
+
+				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, PLYWOOD + 1);
+
+				// 체크박스: 규격폼
+				DGShowItem (dialogID, CHECKBOX_SET_STANDARD);
+				DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, FALSE);
+				DGDisableItem (dialogID, CHECKBOX_SET_STANDARD);
+
+				// 라벨: 너비
+				DGShowItem (dialogID, LABEL_TABLEFORM_WIDTH_OPTIONS);
+
+				//// 팝업 컨트롤: 너비
+				//DGShowItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS);
+				//if (abs(placingZone.cells [rIdx][cIdx].libPart.tableform.horLen - 3.032) < EPS)		popupSelectedIdx = 1;
+				//DGPopUpSelectItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, popupSelectedIdx);
+
+				//// 라벨: 높이
+				//DGShowItem (dialogID, LABEL_TABLEFORM_HEIGHT_OPTIONS);
+
+				//// 팝업 컨트롤: 높이
+				//DGShowItem (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS);
+				//if (abs(placingZone.cells [rIdx][cIdx].libPart.tableform.verLen - 1.818) < EPS)		popupSelectedIdx = 1;
+				//DGPopUpSelectItem (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS, popupSelectedIdx);
+
+				// 라벨: 너비
+				DGShowItem (dialogID, LABEL_TABLEFORM_WIDTH_OPTIONS);
+
+				// Edit 컨트롤: 너비
+				DGShowItem (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS);
+				DGSetItemValDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, placingZone.cells [rIdx][cIdx].horLen);
+				DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.110);
+				//DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 1.220);
+
+				// 라벨: 높이
+				DGShowItem (dialogID, LABEL_TABLEFORM_HEIGHT_OPTIONS);
+
+				// Edit 컨트롤: 높이
+				DGShowItem (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS);
+				DGSetItemValDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, placingZone.cells[rIdx][cIdx].verLen);
+				DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 0.110);
+				//DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 2.440);
 
 				// 라벨: 설치방향
 				DGShowItem (dialogID, LABEL_TABLEFORM_ORIENTATION_OPTIONS);
@@ -2926,6 +3080,7 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 					DGShowItem (dialogID, LABEL_OBJ_TYPE);
 					DGShowItem (dialogID, POPUP_OBJ_TYPE);
 
+					// 테이블폼은 규격폼만 사용할 수 있음, 다른 부재는 규격폼 사용 불가
 					if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == SLAB_TABLEFORM + 1) {
 						// 체크박스: 규격폼
 						DGShowItem (dialogID, CHECKBOX_SET_STANDARD);
@@ -2950,14 +3105,61 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 							// Edit 컨트롤: 너비
 							DGHideItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS);
 							DGShowItem (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS);
-							DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.050);
-							DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.900);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.110);
+							//DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 1.220);
 
 							// Edit 컨트롤: 높이
 							DGHideItem (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS);
 							DGShowItem (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS);
-							DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 0.050);
-							DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 1.500);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 0.110);
+							//DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 2.440);
+						}
+
+						// 라벨: 설치방향
+						DGShowItem (dialogID, LABEL_TABLEFORM_ORIENTATION_OPTIONS);
+				
+						// 라디오 버튼: 설치방향 (벽세우기)
+						DGShowItem (dialogID, RADIO_ORIENTATION_1_TABLEFORM);
+						// 라디오 버튼: 설치방향 (벽눕히기)
+						DGShowItem (dialogID, RADIO_ORIENTATION_2_TABLEFORM);
+
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_1_TABLEFORM, true);
+						DGSetItemValLong (dialogID, RADIO_ORIENTATION_2_TABLEFORM, false);
+
+						DGDisableItem (dialogID, RADIO_ORIENTATION_1_TABLEFORM);
+						DGDisableItem (dialogID, RADIO_ORIENTATION_2_TABLEFORM);
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PLYWOOD + 1) {
+						// 체크박스: 규격폼
+						DGShowItem (dialogID, CHECKBOX_SET_STANDARD);
+						DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, false);
+
+						// 라벨: 너비
+						DGShowItem (dialogID, LABEL_TABLEFORM_WIDTH_OPTIONS);
+
+						// 라벨: 높이
+						DGShowItem (dialogID, LABEL_TABLEFORM_HEIGHT_OPTIONS);
+
+						// 규격폼이면,
+						if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
+							//// 팝업 컨트롤: 너비
+							//DGShowItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS);
+							//DGHideItem (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS);
+
+							//// 팝업 컨트롤: 높이
+							//DGShowItem (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS);
+							//DGHideItem (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS);
+						} else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == FALSE) {
+							// Edit 컨트롤: 너비
+							DGHideItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS);
+							DGShowItem (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.110);
+							//DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 1.220);
+
+							// Edit 컨트롤: 높이
+							DGHideItem (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS);
+							DGShowItem (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 0.110);
+							//DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 2.440);
 						}
 
 						// 라벨: 설치방향
@@ -2977,7 +3179,7 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 
 					break;
 
-				case CHECKBOX_SET_STANDARD:	// 유로폼의 경우, 규격폼 체크박스 값을 바꿀 때마다 너비, 높이 입력 필드 타입이 바뀜
+				case CHECKBOX_SET_STANDARD:	// 테이블폼의 경우, 규격폼 체크박스 값을 바꿀 때마다 너비, 높이 입력 필드 타입이 바뀜
 					//////////////////////////////////////////////////////////// 필드 생성 (클릭한 셀)
 					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
 						// 팝업 컨트롤: 너비
@@ -2990,13 +3192,13 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 						// Edit 컨트롤: 너비
 						DGHideItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS);
 						DGShowItem (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS);
-						DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.050);
-						DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.900);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 0.110);
+						//DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS, 1.220);
 						// Edit 컨트롤: 높이
 						DGHideItem (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS);
 						DGShowItem (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS);
-						DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 0.050);
-						DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 1.500);
+						DGSetItemMinDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 0.110);
+						//DGSetItemMaxDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS, 2.440);
 					}
 
 					break;
@@ -3024,12 +3226,6 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == SLAB_TABLEFORM + 1) {
 						placingZone.cells [rIdx][cIdx].objType = SLAB_TABLEFORM;
-
-						// 규격폼
-						//if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE)
-						//	placingZone.cells [rIdx][cIdx].libPart.form.eu_stan_onoff = true;
-						//else if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == FALSE)
-						//	placingZone.cells [rIdx][cIdx].libPart.form.eu_stan_onoff = false;
 
 						if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
 							// 너비
@@ -3060,6 +3256,23 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 
 						placingZone.adjustOtherCellsInSameRow (&placingZone, rIdx, cIdx);
 						placingZone.adjustOtherCellsInSameCol (&placingZone, rIdx, cIdx);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PLYWOOD + 1) {
+
+						placingZone.cells [rIdx][cIdx].objType = PLYWOOD;
+
+						// 너비
+						placingZone.cells [rIdx][cIdx].libPart.plywood.p_wid = DGGetItemValDouble (dialogID, EDITCONTROL_TABLEFORM_WIDTH_OPTIONS);
+						placingZone.cells [rIdx][cIdx].horLen = placingZone.cells [rIdx][cIdx].libPart.plywood.p_wid;
+						// 높이
+						placingZone.cells [rIdx][cIdx].libPart.plywood.p_leng = DGGetItemValDouble (dialogID, EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS);
+						placingZone.cells [rIdx][cIdx].verLen = placingZone.cells [rIdx][cIdx].libPart.plywood.p_leng;
+
+						if (placingZone.cells [rIdx][cIdx].horLen < placingZone.cells [rIdx][cIdx].verLen) {
+							placingZone.adjustOtherCellsInSameCol (&placingZone, rIdx, cIdx);
+						} else {
+							placingZone.adjustOtherCellsInSameRow (&placingZone, rIdx, cIdx);
+						}
 					}
 
 					break;
