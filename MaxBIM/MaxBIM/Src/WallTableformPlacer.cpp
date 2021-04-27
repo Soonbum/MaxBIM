@@ -391,6 +391,11 @@ FIRST:
 		err = placingZone.placeTableformOnWall (placingZone.cells [xx], placingZone.upperCells [xx]);
 	}
 
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	bool	regenerate = true;
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
 	return	err;
 }
 
