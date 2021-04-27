@@ -658,7 +658,7 @@ void qElem::placeQuantityPlywood (qElem* element)
 	double				bParam;
 	Int32				addParNum;
 
-	std::string			tempStr;
+	char				tempStr [50];
 	double				horLen, verLen;
 
 	// 작업 층 정보
@@ -707,57 +707,58 @@ void qElem::placeQuantityPlywood (qElem* element)
 
 	// 분류: 물량합판 객체의 타입 (enum qPlywoodType 참조)
 	if (element->typeOfQPlywood == Q_WALL_INNER) {
-		tempStr = "벽체(내벽)";
-		memo.params [0][82].value.real = 75;
+		strcpy (tempStr, "벽체(내벽)");
+		setParameterByName (&memo, "PANEL_MAT", 75.0);
 	} else if (element->typeOfQPlywood == Q_WALL_OUTER) {
-		tempStr = "벽체(외벽)";
-		memo.params [0][82].value.real = 76;
+		strcpy (tempStr, "벽체(외벽)");
+		setParameterByName (&memo, "PANEL_MAT", 76.0);
 	} else if (element->typeOfQPlywood == Q_WALL_COMPOSITE) {
-		tempStr = "벽체(합벽)";
-		memo.params [0][82].value.real = 72;
+		strcpy (tempStr, "벽체(합벽)");
+		setParameterByName (&memo, "PANEL_MAT", 72.0);
 	} else if (element->typeOfQPlywood == Q_WALL_PARAPET) {
-		tempStr = "벽체(파라펫)";
-		memo.params [0][82].value.real = 32;
+		strcpy (tempStr, "벽체(파라펫)");
+		setParameterByName (&memo, "PANEL_MAT", 32.0);
 	} else if (element->typeOfQPlywood == Q_WALL_WATERPROOF) {
-		tempStr = "벽체(방수턱)";
-		memo.params [0][82].value.real = 12;
+		strcpy (tempStr, "벽체(방수턱)");
+		setParameterByName (&memo, "PANEL_MAT", 12.0);
 	} else if (element->typeOfQPlywood == Q_SLAB_BASE) {
-		tempStr = "스라브(기초)";
-		memo.params [0][82].value.real = 66;
+		strcpy (tempStr, "스라브(기초)");
+		setParameterByName (&memo, "PANEL_MAT", 66.0);
 	} else if (element->typeOfQPlywood == Q_SLAB_RC) {
-		tempStr = "스라브(RC)";
-		memo.params [0][82].value.real = 100;
+		strcpy (tempStr, "스라브(RC)");
+		setParameterByName (&memo, "PANEL_MAT", 100.0);
 	} else if (element->typeOfQPlywood == Q_SLAB_DECK) {
-		tempStr = "스라브(데크)";
-		memo.params [0][82].value.real = 99;
+		strcpy (tempStr, "스라브(데크)");
+		setParameterByName (&memo, "PANEL_MAT", 99.0);
 	} else if (element->typeOfQPlywood == Q_SLAB_RAMP) {
-		tempStr = "스라브(램프)";
-		memo.params [0][82].value.real = 3;
+		strcpy (tempStr, "스라브(램프)");
+		setParameterByName (&memo, "PANEL_MAT", 3.0);
 	} else if (element->typeOfQPlywood == Q_BEAM) {
-		tempStr = "보";
-		memo.params [0][82].value.real = 78;
+		strcpy (tempStr, "보");
+		setParameterByName (&memo, "PANEL_MAT", 78.0);
 	} else if (element->typeOfQPlywood == Q_COLUMN_ISOLATED) {
-		tempStr = "기둥(독립)";
-		memo.params [0][82].value.real = 20;
+		strcpy (tempStr, "기둥(독립)");
+		setParameterByName (&memo, "PANEL_MAT", 20.0);
 	} else if (element->typeOfQPlywood == Q_COLUMN_INWALL) {
-		tempStr = "기둥(벽체)";
-		memo.params [0][82].value.real = 77;
+		strcpy (tempStr, "기둥(벽체)");
+		setParameterByName (&memo, "PANEL_MAT", 77.0);
 	} else {
-		tempStr = "벽체(외벽)";
+		strcpy (tempStr, "벽체(외벽)");
+		setParameterByName (&memo, "PANEL_MAT", 76.0);
 	}
-	GS::ucscpy (memo.params [0][30].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+	setParameterByName (&memo, "m_type", tempStr);
 
 	// 합판두께 (문자열)
-	tempStr = "12";		// 12mm
-	GS::ucscpy (memo.params [0][31].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+	strcpy (tempStr, "12");		// 12mm
+	setParameterByName (&memo, "m_size", tempStr);
 
 	// 설치위치
-	tempStr = "비규격";
-	GS::ucscpy (memo.params [0][32].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+	strcpy (tempStr, "비규격");
+	setParameterByName (&memo, "m_size1", tempStr);
 
 	// 품명
-	tempStr = "합판면적";
-	GS::ucscpy (memo.params [0][33].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+	strcpy (tempStr, "합판면적");
+	setParameterByName (&memo, "m_size2", tempStr);
 
 	// 북쪽 측면
 	if (element->validNorth == true) {
@@ -768,16 +769,18 @@ void qElem::placeQuantityPlywood (qElem* element)
 		elem.object.level = element->NorthLeftBottom.z - workLevel;
 
 		// 설치방향
-		tempStr = "벽에 세우기";
-		GS::ucscpy (memo.params [0][34].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+		strcpy (tempStr, "벽에 세우기");
+		setParameterByName (&memo, "CONS_DR", tempStr);
 
 		// 가로길이
 		horLen = abs (element->NorthLeftBottom.x - element->NorthRightTop.x);
-		memo.params [0][38].value.real = horLen;
+		setParameterByName (&memo, "NO_WD", horLen);
+		elem.object.xRatio = horLen;
 
 		// 세로길이
 		verLen = abs (element->NorthRightTop.z - element->NorthLeftBottom.z);
-		memo.params [0][42].value.real = verLen;
+		setParameterByName (&memo, "no_lg1", verLen);
+		elem.object.yRatio = verLen;
 
 		// 객체 배치
 		if ((horLen > EPS) && (verLen > EPS)) {
@@ -795,16 +798,18 @@ void qElem::placeQuantityPlywood (qElem* element)
 		elem.object.level = element->SouthLeftBottom.z - workLevel;
 
 		// 설치방향
-		tempStr = "벽에 세우기";
-		GS::ucscpy (memo.params [0][34].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+		strcpy (tempStr, "벽에 세우기");
+		setParameterByName (&memo, "CONS_DR", tempStr);
 
 		// 가로길이
 		horLen = abs (element->SouthRightTop.x - element->SouthLeftBottom.x);
-		memo.params [0][38].value.real = horLen;
+		setParameterByName (&memo, "NO_WD", horLen);
+		elem.object.xRatio = horLen;
 
 		// 세로길이
 		verLen = abs (element->SouthRightTop.z - element->SouthLeftBottom.z);
-		memo.params [0][42].value.real = verLen;
+		setParameterByName (&memo, "no_lg1", verLen);
+		elem.object.yRatio = verLen;
 
 		// 객체 배치
 		if ((horLen > EPS) && (verLen > EPS)) {
@@ -822,16 +827,18 @@ void qElem::placeQuantityPlywood (qElem* element)
 		elem.object.level = element->EastLeftBottom.z - workLevel;
 
 		// 설치방향
-		tempStr = "벽에 세우기";
-		GS::ucscpy (memo.params [0][34].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+		strcpy (tempStr, "벽에 세우기");
+		setParameterByName (&memo, "CONS_DR", tempStr);
 
 		// 가로길이
 		horLen = abs (element->EastRightTop.y - element->EastLeftBottom.y);
-		memo.params [0][38].value.real = horLen;
+		setParameterByName (&memo, "NO_WD", horLen);
+		elem.object.xRatio = horLen;
 
 		// 세로길이
 		verLen = abs (element->EastRightTop.z - element->EastLeftBottom.z);
-		memo.params [0][42].value.real = verLen;
+		setParameterByName (&memo, "no_lg1", verLen);
+		elem.object.yRatio = verLen;
 
 		// 객체 배치
 		if ((horLen > EPS) && (verLen > EPS)) {
@@ -849,16 +856,18 @@ void qElem::placeQuantityPlywood (qElem* element)
 		elem.object.level = element->WestLeftBottom.z - workLevel;
 
 		// 설치방향
-		tempStr = "벽에 세우기";
-		GS::ucscpy (memo.params [0][34].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+		strcpy (tempStr, "벽에 세우기");
+		setParameterByName (&memo, "CONS_DR", tempStr);
 
 		// 가로길이
 		horLen = abs (element->WestLeftBottom.y - element->WestRightTop.y);
-		memo.params [0][38].value.real = horLen;
+		setParameterByName (&memo, "NO_WD", horLen);
+		elem.object.xRatio = horLen;
 
 		// 세로길이
 		verLen = abs (element->WestRightTop.z - element->WestLeftBottom.z);
-		memo.params [0][42].value.real = verLen;
+		setParameterByName (&memo, "no_lg1", verLen);
+		elem.object.yRatio = verLen;
 
 		// 객체 배치
 		if ((horLen > EPS) && (verLen > EPS)) {
@@ -876,16 +885,18 @@ void qElem::placeQuantityPlywood (qElem* element)
 		elem.object.level = element->BaseLeftBottom.z - workLevel;
 
 		// 설치방향
-		tempStr = "바닥깔기";
-		GS::ucscpy (memo.params [0][34].value.uStr, GS::UniString (tempStr.c_str ()).ToUStr ().Get ());
+		strcpy (tempStr, "바닥깔기");
+		setParameterByName (&memo, "CONS_DR", tempStr);
 
 		// 가로길이
 		horLen = abs (element->BaseRightTop.x - element->BaseLeftBottom.x);
-		memo.params [0][38].value.real = horLen;
+		setParameterByName (&memo, "NO_WD", horLen);
+		elem.object.xRatio = horLen;
 
 		// 세로길이
 		verLen = abs (element->BaseRightTop.y - element->BaseLeftBottom.y);
-		memo.params [0][42].value.real = verLen;
+		setParameterByName (&memo, "no_lg1", verLen);
+		elem.object.yRatio = verLen;
 
 		// 객체 배치
 		if ((horLen > EPS) && (verLen > EPS)) {

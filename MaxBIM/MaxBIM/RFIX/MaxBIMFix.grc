@@ -395,6 +395,7 @@
 /* [  4] */	RightText		 50		 40		 70		 23		LargePlain		"Width"
 /* [  5] */	PopupControl	140		 33		100		 25		200		10		/* 너비 */
 							NoIcon	"3032"
+							NoIcon	"2426"
 /* [  6] */	RightText		 50		 70		 70		 23		LargePlain		"Height"
 /* [  7] */	PopupControl	140		 63		100		 25		100		10		/* 높이 */
 							NoIcon	"1818"

@@ -903,7 +903,9 @@ API_Guid	SlabTableformPlacingZone::placeLibPart (CellForSlabTableform objInfo)
 		// 가로방향 (Horizontal)
 		if (objInfo.libPart.tableform.direction == true) {
 			// 타입: 가로 길이 x 세로 길이
-			sprintf (tempString, "%d x %d", round (objInfo.libPart.tableform.horLen, 0) * 1000, round (objInfo.libPart.tableform.verLen, 0) * 1000);
+			sprintf (tempString, "%.0f x %.0f", round (objInfo.horLen, 3) * 1000, round (objInfo.verLen, 3) * 1000);
+			element.object.xRatio = objInfo.horLen;
+			element.object.yRatio = objInfo.verLen;
 
 			// 이동하여 위치 바로잡기
 			element.object.pos.x += ( objInfo.verLen * sin(objInfo.ang) );
@@ -912,7 +914,9 @@ API_Guid	SlabTableformPlacingZone::placeLibPart (CellForSlabTableform objInfo)
 		// 세로방향 (Vertical)
 		} else {
 			// 타입: 세로 길이 x 가로 길이
-			sprintf (tempString, "%d x %d", round (objInfo.libPart.tableform.verLen, 0) * 1000, round (objInfo.libPart.tableform.horLen, 0) * 1000);
+			sprintf (tempString, "%.0f x %.0f", round (objInfo.verLen, 3) * 1000, round (objInfo.horLen, 3) * 1000);
+			element.object.xRatio = objInfo.verLen;
+			element.object.yRatio = objInfo.horLen;
 			
 			// 90도 회전된 상태로 배치
 			element.object.angle += DegreeToRad (90.0);
@@ -2942,6 +2946,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			DGSetItemFont (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM, "3032");
+			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM, "2426");
 
 			// Edit 컨트롤: 너비
 			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100, 80-6, 50, 25);
@@ -2991,6 +2997,7 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 				// 팝업 컨트롤: 너비
 				DGShowItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS);
 				if (abs(placingZone.cells [rIdx][cIdx].libPart.tableform.horLen - 3.032) < EPS)		popupSelectedIdx = 1;
+				if (abs(placingZone.cells [rIdx][cIdx].libPart.tableform.horLen - 2.426) < EPS)		popupSelectedIdx = 2;
 				DGPopUpSelectItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, popupSelectedIdx);
 
 				// 라벨: 높이
