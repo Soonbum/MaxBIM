@@ -81,6 +81,11 @@ namespace slabBottomPlacerDG {
 		RADIO_ORIENTATION_1_EUROFORM,
 		RADIO_ORIENTATION_2_EUROFORM
 	};
+
+	enum	idxItems_4_forSlabBottomPlacer {
+		LABEL_WOOD_WIDTH = 3,
+		EDITCONTROL_WOOD_WIDTH
+	};
 }
 
 // 모프 관련 정보
@@ -160,6 +165,8 @@ public:
 
 	double	gap;		// 슬래브와의 간격
 
+	double	woodWidth;	// 목재 너비
+
 	std::string		eu_wid;			// 유로폼 너비
 	std::string		eu_hei;			// 유로폼 높이
 	std::string		eu_ori;			// 유로폼 방향
@@ -194,5 +201,6 @@ GSErrCode	placeEuroformOnSlabBottom (void);	// 슬래브 하부에 유로폼을 배치하는 �
 short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK slabBottomPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK slabBottomPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
+short DGCALLBACK slabBottomPlacerHandler4 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 자투리 채우기를 할 때, 목재의 너비를 변경하기 위한 4차 다이얼로그
 
 #endif

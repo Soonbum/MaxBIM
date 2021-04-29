@@ -442,6 +442,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	summary.sizeOfPinboltKinds = 0;				// 핀볼트세트 개수 초기화
 	summary.nJoin = 0;							// 개수 초기화: 결합철물 (사각와셔활용)
 	summary.sizeOfBeamYokeKinds = 0;			// 보 멍에제 개수 초기화
+	summary.sizeOfKSProfileKinds = 0;			// KS프로파일 개수 초기화
 	
 	summary.sizeOfBeamKinds = 0;				// 보 개수 초기화
 
@@ -921,6 +922,39 @@ GSErrCode	exportSelectedElementInfo (void)
 					}
 
 					break;
+				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("KS프로파일")) == 0) {
+					foundExistValue = false;
+
+					char type [10];
+					char shape [30];
+					char nom [50];
+					int len;
+
+					sprintf (type, "%s", getParameterStringByName (&memo, "type"));
+					sprintf (shape, "%s", getParameterStringByName (&memo, "shape"));
+					sprintf (nom, "%s", getParameterStringByName (&memo, "nom"));
+					len = static_cast<int> (round (getParameterValueByName (&memo, "len") * 1000, 0));
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfKSProfileKinds ; ++zz) {
+						if ((strncmp (summary.KSProfileType [zz], type, strlen(type)) == 0) && (strncmp (summary.KSProfileShape [zz], shape, strlen(shape)) == 0) && (strncmp (summary.KSProfileNom [zz], nom, strlen(nom)) == 0) && (summary.KSProfileLen [zz] == len)) {
+							summary.KSProfileCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						sprintf (summary.KSProfileType [summary.sizeOfKSProfileKinds], type);
+						sprintf (summary.KSProfileShape [summary.sizeOfKSProfileKinds], shape);
+						sprintf (summary.KSProfileNom [summary.sizeOfKSProfileKinds], nom);
+						summary.KSProfileLen [summary.sizeOfKSProfileKinds] = len;
+						summary.KSProfileCount [summary.sizeOfKSProfileKinds] = 1;
+						summary.sizeOfKSProfileKinds ++;
+					}
+
+					break;
 				}
 			}
 
@@ -1098,6 +1132,23 @@ GSErrCode	exportSelectedElementInfo (void)
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
+	// KS프로파일
+	for (xx = 0 ; xx < summary.sizeOfKSProfileKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[KS 프로파일]\n");
+
+		char	buf1 [128];
+		char	buf2 [128];
+		char	buf3 [128];
+
+		sprintf (buf1, "타입(%s)", summary.KSProfileType [xx]);
+		sprintf (buf2, "형태(%s)", summary.KSProfileShape [xx]);
+		sprintf (buf3, "%s", summary.KSProfileNom [xx]);
+		sprintf (buffer, "%s %s -- %s : %d EA\n", buf1, buf2, buf3, summary.KSProfileCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	// 일반 요소 - 보
 	for (xx = 0 ; xx < summary.sizeOfBeamKinds ; ++xx) {
 		if (xx == 0)
 			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보]\n");
@@ -1105,6 +1156,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
+	// 알 수 없는 객체
 	if (summary.nUnknownObjects > 0) {
 		sprintf (buffer, "\n[알 수 없는 객체]\n%d EA\n", summary.nUnknownObjects);
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);

@@ -136,6 +136,14 @@ struct SummaryOfSelectedObjects
 	int beamYokeCount [10];				// 해당 보 멍에제 길이에 대한 개수
 	int sizeOfBeamYokeKinds;			// 보 멍에제 종류별 개수
 
+	// KS프로파일
+	char KSProfileType [200][10];		// KS프로파일 타입 (기둥, 보)
+	char KSProfileShape [200][30];		// KS프로파일 형태
+	char KSProfileNom [200][50];		// KS프로파일 규격
+	double KSProfileLen [200];			// KS프로파일 길이
+	int KSProfileCount [200];			// 해당 KS프로파일, 길이 조합에 대한 개수
+	int sizeOfKSProfileKinds;			// KS프로파일 종류별 개수
+
 	// 일반 요소
 	// 보
 	int beamLength [100];				// 보 길이

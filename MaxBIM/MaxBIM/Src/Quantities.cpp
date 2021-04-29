@@ -786,6 +786,7 @@ void qElem::placeQuantityPlywood (qElem* element)
 		if ((horLen > EPS) && (verLen > EPS)) {
 			ACAPI_Element_Create (&elem, &memo);
 			element->qPlywoodGuids [element->nQPlywoods ++] = elem.header.guid;
+			ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem, 0);
 		}
 	}
 
@@ -815,6 +816,7 @@ void qElem::placeQuantityPlywood (qElem* element)
 		if ((horLen > EPS) && (verLen > EPS)) {
 			ACAPI_Element_Create (&elem, &memo);
 			element->qPlywoodGuids [element->nQPlywoods ++] = elem.header.guid;
+			ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem, 0);
 		}
 	}
 
@@ -844,6 +846,7 @@ void qElem::placeQuantityPlywood (qElem* element)
 		if ((horLen > EPS) && (verLen > EPS)) {
 			ACAPI_Element_Create (&elem, &memo);
 			element->qPlywoodGuids [element->nQPlywoods ++] = elem.header.guid;
+			ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem, 0);
 		}
 	}
 
@@ -873,6 +876,7 @@ void qElem::placeQuantityPlywood (qElem* element)
 		if ((horLen > EPS) && (verLen > EPS)) {
 			ACAPI_Element_Create (&elem, &memo);
 			element->qPlywoodGuids [element->nQPlywoods ++] = elem.header.guid;
+			ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem, 0);
 		}
 	}
 
@@ -902,6 +906,7 @@ void qElem::placeQuantityPlywood (qElem* element)
 		if ((horLen > EPS) && (verLen > EPS)) {
 			ACAPI_Element_Create (&elem, &memo);
 			element->qPlywoodGuids [element->nQPlywoods ++] = elem.header.guid;
+			ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem, 0);
 		}
 	}
 
