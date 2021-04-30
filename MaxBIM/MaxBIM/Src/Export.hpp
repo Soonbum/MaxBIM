@@ -141,8 +141,24 @@ struct SummaryOfSelectedObjects
 	char KSProfileShape [200][30];		// KS프로파일 형태
 	char KSProfileNom [200][50];		// KS프로파일 규격
 	double KSProfileLen [200];			// KS프로파일 길이
-	int KSProfileCount [200];			// 해당 KS프로파일, 길이 조합에 대한 개수
+	int KSProfileCount [200];			// 해당 KS프로파일 형태/규격/길이 조합에 대한 개수
 	int sizeOfKSProfileKinds;			// KS프로파일 종류별 개수
+
+	// PERI동바리 수직재
+	char PERI_suppVerPostNom [100][10];	// PERI동바리 수직재 규격
+	int PERI_suppVerPostLen [100];		// PERI동바리 수직재 현재 길이
+	int PERI_suppVerPostCount [100];	// 해당 PERI동바리 수직재 규격/현재 길이 조합에 대한 개수
+	int sizeOfPERI_suppVerPostKinds;	// PERI동바리 수직재 종류별 개수
+
+	// PERI동바리 수평재
+	char PERI_suppHorPostNom [20][10];	// PERI동바리 수평재 규격
+	int PERI_suppHorPostCount [20];		// 해당 PERI동바리 수평재 규격 조합에 대한 개수
+	int sizeOfPERI_suppHorPostKinds;	// PERI동바리 수평재 종류별 개수
+
+	// GT24 거더
+	char GT24GirderNom [30][10];		// GT24 거더 규격
+	int GT24GirderCount [30];			// 해당 GT24 거더 규격에 대한 개수
+	int sizeOfGT24Girder;				// GT24 거더 종류별 개수
 
 	// 일반 요소
 	// 보

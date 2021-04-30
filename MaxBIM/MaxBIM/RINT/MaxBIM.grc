@@ -43,6 +43,7 @@
 /* [   ] */		"정보"
 /* [  1] */			"애드온 사용법 보기^E3^ES^EE^EI^ED^EL^EW^ET"
 /* [  2] */			"MaxBIM 애드온 정보^E3^ES^EE^EI^ED^EL^EW^ET"
+/* [  3] */			"개발자 전용^E3^ES^EE^EI^ED^EL^EW^ET"
 }
 
 'STR#' 32004 "Status bar strings" {
@@ -50,6 +51,7 @@
 /* [   ] */		"정보"
 /* [  1] */			"MaxBIM 애드온 사용법을 보여줍니다."
 /* [  2] */			"MaxBIM 애드온에 대한 정보를 보여줍니다."
+/* [  3] */			"개발자 테스트."
 }
 
 'STR#' 32005 "Menu strings" {

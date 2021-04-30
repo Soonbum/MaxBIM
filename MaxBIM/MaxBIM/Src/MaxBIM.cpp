@@ -20,6 +20,8 @@
 
 #include "Information.hpp"
 
+#include "UtilityFunctions.hpp"
+
 #define	MDID_DEVELOPER_ID	829517673
 #define	MDID_LOCAL_ID		3588511626
 
@@ -178,6 +180,107 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					break;
 				case 2:		// MaxBIM 애드온 정보
 					err = showAbout ();
+					break;
+				case 3:		// 개발자 전용 - 개발자 테스트 메뉴
+					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
+						GSErrCode	err = NoError;
+						short		xx;
+
+						// Selection Manager 관련 변수
+						long		nSel;
+						API_SelectionInfo		selectionInfo;
+						API_Element				tElem;
+						API_Neig				**selNeigs;
+						GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
+						long					nMorphs = 0;
+
+						// 객체 정보 가져오기
+						API_Element				elem;
+						API_ElementMemo			memo;
+						API_ElemInfo3D			info3D;
+
+						// 모프 3D 구성요소 가져오기
+						API_Component3D			component;
+						API_Tranmat				tm;
+						Int32					nVert, nEdge, nPgon;
+						Int32					elemIdx, bodyIdx;
+						API_Coord3D				trCoord;
+						GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
+
+						// 모프에서 제외되는 점 4개 !!!
+						API_Coord3D		excludeP1;
+						API_Coord3D		excludeP2;
+						API_Coord3D		excludeP3;
+						API_Coord3D		excludeP4;
+
+
+
+						// 선택한 요소 가져오기
+						err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
+						BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+						if (err != NoError) {
+							BMKillHandle ((GSHandle *) &selNeigs);
+							return err;
+						}
+
+						if (selectionInfo.typeID != API_SelEmpty) {
+							nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
+							for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
+								tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
+
+								tElem.header.guid = (*selNeigs)[xx].guid;
+								if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
+									continue;
+
+								if (tElem.header.typeID == API_MorphID)		// 모프인가?
+									morphs.Push (tElem.header.guid);
+							}
+						}
+						BMKillHandle ((GSHandle *) &selNeigs);
+						nMorphs = morphs.GetSize ();
+
+						if (nMorphs < 1)
+							return err;
+
+						// 모프의 정보를 가져옴
+						BNZeroMemory (&elem, sizeof (API_Element));
+						elem.header.guid = morphs.Pop ();
+						err = ACAPI_Element_Get (&elem);
+						err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
+
+						// 모프의 점 좌표들을 가져옴
+						BNZeroMemory (&component, sizeof (API_Component3D));
+						component.header.typeID = API_BodyID;
+						component.header.index = info3D.fbody;
+						err = ACAPI_3D_GetComponent (&component);
+
+						nVert = component.body.nVert;
+						nEdge = component.body.nEdge;
+						nPgon = component.body.nPgon;
+						tm = component.body.tranmat;
+						elemIdx = component.body.head.elemIndex - 1;
+						bodyIdx = component.body.head.bodyIndex - 1;
+	
+						// 정점 좌표를 임의 순서대로 저장함
+						for (xx = 1 ; xx <= nVert ; ++xx) {
+							component.header.typeID	= API_VertID;
+							component.header.index	= xx;
+							err = ACAPI_3D_GetComponent (&component);
+							if (err == NoError) {
+								trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
+								trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
+								trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
+								coords.Push (trCoord);
+
+								placeCoordinateLabel (trCoord.x, trCoord.y, trCoord.z);
+							}
+						}
+
+						// ...
+
+						return err;
+					});
+
 					break;
 			}
 			break;

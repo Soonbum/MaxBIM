@@ -443,6 +443,9 @@ GSErrCode	exportSelectedElementInfo (void)
 	summary.nJoin = 0;							// 개수 초기화: 결합철물 (사각와셔활용)
 	summary.sizeOfBeamYokeKinds = 0;			// 보 멍에제 개수 초기화
 	summary.sizeOfKSProfileKinds = 0;			// KS프로파일 개수 초기화
+	summary.sizeOfPERI_suppVerPostKinds = 0;	// PERI동바리 수직재 개수 초기화
+	summary.sizeOfPERI_suppHorPostKinds = 0;	// PERI동바리 수평재 개수 초기화
+	summary.sizeOfGT24Girder = 0;				// GT24 거더 개수 초기화
 	
 	summary.sizeOfBeamKinds = 0;				// 보 개수 초기화
 
@@ -955,6 +958,81 @@ GSErrCode	exportSelectedElementInfo (void)
 					}
 
 					break;
+				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("PERI동바리 수직재")) == 0) {
+					foundExistValue = false;
+
+					char nom [10];
+					int len;
+
+					sprintf (nom, "%s", getParameterStringByName (&memo, "stType"));
+					len = static_cast<int> (round (getParameterValueByName (&memo, "len_current") * 1000, 0));
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfPERI_suppVerPostKinds ; ++zz) {
+						if ((strncmp (summary.PERI_suppVerPostNom [zz], nom, strlen(nom)) == 0) && (summary.PERI_suppVerPostLen [zz] == len)) {
+							summary.PERI_suppVerPostCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						sprintf (summary.PERI_suppVerPostNom [summary.sizeOfPERI_suppVerPostKinds], nom);
+						summary.PERI_suppVerPostLen [summary.sizeOfPERI_suppVerPostKinds] = len;
+						summary.PERI_suppVerPostCount [summary.sizeOfPERI_suppVerPostKinds] = 1;
+						summary.sizeOfPERI_suppVerPostKinds ++;
+					}
+
+					break;
+				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("PERI동바리 수평재")) == 0) {
+					foundExistValue = false;
+
+					char nom [10];
+
+					sprintf (nom, "%s", getParameterStringByName (&memo, "stType"));
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfPERI_suppHorPostKinds ; ++zz) {
+						if (strncmp (summary.PERI_suppHorPostNom [zz], nom, strlen(nom)) == 0) {
+							summary.PERI_suppHorPostCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						sprintf (summary.PERI_suppHorPostNom [summary.sizeOfPERI_suppHorPostKinds], nom);
+						summary.PERI_suppHorPostCount [summary.sizeOfPERI_suppHorPostKinds] = 1;
+						summary.sizeOfPERI_suppHorPostKinds ++;
+					}
+
+					break;
+				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("GT24 거더")) == 0) {
+					foundExistValue = false;
+
+					char nom [10];
+
+					sprintf (nom, "%s", getParameterStringByName (&memo, "type"));
+
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < summary.sizeOfGT24Girder ; ++zz) {
+						if (strncmp (summary.GT24GirderNom [zz], nom, strlen(nom)) == 0) {
+							summary.GT24GirderCount [zz] ++;
+							foundExistValue = true;
+							break;
+						}
+					}
+
+					// 신규 항목 추가하고 개수도 증가
+					if ( !foundExistValue ) {
+						sprintf (summary.GT24GirderNom [summary.sizeOfGT24Girder], nom);
+						summary.GT24GirderCount [summary.sizeOfGT24Girder] = 1;
+						summary.sizeOfGT24Girder ++;
+					}
+
+					break;
 				}
 			}
 
@@ -1145,6 +1223,30 @@ GSErrCode	exportSelectedElementInfo (void)
 		sprintf (buf2, "형태(%s)", summary.KSProfileShape [xx]);
 		sprintf (buf3, "%s", summary.KSProfileNom [xx]);
 		sprintf (buffer, "%s %s -- %s : %d EA\n", buf1, buf2, buf3, summary.KSProfileCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	// PERI동바리 수직재
+	for (xx = 0 ; xx < summary.sizeOfPERI_suppVerPostKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[PERI동바리 수직재]\n");
+		sprintf (buffer, "규격 %s, 길이 %d : %d EA\n", summary.PERI_suppVerPostNom [xx], summary.PERI_suppVerPostLen [xx], summary.PERI_suppVerPostCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	// PERI동바리 수평재
+	for (xx = 0 ; xx < summary.sizeOfPERI_suppHorPostKinds ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[PERI동바리 수평재]\n");
+		sprintf (buffer, "규격 %s : %d EA\n", summary.PERI_suppHorPostNom [xx], summary.PERI_suppHorPostCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
+
+	// GT24 거더
+	for (xx = 0 ; xx < summary.sizeOfGT24Girder ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[GT24 거더]\n");
+		sprintf (buffer, "규격 %s : %d EA\n", summary.GT24GirderNom [xx], summary.GT24GirderCount [xx]);
 		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 	}
 
