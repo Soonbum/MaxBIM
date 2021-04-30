@@ -9,7 +9,9 @@ namespace slabTableformPlacerDG {
 		NONE,				// 없음
 		SLAB_TABLEFORM,		// 슬래브 테이블폼 (콘판넬) v1.0
 		PLYWOOD,			// 합판v1.0
-		WOOD				// 목재v1.0
+		WOOD,				// 목재v1.0
+		PROFILE,			// KS프로파일v1.0
+		FITTINGS			// 결합철물 (사각와셔활용) v1.0
 	};
 
 	// 다이얼로그 항목 인덱스
@@ -32,10 +34,14 @@ namespace slabTableformPlacerDG {
 		LABEL_LAYER_SLABTABLEFORM,
 		LABEL_LAYER_PLYWOOD,
 		LABEL_LAYER_WOOD,
+		LABEL_LAYER_PROFILE,
+		LABEL_LAYER_FITTINGS,
 
 		USERCONTROL_LAYER_SLABTABLEFORM,
 		USERCONTROL_LAYER_PLYWOOD,
-		USERCONTROL_LAYER_WOOD
+		USERCONTROL_LAYER_WOOD,
+		USERCONTROL_LAYER_PROFILE,
+		USERCONTROL_LAYER_FITTINGS
 	};
 
 	enum	idxItems_2_forSlabBottomTableformPlacer {
@@ -115,6 +121,8 @@ struct CellForSlabTableform
 		SlabTableform	tableform;
 		Plywood			plywood;
 		Wood			wood;
+		KSProfile		profile;
+		MetalFittingsWithRectWasher		fittings;
 	} libPart;
 };
 
@@ -193,6 +201,7 @@ public:
 	void		delLastCol (SlabTableformPlacingZone* target_zone);											// 마지막 열을 삭제함
 	void		alignPlacingZone (SlabTableformPlacingZone* target_zone);									// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 	API_Guid	placeLibPart (CellForSlabTableform objInfo);												// 해당 셀 정보를 기반으로 라이브러리 배치
+	API_Guid	placeLibPartOnSlabTableform (CellForSlabTableform objInfo);									// 슬래브 테이블폼의 부속 철물들에 해당하는 라이브러리 배치
 	GSErrCode	fillRestAreas (void);																		// 유로폼을 채운 후 자투리 공간 채우기
 };
 

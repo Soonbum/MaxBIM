@@ -387,9 +387,9 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Slab Bottom */
-'GDLG'  32518  Modal | grow	  0		  0		300		355		"슬래브 하부에 배치" {
-/* [  1] */	Button			 70		315		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		315		 70		 25		LargePlain		"Cancel"
+'GDLG'  32518  Modal | grow	  0		  0		300		415		"슬래브 하부에 배치" {
+/* [  1] */	Button			 70		375		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		375		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Tableform Settings"
 /* [  4] */	RightText		 50		 40		 70		 23		LargePlain		"Width"
@@ -414,7 +414,11 @@
 /* [ 16] */	RightText		 10		215		100		 23		LargePlain		"Tableform"
 /* [ 17] */	RightText		 10		245		100		 23		LargePlain		"Plywood"
 /* [ 18] */	RightText		 10		275		100		 23		LargePlain		"Wood"
-/* [ 19] */	UserControl		120		209		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM	*/
-/* [ 20] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
-/* [ 21] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+/* [ 19] */	RightText		 10		305		100		 23		LargePlain		"Profile"
+/* [ 20] */	RightText		 10		335		100		 23		LargePlain		"Fittings"
+/* [ 21] */	UserControl		120		209		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM	*/
+/* [ 22] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
+/* [ 23] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+/* [ 24] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - PROFILE		*/
+/* [ 25] */	UserControl		120		329		160		 25		257	0x0006 0x0000 0		/* Layer Control - FITTINGS		*/
 }

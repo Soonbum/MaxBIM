@@ -494,10 +494,11 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		horizontalGap = 0.025;
 	} else if (abs (cell.horLen - 1.800) < EPS) {
 		placementInfo.nHorEuroform = 3;
-		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.600;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
 		horizontalGap = 0.050;
 	} else {
 		placementInfo.nHorEuroform = 0;
+		placementInfo.width [0] = 0.0;		placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
 	}
 
 	if (abs (cell.verLen - 6.000) < EPS) {
@@ -534,62 +535,91 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		placementInfo.height [1] = 1.200;
 		placementInfo.height [2] = 1.200;
 		placementInfo.height [3] = 1.200;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 4.500) < EPS) {
 		placementInfo.nVerEuroform = 4;
 		placementInfo.height [0] = 1.200;
 		placementInfo.height [1] = 1.200;
 		placementInfo.height [2] = 1.200;
 		placementInfo.height [3] = 0.900;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 4.200) < EPS) {
 		placementInfo.nVerEuroform = 4;
 		placementInfo.height [0] = 1.200;
 		placementInfo.height [1] = 1.200;
 		placementInfo.height [2] = 0.900;
 		placementInfo.height [3] = 0.900;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 3.900) < EPS) {
 		placementInfo.nVerEuroform = 4;
 		placementInfo.height [0] = 1.200;
 		placementInfo.height [1] = 1.200;
 		placementInfo.height [2] = 0.900;
 		placementInfo.height [3] = 0.600;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 3.600) < EPS) {
 		placementInfo.nVerEuroform = 3;
 		placementInfo.height [0] = 1.200;
 		placementInfo.height [1] = 1.200;
 		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 3.300) < EPS) {
 		placementInfo.nVerEuroform = 3;
 		placementInfo.height [0] = 1.200;
 		placementInfo.height [1] = 1.200;
 		placementInfo.height [2] = 0.900;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 3.000) < EPS) {
 		placementInfo.nVerEuroform = 3;
 		placementInfo.height [0] = 1.200;
 		placementInfo.height [1] = 1.200;
 		placementInfo.height [2] = 0.600;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 2.700) < EPS) {
 		placementInfo.nVerEuroform = 3;
 		placementInfo.height [0] = 1.200;
 		placementInfo.height [1] = 0.900;
 		placementInfo.height [2] = 0.600;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 2.400) < EPS) {
 		placementInfo.nVerEuroform = 2;
 		placementInfo.height [0] = 1.200;
 		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 0.0;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 2.100) < EPS) {
 		placementInfo.nVerEuroform = 2;
 		placementInfo.height [0] = 1.200;
 		placementInfo.height [1] = 0.900;
+		placementInfo.height [2] = 0.0;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 1.800) < EPS) {
 		placementInfo.nVerEuroform = 2;
 		placementInfo.height [0] = 0.900;
 		placementInfo.height [1] = 0.900;
+		placementInfo.height [2] = 0.0;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
 	} else if (abs (cell.verLen - 1.500) < EPS) {
 		placementInfo.nVerEuroform = 2;
 		placementInfo.height [0] = 0.900;
 		placementInfo.height [1] = 0.600;
+		placementInfo.height [2] = 0.0;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
 	} else {
 		placementInfo.nVerEuroform = 0;
+		placementInfo.height [0] = 0.0;
+		placementInfo.height [1] = 0.0;
+		placementInfo.height [2] = 0.0;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
 	}
 
 	// 너비나 높이가 0이면 아무것도 배치하지 않음
@@ -1293,9 +1323,10 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
 		} else if (abs (cell.horLen - 1.800) < EPS) {
 			placementInfo.nHorEuroform = 3;
-			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.600;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
 		} else {
 			placementInfo.nHorEuroform = 0;
+			placementInfo.width [0] = 0.0;		placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
 		}
 
 		//////////////////////////////////////////////////////////////// 현재면

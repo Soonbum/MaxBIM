@@ -282,7 +282,7 @@ struct SlabTableform
 	char	type [20];		// 타입
 };
 
-// 파라미터: 비계 파이프
+// 비계 파이프 정보
 struct SquarePipe
 {
 	double	leftBottomX;	// 좌하단 좌표 X
@@ -295,7 +295,7 @@ struct SquarePipe
 	double	pipeAng;		// 각도 (수평: 0, 수직: 90)
 };
 
-// 파라미터: 핀볼트 세트
+// 핀볼트 세트 정보
 struct PinBoltSet
 {
 	double	leftBottomX;	// 좌하단 좌표 X
@@ -310,7 +310,7 @@ struct PinBoltSet
 	double	angY;			// Y축 회전
 };
 
-// 파라미터: 벽체 타이
+// 벽체 타이 정보
 struct WallTie
 {
 	double	leftBottomX;	// 좌하단 좌표 X
@@ -326,7 +326,7 @@ struct WallTie
 	double	clampEnd;		// 조임쇠 끝점
 };
 
-// 파라미터: 직교 클램프
+// 직교 클램프 정보
 struct CrossClamp
 {
 	double	leftBottomX;	// 좌하단 좌표 X
@@ -339,7 +339,7 @@ struct CrossClamp
 	double	angY;			// 본체 회전 (Y)
 };
 
-// 파라미터: 헤드피스
+// 헤드피스 정보
 struct HeadpieceOfPushPullProps
 {
 	double	leftBottomX;	// 좌하단 좌표 X
@@ -349,7 +349,7 @@ struct HeadpieceOfPushPullProps
 	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
 };
 
-// 파라미터: 결합철물
+// 결합철물 정보
 struct MetalFittings
 {
 	double	leftBottomX;	// 좌하단 좌표 X
@@ -360,6 +360,48 @@ struct MetalFittings
 
 	double	angX;			// 본체 회전 (X)
 	double	angY;			// 본체 회전 (Y)
+};
+
+// KS프로파일 정보
+struct KSProfile
+{
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	angX;			// 본체 회전 (X)
+	double	angY;			// 본체 회전 (Y)
+
+	char	type [10];		// 분류 (기둥, 보)
+	char	shape [30];		// 형태 (C형강, H형강...)
+	short	iAnchor;		// 앵커 포인트 (1~9)
+	double	len;			// 길이
+	char	nom [50];		// 규격
+	long	mat;			// 재질
+};
+
+//  결합철물 (사각와셔활용) 정보
+struct MetalFittingsWithRectWasher
+{
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	angX;			// 본체 회전 (X)
+	double	angY;			// 본체 회전 (Y)
+
+	double	bolt_len;		// 볼트 길이
+	double	bolt_dia;		// 볼트 직경
+	bool	bWasher1;		// 와셔1 On/Off
+	double	washer_pos1;	// 와셔1 위치
+	bool	bWasher2;		// 와셔2 On/Off
+	double	washer_pos2;	// 와셔2 위치
+	double	washer_size;	// 와셔 크기
+	char	nutType [15];	// 너트 타입
 };
 
 #endif //__MAXBIM_HPP__
