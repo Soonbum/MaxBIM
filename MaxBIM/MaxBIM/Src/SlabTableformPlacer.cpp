@@ -1190,7 +1190,9 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 {
 	GSErrCode	err = NoError;
 	short		xx;
+	short		xx1, pp;
 	CellForSlabTableform	insCell;
+	CellForSlabTableform	plywoodCell;	// 합판의 크기가 초과된 경우 사용할 임시 합판용 셀 (분할된 크기 적용)
 	double		startXPos, startYPos;
 	API_Coord3D	axisPoint, rotatedPoint, unrotatedPoint;
 
@@ -1226,8 +1228,30 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	topAtLeftTop = placingZone.placeLibPart (insCell);
-	elemList.Push (topAtLeftTop);
+	if (insCell.libPart.plywood.p_leng > 2.440) {
+		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_leng / 2.440));
+		plywoodCell.objType = PLYWOOD;
+		plywoodCell.leftBottomX = insCell.leftBottomX;
+		plywoodCell.leftBottomY = insCell.leftBottomY;
+		plywoodCell.leftBottomZ = insCell.leftBottomZ;
+		plywoodCell.ang = insCell.ang;
+
+		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
+		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
+
+		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+			if (xx1 == 0) {
+				topAtLeftTop = placingZone.placeLibPart (plywoodCell);
+				elemList.Push (topAtLeftTop);
+			} else {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+			}
+			moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+		}
+	} else {
+		topAtLeftTop = placingZone.placeLibPart (insCell);
+		elemList.Push (topAtLeftTop);
+	}
 
 	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.cells [0][0].horLen - placingZone.leftMove;
 	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.upMove;
@@ -1251,7 +1275,24 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placingZone.placeLibPart (insCell));
+		if (insCell.libPart.plywood.p_leng > 2.440) {
+			pp = static_cast<short> (ceil (insCell.libPart.plywood.p_leng / 2.440));
+			plywoodCell.objType = PLYWOOD;
+			plywoodCell.leftBottomX = insCell.leftBottomX;
+			plywoodCell.leftBottomY = insCell.leftBottomY;
+			plywoodCell.leftBottomZ = insCell.leftBottomZ;
+			plywoodCell.ang = insCell.ang;
+
+			plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
+			plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
+
+			for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+				moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+			}
+		} else {
+			elemList.Push (placingZone.placeLibPart (insCell));
+		}
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startXPos += placingZone.cells [0][xx].horLen;
@@ -1276,8 +1317,30 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	topAtRightTop = placingZone.placeLibPart (insCell);
-	elemList.Push (topAtRightTop);
+	if (insCell.libPart.plywood.p_leng > 2.440) {
+		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_leng / 2.440));
+		plywoodCell.objType = PLYWOOD;
+		plywoodCell.leftBottomX = insCell.leftBottomX;
+		plywoodCell.leftBottomY = insCell.leftBottomY;
+		plywoodCell.leftBottomZ = insCell.leftBottomZ;
+		plywoodCell.ang = insCell.ang;
+
+		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
+		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
+
+		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+			if (xx1 == pp-1) {
+				topAtRightTop = placingZone.placeLibPart (plywoodCell);
+				elemList.Push (topAtRightTop);
+			} else {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+			}
+			moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+		}
+	} else {
+		topAtRightTop = placingZone.placeLibPart (insCell);
+		elemList.Push (topAtRightTop);
+	}
 
 
 	// 합판 설치 (BOTTOM)
@@ -1300,8 +1363,30 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	bottomAtLeftBottom = placingZone.placeLibPart (insCell);
-	elemList.Push (bottomAtLeftBottom);
+	if (insCell.libPart.plywood.p_leng > 2.440) {
+		pp = static_cast<SHORT> (ceil (insCell.libPart.plywood.p_leng / 2.440));
+		plywoodCell.objType = PLYWOOD;
+		plywoodCell.leftBottomX = insCell.leftBottomX;
+		plywoodCell.leftBottomY = insCell.leftBottomY;
+		plywoodCell.leftBottomZ = insCell.leftBottomZ;
+		plywoodCell.ang = insCell.ang;
+
+		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
+		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
+
+		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+			if (xx1 == 0) {
+				bottomAtLeftBottom = placingZone.placeLibPart (plywoodCell);
+				elemList.Push (bottomAtLeftBottom);
+			} else {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+			}
+			moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+		}
+	} else {
+		bottomAtLeftBottom = placingZone.placeLibPart (insCell);
+		elemList.Push (bottomAtLeftBottom);
+	}
 
 	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.cells [0][0].horLen - placingZone.leftMove;
 	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom);
@@ -1325,7 +1410,24 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placingZone.placeLibPart (insCell));
+		if (insCell.libPart.plywood.p_leng > 2.440) {
+			pp = static_cast<short> (ceil (insCell.libPart.plywood.p_leng / 2.440));
+			plywoodCell.objType = PLYWOOD;
+			plywoodCell.leftBottomX = insCell.leftBottomX;
+			plywoodCell.leftBottomY = insCell.leftBottomY;
+			plywoodCell.leftBottomZ = insCell.leftBottomZ;
+			plywoodCell.ang = insCell.ang;
+
+			plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
+			plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
+
+			for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+				moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+			}
+		} else {
+			elemList.Push (placingZone.placeLibPart (insCell));
+		}
 			
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startXPos += placingZone.cells [0][xx].horLen;
@@ -1350,8 +1452,30 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	bottomAtRightBottom = placingZone.placeLibPart (insCell);
-	elemList.Push (bottomAtRightBottom);
+	if (insCell.libPart.plywood.p_leng > 2.440) {
+		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_leng / 2.440));
+		plywoodCell.objType = PLYWOOD;
+		plywoodCell.leftBottomX = insCell.leftBottomX;
+		plywoodCell.leftBottomY = insCell.leftBottomY;
+		plywoodCell.leftBottomZ = insCell.leftBottomZ;
+		plywoodCell.ang = insCell.ang;
+
+		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
+		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
+
+		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+			if (xx1 == pp-1) {
+				bottomAtRightBottom = placingZone.placeLibPart (plywoodCell);
+				elemList.Push (bottomAtRightBottom);
+			} else {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+			}
+			moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+		}
+	} else {
+		bottomAtRightBottom = placingZone.placeLibPart (insCell);
+		elemList.Push (bottomAtRightBottom);
+	}
 
 
 	// 합판 설치 (LEFT)
@@ -1374,8 +1498,30 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	leftAtLeftTop = placingZone.placeLibPart (insCell);
-	elemList.Push (leftAtLeftTop);
+	if (insCell.libPart.plywood.p_wid > 2.440) {
+		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
+		plywoodCell.objType = PLYWOOD;
+		plywoodCell.leftBottomX = insCell.leftBottomX;
+		plywoodCell.leftBottomY = insCell.leftBottomY;
+		plywoodCell.leftBottomZ = insCell.leftBottomZ;
+		plywoodCell.ang = insCell.ang;
+
+		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
+		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
+
+		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+			if (xx1 == 0) {
+				leftAtLeftTop = placingZone.placeLibPart (plywoodCell);
+				elemList.Push (leftAtLeftTop);
+			} else {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+			}
+			moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+		}
+	} else {
+		leftAtLeftTop = placingZone.placeLibPart (insCell);
+		elemList.Push (leftAtLeftTop);
+	}
 
 	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft;
 	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen - placingZone.upMove;
@@ -1399,7 +1545,24 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placingZone.placeLibPart (insCell));
+		if (insCell.libPart.plywood.p_wid > 2.440) {
+			pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
+			plywoodCell.objType = PLYWOOD;
+			plywoodCell.leftBottomX = insCell.leftBottomX;
+			plywoodCell.leftBottomY = insCell.leftBottomY;
+			plywoodCell.leftBottomZ = insCell.leftBottomZ;
+			plywoodCell.ang = insCell.ang;
+
+			plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
+			plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
+
+			for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+				moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+			}
+		} else {
+			elemList.Push (placingZone.placeLibPart (insCell));
+		}
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startYPos -= placingZone.cells [xx+1][0].verLen;
@@ -1424,8 +1587,30 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	leftAtLeftBottom = placingZone.placeLibPart (insCell);
-	elemList.Push (leftAtLeftBottom);
+	if (insCell.libPart.plywood.p_wid > 2.440) {
+		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
+		plywoodCell.objType = PLYWOOD;
+		plywoodCell.leftBottomX = insCell.leftBottomX;
+		plywoodCell.leftBottomY = insCell.leftBottomY;
+		plywoodCell.leftBottomZ = insCell.leftBottomZ;
+		plywoodCell.ang = insCell.ang;
+
+		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
+		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
+
+		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+			if (xx1 == pp-1) {
+				leftAtLeftBottom = placingZone.placeLibPart (plywoodCell);
+				elemList.Push (leftAtLeftBottom);
+			} else {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+			}
+			moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+		}
+	} else {
+		leftAtLeftBottom = placingZone.placeLibPart (insCell);
+		elemList.Push (leftAtLeftBottom);
+	}
 
 
 	// 합판 설치 (RIGHT)
@@ -1448,8 +1633,30 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	rightAtRightTop = placingZone.placeLibPart (insCell);
-	elemList.Push (rightAtRightTop);
+	if (insCell.libPart.plywood.p_wid > 2.440) {
+		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
+		plywoodCell.objType = PLYWOOD;
+		plywoodCell.leftBottomX = insCell.leftBottomX;
+		plywoodCell.leftBottomY = insCell.leftBottomY;
+		plywoodCell.leftBottomZ = insCell.leftBottomZ;
+		plywoodCell.ang = insCell.ang;
+
+		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
+		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
+
+		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+			if (xx1 == 0) {
+				rightAtRightTop = placingZone.placeLibPart (plywoodCell);
+				elemList.Push (rightAtRightTop);
+			} else {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+			}
+			moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+		}
+	} else {
+		rightAtRightTop = placingZone.placeLibPart (insCell);
+		elemList.Push (rightAtRightTop);
+	}
 
 	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) - placingZone.leftMove;
 	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen - placingZone.upMove;
@@ -1473,7 +1680,24 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 		insCell.leftBottomZ = unrotatedPoint.z;
 
 		// 셀 배치
-		elemList.Push (placingZone.placeLibPart (insCell));
+		if (insCell.libPart.plywood.p_wid > 2.440) {
+			pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
+			plywoodCell.objType = PLYWOOD;
+			plywoodCell.leftBottomX = insCell.leftBottomX;
+			plywoodCell.leftBottomY = insCell.leftBottomY;
+			plywoodCell.leftBottomZ = insCell.leftBottomZ;
+			plywoodCell.ang = insCell.ang;
+
+			plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
+			plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
+
+			for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+				moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+			}
+		} else {
+			elemList.Push (placingZone.placeLibPart (insCell));
+		}
 
 		// 다음 셀 배치를 위해 시작 좌표 이동
 		startYPos -= placingZone.cells [xx+1][0].verLen;
@@ -1498,8 +1722,30 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomZ = unrotatedPoint.z;
 
 	// 셀 배치
-	rightAtRightBottom = placingZone.placeLibPart (insCell);
-	elemList.Push (rightAtRightBottom);
+	if (insCell.libPart.plywood.p_wid > 2.440) {
+		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
+		plywoodCell.objType = PLYWOOD;
+		plywoodCell.leftBottomX = insCell.leftBottomX;
+		plywoodCell.leftBottomY = insCell.leftBottomY;
+		plywoodCell.leftBottomZ = insCell.leftBottomZ;
+		plywoodCell.ang = insCell.ang;
+
+		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
+		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
+
+		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
+			if (xx1 == pp-1) {
+				rightAtRightBottom = placingZone.placeLibPart (plywoodCell);
+				elemList.Push (rightAtRightBottom);
+			} else {
+				elemList.Push (placingZone.placeLibPart (plywoodCell));
+			}
+			moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
+		}
+	} else {
+		rightAtRightBottom = placingZone.placeLibPart (insCell);
+		elemList.Push (rightAtRightBottom);
+	}
 
 	// 합판 코너 겹치는 부분은 솔리드 연산으로 빼기
 	err = ACAPI_Element_SolidLink_Create (topAtLeftTop,			leftAtLeftTop, APISolid_Substract, APISolidFlag_OperatorAttrib);
@@ -1721,19 +1967,19 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 
 
 	// 코너쪽 목재 설치 (LEFT-TOP)
-	// ...
+	// (없음)
 
 
 	// 코너쪽 목재 설치 (RIGHT-TOP)
-	// ...
+	// (없음)
 
 
 	// 코너쪽 목재 설치 (LEFT-BOTTOM)
-	// ...
+	// (없음)
 
 
 	// 코너쪽 목재 설치 (RIGHT-BOTTOM)
-	// ...
+	// (없음)
 
 
 	// 보강 목재 설치 : T 버튼에 해당 (왼쪽부터 시작, 0부터 eu_count_hor-2까지) : LeftBottom에서 RightBottom까지
