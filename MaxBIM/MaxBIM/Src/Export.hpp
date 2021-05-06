@@ -44,6 +44,79 @@ struct ColumnPos
 	short	lastStory;				// 최상위 층 인덱스 (예: 지상 35층인 경우, 34)
 };
 
+// 선택한 부재들의 요약 정보 (new)
+class SummaryOfObjectInfo
+{
+public:
+	SummaryOfObjectInfo ();		// 생성자
+
+public:
+	// 키
+	vector<string>	nameKey;		// 객체를 구분할 수 있는 값(문자열)이 들어 있는 변수 이름 (예: sup_type)
+	vector<string>	nameVal;		// 객체의 이름 (예: KS프로파일)
+
+	vector<short>	nInfo;			// 표시할 정보 필드 개수
+
+	// 객체별 정보 (Object 타입)
+	vector<string>	var1name;					// 변수1 이름 (예: nom)
+	vector<string>	var1desc;					// 변수1 이름에 대한 설명 (예: 규격)
+	vector<vector<string>>	var1value;			// 변수1 이름에 대한 값
+	vector<API_AddParID>	var1type;			// 변수1 이름에 대한 값의 타입
+
+	vector<string>	var2name;					// 변수2 이름 (예: nom)
+	vector<string>	var2desc;					// 변수2 이름에 대한 설명 (예: 규격)
+	vector<vector<string>>	var2value;			// 변수2 이름에 대한 값
+	vector<API_AddParID>	var2type;			// 변수2 이름에 대한 값의 타입
+	
+	vector<string>	var3name;					// 변수3 이름 (예: nom)
+	vector<string>	var3desc;					// 변수3 이름에 대한 설명 (예: 규격)
+	vector<vector<string>>	var3value;			// 변수3 이름에 대한 값
+	vector<API_AddParID>	var3type;			// 변수3 이름에 대한 값의 타입
+
+	vector<string>	var4name;					// 변수4 이름 (예: nom)
+	vector<string>	var4desc;					// 변수4 이름에 대한 설명 (예: 규격)
+	vector<vector<string>>	var4value;			// 변수4 이름에 대한 값
+	vector<API_AddParID>	var4type;			// 변수4 이름에 대한 값의 타입
+
+	vector<string>	var5name;					// 변수5 이름 (예: nom)
+	vector<string>	var5desc;					// 변수5 이름에 대한 설명 (예: 규격)
+	vector<vector<string>>	var5value;			// 변수5 이름에 대한 값
+	vector<API_AddParID>	var5type;			// 변수5 이름에 대한 값의 타입
+
+	vector<string>	var6name;					// 변수6 이름 (예: nom)
+	vector<string>	var6desc;					// 변수6 이름에 대한 설명 (예: 규격)
+	vector<vector<string>>	var6value;			// 변수6 이름에 대한 값
+	vector<API_AddParID>	var6type;			// 변수6 이름에 대한 값의 타입
+
+	vector<string>	var7name;					// 변수7 이름 (예: nom)
+	vector<string>	var7desc;					// 변수7 이름에 대한 설명 (예: 규격)
+	vector<vector<string>>	var7value;			// 변수7 이름에 대한 값
+	vector<API_AddParID>	var7type;			// 변수7 이름에 대한 값의 타입
+
+	vector<string>	var8name;					// 변수8 이름 (예: nom)
+	vector<string>	var8desc;					// 변수8 이름에 대한 설명 (예: 규격)
+	vector<vector<string>>	var8value;			// 변수8 이름에 대한 값
+	vector<API_AddParID>	var8type;			// 변수8 이름에 대한 값의 타입
+
+	vector<string>	var9name;					// 변수9 이름 (예: nom)
+	vector<string>	var9desc;					// 변수9 이름에 대한 설명 (예: 규격)
+	vector<vector<string>>	var9value;			// 변수9 이름에 대한 값
+	vector<API_AddParID>	var9type;			// 변수9 이름에 대한 값의 타입
+
+	vector<vector<short>>	combinationCount;	// 여러 변수들의 조합에 대한 개수
+
+	vector<short>	nCounts;					// 서로 다른 변수 조합 개수
+	short nKnownObjects;						// 지정된 객체의 개수
+
+	// 객체별 정보 (Beam 타입)
+	vector<int>		beamLength;					// 보 길이
+	vector<short>	beamCount;					// 해당 보 길이에 대한 개수
+	short nCountsBeam;							// 보 종류별 개수
+
+	// 알 수 없는 객체
+	short nUnknownObjects;						// 지정되지 않은 객체의 개수
+};
+
 // 선택한 부재들의 요약 정보
 struct SummaryOfSelectedObjects
 {
@@ -53,7 +126,7 @@ struct SummaryOfSelectedObjects
 	int uformCount [100];				// 해당 유로폼 너비/높이 조합에 대한 개수
 	int sizeOfUformKinds;				// 유로폼 종류별 개수
 
-	// 스틸폼
+	// 스틸폼ㅎ
 	int steelformWidth [100];			// 스틸폼 너비
 	int steelformHeight [100];			// 스틸폼 높이
 	int steelformCount [100];			// 해당 스틸폼 너비/높이 조합에 대한 개수
@@ -159,6 +232,23 @@ struct SummaryOfSelectedObjects
 	char GT24GirderNom [30][10];		// GT24 거더 규격
 	int GT24GirderCount [30];			// 해당 GT24 거더 규격에 대한 개수
 	int sizeOfGT24Girder;				// GT24 거더 종류별 개수
+
+	// 매직바
+	int MagicBarLen [100];				// 매직바 길이
+	int MagicBarCount [100];			// 해당 매직바 길이에 대한 개수
+	int sizeOfMagicBar;					// 매직바 종류별 개수
+
+	// 매직아웃코너
+	char MagicOutcornerType [100][10];	// 매직아웃코너 규격
+	int MagicOutcornerLen [100];		// 매직아웃코너 길이
+	int MagicOutcornerCount [100];		// 해당 매직아웃코너 규격/길이 조합에 대한 개수
+	int sizeOfMagicOutcorner;			// 매직아웃코너 종류별 개수
+
+	// 매직인코너
+	char MagicIncornerType [100][10];	// 매직인코너 규격
+	int MagicIncornerLen [100];			// 매직인코너 길이
+	int MagicIncornerCount [100];		// 해당 매직인코너 길이에 대한 개수
+	int sizeOfMagicIncorner;			// 매직인코너 종류별 개수
 
 	// 일반 요소
 	// 보

@@ -368,6 +368,125 @@ GSErrCode	exportGridElementInfo (void)
 	return	err;
 }
 
+// 선택한 부재들의 요약 정보: 생성자
+SummaryOfObjectInfo::SummaryOfObjectInfo ()
+{
+	FILE	*fp;			// 파일 포인터
+	char	line [10240];	// 파일에서 읽어온 라인 하나
+	char	*token;			// 읽어온 문자열의 토큰
+	short	lineCount;		// 읽어온 라인 수
+	short	tokCount;		// 읽어온 토큰 개수
+	short	xx;
+
+	char	nthToken [50][50];	// n번째 토큰
+
+	// 객체 정보 파일 가져오기
+	fp = fopen ("C:\\objectInfo.csv", "r");
+
+	if (fp == NULL) {
+		ACAPI_WriteReport ("objectInfo.csv 파일을 C:\\로 복사하십시오.", true);
+	} else {
+		lineCount = 0;
+
+		while (!feof (fp)) {
+			tokCount = 0;
+			fgets (line, sizeof(line), fp);
+
+			token = strtok (line, ",");
+			tokCount ++;
+			lineCount ++;
+
+			// 한 라인씩 처리
+			while (token != NULL) {
+				if (strlen (token) > 0) {
+					strncpy (nthToken [tokCount-1], token, strlen (token)+1);
+				}
+				token = strtok (NULL, ",");
+				tokCount ++;
+			}
+
+			// 표시할 정보 필드 개수
+			this->nInfo.push_back ((short)(((tokCount-1) - 2) / 2));
+
+			// 토큰 개수가 2개 이상일 때 유효함
+			if ((tokCount-1) >= 2) {
+				// 토큰 개수가 짝수 개씩만 저장됨 (홀수 개이면 마지막 항목 제외)
+				if (((tokCount-1) - 2) % 2 != 0) {
+					tokCount --;
+				}
+
+				this->nameKey.push_back (nthToken [0]);
+				this->nameVal.push_back (nthToken [1]);
+
+				if ((tokCount-1) >= 3)	this->var1name.push_back (nthToken [2]);	else this->var1name.push_back ("");
+				if ((tokCount-1) >= 4)	this->var1desc.push_back (nthToken [3]);	else this->var1desc.push_back ("");
+
+				if ((tokCount-1) >= 5)	this->var2name.push_back (nthToken [4]);	else this->var2name.push_back ("");
+				if ((tokCount-1) >= 6)	this->var2desc.push_back (nthToken [5]);	else this->var2desc.push_back ("");
+
+				if ((tokCount-1) >= 7)	this->var3name.push_back (nthToken [6]);	else this->var3name.push_back ("");
+				if ((tokCount-1) >= 8)	this->var3desc.push_back (nthToken [7]);	else this->var3desc.push_back ("");
+
+				if ((tokCount-1) >= 9)	this->var4name.push_back (nthToken [8]);	else this->var4name.push_back ("");
+				if ((tokCount-1) >= 10)	this->var4desc.push_back (nthToken [9]);	else this->var4desc.push_back ("");
+
+				if ((tokCount-1) >= 11)	this->var5name.push_back (nthToken [10]);	else this->var5name.push_back ("");
+				if ((tokCount-1) >= 12)	this->var5desc.push_back (nthToken [11]);	else this->var5desc.push_back ("");
+
+				if ((tokCount-1) >= 13)	this->var6name.push_back (nthToken [12]);	else this->var6name.push_back ("");
+				if ((tokCount-1) >= 14)	this->var6desc.push_back (nthToken [13]);	else this->var6desc.push_back ("");
+
+				if ((tokCount-1) >= 15)	this->var7name.push_back (nthToken [14]);	else this->var7name.push_back ("");
+				if ((tokCount-1) >= 16)	this->var7desc.push_back (nthToken [15]);	else this->var7desc.push_back ("");
+
+				if ((tokCount-1) >= 17)	this->var8name.push_back (nthToken [16]);	else this->var8name.push_back ("");
+				if ((tokCount-1) >= 18)	this->var8desc.push_back (nthToken [17]);	else this->var8desc.push_back ("");
+
+				if ((tokCount-1) >= 19)	this->var9name.push_back (nthToken [18]);	else this->var9name.push_back ("");
+				if ((tokCount-1) >= 20)	this->var9desc.push_back (nthToken [19]);	else this->var9desc.push_back ("");
+			}
+		}
+
+		// 파일 닫기
+		fclose (fp);
+
+		// 객체 종류 개수
+		this->nKnownObjects = lineCount - 1;
+
+		// 다른 멤버 변수 초기화
+		vector<string>			vec_empty_string = vector<string> (100, "");
+		vector<short>			vec_empty_short = vector<short> (100, 0);
+		vector<API_AddParID>	vec_empty_type = vector<API_AddParID> (100, API_ZombieParT);
+
+		this->var1type = vec_empty_type;
+		this->var2type = vec_empty_type;
+		this->var3type = vec_empty_type;
+		this->var4type = vec_empty_type;
+		this->var5type = vec_empty_type;
+		this->var6type = vec_empty_type;
+		this->var7type = vec_empty_type;
+		this->var8type = vec_empty_type;
+		this->var9type = vec_empty_type;
+
+		this->nCounts = vec_empty_short;
+		this->nCountsBeam = 0;
+		this->nUnknownObjects = 0;
+
+		for (xx = 0 ; xx < lineCount-1 ; ++xx) {
+			this->var1value.push_back (vec_empty_string);
+			this->var2value.push_back (vec_empty_string);
+			this->var3value.push_back (vec_empty_string);
+			this->var4value.push_back (vec_empty_string);
+			this->var5value.push_back (vec_empty_string);
+			this->var6value.push_back (vec_empty_string);
+			this->var7value.push_back (vec_empty_string);
+			this->var8value.push_back (vec_empty_string);
+			this->var9value.push_back (vec_empty_string);
+			this->combinationCount.push_back (vec_empty_short);
+		}
+	}
+}
+
 // 선택한 부재 정보 내보내기
 GSErrCode	exportSelectedElementInfo (void)
 {
@@ -422,40 +541,23 @@ GSErrCode	exportSelectedElementInfo (void)
 	SummaryOfSelectedObjects	summary;
 	bool				foundExistValue;
 
+	SummaryOfObjectInfo		objectInfo;
+
 	API_NewWindowPars	windowPars;
 	API_WindowInfo		windowInfo;
 	char				buffer [256];
-
-	summary.sizeOfUformKinds = 0;				// 유로폼 개수 초기화
-	summary.sizeOfSteelformKinds = 0;			// 스틸폼 개수 초기화
-	summary.sizeOfIncornerPanelKinds = 0;		// 인코너판넬 개수 초기화
-	summary.sizeOfOutcornerPanelKinds = 0;		// 아웃코너판넬 개수 초기화
-	summary.sizeOfOutcornerAngleKinds = 0;		// 아웃코너앵글 개수 초기화
-	summary.sizeOfWoodKinds = 0;				// 목재 개수 초기화
-	summary.sizeOfFsKinds = 0;					// 휠러스페이서 개수 초기화
-	summary.sizeOfSqrPipeKinds = 0;				// 사각파이프 개수 초기화
-	summary.sizeOfPlywoodKinds = 0;				// 합판 개수 초기화
-	summary.nHeadpiece = 0;						// 개수 초기화: RS Push-Pull Props 헤드피스 (인양고리 포함)
-	summary.sizeOfPropsKinds = 0;				// RS Push-Pull Props 개수 초기화
-	summary.nTie = 0;							// 개수 초기화: 벽체 타이
-	summary.nClamp = 0;							// 개수 초기화: 직교클램프
-	summary.sizeOfPinboltKinds = 0;				// 핀볼트세트 개수 초기화
-	summary.nJoin = 0;							// 개수 초기화: 결합철물 (사각와셔활용)
-	summary.sizeOfBeamYokeKinds = 0;			// 보 멍에제 개수 초기화
-	summary.sizeOfKSProfileKinds = 0;			// KS프로파일 개수 초기화
-	summary.sizeOfPERI_suppVerPostKinds = 0;	// PERI동바리 수직재 개수 초기화
-	summary.sizeOfPERI_suppHorPostKinds = 0;	// PERI동바리 수평재 개수 초기화
-	summary.sizeOfGT24Girder = 0;				// GT24 거더 개수 초기화
-	
-	summary.sizeOfBeamKinds = 0;				// 보 개수 초기화
-
-	summary.nUnknownObjects = 0;				// 알 수 없는 객채 개수 초기화
 
 	BNZeroMemory (&windowPars, sizeof (API_NewWindowPars));
 	windowPars.typeID = APIWind_MyTextID;
 	windowPars.userRefCon = 1;
 	GS::snuprintf (windowPars.wTitle, sizeof (windowPars.wTitle) / sizeof (GS::uchar_t), L("선택한 객체들의 정보"));
 	err = ACAPI_Database (APIDb_NewWindowID, &windowPars, NULL);	// 텍스트 창 열기
+
+	double			value_numeric [9];
+	string			value_string [9];
+	API_AddParID	value_type [9];
+	char			tempStr [50];
+	const char*		foundStr;
 
 	for (xx = 0 ; xx < nObjects ; ++xx) {
 		BNZeroMemory (&elem, sizeof (API_Element));
@@ -464,618 +566,216 @@ GSErrCode	exportSelectedElementInfo (void)
 		err = ACAPI_Element_Get (&elem);
 		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-		yy = 0;
-		while (yy <= 50) {
-			if (strncmp (memo.params [0][yy].name, "u_comp", strlen ("u_comp")) == 0) {
-				if (GS::ucscmp (memo.params [0][yy].value.uStr, L("유로폼")) == 0) {
+		for (yy = 0 ; yy < objectInfo.nameKey.size () ; ++yy) {
+
+			strcpy (tempStr, objectInfo.nameKey [yy].c_str ());
+			foundStr = getParameterStringByName (&memo, tempStr);
+
+			// 객체 종류를 찾았다면,
+			if (foundStr != NULL) {
+				if (strncmp (foundStr, objectInfo.nameVal [yy].c_str (), strlen (objectInfo.nameVal [yy].c_str ())) == 0) {
 					foundExistValue = false;
 
-					int width, height;
+					value_string [0] = "";
+					value_string [1] = "";
+					value_string [2] = "";
+					value_string [3] = "";
+					value_string [4] = "";
+					value_string [5] = "";
+					value_string [6] = "";
+					value_string [7] = "";
+					value_string [8] = "";
 
-					// 규격폼의 경우
-					if (memo.params [0][27].value.real == TRUE) {
-						width = atoi (getParameterStringByName (&memo, "eu_wid"));
-						height = atoi (getParameterStringByName (&memo, "eu_hei"));
+					// 변수 1
+					strcpy (tempStr, objectInfo.var1name [yy].c_str ());
+					value_type [0] = getParameterTypeByName (&memo, tempStr);
+					objectInfo.var1type [yy] = value_type [0];
 
-					// 비규격폼의 경우
-					} else {
-						width = static_cast<int> (round (getParameterValueByName (&memo, "eu_wid2") * 1000, 0));
-						height = static_cast<int> (round (getParameterValueByName (&memo, "eu_hei2") * 1000, 0));
-					}
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfUformKinds ; ++zz) {
-						if ((summary.uformWidth [zz] == width) && (summary.uformHeight [zz] == height)) {
-							summary.uformCount [zz] ++;
-							foundExistValue = true;
-							break;
+					if ((value_type [0] != APIParT_Separator) || (value_type [0] != APIParT_Title) || (value_type [0] != API_ZombieParT)) {
+						if (value_type [0] == APIParT_CString) {
+							// 문자열
+							value_string [0] = getParameterStringByName (&memo, tempStr);
+							value_numeric [0] = 0.0;
+						} else {
+							// 숫자
+							value_numeric [0] = getParameterValueByName (&memo, tempStr);
+							sprintf (tempStr, "%f", value_numeric [0]);
+							value_string [0] = tempStr;
 						}
 					}
 
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.uformWidth [summary.sizeOfUformKinds] = width;
-						summary.uformHeight [summary.sizeOfUformKinds] = height;
-						summary.uformCount [summary.sizeOfUformKinds] = 1;
-						summary.sizeOfUformKinds ++;
-					}
+					// 변수 2
+					strcpy (tempStr, objectInfo.var2name [yy].c_str ());
+					value_type [1] = getParameterTypeByName (&memo, tempStr);
+					objectInfo.var2type [yy] = value_type [1];
 
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("스틸폼")) == 0) {
-					foundExistValue = false;
-
-					int width, height;
-
-					// 규격폼의 경우
-					if (memo.params [0][27].value.real == TRUE) {
-						width = atoi (getParameterStringByName (&memo, "eu_wid"));
-						height = atoi (getParameterStringByName (&memo, "eu_hei"));
-
-					// 비규격폼의 경우
-					} else {
-						width = static_cast<int> (round (getParameterValueByName (&memo, "eu_wid2") * 1000, 0));
-						height = static_cast<int> (round (getParameterValueByName (&memo, "eu_hei2") * 1000, 0));
-					}
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfSteelformKinds ; ++zz) {
-						if ((summary.steelformWidth [zz] == width) && (summary.steelformHeight [zz] == height)) {
-							summary.steelformCount [zz] ++;
-							foundExistValue = true;
-							break;
+					if ((value_type [1] != APIParT_Separator) || (value_type [1] != APIParT_Title) || (value_type [1] != API_ZombieParT)) {
+						if (value_type [1] == APIParT_CString) {
+							// 문자열
+							value_string [1] = getParameterStringByName (&memo, tempStr);
+							value_numeric [1] = 0.0;
+						} else {
+							// 숫자
+							value_numeric [1] = getParameterValueByName (&memo, tempStr);
+							sprintf (tempStr, "%f", value_numeric [1]);
+							value_string [1] = tempStr;
 						}
 					}
 
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.steelformWidth [summary.sizeOfSteelformKinds] = width;
-						summary.steelformHeight [summary.sizeOfSteelformKinds] = height;
-						summary.steelformCount [summary.sizeOfSteelformKinds] = 1;
-						summary.sizeOfSteelformKinds ++;
-					}
+					// 변수 3
+					strcpy (tempStr, objectInfo.var3name [yy].c_str ());
+					value_type [2] = getParameterTypeByName (&memo, tempStr);
+					objectInfo.var3type [yy] = value_type [2];
 
-					break;
-				}
-			} else if (strncmp (memo.params [0][yy].name, "in_comp", strlen ("in_comp")) == 0) {
-				if (GS::ucscmp (memo.params [0][yy].value.uStr, L("인코너판넬")) == 0) {
-					foundExistValue = false;
-
-					int hor, ver, hei;
-
-					hor = static_cast<int> (round (getParameterValueByName (&memo, "wid_s") * 1000, 0));
-					ver = static_cast<int> (round (getParameterValueByName (&memo, "leng_s") * 1000, 0));
-					hei = static_cast<int> (round (getParameterValueByName (&memo, "hei_s") * 1000, 0));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfIncornerPanelKinds ; ++zz) {
-						if ((summary.incornerPanelHor [zz] == hor) && (summary.incornerPanelVer [zz] == ver) && (summary.incornerPanelHei [zz] == hei)) {
-							summary.incornerPanelCount [zz] ++;
-							foundExistValue = true;
-							break;
+					if ((value_type [2] != APIParT_Separator) || (value_type [2] != APIParT_Title) || (value_type [2] != API_ZombieParT)) {
+						if (value_type [2] == APIParT_CString) {
+							// 문자열
+							value_string [2] = getParameterStringByName (&memo, tempStr);
+							value_numeric [2] = 0.0;
+						} else {
+							// 숫자
+							value_numeric [2] = getParameterValueByName (&memo, tempStr);
+							sprintf (tempStr, "%f", value_numeric [2]);
+							value_string [2] = tempStr;
 						}
 					}
 
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.incornerPanelHor [summary.sizeOfIncornerPanelKinds] = hor;
-						summary.incornerPanelVer [summary.sizeOfIncornerPanelKinds] = ver;
-						summary.incornerPanelHei [summary.sizeOfIncornerPanelKinds] = hei;
-						summary.incornerPanelCount [summary.sizeOfIncornerPanelKinds] = 1;
-						summary.sizeOfIncornerPanelKinds ++;
-					}
+					// 변수 4
+					strcpy (tempStr, objectInfo.var4name [yy].c_str ());
+					value_type [3] = getParameterTypeByName (&memo, tempStr);
+					objectInfo.var4type [yy] = value_type [3];
 
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("아웃코너판넬")) == 0) {
-					foundExistValue = false;
-
-					int hor, ver, hei;
-
-					hor = static_cast<int> (round (getParameterValueByName (&memo, "wid_s") * 1000, 0));
-					ver = static_cast<int> (round (getParameterValueByName (&memo, "leng_s") * 1000, 0));
-					hei = static_cast<int> (round (getParameterValueByName (&memo, "hei_s") * 1000, 0));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfOutcornerPanelKinds ; ++zz) {
-						if ((summary.outcornerPanelHor [zz] == hor) && (summary.outcornerPanelVer [zz] == ver) && (summary.outcornerPanelHei [zz] == hei)) {
-							summary.outcornerPanelCount [zz] ++;
-							foundExistValue = true;
-							break;
+					if ((value_type [3] != APIParT_Separator) || (value_type [3] != APIParT_Title) || (value_type [3] != API_ZombieParT)) {
+						if (value_type [3] == APIParT_CString) {
+							// 문자열
+							value_string [3] = getParameterStringByName (&memo, tempStr);
+							value_numeric [3] = 0.0;
+						} else {
+							// 숫자
+							value_numeric [3] = getParameterValueByName (&memo, tempStr);
+							sprintf (tempStr, "%f", value_numeric [3]);
+							value_string [3] = tempStr;
 						}
 					}
 
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.outcornerPanelHor [summary.sizeOfOutcornerPanelKinds] = hor;
-						summary.outcornerPanelVer [summary.sizeOfOutcornerPanelKinds] = ver;
-						summary.outcornerPanelHei [summary.sizeOfOutcornerPanelKinds] = hei;
-						summary.outcornerPanelCount [summary.sizeOfOutcornerPanelKinds] = 1;
-						summary.sizeOfOutcornerPanelKinds ++;
-					}
+					// 변수 5
+					strcpy (tempStr, objectInfo.var5name [yy].c_str ());
+					value_type [4] = getParameterTypeByName (&memo, tempStr);
+					objectInfo.var5type [yy] = value_type [4];
 
-					break;
-				}
-			} else if (strncmp (memo.params [0][yy].name, "w_comp", strlen ("w_comp")) == 0) {
-				if (GS::ucscmp (memo.params [0][yy].value.uStr, L("아웃코너앵글")) == 0) {
-					foundExistValue = false;
-
-					int length;
-
-					length = static_cast<int> (round (getParameterValueByName (&memo, "a_leng") * 1000, 0));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfOutcornerAngleKinds ; ++zz) {
-						if (summary.outcornerAngleLength [zz] == length) {
-							summary.outcornerAngleCount [zz] ++;
-							foundExistValue = true;
-							break;
+					if ((value_type [4] != APIParT_Separator) || (value_type [4] != APIParT_Title) || (value_type [4] != API_ZombieParT)) {
+						if (value_type [4] == APIParT_CString) {
+							// 문자열
+							value_string [4] = getParameterStringByName (&memo, tempStr);
+							value_numeric [4] = 0.0;
+						} else {
+							// 숫자
+							value_numeric [4] = getParameterValueByName (&memo, tempStr);
+							sprintf (tempStr, "%f", value_numeric [4]);
+							value_string [4] = tempStr;
 						}
 					}
 
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.outcornerAngleLength [summary.sizeOfOutcornerAngleKinds] = length;
-						summary.outcornerAngleCount [summary.sizeOfOutcornerAngleKinds] = 1;
-						summary.sizeOfOutcornerAngleKinds ++;
-					}
+					// 변수 6
+					strcpy (tempStr, objectInfo.var6name [yy].c_str ());
+					value_type [5] = getParameterTypeByName (&memo, tempStr);
+					objectInfo.var6type [yy] = value_type [5];
 
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("목재")) == 0) {
-					foundExistValue = false;
-
-					int thk, wid, len;
-
-					thk = static_cast<int> (round (getParameterValueByName (&memo, "w_w") * 1000, 0));
-					wid = static_cast<int> (round (getParameterValueByName (&memo, "w_h") * 1000, 0));
-					len = static_cast<int> (round (getParameterValueByName (&memo, "w_leng") * 1000, 0));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfWoodKinds ; ++zz) {
-						if ((summary.woodThk [zz] == thk) && (summary.woodWidth [zz] == wid) && (summary.woodLength [zz] == len)) {
-							summary.woodCount [zz] ++;
-							foundExistValue = true;
-							break;
+					if ((value_type [5] != APIParT_Separator) || (value_type [5] != APIParT_Title) || (value_type [5] != API_ZombieParT)) {
+						if (value_type [5] == APIParT_CString) {
+							// 문자열
+							value_string [5] = getParameterStringByName (&memo, tempStr);
+							value_numeric [5] = 0.0;
+						} else {
+							// 숫자
+							value_numeric [5] = getParameterValueByName (&memo, tempStr);
+							sprintf (tempStr, "%f", value_numeric [5]);
+							value_string [5] = tempStr;
 						}
 					}
 
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.woodThk [summary.sizeOfWoodKinds] = thk;
-						summary.woodWidth [summary.sizeOfWoodKinds] = wid;
-						summary.woodLength [summary.sizeOfWoodKinds] = len;
-						summary.woodCount [summary.sizeOfWoodKinds] = 1;
-						summary.sizeOfWoodKinds ++;
-					}
+					// 변수 7
+					strcpy (tempStr, objectInfo.var7name [yy].c_str ());
+					value_type [6] = getParameterTypeByName (&memo, tempStr);
+					objectInfo.var7type [yy] = value_type [6];
 
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("휠러스페이서")) == 0) {
-					foundExistValue = false;
-
-					int thk, len;
-
-					thk = static_cast<int> (round (getParameterValueByName (&memo, "f_thk") * 1000, 0));
-					len = static_cast<int> (round (getParameterValueByName (&memo, "f_leng") * 1000, 0));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfFsKinds ; ++zz) {
-						if ((summary.fsThk [zz] == thk) && (summary.fsLength [zz] == len)) {
-							summary.fsCount [zz] ++;
-							foundExistValue = true;
-							break;
+					if ((value_type [6] != APIParT_Separator) || (value_type [6] != APIParT_Title) || (value_type [6] != API_ZombieParT)) {
+						if (value_type [6] == APIParT_CString) {
+							// 문자열
+							value_string [6] = getParameterStringByName (&memo, tempStr);
+							value_numeric [6] = 0.0;
+						} else {
+							// 숫자
+							value_numeric [6] = getParameterValueByName (&memo, tempStr);
+							sprintf (tempStr, "%f", value_numeric [6]);
+							value_string [6] = tempStr;
 						}
 					}
 
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.fsThk [summary.sizeOfFsKinds] = thk;
-						summary.fsLength [summary.sizeOfFsKinds] = len;
-						summary.fsCount [summary.sizeOfFsKinds] = 1;
-						summary.sizeOfFsKinds ++;
+					// 변수 8
+					strcpy (tempStr, objectInfo.var8name [yy].c_str ());
+					value_type [7] = getParameterTypeByName (&memo, tempStr);
+					objectInfo.var8type [yy] = value_type [7];
+
+					if ((value_type [7] != APIParT_Separator) || (value_type [7] != APIParT_Title) || (value_type [7] != API_ZombieParT)) {
+						if (value_type [7] == APIParT_CString) {
+							// 문자열
+							value_string [7] = getParameterStringByName (&memo, tempStr);
+							value_numeric [7] = 0.0;
+						} else {
+							// 숫자
+							value_numeric [7] = getParameterValueByName (&memo, tempStr);
+							sprintf (tempStr, "%f", value_numeric [7]);
+							value_string [7] = tempStr;
+						}
 					}
 
-					break;
-				}
-			} else if (strncmp (memo.params [0][yy].name, "p_comp", strlen ("p_comp")) == 0) {
-				if (GS::ucscmp (memo.params [0][yy].value.uStr, L("사각파이프")) == 0) {
-					// 비계파이프의 경우
-					if (memo.params [0][27].typeID == APIParT_Length) {
-						foundExistValue = false;
+					// 변수 9
+					strcpy (tempStr, objectInfo.var9name [yy].c_str ());
+					value_type [8] = getParameterTypeByName (&memo, tempStr);
+					objectInfo.var9type [yy] = value_type [8];
 
-						int hor, ver, len;
+					if ((value_type [8] != APIParT_Separator) || (value_type [8] != APIParT_Title) || (value_type [8] != API_ZombieParT)) {
+						if (value_type [8] == APIParT_CString) {
+							// 문자열
+							value_string [8] = getParameterStringByName (&memo, tempStr);
+							value_numeric [8] = 0.0;
+						} else {
+							// 숫자
+							value_numeric [8] = getParameterValueByName (&memo, tempStr);
+							sprintf (tempStr, "%f", value_numeric [8]);
+							value_string [8] = tempStr;
+						}
+					}
 
-						hor = 50;
-						ver = 50;
-						len = static_cast<int> (round (getParameterValueByName (&memo, "p_leng") * 1000, 0));
+					// 중복 항목은 개수만 증가
+					for (zz = 0 ; zz < objectInfo.nCounts [yy] ; ++zz) {
+						if ((objectInfo.var1value [yy][zz].compare (value_string [0]) == 0) && (objectInfo.var2value [yy][zz].compare (value_string [1]) == 0) && (objectInfo.var3value [yy][zz].compare (value_string [2]) == 0) && 
+							(objectInfo.var4value [yy][zz].compare (value_string [3]) == 0) && (objectInfo.var5value [yy][zz].compare (value_string [4]) == 0) && (objectInfo.var6value [yy][zz].compare (value_string [5]) == 0) && 
+							(objectInfo.var7value [yy][zz].compare (value_string [6]) == 0) && (objectInfo.var8value [yy][zz].compare (value_string [7]) == 0) && (objectInfo.var9value [yy][zz].compare (value_string [8]) == 0)) {
 
-						// 중복 항목은 개수만 증가
-						for (zz = 0 ; zz < summary.sizeOfSqrPipeKinds ; ++zz) {
-							if ((summary.sqrPipeHor [zz] == hor) && (summary.sqrPipeVer [zz] == ver) && (summary.sqrPipeLength [zz] == len)) {
-								summary.sqrPipeCount [zz] ++;
+								objectInfo.combinationCount [yy][zz] ++;
 								foundExistValue = true;
 								break;
-							}
 						}
-
-						// 신규 항목 추가하고 개수도 증가
-						if ( !foundExistValue ) {
-							summary.sqrPipeHor [summary.sizeOfSqrPipeKinds] = hor;
-							summary.sqrPipeVer [summary.sizeOfSqrPipeKinds] = ver;
-							summary.sqrPipeLength [summary.sizeOfSqrPipeKinds] = len;
-							summary.sqrPipeCount [summary.sizeOfSqrPipeKinds] = 1;
-							summary.sizeOfSqrPipeKinds ++;
-						}
-
-						break;
 					}
 
-					// 직사각파이프의 경우
-					if (memo.params [0][27].typeID == APIParT_CString) {
-						foundExistValue = false;
-
-						char nom [20];
-						int hor = 0, ver = 0, len;
-
-						//sprintf (nom, "%s", GS::UniString (memo.params [0][27].value.uStr).ToCStr ().Get ());
-						strcpy (nom, getParameterStringByName (&memo, "p_nom"));
-
-						char	*token;
-						int		tokCount;
-
-						token = strtok (nom, "x");
-						tokCount = 1;
-						while (token != NULL) {
-							if (strlen (token) > 0) {
-								if (tokCount == 1)
-									hor = atoi (token);
-								if (tokCount == 2)
-									ver = atoi (token);
-								tokCount ++;
-							}
-							token = strtok (NULL, ",");
-						}
-
-						len = static_cast<int> (round (getParameterValueByName (&memo, "p_leng") * 1000, 0));
-
-						// 중복 항목은 개수만 증가
-						for (zz = 0 ; zz < summary.sizeOfSqrPipeKinds ; ++zz) {
-							if ((summary.sqrPipeHor [zz] == hor) && (summary.sqrPipeVer [zz] == ver) && (summary.sqrPipeLength [zz] == len)) {
-								summary.sqrPipeCount [zz] ++;
-								foundExistValue = true;
-								break;
-							}
-						}
-
-						// 신규 항목 추가하고 개수도 증가
-						if ( !foundExistValue ) {
-							summary.sqrPipeHor [summary.sizeOfSqrPipeKinds] = hor;
-							summary.sqrPipeVer [summary.sizeOfSqrPipeKinds] = ver;
-							summary.sqrPipeLength [summary.sizeOfSqrPipeKinds] = len;
-							summary.sqrPipeCount [summary.sizeOfSqrPipeKinds] = 1;
-							summary.sizeOfSqrPipeKinds ++;
-						}
-
-						break;
+					// 신규 항목이면
+					if (!foundExistValue) {
+						objectInfo.var1value [yy][objectInfo.nCounts [yy]] = value_string [0];
+						objectInfo.var2value [yy][objectInfo.nCounts [yy]] = value_string [1];
+						objectInfo.var3value [yy][objectInfo.nCounts [yy]] = value_string [2];
+						objectInfo.var4value [yy][objectInfo.nCounts [yy]] = value_string [3];
+						objectInfo.var5value [yy][objectInfo.nCounts [yy]] = value_string [4];
+						objectInfo.var6value [yy][objectInfo.nCounts [yy]] = value_string [5];
+						objectInfo.var7value [yy][objectInfo.nCounts [yy]] = value_string [6];
+						objectInfo.var8value [yy][objectInfo.nCounts [yy]] = value_string [7];
+						objectInfo.var9value [yy][objectInfo.nCounts [yy]] = value_string [8];
+						objectInfo.combinationCount [yy][objectInfo.nCounts [yy]] = 1;
+						objectInfo.nCounts [yy] ++;
 					}
 				}
-			} else if (strncmp (memo.params [0][yy].name, "g_comp", strlen ("g_comp")) == 0) {
-				if (GS::ucscmp (memo.params [0][yy].value.uStr, L("합판")) == 0) {
-					foundExistValue = false;
-
-					int hor, ver;
-					double thk = 0.0;
-
-					// 규격에 따른 가로, 세로
-					if (strncmp (getParameterStringByName (&memo, "p_stan"), "3x6 [910x1820]", strlen ("3x6 [910x1820]")) == 0) {
-						hor = 910;
-						ver = 1820;
-					} else if (strncmp (getParameterStringByName (&memo, "p_stan"), "4x8 [1220x2440]", strlen ("4x8 [1220x2440]")) == 0) {
-						hor = 1220;
-						ver = 2440;
-					} else if (strncmp (getParameterStringByName (&memo, "p_stan"), "비규격", strlen ("비규격")) == 0) {
-						hor = static_cast<int> (round (getParameterValueByName (&memo, "p_wid") * 1000, 0));
-						ver = static_cast<int> (round (getParameterValueByName (&memo, "p_leng") * 1000, 0));
-					} else {
-						// 그 외(비정형)는 알 수 없는 객체로 취급함
-						summary.nUnknownObjects ++;
-						break;
-					}
-					
-					// 두께
-					const char* p_thk = getParameterStringByName (&memo, "p_thk");
-
-					if (strncmp (p_thk, "2.7T", strlen ("2.7T")) == 0)		thk = 2.7;
-					if (strncmp (p_thk, "4.8T", strlen ("4.8T")) == 0)		thk = 4.8;
-					if (strncmp (p_thk, "7.5T", strlen ("7.5T")) == 0)		thk = 7.5;
-					if (strncmp (p_thk, "8.5T", strlen ("8.5T")) == 0)		thk = 8.5;
-					if (strncmp (p_thk, "11.5T", strlen ("11.5T")) == 0)	thk = 11.5;
-					if (strncmp (p_thk, "14.5T", strlen ("14.5T")) == 0)	thk = 14.5;
-					if (strncmp (p_thk, "17.5T", strlen ("17.5T")) == 0)	thk = 17.5;
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfPlywoodKinds ; ++zz) {
-						if ((summary.plywoodHor [zz] == hor) && (summary.plywoodVer [zz] == ver) && (abs (summary.plywoodThk [zz] - thk) < EPS)) {
-							summary.plywoodCount [zz] ++;
-							foundExistValue = true;
-							break;
-						}
-					}
-
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.plywoodHor [summary.sizeOfPlywoodKinds] = hor;
-						summary.plywoodVer [summary.sizeOfPlywoodKinds] = ver;
-						summary.plywoodThk [summary.sizeOfPlywoodKinds] = thk;
-						summary.plywoodCount [summary.sizeOfPlywoodKinds] = 1;
-						summary.sizeOfPlywoodKinds ++;
-					}
-
-					break;
-				}
-			} else if (strncmp (memo.params [0][yy].name, "sup_type", strlen ("sup_type")) == 0) {
-				if (GS::ucscmp (memo.params [0][yy].value.uStr, L("RS Push-Pull Props 헤드피스 (인양고리 포함)")) == 0) {
-					summary.nHeadpiece ++;
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("RS Push-Pull Props")) == 0) {
-					foundExistValue = false;
-
-					bool bUpper = TRUE;
-					char nomUpper [30];
-					bool bLower;
-					char nomLower [30];
-					bool bBase;
-					
-					if (memo.params [0][17].value.real == TRUE)
-						bLower = true;
-					else
-						bLower = false;
-
-					if (memo.params [0][9].value.real == TRUE)
-						bBase = true;
-					else
-						bBase = false;
-
-					sprintf (nomUpper, "%s", getParameterStringByName (&memo, "mainType"));
-					sprintf (nomLower, "%s", getParameterStringByName (&memo, "auxType"));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfPropsKinds ; ++zz) {
-						if ((summary.bPropsUpperSupp [zz] == bUpper) && (strncmp (summary.PropsNomUpperSupp [xx], nomUpper, strlen(nomUpper)) == 0) && (summary.bPropsLowerSupp [zz] == bLower) && (strncmp (summary.PropsNomLowerSupp [xx], nomLower, strlen(nomLower)) == 0) && (summary.bPropsBase [zz] == bBase)) {
-							summary.propsCount [zz] ++;
-							foundExistValue = true;
-							break;
-						}
-					}
-
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.bPropsUpperSupp [summary.sizeOfPropsKinds] = bUpper;
-						sprintf (summary.PropsNomUpperSupp [summary.sizeOfPropsKinds], nomUpper);
-						summary.bPropsLowerSupp [summary.sizeOfPropsKinds] = bLower;
-						sprintf (summary.PropsNomLowerSupp [summary.sizeOfPropsKinds], nomLower);
-						summary.bPropsBase [summary.sizeOfPropsKinds] = bBase;
-						summary.propsCount [summary.sizeOfPropsKinds] = 1;
-						summary.sizeOfPropsKinds ++;
-					}
-
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("벽체 타이")) == 0) {
-					summary.nTie ++;
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("직교클램프")) == 0) {
-					summary.nClamp ++;
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("핀볼트세트")) == 0) {
-					foundExistValue = false;
-
-					int bolt_len, washer_pos;
-					int len;
-
-					bolt_len = static_cast<int> (round (getParameterValueByName (&memo, "bolt_len") * 1000, 0));
-					washer_pos = static_cast<int> (round (getParameterValueByName (&memo, "washer_pos") * 1000, 0));
-					len = bolt_len - washer_pos + 40;
-
-					if (len < 100) {
-						len = 100;
-					} else if (len < 150) {
-						len = 150;
-					} else if (len < 180) {
-						len = 180;
-					}
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfPinboltKinds ; ++zz) {
-						if (summary.pinboltLen [zz] == len) {
-							summary.pinboltCount [zz] ++;
-							foundExistValue = true;
-							break;
-						}
-					}
-
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.pinboltLen [summary.sizeOfPinboltKinds] = len;
-						summary.pinboltCount [summary.sizeOfPinboltKinds] = 1;
-						summary.sizeOfPinboltKinds ++;
-					}
-
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("결합철물 (사각와셔활용)")) == 0) {
-					summary.nJoin ++;
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("보 멍에제")) == 0) {
-					foundExistValue = false;
-
-					int len;
-
-					len = static_cast<int> (round (getParameterValueByName (&memo, "beamLength") * 1000, 0));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfBeamYokeKinds ; ++zz) {
-						if (summary.beamYokeLength [zz] == len) {
-							summary.beamYokeCount [zz] ++;
-							foundExistValue = true;
-							break;
-						}
-					}
-
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						summary.beamYokeLength [summary.sizeOfBeamYokeKinds] = len;
-						summary.beamYokeCount [summary.sizeOfBeamYokeKinds] = 1;
-						summary.sizeOfBeamYokeKinds ++;
-					}
-
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("KS프로파일")) == 0) {
-					foundExistValue = false;
-
-					char type [10];
-					char shape [30];
-					char nom [50];
-					int len;
-
-					sprintf (type, "%s", getParameterStringByName (&memo, "type"));
-					sprintf (shape, "%s", getParameterStringByName (&memo, "shape"));
-					sprintf (nom, "%s", getParameterStringByName (&memo, "nom"));
-					len = static_cast<int> (round (getParameterValueByName (&memo, "len") * 1000, 0));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfKSProfileKinds ; ++zz) {
-						if ((strncmp (summary.KSProfileType [zz], type, strlen(type)) == 0) && (strncmp (summary.KSProfileShape [zz], shape, strlen(shape)) == 0) && (strncmp (summary.KSProfileNom [zz], nom, strlen(nom)) == 0) && (summary.KSProfileLen [zz] == len)) {
-							summary.KSProfileCount [zz] ++;
-							foundExistValue = true;
-							break;
-						}
-					}
-
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						sprintf (summary.KSProfileType [summary.sizeOfKSProfileKinds], type);
-						sprintf (summary.KSProfileShape [summary.sizeOfKSProfileKinds], shape);
-						sprintf (summary.KSProfileNom [summary.sizeOfKSProfileKinds], nom);
-						summary.KSProfileLen [summary.sizeOfKSProfileKinds] = len;
-						summary.KSProfileCount [summary.sizeOfKSProfileKinds] = 1;
-						summary.sizeOfKSProfileKinds ++;
-					}
-
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("PERI동바리 수직재")) == 0) {
-					foundExistValue = false;
-
-					char nom [10];
-					int len;
-
-					sprintf (nom, "%s", getParameterStringByName (&memo, "stType"));
-					len = static_cast<int> (round (getParameterValueByName (&memo, "len_current") * 1000, 0));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfPERI_suppVerPostKinds ; ++zz) {
-						if ((strncmp (summary.PERI_suppVerPostNom [zz], nom, strlen(nom)) == 0) && (summary.PERI_suppVerPostLen [zz] == len)) {
-							summary.PERI_suppVerPostCount [zz] ++;
-							foundExistValue = true;
-							break;
-						}
-					}
-
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						sprintf (summary.PERI_suppVerPostNom [summary.sizeOfPERI_suppVerPostKinds], nom);
-						summary.PERI_suppVerPostLen [summary.sizeOfPERI_suppVerPostKinds] = len;
-						summary.PERI_suppVerPostCount [summary.sizeOfPERI_suppVerPostKinds] = 1;
-						summary.sizeOfPERI_suppVerPostKinds ++;
-					}
-
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("PERI동바리 수평재")) == 0) {
-					foundExistValue = false;
-
-					char nom [10];
-
-					sprintf (nom, "%s", getParameterStringByName (&memo, "stType"));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfPERI_suppHorPostKinds ; ++zz) {
-						if (strncmp (summary.PERI_suppHorPostNom [zz], nom, strlen(nom)) == 0) {
-							summary.PERI_suppHorPostCount [zz] ++;
-							foundExistValue = true;
-							break;
-						}
-					}
-
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						sprintf (summary.PERI_suppHorPostNom [summary.sizeOfPERI_suppHorPostKinds], nom);
-						summary.PERI_suppHorPostCount [summary.sizeOfPERI_suppHorPostKinds] = 1;
-						summary.sizeOfPERI_suppHorPostKinds ++;
-					}
-
-					break;
-				} else if (GS::ucscmp (memo.params [0][yy].value.uStr, L("GT24 거더")) == 0) {
-					foundExistValue = false;
-
-					char nom [10];
-
-					sprintf (nom, "%s", getParameterStringByName (&memo, "type"));
-
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < summary.sizeOfGT24Girder ; ++zz) {
-						if (strncmp (summary.GT24GirderNom [zz], nom, strlen(nom)) == 0) {
-							summary.GT24GirderCount [zz] ++;
-							foundExistValue = true;
-							break;
-						}
-					}
-
-					// 신규 항목 추가하고 개수도 증가
-					if ( !foundExistValue ) {
-						sprintf (summary.GT24GirderNom [summary.sizeOfGT24Girder], nom);
-						summary.GT24GirderCount [summary.sizeOfGT24Girder] = 1;
-						summary.sizeOfGT24Girder ++;
-					}
-
-					break;
-				}
 			}
-
-			if (yy == 50) {
-				// 알 수 없는 객체
-
-				summary.nUnknownObjects ++;
-				break;
-			}
-
-			++ yy;
-		}
-
-		ACAPI_DisposeElemMemoHdls (&memo);
-	}
-
-	// 보 개수 세기
-	for (xx = 0 ; xx < nBeams ; ++xx) {
-		BNZeroMemory (&elem, sizeof (API_Element));
-		BNZeroMemory (&memo, sizeof (API_ElementMemo));
-		elem.header.guid = beams.Pop ();
-		err = ACAPI_Element_Get (&elem);
-		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
-
-		foundExistValue = false;
-
-		int len;
-
-		len = static_cast<int> (round (GetDistance (elem.beam.begC, elem.beam.endC) * 1000, 0));
-
-		// 중복 항목은 개수만 증가
-		for (zz = 0 ; zz < summary.sizeOfBeamKinds ; ++zz) {
-			if (summary.beamLength [zz] == len) {
-				summary.beamCount [zz] ++;
-				foundExistValue = true;
-			}
-		}
-
-		// 신규 항목 추가하고 개수도 증가
-		if ( !foundExistValue ) {
-			summary.beamLength [summary.sizeOfBeamKinds] = len;
-			summary.beamCount [summary.sizeOfBeamKinds] = 1;
-			summary.sizeOfBeamKinds ++;
 		}
 
 		ACAPI_DisposeElemMemoHdls (&memo);
@@ -1086,183 +786,211 @@ GSErrCode	exportSelectedElementInfo (void)
 	windowInfo.typeID = APIWind_MyTextID;
 	windowInfo.index = 1;
 
-	for (xx = 0 ; xx < summary.sizeOfUformKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "[유로폼]\n");
-		sprintf (buffer, "%d x %d : %d EA\n", summary.uformWidth [xx], summary.uformHeight [xx], summary.uformCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	// APIParT_Length인 경우 1000배 곱해서 표현
+	// APIParT_Boolean인 경우 예/아니오 표현
+	double	length;
+
+	for (xx = 0 ; xx < objectInfo.nKnownObjects ; ++xx) {
+		for (yy = 0 ; yy < objectInfo.nCounts [xx] ; ++yy) {
+			// 제목
+			if (yy == 0) {
+				sprintf (buffer, "\n[%s]\n", objectInfo.nameVal [xx].c_str ());
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+
+			// 변수별 값 표현
+			if (objectInfo.var1name [xx].size () > 1) {
+				if (objectInfo.var1type [xx] == APIParT_Length) {
+					length = atof (objectInfo.var1value [xx][yy].c_str ());
+					sprintf (buffer, "%s(%.0f) ", objectInfo.var1desc [xx].c_str (), round (length*1000, 0));
+				} else if (objectInfo.var1type [xx] == APIParT_Boolean) {
+					if (atoi (objectInfo.var1value [xx][yy].c_str ()) > 0) {
+						sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), "예");
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), "아니오");
+					}
+				} else {
+					sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), objectInfo.var1value [xx][yy]);
+				}
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+			if (objectInfo.var2name [xx].size () > 1) {
+				if (objectInfo.var2type [xx] == APIParT_Length) {
+					length = atof (objectInfo.var2value [xx][yy].c_str ());
+					sprintf (buffer, "%s(%.0f) ", objectInfo.var2desc [xx].c_str (), round (length*1000, 0));
+				} else if (objectInfo.var2type [xx] == APIParT_Boolean) {
+					if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
+						sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), "예");
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), "아니오");
+					}
+				} else {
+					sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), objectInfo.var2value [xx][yy]);
+				}
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+			if (objectInfo.var3name [xx].size () > 1) {
+				if (objectInfo.var3type [xx] == APIParT_Length) {
+					length = atof (objectInfo.var3value [xx][yy].c_str ());
+					sprintf (buffer, "%s(%.0f) ", objectInfo.var3desc [xx].c_str (), round (length*1000, 0));
+				} else if (objectInfo.var3type [xx] == APIParT_Boolean) {
+					if (atoi (objectInfo.var3value [xx][yy].c_str ()) > 0) {
+						sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), "예");
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), "아니오");
+					}
+				} else {
+					sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), objectInfo.var3value [xx][yy]);
+				}
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+			if (objectInfo.var4name [xx].size () > 1) {
+				if (objectInfo.var4type [xx] == APIParT_Length) {
+					length = atof (objectInfo.var4value [xx][yy].c_str ());
+					sprintf (buffer, "%s(%.0f) ", objectInfo.var4desc [xx].c_str (), round (length*1000, 0));
+				} else if (objectInfo.var4type [xx] == APIParT_Boolean) {
+					if (atoi (objectInfo.var4value [xx][yy].c_str ()) > 0) {
+						sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), "예");
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), "아니오");
+					}
+				} else {
+					sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), objectInfo.var4value [xx][yy]);
+				}
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+			if (objectInfo.var5name [xx].size () > 1) {
+				if (objectInfo.var5type [xx] == APIParT_Length) {
+					length = atof (objectInfo.var5value [xx][yy].c_str ());
+					sprintf (buffer, "%s(%.0f) ", objectInfo.var5desc [xx].c_str (), round (length*1000, 0));
+				} else if (objectInfo.var5type [xx] == APIParT_Boolean) {
+					if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
+						sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), "예");
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), "아니오");
+					}
+				} else {
+					sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), objectInfo.var5value [xx][yy]);
+				}
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+			if (objectInfo.var6name [xx].size () > 1) {
+				if (objectInfo.var6type [xx] == APIParT_Length) {
+					length = atof (objectInfo.var6value [xx][yy].c_str ());
+					sprintf (buffer, "%s(%.0f) ", objectInfo.var6desc [xx].c_str (), round (length*1000, 0));
+				} else if (objectInfo.var6type [xx] == APIParT_Boolean) {
+					if (atoi (objectInfo.var6value [xx][yy].c_str ()) > 0) {
+						sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), "예");
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), "아니오");
+					}
+				} else {
+					sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), objectInfo.var6value [xx][yy]);
+				}
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+			if (objectInfo.var7name [xx].size () > 1) {
+				if (objectInfo.var7type [xx] == APIParT_Length) {
+					length = atof (objectInfo.var7value [xx][yy].c_str ());
+					sprintf (buffer, "%s(%.0f) ", objectInfo.var7desc [xx].c_str (), round (length*1000, 0));
+				} else if (objectInfo.var7type [xx] == APIParT_Boolean) {
+					if (atoi (objectInfo.var7value [xx][yy].c_str ()) > 0) {
+						sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), "예");
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), "아니오");
+					}
+				} else {
+					sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), objectInfo.var7value [xx][yy]);
+				}
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+			if (objectInfo.var8name [xx].size () > 1) {
+				if (objectInfo.var8type [xx] == APIParT_Length) {
+					length = atof (objectInfo.var8value [xx][yy].c_str ());
+					sprintf (buffer, "%s(%.0f) ", objectInfo.var8desc [xx].c_str (), round (length*1000, 0));
+				} else if (objectInfo.var8type [xx] == APIParT_Boolean) {
+					if (atoi (objectInfo.var8value [xx][yy].c_str ()) > 0) {
+						sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), "예");
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), "아니오");
+					}
+				} else {
+					sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), objectInfo.var8value [xx][yy]);
+				}
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+			if (objectInfo.var9name [xx].size () > 1) {
+				if (objectInfo.var9type [xx] == APIParT_Length) {
+					length = atof (objectInfo.var9value [xx][yy].c_str ());
+					sprintf (buffer, "%s(%.0f) ", objectInfo.var9desc [xx].c_str (), round (length*1000, 0));
+				} else if (objectInfo.var9type [xx] == APIParT_Boolean) {
+					if (atoi (objectInfo.var9value [xx][yy].c_str ()) > 0) {
+						sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), "예");
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), "아니오");
+					}
+				} else {
+					sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), objectInfo.var9value [xx][yy]);
+				}
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+
+			// 수량 표현
+			if (objectInfo.combinationCount [xx][yy] > 0) {
+				sprintf (buffer, ": %d EA", objectInfo.combinationCount [xx][yy]);
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+			}
+
+			// 줄넘김
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n");
+		}
 	}
 
-	for (xx = 0 ; xx < summary.sizeOfSteelformKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[스틸폼]\n");
-		sprintf (buffer, "%d x %d : %d EA\n", summary.steelformWidth [xx], summary.steelformHeight [xx], summary.steelformCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
+	//// 보 개수 세기
+	//for (xx = 0 ; xx < nBeams ; ++xx) {
+	//	BNZeroMemory (&elem, sizeof (API_Element));
+	//	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	//	elem.header.guid = beams.Pop ();
+	//	err = ACAPI_Element_Get (&elem);
+	//	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-	for (xx = 0 ; xx < summary.sizeOfIncornerPanelKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[인코너판넬]\n");
-		sprintf (buffer, "%d x %d x %d : %d EA\n", summary.incornerPanelHor [xx], summary.incornerPanelVer [xx], summary.incornerPanelHei [xx], summary.incornerPanelCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
+	//	foundExistValue = false;
 
-	for (xx = 0 ; xx < summary.sizeOfOutcornerPanelKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[아웃코너판넬]\n");
-		sprintf (buffer, "%d x %d x %d : %d EA\n", summary.outcornerPanelHor [xx], summary.outcornerPanelVer [xx], summary.outcornerPanelHei [xx], summary.outcornerPanelCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
+	//	int len;
 
-	for (xx = 0 ; xx < summary.sizeOfOutcornerAngleKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[아웃코너앵글]\n");
-		sprintf (buffer, "%d : %d EA\n", summary.outcornerAngleLength [xx], summary.outcornerAngleCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
+	//	len = static_cast<int> (round (GetDistance (elem.beam.begC, elem.beam.endC) * 1000, 0));
 
-	for (xx = 0 ; xx < summary.sizeOfWoodKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[목재]\n");
-		sprintf (buffer, "%d x %d x %d : %d EA\n", summary.woodThk [xx], summary.woodWidth [xx], summary.woodLength [xx], summary.woodCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
+	//	// 중복 항목은 개수만 증가
+	//	for (zz = 0 ; zz < summary.sizeOfBeamKinds ; ++zz) {
+	//		if (summary.beamLength [zz] == len) {
+	//			summary.beamCount [zz] ++;
+	//			foundExistValue = true;
+	//		}
+	//	}
 
-	for (xx = 0 ; xx < summary.sizeOfFsKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[휠러스페이서]\n");
-		sprintf (buffer, "%d x %d : %d EA\n", summary.fsThk [xx], summary.fsLength [xx], summary.fsCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
+	//	// 신규 항목 추가하고 개수도 증가
+	//	if ( !foundExistValue ) {
+	//		summary.beamLength [summary.sizeOfBeamKinds] = len;
+	//		summary.beamCount [summary.sizeOfBeamKinds] = 1;
+	//		summary.sizeOfBeamKinds ++;
+	//	}
 
-	for (xx = 0 ; xx < summary.sizeOfSqrPipeKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[사각파이프]\n");
-		sprintf (buffer, "%d x %d x %d : %d EA\n", summary.sqrPipeHor [xx], summary.sqrPipeVer [xx], summary.sqrPipeLength [xx], summary.sqrPipeCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
+	//	ACAPI_DisposeElemMemoHdls (&memo);
+	//}
 
-	for (xx = 0 ; xx < summary.sizeOfPlywoodKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[합판]\n");
-		sprintf (buffer, "%d x %d x %.1fT : %d EA\n", summary.plywoodHor [xx], summary.plywoodVer [xx], summary.plywoodThk [xx], summary.plywoodCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
+	//// 일반 요소 - 보
+	//for (xx = 0 ; xx < summary.sizeOfBeamKinds ; ++xx) {
+	//	if (xx == 0)
+	//		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보]\n");
+	//	sprintf (buffer, "%d : %d EA\n", summary.beamLength [xx], summary.beamCount [xx]);
+	//	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	//}
 
-	if (summary.nHeadpiece > 0) {
-		sprintf (buffer, "\n[RS Push-Pull Props 헤드피스]\n%d EA\n", summary.nHeadpiece);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	for (xx = 0 ; xx < summary.sizeOfPropsKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[RS Push-Pull Props]\n");
-
-		char	buf1 [128];
-		char	buf2 [128];
-		char	buf3 [128];
-
-		if (summary.bPropsUpperSupp [xx] == true)
-			sprintf (buf1, "상부(%s)", summary.PropsNomUpperSupp [xx]);
-		else
-			sprintf (buf1, "상부(없음)");
-
-		if (summary.bPropsLowerSupp [xx] == true)
-			sprintf (buf2, "하부(%s)", summary.PropsNomLowerSupp [xx]);
-		else
-			sprintf (buf2, "하부(없음)");
-
-		if (summary.bPropsBase [xx] == true)
-			sprintf (buf3, "베이스(있음)");
-		else
-			sprintf (buf3, "베이스(없음)");
-
-		sprintf (buffer, "%s %s %s : %d EA\n", buf1, buf2, buf3, summary.propsCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	if (summary.nTie > 0) {
-		sprintf (buffer, "\n[벽체 타이]\n%d EA\n", summary.nTie);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	if (summary.nClamp > 0) {
-		sprintf (buffer, "\n[직교클램프]\n%d EA\n", summary.nClamp);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	for (xx = 0 ; xx < summary.sizeOfPinboltKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[핀볼트세트]\n");
-		sprintf (buffer, "%d : %d EA\n", summary.pinboltLen [xx], summary.pinboltCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	if (summary.nJoin > 0) {
-		sprintf (buffer, "\n[결합철물 (사각와셔활용)]\n%d EA\n", summary.nJoin);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	for (xx = 0 ; xx < summary.sizeOfBeamYokeKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보 멍에제]\n");
-		sprintf (buffer, "%d : %d EA\n", summary.beamYokeLength [xx], summary.beamYokeCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	// KS프로파일
-	for (xx = 0 ; xx < summary.sizeOfKSProfileKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[KS 프로파일]\n");
-
-		char	buf1 [128];
-		char	buf2 [128];
-		char	buf3 [128];
-
-		sprintf (buf1, "타입(%s)", summary.KSProfileType [xx]);
-		sprintf (buf2, "형태(%s)", summary.KSProfileShape [xx]);
-		sprintf (buf3, "%s", summary.KSProfileNom [xx]);
-		sprintf (buffer, "%s %s -- %s : %d EA\n", buf1, buf2, buf3, summary.KSProfileCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	// PERI동바리 수직재
-	for (xx = 0 ; xx < summary.sizeOfPERI_suppVerPostKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[PERI동바리 수직재]\n");
-		sprintf (buffer, "규격 %s, 길이 %d : %d EA\n", summary.PERI_suppVerPostNom [xx], summary.PERI_suppVerPostLen [xx], summary.PERI_suppVerPostCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	// PERI동바리 수평재
-	for (xx = 0 ; xx < summary.sizeOfPERI_suppHorPostKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[PERI동바리 수평재]\n");
-		sprintf (buffer, "규격 %s : %d EA\n", summary.PERI_suppHorPostNom [xx], summary.PERI_suppHorPostCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	// GT24 거더
-	for (xx = 0 ; xx < summary.sizeOfGT24Girder ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[GT24 거더]\n");
-		sprintf (buffer, "규격 %s : %d EA\n", summary.GT24GirderNom [xx], summary.GT24GirderCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	// 일반 요소 - 보
-	for (xx = 0 ; xx < summary.sizeOfBeamKinds ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보]\n");
-		sprintf (buffer, "%d : %d EA\n", summary.beamLength [xx], summary.beamCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
-
-	// 알 수 없는 객체
-	if (summary.nUnknownObjects > 0) {
-		sprintf (buffer, "\n[알 수 없는 객체]\n%d EA\n", summary.nUnknownObjects);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	}
+	//// 알 수 없는 객체
+	//if (summary.nUnknownObjects > 0) {
+	//	sprintf (buffer, "\n[알 수 없는 객체]\n%d EA\n", summary.nUnknownObjects);
+	//	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	//}
 
 	return	err;
 }

@@ -488,7 +488,7 @@ bool	setParameterByName (API_ElementMemo* memo, char* pName, char* value)
 // pName 파라미터의 값을 가져옴 (실수형) - 성공하면 true, 실패하면 false
 double	getParameterValueByName (API_ElementMemo* memo, char* pName)
 {
-	for (short xx = 0 ; xx < 500 ; ++xx) {
+	for (short xx = 0 ; xx < 50 ; ++xx) {
 		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
 			return memo->params [0][xx].value.real;
 		}
@@ -502,7 +502,7 @@ const char*	getParameterStringByName (API_ElementMemo* memo, char* pName)
 {
 	const char*	retStr = NULL;
 
-	for (short xx = 0 ; xx < 500 ; ++xx) {
+	for (short xx = 0 ; xx < 50 ; ++xx) {
 		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
 			retStr = GS::UniString (memo->params [0][xx].value.uStr).ToCStr ().Get ();
 			return retStr;
@@ -510,6 +510,18 @@ const char*	getParameterStringByName (API_ElementMemo* memo, char* pName)
 	}
 
 	return	retStr;
+}
+
+// pName 파라미터의 타입을 가져옴 - API_AddParID
+API_AddParID	getParameterTypeByName (API_ElementMemo* memo, char* pName)
+{
+	for (short xx = 0 ; xx < 50 ; ++xx) {
+		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+			return memo->params [0][xx].typeID;
+		}
+	}
+
+	return API_ZombieParT;
 }
 
 ////////////////////////////////////////////////// 기하 (이동)
