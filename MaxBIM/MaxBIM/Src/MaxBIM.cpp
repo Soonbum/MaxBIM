@@ -184,7 +184,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 3:		// 개발자 전용 - 개발자 테스트 메뉴
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
-						short		xx;
+						short		xx, yy;
 
 						// Selection Manager 관련 변수
 						long		nSel;
@@ -192,7 +192,9 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						API_Element				tElem;
 						API_Neig				**selNeigs;
 						GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
+						GS::Array<API_Guid>&	polylines = GS::Array<API_Guid> ();
 						long					nMorphs = 0;
+						long					nPolylines = 0;
 
 						// 객체 정보 가져오기
 						API_Element				elem;
@@ -207,12 +209,19 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						API_Coord3D				trCoord;
 						GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
 
-						// 모프에서 제외되는 점 4개 !!!
+						// 모프에서 제외되는 점 4개
 						API_Coord3D		excludeP1;
 						API_Coord3D		excludeP2;
 						API_Coord3D		excludeP3;
 						API_Coord3D		excludeP4;
 
+						excludeP1.x = 0;	excludeP1.y = 0;	excludeP1.z = 0;
+						excludeP2.x = 1;	excludeP2.y = 0;	excludeP2.z = 0;
+						excludeP3.x = 0;	excludeP3.y = 1;	excludeP3.z = 0;
+						excludeP4.x = 0;	excludeP4.y = 0;	excludeP4.z = 1;
+
+						// 기타
+						char	buffer [256];
 
 
 						// 선택한 요소 가져오기
@@ -234,48 +243,75 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 
 								if (tElem.header.typeID == API_MorphID)		// 모프인가?
 									morphs.Push (tElem.header.guid);
+
+								if (tElem.header.typeID == API_PolyLineID)	// 폴리라인인가?
+									polylines.Push (tElem.header.guid);
 							}
 						}
 						BMKillHandle ((GSHandle *) &selNeigs);
 						nMorphs = morphs.GetSize ();
+						nPolylines = polylines.GetSize ();
 
-						if (nMorphs < 1)
-							return err;
+						if (nMorphs > 0) {
+							for (xx = 0 ; xx < nMorphs ; ++xx) {
+								// 모프의 정보를 가져옴
+								BNZeroMemory (&elem, sizeof (API_Element));
+								elem.header.guid = morphs.Pop ();
+								err = ACAPI_Element_Get (&elem);
+								err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
 
-						// 모프의 정보를 가져옴
-						BNZeroMemory (&elem, sizeof (API_Element));
-						elem.header.guid = morphs.Pop ();
-						err = ACAPI_Element_Get (&elem);
-						err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
+								// 모프의 점 좌표들을 가져옴
+								BNZeroMemory (&component, sizeof (API_Component3D));
+								component.header.typeID = API_BodyID;
+								component.header.index = info3D.fbody;
+								err = ACAPI_3D_GetComponent (&component);
 
-						// 모프의 점 좌표들을 가져옴
-						BNZeroMemory (&component, sizeof (API_Component3D));
-						component.header.typeID = API_BodyID;
-						component.header.index = info3D.fbody;
-						err = ACAPI_3D_GetComponent (&component);
-
-						nVert = component.body.nVert;
-						nEdge = component.body.nEdge;
-						nPgon = component.body.nPgon;
-						tm = component.body.tranmat;
-						elemIdx = component.body.head.elemIndex - 1;
-						bodyIdx = component.body.head.bodyIndex - 1;
+								nVert = component.body.nVert;
+								nEdge = component.body.nEdge;
+								nPgon = component.body.nPgon;
+								tm = component.body.tranmat;
+								elemIdx = component.body.head.elemIndex - 1;
+								bodyIdx = component.body.head.bodyIndex - 1;
 	
-						// 정점 좌표를 임의 순서대로 저장함
-						for (xx = 1 ; xx <= nVert ; ++xx) {
-							component.header.typeID	= API_VertID;
-							component.header.index	= xx;
-							err = ACAPI_3D_GetComponent (&component);
-							if (err == NoError) {
-								trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
-								trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
-								trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
-								coords.Push (trCoord);
+								// 정점 좌표를 가져옴
+								for (yy = 1 ; yy <= nVert ; ++yy) {
+									component.header.typeID	= API_VertID;
+									component.header.index	= yy;
+									err = ACAPI_3D_GetComponent (&component);
+									if (err == NoError) {
+										trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
+										trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
+										trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
+										coords.Push (trCoord);
 
-								placeCoordinateLabel (trCoord.x, trCoord.y, trCoord.z);
+										sprintf (buffer, "%d ", yy);
+
+										if ( !(isSamePoint (excludeP1, trCoord) || isSamePoint (excludeP2, trCoord) || isSamePoint (excludeP3, trCoord) || isSamePoint (excludeP4, trCoord)) ) {
+											placeCoordinateLabel (trCoord.x, trCoord.y, trCoord.z, true, buffer);
+										}
+									}
+								}
 							}
 						}
 
+						if (nPolylines > 0) {
+							for (xx = 0 ; xx < nPolylines ; ++xx) {
+								// 폴리라인의 정보를 가져옴
+								BNZeroMemory (&elem, sizeof (API_Element));
+								BNZeroMemory (&memo, sizeof (API_ElementMemo));
+								elem.header.guid = polylines.Pop ();
+								err = ACAPI_Element_Get (&elem);
+								err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+								// 정점 좌표를 가져옴
+								for (yy = 1 ; yy <= elem.polyLine.poly.nCoords ; ++yy) {
+									sprintf (buffer, "%d ", yy);
+									err = placeCoordinateLabel (memo.coords [0][yy].x, memo.coords [0][yy].y, 0, true, buffer);
+								}
+							}
+						}
+
+						// 여러 개의 벽 구간 가져오기
 						// ...
 
 						return err;

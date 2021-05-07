@@ -565,6 +565,9 @@ GSErrCode	exportSelectedElementInfo (void)
 		err = ACAPI_Element_Get (&elem);
 		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
+		// 파라미터 스크립트를 강제로 실행시킴
+		ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, APIElemMask_FromFloorplan);
+
 		for (yy = 0 ; yy < objectInfo.nameKey.size () ; ++yy) {
 
 			strcpy (tempStr, objectInfo.nameKey [yy].c_str ());
@@ -777,10 +780,12 @@ GSErrCode	exportSelectedElementInfo (void)
 			}
 		}
 
+		// 끝내 찾지 못하면 알 수 없는 객체로 취급함
+		if (foundStr == NULL)
+			objectInfo.nUnknownObjects ++;
+
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
-
-	objectInfo.nUnknownObjects = (short)nObjects - objectInfo.nKnownObjects;
 
 	// 보 개수 세기
 	for (xx = 0 ; xx < nBeams ; ++xx) {

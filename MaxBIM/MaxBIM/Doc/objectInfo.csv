@@ -7,7 +7,7 @@ w_comp,목재,w_w,두께,w_h,너비,w_leng,길이,,,,,,
 w_comp,휠러스페이서,f_thk,두께,f_leng,길이,,,,,,,,
 p_comp,원형파이프,p_leng,길이,,,,,,,,,,
 p_comp,사각파이프,p_nom,규격폼,p_leng,길이,,,,,,,,
-g_comp,합판,p_stan,규격,p_thk,두께,p_wid,가로,p_leng,세로,sogak,제작틀여부,total_timber_len,각재 총길이
+g_comp,합판,p_stan,규격,p_thk,두께,p_wid,가로,p_leng,세로,sogak,제작틀여부,gs_list_custom20,각재 총길이
 sup_type,RS Push-Pull Props 헤드피스 (인양고리 포함),,,,,,,,,,,,
 sup_type,RS Push-Pull Props,bBasePlate,베이스 플레이트 유무,mainType,규격(상부),auxType,규격(하부),bAuxSupport,하부 지지대 유무,,,,
 sup_type,벽체 타이,,,,,,,,,,,,
