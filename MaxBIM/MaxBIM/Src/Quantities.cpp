@@ -976,6 +976,8 @@ GSErrCode	calcAreasOfQuantityPlywood (void)
 		// 분류 가져오기
 		typeStr = getParameterStringByName (&memo, "m_type");
 
+		if (typeStr == NULL) continue;
+
 		if (strncmp (typeStr, "벽체(내벽)", strlen ("벽체(내벽)")) == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환

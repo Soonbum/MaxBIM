@@ -454,9 +454,9 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 		this->nKnownObjects = lineCount - 1;
 
 		// 다른 멤버 변수 초기화
-		vector<string>			vec_empty_string = vector<string> (100, "");
-		vector<short>			vec_empty_short = vector<short> (100, 0);
-		vector<API_AddParID>	vec_empty_type = vector<API_AddParID> (100, API_ZombieParT);
+		vector<string>			vec_empty_string = vector<string> (200, "");
+		vector<short>			vec_empty_short = vector<short> (200, 0);
+		vector<API_AddParID>	vec_empty_type = vector<API_AddParID> (200, API_ZombieParT);
 
 		this->var1type = vec_empty_type;
 		this->var2type = vec_empty_type;
@@ -538,7 +538,6 @@ GSErrCode	exportSelectedElementInfo (void)
 	// 선택한 요소들의 정보 요약하기
 	API_Element			elem;
 	API_ElementMemo		memo;
-	SummaryOfSelectedObjects	summary;
 	bool				foundExistValue;
 
 	SummaryOfObjectInfo		objectInfo;
@@ -781,6 +780,41 @@ GSErrCode	exportSelectedElementInfo (void)
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
 
+	objectInfo.nUnknownObjects = (short)nObjects - objectInfo.nKnownObjects;
+
+	// 보 개수 세기
+	for (xx = 0 ; xx < nBeams ; ++xx) {
+		BNZeroMemory (&elem, sizeof (API_Element));
+		BNZeroMemory (&memo, sizeof (API_ElementMemo));
+		elem.header.guid = beams.Pop ();
+		err = ACAPI_Element_Get (&elem);
+		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+		foundExistValue = false;
+
+		int len;
+
+		len = static_cast<int> (round (GetDistance (elem.beam.begC, elem.beam.endC) * 1000, 0));
+
+		// 중복 항목은 개수만 증가
+		for (zz = 0 ; zz < objectInfo.nCountsBeam ; ++zz) {
+			if (objectInfo.beamLength [zz] == len) {
+				objectInfo.beamCount [zz] ++;
+				foundExistValue = true;
+				break;
+			}
+		}
+
+		// 신규 항목 추가하고 개수도 증가
+		if ( !foundExistValue ) {
+			objectInfo.beamLength.push_back (len);
+			objectInfo.beamCount.push_back (1);
+			objectInfo.nCountsBeam ++;
+		}
+
+		ACAPI_DisposeElemMemoHdls (&memo);
+	}
+
 	// 최종 텍스트 표시
 	BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
 	windowInfo.typeID = APIWind_MyTextID;
@@ -946,51 +980,19 @@ GSErrCode	exportSelectedElementInfo (void)
 		}
 	}
 
-	//// 보 개수 세기
-	//for (xx = 0 ; xx < nBeams ; ++xx) {
-	//	BNZeroMemory (&elem, sizeof (API_Element));
-	//	BNZeroMemory (&memo, sizeof (API_ElementMemo));
-	//	elem.header.guid = beams.Pop ();
-	//	err = ACAPI_Element_Get (&elem);
-	//	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+	// 일반 요소 - 보
+	for (xx = 0 ; xx < objectInfo.nCountsBeam ; ++xx) {
+		if (xx == 0)
+			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보]\n");
+		sprintf (buffer, "%d : %d EA\n", objectInfo.beamLength [xx], objectInfo.beamCount [xx]);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
 
-	//	foundExistValue = false;
-
-	//	int len;
-
-	//	len = static_cast<int> (round (GetDistance (elem.beam.begC, elem.beam.endC) * 1000, 0));
-
-	//	// 중복 항목은 개수만 증가
-	//	for (zz = 0 ; zz < summary.sizeOfBeamKinds ; ++zz) {
-	//		if (summary.beamLength [zz] == len) {
-	//			summary.beamCount [zz] ++;
-	//			foundExistValue = true;
-	//		}
-	//	}
-
-	//	// 신규 항목 추가하고 개수도 증가
-	//	if ( !foundExistValue ) {
-	//		summary.beamLength [summary.sizeOfBeamKinds] = len;
-	//		summary.beamCount [summary.sizeOfBeamKinds] = 1;
-	//		summary.sizeOfBeamKinds ++;
-	//	}
-
-	//	ACAPI_DisposeElemMemoHdls (&memo);
-	//}
-
-	//// 일반 요소 - 보
-	//for (xx = 0 ; xx < summary.sizeOfBeamKinds ; ++xx) {
-	//	if (xx == 0)
-	//		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보]\n");
-	//	sprintf (buffer, "%d : %d EA\n", summary.beamLength [xx], summary.beamCount [xx]);
-	//	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	//}
-
-	//// 알 수 없는 객체
-	//if (summary.nUnknownObjects > 0) {
-	//	sprintf (buffer, "\n[알 수 없는 객체]\n%d EA\n", summary.nUnknownObjects);
-	//	ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-	//}
+	// 알 수 없는 객체
+	if (objectInfo.nUnknownObjects > 0) {
+		sprintf (buffer, "\n알 수 없는 객체 : %d EA", objectInfo.nUnknownObjects);
+		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+	}
 
 	return	err;
 }
