@@ -841,7 +841,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 	// APIParT_Length인 경우 1000배 곱해서 표현
 	// APIParT_Boolean인 경우 예/아니오 표현
-	double	length;
+	double	length, length2, length3;
 	bool	bShow;
 
 	for (xx = 0 ; xx < objectInfo.nKnownObjects ; ++xx) {
@@ -852,312 +852,432 @@ GSErrCode	exportSelectedElementInfo (void)
 				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 			}
 
-			// 변수별 값 표현
-			if (objectInfo.var1name [xx].size () > 1) {
-				bShow = false;
-				if (objectInfo.var1showFlag [xx] == 0)																bShow = true;
-				if ((objectInfo.var1showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var1showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+			if (strncmp (objectInfo.nameVal [xx].c_str (), "유로폼 후크", strlen ("유로폼 후크")) == 0) {
+				// 원형
+				if (strncmp (objectInfo.var2value [xx][yy].c_str (), "원형", strlen ("원형")) == 0) {
+					sprintf (buffer, "원형, %s ", objectInfo.var1value [xx][yy].c_str ());
 
-				if (objectInfo.var1type [xx] == APIParT_Length) {
-					length = atof (objectInfo.var1value [xx][yy].c_str ());
-					sprintf (buffer, "%s(%.0f) ", objectInfo.var1desc [xx].c_str (), round (length*1000, 0));
-				} else if (objectInfo.var1type [xx] == APIParT_Boolean) {
-					if (atoi (objectInfo.var1value [xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), "예");
-					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), "아니오");
-					}
+				// 사각
 				} else {
-					sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), objectInfo.var1value [xx][yy]);
+					sprintf (buffer, "사각, %s ", objectInfo.var1value [xx][yy].c_str ());
 				}
-				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-			}
-			if (objectInfo.var2name [xx].size () > 1) {
-				bShow = false;
-				if (objectInfo.var2showFlag [xx] == 0)																bShow = true;
-				if ((objectInfo.var2showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var2showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 
-				if (objectInfo.var2type [xx] == APIParT_Length) {
-					length = atof (objectInfo.var2value [xx][yy].c_str ());
-					sprintf (buffer, "%s(%.0f) ", objectInfo.var2desc [xx].c_str (), round (length*1000, 0));
-				} else if (objectInfo.var2type [xx] == APIParT_Boolean) {
-					if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), "예");
-					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), "아니오");
-					}
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "유로폼", strlen ("유로폼")) == 0) {
+				// 규격폼
+				if (atoi (objectInfo.var1value [xx][yy].c_str ()) > 0) {
+					sprintf (buffer, "%s X %s ", objectInfo.var2value [xx][yy], objectInfo.var3value [xx][yy]);
+				// 비규격폼
 				} else {
-					sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), objectInfo.var2value [xx][yy]);
-				}
-				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-			}
-			if (objectInfo.var3name [xx].size () > 1) {
-				bShow = false;
-				if (objectInfo.var3showFlag [xx] == 0)																bShow = true;
-				if ((objectInfo.var3showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var3showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
-
-				if (objectInfo.var3type [xx] == APIParT_Length) {
-					length = atof (objectInfo.var3value [xx][yy].c_str ());
-					sprintf (buffer, "%s(%.0f) ", objectInfo.var3desc [xx].c_str (), round (length*1000, 0));
-				} else if (objectInfo.var3type [xx] == APIParT_Boolean) {
-					if (atoi (objectInfo.var3value [xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), "예");
-					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), "아니오");
-					}
-				} else {
-					sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), objectInfo.var3value [xx][yy]);
-				}
-				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-			}
-			if (objectInfo.var4name [xx].size () > 1) {
-				bShow = false;
-				if (objectInfo.var4showFlag [xx] == 0)																bShow = true;
-				if ((objectInfo.var4showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var4showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
-
-				if (objectInfo.var4type [xx] == APIParT_Length) {
+					// 4열 X 5열
 					length = atof (objectInfo.var4value [xx][yy].c_str ());
-					sprintf (buffer, "%s(%.0f) ", objectInfo.var4desc [xx].c_str (), round (length*1000, 0));
-				} else if (objectInfo.var4type [xx] == APIParT_Boolean) {
-					if (atoi (objectInfo.var4value [xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), "예");
-					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), "아니오");
-					}
-				} else {
-					sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), objectInfo.var4value [xx][yy]);
+					length2 = atof (objectInfo.var5value [xx][yy].c_str ());
+					sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
 				}
-				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-			}
-			if (objectInfo.var5name [xx].size () > 1) {
-				bShow = false;
-				if (objectInfo.var5showFlag [xx] == 0)																bShow = true;
-				if ((objectInfo.var5showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var5showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 
-				if (objectInfo.var5type [xx] == APIParT_Length) {
-					length = atof (objectInfo.var5value [xx][yy].c_str ());
-					sprintf (buffer, "%s(%.0f) ", objectInfo.var5desc [xx].c_str (), round (length*1000, 0));
-				} else if (objectInfo.var5type [xx] == APIParT_Boolean) {
-					if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), "예");
-					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), "아니오");
-					}
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "스틸폼", strlen ("스틸폼")) == 0) {
+				// 규격폼
+				if (atoi (objectInfo.var1value [xx][yy].c_str ()) > 0) {
+					sprintf (buffer, "%s X %s ", objectInfo.var2value [xx][yy], objectInfo.var3value [xx][yy]);
+				// 비규격폼
 				} else {
-					sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), objectInfo.var5value [xx][yy]);
+					// 4열 X 5열
+					length = atof (objectInfo.var4value [xx][yy].c_str ());
+					length2 = atof (objectInfo.var5value [xx][yy].c_str ());
+					sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
 				}
-				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-			}
-			if (objectInfo.var6name [xx].size () > 1) {
-				bShow = false;
-				if (objectInfo.var6showFlag [xx] == 0)																bShow = true;
-				if ((objectInfo.var6showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var6showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 
-				if (objectInfo.var6type [xx] == APIParT_Length) {
-					length = atof (objectInfo.var6value [xx][yy].c_str ());
-					sprintf (buffer, "%s(%.0f) ", objectInfo.var6desc [xx].c_str (), round (length*1000, 0));
-				} else if (objectInfo.var6type [xx] == APIParT_Boolean) {
-					if (atoi (objectInfo.var6value [xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), "예");
-					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), "아니오");
-					}
-				} else {
-					sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), objectInfo.var6value [xx][yy]);
-				}
-				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-			}
-			if (objectInfo.var7name [xx].size () > 1) {
-				bShow = false;
-				if (objectInfo.var7showFlag [xx] == 0)																bShow = true;
-				if ((objectInfo.var7showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var7showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "목재", strlen ("목재")) == 0) {
+				length = atof (objectInfo.var1value [xx][yy].c_str ());
+				length2 = atof (objectInfo.var2value [xx][yy].c_str ());
+				length3 = atof (objectInfo.var3value [xx][yy].c_str ());
+				sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 
-				if (objectInfo.var7type [xx] == APIParT_Length) {
-					length = atof (objectInfo.var7value [xx][yy].c_str ());
-					sprintf (buffer, "%s(%.0f) ", objectInfo.var7desc [xx].c_str (), round (length*1000, 0));
-				} else if (objectInfo.var7type [xx] == APIParT_Boolean) {
-					if (atoi (objectInfo.var7value [xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), "예");
-					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), "아니오");
-					}
-				} else {
-					sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), objectInfo.var7value [xx][yy]);
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "합판", strlen ("합판")) == 0) {
+				if (strncmp (objectInfo.var1value [xx][yy].c_str (), "3x6 [910x1820]", strlen ("3x6 [910x1820]")) == 0) {
+					sprintf (buffer, "910 X 1820 X %s ", objectInfo.var2value [xx][yy].c_str ());
+				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "4x8 [1220x2440]", strlen ("4x8 [1220x2440]")) == 0) {
+					sprintf (buffer, "1220 X 2440 X %s ", objectInfo.var2value [xx][yy].c_str ());
+				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "2x5 [606x1520]", strlen ("2x5 [606x1520]")) == 0) {
+					sprintf (buffer, "606 X 1520 X %s ", objectInfo.var2value [xx][yy].c_str ());
+				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "2x6 [606x1820]", strlen ("2x6 [606x1820]")) == 0) {
+					sprintf (buffer, "606 X 1820 X %s ", objectInfo.var2value [xx][yy].c_str ());
+				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "3x5 [910x1520]", strlen ("3x5 [910x1520]")) == 0) {
+					sprintf (buffer, "910 X 1520 X %s ", objectInfo.var2value [xx][yy].c_str ());
+				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "비규격", strlen ("비규격")) == 0) {
+					// 가로 X 세로 X 두께
+					length = atof (objectInfo.var3value [xx][yy].c_str ());
+					length2 = atof (objectInfo.var4value [xx][yy].c_str ());
+					sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.var2value [xx][yy].c_str ());
+				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "비정형", strlen ("비정형")) == 0) {
+					sprintf (buffer, "비정형 ");
 				}
-				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-			}
-			if (objectInfo.var8name [xx].size () > 1) {
-				bShow = false;
-				if (objectInfo.var8showFlag [xx] == 0)																bShow = true;
-				if ((objectInfo.var8showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var8showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 
-				if (objectInfo.var8type [xx] == APIParT_Length) {
-					length = atof (objectInfo.var8value [xx][yy].c_str ());
-					sprintf (buffer, "%s(%.0f) ", objectInfo.var8desc [xx].c_str (), round (length*1000, 0));
-				} else if (objectInfo.var8type [xx] == APIParT_Boolean) {
-					if (atoi (objectInfo.var8value [xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), "예");
-					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), "아니오");
-					}
-				} else {
-					sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), objectInfo.var8value [xx][yy]);
+				// 제작틀 ON
+				if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
+					sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
+					ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 				}
-				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
-			}
-			if (objectInfo.var9name [xx].size () > 1) {
-				bShow = false;
-				if (objectInfo.var9showFlag [xx] == 0)																bShow = true;
-				if ((objectInfo.var9showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
-				if ((objectInfo.var9showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
 
-				if (objectInfo.var9type [xx] == APIParT_Length) {
-					length = atof (objectInfo.var9value [xx][yy].c_str ());
-					sprintf (buffer, "%s(%.0f) ", objectInfo.var9desc [xx].c_str (), round (length*1000, 0));
-				} else if (objectInfo.var9type [xx] == APIParT_Boolean) {
-					if (atoi (objectInfo.var9value [xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), "예");
-					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), "아니오");
-					}
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "사각파이프", strlen ("사각파이프")) == 0) {
+				// 사각파이프
+				if (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0) {
+					length = atof (objectInfo.var2value [xx][yy].c_str ());
+					sprintf (buffer, "50 x 50 x %.0f ", round (length*1000, 0));
+
+				// 직사각파이프
 				} else {
-					sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), objectInfo.var9value [xx][yy]);
+					length = atof (objectInfo.var2value [xx][yy].c_str ());
+					sprintf (buffer, "%s x %.0f ", objectInfo.var1value [xx][yy].c_str (), round (length*1000, 0));
 				}
-				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "원형파이프", strlen ("원형파이프")) == 0) {
+				length = atof (objectInfo.var1value [xx][yy].c_str ());
+				sprintf (buffer, "%.0f ", round (length*1000, 0));
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "아웃코너앵글", strlen ("아웃코너앵글")) == 0) {
+				length = atof (objectInfo.var1value [xx][yy].c_str ());
+				sprintf (buffer, "%.0f ", round (length*1000, 0));
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "매직바", strlen ("매직바")) == 0) {
+				if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
+					length = atof (objectInfo.var1value [xx][yy].c_str ());
+					length2 = atof (objectInfo.var5value [xx][yy].c_str ());
+					sprintf (buffer, "%.0f, 합판 %.0f", round (length*1000, 0), round (length2*1000, 0));
+				} else {
+					length = atof (objectInfo.var1value [xx][yy].c_str ());
+					sprintf (buffer, "%.0f ", round (length*1000, 0));
+				}
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "블루목심", strlen ("블루목심")) == 0) {
+				sprintf (buffer, "%s ", objectInfo.var1value [xx][yy].c_str ());
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "보 멍에제", strlen ("보 멍에제")) == 0) {
+				length = atof (objectInfo.var1value [xx][yy].c_str ());
+				sprintf (buffer, "%.0f ", round (length*1000, 0));
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "물량합판", strlen ("물량합판")) == 0) {
+				sprintf (buffer, "%s ㎡ ", objectInfo.var1value [xx][yy].c_str ());
+				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+
+			} else {
+				// 변수별 값 표현
+				if (objectInfo.var1name [xx].size () > 1) {
+					bShow = false;
+					if (objectInfo.var1showFlag [xx] == 0)																bShow = true;
+					if ((objectInfo.var1showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var1showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
+					if (objectInfo.var1type [xx] == APIParT_Length) {
+						length = atof (objectInfo.var1value [xx][yy].c_str ());
+						sprintf (buffer, "%s(%.0f) ", objectInfo.var1desc [xx].c_str (), round (length*1000, 0));
+					} else if (objectInfo.var1type [xx] == APIParT_Boolean) {
+						if (atoi (objectInfo.var1value [xx][yy].c_str ()) > 0) {
+							sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), "예");
+						} else {
+							sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), "아니오");
+						}
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), objectInfo.var1value [xx][yy]);
+					}
+					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				}
+				if (objectInfo.var2name [xx].size () > 1) {
+					bShow = false;
+					if (objectInfo.var2showFlag [xx] == 0)																bShow = true;
+					if ((objectInfo.var2showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var2showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
+					if (objectInfo.var2type [xx] == APIParT_Length) {
+						length = atof (objectInfo.var2value [xx][yy].c_str ());
+						sprintf (buffer, "%s(%.0f) ", objectInfo.var2desc [xx].c_str (), round (length*1000, 0));
+					} else if (objectInfo.var2type [xx] == APIParT_Boolean) {
+						if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
+							sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), "예");
+						} else {
+							sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), "아니오");
+						}
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), objectInfo.var2value [xx][yy]);
+					}
+					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				}
+				if (objectInfo.var3name [xx].size () > 1) {
+					bShow = false;
+					if (objectInfo.var3showFlag [xx] == 0)																bShow = true;
+					if ((objectInfo.var3showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var3showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
+					if (objectInfo.var3type [xx] == APIParT_Length) {
+						length = atof (objectInfo.var3value [xx][yy].c_str ());
+						sprintf (buffer, "%s(%.0f) ", objectInfo.var3desc [xx].c_str (), round (length*1000, 0));
+					} else if (objectInfo.var3type [xx] == APIParT_Boolean) {
+						if (atoi (objectInfo.var3value [xx][yy].c_str ()) > 0) {
+							sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), "예");
+						} else {
+							sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), "아니오");
+						}
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), objectInfo.var3value [xx][yy]);
+					}
+					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				}
+				if (objectInfo.var4name [xx].size () > 1) {
+					bShow = false;
+					if (objectInfo.var4showFlag [xx] == 0)																bShow = true;
+					if ((objectInfo.var4showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var4showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
+					if (objectInfo.var4type [xx] == APIParT_Length) {
+						length = atof (objectInfo.var4value [xx][yy].c_str ());
+						sprintf (buffer, "%s(%.0f) ", objectInfo.var4desc [xx].c_str (), round (length*1000, 0));
+					} else if (objectInfo.var4type [xx] == APIParT_Boolean) {
+						if (atoi (objectInfo.var4value [xx][yy].c_str ()) > 0) {
+							sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), "예");
+						} else {
+							sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), "아니오");
+						}
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), objectInfo.var4value [xx][yy]);
+					}
+					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				}
+				if (objectInfo.var5name [xx].size () > 1) {
+					bShow = false;
+					if (objectInfo.var5showFlag [xx] == 0)																bShow = true;
+					if ((objectInfo.var5showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var5showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
+					if (objectInfo.var5type [xx] == APIParT_Length) {
+						length = atof (objectInfo.var5value [xx][yy].c_str ());
+						sprintf (buffer, "%s(%.0f) ", objectInfo.var5desc [xx].c_str (), round (length*1000, 0));
+					} else if (objectInfo.var5type [xx] == APIParT_Boolean) {
+						if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
+							sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), "예");
+						} else {
+							sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), "아니오");
+						}
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), objectInfo.var5value [xx][yy]);
+					}
+					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				}
+				if (objectInfo.var6name [xx].size () > 1) {
+					bShow = false;
+					if (objectInfo.var6showFlag [xx] == 0)																bShow = true;
+					if ((objectInfo.var6showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var6showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
+					if (objectInfo.var6type [xx] == APIParT_Length) {
+						length = atof (objectInfo.var6value [xx][yy].c_str ());
+						sprintf (buffer, "%s(%.0f) ", objectInfo.var6desc [xx].c_str (), round (length*1000, 0));
+					} else if (objectInfo.var6type [xx] == APIParT_Boolean) {
+						if (atoi (objectInfo.var6value [xx][yy].c_str ()) > 0) {
+							sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), "예");
+						} else {
+							sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), "아니오");
+						}
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), objectInfo.var6value [xx][yy]);
+					}
+					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				}
+				if (objectInfo.var7name [xx].size () > 1) {
+					bShow = false;
+					if (objectInfo.var7showFlag [xx] == 0)																bShow = true;
+					if ((objectInfo.var7showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var7showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
+					if (objectInfo.var7type [xx] == APIParT_Length) {
+						length = atof (objectInfo.var7value [xx][yy].c_str ());
+						sprintf (buffer, "%s(%.0f) ", objectInfo.var7desc [xx].c_str (), round (length*1000, 0));
+					} else if (objectInfo.var7type [xx] == APIParT_Boolean) {
+						if (atoi (objectInfo.var7value [xx][yy].c_str ()) > 0) {
+							sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), "예");
+						} else {
+							sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), "아니오");
+						}
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), objectInfo.var7value [xx][yy]);
+					}
+					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				}
+				if (objectInfo.var8name [xx].size () > 1) {
+					bShow = false;
+					if (objectInfo.var8showFlag [xx] == 0)																bShow = true;
+					if ((objectInfo.var8showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var8showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
+					if (objectInfo.var8type [xx] == APIParT_Length) {
+						length = atof (objectInfo.var8value [xx][yy].c_str ());
+						sprintf (buffer, "%s(%.0f) ", objectInfo.var8desc [xx].c_str (), round (length*1000, 0));
+					} else if (objectInfo.var8type [xx] == APIParT_Boolean) {
+						if (atoi (objectInfo.var8value [xx][yy].c_str ()) > 0) {
+							sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), "예");
+						} else {
+							sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), "아니오");
+						}
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), objectInfo.var8value [xx][yy]);
+					}
+					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				}
+				if (objectInfo.var9name [xx].size () > 1) {
+					bShow = false;
+					if (objectInfo.var9showFlag [xx] == 0)																bShow = true;
+					if ((objectInfo.var9showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+					if ((objectInfo.var9showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+
+					if (objectInfo.var9type [xx] == APIParT_Length) {
+						length = atof (objectInfo.var9value [xx][yy].c_str ());
+						sprintf (buffer, "%s(%.0f) ", objectInfo.var9desc [xx].c_str (), round (length*1000, 0));
+					} else if (objectInfo.var9type [xx] == APIParT_Boolean) {
+						if (atoi (objectInfo.var9value [xx][yy].c_str ()) > 0) {
+							sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), "예");
+						} else {
+							sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), "아니오");
+						}
+					} else {
+						sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), objectInfo.var9value [xx][yy]);
+					}
+					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				}
 			}
 
 			// 수량 표현

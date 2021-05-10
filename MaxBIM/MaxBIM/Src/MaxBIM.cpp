@@ -180,6 +180,14 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					break;
 				case 2:		// MaxBIM 애드온 정보
 					err = showAbout ();
+
+					API_WindowInfo		windowInfo;
+
+					BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
+					windowInfo.typeID = APIWind_MyTextID;
+					windowInfo.index  = 1;
+					err = ACAPI_Database (APIDb_CloseWindowID, &windowInfo, NULL);
+
 					break;
 				case 3:		// 개발자 전용 - 개발자 테스트 메뉴
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
