@@ -406,44 +406,53 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 			}
 
 			// 표시할 정보 필드 개수
-			this->nInfo.push_back ((short)(((tokCount-1) - 2) / 2));
+			this->nInfo.push_back ((short)(((tokCount-1) - 2) / 3));
 
 			// 토큰 개수가 2개 이상일 때 유효함
 			if ((tokCount-1) >= 2) {
-				// 토큰 개수가 짝수 개씩만 저장됨 (홀수 개이면 마지막 항목 제외)
-				if (((tokCount-1) - 2) % 2 != 0) {
+				// 토큰 개수가 2 + 3의 배수 개씩만 저장됨 (초과된 항목은 제외)
+				if (((tokCount-1) - 2) % 3 != 0) {
 					tokCount --;
 				}
 
 				this->nameKey.push_back (nthToken [0]);
 				this->nameVal.push_back (nthToken [1]);
 
-				if ((tokCount-1) >= 3)	this->var1name.push_back (nthToken [2]);	else this->var1name.push_back ("");
-				if ((tokCount-1) >= 4)	this->var1desc.push_back (nthToken [3]);	else this->var1desc.push_back ("");
+				if ((tokCount-1) >= 3)	this->var1name.push_back (nthToken [2]);				else this->var1name.push_back ("");
+				if ((tokCount-1) >= 4)	this->var1desc.push_back (nthToken [3]);				else this->var1desc.push_back ("");
+				if ((tokCount-1) >= 5)	this->var1showFlag.push_back ((short)atoi (nthToken [4]));		else this->var1showFlag.push_back (0);
 
-				if ((tokCount-1) >= 5)	this->var2name.push_back (nthToken [4]);	else this->var2name.push_back ("");
-				if ((tokCount-1) >= 6)	this->var2desc.push_back (nthToken [5]);	else this->var2desc.push_back ("");
+				if ((tokCount-1) >= 6)	this->var2name.push_back (nthToken [5]);				else this->var2name.push_back ("");
+				if ((tokCount-1) >= 7)	this->var2desc.push_back (nthToken [6]);				else this->var2desc.push_back ("");
+				if ((tokCount-1) >= 8)	this->var2showFlag.push_back ((short)atoi (nthToken [7]));		else this->var2showFlag.push_back (0);
+				
+				if ((tokCount-1) >= 9)	this->var3name.push_back (nthToken [8]);				else this->var3name.push_back ("");
+				if ((tokCount-1) >= 10)	this->var3desc.push_back (nthToken [9]);				else this->var3desc.push_back ("");
+				if ((tokCount-1) >= 11)	this->var3showFlag.push_back ((short)atoi (nthToken [10]));	else this->var3showFlag.push_back (0);
 
-				if ((tokCount-1) >= 7)	this->var3name.push_back (nthToken [6]);	else this->var3name.push_back ("");
-				if ((tokCount-1) >= 8)	this->var3desc.push_back (nthToken [7]);	else this->var3desc.push_back ("");
+				if ((tokCount-1) >= 12)	this->var4name.push_back (nthToken [11]);				else this->var4name.push_back ("");
+				if ((tokCount-1) >= 13)	this->var4desc.push_back (nthToken [12]);				else this->var4desc.push_back ("");
+				if ((tokCount-1) >= 14)	this->var4showFlag.push_back ((short)atoi (nthToken [13]));	else this->var4showFlag.push_back (0);
 
-				if ((tokCount-1) >= 9)	this->var4name.push_back (nthToken [8]);	else this->var4name.push_back ("");
-				if ((tokCount-1) >= 10)	this->var4desc.push_back (nthToken [9]);	else this->var4desc.push_back ("");
+				if ((tokCount-1) >= 15)	this->var5name.push_back (nthToken [14]);				else this->var5name.push_back ("");
+				if ((tokCount-1) >= 16)	this->var5desc.push_back (nthToken [15]);				else this->var5desc.push_back ("");
+				if ((tokCount-1) >= 17)	this->var5showFlag.push_back ((short)atoi (nthToken [16]));	else this->var5showFlag.push_back (0);
 
-				if ((tokCount-1) >= 11)	this->var5name.push_back (nthToken [10]);	else this->var5name.push_back ("");
-				if ((tokCount-1) >= 12)	this->var5desc.push_back (nthToken [11]);	else this->var5desc.push_back ("");
+				if ((tokCount-1) >= 18)	this->var6name.push_back (nthToken [17]);				else this->var6name.push_back ("");
+				if ((tokCount-1) >= 19)	this->var6desc.push_back (nthToken [18]);				else this->var6desc.push_back ("");
+				if ((tokCount-1) >= 20)	this->var6showFlag.push_back ((short)atoi (nthToken [19]));	else this->var6showFlag.push_back (0);
 
-				if ((tokCount-1) >= 13)	this->var6name.push_back (nthToken [12]);	else this->var6name.push_back ("");
-				if ((tokCount-1) >= 14)	this->var6desc.push_back (nthToken [13]);	else this->var6desc.push_back ("");
+				if ((tokCount-1) >= 21)	this->var7name.push_back (nthToken [20]);				else this->var7name.push_back ("");
+				if ((tokCount-1) >= 22)	this->var7desc.push_back (nthToken [21]);				else this->var7desc.push_back ("");
+				if ((tokCount-1) >= 23)	this->var7showFlag.push_back ((short)atoi (nthToken [22]));	else this->var7showFlag.push_back (0);
 
-				if ((tokCount-1) >= 15)	this->var7name.push_back (nthToken [14]);	else this->var7name.push_back ("");
-				if ((tokCount-1) >= 16)	this->var7desc.push_back (nthToken [15]);	else this->var7desc.push_back ("");
+				if ((tokCount-1) >= 24)	this->var8name.push_back (nthToken [23]);				else this->var8name.push_back ("");
+				if ((tokCount-1) >= 25)	this->var8desc.push_back (nthToken [24]);				else this->var8desc.push_back ("");
+				if ((tokCount-1) >= 26)	this->var8showFlag.push_back ((short)atoi (nthToken [25]));	else this->var8showFlag.push_back (0);
 
-				if ((tokCount-1) >= 17)	this->var8name.push_back (nthToken [16]);	else this->var8name.push_back ("");
-				if ((tokCount-1) >= 18)	this->var8desc.push_back (nthToken [17]);	else this->var8desc.push_back ("");
-
-				if ((tokCount-1) >= 19)	this->var9name.push_back (nthToken [18]);	else this->var9name.push_back ("");
-				if ((tokCount-1) >= 20)	this->var9desc.push_back (nthToken [19]);	else this->var9desc.push_back ("");
+				if ((tokCount-1) >= 27)	this->var9name.push_back (nthToken [26]);				else this->var9name.push_back ("");
+				if ((tokCount-1) >= 28)	this->var9desc.push_back (nthToken [27]);				else this->var9desc.push_back ("");
+				if ((tokCount-1) >= 29)	this->var9showFlag.push_back ((short)atoi (nthToken [28]));	else this->var9showFlag.push_back (0);
 			}
 		}
 
@@ -557,8 +566,11 @@ GSErrCode	exportSelectedElementInfo (void)
 	API_AddParID	value_type [9];
 	char			tempStr [50];
 	const char*		foundStr;
+	bool			foundObject;
 
 	for (xx = 0 ; xx < nObjects ; ++xx) {
+		foundObject = false;
+
 		BNZeroMemory (&elem, sizeof (API_Element));
 		BNZeroMemory (&memo, sizeof (API_ElementMemo));
 		elem.header.guid = objects.Pop ();
@@ -566,7 +578,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
 		// 파라미터 스크립트를 강제로 실행시킴
-		ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, APIElemMask_FromFloorplan);
+		ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
 
 		for (yy = 0 ; yy < objectInfo.nameKey.size () ; ++yy) {
 
@@ -575,6 +587,8 @@ GSErrCode	exportSelectedElementInfo (void)
 
 			// 객체 종류를 찾았다면,
 			if (foundStr != NULL) {
+				foundObject = true;
+
 				if (strncmp (foundStr, objectInfo.nameVal [yy].c_str (), strlen (objectInfo.nameVal [yy].c_str ())) == 0) {
 					foundExistValue = false;
 
@@ -781,7 +795,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		}
 
 		// 끝내 찾지 못하면 알 수 없는 객체로 취급함
-		if (foundStr == NULL)
+		if (foundObject == false)
 			objectInfo.nUnknownObjects ++;
 
 		ACAPI_DisposeElemMemoHdls (&memo);
@@ -828,6 +842,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	// APIParT_Length인 경우 1000배 곱해서 표현
 	// APIParT_Boolean인 경우 예/아니오 표현
 	double	length;
+	bool	bShow;
 
 	for (xx = 0 ; xx < objectInfo.nKnownObjects ; ++xx) {
 		for (yy = 0 ; yy < objectInfo.nCounts [xx] ; ++yy) {
@@ -839,6 +854,25 @@ GSErrCode	exportSelectedElementInfo (void)
 
 			// 변수별 값 표현
 			if (objectInfo.var1name [xx].size () > 1) {
+				bShow = false;
+				if (objectInfo.var1showFlag [xx] == 0)																bShow = true;
+				if ((objectInfo.var1showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var1showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
 				if (objectInfo.var1type [xx] == APIParT_Length) {
 					length = atof (objectInfo.var1value [xx][yy].c_str ());
 					sprintf (buffer, "%s(%.0f) ", objectInfo.var1desc [xx].c_str (), round (length*1000, 0));
@@ -851,9 +885,28 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else {
 					sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), objectInfo.var1value [xx][yy]);
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 			}
 			if (objectInfo.var2name [xx].size () > 1) {
+				bShow = false;
+				if (objectInfo.var2showFlag [xx] == 0)																bShow = true;
+				if ((objectInfo.var2showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var2showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
 				if (objectInfo.var2type [xx] == APIParT_Length) {
 					length = atof (objectInfo.var2value [xx][yy].c_str ());
 					sprintf (buffer, "%s(%.0f) ", objectInfo.var2desc [xx].c_str (), round (length*1000, 0));
@@ -866,9 +919,28 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else {
 					sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), objectInfo.var2value [xx][yy]);
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 			}
 			if (objectInfo.var3name [xx].size () > 1) {
+				bShow = false;
+				if (objectInfo.var3showFlag [xx] == 0)																bShow = true;
+				if ((objectInfo.var3showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var3showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
 				if (objectInfo.var3type [xx] == APIParT_Length) {
 					length = atof (objectInfo.var3value [xx][yy].c_str ());
 					sprintf (buffer, "%s(%.0f) ", objectInfo.var3desc [xx].c_str (), round (length*1000, 0));
@@ -881,9 +953,28 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else {
 					sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), objectInfo.var3value [xx][yy]);
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 			}
 			if (objectInfo.var4name [xx].size () > 1) {
+				bShow = false;
+				if (objectInfo.var4showFlag [xx] == 0)																bShow = true;
+				if ((objectInfo.var4showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var4showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
 				if (objectInfo.var4type [xx] == APIParT_Length) {
 					length = atof (objectInfo.var4value [xx][yy].c_str ());
 					sprintf (buffer, "%s(%.0f) ", objectInfo.var4desc [xx].c_str (), round (length*1000, 0));
@@ -896,9 +987,28 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else {
 					sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), objectInfo.var4value [xx][yy]);
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 			}
 			if (objectInfo.var5name [xx].size () > 1) {
+				bShow = false;
+				if (objectInfo.var5showFlag [xx] == 0)																bShow = true;
+				if ((objectInfo.var5showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var5showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
 				if (objectInfo.var5type [xx] == APIParT_Length) {
 					length = atof (objectInfo.var5value [xx][yy].c_str ());
 					sprintf (buffer, "%s(%.0f) ", objectInfo.var5desc [xx].c_str (), round (length*1000, 0));
@@ -911,9 +1021,28 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else {
 					sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), objectInfo.var5value [xx][yy]);
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 			}
 			if (objectInfo.var6name [xx].size () > 1) {
+				bShow = false;
+				if (objectInfo.var6showFlag [xx] == 0)																bShow = true;
+				if ((objectInfo.var6showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var6showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
 				if (objectInfo.var6type [xx] == APIParT_Length) {
 					length = atof (objectInfo.var6value [xx][yy].c_str ());
 					sprintf (buffer, "%s(%.0f) ", objectInfo.var6desc [xx].c_str (), round (length*1000, 0));
@@ -926,9 +1055,28 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else {
 					sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), objectInfo.var6value [xx][yy]);
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 			}
 			if (objectInfo.var7name [xx].size () > 1) {
+				bShow = false;
+				if (objectInfo.var7showFlag [xx] == 0)																bShow = true;
+				if ((objectInfo.var7showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var7showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
 				if (objectInfo.var7type [xx] == APIParT_Length) {
 					length = atof (objectInfo.var7value [xx][yy].c_str ());
 					sprintf (buffer, "%s(%.0f) ", objectInfo.var7desc [xx].c_str (), round (length*1000, 0));
@@ -941,9 +1089,28 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else {
 					sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), objectInfo.var7value [xx][yy]);
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 			}
 			if (objectInfo.var8name [xx].size () > 1) {
+				bShow = false;
+				if (objectInfo.var8showFlag [xx] == 0)																bShow = true;
+				if ((objectInfo.var8showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] ==  9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var8showFlag [xx] == -9) && (atoi (objectInfo.var9value [xx][yy].c_str ()) == 0))	bShow = true;
+
 				if (objectInfo.var8type [xx] == APIParT_Length) {
 					length = atof (objectInfo.var8value [xx][yy].c_str ());
 					sprintf (buffer, "%s(%.0f) ", objectInfo.var8desc [xx].c_str (), round (length*1000, 0));
@@ -956,9 +1123,28 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else {
 					sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), objectInfo.var8value [xx][yy]);
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 			}
 			if (objectInfo.var9name [xx].size () > 1) {
+				bShow = false;
+				if (objectInfo.var9showFlag [xx] == 0)																bShow = true;
+				if ((objectInfo.var9showFlag [xx] ==  1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] == -1) && (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] ==  2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] == -2) && (atoi (objectInfo.var2value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] ==  3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] == -3) && (atoi (objectInfo.var3value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] ==  4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] == -4) && (atoi (objectInfo.var4value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] ==  5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] == -5) && (atoi (objectInfo.var5value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] ==  6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] == -6) && (atoi (objectInfo.var6value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] ==  7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] == -7) && (atoi (objectInfo.var7value [xx][yy].c_str ()) == 0))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] ==  8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 1))	bShow = true;
+				if ((objectInfo.var9showFlag [xx] == -8) && (atoi (objectInfo.var8value [xx][yy].c_str ()) == 0))	bShow = true;
+
 				if (objectInfo.var9type [xx] == APIParT_Length) {
 					length = atof (objectInfo.var9value [xx][yy].c_str ());
 					sprintf (buffer, "%s(%.0f) ", objectInfo.var9desc [xx].c_str (), round (length*1000, 0));
@@ -971,7 +1157,7 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else {
 					sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), objectInfo.var9value [xx][yy]);
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 			}
 
 			// 수량 표현
