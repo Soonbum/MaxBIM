@@ -144,6 +144,7 @@
     <ClInclude Include="Src\UtilityFunctions.hpp" />
     <ClInclude Include="Src\WallEuroformPlacer.hpp" />
     <ClInclude Include="Src\WallTableformPlacer.hpp" />
+    <ClInclude Include="Src\WallTableformPlacerContinue.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\APICommon.c" />
@@ -159,6 +160,7 @@
     <ClCompile Include="Src\MaxBIM.cpp" />
     <ClCompile Include="Src\UtilityFunctions.cpp" />
     <ClCompile Include="Src\WallTableformPlacer.cpp" />
+    <ClCompile Include="Src\WallTableformPlacerContinue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="RINT\MaxBIM.grc">
