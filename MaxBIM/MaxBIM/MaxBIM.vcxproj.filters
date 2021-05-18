@@ -63,7 +63,7 @@
     <ClInclude Include="Src\SlabTableformPlacer.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Src\WallTableformPlacerContinue.hpp">
+    <ClInclude Include="Src\LibraryConvert.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,7 +107,7 @@
     <ClCompile Include="Src\SlabTableformPlacer.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Src\WallTableformPlacerContinue.cpp">
+    <ClCompile Include="Src\LibraryConvert.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

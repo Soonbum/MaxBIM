@@ -283,6 +283,19 @@ struct SlabTableform
 	char	type [20];		// 타입
 };
 
+// 벽 테이블폼 정보
+struct WallTableform
+{
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	width;			// 너비 (1800~2300, 50 간격)
+	double	height;			// 높이 (1500~6000, 300 간격)
+};
+
 // 비계 파이프 정보
 struct SquarePipe
 {

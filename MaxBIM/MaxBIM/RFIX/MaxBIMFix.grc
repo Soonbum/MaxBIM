@@ -396,9 +396,11 @@
 /* [  5] */	PopupControl	140		 33		100		 25		200		10		/* 너비 */
 							NoIcon	"3032"
 							NoIcon	"2426"
+							NoIcon	"1820"
 /* [  6] */	RightText		 50		 70		 70		 23		LargePlain		"Height"
 /* [  7] */	PopupControl	140		 63		100		 25		100		10		/* 높이 */
 							NoIcon	"1818"
+							NoIcon	"1212"
 /* [  8] */	RightText		 50		100		 70		 23		LargePlain		"Orientation"
 /* [  9] */	PopupControl	140		 93		100		 25		100		10		/* 설치방향 */
 							NoIcon	"Horizontal"

@@ -3441,6 +3441,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM, "3032");
 			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM, "2426");
+			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, DG_POPUP_BOTTOM, "1820");
 
 			// Edit 컨트롤: 너비
 			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100, 80-6, 50, 25);
@@ -3456,6 +3458,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			DGSetItemFont (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS, DG_POPUP_BOTTOM, "1818");
+			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS, DG_POPUP_BOTTOM, "1212");
 
 			// Edit 컨트롤: 높이
 			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100, 110-6, 50, 25);
@@ -3491,6 +3495,7 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 				DGShowItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS);
 				if (abs(placingZone.cells [rIdx][cIdx].libPart.tableform.horLen - 3.032) < EPS)		popupSelectedIdx = 1;
 				if (abs(placingZone.cells [rIdx][cIdx].libPart.tableform.horLen - 2.426) < EPS)		popupSelectedIdx = 2;
+				if (abs(placingZone.cells [rIdx][cIdx].libPart.tableform.horLen - 1.820) < EPS)		popupSelectedIdx = 3;
 				DGPopUpSelectItem (dialogID, POPUP_TABLEFORM_WIDTH_OPTIONS, popupSelectedIdx);
 
 				// 라벨: 높이
@@ -3499,6 +3504,7 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 				// 팝업 컨트롤: 높이
 				DGShowItem (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS);
 				if (abs(placingZone.cells [rIdx][cIdx].libPart.tableform.verLen - 1.818) < EPS)		popupSelectedIdx = 1;
+				if (abs(placingZone.cells [rIdx][cIdx].libPart.tableform.verLen - 1.212) < EPS)		popupSelectedIdx = 2;
 				DGPopUpSelectItem (dialogID, POPUP_TABLEFORM_HEIGHT_OPTIONS, popupSelectedIdx);
 
 				//	// 라벨: 너비
