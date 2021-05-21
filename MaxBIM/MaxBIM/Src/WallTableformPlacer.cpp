@@ -21,16 +21,6 @@ static short	layerInd_Join;			// 레이어 번호: 결합철물
 static short	layerInd_Plywood;		// 레이어 번호: 합판
 static short	layerInd_Wood;			// 레이어 번호: 목재
 
-const GS::uchar_t*	gsmUFOM = L("유로폼v2.0.gsm");
-const GS::uchar_t*	gsmSPIP = L("비계파이프v1.0.gsm");
-const GS::uchar_t*	gsmPINB = L("핀볼트세트v1.0.gsm");
-const GS::uchar_t*	gsmTIE = L("벽체 타이 v1.0.gsm");
-const GS::uchar_t*	gsmCLAM = L("직교클램프v1.0.gsm");
-const GS::uchar_t*	gsmPUSH = L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm");
-const GS::uchar_t*	gsmJOIN = L("결합철물 (사각와셔활용) v1.0.gsm");
-const GS::uchar_t*	gsmPLYW = L("합판v1.0.gsm");
-const GS::uchar_t*	gsmTIMB = L("목재v1.0.gsm");
-
 static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
 // 다이얼로그 동적 요소 인덱스 번호 저장
@@ -250,6 +240,33 @@ FIRST:
 	clickedPrevButton = false;
 
 	// 테이블폼 개수 초기화
+	placingZone.n400w = 0;
+	placingZone.n450w = 0;
+	placingZone.n500w = 0;
+	placingZone.n600w = 0;
+	placingZone.n650w = 0;
+	placingZone.n700w = 0;
+	placingZone.n750w = 0;
+	placingZone.n800w = 0;
+	placingZone.n850w = 0;
+	placingZone.n900w = 0;
+	placingZone.n950w = 0;
+	placingZone.n1000w = 0;
+	placingZone.n1050w = 0;
+	placingZone.n1100w = 0;
+	placingZone.n1150w = 0;
+	placingZone.n1200w = 0;
+	placingZone.n1250w = 0;
+	placingZone.n1300w = 0;
+	placingZone.n1350w = 0;
+	placingZone.n1400w = 0;
+	placingZone.n1450w = 0;
+	placingZone.n1500w = 0;
+	placingZone.n1550w = 0;
+	placingZone.n1600w = 0;
+	placingZone.n1650w = 0;
+	placingZone.n1700w = 0;
+	placingZone.n1750w = 0;
 	placingZone.n1800w = 0;
 	placingZone.n1850w = 0;
 	placingZone.n1900w = 0;
@@ -308,9 +325,90 @@ FIRST:
 			} else if (abs (preferWidth - 1.800) < EPS) {
 				placingZone.n1800w ++;
 				tableColumn ++;
+			} else if (abs (preferWidth - 1.750) < EPS) {
+				placingZone.n1750w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.700) < EPS) {
+				placingZone.n1700w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.650) < EPS) {
+				placingZone.n1650w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.600) < EPS) {
+				placingZone.n1600w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.550) < EPS) {
+				placingZone.n1550w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.500) < EPS) {
+				placingZone.n1500w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.450) < EPS) {
+				placingZone.n1450w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.400) < EPS) {
+				placingZone.n1400w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.350) < EPS) {
+				placingZone.n1350w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.300) < EPS) {
+				placingZone.n1300w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.250) < EPS) {
+				placingZone.n1250w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.200) < EPS) {
+				placingZone.n1200w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.150) < EPS) {
+				placingZone.n1150w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.100) < EPS) {
+				placingZone.n1100w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.050) < EPS) {
+				placingZone.n1050w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 1.000) < EPS) {
+				placingZone.n1000w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.950) < EPS) {
+				placingZone.n950w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.900) < EPS) {
+				placingZone.n900w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.850) < EPS) {
+				placingZone.n850w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.800) < EPS) {
+				placingZone.n800w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.750) < EPS) {
+				placingZone.n750w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.700) < EPS) {
+				placingZone.n700w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.650) < EPS) {
+				placingZone.n650w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.600) < EPS) {
+				placingZone.n600w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.500) < EPS) {
+				placingZone.n500w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.450) < EPS) {
+				placingZone.n450w ++;
+				tableColumn ++;
+			} else if (abs (preferWidth - 0.400) < EPS) {
+				placingZone.n400w ++;
+				tableColumn ++;
 			}
 		} else {
-			placingZone.n1800w ++;
+			placingZone.n400w ++;
 			tableColumn ++;
 		}
 		width -= preferWidth;
@@ -495,6 +593,114 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 	} else if (abs (cell.horLen - 1.800) < EPS) {
 		placementInfo.nHorEuroform = 3;
 		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.750) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.500;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.700) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.650) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.600) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.550) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.500) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.450) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.400) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.350) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.300) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.250) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.200) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.150) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.100) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.050) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.000) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.950) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 0.900) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.850) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 0.800) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.750) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 0.700) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.650) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 0.600) < EPS) {
+		placementInfo.nHorEuroform = 1;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.500) < EPS) {
+		placementInfo.nHorEuroform = 1;
+		placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.450) < EPS) {
+		placementInfo.nHorEuroform = 1;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 0.400) < EPS) {
+		placementInfo.nHorEuroform = 1;
+		placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
 		horizontalGap = 0.050;
 	} else {
 		placementInfo.nHorEuroform = 0;
@@ -688,13 +894,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 	params_SPIP.length = cell.verLen - 0.100;
 	params_SPIP.pipeAng = DegreeToRad (90);
 
-	moveIn3D ('x', params_SPIP.ang, 0.450 - 0.035, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('x', params_SPIP.ang, placementInfo.width [0] - 0.150 - 0.035, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 	moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.075), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 	moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 
 	// 1열
 	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, 0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, cell.horLen - 0.900 - 0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, -0.070 - (placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 	// 2열
 	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, 0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 	elemList.Push (placeSPIP (params_SPIP));
@@ -742,61 +948,63 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 	moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 
 	// 2 ~ [n-1]행
-	moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	moveIn3D ('z', params_PINB.ang, placementInfo.height [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
-		width = 0.0;
-		for (yy = 0 ; yy < placementInfo.nHorEuroform ; ++yy) {
-			// 1열
-			if (yy == 0) {
-				elemList.Push (placePINB (params_PINB));
-				moveIn3D ('x', params_PINB.ang, 0.450, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-				width += 0.450;
-			// 마지막 열
-			} else if (yy == placementInfo.nHorEuroform - 1) {
-				width += 0.450;
-				moveIn3D ('x', params_PINB.ang, 0.450, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-				elemList.Push (placePINB (params_PINB));
-			// 나머지 열
-			} else {
-				width += placementInfo.width [yy];
-				if (abs (placementInfo.width [yy] - 0.600) < EPS) {
-					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	if (placementInfo.nHorEuroform >= 3) {
+		moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		moveIn3D ('z', params_PINB.ang, placementInfo.height [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
+			width = 0.0;
+			for (yy = 0 ; yy < placementInfo.nHorEuroform ; ++yy) {
+				// 1열
+				if (yy == 0) {
 					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					moveIn3D ('x', params_PINB.ang, placementInfo.width [0] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					width += placementInfo.width [0] - 0.150;
+				// 마지막 열
+				} else if (yy == placementInfo.nHorEuroform - 1) {
+					width += placementInfo.width [placementInfo.nHorEuroform-1] - 0.150;
+					moveIn3D ('x', params_PINB.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-				} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
-					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-				} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
-					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-				} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
-					moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-				} else if (abs (placementInfo.width [yy] - 0.300) < EPS) {
-					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-				} else if (abs (placementInfo.width [yy] - 0.200) < EPS) {
-					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.050, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+				// 나머지 열
+				} else {
+					width += placementInfo.width [yy];
+					if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('x', params_PINB.ang, 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+						moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.300) < EPS) {
+						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.200) < EPS) {
+						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('x', params_PINB.ang, 0.050, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					}
 				}
 			}
+			moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+			moveIn3D ('z', params_PINB.ang, placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 		}
-		moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-		moveIn3D ('z', params_PINB.ang, placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 	}
 
 	// 핀볼트 배치 (수직)
@@ -809,7 +1017,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 	params_PINB.angX = DegreeToRad (270.0);
 	params_PINB.angY = DegreeToRad (0.0);
 
-	moveIn3D ('x', params_PINB.ang, 0.450, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	moveIn3D ('x', params_PINB.ang, placementInfo.width [0] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 	moveIn3D ('y', params_PINB.ang, -(0.2135), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 	moveIn3D ('z', params_PINB.ang, placementInfo.height [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 
@@ -821,7 +1029,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		height += placementInfo.height [xx];
 	}
 	// 2열
-	moveIn3D ('x', params_PINB.ang, cell.horLen - 0.900, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	moveIn3D ('x', params_PINB.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 	moveIn3D ('z', params_PINB.ang, -height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 	for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
 		elemList.Push (placePINB (params_PINB));
@@ -842,7 +1050,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		params_TIE.clampBeg = 0.0365;
 		params_TIE.clampEnd = 0.0365 + infoWall.wallThk + 0.327;
 
-		moveIn3D ('x', params_TIE.ang, 0.450, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+		moveIn3D ('x', params_TIE.ang, placementInfo.width [0] - 0.150, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
 		moveIn3D ('y', params_TIE.ang, -(0.1635 + 0.0365), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
 		moveIn3D ('z', params_TIE.ang, 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
 
@@ -857,7 +1065,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 				} else if (yy == placementInfo.nVerEuroform - 1) {
 					moveIn3D ('z', params_TIE.ang, placementInfo.height [yy] - 0.350*2, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
 					elemList.Push (placeTIE (params_TIE));
-					moveIn3D ('x', params_TIE.ang, cell.horLen - 0.900, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+					moveIn3D ('x', params_TIE.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
 					moveIn3D ('z', params_TIE.ang, 0.350 - cell.verLen + 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
 				
 				// 2 ~ [n-1]행
@@ -905,15 +1113,15 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 	params_PUSH.leftBottomZ = cell.leftBottomZ;
 	params_PUSH.ang = cell.ang;
 
-	moveIn3D ('x', params_PUSH.ang, 0.450 - 0.100, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('x', params_PUSH.ang, placementInfo.width [0] - 0.150 - 0.100, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	moveIn3D ('y', params_PUSH.ang, -0.1725, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	moveIn3D ('z', params_PUSH.ang, 0.600, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 
 	// 처음 행
 	elemList.Push (placePUSH (params_PUSH));
-	moveIn3D ('x', params_PUSH.ang, cell.horLen - 0.900, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	elemList.Push (placePUSH (params_PUSH));
-	moveIn3D ('x', params_PUSH.ang, 0.900 - cell.horLen, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('x', params_PUSH.ang, (placementInfo.width [0] - 0.150) - cell.horLen - (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	//if (cell.verLen > 4.000) {
 	//	elev_headpiece = 4.000 * 0.80;
 	//} else {
@@ -923,7 +1131,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 	moveIn3D ('z', params_PUSH.ang, -0.600 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	// 마지막 행
 	elemList.Push (placePUSH (params_PUSH));
-	moveIn3D ('x', params_PUSH.ang, cell.horLen - 0.900, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	elemList.Push (placePUSH (params_PUSH));
 
 	// 결합철물
@@ -932,20 +1140,20 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 	params_JOIN.leftBottomZ = cell.leftBottomZ;
 	params_JOIN.ang = cell.ang;
 
-	moveIn3D ('x', params_JOIN.ang, 0.450, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('x', params_JOIN.ang, placementInfo.width [0] - 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 	moveIn3D ('y', params_JOIN.ang, -0.0455, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 	moveIn3D ('z', params_JOIN.ang, 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 
 	// 처음 행
 	elemList.Push (placeJOIN (params_JOIN));
-	moveIn3D ('x', params_JOIN.ang, cell.horLen - 0.900, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 	elemList.Push (placeJOIN (params_JOIN));
-	moveIn3D ('x', params_JOIN.ang, 0.900 - cell.horLen, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('x', params_JOIN.ang, (placementInfo.width [0] - 0.150) - cell.horLen - (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 	moveIn3D ('z', params_JOIN.ang, cell.verLen - 0.300, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 
 	// 마지막 행
 	elemList.Push (placeJOIN (params_JOIN));
-	moveIn3D ('x', params_JOIN.ang, cell.horLen - 0.900, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 	elemList.Push (placeJOIN (params_JOIN));
 
 	// 그룹화하기
@@ -1030,13 +1238,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		params_SPIP.length = cell.verLen - 0.100;
 		params_SPIP.pipeAng = DegreeToRad (90);
 
-		moveIn3D ('x', params_SPIP.ang, 0.450 - 0.035, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('x', params_SPIP.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150 - 0.035, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.075), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 
 		// 1열
 		elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, 0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-		elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, cell.horLen - 0.900 - 0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, -0.070 - (placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		// 2열
 		elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, 0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		elemList.Push (placeSPIP (params_SPIP));
@@ -1083,62 +1291,63 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 
 		moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 
-		// 2 ~ [n-1]행
-		moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-		moveIn3D ('z', params_PINB.ang, placementInfo.height [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-		for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
-			width = 0.0;
-			for (yy = placementInfo.nHorEuroform - 1 ; yy >= 0 ; --yy) {
-				// 1열
-				if (yy == placementInfo.nHorEuroform - 1) {
-					elemList.Push (placePINB (params_PINB));
-					moveIn3D ('x', params_PINB.ang, 0.450, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					width += 0.450;
-				// 마지막 열
-				} else if (yy == 0) {
-					width += 0.450;
-					moveIn3D ('x', params_PINB.ang, 0.450, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					elemList.Push (placePINB (params_PINB));
-				// 나머지 열
-				} else {
-					width += placementInfo.width [yy];
-					if (abs (placementInfo.width [yy] - 0.600) < EPS) {
-						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		if (placementInfo.nHorEuroform >= 3) {
+			moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+			moveIn3D ('z', params_PINB.ang, placementInfo.height [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+			for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
+				width = 0.0;
+				for (yy = placementInfo.nHorEuroform - 1 ; yy >= 0 ; --yy) {
+					// 1열
+					if (yy == placementInfo.nHorEuroform - 1) {
 						elemList.Push (placePINB (params_PINB));
-						moveIn3D ('x', params_PINB.ang, 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						moveIn3D ('x', params_PINB.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						width += placementInfo.width [placementInfo.nHorEuroform-1] - 0.150;
+					// 마지막 열
+					} else if (yy == 0) {
+						width += placementInfo.width [0] - 0.150;
+						moveIn3D ('x', params_PINB.ang, placementInfo.width [0] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 						elemList.Push (placePINB (params_PINB));
-						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
-						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-						elemList.Push (placePINB (params_PINB));
-						moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-						elemList.Push (placePINB (params_PINB));
-						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
-						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-						elemList.Push (placePINB (params_PINB));
-						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-						elemList.Push (placePINB (params_PINB));
-						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
-						moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-						elemList.Push (placePINB (params_PINB));
-						moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-						elemList.Push (placePINB (params_PINB));
-						moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					} else if (abs (placementInfo.width [yy] - 0.300) < EPS) {
-						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-						elemList.Push (placePINB (params_PINB));
-						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-					} else if (abs (placementInfo.width [yy] - 0.200) < EPS) {
-						moveIn3D ('x', params_PINB.ang, 0.050, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-						elemList.Push (placePINB (params_PINB));
-						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					// 나머지 열
+					} else {
+						width += placementInfo.width [yy];
+						if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+							moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('x', params_PINB.ang, 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+							moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+							moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+							moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.300) < EPS) {
+							moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.200) < EPS) {
+							moveIn3D ('x', params_PINB.ang, 0.050, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						}
 					}
 				}
+				moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+				moveIn3D ('z', params_PINB.ang, placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 			}
-			moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-			moveIn3D ('z', params_PINB.ang, placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 		}
 
 		// 핀볼트 배치 (수직)
@@ -1151,7 +1360,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		params_PINB.angX = DegreeToRad (270.0);
 		params_PINB.angY = DegreeToRad (0.0);
 
-		moveIn3D ('x', params_PINB.ang, 0.450, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		moveIn3D ('x', params_PINB.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 		moveIn3D ('y', params_PINB.ang, -(0.2135), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 		moveIn3D ('z', params_PINB.ang, placementInfo.height [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 
@@ -1163,7 +1372,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			height += placementInfo.height [xx];
 		}
 		// 2열
-		moveIn3D ('x', params_PINB.ang, cell.horLen - 0.900, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		moveIn3D ('x', params_PINB.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 		moveIn3D ('z', params_PINB.ang, -height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 		for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
 			elemList.Push (placePINB (params_PINB));
@@ -1209,15 +1418,15 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		params_PUSH.leftBottomZ = cell.leftBottomZ;
 		params_PUSH.ang = cell.ang;
 
-		moveIn3D ('x', params_PUSH.ang, 0.450 - 0.100, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('x', params_PUSH.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150 - 0.100, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		moveIn3D ('y', params_PUSH.ang, -0.1725, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		moveIn3D ('z', params_PUSH.ang, 0.600, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 
 		// 처음 행
 		elemList.Push (placePUSH (params_PUSH));
-		moveIn3D ('x', params_PUSH.ang, cell.horLen - 0.900, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		elemList.Push (placePUSH (params_PUSH));
-		moveIn3D ('x', params_PUSH.ang, 0.900 - cell.horLen, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('x', params_PUSH.ang, (placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) - cell.horLen - (-placementInfo.width [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		//if (cell.verLen > 4.000) {
 		//	elev_headpiece = 4.000 * 0.80;
 		//} else {
@@ -1227,7 +1436,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		moveIn3D ('z', params_PUSH.ang, -0.600 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		// 마지막 행
 		elemList.Push (placePUSH (params_PUSH));
-		moveIn3D ('x', params_PUSH.ang, cell.horLen - 0.900, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		elemList.Push (placePUSH (params_PUSH));
 
 		// 결합철물
@@ -1236,20 +1445,20 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		params_JOIN.leftBottomZ = cell.leftBottomZ;
 		params_JOIN.ang = cell.ang;
 
-		moveIn3D ('x', params_JOIN.ang, 0.450, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('x', params_JOIN.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 		moveIn3D ('y', params_JOIN.ang, -0.0455, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 		moveIn3D ('z', params_JOIN.ang, 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 
 		// 처음 행
 		elemList.Push (placeJOIN (params_JOIN));
-		moveIn3D ('x', params_JOIN.ang, cell.horLen - 0.900, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 		elemList.Push (placeJOIN (params_JOIN));
-		moveIn3D ('x', params_JOIN.ang, 0.900 - cell.horLen, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('x', params_JOIN.ang, (placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) - cell.horLen - (-placementInfo.width [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 		moveIn3D ('z', params_JOIN.ang, cell.verLen - 0.300, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 
 		// 마지막 행
 		elemList.Push (placeJOIN (params_JOIN));
-		moveIn3D ('x', params_JOIN.ang, cell.horLen - 0.900, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 		elemList.Push (placeJOIN (params_JOIN));
 
 		// 그룹화하기
@@ -1326,6 +1535,87 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 		} else if (abs (cell.horLen - 1.800) < EPS) {
 			placementInfo.nHorEuroform = 3;
 			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.750) < EPS) {
+			placementInfo.nHorEuroform = 4;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.500;
+		} else if (abs (cell.horLen - 1.700) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.650) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.600) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.550) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.500) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.450) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.400) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.350) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.300) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.250) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.200) < EPS) {
+			placementInfo.nHorEuroform = 2;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.150) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.100) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.050) < EPS) {
+			placementInfo.nHorEuroform = 3;
+			placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 1.000) < EPS) {
+			placementInfo.nHorEuroform = 2;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.950) < EPS) {
+			placementInfo.nHorEuroform = 2;
+			placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.900) < EPS) {
+			placementInfo.nHorEuroform = 2;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.850) < EPS) {
+			placementInfo.nHorEuroform = 2;
+			placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.800) < EPS) {
+			placementInfo.nHorEuroform = 2;
+			placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.750) < EPS) {
+			placementInfo.nHorEuroform = 2;
+			placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.700) < EPS) {
+			placementInfo.nHorEuroform = 2;
+			placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.650) < EPS) {
+			placementInfo.nHorEuroform = 2;
+			placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.600) < EPS) {
+			placementInfo.nHorEuroform = 1;
+			placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.500) < EPS) {
+			placementInfo.nHorEuroform = 1;
+			placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.450) < EPS) {
+			placementInfo.nHorEuroform = 1;
+			placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		} else if (abs (cell.horLen - 0.400) < EPS) {
+			placementInfo.nHorEuroform = 1;
+			placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
 		} else {
 			placementInfo.nHorEuroform = 0;
 			placementInfo.width [0] = 0.0;		placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
@@ -1739,6 +2029,60 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1850");
 			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1800");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1750");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1700");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1650");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1600");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1550");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1500");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1450");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1400");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1350");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1300");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1250");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1200");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1150");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1100");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1050");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "1000");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "950");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "900");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "850");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "800");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "750");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "700");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "650");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "600");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "500");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "450");
+			DGPopUpInsertItem (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PREFER_WIDTH, DG_POPUP_BOTTOM, "400");
 			DGShowItem (dialogID, POPUP_PREFER_WIDTH);
 
 			// Edit 컨트롤: 가로 파이프 길이
@@ -1818,8 +2162,64 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				pipeWidth = 1.800;
 			} else if (abs (width - 1.850) < EPS) {
 				pipeWidth = 1.800;
-			} else {
+			} else if (abs (width - 1.800) < EPS) {
 				pipeWidth = 1.700;
+			} else if (abs (width - 1.750) < EPS) {
+				pipeWidth = 1.700;
+			} else if (abs (width - 1.700) < EPS) {
+				pipeWidth = 1.600;
+			} else if (abs (width - 1.650) < EPS) {
+				pipeWidth = 1.600;
+			} else if (abs (width - 1.600) < EPS) {
+				pipeWidth = 1.500;
+			} else if (abs (width - 1.550) < EPS) {
+				pipeWidth = 1.500;
+			} else if (abs (width - 1.500) < EPS) {
+				pipeWidth = 1.400;
+			} else if (abs (width - 1.450) < EPS) {
+				pipeWidth = 1.400;
+			} else if (abs (width - 1.400) < EPS) {
+				pipeWidth = 1.300;
+			} else if (abs (width - 1.350) < EPS) {
+				pipeWidth = 1.300;
+			} else if (abs (width - 1.300) < EPS) {
+				pipeWidth = 1.200;
+			} else if (abs (width - 1.250) < EPS) {
+				pipeWidth = 1.200;
+			} else if (abs (width - 1.200) < EPS) {
+				pipeWidth = 1.100;
+			} else if (abs (width - 1.150) < EPS) {
+				pipeWidth = 1.100;
+			} else if (abs (width - 1.100) < EPS) {
+				pipeWidth = 1.000;
+			} else if (abs (width - 1.050) < EPS) {
+				pipeWidth = 1.000;
+			} else if (abs (width - 1.000) < EPS) {
+				pipeWidth = 0.900;
+			} else if (abs (width - 0.950) < EPS) {
+				pipeWidth = 0.900;
+			} else if (abs (width - 0.900) < EPS) {
+				pipeWidth = 0.800;
+			} else if (abs (width - 0.850) < EPS) {
+				pipeWidth = 0.800;
+			} else if (abs (width - 0.800) < EPS) {
+				pipeWidth = 0.700;
+			} else if (abs (width - 0.750) < EPS) {
+				pipeWidth = 0.700;
+			} else if (abs (width - 0.700) < EPS) {
+				pipeWidth = 0.600;
+			} else if (abs (width - 0.650) < EPS) {
+				pipeWidth = 0.600;
+			} else if (abs (width - 0.600) < EPS) {
+				pipeWidth = 0.500;
+			} else if (abs (width - 0.500) < EPS) {
+				pipeWidth = 0.400;
+			} else if (abs (width - 0.450) < EPS) {
+				pipeWidth = 0.400;
+			} else if (abs (width - 0.400) < EPS) {
+				pipeWidth = 0.300;
+			} else {
+				pipeWidth = 0.0;
 			}
 
 			DGSetItemValDouble (dialogID, EDITCONTROL_RECT_PIPE_WIDTH, pipeWidth);
@@ -1832,7 +2232,6 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 					// 선호하는 테이블폼 너비
 					preferWidth = atof (DGPopUpGetItemText (dialogID, POPUP_PREFER_WIDTH, DGPopUpGetSelected (dialogID, POPUP_PREFER_WIDTH)).ToCStr ()) / 1000.0;
-					
 
 					break;
 				case DG_CANCEL:
@@ -1990,6 +2389,60 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1800");
 				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1750");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1700");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1650");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1600");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1550");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1500");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1450");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1400");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1350");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1300");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1250");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1200");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1150");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1100");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1050");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1000");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "950");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "900");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "850");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "800");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "750");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "700");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "650");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "600");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "500");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "450");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "400");
+				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "0");
 				DGShowItem (dialogID, POPUP_WIDTH [xx]);
 
@@ -2026,6 +2479,87 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 				} else if (placingZone.n1800w > 0) {
 					width = 1.800;
 					placingZone.n1800w --;
+				} else if (placingZone.n1750w > 0) {
+					width = 1.750;
+					placingZone.n1750w --;
+				} else if (placingZone.n1700w > 0) {
+					width = 1.700;
+					placingZone.n1700w --;
+				} else if (placingZone.n1650w > 0) {
+					width = 1.650;
+					placingZone.n1650w --;
+				} else if (placingZone.n1600w > 0) {
+					width = 1.600;
+					placingZone.n1600w --;
+				} else if (placingZone.n1550w > 0) {
+					width = 1.550;
+					placingZone.n1550w --;
+				} else if (placingZone.n1500w > 0) {
+					width = 1.500;
+					placingZone.n1500w --;
+				} else if (placingZone.n1450w > 0) {
+					width = 1.450;
+					placingZone.n1450w --;
+				} else if (placingZone.n1400w > 0) {
+					width = 1.400;
+					placingZone.n1400w --;
+				} else if (placingZone.n1350w > 0) {
+					width = 1.350;
+					placingZone.n1350w --;
+				} else if (placingZone.n1300w > 0) {
+					width = 1.300;
+					placingZone.n1300w --;
+				} else if (placingZone.n1250w > 0) {
+					width = 1.250;
+					placingZone.n1250w --;
+				} else if (placingZone.n1200w > 0) {
+					width = 1.200;
+					placingZone.n1200w --;
+				} else if (placingZone.n1150w > 0) {
+					width = 1.150;
+					placingZone.n1150w --;
+				} else if (placingZone.n1100w > 0) {
+					width = 1.100;
+					placingZone.n1100w --;
+				} else if (placingZone.n1050w > 0) {
+					width = 1.050;
+					placingZone.n1050w --;
+				} else if (placingZone.n1000w > 0) {
+					width = 1.000;
+					placingZone.n1000w --;
+				} else if (placingZone.n950w > 0) {
+					width = 0.950;
+					placingZone.n950w --;
+				} else if (placingZone.n900w > 0) {
+					width = 0.900;
+					placingZone.n900w --;
+				} else if (placingZone.n850w > 0) {
+					width = 0.850;
+					placingZone.n850w --;
+				} else if (placingZone.n800w > 0) {
+					width = 0.800;
+					placingZone.n800w --;
+				} else if (placingZone.n750w > 0) {
+					width = 0.750;
+					placingZone.n750w --;
+				} else if (placingZone.n700w > 0) {
+					width = 0.700;
+					placingZone.n700w --;
+				} else if (placingZone.n650w > 0) {
+					width = 0.650;
+					placingZone.n650w --;
+				} else if (placingZone.n600w > 0) {
+					width = 0.600;
+					placingZone.n600w --;
+				} else if (placingZone.n500w > 0) {
+					width = 0.500;
+					placingZone.n500w --;
+				} else if (placingZone.n450w > 0) {
+					width = 0.450;
+					placingZone.n450w --;
+				} else if (placingZone.n400w > 0) {
+					width = 0.400;
+					placingZone.n400w --;
 				} else
 					width = 0.0;
 
@@ -2042,6 +2576,33 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 					else if (width + EPS > 1.900)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 9);
 					else if (width + EPS > 1.850)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 10);
 					else if (width + EPS > 1.800)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 11);
+					else if (width + EPS > 1.750)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 12);
+					else if (width + EPS > 1.700)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 13);
+					else if (width + EPS > 1.650)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 14);
+					else if (width + EPS > 1.600)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 15);
+					else if (width + EPS > 1.550)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 16);
+					else if (width + EPS > 1.500)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 17);
+					else if (width + EPS > 1.450)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 18);
+					else if (width + EPS > 1.400)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 19);
+					else if (width + EPS > 1.350)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 20);
+					else if (width + EPS > 1.300)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 21);
+					else if (width + EPS > 1.250)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 22);
+					else if (width + EPS > 1.200)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 23);
+					else if (width + EPS > 1.150)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 24);
+					else if (width + EPS > 1.100)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 25);
+					else if (width + EPS > 1.050)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 26);
+					else if (width + EPS > 1.000)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 27);
+					else if (width + EPS > 0.950)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 28);
+					else if (width + EPS > 0.900)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 29);
+					else if (width + EPS > 0.850)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 30);
+					else if (width + EPS > 0.800)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 31);
+					else if (width + EPS > 0.750)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 32);
+					else if (width + EPS > 0.700)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 33);
+					else if (width + EPS > 0.650)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 34);
+					else if (width + EPS > 0.600)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 35);
+					else if (width + EPS > 0.500)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 36);
+					else if (width + EPS > 0.450)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 37);
+					else if (width + EPS > 0.400)	DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], 38);
 				}
 				buttonPosX += 100;
 			}
@@ -2469,7 +3030,7 @@ API_Guid	WallTableformPlacingZone::placeUFOM (Euroform params)
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
 
-	const GS::uchar_t*	gsmName = gsmUFOM;
+	const GS::uchar_t*	gsmName = L("유로폼v2.0.gsm");
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
@@ -2536,7 +3097,7 @@ API_Guid	WallTableformPlacingZone::placeUFOM_up (Euroform params)
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
 
-	const GS::uchar_t*	gsmName = gsmUFOM;
+	const GS::uchar_t*	gsmName = L("유로폼v2.0.gsm");
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
@@ -2623,7 +3184,7 @@ API_Guid	WallTableformPlacingZone::placeSPIP (SquarePipe params)
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
 
-	const GS::uchar_t*	gsmName = gsmSPIP;
+	const GS::uchar_t*	gsmName = L("비계파이프v1.0.gsm");
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
@@ -2679,7 +3240,7 @@ API_Guid	WallTableformPlacingZone::placePINB (PinBoltSet params)
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
 
-	const GS::uchar_t*	gsmName = gsmPINB;
+	const GS::uchar_t*	gsmName = L("핀볼트세트v1.0.gsm");
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
@@ -2744,7 +3305,7 @@ API_Guid	WallTableformPlacingZone::placeTIE (WallTie params)
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
 
-	const GS::uchar_t*	gsmName = gsmTIE;
+	const GS::uchar_t*	gsmName = L("벽체 타이 v1.0.gsm");
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
@@ -2815,7 +3376,7 @@ API_Guid	WallTableformPlacingZone::placeCLAM (CrossClamp params)
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
 
-	const GS::uchar_t*	gsmName = gsmCLAM;
+	const GS::uchar_t*	gsmName = L("직교클램프v1.0.gsm");
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
@@ -2871,7 +3432,7 @@ API_Guid	WallTableformPlacingZone::placePUSH (HeadpieceOfPushPullProps params)
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
 
-	const GS::uchar_t*	gsmName = gsmPUSH;
+	const GS::uchar_t*	gsmName = L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm");
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
@@ -2928,7 +3489,7 @@ API_Guid	WallTableformPlacingZone::placeJOIN (MetalFittings params)
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
 
-	const GS::uchar_t*	gsmName = gsmJOIN;
+	const GS::uchar_t*	gsmName = L("결합철물 (사각와셔활용) v1.0.gsm");
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
@@ -2984,7 +3545,7 @@ API_Guid	WallTableformPlacingZone::placePLYW (Plywood params)
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
 
-	const GS::uchar_t*	gsmName = gsmPLYW;
+	const GS::uchar_t*	gsmName = L("합판v1.0.gsm");
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;
@@ -3046,7 +3607,7 @@ API_Guid	WallTableformPlacingZone::placeTIMB (Wood params)
 	API_ElementMemo		memo;
 	API_LibPart			libPart;
 
-	const GS::uchar_t*	gsmName = gsmTIMB;
+	const GS::uchar_t*	gsmName = L("목재v1.0.gsm");
 	double				aParam;
 	double				bParam;
 	Int32				addParNum;

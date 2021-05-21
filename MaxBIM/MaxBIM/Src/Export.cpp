@@ -551,15 +551,31 @@ GSErrCode	exportSelectedElementInfo (void)
 
 	SummaryOfObjectInfo		objectInfo;
 
-	API_NewWindowPars	windowPars;
-	API_WindowInfo		windowInfo;
+	//API_NewWindowPars	windowPars;
+	//API_WindowInfo		windowInfo;
 	char				buffer [256];
+	char				filename [256];
 
-	BNZeroMemory (&windowPars, sizeof (API_NewWindowPars));
-	windowPars.typeID = APIWind_MyTextID;
-	windowPars.userRefCon = 1;
-	GS::snuprintf (windowPars.wTitle, sizeof (windowPars.wTitle) / sizeof (GS::uchar_t), L("선택한 객체들의 정보"));
-	err = ACAPI_Database (APIDb_NewWindowID, &windowPars, NULL);	// 텍스트 창 열기
+	//BNZeroMemory (&windowPars, sizeof (API_NewWindowPars));
+	//windowPars.typeID = APIWind_MyTextID;
+	//windowPars.userRefCon = 1;
+	//GS::snuprintf (windowPars.wTitle, sizeof (windowPars.wTitle) / sizeof (GS::uchar_t), L("선택한 객체들의 정보"));
+	//err = ACAPI_Database (APIDb_NewWindowID, &windowPars, NULL);	// 텍스트 창 열기
+
+	// 엑셀 파일로 기둥 정보 내보내기
+	// 파일 저장을 위한 변수
+	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
+	IO::Location		location;
+	GS::UniString		resultString;
+	API_MiscAppInfo		miscAppInfo;
+	FILE				*fp;
+
+	ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
+	sprintf (filename, "%s - 선택한 부재 정보.csv", miscAppInfo.caption);
+	fp = fopen (filename, "w+");
+
+	if (fp == NULL)
+		return err;
 
 	double			value_numeric [9];
 	string			value_string [9];
@@ -835,9 +851,9 @@ GSErrCode	exportSelectedElementInfo (void)
 	}
 
 	// 최종 텍스트 표시
-	BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
-	windowInfo.typeID = APIWind_MyTextID;
-	windowInfo.index = 1;
+	//BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
+	//windowInfo.typeID = APIWind_MyTextID;
+	//windowInfo.index = 1;
 
 	// APIParT_Length인 경우 1000배 곱해서 표현
 	// APIParT_Boolean인 경우 예/아니오 표현
@@ -849,7 +865,8 @@ GSErrCode	exportSelectedElementInfo (void)
 			// 제목
 			if (yy == 0) {
 				sprintf (buffer, "\n[%s]\n", objectInfo.nameVal [xx].c_str ());
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 			}
 
 			if (strncmp (objectInfo.nameVal [xx].c_str (), "유로폼 후크", strlen ("유로폼 후크")) == 0) {
@@ -861,7 +878,8 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else {
 					sprintf (buffer, "사각, %s ", objectInfo.var1value [xx][yy].c_str ());
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "유로폼", strlen ("유로폼")) == 0) {
 				// 규격폼
@@ -874,7 +892,8 @@ GSErrCode	exportSelectedElementInfo (void)
 					length2 = atof (objectInfo.var5value [xx][yy].c_str ());
 					sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "스틸폼", strlen ("스틸폼")) == 0) {
 				// 규격폼
@@ -887,14 +906,16 @@ GSErrCode	exportSelectedElementInfo (void)
 					length2 = atof (objectInfo.var5value [xx][yy].c_str ());
 					sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "목재", strlen ("목재")) == 0) {
 				length = atof (objectInfo.var1value [xx][yy].c_str ());
 				length2 = atof (objectInfo.var2value [xx][yy].c_str ());
 				length3 = atof (objectInfo.var3value [xx][yy].c_str ());
 				sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "합판", strlen ("합판")) == 0) {
 				if (strncmp (objectInfo.var1value [xx][yy].c_str (), "3x6 [910x1820]", strlen ("3x6 [910x1820]")) == 0) {
@@ -915,12 +936,14 @@ GSErrCode	exportSelectedElementInfo (void)
 				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "비정형", strlen ("비정형")) == 0) {
 					sprintf (buffer, "비정형 ");
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 				// 제작틀 ON
 				if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
 					sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
-					ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					fprintf (fp, buffer);
 				}
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "사각파이프", strlen ("사각파이프")) == 0) {
@@ -934,17 +957,20 @@ GSErrCode	exportSelectedElementInfo (void)
 					length = atof (objectInfo.var2value [xx][yy].c_str ());
 					sprintf (buffer, "%s x %.0f ", objectInfo.var1value [xx][yy].c_str (), round (length*1000, 0));
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "원형파이프", strlen ("원형파이프")) == 0) {
 				length = atof (objectInfo.var1value [xx][yy].c_str ());
 				sprintf (buffer, "%.0f ", round (length*1000, 0));
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "아웃코너앵글", strlen ("아웃코너앵글")) == 0) {
 				length = atof (objectInfo.var1value [xx][yy].c_str ());
 				sprintf (buffer, "%.0f ", round (length*1000, 0));
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "매직바", strlen ("매직바")) == 0) {
 				if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
@@ -955,20 +981,24 @@ GSErrCode	exportSelectedElementInfo (void)
 					length = atof (objectInfo.var1value [xx][yy].c_str ());
 					sprintf (buffer, "%.0f ", round (length*1000, 0));
 				}
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "블루목심", strlen ("블루목심")) == 0) {
 				sprintf (buffer, "%s ", objectInfo.var1value [xx][yy].c_str ());
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "보 멍에제", strlen ("보 멍에제")) == 0) {
 				length = atof (objectInfo.var1value [xx][yy].c_str ());
 				sprintf (buffer, "%.0f ", round (length*1000, 0));
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "물량합판", strlen ("물량합판")) == 0) {
 				sprintf (buffer, "%s ㎡ ", objectInfo.var1value [xx][yy].c_str ());
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 
 			} else {
 				// 변수별 값 표현
@@ -1004,7 +1034,7 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else {
 						sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), objectInfo.var1value [xx][yy]);
 					}
-					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					if (bShow) fprintf (fp, buffer);	//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 				}
 				if (objectInfo.var2name [xx].size () > 1) {
 					bShow = false;
@@ -1038,7 +1068,7 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else {
 						sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), objectInfo.var2value [xx][yy]);
 					}
-					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					if (bShow) fprintf (fp, buffer);	//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 				}
 				if (objectInfo.var3name [xx].size () > 1) {
 					bShow = false;
@@ -1072,7 +1102,7 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else {
 						sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), objectInfo.var3value [xx][yy]);
 					}
-					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					if (bShow) fprintf (fp, buffer);	//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 				}
 				if (objectInfo.var4name [xx].size () > 1) {
 					bShow = false;
@@ -1106,7 +1136,7 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else {
 						sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), objectInfo.var4value [xx][yy]);
 					}
-					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					if (bShow) fprintf (fp, buffer);	//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 				}
 				if (objectInfo.var5name [xx].size () > 1) {
 					bShow = false;
@@ -1140,7 +1170,7 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else {
 						sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), objectInfo.var5value [xx][yy]);
 					}
-					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					if (bShow) fprintf (fp, buffer);	//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 				}
 				if (objectInfo.var6name [xx].size () > 1) {
 					bShow = false;
@@ -1174,7 +1204,7 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else {
 						sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), objectInfo.var6value [xx][yy]);
 					}
-					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					if (bShow) fprintf (fp, buffer);	//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 				}
 				if (objectInfo.var7name [xx].size () > 1) {
 					bShow = false;
@@ -1208,7 +1238,7 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else {
 						sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), objectInfo.var7value [xx][yy]);
 					}
-					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					if (bShow) fprintf (fp, buffer);	//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 				}
 				if (objectInfo.var8name [xx].size () > 1) {
 					bShow = false;
@@ -1242,7 +1272,7 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else {
 						sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), objectInfo.var8value [xx][yy]);
 					}
-					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					if (bShow) fprintf (fp, buffer);	//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 				}
 				if (objectInfo.var9name [xx].size () > 1) {
 					bShow = false;
@@ -1276,34 +1306,47 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else {
 						sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), objectInfo.var9value [xx][yy]);
 					}
-					if (bShow) ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+					if (bShow) fprintf (fp, buffer);	//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
 				}
 			}
 
 			// 수량 표현
 			if (objectInfo.combinationCount [xx][yy] > 0) {
 				sprintf (buffer, ": %d EA", objectInfo.combinationCount [xx][yy]);
-				ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+				fprintf (fp, buffer);
 			}
 
 			// 줄넘김
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n");
+			//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n");
+			fprintf (fp, "\n");
 		}
 	}
 
 	// 일반 요소 - 보
 	for (xx = 0 ; xx < objectInfo.nCountsBeam ; ++xx) {
-		if (xx == 0)
-			ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보]\n");
+		if (xx == 0) {
+			//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, "\n[보]\n");
+			fprintf (fp, "\n[보]\n");
+		}
 		sprintf (buffer, "%d : %d EA\n", objectInfo.beamLength [xx], objectInfo.beamCount [xx]);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+		//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+		fprintf (fp, buffer);
 	}
 
 	// 알 수 없는 객체
 	if (objectInfo.nUnknownObjects > 0) {
 		sprintf (buffer, "\n알 수 없는 객체 : %d EA", objectInfo.nUnknownObjects);
-		ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+		//ACAPI_Database (APIDb_AddTextWindowContentID, &windowInfo, buffer);
+		fprintf (fp, buffer);
 	}
+
+	fclose (fp);
+
+	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	location.ToDisplayText (&resultString);
+	sprintf (buffer, "%s를 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", filename, resultString.ToCStr ().Get ());
+	ACAPI_WriteReport (buffer, true);
 
 	return	err;
 }

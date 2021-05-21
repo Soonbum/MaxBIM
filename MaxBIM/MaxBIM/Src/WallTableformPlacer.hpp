@@ -86,7 +86,7 @@ struct CellForWallTableform
 	double	leftBottomY;	// 좌하단 좌표 Y
 	double	leftBottomZ;	// 좌하단 좌표 Z
 
-	double	horLen;			// 가로 길이 (1800~2300, 50 간격)
+	double	horLen;			// 가로 길이 (400~2300, 50 간격)
 	double	verLen;			// 세로 길이 (1500~6000, 300 간격)
 	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
 };
@@ -133,7 +133,34 @@ public:
 	short		nCells;								// 테이블폼 셀 개수
 	double		marginTop;							// 상단 여백 높이
 
-	// 테이블폼 개수 (각각은 너비 1800~2300의 테이블폼을 의미함)
+	// 테이블폼 개수 (각각은 너비 400~2300의 테이블폼을 의미함)
+	short	n400w;
+	short	n450w;
+	short	n500w;
+	short	n600w;
+	short	n650w;
+	short	n700w;
+	short	n750w;
+	short	n800w;
+	short	n850w;
+	short	n900w;
+	short	n950w;
+	short	n1000w;
+	short	n1050w;
+	short	n1100w;
+	short	n1150w;
+	short	n1200w;
+	short	n1250w;
+	short	n1300w;
+	short	n1350w;
+	short	n1400w;
+	short	n1450w;
+	short	n1500w;
+	short	n1550w;
+	short	n1600w;
+	short	n1650w;
+	short	n1700w;
+	short	n1750w;
 	short	n1800w;
 	short	n1850w;
 	short	n1900w;
