@@ -16,12 +16,6 @@
 //const GS::uchar_t*	gsmPLYW = L("합판v1.0.gsm");
 //const GS::uchar_t*	gsmTIMB = L("목재v1.0.gsm");
 
-//const GS::uchar_t*	gsmSFOM = L("슬래브 테이블폼 (콘판넬) v1.0.gsm");
-//const GS::uchar_t*	gsmFISP = L("휠러스페이서v1.0.gsm");
-//const GS::uchar_t*	gsmOUTA = L("아웃코너앵글v1.0.gsm");
-//const GS::uchar_t*	gsmOUTP = L("아웃코너판넬v1.0.gsm");
-//const GS::uchar_t*	gsmINCO = L("인코너판넬v1.0.gsm");
-
 using namespace libraryConvertDG;
 
 short	floorInd;		// 가상 가설재의 층 인덱스 저장
@@ -84,11 +78,11 @@ GSErrCode	convertVirtualTCO (void)
 
 	API_Element				elem;
 	API_ElementMemo			memo;
+	API_Elem_Head*			headList;
 
 	short	xx, yy;
 	short	result;
 	long	nSel;
-	char	buffer [256];
 
 	const char*		tempStr;
 	char			productName [16];	// 가상 가설재
@@ -108,7 +102,6 @@ GSErrCode	convertVirtualTCO (void)
 	API_Element				tElem;
 	GS::Array<API_Guid>&	objects = GS::Array<API_Guid> ();
 	GS::Array<API_Guid>&	objectsRetry = GS::Array<API_Guid> ();
-	long					nObjects = 0;
 
 
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
@@ -136,7 +129,6 @@ GSErrCode	convertVirtualTCO (void)
 		}
 	}
 	BMKillHandle ((GSHandle *) &selNeigs);
-	nObjects = objects.GetSize ();
 
 	// 요소의 유무 확인
 	bLayerInd_Euroform = false;
@@ -160,7 +152,7 @@ GSErrCode	convertVirtualTCO (void)
 	bLayerInd_IncornerPanel = false;
 
 	// 미리 가상 가설재를 확인하여 설정해야 할 레이어를 선정할 것
-	for (xx = 0 ; xx < nObjects ; ++xx) {
+	while (objects.GetSize () > 0) {
 		BNZeroMemory (&elem, sizeof (API_Element));
 		BNZeroMemory (&memo, sizeof (API_ElementMemo));
 		elem.header.guid = objects.Pop ();
@@ -230,7 +222,7 @@ GSErrCode	convertVirtualTCO (void)
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32519, ACAPI_GetOwnResModule (), convertVirtualTCOHandler1, 0);
 
 	// 가상 가설재만 추려내서 배치함
-	for (xx = 0 ; xx < nObjects ; ++xx) {
+	while (objectsRetry.GetSize () > 0) {
 		BNZeroMemory (&elem, sizeof (API_Element));
 		BNZeroMemory (&memo, sizeof (API_ElementMemo));
 		elem.header.guid = objectsRetry.Pop ();
@@ -268,9 +260,9 @@ GSErrCode	convertVirtualTCO (void)
 			num_A = (int)round (getParameterValueByName (&memo, "num_A"), 0);			// 단위 개수 (A)
 			num_B = (int)round (getParameterValueByName (&memo, "num_B"), 0);			// 단위 개수 (B)
 			num_ZZYZX = (int)round (getParameterValueByName (&memo, "num_ZZYZX"), 0);	// 단위 개수 (ZZYZX)
-			
+
 			// 가상 가설재 제거
-			API_Elem_Head* headList = new API_Elem_Head [1];
+			headList = new API_Elem_Head [1];
 			headList [0] = elem.header;
 			err = ACAPI_Element_Delete (&headList, 1);
 			delete headList;
@@ -281,7 +273,7 @@ GSErrCode	convertVirtualTCO (void)
 			Euroform		euroform;
 			Plywood			plywood;
 			FillerSpacer	fillersp;
-			OutcornerAngle	outcornerangle;
+			OutcornerAngle	outcornerAngle;
 			OutcornerPanel	outcornerPanel;
 			IncornerPanel	incornerPanel;
 
@@ -290,8 +282,21 @@ GSErrCode	convertVirtualTCO (void)
 				// ...
 				//GSErrCode	placeTableformOnWall (WallTableform params);
 			} else if (strncmp (objType, "테이블폼(슬래브)", strlen ("테이블폼(슬래브)")) == 0) {
-				// ...
-				//GSErrCode	placeTableformOnSlabBottom (SlabTableform params);
+
+				//const char* typeStr = getParameterStringByName (&memo, "type");
+				//strncpy (slabtableform.type, typeStr, strlen (typeStr));
+				//slabtableform.type [strlen (typeStr)] = '\0';
+				//ACAPI_WriteReport (slabtableform.type, true);
+
+				//if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+
+				//	placeTableformOnSlabBottom (slabtableform);
+
+				//} else if (strncmp (dir, "바닥덮기", strlen ("바닥덮기")) == 0) {
+
+				//	placeTableformOnSlabBottom (slabtableform);
+				//}
+
 			} else if (strncmp (objType, "유로폼", strlen ("유로폼")) == 0) {
 
 				euroform.ang = elem.object.angle;
@@ -319,6 +324,25 @@ GSErrCode	convertVirtualTCO (void)
 						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 						moveIn3D ('z', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 					}
+
+					// 양면
+					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						euroform.leftBottomX = elem.object.pos.x;
+						euroform.leftBottomY = elem.object.pos.y;
+						euroform.leftBottomZ = elem.object.level;
+						euroform.ang = elem.object.angle + DegreeToRad (180.0);
+						moveIn3D ('x', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						moveIn3D ('y', elem.object.angle, oppSideOffset, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							for (yy = 0 ; yy < num_A ; ++yy) {
+								placeEuroform (euroform);
+								moveIn3D ('x', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+							}
+							moveIn3D ('x', elem.object.angle, -unit_A * num_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						}
+					}
 				} else if (strncmp (dir, "벽눕히기", strlen ("벽눕히기")) == 0) {
 					euroform.leftBottomX = elem.object.pos.x;
 					euroform.leftBottomY = elem.object.pos.y;
@@ -334,6 +358,24 @@ GSErrCode	convertVirtualTCO (void)
 						}
 						moveIn3D ('x', elem.object.angle, -unit_ZZYZX * num_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 						moveIn3D ('z', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+					}
+
+					// 양면
+					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						euroform.leftBottomX = elem.object.pos.x;
+						euroform.leftBottomY = elem.object.pos.y;
+						euroform.leftBottomZ = elem.object.level;
+						euroform.ang = elem.object.angle + DegreeToRad (180.0);
+						moveIn3D ('y', elem.object.angle, oppSideOffset, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						
+						for (xx = 0 ; xx < num_A ; ++xx) {
+							for (yy = 0 ; yy < num_ZZYZX ; ++yy) {
+								placeEuroform (euroform);
+								moveIn3D ('x', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+							}
+							moveIn3D ('x', elem.object.angle, -unit_ZZYZX * num_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+							moveIn3D ('z', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						}
 					}
 				} else if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
 					euroform.leftBottomX = elem.object.pos.x;
@@ -367,30 +409,537 @@ GSErrCode	convertVirtualTCO (void)
 						moveIn3D ('y', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 					}
 				}
+			} else if (strncmp (objType, "스틸폼", strlen ("스틸폼")) == 0) {
 
-				// 양면
-				if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
-					// oppSideOffset
+				euroform.ang = elem.object.angle;
+				euroform.eu_stan_onoff = bRegularSize;
+				if (bRegularSize == true) {
+					euroform.eu_wid = unit_A;
+					euroform.eu_hei = unit_ZZYZX;
+				} else {
+					euroform.eu_wid2 = unit_A;
+					euroform.eu_hei2 = unit_ZZYZX;
 				}
 
-			} else if (strncmp (objType, "스틸폼", strlen ("스틸폼")) == 0) {
-				// ...
-				//placeSteelform (euroform);
+				if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+					euroform.leftBottomX = elem.object.pos.x;
+					euroform.leftBottomY = elem.object.pos.y;
+					euroform.leftBottomZ = elem.object.level;
+					euroform.u_ins_wall = true;					// true: 벽세우기, false: 벽눕히기
+					euroform.ang_x = DegreeToRad (90.0);		// 벽(90)
+
+					for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+						for (yy = 0 ; yy < num_A ; ++yy) {
+							placeSteelform (euroform);
+							moveIn3D ('x', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						}
+						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						moveIn3D ('z', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+					}
+
+					// 양면
+					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						euroform.leftBottomX = elem.object.pos.x;
+						euroform.leftBottomY = elem.object.pos.y;
+						euroform.leftBottomZ = elem.object.level;
+						euroform.ang = elem.object.angle + DegreeToRad (180.0);
+						moveIn3D ('x', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						moveIn3D ('y', elem.object.angle, oppSideOffset, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							for (yy = 0 ; yy < num_A ; ++yy) {
+								placeSteelform (euroform);
+								moveIn3D ('x', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+							}
+							moveIn3D ('x', elem.object.angle, -unit_A * num_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						}
+					}
+				} else if (strncmp (dir, "벽눕히기", strlen ("벽눕히기")) == 0) {
+					euroform.leftBottomX = elem.object.pos.x;
+					euroform.leftBottomY = elem.object.pos.y;
+					euroform.leftBottomZ = elem.object.level;
+					moveIn3D ('x', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+					euroform.u_ins_wall = false;				// true: 벽세우기, false: 벽눕히기
+					euroform.ang_x = DegreeToRad (90.0);		// 벽(90)
+
+					for (xx = 0 ; xx < num_A ; ++xx) {
+						for (yy = 0 ; yy < num_ZZYZX ; ++yy) {
+							placeSteelform (euroform);
+							moveIn3D ('x', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						}
+						moveIn3D ('x', elem.object.angle, -unit_ZZYZX * num_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						moveIn3D ('z', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+					}
+
+					// 양면
+					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						euroform.leftBottomX = elem.object.pos.x;
+						euroform.leftBottomY = elem.object.pos.y;
+						euroform.leftBottomZ = elem.object.level;
+						euroform.ang = elem.object.angle + DegreeToRad (180.0);
+						moveIn3D ('y', elem.object.angle, oppSideOffset, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						
+						for (xx = 0 ; xx < num_A ; ++xx) {
+							for (yy = 0 ; yy < num_ZZYZX ; ++yy) {
+								placeSteelform (euroform);
+								moveIn3D ('x', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+							}
+							moveIn3D ('x', elem.object.angle, -unit_ZZYZX * num_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+							moveIn3D ('z', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						}
+					}
+				} else if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+					euroform.leftBottomX = elem.object.pos.x;
+					euroform.leftBottomY = elem.object.pos.y;
+					euroform.leftBottomZ = elem.object.level;
+					moveIn3D ('y', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+					euroform.u_ins_wall = true;					// true: 벽세우기, false: 벽눕히기
+					euroform.ang_x = DegreeToRad (0.0);			// 천장(0)
+					
+					for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+						for (yy = 0 ; yy < num_A ; ++yy) {
+							placeSteelform (euroform);
+							moveIn3D ('x', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						}
+						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						moveIn3D ('y', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+					}
+				} else if (strncmp (dir, "바닥덮기", strlen ("바닥덮기")) == 0) {
+					euroform.leftBottomX = elem.object.pos.x;
+					euroform.leftBottomY = elem.object.pos.y;
+					euroform.leftBottomZ = elem.object.level;
+					euroform.u_ins_wall = true;					// true: 벽세우기, false: 벽눕히기
+					euroform.ang_x = DegreeToRad (180.0);		// 바닥(180)
+
+					for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+						for (yy = 0 ; yy < num_A ; ++yy) {
+							placeSteelform (euroform);
+							moveIn3D ('x', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						}
+						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+						moveIn3D ('y', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
+					}
+				}
 			} else if (strncmp (objType, "합판", strlen ("합판")) == 0) {
-				// ...
-				//GSErrCode	placePlywood (Plywood params);
+
+				plywood.ang = elem.object.angle;
+				plywood.leftBottomX = elem.object.pos.x;
+				plywood.leftBottomY = elem.object.pos.y;
+				plywood.leftBottomZ = elem.object.level;
+				plywood.p_wid = unit_A;
+				plywood.p_leng = unit_ZZYZX;
+
+				if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+					plywood.w_dir = 1;
+
+					for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+						for (yy = 0 ; yy < num_A ; ++yy) {
+							placePlywood (plywood);
+							moveIn3D ('x', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						}
+						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						moveIn3D ('z', elem.object.angle, unit_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+					}
+
+					// 양면
+					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						plywood.leftBottomX = elem.object.pos.x;
+						plywood.leftBottomY = elem.object.pos.y;
+						plywood.leftBottomZ = elem.object.level;
+						plywood.ang = elem.object.angle + DegreeToRad (180.0);
+						moveIn3D ('x', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						moveIn3D ('y', elem.object.angle, oppSideOffset, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							for (yy = 0 ; yy < num_A ; ++yy) {
+								placePlywood (plywood);
+								moveIn3D ('x', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+							}
+							moveIn3D ('x', elem.object.angle, -unit_A * num_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						}
+					}
+				} else if (strncmp (dir, "벽눕히기", strlen ("벽눕히기")) == 0) {
+					plywood.w_dir = 2;
+
+					for (xx = 0 ; xx < num_A ; ++xx) {
+						for (yy = 0 ; yy < num_ZZYZX ; ++yy) {
+							placePlywood (plywood);
+							moveIn3D ('x', elem.object.angle, unit_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						}
+						moveIn3D ('x', elem.object.angle, -unit_ZZYZX * num_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						moveIn3D ('z', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+					}
+
+					// 양면
+					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						plywood.leftBottomX = elem.object.pos.x;
+						plywood.leftBottomY = elem.object.pos.y;
+						plywood.leftBottomZ = elem.object.level;
+						plywood.ang = elem.object.angle + DegreeToRad (180.0);
+						moveIn3D ('x', elem.object.angle, unit_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						moveIn3D ('y', elem.object.angle, oppSideOffset, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+
+						for (xx = 0 ; xx < num_A ; ++xx) {
+							for (yy = 0 ; yy < num_ZZYZX ; ++yy) {
+								placePlywood (plywood);
+								moveIn3D ('x', elem.object.angle, unit_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+							}
+							moveIn3D ('x', elem.object.angle, -unit_ZZYZX * num_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+							moveIn3D ('z', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						}
+					}
+				} else if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+					plywood.w_dir = 3;
+
+					moveIn3D ('x', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+					plywood.ang = elem.object.angle + DegreeToRad (90.0);
+
+					for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+						for (yy = 0 ; yy < num_A ; ++yy) {
+							placePlywood (plywood);
+							moveIn3D ('x', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						}
+						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						moveIn3D ('y', elem.object.angle, unit_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+					}
+				} else if (strncmp (dir, "바닥덮기", strlen ("바닥덮기")) == 0) {
+					plywood.w_dir = 4;
+
+					moveIn3D ('x', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+					plywood.ang = elem.object.angle + DegreeToRad (90.0);
+
+					for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+						for (yy = 0 ; yy < num_A ; ++yy) {
+							placePlywood (plywood);
+							moveIn3D ('x', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						}
+						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+						moveIn3D ('y', elem.object.angle, unit_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
+					}
+				}
 			} else if (strncmp (objType, "휠러스페이서", strlen ("휠러스페이서")) == 0) {
-				// ...
-				//GSErrCode	placeFillersp (FillerSpacer params);
+
+				fillersp.ang = elem.object.angle;
+				fillersp.leftBottomX = elem.object.pos.x;
+				fillersp.leftBottomY = elem.object.pos.y;
+				fillersp.leftBottomZ = elem.object.level;
+				fillersp.f_thk = unit_A;
+				fillersp.f_leng = unit_ZZYZX;
+
+				if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+					fillersp.f_ang = DegreeToRad (90.0);
+					fillersp.f_rota = DegreeToRad (0.0);
+					moveIn3D ('x', elem.object.angle, unit_A, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+
+					for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+						for (yy = 0 ; yy < num_A ; ++yy) {
+							placeFillersp (fillersp);
+							moveIn3D ('x', elem.object.angle, unit_A, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+						}
+						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+						moveIn3D ('z', elem.object.angle, unit_ZZYZX, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+					}
+
+					// 양면
+					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						fillersp.leftBottomX = elem.object.pos.x;
+						fillersp.leftBottomY = elem.object.pos.y;
+						fillersp.leftBottomZ = elem.object.level;
+						fillersp.ang = elem.object.angle + DegreeToRad (180.0);
+						moveIn3D ('y', elem.object.angle, oppSideOffset, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							for (yy = 0 ; yy < num_A ; ++yy) {
+								placeFillersp (fillersp);
+								moveIn3D ('x', elem.object.angle, unit_A, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+							}
+							moveIn3D ('x', elem.object.angle, -unit_A * num_A, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+						}
+					}
+				} else if (strncmp (dir, "벽눕히기", strlen ("벽눕히기")) == 0) {
+					fillersp.f_ang = DegreeToRad (0.0);
+					fillersp.f_rota = DegreeToRad (0.0);
+
+					for (xx = 0 ; xx < num_A ; ++xx) {
+						for (yy = 0 ; yy < num_ZZYZX ; ++yy) {
+							placeFillersp (fillersp);
+							moveIn3D ('x', elem.object.angle, unit_ZZYZX, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+						}
+						moveIn3D ('x', elem.object.angle, -unit_ZZYZX * num_ZZYZX, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+						moveIn3D ('z', elem.object.angle, unit_A, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+					}
+
+					// 양면
+					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						fillersp.leftBottomX = elem.object.pos.x;
+						fillersp.leftBottomY = elem.object.pos.y;
+						fillersp.leftBottomZ = elem.object.level;
+						fillersp.ang = elem.object.angle + DegreeToRad (180.0);
+						moveIn3D ('x', elem.object.angle, unit_ZZYZX, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+						moveIn3D ('y', elem.object.angle, oppSideOffset, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+
+						for (xx = 0 ; xx < num_A ; ++xx) {
+							for (yy = 0 ; yy < num_ZZYZX ; ++yy) {
+								placeFillersp (fillersp);
+								moveIn3D ('x', elem.object.angle, unit_ZZYZX, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+							}
+							moveIn3D ('x', elem.object.angle, -unit_ZZYZX * num_ZZYZX, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+							moveIn3D ('z', elem.object.angle, unit_A, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
+						}
+					}
+				}
 			} else if (strncmp (objType, "아웃코너앵글", strlen ("아웃코너앵글")) == 0) {
-				// ...
-				//GSErrCode	placeOutcornerAngle (OutcornerAngle params);
+
+				outcornerAngle.ang = elem.object.angle;
+				outcornerAngle.leftBottomX = elem.object.pos.x;
+				outcornerAngle.leftBottomY = elem.object.pos.y;
+				outcornerAngle.leftBottomZ = elem.object.level;
+				outcornerAngle.a_leng = unit_ZZYZX;
+				
+				if (leftSide == true) {
+					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+						moveIn3D ('x', outcornerAngle.ang, unit_A, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						outcornerAngle.a_ang = DegreeToRad (90.0);
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							outcornerAngle.ang = elem.object.angle + DegreeToRad (180.0);
+							placeOutcornerAngle (outcornerAngle);
+							outcornerAngle.ang = elem.object.angle;
+							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						}
+
+						// 양면
+						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+							outcornerAngle.leftBottomX = elem.object.pos.x;
+							outcornerAngle.leftBottomY = elem.object.pos.y;
+							outcornerAngle.leftBottomZ = elem.object.level;
+							outcornerAngle.a_ang = DegreeToRad (90.0);
+							moveIn3D ('x', outcornerAngle.ang, unit_A, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+							moveIn3D ('y', elem.object.angle, oppSideOffset, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+
+							for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+								outcornerAngle.ang = elem.object.angle + DegreeToRad (90.0);
+								placeOutcornerAngle (outcornerAngle);
+								outcornerAngle.ang = elem.object.angle;
+								moveIn3D ('z', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+							}
+						}
+					} else if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+						moveIn3D ('x', outcornerAngle.ang, unit_A, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						outcornerAngle.a_ang = DegreeToRad (0.0);
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							outcornerAngle.ang = elem.object.angle + DegreeToRad (90.0);
+							placeOutcornerAngle (outcornerAngle);
+							outcornerAngle.ang = elem.object.angle;
+							moveIn3D ('y', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						}
+					} else if (strncmp (dir, "바닥덮기", strlen ("바닥덮기")) == 0) {
+						moveIn3D ('x', elem.object.angle, unit_A, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						moveIn3D ('y', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						outcornerAngle.a_ang = DegreeToRad (180.0);
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							outcornerAngle.ang = elem.object.angle + DegreeToRad (90.0);
+							placeOutcornerAngle (outcornerAngle);
+							outcornerAngle.ang = elem.object.angle;
+							moveIn3D ('y', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						}
+					}
+				} else {
+					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+						outcornerAngle.a_ang = DegreeToRad (90.0);
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							outcornerAngle.ang = elem.object.angle + DegreeToRad (270.0);
+							placeOutcornerAngle (outcornerAngle);
+							outcornerAngle.ang = elem.object.angle;
+							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						}
+
+						// 양면
+						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+							outcornerAngle.leftBottomX = elem.object.pos.x;
+							outcornerAngle.leftBottomY = elem.object.pos.y;
+							outcornerAngle.leftBottomZ = elem.object.level;
+							outcornerAngle.a_ang = DegreeToRad (90.0);
+							moveIn3D ('y', elem.object.angle, oppSideOffset, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+
+							for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+								outcornerAngle.ang = elem.object.angle;
+								placeOutcornerAngle (outcornerAngle);
+								moveIn3D ('z', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+							}
+						}
+					} else if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+						moveIn3D ('y', outcornerAngle.ang, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						outcornerAngle.a_ang = DegreeToRad (0.0);
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							outcornerAngle.ang = elem.object.angle + DegreeToRad (270.0);
+							placeOutcornerAngle (outcornerAngle);
+							outcornerAngle.ang = elem.object.angle;
+							moveIn3D ('y', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						}
+					} else if (strncmp (dir, "바닥덮기", strlen ("바닥덮기")) == 0) {
+						outcornerAngle.a_ang = DegreeToRad (180.0);
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							outcornerAngle.ang = elem.object.angle + DegreeToRad (270.0);
+							placeOutcornerAngle (outcornerAngle);
+							outcornerAngle.ang = elem.object.angle;
+							moveIn3D ('y', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
+						}
+					}
+				}
 			} else if (strncmp (objType, "아웃코너판넬", strlen ("아웃코너판넬")) == 0) {
-				// ...
-				//GSErrCode	placeOutcornerPanel (OutcornerPanel params);
+
+				outcornerPanel.ang = elem.object.angle;
+				outcornerPanel.leftBottomX = elem.object.pos.x;
+				outcornerPanel.leftBottomY = elem.object.pos.y;
+				outcornerPanel.leftBottomZ = elem.object.level;
+
+				if (leftSide == true) {
+					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+						outcornerPanel.wid_s = unit_A;
+						outcornerPanel.leng_s = unit_B;
+						outcornerPanel.hei_s = unit_ZZYZX;
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							placeOutcornerPanel (outcornerPanel);
+							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &outcornerPanel.leftBottomX, &outcornerPanel.leftBottomY, &outcornerPanel.leftBottomZ);
+						}
+
+						// 양면
+						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+							outcornerPanel.leftBottomX = elem.object.pos.x;
+							outcornerPanel.leftBottomY = elem.object.pos.y;
+							outcornerPanel.leftBottomZ = elem.object.level;
+
+							outcornerPanel.wid_s = unit_B;
+							outcornerPanel.leng_s = unit_A;
+							outcornerPanel.hei_s = unit_ZZYZX;
+
+							moveIn3D ('y', elem.object.angle, oppSideOffset, &outcornerPanel.leftBottomX, &outcornerPanel.leftBottomY, &outcornerPanel.leftBottomZ);
+
+							for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+								outcornerPanel.ang = elem.object.angle - DegreeToRad (90.0);
+								placeOutcornerPanel (outcornerPanel);
+								outcornerPanel.ang = elem.object.angle;
+								moveIn3D ('z', elem.object.angle, unit_ZZYZX, &outcornerPanel.leftBottomX, &outcornerPanel.leftBottomY, &outcornerPanel.leftBottomZ);
+							}
+						}
+					}
+				} else {
+					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+						outcornerPanel.wid_s = unit_B;
+						outcornerPanel.leng_s = unit_A;
+						outcornerPanel.hei_s = unit_ZZYZX;
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							outcornerPanel.ang = elem.object.angle + DegreeToRad (90.0);
+							placeOutcornerPanel (outcornerPanel);
+							outcornerPanel.ang = elem.object.angle;
+							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &outcornerPanel.leftBottomX, &outcornerPanel.leftBottomY, &outcornerPanel.leftBottomZ);
+						}
+
+						// 양면
+						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+							outcornerPanel.leftBottomX = elem.object.pos.x;
+							outcornerPanel.leftBottomY = elem.object.pos.y;
+							outcornerPanel.leftBottomZ = elem.object.level;
+
+							outcornerPanel.wid_s = unit_A;
+							outcornerPanel.leng_s = unit_B;
+							outcornerPanel.hei_s = unit_ZZYZX;
+
+							moveIn3D ('y', elem.object.angle, oppSideOffset, &outcornerPanel.leftBottomX, &outcornerPanel.leftBottomY, &outcornerPanel.leftBottomZ);
+
+							for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+								outcornerPanel.ang = elem.object.angle + DegreeToRad (180.0);
+								placeOutcornerPanel (outcornerPanel);
+								outcornerPanel.ang = elem.object.angle;
+								moveIn3D ('z', elem.object.angle, unit_ZZYZX, &outcornerPanel.leftBottomX, &outcornerPanel.leftBottomY, &outcornerPanel.leftBottomZ);
+							}
+						}
+					}
+				}
 			} else if (strncmp (objType, "인코너판넬", strlen ("인코너판넬")) == 0) {
-				// ...
-				//GSErrCode	placeIncornerPanel (IncornerPanel params);
+
+				incornerPanel.ang = elem.object.angle;
+				incornerPanel.leftBottomX = elem.object.pos.x;
+				incornerPanel.leftBottomY = elem.object.pos.y;
+				incornerPanel.leftBottomZ = elem.object.level;
+
+				if (leftSide == true) {
+					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+						incornerPanel.wid_s = unit_B;
+						incornerPanel.leng_s = unit_A;
+						incornerPanel.hei_s = unit_ZZYZX;
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							incornerPanel.ang = elem.object.angle + DegreeToRad (270.0);
+							placeIncornerPanel (incornerPanel);
+							incornerPanel.ang = elem.object.angle;
+							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &incornerPanel.leftBottomX, &incornerPanel.leftBottomY, &incornerPanel.leftBottomZ);
+						}
+
+						// 양면
+						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+							incornerPanel.leftBottomX = elem.object.pos.x;
+							incornerPanel.leftBottomY = elem.object.pos.y;
+							incornerPanel.leftBottomZ = elem.object.level;
+
+							incornerPanel.wid_s = unit_A;
+							incornerPanel.leng_s = unit_B;
+							incornerPanel.hei_s = unit_ZZYZX;
+
+							moveIn3D ('y', elem.object.angle, oppSideOffset, &incornerPanel.leftBottomX, &incornerPanel.leftBottomY, &incornerPanel.leftBottomZ);
+
+							for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+								incornerPanel.ang = elem.object.angle;
+								placeIncornerPanel (incornerPanel);
+								moveIn3D ('z', elem.object.angle, unit_ZZYZX, &incornerPanel.leftBottomX, &incornerPanel.leftBottomY, &incornerPanel.leftBottomZ);
+							}
+						}
+					}
+				} else {
+					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+						incornerPanel.wid_s = unit_A;
+						incornerPanel.leng_s = unit_B;
+						incornerPanel.hei_s = unit_ZZYZX;
+
+						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+							incornerPanel.ang = elem.object.angle + DegreeToRad (180.0);
+							placeIncornerPanel (incornerPanel);
+							incornerPanel.ang = elem.object.angle;
+							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &incornerPanel.leftBottomX, &incornerPanel.leftBottomY, &incornerPanel.leftBottomZ);
+						}
+
+						// 양면
+						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+							incornerPanel.leftBottomX = elem.object.pos.x;
+							incornerPanel.leftBottomY = elem.object.pos.y;
+							incornerPanel.leftBottomZ = elem.object.level;
+
+							incornerPanel.wid_s = unit_B;
+							incornerPanel.leng_s = unit_A;
+							incornerPanel.hei_s = unit_ZZYZX;
+
+							moveIn3D ('y', elem.object.angle, oppSideOffset, &incornerPanel.leftBottomX, &incornerPanel.leftBottomY, &incornerPanel.leftBottomZ);
+
+							for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
+								incornerPanel.ang = elem.object.angle + DegreeToRad (90.0);
+								placeIncornerPanel (incornerPanel);
+								incornerPanel.ang = elem.object.angle;
+								moveIn3D ('z', elem.object.angle, unit_ZZYZX, &incornerPanel.leftBottomX, &incornerPanel.leftBottomY, &incornerPanel.leftBottomZ);
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -417,6 +966,65 @@ GSErrCode	placeTableformOnWall (WallTableform params)
 GSErrCode	placeTableformOnSlabBottom (SlabTableform params)
 {
 	GSErrCode	err = NoError;
+
+	API_Element			element;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	double	aParam;
+	double	bParam;
+	Int32	addParNum;
+
+	// GUID 변수 초기화
+	element.header.guid.clock_seq_hi_and_reserved = 0;
+	element.header.guid.clock_seq_low = 0;
+	element.header.guid.node[0] = 0;
+	element.header.guid.node[1] = 0;
+	element.header.guid.node[2] = 0;
+	element.header.guid.node[3] = 0;
+	element.header.guid.node[4] = 0;
+	element.header.guid.node[5] = 0;
+	element.header.guid.time_hi_and_version = 0;
+	element.header.guid.time_low = 0;
+	element.header.guid.time_mid = 0;
+
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, L("슬래브 테이블폼 (콘판넬) v1.0.gsm"));
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return err;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&element, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	element.header.typeID = API_ObjectID;
+	element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&element, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	element.object.libInd = libPart.index;
+	element.object.pos.x = params.leftBottomX;
+	element.object.pos.y = params.leftBottomY;
+	element.object.level = params.leftBottomZ;
+	element.object.xRatio = aParam;
+	element.object.yRatio = bParam;
+	element.object.angle = params.ang;
+	element.header.floorInd = floorInd;
+	element.header.layer = layerInd_SlabTableform;
+
+	// 타입
+	setParameterByName (&memo, "type", params.type);
+
+	// 객체 배치
+	ACAPI_Element_Create (&element, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
 
 	return	err;
 }
@@ -575,9 +1183,9 @@ GSErrCode	placeSteelform (Euroform params)
 	element.object.yRatio = bParam;
 	element.object.angle = params.ang;
 	element.header.floorInd = floorInd;
-	element.header.layer = layerInd_Euroform;
+	element.header.layer = layerInd_Steelform;
 
-	// 유로폼
+	// 스틸폼
 	setParameterByName (&memo, "u_comp", "스틸폼");
 
 	// 규격품일 경우,
@@ -620,6 +1228,91 @@ GSErrCode	placePlywood (Plywood params)
 {
 	GSErrCode	err = NoError;
 
+	API_Element			element;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	double	aParam;
+	double	bParam;
+	Int32	addParNum;
+
+	// GUID 변수 초기화
+	element.header.guid.clock_seq_hi_and_reserved = 0;
+	element.header.guid.clock_seq_low = 0;
+	element.header.guid.node[0] = 0;
+	element.header.guid.node[1] = 0;
+	element.header.guid.node[2] = 0;
+	element.header.guid.node[3] = 0;
+	element.header.guid.node[4] = 0;
+	element.header.guid.node[5] = 0;
+	element.header.guid.time_hi_and_version = 0;
+	element.header.guid.time_low = 0;
+	element.header.guid.time_mid = 0;
+
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, L("합판v1.0.gsm"));
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return err;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&element, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	element.header.typeID = API_ObjectID;
+	element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&element, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	element.object.libInd = libPart.index;
+	element.object.pos.x = params.leftBottomX;
+	element.object.pos.y = params.leftBottomY;
+	element.object.level = params.leftBottomZ;
+	element.object.xRatio = aParam;
+	element.object.yRatio = bParam;
+	element.object.angle = params.ang;
+	element.header.floorInd = floorInd;
+	element.header.layer = layerInd_Plywood;
+
+	// 합판
+	setParameterByName (&memo, "g_comp", "합판");
+
+	// 규격
+	setParameterByName (&memo, "p_stan", "비규격");
+
+	// 설치방향
+	if (params.w_dir == 1)
+		setParameterByName (&memo, "w_dir", "벽세우기");
+	else if (params.w_dir == 2)
+		setParameterByName (&memo, "w_dir", "벽눕히기");
+	else if (params.w_dir == 3)
+		setParameterByName (&memo, "w_dir", "바닥깔기");
+	else if (params.w_dir == 4)
+		setParameterByName (&memo, "w_dir", "바닥덮기");
+
+	// 두께
+	setParameterByName (&memo, "p_thk", "11.5T");
+
+	// 가로
+	setParameterByName (&memo, "p_wid", params.p_wid);
+
+	// 세로
+	setParameterByName (&memo, "p_leng", params.p_leng);
+
+	// 제작틀
+	setParameterByName (&memo, "sogak", TRUE);
+	setParameterByName (&memo, "prof", "소각");
+
+	// 객체 배치
+	ACAPI_Element_Create (&element, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
 	return	err;
 }
 
@@ -627,6 +1320,74 @@ GSErrCode	placePlywood (Plywood params)
 GSErrCode	placeFillersp (FillerSpacer params)
 {
 	GSErrCode	err = NoError;
+
+	API_Element			element;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	double	aParam;
+	double	bParam;
+	Int32	addParNum;
+
+	// GUID 변수 초기화
+	element.header.guid.clock_seq_hi_and_reserved = 0;
+	element.header.guid.clock_seq_low = 0;
+	element.header.guid.node[0] = 0;
+	element.header.guid.node[1] = 0;
+	element.header.guid.node[2] = 0;
+	element.header.guid.node[3] = 0;
+	element.header.guid.node[4] = 0;
+	element.header.guid.node[5] = 0;
+	element.header.guid.time_hi_and_version = 0;
+	element.header.guid.time_low = 0;
+	element.header.guid.time_mid = 0;
+
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, L("휠러스페이서v1.0.gsm"));
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return err;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&element, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	element.header.typeID = API_ObjectID;
+	element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&element, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	element.object.libInd = libPart.index;
+	element.object.pos.x = params.leftBottomX;
+	element.object.pos.y = params.leftBottomY;
+	element.object.level = params.leftBottomZ;
+	element.object.xRatio = aParam;
+	element.object.yRatio = bParam;
+	element.object.angle = params.ang;
+	element.header.floorInd = floorInd;
+	element.header.layer = layerInd_Fillersp;
+
+	// 두께
+	setParameterByName (&memo, "f_thk", params.f_thk);
+
+	// 길이
+	setParameterByName (&memo, "f_leng", params.f_leng);
+
+	// 각도
+	setParameterByName (&memo, "f_ang", params.f_ang);
+
+	// 회전
+	setParameterByName (&memo, "f_rota", params.f_rota);
+
+	// 객체 배치
+	ACAPI_Element_Create (&element, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
 
 	return	err;
 }
@@ -636,6 +1397,68 @@ GSErrCode	placeOutcornerAngle (OutcornerAngle params)
 {
 	GSErrCode	err = NoError;
 
+	API_Element			element;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	double	aParam;
+	double	bParam;
+	Int32	addParNum;
+
+	// GUID 변수 초기화
+	element.header.guid.clock_seq_hi_and_reserved = 0;
+	element.header.guid.clock_seq_low = 0;
+	element.header.guid.node[0] = 0;
+	element.header.guid.node[1] = 0;
+	element.header.guid.node[2] = 0;
+	element.header.guid.node[3] = 0;
+	element.header.guid.node[4] = 0;
+	element.header.guid.node[5] = 0;
+	element.header.guid.time_hi_and_version = 0;
+	element.header.guid.time_low = 0;
+	element.header.guid.time_mid = 0;
+
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, L("아웃코너앵글v1.0.gsm"));
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return err;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&element, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	element.header.typeID = API_ObjectID;
+	element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&element, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	element.object.libInd = libPart.index;
+	element.object.pos.x = params.leftBottomX;
+	element.object.pos.y = params.leftBottomY;
+	element.object.level = params.leftBottomZ;
+	element.object.xRatio = aParam;
+	element.object.yRatio = bParam;
+	element.object.angle = params.ang;
+	element.header.floorInd = floorInd;
+	element.header.layer = layerInd_OutcornerAngle;
+
+	// 길이
+	setParameterByName (&memo, "a_leng", params.a_leng);
+
+	// 각도
+	setParameterByName (&memo, "a_ang", params.a_ang);
+
+	// 객체 배치
+	ACAPI_Element_Create (&element, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
 	return	err;
 }
 
@@ -643,6 +1466,67 @@ GSErrCode	placeOutcornerAngle (OutcornerAngle params)
 GSErrCode	placeOutcornerPanel (OutcornerPanel params)
 {
 	GSErrCode	err = NoError;
+
+	API_Element			element;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	double	aParam;
+	double	bParam;
+	Int32	addParNum;
+
+	// GUID 변수 초기화
+	element.header.guid.clock_seq_hi_and_reserved = 0;
+	element.header.guid.clock_seq_low = 0;
+	element.header.guid.node[0] = 0;
+	element.header.guid.node[1] = 0;
+	element.header.guid.node[2] = 0;
+	element.header.guid.node[3] = 0;
+	element.header.guid.node[4] = 0;
+	element.header.guid.node[5] = 0;
+	element.header.guid.time_hi_and_version = 0;
+	element.header.guid.time_low = 0;
+	element.header.guid.time_mid = 0;
+
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, L("아웃코너판넬v1.0.gsm"));
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return err;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	BNZeroMemory (&element, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+
+	element.header.typeID = API_ObjectID;
+	element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&element, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	element.object.libInd = libPart.index;
+	element.object.pos.x = params.leftBottomX;
+	element.object.pos.y = params.leftBottomY;
+	element.object.level = params.leftBottomZ;
+	element.object.xRatio = aParam;
+	element.object.yRatio = bParam;
+	element.object.angle = params.ang;
+	element.header.floorInd = floorInd;
+	element.header.layer = layerInd_OutcornerPanel;
+
+	setParameterByName (&memo, "wid_s", params.wid_s);		// 가로
+	setParameterByName (&memo, "leng_s", params.leng_s);	// 세로
+	setParameterByName (&memo, "hei_s", params.hei_s);		// 높이
+	setParameterByName (&memo, "dir_s", "세우기");			// 설치방향
+
+	// 객체 배치
+	ACAPI_Element_Create (&element, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
 
 	return	err;
 }
@@ -652,147 +1536,66 @@ GSErrCode	placeIncornerPanel (IncornerPanel params)
 {
 	GSErrCode	err = NoError;
 
-	//API_Element			element;
-	//API_ElementMemo		memo;
-	//API_LibPart			libPart;
+	API_Element			element;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
 
-	//const	GS::uchar_t* gsmName = NULL;
-	//double	aParam;
-	//double	bParam;
-	//Int32	addParNum;
+	double	aParam;
+	double	bParam;
+	Int32	addParNum;
 
-	//char	tempString [20];
+	// GUID 변수 초기화
+	element.header.guid.clock_seq_hi_and_reserved = 0;
+	element.header.guid.clock_seq_low = 0;
+	element.header.guid.node[0] = 0;
+	element.header.guid.node[1] = 0;
+	element.header.guid.node[2] = 0;
+	element.header.guid.node[3] = 0;
+	element.header.guid.node[4] = 0;
+	element.header.guid.node[5] = 0;
+	element.header.guid.time_hi_and_version = 0;
+	element.header.guid.time_low = 0;
+	element.header.guid.time_mid = 0;
 
-	//// GUID 변수 초기화
-	//element.header.guid.clock_seq_hi_and_reserved = 0;
-	//element.header.guid.clock_seq_low = 0;
-	//element.header.guid.node[0] = 0;
-	//element.header.guid.node[1] = 0;
-	//element.header.guid.node[2] = 0;
-	//element.header.guid.node[3] = 0;
-	//element.header.guid.node[4] = 0;
-	//element.header.guid.node[5] = 0;
-	//element.header.guid.time_hi_and_version = 0;
-	//element.header.guid.time_low = 0;
-	//element.header.guid.time_mid = 0;
+	// 객체 로드
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, L("인코너판넬v1.0.gsm"));
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return err;
+	if (libPart.location != NULL)
+		delete libPart.location;
 
-	//if (objInfo.objType == INCORNER)		gsmName = L("인코너판넬v1.0.gsm");
-	//if (objInfo.objType == EUROFORM)		gsmName = L("유로폼v2.0.gsm");
-	//if (objInfo.objType == FILLERSPACER)	gsmName = L("휠러스페이서v1.0.gsm");
-	//if (objInfo.objType == PLYWOOD)			gsmName = L("합판v1.0.gsm");
-	//if (objInfo.objType == WOOD)			gsmName = L("목재v1.0.gsm");
+	ACAPI_LibPart_Get (&libPart);
 
-	//// 객체 로드
-	//BNZeroMemory (&libPart, sizeof (libPart));
-	//GS::ucscpy (libPart.file_UName, L("유로폼v2.0.gsm"));
-	//err = ACAPI_LibPart_Search (&libPart, false);
-	//if (err != NoError)
-	//	return err;
-	//if (libPart.location != NULL)
-	//	delete libPart.location;
+	BNZeroMemory (&element, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 
-	//ACAPI_LibPart_Get (&libPart);
+	element.header.typeID = API_ObjectID;
+	element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
 
-	//BNZeroMemory (&element, sizeof (API_Element));
-	//BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	ACAPI_Element_GetDefaults (&element, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
 
-	//element.header.typeID = API_ObjectID;
-	//element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+	// 라이브러리의 파라미터 값 입력
+	element.object.libInd = libPart.index;
+	element.object.pos.x = params.leftBottomX;
+	element.object.pos.y = params.leftBottomY;
+	element.object.level = params.leftBottomZ;
+	element.object.xRatio = aParam;
+	element.object.yRatio = bParam;
+	element.object.angle = params.ang;
+	element.header.floorInd = floorInd;
+	element.header.layer = layerInd_IncornerPanel;
 
-	//ACAPI_Element_GetDefaults (&element, &memo);
-	//ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+	setParameterByName (&memo, "wid_s", params.wid_s);		// 가로
+	setParameterByName (&memo, "leng_s", params.leng_s);	// 세로
+	setParameterByName (&memo, "hei_s", params.hei_s);		// 높이
+	setParameterByName (&memo, "dir_s", "세우기");			// 설치방향
 
-	//// 라이브러리의 파라미터 값 입력
-	//element.object.libInd = libPart.index;
-	//element.object.pos.x = objInfo.leftBottomX;
-	//element.object.pos.y = objInfo.leftBottomY;
-	//element.object.level = objInfo.leftBottomZ;
-	//element.object.xRatio = aParam;
-	//element.object.yRatio = bParam;
-	//element.object.angle = objInfo.ang;
-	//element.header.floorInd = floorInd;
-
-	//if (objInfo.objType == INCORNER) {
-	//	element.header.layer = layerInd_Incorner;
-	//	setParameterByName (&memo, "wid_s", objInfo.libPart.incorner.wid_s);	// 가로(빨강)
-	//	setParameterByName (&memo, "leng_s", objInfo.libPart.incorner.leng_s);	// 세로(파랑)
-	//	setParameterByName (&memo, "hei_s", objInfo.libPart.incorner.hei_s);	// 높이
-	//	setParameterByName (&memo, "dir_s", "세우기");							// 설치방향
-
-	//} else if (objInfo.objType == EUROFORM) {
-	//	element.header.layer = layerInd_Euroform;
-
-	//	// 규격품일 경우,
-	//	if (objInfo.libPart.form.eu_stan_onoff == true) {
-	//		setParameterByName (&memo, "eu_stan_onoff", 1.0);	// 규격폼 On/Off
-
-	//		// 너비
-	//		sprintf (tempString, "%.0f", objInfo.libPart.form.eu_wid * 1000);
-	//		setParameterByName (&memo, "eu_wid", tempString);
-
-	//		// 높이
-	//		sprintf (tempString, "%.0f", objInfo.libPart.form.eu_hei * 1000);
-	//		setParameterByName (&memo, "eu_hei", tempString);
-
-	//	// 비규격품일 경우,
-	//	} else {
-	//		setParameterByName (&memo, "eu_stan_onoff", 0.0);	// 규격폼 On/Off
-	//		setParameterByName (&memo, "eu_wid2", objInfo.libPart.form.eu_wid2);	// 너비
-	//		setParameterByName (&memo, "eu_hei2", objInfo.libPart.form.eu_hei2);	// 높이
-	//	}
-
-	//	// 설치방향
-	//	if (objInfo.libPart.form.u_ins_wall == true) {
-	//		strcpy (tempString, "벽세우기");
-	//	} else {
-	//		strcpy (tempString, "벽눕히기");
-	//		element.object.pos.x += ( objInfo.horLen * cos(objInfo.ang) );
-	//		element.object.pos.y += ( objInfo.horLen * sin(objInfo.ang) );
-	//	}
-	//	setParameterByName (&memo, "u_ins", tempString);
-	//	
-	//	setParameterByName (&memo, "ang_x", DegreeToRad (90.0));	// 회전X
-
-	//} else if (objInfo.objType == FILLERSPACER) {
-	//	element.header.layer = layerInd_Fillerspacer;
-	//	setParameterByName (&memo, "f_thk", objInfo.libPart.fillersp.f_thk);	// 두께
-	//	setParameterByName (&memo, "f_leng", objInfo.libPart.fillersp.f_leng);	// 길이
-	//	element.object.pos.x += ( objInfo.libPart.fillersp.f_thk * cos(objInfo.ang) );
-	//	element.object.pos.y += ( objInfo.libPart.fillersp.f_thk * sin(objInfo.ang) );
-
-	//} else if (objInfo.objType == PLYWOOD) {
-	//	element.header.layer = layerInd_Plywood;
-	//	setParameterByName (&memo, "p_stan", "비규격");							// 규격
-	//	setParameterByName (&memo, "p_wid", objInfo.libPart.plywood.p_wid);		// 가로
-	//	setParameterByName (&memo, "p_leng", objInfo.libPart.plywood.p_leng);	// 세로
-	//	
-	//	// 설치방향
-	//	if (objInfo.libPart.plywood.w_dir_wall == true)
-	//		strcpy (tempString, "벽세우기");
-	//	else
-	//		strcpy (tempString, "벽눕히기");
-	//	setParameterByName (&memo, "w_dir", tempString);
-	//
-	//} else if (objInfo.objType == WOOD) {
-	//	element.header.layer = layerInd_Wood;
-	//	setParameterByName (&memo, "w_ins", "벽세우기");					// 설치방향
-	//	setParameterByName (&memo, "w_w", objInfo.libPart.wood.w_w);		// 두께
-	//	setParameterByName (&memo, "w_h", objInfo.libPart.wood.w_h);		// 너비
-	//	setParameterByName (&memo, "w_leng", objInfo.libPart.wood.w_leng);	// 길이
-	//	setParameterByName (&memo, "w_ang", objInfo.libPart.wood.w_ang);	// 각도
-
-	//	// 목재가 세로로 길게 배치될 경우
-	//	if ( abs (RadToDegree (objInfo.libPart.wood.w_ang) - 90.0) < EPS ) {
-	//		element.object.pos.x += ( objInfo.libPart.wood.w_h * cos(objInfo.ang) );
-	//		element.object.pos.y += ( objInfo.libPart.wood.w_h * sin(objInfo.ang) );
-	//	}
-	//}
-
-	//// 객체 배치
-	//ACAPI_Element_Create (&element, &memo);
-	//ACAPI_DisposeElemMemoHdls (&memo);
-
-	//return element.header.guid;
+	// 객체 배치
+	ACAPI_Element_Create (&element, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
 
 	return	err;
 }
@@ -1032,6 +1835,7 @@ short DGCALLBACK convertVirtualTCOHandler1 (short message, short dialogID, short
 					if (bLayerInd_Steelform == true)		layerInd_Steelform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM);
 					if (bLayerInd_Plywood == true)			layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 					if (bLayerInd_Wood == true)				layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+					if (bLayerInd_Fillersp == true)			layerInd_Fillersp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP);
 					if (bLayerInd_OutcornerAngle == true)	layerInd_OutcornerAngle	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE);
 					if (bLayerInd_OutcornerPanel == true)	layerInd_OutcornerPanel	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL);
 					if (bLayerInd_IncornerPanel == true)	layerInd_IncornerPanel	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL);

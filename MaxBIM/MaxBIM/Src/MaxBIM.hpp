@@ -188,6 +188,7 @@ struct Plywood
 	double	p_wid;			// 가로
 	double	p_leng;			// 세로
 	bool	w_dir_wall;		// 설치방향 : 벽세우기(true), 벽눕히기(false)
+	short	w_dir;			// (확장) 설치방향 : 벽세우기(1), 벽눕히기(2), 바닥깔기(3), 바닥덮기(4)
 	/*
 	double			p_ang;			// 각도 : 0
 	bool			sogak;			// 제작틀 *On/Off
@@ -280,6 +281,7 @@ struct SlabTableform
 	bool	direction;		// 설치방향 : 가로방향(true), 세로방향(false)
 	double	horLen;			// 가로 길이
 	double	verLen;			// 세로 길이
+
 	char	type [20];		// 타입
 };
 
