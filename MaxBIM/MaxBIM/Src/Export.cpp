@@ -577,6 +577,24 @@ GSErrCode	exportSelectedElementInfo (void)
 	if (fp == NULL)
 		return err;
 
+	// !!! 3D 투영 정보 ==================================
+	API_3DProjectionInfo  proj3DInfo;
+
+	BNZeroMemory (&proj3DInfo, sizeof (API_3DProjectionInfo));
+	err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo, NULL);
+	//proj3DInfo.u.persp.azimuth;			// 대상 주변의 카메라의 회전 각도입니다. (방위각, 대상에서 카메라를 바라보는 각도)
+	//proj3DInfo.u.persp.sunAzimuth;		// 대상 주변의 태양의 회전 각도입니다. (태양 방위각, 변경하지 않음)
+	//proj3DInfo.u.persp.sunAltitude;		// 태양의 고도입니다. (태양 고도, 변경하지 않음)
+	//proj3DInfo.u.persp.viewCone;			// 카메라 뷰 콘의 각도입니다. (시야각 = 90.0)
+	//proj3DInfo.u.persp.rollAngle;			// 카메라의 롤 각도입니다. (롤 각도 = 0.0)
+
+	//proj3DInfo.u.persp.distance;			// 카메라와 대상 간의 거리입니다. (거리, 카메라와 대상의 위치에 따라 가변...)
+	//proj3DInfo.u.persp.pos;				// 카메라 위치의 X, Y 좌표입니다. (카메라 위치는 물체의 앞쪽으로 ??? 만큼 떨어져 있다)
+	//proj3DInfo.u.persp.cameraZ;			// 카메라 위치의 Z 좌표입니다.
+	//proj3DInfo.u.persp.target;			// 대상 위치의 X, Y 좌표입니다. (대상 위치는 물체의 뒤쪽으로 ??? 만큼 떨어져 있다)
+	//proj3DInfo.u.persp.targetZ;			// 대상 위치의 Z 좌표입니다.
+	// !!! 3D 투영 정보 ==================================
+
 	double			value_numeric [9];
 	string			value_string [9];
 	API_AddParID	value_type [9];
