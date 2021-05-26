@@ -169,7 +169,10 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = exportGridElementInfo ();
 					break;
 				case 2:		// 선택한 부재 정보 내보내기
-					err = exportSelectedElementInfo ();
+					//err = ACAPI_CallUndoableCommand ("선택한 부재 정보 내보내기", [&] () -> GSErrCode {
+						err = exportSelectedElementInfo ();
+						//return err;
+					//});
 					break;
 			}
 			break;

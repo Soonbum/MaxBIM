@@ -10,6 +10,8 @@ using namespace exportDG;
 
 double DIST_BTW_COLUMN = 2.000;		// 기둥 간 최소 간격 (기본값), 추후 다이얼로그에서 변경할 수 있음
 
+vector<API_Coord3D>	vecPos;		// 모든 객체들의 원점 좌표를 전부 저장함
+
 
 // 배열 초기화 함수
 void initArray (double arr [], short arrSize)
@@ -577,24 +579,6 @@ GSErrCode	exportSelectedElementInfo (void)
 	if (fp == NULL)
 		return err;
 
-	// !!! 3D 투영 정보 ==================================
-	API_3DProjectionInfo  proj3DInfo;
-
-	BNZeroMemory (&proj3DInfo, sizeof (API_3DProjectionInfo));
-	err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo, NULL);
-	//proj3DInfo.u.persp.azimuth;			// 대상 주변의 카메라의 회전 각도입니다. (방위각, 대상에서 카메라를 바라보는 각도)
-	//proj3DInfo.u.persp.sunAzimuth;		// 대상 주변의 태양의 회전 각도입니다. (태양 방위각, 변경하지 않음)
-	//proj3DInfo.u.persp.sunAltitude;		// 태양의 고도입니다. (태양 고도, 변경하지 않음)
-	//proj3DInfo.u.persp.viewCone;			// 카메라 뷰 콘의 각도입니다. (시야각 = 90.0)
-	//proj3DInfo.u.persp.rollAngle;			// 카메라의 롤 각도입니다. (롤 각도 = 0.0)
-
-	//proj3DInfo.u.persp.distance;			// 카메라와 대상 간의 거리입니다. (거리, 카메라와 대상의 위치에 따라 가변...)
-	//proj3DInfo.u.persp.pos;				// 카메라 위치의 X, Y 좌표입니다. (카메라 위치는 물체의 앞쪽으로 ??? 만큼 떨어져 있다)
-	//proj3DInfo.u.persp.cameraZ;			// 카메라 위치의 Z 좌표입니다.
-	//proj3DInfo.u.persp.target;			// 대상 위치의 X, Y 좌표입니다. (대상 위치는 물체의 뒤쪽으로 ??? 만큼 떨어져 있다)
-	//proj3DInfo.u.persp.targetZ;			// 대상 위치의 Z 좌표입니다.
-	// !!! 3D 투영 정보 ==================================
-
 	double			value_numeric [9];
 	string			value_string [9];
 	API_AddParID	value_type [9];
@@ -610,6 +594,16 @@ GSErrCode	exportSelectedElementInfo (void)
 		elem.header.guid = objects.Pop ();
 		err = ACAPI_Element_Get (&elem);
 		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+		// !!! 객체의 원점 수집하기 ==================================
+		API_Coord3D	coord;
+
+		coord.x = elem.object.pos.x;
+		coord.y = elem.object.pos.y;
+		coord.z = elem.object.level;
+		
+		vecPos.push_back (coord);
+		// !!! 객체의 원점 수집하기 ==================================
 
 		// 파라미터 스크립트를 강제로 실행시킴
 		ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
@@ -1365,6 +1359,106 @@ GSErrCode	exportSelectedElementInfo (void)
 	location.ToDisplayText (&resultString);
 	sprintf (buffer, "%s를 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", filename, resultString.ToCStr ().Get ());
 	ACAPI_WriteReport (buffer, true);
+
+	// !!! 3D 투영 정보 ==================================
+	API_3DProjectionInfo  proj3DInfo;
+
+	BNZeroMemory (&proj3DInfo, sizeof (API_3DProjectionInfo));
+	err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo, NULL);
+
+	double	lowestZ, highestZ, cameraZ;		// 가장 낮은 높이, 가장 높은 높이, 카메라 및 대상 높이
+	API_Coord3D		p1, p2;					// 서로 가장 멀리 떨어져 있는 두 점
+	double	distanceOfPoints;				// 두 점 간의 거리
+	double	angleOfPoints;					// 두 점 간의 각도
+	API_Coord3D		camPos1, camPos2;		// 카메라가 있을 수 있는 점 2개
+
+	if (err == NoError && proj3DInfo.isPersp) {
+		// 높이 값의 범위를 구함
+		// 가장 작은 x값을 갖는 점 p1도 찾아냄
+		lowestZ = highestZ = vecPos [0].z;
+		p1 = vecPos [0];
+		for (xx = 1 ; xx < vecPos.size () ; ++xx) {
+			if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
+			if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
+
+			if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
+		}
+		cameraZ = (highestZ - lowestZ) / 2;
+
+		distanceOfPoints = 0.0;
+		for (xx = 0 ; xx < vecPos.size () ; ++xx) {
+			if (distanceOfPoints < GetDistance (p1, vecPos [xx])) {
+				distanceOfPoints = GetDistance (p1, vecPos [xx]);
+				p2 = vecPos [xx];
+			}
+		}
+
+		// 두 점(p1, p2) 간의 각도 구하기
+		angleOfPoints = RadToDegree (atan2 ((p2.y - p1.y), (p2.x - p1.x)));
+
+		// 카메라와 대상이 있을 수 있는 위치 2개를 찾음
+		camPos1 = p1;
+		moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos1.x, &camPos1.y, &camPos1.z);
+		moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints, &camPos1.x, &camPos1.y, &camPos1.z);
+		camPos2 = p1;
+		moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos2.x, &camPos2.y, &camPos2.z);
+		moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints, &camPos2.x, &camPos2.y, &camPos2.z);
+
+		camPos1.z = cameraZ;
+		camPos2.z = cameraZ;
+
+		// ========== 1번째 캡쳐
+		// 카메라 및 대상 위치 설정
+		proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+		proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+		proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+		proj3DInfo.u.persp.azimuth = angleOfPoints + 90.0;	// 카메라 방위각
+
+		proj3DInfo.u.persp.pos.x = camPos1.x;
+		proj3DInfo.u.persp.pos.y = camPos1.y;
+		proj3DInfo.u.persp.cameraZ = camPos1.z;
+
+		proj3DInfo.u.persp.target.x = camPos2.x;
+		proj3DInfo.u.persp.target.y = camPos2.y;
+		proj3DInfo.u.persp.targetZ = camPos2.z;
+
+		err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+		// 모든 요소들을 Deselect
+		// ...
+
+		// 화면 캡쳐
+		// ...
+
+		// ========== 2번째 캡쳐
+		// 카메라 및 대상 위치 설정
+		proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+		proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+		proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+		proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
+
+		proj3DInfo.u.persp.pos.x = camPos2.x;
+		proj3DInfo.u.persp.pos.y = camPos2.y;
+		proj3DInfo.u.persp.cameraZ = camPos2.z;
+
+		proj3DInfo.u.persp.target.x = camPos1.x;
+		proj3DInfo.u.persp.target.y = camPos1.y;
+		proj3DInfo.u.persp.targetZ = camPos1.z;
+
+		err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+		// 모든 요소들을 Deselect
+		// ...
+
+		// 화면 캡쳐
+		// ...
+	}
+	// !!! 3D 투영 정보 ==================================
+
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	bool	regenerate = true;
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	return	err;
 }
