@@ -504,6 +504,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	GSErrCode	err = NoError;
 	long		nSel;
 	short		xx, yy, zz;
+	bool		regenerate = true;
 
 	// 선택한 요소가 없으면 오류
 	API_SelectionInfo		selectionInfo;
@@ -1372,6 +1373,9 @@ GSErrCode	exportSelectedElementInfo (void)
 	double	angleOfPoints;					// 두 점 간의 각도
 	API_Coord3D		camPos1, camPos2;		// 카메라가 있을 수 있는 점 2개
 
+	API_FileSavePars		fsp;			// 파일 저장을 위한 변수
+	API_SavePars_Picture	pars_pict;		// 그림 파일에 대한 설명
+
 	if (err == NoError && proj3DInfo.isPersp) {
 		// 높이 값의 범위를 구함
 		// 가장 작은 x값을 갖는 점 p1도 찾아냄
@@ -1383,7 +1387,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 			if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
 		}
-		cameraZ = (highestZ - lowestZ) / 2;
+		cameraZ = (highestZ - lowestZ) * 0.5;
 
 		distanceOfPoints = 0.0;
 		for (xx = 0 ; xx < vecPos.size () ; ++xx) {
@@ -1399,13 +1403,22 @@ GSErrCode	exportSelectedElementInfo (void)
 		// 카메라와 대상이 있을 수 있는 위치 2개를 찾음
 		camPos1 = p1;
 		moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos1.x, &camPos1.y, &camPos1.z);
-		moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints, &camPos1.x, &camPos1.y, &camPos1.z);
+		if (distanceOfPoints > (highestZ - lowestZ))
+			moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
+		else
+			moveIn3D ('y', DegreeToRad (angleOfPoints), -(highestZ - lowestZ) * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
 		camPos2 = p1;
 		moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos2.x, &camPos2.y, &camPos2.z);
-		moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints, &camPos2.x, &camPos2.y, &camPos2.z);
+		if (distanceOfPoints > (highestZ - lowestZ))
+			moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
+		else
+			moveIn3D ('y', DegreeToRad (angleOfPoints), (highestZ - lowestZ) * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
 
 		camPos1.z = cameraZ;
 		camPos2.z = cameraZ;
+
+		// 모든 요소들을 Deselect
+		ACAPI_Element_Select (NULL, 0, false);
 
 		// ========== 1번째 캡쳐
 		// 카메라 및 대상 위치 설정
@@ -1424,11 +1437,24 @@ GSErrCode	exportSelectedElementInfo (void)
 
 		err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
 
-		// 모든 요소들을 Deselect
-		// ...
+		// 화면 새로고침
+		ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+		ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 		// 화면 캡쳐
-		// ...
+		BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+		fsp.fileTypeID = APIFType_PNGFile;
+		sprintf (filename, "%s - 캡쳐 (1).png", miscAppInfo.caption);
+		fsp.file = new IO::Location (location, IO::Name (filename));
+
+		BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+		pars_pict.colorDepth	= APIColorDepth_TC24;
+		pars_pict.dithered		= false;
+		pars_pict.view2D		= false;
+		pars_pict.crop			= true;
+		err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+		
+		delete fsp.file;
 
 		// ========== 2번째 캡쳐
 		// 카메라 및 대상 위치 설정
@@ -1447,17 +1473,29 @@ GSErrCode	exportSelectedElementInfo (void)
 
 		err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
 
-		// 모든 요소들을 Deselect
-		// ...
+		// 화면 새로고침
+		ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+		ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 		// 화면 캡쳐
-		// ...
+		BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+		fsp.fileTypeID = APIFType_PNGFile;
+		sprintf (filename, "%s - 캡쳐 (2).png", miscAppInfo.caption);
+		fsp.file = new IO::Location (location, IO::Name (filename));
+
+		BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+		pars_pict.colorDepth	= APIColorDepth_TC24;
+		pars_pict.dithered		= false;
+		pars_pict.view2D		= false;
+		pars_pict.crop			= true;
+		err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+		
+		delete fsp.file;
 	}
 	// !!! 3D 투영 정보 ==================================
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	bool	regenerate = true;
 	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	return	err;
