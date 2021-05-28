@@ -168,11 +168,11 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 1:		// 부재(기둥,보,슬래브) 정보 내보내기 (CSV) ... 개발보류
 					err = exportGridElementInfo ();
 					break;
-				case 2:		// 선택한 부재 정보 내보내기
-					//err = ACAPI_CallUndoableCommand ("선택한 부재 정보 내보내기", [&] () -> GSErrCode {
-						err = exportSelectedElementInfo ();
-						//return err;
-					//});
+				case 2:		// 선택한 부재 정보 내보내기 (Single 모드)
+					err = exportSelectedElementInfo ();
+					break;
+				case 3:		// 선택한 부재 정보 내보내기 (Multi 모드)
+					err = exportElementInfoOnVisibleLayers ();
 					break;
 			}
 			break;

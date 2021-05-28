@@ -264,7 +264,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "배포일: 2021.05.27");
+			DGSetItemText (dialogID, itmIdx, "배포일: 2021.05.28");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
@@ -278,12 +278,12 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 프로그램 기능
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23*10);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "1. 유로폼 배치\n - 벽에 유로폼 배치\n - 슬래브 하부에 유로폼 배치\n - 보에 유로폼 배치\n - 기둥에 유로폼 배치\n\n2. Library Converting\n - 가상 가설재 모두 변환\n\n3. 테이블폼 배치\n - 벽에 테이블폼 배치\n - 슬래브 하부에 테이블폼 배치\n\n4. 레이어 유틸\n - 레이어 쉽게 선택하기\n - 레이어 쉽게 만들기\n - 레이어 쉽게 지정하기");
+			DGSetItemText (dialogID, itmIdx, "1. 유로폼 배치\n - 벽에 유로폼 배치\n - 슬래브 하부에 유로폼 배치\n - 보에 유로폼 배치\n - 기둥에 유로폼 배치\n\n2. 테이블폼 배치\n - 벽에 테이블폼 배치\n - 슬래브 하부에 테이블폼 배치\n\n3. Library Converting\n - 가상 가설재 모두 변환\n\n4. 레이어 유틸\n - 레이어 쉽게 선택하기\n - 레이어 쉽게 만들기\n - 레이어 쉽게 지정하기");
 			DGShowItem (dialogID, itmIdx);
 
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX + 270, itmPosY, 250, 23*10);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "5. 내보내기\n - 부재(기둥,보,슬래브) 정보 내보내기 (CSV) (개발보류)\n - 선택한 부재 정보 내보내기\n\n6. 물량 산출\n - 물량합판 부착하기\n - 물량합판 면적 계산하기");
+			DGSetItemText (dialogID, itmIdx, "5. 내보내기\n - 부재(기둥,보,슬래브) 정보 내보내기 (CSV) (개발보류)\n - 선택한 부재 정보 내보내기 (Single 모드)\n - 선택한 부재 정보 내보내기 (Multi 모드)\n\n6. 물량 산출\n - 물량합판 부착하기\n - 물량합판 면적 계산하기");
 			DGShowItem (dialogID, itmIdx);
 
 			break;

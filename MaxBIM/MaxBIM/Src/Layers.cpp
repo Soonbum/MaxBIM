@@ -421,7 +421,7 @@ GSErrCode	showLayersEasily (void)
 		attrib.header.index = xx;
 		err = ACAPI_Attribute_Get (&attrib);
 		if (err == NoError) {
-			//if ((attrib.layer.head.flags & APILay_Hidden) == false) {
+			//if (!(attrib.layer.head.flags & APILay_Hidden == true)) {
 				attrib.layer.head.flags |= APILay_Hidden;
 				ACAPI_Attribute_Modify (&attrib, NULL);
 			//}
