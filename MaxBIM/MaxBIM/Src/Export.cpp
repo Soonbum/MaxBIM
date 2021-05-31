@@ -918,6 +918,15 @@ GSErrCode	exportSelectedElementInfo (void)
 				sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
 				fprintf (fp, buffer);
 
+			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "합판(다각형)", strlen ("합판(다각형)")) == 0) {
+				sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.var1value [xx][yy].c_str ());
+				fprintf (fp, buffer);
+
+				if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
+					sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var3value [xx][yy].c_str ());
+					fprintf (fp, buffer);
+				}
+
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "합판", strlen ("합판")) == 0) {
 				if (strncmp (objectInfo.var1value [xx][yy].c_str (), "3x6 [910x1820]", strlen ("3x6 [910x1820]")) == 0) {
 					sprintf (buffer, "910 X 1820 X %s ", objectInfo.var2value [xx][yy].c_str ());
@@ -986,14 +995,8 @@ GSErrCode	exportSelectedElementInfo (void)
 						fprintf (fp, buffer);
 					}
 				} else {
-					sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.var1value [xx][yy].c_str ());
+					sprintf (buffer, "합판(다각형) ");
 					fprintf (fp, buffer);
-
-					// 제작틀 ON
-					if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var3value [xx][yy].c_str ());
-						fprintf (fp, buffer);
-					}
 				}
 
 			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "사각파이프", strlen ("사각파이프")) == 0) {
@@ -1988,6 +1991,15 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 						sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
 						fprintf (fp, buffer);
 
+					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "합판(다각형)", strlen ("합판(다각형)")) == 0) {
+						sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.var1value [xx][yy].c_str ());
+						fprintf (fp, buffer);
+
+						if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
+							sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var3value [xx][yy].c_str ());
+							fprintf (fp, buffer);
+						}
+
 					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "합판", strlen ("합판")) == 0) {
 						if (strncmp (objectInfo.var1value [xx][yy].c_str (), "3x6 [910x1820]", strlen ("3x6 [910x1820]")) == 0) {
 							sprintf (buffer, "910 X 1820 X %s ", objectInfo.var2value [xx][yy].c_str ());
@@ -2056,14 +2068,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								fprintf (fp, buffer);
 							}
 						} else {
-							sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.var1value [xx][yy].c_str ());
+							sprintf (buffer, "합판(다각형) ");
 							fprintf (fp, buffer);
-
-							// 제작틀 ON
-							if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
-								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var3value [xx][yy].c_str ());
-								fprintf (fp, buffer);
-							}
 						}
 
 					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "사각파이프", strlen ("사각파이프")) == 0) {
