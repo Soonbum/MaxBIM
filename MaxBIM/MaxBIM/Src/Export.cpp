@@ -516,6 +516,10 @@ GSErrCode	exportSelectedElementInfo (void)
 	long					nObjects = 0;
 	long					nBeams = 0;
 
+	// 작업 층 정보
+	API_StoryInfo	storyInfo;
+	double			workLevel_object;		// 벽의 작업 층 높이
+
 
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
@@ -602,6 +606,20 @@ GSErrCode	exportSelectedElementInfo (void)
 		
 		vecPos.push_back (coord);
 		// !!! 객체의 원점 수집하기 ==================================
+
+		// 작업 층 높이 반영 -- 객체
+		if (xx == 0) {
+			BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+			workLevel_object = 0.0;
+			ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+			for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+				if (storyInfo.data [0][yy].index == elem.header.floorInd) {
+					workLevel_object = storyInfo.data [0][yy].level;
+					break;
+				}
+			}
+			BMKillHandle ((GSHandle *) &storyInfo.data);
+		}
 
 		// 파라미터 스크립트를 강제로 실행시킴
 		ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
@@ -1407,7 +1425,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 			if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
 		}
-		cameraZ = (highestZ - lowestZ) * 0.5;
+		cameraZ = (highestZ - lowestZ) * 0.5 + workLevel_object;
 
 		distanceOfPoints = 0.0;
 		for (xx = 0 ; xx < vecPos.size () ; ++xx) {
@@ -1462,6 +1480,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 		// 화면 캡쳐
+		ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 		BNZeroMemory (&fsp, sizeof (API_FileSavePars));
 		fsp.fileTypeID = APIFType_PNGFile;
 		sprintf (filename, "%s - 캡쳐 (1).png", miscAppInfo.caption);
@@ -1498,6 +1517,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 		// 화면 캡쳐
+		ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 		BNZeroMemory (&fsp, sizeof (API_FileSavePars));
 		fsp.fileTypeID = APIFType_PNGFile;
 		sprintf (filename, "%s - 캡쳐 (2).png", miscAppInfo.caption);
@@ -1553,6 +1573,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 	char				buffer [256];
 	char				filename [256];
+
+	// 작업 층 정보
+	API_StoryInfo	storyInfo;
+	double			workLevel_object;		// 벽의 작업 층 높이
 
 	// 엑셀 파일로 기둥 정보 내보내기
 	// 파일 저장을 위한 변수
@@ -1676,6 +1700,20 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 					
 				vecPos.push_back (coord);
 				// !!! 객체의 원점 수집하기 ==================================
+
+				// 작업 층 높이 반영 -- 객체
+				if (xx == 0) {
+					BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+					workLevel_object = 0.0;
+					ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+					for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+						if (storyInfo.data [0][yy].index == elem.header.floorInd) {
+							workLevel_object = storyInfo.data [0][yy].level;
+							break;
+						}
+					}
+					BMKillHandle ((GSHandle *) &storyInfo.data);
+				}
 
 				// 파라미터 스크립트를 강제로 실행시킴
 				ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
@@ -2480,7 +2518,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 					if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
 				}
-				cameraZ = (highestZ - lowestZ) * 0.5;
+				cameraZ = (highestZ - lowestZ) * 0.5 + workLevel_object;
 
 				distanceOfPoints = 0.0;
 				for (xx = 0 ; xx < vecPos.size () ; ++xx) {
@@ -2532,6 +2570,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 				ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 				// 화면 캡쳐
+				ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 				BNZeroMemory (&fsp, sizeof (API_FileSavePars));
 				fsp.fileTypeID = APIFType_PNGFile;
 				sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
@@ -2568,6 +2607,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 				ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 				// 화면 캡쳐
+				ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 				BNZeroMemory (&fsp, sizeof (API_FileSavePars));
 				fsp.fileTypeID = APIFType_PNGFile;
 				sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
