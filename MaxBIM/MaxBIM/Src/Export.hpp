@@ -11,6 +11,14 @@ namespace exportDG {
 		LABEL_DIST_BTW_COLUMN		= 3,
 		EDITCONTROL_DIST_BTW_COLUMN
 	};
+
+	enum	layerTypeEnum {
+		WALL,	// 벽 -> 면의 앞뒷면 캡쳐할 것
+		SLAB,	// 슬래브 -> 면의 아래면 캡쳐할 것
+		COLU,	// 기둥 -> 네측면 캡쳐할 것
+		BEAM,	// 보 -> 측면, 하부 캡쳐할 것
+		WLBM	// 눈썹보 -> 측면, 하부 캡쳐할 것
+	};
 }
 
 // 개별 기둥의 정보

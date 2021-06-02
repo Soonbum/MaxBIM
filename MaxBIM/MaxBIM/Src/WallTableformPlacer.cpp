@@ -1486,6 +1486,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 	GSErrCode	err = NoError;
 	short	xx;
 	double	remainWidth = abs (placingZone.marginTop - upperCell.formWidth1 - upperCell.formWidth2);
+	double	width;
 	placementInfoForWallTableform	placementInfo;
 
 	Euroform	params_UFOM1 [4];
@@ -1621,6 +1622,12 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			placementInfo.width [0] = 0.0;		placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
 		}
 
+		// 합판 또는 목재의 전체 길이
+		width = 0.0;
+		for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
+			width += placementInfo.width [xx];
+		}
+
 		//////////////////////////////////////////////////////////////// 현재면
 		// 1열
 		if (placementInfo.nHorEuroform >= 1) {
@@ -1648,16 +1655,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			params_PLYW [0].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_PLYW [0].ang = cell.ang;
 			params_PLYW [0].p_wid = remainWidth;
-			params_PLYW [0].p_leng = placementInfo.width [0];
+			params_PLYW [0].p_leng = width;	//placementInfo.width [0];
 			params_PLYW [0].w_dir_wall = false;
 
 			params_TIMB [0].leftBottomX = cell.leftBottomX;
 			params_TIMB [0].leftBottomY = cell.leftBottomY;
 			params_TIMB [0].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_TIMB [0].ang = cell.ang;
-			params_TIMB [0].w_w = 0.040;
+			params_TIMB [0].w_w = 0.050;
 			params_TIMB [0].w_h = remainWidth;
-			params_TIMB [0].w_leng = placementInfo.width [0];
+			params_TIMB [0].w_leng = width;	//placementInfo.width [0];
 			params_TIMB [0].w_ang = 0.0;
 		}
 
@@ -1687,7 +1694,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			params_PLYW [1].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_PLYW [1].ang = cell.ang;
 			params_PLYW [1].p_wid = remainWidth;
-			params_PLYW [1].p_leng = placementInfo.width [1];
+			params_PLYW [1].p_leng = width;	//placementInfo.width [1];
 			params_PLYW [1].w_dir_wall = false;
 			moveIn3D ('x', params_PLYW [1].ang, placementInfo.width [0], &params_PLYW [1].leftBottomX, &params_PLYW [1].leftBottomY, &params_PLYW [1].leftBottomZ);
 
@@ -1695,9 +1702,9 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			params_TIMB [1].leftBottomY = params_TIMB [0].leftBottomY;
 			params_TIMB [1].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_TIMB [1].ang = cell.ang;
-			params_TIMB [1].w_w = 0.040;
+			params_TIMB [1].w_w = 0.050;
 			params_TIMB [1].w_h = remainWidth;
-			params_TIMB [1].w_leng = placementInfo.width [1];
+			params_TIMB [1].w_leng = width;	//placementInfo.width [1];
 			params_TIMB [1].w_ang = 0.0;
 			moveIn3D ('x', params_TIMB [1].ang, placementInfo.width [0], &params_TIMB [1].leftBottomX, &params_TIMB [1].leftBottomY, &params_TIMB [1].leftBottomZ);
 		}
@@ -1728,7 +1735,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			params_PLYW [2].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_PLYW [2].ang = cell.ang;
 			params_PLYW [2].p_wid = remainWidth;
-			params_PLYW [2].p_leng = placementInfo.width [2];
+			params_PLYW [2].p_leng = width;	//placementInfo.width [2];
 			params_PLYW [2].w_dir_wall = false;
 			moveIn3D ('x', params_PLYW [2].ang, placementInfo.width [1], &params_PLYW [2].leftBottomX, &params_PLYW [2].leftBottomY, &params_PLYW [2].leftBottomZ);
 
@@ -1736,9 +1743,9 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			params_TIMB [2].leftBottomY = params_TIMB [1].leftBottomY;
 			params_TIMB [2].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_TIMB [2].ang = cell.ang;
-			params_TIMB [2].w_w = 0.040;
+			params_TIMB [2].w_w = 0.050;
 			params_TIMB [2].w_h = remainWidth;
-			params_TIMB [2].w_leng = placementInfo.width [2];
+			params_TIMB [2].w_leng = width;	//placementInfo.width [2];
 			params_TIMB [2].w_ang = 0.0;
 			moveIn3D ('x', params_TIMB [2].ang, placementInfo.width [1], &params_TIMB [2].leftBottomX, &params_TIMB [2].leftBottomY, &params_TIMB [2].leftBottomZ);
 		}
@@ -1769,7 +1776,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			params_PLYW [3].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_PLYW [3].ang = cell.ang;
 			params_PLYW [3].p_wid = remainWidth;
-			params_PLYW [3].p_leng = placementInfo.width [3];
+			params_PLYW [3].p_leng = width;	//placementInfo.width [3];
 			params_PLYW [3].w_dir_wall = false;
 			moveIn3D ('x', params_PLYW [3].ang, placementInfo.width [2], &params_PLYW [3].leftBottomX, &params_PLYW [3].leftBottomY, &params_PLYW [3].leftBottomZ);
 
@@ -1777,9 +1784,9 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 			params_TIMB [3].leftBottomY = params_TIMB [2].leftBottomY;
 			params_TIMB [3].leftBottomZ = upperCell.leftBottomZ + cell.verLen + upperCell.formWidth1 + upperCell.formWidth2;
 			params_TIMB [3].ang = cell.ang;
-			params_TIMB [3].w_w = 0.040;
+			params_TIMB [3].w_w = 0.050;
 			params_TIMB [3].w_h = remainWidth;
-			params_TIMB [3].w_leng = placementInfo.width [3];
+			params_TIMB [3].w_leng = width;	//placementInfo.width [3];
 			params_TIMB [3].w_ang = 0.0;
 			moveIn3D ('x', params_TIMB [3].ang, placementInfo.width [2], &params_TIMB [3].leftBottomX, &params_TIMB [3].leftBottomY, &params_TIMB [3].leftBottomZ);
 		}
@@ -1794,11 +1801,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 
 			// 합판의 경우
 			if (remainWidth > 0.110 - EPS) {
-				elemList.Push (placePLYW (params_PLYW [xx]));
+				if (xx == 0)
+					elemList.Push (placePLYW (params_PLYW [xx]));
 
 			// 목재의 경우
 			} else if (remainWidth + EPS > 0) {
-				elemList.Push (placeTIMB (params_TIMB [xx]));
+				if (xx == 0)
+					elemList.Push (placeTIMB (params_TIMB [xx]));
 			}
 		}
 
@@ -1917,12 +1926,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall (CellForWallTableform c
 
 				// 합판의 경우
 				if (remainWidth > 0.110 - EPS) {
-					elemList.Push (placePLYW (params_PLYW [xx]));
+					if (xx == (placementInfo.nHorEuroform - 1))
+						elemList.Push (placePLYW (params_PLYW [xx]));
 
 				// 목재의 경우
 				} else if (remainWidth + EPS > 0) {
-
-					elemList.Push (placeTIMB (params_TIMB [xx]));
+					if (xx == (placementInfo.nHorEuroform - 1))
+						elemList.Push (placeTIMB (params_TIMB [xx]));
 				}
 			}
 
@@ -2874,6 +2884,15 @@ short DGCALLBACK wallTableformPlacerHandler3 (short message, short dialogID, sho
 			DGSetItemFont (dialogID, EDITCONTROL_PLYWOOD_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
 			DGShowItem (dialogID, EDITCONTROL_PLYWOOD_TOPREST);
 			DGDisableItem (dialogID, EDITCONTROL_PLYWOOD_TOPREST);
+
+			if (placingZone.marginTop < EPS) {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
+			} else if (placingZone.marginTop < 0.110) {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
+			} else {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
+			}
+			DGSetItemValDouble (dialogID, EDITCONTROL_PLYWOOD_TOPREST, placingZone.marginTop);
 
 			break;
 
