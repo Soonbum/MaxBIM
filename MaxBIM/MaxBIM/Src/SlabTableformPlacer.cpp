@@ -1185,28 +1185,21 @@ API_Guid	SlabTableformPlacingZone::placeLibPartOnSlabTableform (CellForSlabTable
 	return element.header.guid;
 }
 
-// 유로폼을 채운 후 자투리 공간 채우기
+// 유로폼을 채운 후 자투리 공간 채우기 !!!
 GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 {
 	GSErrCode	err = NoError;
 	short		xx;
-	short		xx1, pp;
+	double		remainLength;
 	CellForSlabTableform	insCell;
-	CellForSlabTableform	plywoodCell;	// 합판의 크기가 초과된 경우 사용할 임시 합판용 셀 (분할된 크기 적용)
+	//CellForSlabTableform	plywoodCell;	// 합판의 크기가 초과된 경우 사용할 임시 합판용 셀 (분할된 크기 적용)
 	double		startXPos, startYPos;
 	API_Coord3D	axisPoint, rotatedPoint, unrotatedPoint;
-
-	// 솔리드 연산을 위해 GUID를 저장함
-	API_Guid	topAtLeftTop, topAtRightTop;
-	API_Guid	bottomAtLeftBottom, bottomAtRightBottom;
-	API_Guid	leftAtLeftTop, leftAtLeftBottom;
-	API_Guid	rightAtRightTop, rightAtRightBottom;
 
 	// 회전축이 되는 점
 	axisPoint.x = firstClickPoint.x;
 	axisPoint.y = firstClickPoint.y;
 	axisPoint.z = firstClickPoint.y;
-
 
 	// 합판 설치 (TOP)
 	insCell.objType = PLYWOOD;
@@ -1215,8 +1208,7 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.upMove;
 	insCell.leftBottomZ = placingZone.level;
 	insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) + placingZone.upMove;
-	insCell.libPart.plywood.p_leng = placingZone.cells [0][0].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.corner_leftTop.x - placingZone.outerLeft) - placingZone.leftMove;
-	insCell.libPart.plywood.w_dir_wall = true;
+	//insCell.libPart.plywood.p_leng;
 
 	// 위치 값을 비회전값으로 변환
 	rotatedPoint.x = insCell.leftBottomX;
@@ -1227,131 +1219,28 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomY = unrotatedPoint.y;
 	insCell.leftBottomZ = unrotatedPoint.z;
 
-	// 셀 배치
-	if (insCell.libPart.plywood.p_leng > 2.440) {
-		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_leng / 2.440));
-		plywoodCell.objType = PLYWOOD;
-		plywoodCell.leftBottomX = insCell.leftBottomX;
-		plywoodCell.leftBottomY = insCell.leftBottomY;
-		plywoodCell.leftBottomZ = insCell.leftBottomZ;
-		plywoodCell.ang = insCell.ang;
-
-		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
-		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
-
-		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-			if (xx1 == 0) {
-				topAtLeftTop = placingZone.placeLibPart (plywoodCell);
-				elemList.Push (topAtLeftTop);
-			} else {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-			}
-			moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-		}
-	} else {
-		topAtLeftTop = placingZone.placeLibPart (insCell);
-		elemList.Push (topAtLeftTop);
-	}
-
-	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.cells [0][0].horLen - placingZone.leftMove;
-	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.upMove;
-	for (xx = 1 ; xx < placingZone.tb_count_hor-1 ; ++xx) {
-		insCell.objType = PLYWOOD;
-		insCell.ang = placingZone.ang;
-		insCell.leftBottomX = startXPos;
-		insCell.leftBottomY = startYPos;
-		insCell.leftBottomZ = placingZone.level;
-		insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) + placingZone.upMove;
-		insCell.libPart.plywood.p_leng = placingZone.cells [0][xx].horLen;
-		insCell.libPart.plywood.w_dir_wall = true;
-
-		// 위치 값을 비회전값으로 변환
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
-
-		// 셀 배치
-		if (insCell.libPart.plywood.p_leng > 2.440) {
-			pp = static_cast<short> (ceil (insCell.libPart.plywood.p_leng / 2.440));
-			plywoodCell.objType = PLYWOOD;
-			plywoodCell.leftBottomX = insCell.leftBottomX;
-			plywoodCell.leftBottomY = insCell.leftBottomY;
-			plywoodCell.leftBottomZ = insCell.leftBottomZ;
-			plywoodCell.ang = insCell.ang;
-
-			plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
-			plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
-
-			for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-				moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-			}
+	remainLength = placingZone.outerRight - placingZone.outerLeft;
+	while (remainLength > EPS) {
+		if (remainLength > (2.440 + EPS)) {
+			insCell.libPart.plywood.p_leng = 2.440;
+			remainLength -= 2.440;
 		} else {
-			elemList.Push (placingZone.placeLibPart (insCell));
+			insCell.libPart.plywood.p_leng = remainLength;
+			remainLength = 0;
 		}
 
-		// 다음 셀 배치를 위해 시작 좌표 이동
-		startXPos += placingZone.cells [0][xx].horLen;
+		elemList.Push (placingZone.placeLibPart (insCell));
+		moveIn3D ('x', insCell.ang, insCell.libPart.plywood.p_leng, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
 	}
-
-	insCell.objType = PLYWOOD;
-	insCell.ang = placingZone.ang;
-	insCell.leftBottomX = startXPos;
-	insCell.leftBottomY = startYPos;
-	insCell.leftBottomZ = placingZone.level;
-	insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) + placingZone.upMove;
-	insCell.libPart.plywood.p_leng = placingZone.cells [0][xx].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.outerRight - placingZone.corner_rightTop.x) + placingZone.leftMove;
-	insCell.libPart.plywood.w_dir_wall = true;
-
-	// 위치 값을 비회전값으로 변환
-	rotatedPoint.x = insCell.leftBottomX;
-	rotatedPoint.y = insCell.leftBottomY;
-	rotatedPoint.z = insCell.leftBottomZ;
-	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-	insCell.leftBottomX = unrotatedPoint.x;
-	insCell.leftBottomY = unrotatedPoint.y;
-	insCell.leftBottomZ = unrotatedPoint.z;
-
-	// 셀 배치
-	if (insCell.libPart.plywood.p_leng > 2.440) {
-		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_leng / 2.440));
-		plywoodCell.objType = PLYWOOD;
-		plywoodCell.leftBottomX = insCell.leftBottomX;
-		plywoodCell.leftBottomY = insCell.leftBottomY;
-		plywoodCell.leftBottomZ = insCell.leftBottomZ;
-		plywoodCell.ang = insCell.ang;
-
-		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
-		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
-
-		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-			if (xx1 == pp-1) {
-				topAtRightTop = placingZone.placeLibPart (plywoodCell);
-				elemList.Push (topAtRightTop);
-			} else {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-			}
-			moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-		}
-	} else {
-		topAtRightTop = placingZone.placeLibPart (insCell);
-		elemList.Push (topAtRightTop);
-	}
-
 
 	// 합판 설치 (BOTTOM)
 	insCell.objType = PLYWOOD;
 	insCell.ang = placingZone.ang;
-	insCell.leftBottomX = axisPoint.x - (placingZone.corner_leftTop.x - placingZone.outerLeft) + (placingZone.corner_leftBottom.x - placingZone.outerLeft);
+	insCell.leftBottomX = axisPoint.x;
 	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom);
 	insCell.leftBottomZ = placingZone.level;
 	insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - placingZone.upMove;
-	insCell.libPart.plywood.p_leng = placingZone.cells [0][0].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.corner_leftBottom.x - placingZone.outerLeft) - placingZone.leftMove;
-	insCell.libPart.plywood.w_dir_wall = true;
+	//insCell.libPart.plywood.p_leng;
 
 	// 위치 값을 비회전값으로 변환
 	rotatedPoint.x = insCell.leftBottomX;
@@ -1362,131 +1251,28 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomY = unrotatedPoint.y;
 	insCell.leftBottomZ = unrotatedPoint.z;
 
-	// 셀 배치
-	if (insCell.libPart.plywood.p_leng > 2.440) {
-		pp = static_cast<SHORT> (ceil (insCell.libPart.plywood.p_leng / 2.440));
-		plywoodCell.objType = PLYWOOD;
-		plywoodCell.leftBottomX = insCell.leftBottomX;
-		plywoodCell.leftBottomY = insCell.leftBottomY;
-		plywoodCell.leftBottomZ = insCell.leftBottomZ;
-		plywoodCell.ang = insCell.ang;
-
-		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
-		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
-
-		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-			if (xx1 == 0) {
-				bottomAtLeftBottom = placingZone.placeLibPart (plywoodCell);
-				elemList.Push (bottomAtLeftBottom);
-			} else {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-			}
-			moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-		}
-	} else {
-		bottomAtLeftBottom = placingZone.placeLibPart (insCell);
-		elemList.Push (bottomAtLeftBottom);
-	}
-
-	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.cells [0][0].horLen - placingZone.leftMove;
-	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom);
-	for (xx = 1 ; xx < placingZone.tb_count_hor-1 ; ++xx) {
-		insCell.objType = PLYWOOD;
-		insCell.ang = placingZone.ang;
-		insCell.leftBottomX = startXPos;
-		insCell.leftBottomY = startYPos;
-		insCell.leftBottomZ = placingZone.level;
-		insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - placingZone.upMove;
-		insCell.libPart.plywood.p_leng = placingZone.cells [0][xx].horLen;
-		insCell.libPart.plywood.w_dir_wall = true;
-
-		// 위치 값을 비회전값으로 변환
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
-
-		// 셀 배치
-		if (insCell.libPart.plywood.p_leng > 2.440) {
-			pp = static_cast<short> (ceil (insCell.libPart.plywood.p_leng / 2.440));
-			plywoodCell.objType = PLYWOOD;
-			plywoodCell.leftBottomX = insCell.leftBottomX;
-			plywoodCell.leftBottomY = insCell.leftBottomY;
-			plywoodCell.leftBottomZ = insCell.leftBottomZ;
-			plywoodCell.ang = insCell.ang;
-
-			plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
-			plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
-
-			for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-				moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-			}
+	remainLength = placingZone.outerRight - placingZone.outerLeft;
+	while (remainLength > EPS) {
+		if (remainLength > (2.440 + EPS)) {
+			insCell.libPart.plywood.p_leng = 2.440;
+			remainLength -= 2.440;
 		} else {
-			elemList.Push (placingZone.placeLibPart (insCell));
+			insCell.libPart.plywood.p_leng = remainLength;
+			remainLength = 0;
 		}
-			
-		// 다음 셀 배치를 위해 시작 좌표 이동
-		startXPos += placingZone.cells [0][xx].horLen;
+
+		elemList.Push (placingZone.placeLibPart (insCell));
+		moveIn3D ('x', insCell.ang, insCell.libPart.plywood.p_leng, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
 	}
-
-	insCell.objType = PLYWOOD;
-	insCell.ang = placingZone.ang;
-	insCell.leftBottomX = startXPos;
-	insCell.leftBottomY = startYPos;
-	insCell.leftBottomZ = placingZone.level;
-	insCell.libPart.plywood.p_wid = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - placingZone.upMove;
-	insCell.libPart.plywood.p_leng = placingZone.cells [0][xx].horLen + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - (placingZone.outerRight - placingZone.corner_rightBottom.x) + placingZone.leftMove;
-	insCell.libPart.plywood.w_dir_wall = true;
-
-	// 위치 값을 비회전값으로 변환
-	rotatedPoint.x = insCell.leftBottomX;
-	rotatedPoint.y = insCell.leftBottomY;
-	rotatedPoint.z = insCell.leftBottomZ;
-	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-	insCell.leftBottomX = unrotatedPoint.x;
-	insCell.leftBottomY = unrotatedPoint.y;
-	insCell.leftBottomZ = unrotatedPoint.z;
-
-	// 셀 배치
-	if (insCell.libPart.plywood.p_leng > 2.440) {
-		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_leng / 2.440));
-		plywoodCell.objType = PLYWOOD;
-		plywoodCell.leftBottomX = insCell.leftBottomX;
-		plywoodCell.leftBottomY = insCell.leftBottomY;
-		plywoodCell.leftBottomZ = insCell.leftBottomZ;
-		plywoodCell.ang = insCell.ang;
-
-		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid;
-		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng / pp;
-
-		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-			if (xx1 == pp-1) {
-				bottomAtRightBottom = placingZone.placeLibPart (plywoodCell);
-				elemList.Push (bottomAtRightBottom);
-			} else {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-			}
-			moveIn3D ('x', plywoodCell.ang, plywoodCell.libPart.plywood.p_leng, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-		}
-	} else {
-		bottomAtRightBottom = placingZone.placeLibPart (insCell);
-		elemList.Push (bottomAtRightBottom);
-	}
-
 
 	// 합판 설치 (LEFT)
 	insCell.objType = PLYWOOD;
 	insCell.ang = placingZone.ang;
-	insCell.leftBottomX = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft;
-	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.upMove;
+	insCell.leftBottomX = axisPoint.x + ((placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - placingZone.leftMove);
+	insCell.leftBottomY = axisPoint.y - ((placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) + placingZone.upMove);
 	insCell.leftBottomZ = placingZone.level;
-	insCell.libPart.plywood.p_wid = placingZone.cells [0][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.outerTop - placingZone.corner_leftTop.y) + placingZone.upMove;
-	insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - placingZone.leftMove;
-	insCell.libPart.plywood.w_dir_wall = true;
+	insCell.libPart.plywood.p_wid = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - placingZone.leftMove;
+	//insCell.libPart.plywood.p_leng;
 
 	// 위치 값을 비회전값으로 변환
 	rotatedPoint.x = insCell.leftBottomX;
@@ -1497,131 +1283,30 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomY = unrotatedPoint.y;
 	insCell.leftBottomZ = unrotatedPoint.z;
 
-	// 셀 배치
-	if (insCell.libPart.plywood.p_wid > 2.440) {
-		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
-		plywoodCell.objType = PLYWOOD;
-		plywoodCell.leftBottomX = insCell.leftBottomX;
-		plywoodCell.leftBottomY = insCell.leftBottomY;
-		plywoodCell.leftBottomZ = insCell.leftBottomZ;
-		plywoodCell.ang = insCell.ang;
-
-		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
-		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
-
-		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-			if (xx1 == 0) {
-				leftAtLeftTop = placingZone.placeLibPart (plywoodCell);
-				elemList.Push (leftAtLeftTop);
-			} else {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-			}
-			moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-		}
-	} else {
-		leftAtLeftTop = placingZone.placeLibPart (insCell);
-		elemList.Push (leftAtLeftTop);
-	}
-
-	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft;
-	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen - placingZone.upMove;
-	for (xx = 1 ; xx < placingZone.tb_count_ver-1 ; ++xx) {
-		insCell.objType = PLYWOOD;
-		insCell.ang = placingZone.ang;
-		insCell.leftBottomX = startXPos;
-		insCell.leftBottomY = startYPos;
-		insCell.leftBottomZ = placingZone.level;
-		insCell.libPart.plywood.p_wid = placingZone.cells [xx][0].verLen;
-		insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - placingZone.leftMove;
-		insCell.libPart.plywood.w_dir_wall = true;
-
-		// 위치 값을 비회전값으로 변환
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
-
-		// 셀 배치
-		if (insCell.libPart.plywood.p_wid > 2.440) {
-			pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
-			plywoodCell.objType = PLYWOOD;
-			plywoodCell.leftBottomX = insCell.leftBottomX;
-			plywoodCell.leftBottomY = insCell.leftBottomY;
-			plywoodCell.leftBottomZ = insCell.leftBottomZ;
-			plywoodCell.ang = insCell.ang;
-
-			plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
-			plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
-
-			for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-				moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-			}
+	remainLength = placingZone.formArrayHeight;
+	while (remainLength > EPS) {
+		if (remainLength > (2.440 + EPS)) {
+			insCell.libPart.plywood.p_leng = 2.440;
+			remainLength -= 2.440;
 		} else {
-			elemList.Push (placingZone.placeLibPart (insCell));
+			insCell.libPart.plywood.p_leng = remainLength;
+			remainLength = 0;
 		}
 
-		// 다음 셀 배치를 위해 시작 좌표 이동
-		startYPos -= placingZone.cells [xx+1][0].verLen;
+		moveIn3D ('y', insCell.ang, -insCell.libPart.plywood.p_leng, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		insCell.ang += DegreeToRad (90.0);
+		elemList.Push (placingZone.placeLibPart (insCell));
+		insCell.ang -= DegreeToRad (90.0);
 	}
-
-	insCell.objType = PLYWOOD;
-	insCell.ang = placingZone.ang;
-	insCell.leftBottomX = startXPos;
-	insCell.leftBottomY = startYPos - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) + placingZone.upMove;
-	insCell.leftBottomZ = placingZone.level;
-	insCell.libPart.plywood.p_wid = placingZone.cells [xx][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - placingZone.upMove;
-	insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - placingZone.leftMove;
-	insCell.libPart.plywood.w_dir_wall = true;
-
-	// 위치 값을 비회전값으로 변환
-	rotatedPoint.x = insCell.leftBottomX;
-	rotatedPoint.y = insCell.leftBottomY;
-	rotatedPoint.z = insCell.leftBottomZ;
-	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-	insCell.leftBottomX = unrotatedPoint.x;
-	insCell.leftBottomY = unrotatedPoint.y;
-	insCell.leftBottomZ = unrotatedPoint.z;
-
-	// 셀 배치
-	if (insCell.libPart.plywood.p_wid > 2.440) {
-		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
-		plywoodCell.objType = PLYWOOD;
-		plywoodCell.leftBottomX = insCell.leftBottomX;
-		plywoodCell.leftBottomY = insCell.leftBottomY;
-		plywoodCell.leftBottomZ = insCell.leftBottomZ;
-		plywoodCell.ang = insCell.ang;
-
-		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
-		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
-
-		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-			if (xx1 == pp-1) {
-				leftAtLeftBottom = placingZone.placeLibPart (plywoodCell);
-				elemList.Push (leftAtLeftBottom);
-			} else {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-			}
-			moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-		}
-	} else {
-		leftAtLeftBottom = placingZone.placeLibPart (insCell);
-		elemList.Push (leftAtLeftBottom);
-	}
-
 
 	// 합판 설치 (RIGHT)
 	insCell.objType = PLYWOOD;
 	insCell.ang = placingZone.ang;
-	insCell.leftBottomX = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) - placingZone.leftMove;
-	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.upMove;
+	insCell.leftBottomX = axisPoint.x + (placingZone.outerRight - placingZone.outerLeft);
+	insCell.leftBottomY = axisPoint.y - ((placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) + placingZone.upMove);
 	insCell.leftBottomZ = placingZone.level;
-	insCell.libPart.plywood.p_wid = placingZone.cells [0][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.outerTop - placingZone.corner_rightTop.y) + placingZone.upMove;
-	insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.leftMove;
-	insCell.libPart.plywood.w_dir_wall = true;
+	insCell.libPart.plywood.p_wid = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.leftMove;
+	//insCell.libPart.plywood.p_leng;
 
 	// 위치 값을 비회전값으로 변환
 	rotatedPoint.x = insCell.leftBottomX;
@@ -1632,201 +1317,67 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomY = unrotatedPoint.y;
 	insCell.leftBottomZ = unrotatedPoint.z;
 
-	// 셀 배치
-	if (insCell.libPart.plywood.p_wid > 2.440) {
-		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
-		plywoodCell.objType = PLYWOOD;
-		plywoodCell.leftBottomX = insCell.leftBottomX;
-		plywoodCell.leftBottomY = insCell.leftBottomY;
-		plywoodCell.leftBottomZ = insCell.leftBottomZ;
-		plywoodCell.ang = insCell.ang;
-
-		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
-		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
-
-		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-			if (xx1 == 0) {
-				rightAtRightTop = placingZone.placeLibPart (plywoodCell);
-				elemList.Push (rightAtRightTop);
-			} else {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-			}
-			moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-		}
-	} else {
-		rightAtRightTop = placingZone.placeLibPart (insCell);
-		elemList.Push (rightAtRightTop);
-	}
-
-	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) - placingZone.leftMove;
-	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen - placingZone.upMove;
-	for (xx = 1 ; xx < placingZone.tb_count_ver-1 ; ++xx) {
-		insCell.objType = PLYWOOD;
-		insCell.ang = placingZone.ang;
-		insCell.leftBottomX = startXPos;
-		insCell.leftBottomY = startYPos;
-		insCell.leftBottomZ = placingZone.level;
-		insCell.libPart.plywood.p_wid = placingZone.cells [xx][0].verLen;
-		insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.leftMove;
-		insCell.libPart.plywood.w_dir_wall = true;
-
-		// 위치 값을 비회전값으로 변환
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
-
-		// 셀 배치
-		if (insCell.libPart.plywood.p_wid > 2.440) {
-			pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
-			plywoodCell.objType = PLYWOOD;
-			plywoodCell.leftBottomX = insCell.leftBottomX;
-			plywoodCell.leftBottomY = insCell.leftBottomY;
-			plywoodCell.leftBottomZ = insCell.leftBottomZ;
-			plywoodCell.ang = insCell.ang;
-
-			plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
-			plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
-
-			for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-				moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-			}
+	remainLength = placingZone.formArrayHeight;
+	while (remainLength > EPS) {
+		if (remainLength > (2.440 + EPS)) {
+			insCell.libPart.plywood.p_leng = 2.440;
+			remainLength -= 2.440;
 		} else {
-			elemList.Push (placingZone.placeLibPart (insCell));
+			insCell.libPart.plywood.p_leng = remainLength;
+			remainLength = 0;
 		}
 
-		// 다음 셀 배치를 위해 시작 좌표 이동
-		startYPos -= placingZone.cells [xx+1][0].verLen;
+		moveIn3D ('y', insCell.ang, -insCell.libPart.plywood.p_leng, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		insCell.ang += DegreeToRad (90.0);
+		elemList.Push (placingZone.placeLibPart (insCell));
+		insCell.ang -= DegreeToRad (90.0);
 	}
-
-	insCell.objType = PLYWOOD;
-	insCell.ang = placingZone.ang;
-	insCell.leftBottomX = startXPos;
-	insCell.leftBottomY = startYPos - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) + (placingZone.corner_rightBottom.y - placingZone.outerBottom) + placingZone.upMove;
-	insCell.leftBottomZ = placingZone.level;
-	insCell.libPart.plywood.p_wid = placingZone.cells [xx][0].verLen + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - (placingZone.corner_rightBottom.y - placingZone.outerBottom) - placingZone.upMove;
-	insCell.libPart.plywood.p_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.leftMove;
-	insCell.libPart.plywood.w_dir_wall = true;
-
-	// 위치 값을 비회전값으로 변환
-	rotatedPoint.x = insCell.leftBottomX;
-	rotatedPoint.y = insCell.leftBottomY;
-	rotatedPoint.z = insCell.leftBottomZ;
-	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-	insCell.leftBottomX = unrotatedPoint.x;
-	insCell.leftBottomY = unrotatedPoint.y;
-	insCell.leftBottomZ = unrotatedPoint.z;
-
-	// 셀 배치
-	if (insCell.libPart.plywood.p_wid > 2.440) {
-		pp = static_cast<short> (ceil (insCell.libPart.plywood.p_wid / 2.440));
-		plywoodCell.objType = PLYWOOD;
-		plywoodCell.leftBottomX = insCell.leftBottomX;
-		plywoodCell.leftBottomY = insCell.leftBottomY;
-		plywoodCell.leftBottomZ = insCell.leftBottomZ;
-		plywoodCell.ang = insCell.ang;
-
-		plywoodCell.libPart.plywood.p_wid = insCell.libPart.plywood.p_wid / pp;
-		plywoodCell.libPart.plywood.p_leng = insCell.libPart.plywood.p_leng;
-
-		for (xx1 = 0 ; xx1 < pp ; ++xx1) {
-			if (xx1 == pp-1) {
-				rightAtRightBottom = placingZone.placeLibPart (plywoodCell);
-				elemList.Push (rightAtRightBottom);
-			} else {
-				elemList.Push (placingZone.placeLibPart (plywoodCell));
-			}
-			moveIn3D ('y', plywoodCell.ang, plywoodCell.libPart.plywood.p_wid, &plywoodCell.leftBottomX, &plywoodCell.leftBottomY, &plywoodCell.leftBottomZ);
-		}
-	} else {
-		rightAtRightBottom = placingZone.placeLibPart (insCell);
-		elemList.Push (rightAtRightBottom);
-	}
-
-	// 합판 코너 겹치는 부분은 솔리드 연산으로 빼기
-	err = ACAPI_Element_SolidLink_Create (topAtLeftTop,			leftAtLeftTop, APISolid_Substract, APISolidFlag_OperatorAttrib);
-	err = ACAPI_Element_SolidLink_Create (topAtRightTop,		rightAtRightTop, APISolid_Substract, APISolidFlag_OperatorAttrib);
-	err = ACAPI_Element_SolidLink_Create (bottomAtLeftBottom,	leftAtLeftBottom, APISolid_Substract, APISolidFlag_OperatorAttrib);
-	err = ACAPI_Element_SolidLink_Create (bottomAtRightBottom,	rightAtRightBottom, APISolid_Substract, APISolidFlag_OperatorAttrib);
-
 
 	// 유로폼 둘레 목재 설치 (TOP)
-	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - placingZone.leftMove;
-	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) + placingZone.woodWidth - placingZone.upMove;
-	for (xx = 0 ; xx < placingZone.tb_count_hor ; ++xx) {
-		insCell.objType = WOOD;
-		insCell.ang = placingZone.ang;
-		insCell.leftBottomX = startXPos;
-		insCell.leftBottomY = startYPos;
-		insCell.leftBottomZ = placingZone.level - 0.0115;
-		insCell.libPart.wood.w_ang = 0.0;
-		insCell.libPart.wood.w_h = placingZone.woodWidth;
-		insCell.libPart.wood.w_leng = placingZone.cells [0][xx].horLen;
-		insCell.libPart.wood.w_w = 0.050;
+	insCell.objType = WOOD;
+	insCell.ang = placingZone.ang;
+	insCell.leftBottomX = axisPoint.x + ((placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - placingZone.leftMove) - placingZone.woodWidth;
+	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) + placingZone.woodWidth - placingZone.upMove;
+	insCell.leftBottomZ = placingZone.level - 0.0115;	// 합판 두께만큼 내려옴
+	insCell.libPart.wood.w_ang = 0.0;
+	insCell.libPart.wood.w_h = placingZone.woodWidth;
+	//insCell.libPart.wood.w_leng;
+	insCell.libPart.wood.w_w = 0.050;
+	
+	// 위치 값을 비회전값으로 변환
+	rotatedPoint.x = insCell.leftBottomX;
+	rotatedPoint.y = insCell.leftBottomY;
+	rotatedPoint.z = insCell.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
+	insCell.leftBottomX = unrotatedPoint.x;
+	insCell.leftBottomY = unrotatedPoint.y;
+	insCell.leftBottomZ = unrotatedPoint.z;
 
-		// 위치 값을 비회전값으로 변환
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
+	remainLength = placingZone.formArrayWidth + placingZone.woodWidth * 2;
+	while (remainLength > EPS) {
+		if (remainLength > (3.600 + EPS)) {
+			insCell.libPart.wood.w_leng = 3.600;
+			remainLength -= 3.600;
+		} else {
+			insCell.libPart.wood.w_leng = remainLength;
+			remainLength = 0;
+		}
 
-		// 셀 배치
 		elemList.Push (placingZone.placeLibPart (insCell));
-
-		// 다음 셀 배치를 위해 시작 좌표 이동
-		startXPos += placingZone.cells [0][xx].horLen;
+		moveIn3D ('x', insCell.ang, insCell.libPart.wood.w_leng, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
 	}
-
 
 	// 유로폼 둘레 목재 설치 (BOTTOM)
-	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - placingZone.leftMove;
-	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) + (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - placingZone.upMove;
-	for (xx = 0 ; xx < placingZone.tb_count_hor ; ++xx) {
-		insCell.objType = WOOD;
-		insCell.ang = placingZone.ang;
-		insCell.leftBottomX = startXPos;
-		insCell.leftBottomY = startYPos;
-		insCell.leftBottomZ = placingZone.level - 0.0115;
-		insCell.libPart.wood.w_ang = 0.0;
-		insCell.libPart.wood.w_h = placingZone.woodWidth;
-		insCell.libPart.wood.w_leng = placingZone.cells [0][xx].horLen;
-		insCell.libPart.wood.w_w = 0.050;
-
-		// 위치 값을 비회전값으로 변환
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
-
-		// 셀 배치
-		elemList.Push (placingZone.placeLibPart (insCell));
-
-		// 다음 셀 배치를 위해 시작 좌표 이동
-		startXPos += placingZone.cells [0][xx].horLen;
-	}
-
+	insCell.objType = WOOD;
+	insCell.ang = placingZone.ang;
+	insCell.leftBottomX = axisPoint.x + ((placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - placingZone.leftMove) - placingZone.woodWidth;
+	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) + ((placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - placingZone.upMove);
+	insCell.leftBottomZ = placingZone.level - 0.0115;	// 합판 두께만큼 내려옴
+	insCell.libPart.wood.w_ang = 0.0;
+	insCell.libPart.wood.w_h = placingZone.woodWidth;
+	//insCell.libPart.wood.w_leng;
+	insCell.libPart.wood.w_w = 0.050;
 	
-	// 유로폼 둘레 목재 설치 (LEFT) : 셀 각도가 90 회전하여 시작 좌표 뒷부분의 X,Y축이 바뀌어야 함
-	insCell.objType = WOOD;
-	insCell.ang = placingZone.ang + DegreeToRad (90.0);
-	insCell.leftBottomX = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.upMove;
-	insCell.leftBottomY = axisPoint.y - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) + (placingZone.corner_leftTop.x - placingZone.outerLeft) + placingZone.woodWidth + placingZone.leftMove;
-	insCell.leftBottomZ = placingZone.level - 0.0115;
-	insCell.libPart.wood.w_ang = 0.0;
-	insCell.libPart.wood.w_h = placingZone.woodWidth;
-	insCell.libPart.wood.w_leng = placingZone.cells [0][0].verLen + placingZone.woodWidth;
-	insCell.libPart.wood.w_w = 0.050;
-
 	// 위치 값을 비회전값으로 변환
 	rotatedPoint.x = insCell.leftBottomX;
 	rotatedPoint.y = insCell.leftBottomY;
@@ -1836,48 +1387,31 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomY = unrotatedPoint.y;
 	insCell.leftBottomZ = unrotatedPoint.z;
 
-	// 셀 배치
-	elemList.Push (placingZone.placeLibPart (insCell));
+	remainLength = placingZone.formArrayWidth + placingZone.woodWidth * 2;
+	while (remainLength > EPS) {
+		if (remainLength > (3.600 + EPS)) {
+			insCell.libPart.wood.w_leng = 3.600;
+			remainLength -= 3.600;
+		} else {
+			insCell.libPart.wood.w_leng = remainLength;
+			remainLength = 0;
+		}
 
-	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen - placingZone.upMove;
-	startYPos = axisPoint.y - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) + (placingZone.corner_leftTop.x - placingZone.outerLeft) + placingZone.woodWidth + placingZone.leftMove;
-	for (xx = 1 ; xx < placingZone.tb_count_ver-1 ; ++xx) {
-		insCell.objType = WOOD;
-		insCell.ang = placingZone.ang + DegreeToRad (90.0);
-		insCell.leftBottomX = startXPos;
-		insCell.leftBottomY = startYPos;
-		insCell.leftBottomZ = placingZone.level - 0.0115;
-		insCell.libPart.wood.w_ang = 0.0;
-		insCell.libPart.wood.w_h = placingZone.woodWidth;
-		insCell.libPart.wood.w_leng = placingZone.cells [xx][0].verLen;
-		insCell.libPart.wood.w_w = 0.050;
-
-		// 위치 값을 비회전값으로 변환
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
-
-		// 셀 배치
 		elemList.Push (placingZone.placeLibPart (insCell));
-
-		// 다음 셀 배치를 위해 시작 좌표 이동
-		startXPos -= placingZone.cells [xx+1][0].verLen;
+		moveIn3D ('x', insCell.ang, insCell.libPart.wood.w_leng, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
 	}
 
+	// 유로폼 둘레 목재 설치 (LEFT)
 	insCell.objType = WOOD;
-	insCell.ang = placingZone.ang + DegreeToRad (90.0);
-	insCell.leftBottomX = startXPos - placingZone.woodWidth;
-	insCell.leftBottomY = startYPos;
-	insCell.leftBottomZ = placingZone.level - 0.0115;
+	insCell.ang = placingZone.ang;
+	insCell.leftBottomX = axisPoint.x + ((placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - placingZone.leftMove) - placingZone.woodWidth;
+	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.upMove;
+	insCell.leftBottomZ = placingZone.level - 0.0115;	// 합판 두께만큼 내려옴
 	insCell.libPart.wood.w_ang = 0.0;
 	insCell.libPart.wood.w_h = placingZone.woodWidth;
-	insCell.libPart.wood.w_leng = placingZone.cells [xx][0].verLen + placingZone.woodWidth;
+	//insCell.libPart.wood.w_leng;
 	insCell.libPart.wood.w_w = 0.050;
-
+	
 	// 위치 값을 비회전값으로 변환
 	rotatedPoint.x = insCell.leftBottomX;
 	rotatedPoint.y = insCell.leftBottomY;
@@ -1887,72 +1421,34 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomY = unrotatedPoint.y;
 	insCell.leftBottomZ = unrotatedPoint.z;
 
-	// 셀 배치
-	elemList.Push (placingZone.placeLibPart (insCell));
+	remainLength = placingZone.formArrayHeight;
+	while (remainLength > EPS) {
+		if (remainLength > (3.600 + EPS)) {
+			insCell.libPart.wood.w_leng = 3.600;
+			remainLength -= 3.600;
+		} else {
+			insCell.libPart.wood.w_leng = remainLength;
+			remainLength = 0;
+		}
 
-
-	// 유로폼 둘레 목재 설치 (RIGHT) : 셀 각도가 90 회전하여 시작 좌표 뒷부분의 X,Y축이 바뀌어야 함
-	insCell.objType = WOOD;
-	insCell.ang = placingZone.ang + DegreeToRad (90.0);
-	insCell.leftBottomX = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.upMove;
-	insCell.leftBottomY = axisPoint.y - (- placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2)) + placingZone.leftMove;
-	insCell.leftBottomZ = placingZone.level - 0.0115;
-	insCell.libPart.wood.w_ang = 0.0;
-	insCell.libPart.wood.w_h = placingZone.woodWidth;
-	insCell.libPart.wood.w_leng = placingZone.cells [0][0].verLen + placingZone.woodWidth;
-	insCell.libPart.wood.w_w = 0.050;
-
-	// 위치 값을 비회전값으로 변환
-	rotatedPoint.x = insCell.leftBottomX;
-	rotatedPoint.y = insCell.leftBottomY;
-	rotatedPoint.z = insCell.leftBottomZ;
-	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-	insCell.leftBottomX = unrotatedPoint.x;
-	insCell.leftBottomY = unrotatedPoint.y;
-	insCell.leftBottomZ = unrotatedPoint.z;
-
-	// 셀 배치
-	elemList.Push (placingZone.placeLibPart (insCell));
-
-	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.cells [1][0].verLen - placingZone.upMove;
-	startYPos = axisPoint.y - (- placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2)) + placingZone.leftMove;
-	for (xx = 1 ; xx < placingZone.tb_count_ver-1 ; ++xx) {
-		insCell.objType = WOOD;
-		insCell.ang = placingZone.ang + DegreeToRad (90.0);
-		insCell.leftBottomX = startXPos;
-		insCell.leftBottomY = startYPos;
-		insCell.leftBottomZ = placingZone.level - 0.0115;
-		insCell.libPart.wood.w_ang = 0.0;
-		insCell.libPart.wood.w_h = placingZone.woodWidth;
-		insCell.libPart.wood.w_leng = placingZone.cells [xx][0].verLen;
-		insCell.libPart.wood.w_w = 0.050;
-
-		// 위치 값을 비회전값으로 변환
-		rotatedPoint.x = insCell.leftBottomX;
-		rotatedPoint.y = insCell.leftBottomY;
-		rotatedPoint.z = insCell.leftBottomZ;
-		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-		insCell.leftBottomX = unrotatedPoint.x;
-		insCell.leftBottomY = unrotatedPoint.y;
-		insCell.leftBottomZ = unrotatedPoint.z;
-
-		// 셀 배치
+		moveIn3D ('y', insCell.ang, -insCell.libPart.wood.w_leng, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		insCell.ang += DegreeToRad (90.0);
 		elemList.Push (placingZone.placeLibPart (insCell));
-
-		// 다음 셀 배치를 위해 시작 좌표 이동
-		startXPos -= placingZone.cells [xx+1][0].verLen;
+		insCell.ang -= DegreeToRad (90.0);
 	}
 
+	// 유로폼 둘레 목재 설치 (RIGHT)
+	// ...
 	insCell.objType = WOOD;
-	insCell.ang = placingZone.ang + DegreeToRad (90.0);
-	insCell.leftBottomX = startXPos - placingZone.woodWidth;
-	insCell.leftBottomY = startYPos;
-	insCell.leftBottomZ = placingZone.level - 0.0115;
+	insCell.ang = placingZone.ang;
+	insCell.leftBottomX = axisPoint.x + (placingZone.outerRight - placingZone.outerLeft) - ((placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) + placingZone.leftMove);
+	insCell.leftBottomY = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.upMove;
+	insCell.leftBottomZ = placingZone.level - 0.0115;	// 합판 두께만큼 내려옴
 	insCell.libPart.wood.w_ang = 0.0;
 	insCell.libPart.wood.w_h = placingZone.woodWidth;
-	insCell.libPart.wood.w_leng = placingZone.cells [xx][0].verLen + placingZone.woodWidth;
+	//insCell.libPart.wood.w_leng;
 	insCell.libPart.wood.w_w = 0.050;
-
+	
 	// 위치 값을 비회전값으로 변환
 	rotatedPoint.x = insCell.leftBottomX;
 	rotatedPoint.y = insCell.leftBottomY;
@@ -1962,25 +1458,21 @@ GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 	insCell.leftBottomY = unrotatedPoint.y;
 	insCell.leftBottomZ = unrotatedPoint.z;
 
-	// 셀 배치
-	elemList.Push (placingZone.placeLibPart (insCell));
+	remainLength = placingZone.formArrayHeight;
+	while (remainLength > EPS) {
+		if (remainLength > (3.600 + EPS)) {
+			insCell.libPart.wood.w_leng = 3.600;
+			remainLength -= 3.600;
+		} else {
+			insCell.libPart.wood.w_leng = remainLength;
+			remainLength = 0;
+		}
 
-
-	// 코너쪽 목재 설치 (LEFT-TOP)
-	// (없음)
-
-
-	// 코너쪽 목재 설치 (RIGHT-TOP)
-	// (없음)
-
-
-	// 코너쪽 목재 설치 (LEFT-BOTTOM)
-	// (없음)
-
-
-	// 코너쪽 목재 설치 (RIGHT-BOTTOM)
-	// (없음)
-
+		moveIn3D ('y', insCell.ang, -insCell.libPart.wood.w_leng, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		insCell.ang += DegreeToRad (90.0);
+		elemList.Push (placingZone.placeLibPart (insCell));
+		insCell.ang -= DegreeToRad (90.0);
+	}
 
 	// 보강 목재 설치 : T 버튼에 해당 (왼쪽부터 시작, 0부터 eu_count_hor-2까지) : LeftBottom에서 RightBottom까지
 	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) + 0.064;

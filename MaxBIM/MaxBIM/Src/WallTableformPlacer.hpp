@@ -110,6 +110,16 @@ struct UpperCellForWallTableform
 	double	formWidth2;				// 2단 유로폼의 폭
 };
 
+// 배치 정보
+struct	placementInfoForWallTableform
+{
+	short	nHorEuroform;	// 수평 방향 유로폼 개수
+	short	nVerEuroform;	// 수직 방향 유로폼 개수
+
+	double	width [7];		// 수평 방향 각 유로폼 너비
+	double	height [7];		// 수직 방향 각 유로폼 높이
+};
+
 // 벽면 영역 정보
 class WallTableformPlacingZone
 {
@@ -133,7 +143,7 @@ public:
 	short		nCells;								// 테이블폼 셀 개수
 	double		marginTop;							// 상단 여백 높이
 
-	// 테이블폼 개수 (각각은 너비 400~2300의 테이블폼을 의미함)
+	// 테이블폼 개수 (각각은 너비 400~2300의 테이블폼을 의미함) - 세로 방향
 	short	n400w;
 	short	n450w;
 	short	n500w;
@@ -173,11 +183,31 @@ public:
 	short	n2250w;
 	short	n2300w;
 
+	// 테이블폼 개수 (각각은 너비 1500~6000의 테이블폼을 의미함) - 가로 방향
+	short	n1500h;
+	short	n1800h;
+	short	n2100h;
+	short	n2400h;
+	short	n2700h;
+	short	n3000h;
+	short	n3300h;
+	short	n3600h;
+	short	n3900h;
+	short	n4200h;
+	short	n4500h;
+	short	n4800h;
+	short	n5100h;
+	short	n5400h;
+	short	n5700h;
+	short	n6000h;
+
 public:
-	void		initCells (WallTableformPlacingZone* placingZone);											// Cell 배열을 초기화함
-	GSErrCode	placeTableformOnWall (CellForWallTableform cell);											// 테이블폼 배치하기
-	GSErrCode	placeTableformOnWall (CellForWallTableform cell, UpperCellForWallTableform upperCell);		// 테이블폼 상단 배치하기
-	double		getCellPositionLeftBottomX (WallTableformPlacingZone *placingZone, short idx);				// 해당 셀의 좌하단 좌표X 위치를 리턴
+	void		initCells (WallTableformPlacingZone* placingZone);													// Cell 배열을 초기화함
+	double		getCellPositionLeftBottomX (WallTableformPlacingZone *placingZone, short idx);						// 해당 셀의 좌하단 좌표X 위치를 리턴
+	GSErrCode	placeTableformOnWall_Vertical (CellForWallTableform cell);											// 테이블폼 배치하기 - 세로 방향
+	GSErrCode	placeTableformOnWall_Vertical (CellForWallTableform cell, UpperCellForWallTableform upperCell);		// 테이블폼 상단 배치하기 - 세로 방향
+	GSErrCode	placeTableformOnWall_Horizontal (CellForWallTableform cell);										// 테이블폼 배치하기 - 가로 방향
+	GSErrCode	placeTableformOnWall_Horizontal (CellForWallTableform cell, UpperCellForWallTableform upperCell);	// 테이블폼 상단 배치하기 - 가로 방향
 
 	API_Guid	placeUFOM (Euroform params);					// 배치: 유로폼
 	API_Guid	placeUFOM_up (Euroform params);					// 배치: 유로폼 (상부)
@@ -191,19 +221,14 @@ public:
 	API_Guid	placeTIMB (Wood params);						// 배치: 목재
 };
 
-// 배치 정보
-struct	placementInfoForWallTableform
-{
-	short	nHorEuroform;	// 수평 방향 유로폼 개수
-	short	nVerEuroform;	// 수직 방향 유로폼 개수
+GSErrCode	placeTableformOnWall_Vertical (void);		// 벽에 테이블폼을 배치하는 통합 루틴 - 세로 방향
+short DGCALLBACK wallTableformPlacerHandler1_Vertical (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 선호하는 테이블폼 너비를 선택하기 위한 다이얼로그 - 세로 방향
+short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 배치를 위한 질의를 요청하는 다이얼로그 - 세로 방향
+short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 3차 다이얼로그 - 세로 방향
 
-	double	width [7];		// 수평 방향 각 유로폼 너비
-	double	height [7];		// 수직 방향 각 유로폼 높이
-};
-
-GSErrCode	placeTableformOnWall (void);	// 벽에 테이블폼을 배치하는 통합 루틴
-short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 선호하는 테이블폼 너비를 선택하기 위한 다이얼로그
-short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼 배치를 위한 질의를 요청하는 다이얼로그
-short DGCALLBACK wallTableformPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 3차 다이얼로그
+GSErrCode	placeTableformOnWall_Horizontal (void);		// 벽에 테이블폼을 배치하는 통합 루틴 - 가로 방향
+short DGCALLBACK wallTableformPlacerHandler1_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 선호하는 테이블폼 너비를 선택하기 위한 다이얼로그 - 가로 방향
+short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼 배치를 위한 질의를 요청하는 다이얼로그 - 가로 방향
+short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 3차 다이얼로그 - 가로 방향
 
 #endif
