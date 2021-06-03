@@ -1270,6 +1270,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 	params_UFOM.leftBottomY = cell.leftBottomY;
 	params_UFOM.leftBottomZ = cell.leftBottomZ;
 	params_UFOM.ang = cell.ang;
+	params_UFOM.u_ins_wall = true;
 
 	for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
 		height = 0.0;
@@ -1614,6 +1615,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 		params_UFOM.leftBottomY = cell.leftBottomY;
 		params_UFOM.leftBottomZ = cell.leftBottomZ;
 		params_UFOM.ang = cell.ang;
+		params_UFOM.u_ins_wall = true;
 
 		for (xx = placementInfo.nHorEuroform - 1 ; xx >= 0 ; --xx) {
 			height = 0.0;
@@ -2393,955 +2395,950 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWallTableform cell)
 {
 	GSErrCode	err = NoError;
-	//placementInfoForWallTableform	placementInfo;
-
-	//short		xx, yy;
-	//double		width, height;
-	//double		remainder;				// fmod 함수에 쓸 변수
-	//double		elev_headpiece;
-	//double		horizontalGap = 0.050;	// 수평재 양쪽 이격거리
-
-	//Euroform		params_UFOM;
-	//SquarePipe		params_SPIP;
-	//PinBoltSet		params_PINB;
-	//WallTie			params_TIE;
-	////CrossClamp		params_CLAM;
-	//HeadpieceOfPushPullProps	params_PUSH;
-	//MetalFittings	params_JOIN;
-
-	//placementInfo.nHorEuroform = 0;
-	//placementInfo.nVerEuroform = 0;
-	//for (xx = 0 ; xx < 7 ; ++xx) {
-	//	placementInfo.width [xx] = 0.0;
-	//	placementInfo.height [xx] = 0.0;
-	//}
-
-	//if (abs (cell.horLen - 2.300) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.600;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 2.250) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.600;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 2.200) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.600;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 2.150) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.600;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 2.100) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.600;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 2.050) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.600;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 2.000) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 1.950) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.600;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 1.900) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 1.850) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 1.800) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 1.750) < EPS) {
-	//	placementInfo.nHorEuroform = 4;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.500;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 1.700) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 1.650) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 1.600) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 1.550) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 1.500) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 1.450) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 1.400) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 1.350) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 1.300) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 1.250) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 1.200) < EPS) {
-	//	placementInfo.nHorEuroform = 2;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 1.150) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 1.100) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 1.050) < EPS) {
-	//	placementInfo.nHorEuroform = 3;
-	//	placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 1.000) < EPS) {
-	//	placementInfo.nHorEuroform = 2;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 0.950) < EPS) {
-	//	placementInfo.nHorEuroform = 2;
-	//	placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 0.900) < EPS) {
-	//	placementInfo.nHorEuroform = 2;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 0.850) < EPS) {
-	//	placementInfo.nHorEuroform = 2;
-	//	placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 0.800) < EPS) {
-	//	placementInfo.nHorEuroform = 2;
-	//	placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 0.750) < EPS) {
-	//	placementInfo.nHorEuroform = 2;
-	//	placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 0.700) < EPS) {
-	//	placementInfo.nHorEuroform = 2;
-	//	placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 0.650) < EPS) {
-	//	placementInfo.nHorEuroform = 2;
-	//	placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 0.600) < EPS) {
-	//	placementInfo.nHorEuroform = 1;
-	//	placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 0.500) < EPS) {
-	//	placementInfo.nHorEuroform = 1;
-	//	placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else if (abs (cell.horLen - 0.450) < EPS) {
-	//	placementInfo.nHorEuroform = 1;
-	//	placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.025;
-	//} else if (abs (cell.horLen - 0.400) < EPS) {
-	//	placementInfo.nHorEuroform = 1;
-	//	placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//	horizontalGap = 0.050;
-	//} else {
-	//	placementInfo.nHorEuroform = 0;
-	//	placementInfo.width [0] = 0.0;		placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
-	//}
-
-	//if (abs (cell.verLen - 6.000) < EPS) {
-	//	placementInfo.nVerEuroform = 5;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 1.200;
-	//	placementInfo.height [3] = 1.200;
-	//	placementInfo.height [4] = 1.200;
-	//} else if (abs (cell.verLen - 5.700) < EPS) {
-	//	placementInfo.nVerEuroform = 5;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 1.200;
-	//	placementInfo.height [3] = 1.200;
-	//	placementInfo.height [4] = 0.900;
-	//} else if (abs (cell.verLen - 5.400) < EPS) {
-	//	placementInfo.nVerEuroform = 5;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 1.200;
-	//	placementInfo.height [3] = 0.900;
-	//	placementInfo.height [4] = 0.900;
-	//} else if (abs (cell.verLen - 5.100) < EPS) {
-	//	placementInfo.nVerEuroform = 5;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 1.200;
-	//	placementInfo.height [3] = 0.900;
-	//	placementInfo.height [4] = 0.600;
-	//} else if (abs (cell.verLen - 4.800) < EPS) {
-	//	placementInfo.nVerEuroform = 4;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 1.200;
-	//	placementInfo.height [3] = 1.200;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 4.500) < EPS) {
-	//	placementInfo.nVerEuroform = 4;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 1.200;
-	//	placementInfo.height [3] = 0.900;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 4.200) < EPS) {
-	//	placementInfo.nVerEuroform = 4;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 0.900;
-	//	placementInfo.height [3] = 0.900;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 3.900) < EPS) {
-	//	placementInfo.nVerEuroform = 4;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 0.900;
-	//	placementInfo.height [3] = 0.600;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 3.600) < EPS) {
-	//	placementInfo.nVerEuroform = 3;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 1.200;
-	//	placementInfo.height [3] = 0.0;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 3.300) < EPS) {
-	//	placementInfo.nVerEuroform = 3;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 0.900;
-	//	placementInfo.height [3] = 0.0;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 3.000) < EPS) {
-	//	placementInfo.nVerEuroform = 3;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 0.600;
-	//	placementInfo.height [3] = 0.0;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 2.700) < EPS) {
-	//	placementInfo.nVerEuroform = 3;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 0.900;
-	//	placementInfo.height [2] = 0.600;
-	//	placementInfo.height [3] = 0.0;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 2.400) < EPS) {
-	//	placementInfo.nVerEuroform = 2;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 1.200;
-	//	placementInfo.height [2] = 0.0;
-	//	placementInfo.height [3] = 0.0;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 2.100) < EPS) {
-	//	placementInfo.nVerEuroform = 2;
-	//	placementInfo.height [0] = 1.200;
-	//	placementInfo.height [1] = 0.900;
-	//	placementInfo.height [2] = 0.0;
-	//	placementInfo.height [3] = 0.0;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 1.800) < EPS) {
-	//	placementInfo.nVerEuroform = 2;
-	//	placementInfo.height [0] = 0.900;
-	//	placementInfo.height [1] = 0.900;
-	//	placementInfo.height [2] = 0.0;
-	//	placementInfo.height [3] = 0.0;
-	//	placementInfo.height [4] = 0.0;
-	//} else if (abs (cell.verLen - 1.500) < EPS) {
-	//	placementInfo.nVerEuroform = 2;
-	//	placementInfo.height [0] = 0.900;
-	//	placementInfo.height [1] = 0.600;
-	//	placementInfo.height [2] = 0.0;
-	//	placementInfo.height [3] = 0.0;
-	//	placementInfo.height [4] = 0.0;
-	//} else {
-	//	placementInfo.nVerEuroform = 0;
-	//	placementInfo.height [0] = 0.0;
-	//	placementInfo.height [1] = 0.0;
-	//	placementInfo.height [2] = 0.0;
-	//	placementInfo.height [3] = 0.0;
-	//	placementInfo.height [4] = 0.0;
-	//}
-
-	//// 너비나 높이가 0이면 아무것도 배치하지 않음
-	//if ((placementInfo.nHorEuroform == 0) || (placementInfo.nVerEuroform == 0))
-	//	return	NoError;
-
-	////////////////////////////////////////////////////////////////// 현재면
-	//// 유로폼 설치
-	//params_UFOM.leftBottomX = cell.leftBottomX;
-	//params_UFOM.leftBottomY = cell.leftBottomY;
-	//params_UFOM.leftBottomZ = cell.leftBottomZ;
-	//params_UFOM.ang = cell.ang;
-
-	//for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
-	//	height = 0.0;
-	//	for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
-	//		params_UFOM.width	= placementInfo.width [xx];
-	//		params_UFOM.height	= placementInfo.height [yy];
-	//		height += placementInfo.height [yy];
-	//		elemList.Push (placeUFOM (params_UFOM));
-	//		moveIn3D ('z', params_UFOM.ang, placementInfo.height [yy], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
-	//	}
-	//	moveIn3D ('x', params_UFOM.ang, placementInfo.width [xx], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
-	//	moveIn3D ('z', params_UFOM.ang, -height, &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
-	//}
-
-	//// 비계 파이프 (수평) 배치
-	//params_SPIP.leftBottomX = cell.leftBottomX;
-	//params_SPIP.leftBottomY = cell.leftBottomY;
-	//params_SPIP.leftBottomZ = cell.leftBottomZ;
-	//params_SPIP.ang = cell.ang;
-	//params_SPIP.length = cell.horLen - (horizontalGap * 2);
-	//params_SPIP.pipeAng = DegreeToRad (0);
-
-	//moveIn3D ('x', params_SPIP.ang, horizontalGap, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//moveIn3D ('z', params_SPIP.ang, 0.150 - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-
-	//for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
-	//	if (xx == 0) {
-	//		// 1행
-	//		elemList.Push (placeSPIP (params_SPIP));
-	//		moveIn3D ('z', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//		elemList.Push (placeSPIP (params_SPIP));
-	//		moveIn3D ('z', params_SPIP.ang, -0.031 - 0.150 + placementInfo.height [xx] - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//	} else if (xx == placementInfo.nVerEuroform) {
-	//		// 마지막 행
-	//		moveIn3D ('z', params_SPIP.ang, -0.150, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//		elemList.Push (placeSPIP (params_SPIP));
-	//		moveIn3D ('z', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//		elemList.Push (placeSPIP (params_SPIP));
-	//	} else {
-	//		// 나머지 행
-	//		elemList.Push (placeSPIP (params_SPIP));
-	//		moveIn3D ('z', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//		elemList.Push (placeSPIP (params_SPIP));
-	//		moveIn3D ('z', params_SPIP.ang, -0.031 + placementInfo.height [xx] - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//	}
-	//}
-
-	//// 비계 파이프 (수직) 배치
-	//params_SPIP.leftBottomX = cell.leftBottomX;
-	//params_SPIP.leftBottomY = cell.leftBottomY;
-	//params_SPIP.leftBottomZ = cell.leftBottomZ;
-	//params_SPIP.ang = cell.ang;
-	//params_SPIP.length = cell.verLen - 0.100;
-	//params_SPIP.pipeAng = DegreeToRad (90);
-
-	//moveIn3D ('x', params_SPIP.ang, placementInfo.width [0] - 0.150 - 0.035, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.075), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-
-	//// 1열
-	//elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, 0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, -0.070 - (placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//// 2열
-	//elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, 0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//elemList.Push (placeSPIP (params_SPIP));
-
-	//// 핀볼트 배치 (수평 - 최하단, 최상단)
-	//params_PINB.leftBottomX = cell.leftBottomX;
-	//params_PINB.leftBottomY = cell.leftBottomY;
-	//params_PINB.leftBottomZ = cell.leftBottomZ;
-	//params_PINB.ang = cell.ang;
-	//params_PINB.bPinBoltRot90 = TRUE;
-	//params_PINB.boltLen = 0.100;
-	//params_PINB.angX = DegreeToRad (270.0);
-	//params_PINB.angY = DegreeToRad (0.0);
-
-	//moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-
-	//// 최하단 행
-	//moveIn3D ('z', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//width = 0.0;
-	//for (xx = 0 ; xx < placementInfo.nHorEuroform - 1 ; ++xx) {
-	//	width += placementInfo.width [xx];
-	//	moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-
-	//	elemList.Push (placePINB (params_PINB));
-	//}
-	//// 최상단 행
-	//moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//moveIn3D ('z', params_PINB.ang, cell.verLen - 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//for (xx = 0 ; xx < placementInfo.nHorEuroform - 1 ; ++xx) {
-	//	moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-
-	//	elemList.Push (placePINB (params_PINB));
-	//}
-
-	//// 핀볼트 배치 (수평 - 나머지)
-	//params_PINB.leftBottomX = cell.leftBottomX;
-	//params_PINB.leftBottomY = cell.leftBottomY;
-	//params_PINB.leftBottomZ = cell.leftBottomZ;
-	//params_PINB.ang = cell.ang;
-	//params_PINB.bPinBoltRot90 = FALSE;
-	//params_PINB.boltLen = 0.100;
-	//params_PINB.angX = DegreeToRad (270.0);
-	//params_PINB.angY = DegreeToRad (0.0);
-
-	//moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-
-	//// 2 ~ [n-1]행
-	//if (placementInfo.nHorEuroform >= 3) {
-	//	moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	moveIn3D ('z', params_PINB.ang, placementInfo.height [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
-	//		width = 0.0;
-	//		for (yy = 0 ; yy < placementInfo.nHorEuroform ; ++yy) {
-	//			// 1열
-	//			if (yy == 0) {
-	//				elemList.Push (placePINB (params_PINB));
-	//				moveIn3D ('x', params_PINB.ang, placementInfo.width [0] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//				width += placementInfo.width [0] - 0.150;
-	//			// 마지막 열
-	//			} else if (yy == placementInfo.nHorEuroform - 1) {
-	//				width += placementInfo.width [placementInfo.nHorEuroform-1] - 0.150;
-	//				moveIn3D ('x', params_PINB.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//				elemList.Push (placePINB (params_PINB));
-	//			// 나머지 열
-	//			} else {
-	//				width += placementInfo.width [yy];
-	//				if (abs (placementInfo.width [yy] - 0.600) < EPS) {
-	//					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//				} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
-	//					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//				} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
-	//					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//				} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
-	//					moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//				} else if (abs (placementInfo.width [yy] - 0.300) < EPS) {
-	//					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//				} else if (abs (placementInfo.width [yy] - 0.200) < EPS) {
-	//					moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, 0.050, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//				}
-	//			}
-	//		}
-	//		moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//		moveIn3D ('z', params_PINB.ang, placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	}
-	//}
-
-	//// 핀볼트 배치 (수직)
-	//params_PINB.leftBottomX = cell.leftBottomX;
-	//params_PINB.leftBottomY = cell.leftBottomY;
-	//params_PINB.leftBottomZ = cell.leftBottomZ;
-	//params_PINB.ang = cell.ang;
-	//params_PINB.bPinBoltRot90 = FALSE;
-	//params_PINB.boltLen = 0.150;
-	//params_PINB.angX = DegreeToRad (270.0);
-	//params_PINB.angY = DegreeToRad (0.0);
-
-	//moveIn3D ('x', params_PINB.ang, placementInfo.width [0] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//moveIn3D ('y', params_PINB.ang, -(0.2135), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//moveIn3D ('z', params_PINB.ang, placementInfo.height [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-
-	//// 1열
-	//height = 0.0;
-	//for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
-	//	elemList.Push (placePINB (params_PINB));
-	//	moveIn3D ('z', params_PINB.ang, placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	height += placementInfo.height [xx];
-	//}
-	//// 2열
-	//moveIn3D ('x', params_PINB.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//moveIn3D ('z', params_PINB.ang, -height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
-	//	elemList.Push (placePINB (params_PINB));
-	//	moveIn3D ('z', params_PINB.ang, placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	height += placementInfo.height [xx];
-	//}
-
-	//// 벽체 타이
-	//if (placingZone.bDoubleSide) {
-	//	params_TIE.leftBottomX = cell.leftBottomX;
-	//	params_TIE.leftBottomY = cell.leftBottomY;
-	//	params_TIE.leftBottomZ = cell.leftBottomZ;
-	//	params_TIE.ang = cell.ang;
-	//	remainder = fmod ((infoWall.wallThk + 0.327), 0.100);
-	//	params_TIE.boltLen = (infoWall.wallThk + 0.327 + (0.100 - remainder));
-	//	params_TIE.pipeBeg = 0.0365 + 0.1635;
-	//	params_TIE.pipeEnd = 0.0365 + 0.1635 + infoWall.wallThk;
-	//	params_TIE.clampBeg = 0.0365;
-	//	params_TIE.clampEnd = 0.0365 + infoWall.wallThk + 0.327;
-
-	//	moveIn3D ('x', params_TIE.ang, placementInfo.width [0] - 0.150, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-	//	moveIn3D ('y', params_TIE.ang, -(0.1635 + 0.0365), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-	//	moveIn3D ('z', params_TIE.ang, 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-
-	//	for (xx = 0 ; xx < 2 ; ++xx) {
-	//		for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
-	//			// 최하위 행
-	//			if (yy == 0) {
-	//				elemList.Push (placeTIE (params_TIE));
-	//				moveIn3D ('z', params_TIE.ang, placementInfo.height [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-	//	
-	//			// 최상위 행
-	//			} else if (yy == placementInfo.nVerEuroform - 1) {
-	//				moveIn3D ('z', params_TIE.ang, placementInfo.height [yy] - 0.350*2, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-	//				elemList.Push (placeTIE (params_TIE));
-	//				moveIn3D ('x', params_TIE.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-	//				moveIn3D ('z', params_TIE.ang, 0.350 - cell.verLen + 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-	//			
-	//			// 2 ~ [n-1]행
-	//			} else {
-	//				elemList.Push (placeTIE (params_TIE));
-	//				moveIn3D ('z', params_TIE.ang, placementInfo.height [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-	//			}
-	//		}
-	//	}
-	//}
-
-	//// 직교 클램프
-	////params_CLAM.leftBottomX = cell.leftBottomX;
-	////params_CLAM.leftBottomY = cell.leftBottomY;
-	////params_CLAM.leftBottomZ = cell.leftBottomZ;
-	////params_CLAM.ang = cell.ang;
-	////params_CLAM.angX = DegreeToRad (0.0);
-	////params_CLAM.angY = DegreeToRad (0.0);
-
-	////params_CLAM.leftBottomX = moveXinPerpend (params_CLAM.leftBottomX, params_CLAM.ang, -0.1835);
-	////params_CLAM.leftBottomY = moveYinPerpend (params_CLAM.leftBottomY, params_CLAM.ang, -0.1835);
-	////params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.450 - 0.035);
-	////params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.450 - 0.035);
-	////params_CLAM.leftBottomZ = moveZ (params_CLAM.leftBottomZ, 0.099);
-
-	////for (xx = 0 ; xx < 2 ; ++xx) {
-	////	elemList.Push (placeCLAM (params_CLAM));
-	////	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.070);
-	////	params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.070);
-	////	elemList.Push (placeCLAM (params_CLAM));
-	////	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, -0.035 - 0.450 + cell.horLen - 0.450 - 0.035);
-	////	params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, -0.035 - 0.450 + cell.horLen - 0.450 - 0.035);
-	////	elemList.Push (placeCLAM (params_CLAM));
-	////	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.070);
-	////	params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.070);
-	////	elemList.Push (placeCLAM (params_CLAM));
-	////	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, -0.035 + 0.450 - cell.horLen + 0.450 - 0.035);
-	////	params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, -0.035 + 0.450 - cell.horLen + 0.450 - 0.035);
-	////	params_CLAM.leftBottomZ = moveZ (params_CLAM.leftBottomZ, -0.099 + cell.verLen - 0.099);	params_CLAM.angY = DegreeToRad (180.0);
-	////}
-
-	//// 헤드 피스
-	//params_PUSH.leftBottomX = cell.leftBottomX;
-	//params_PUSH.leftBottomY = cell.leftBottomY;
-	//params_PUSH.leftBottomZ = cell.leftBottomZ;
-	//params_PUSH.ang = cell.ang;
-
-	//moveIn3D ('x', params_PUSH.ang, placementInfo.width [0] - 0.150 - 0.100, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//moveIn3D ('y', params_PUSH.ang, -0.1725, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//moveIn3D ('z', params_PUSH.ang, 0.600, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-
-	//// 처음 행
-	//elemList.Push (placePUSH (params_PUSH));
-	//moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//elemList.Push (placePUSH (params_PUSH));
-	//moveIn3D ('x', params_PUSH.ang, (placementInfo.width [0] - 0.150) - cell.horLen - (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	////if (cell.verLen > 4.000) {
-	////	elev_headpiece = 4.000 * 0.80;
-	////} else {
-	////	elev_headpiece = cell.verLen * 0.80;
-	////}
-	//elev_headpiece = 2.100;
-	//moveIn3D ('z', params_PUSH.ang, -0.600 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//// 마지막 행
-	//elemList.Push (placePUSH (params_PUSH));
-	//moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//elemList.Push (placePUSH (params_PUSH));
-
-	//// 결합철물
-	//params_JOIN.leftBottomX = cell.leftBottomX;
-	//params_JOIN.leftBottomY = cell.leftBottomY;
-	//params_JOIN.leftBottomZ = cell.leftBottomZ;
-	//params_JOIN.ang = cell.ang;
-
-	//moveIn3D ('x', params_JOIN.ang, placementInfo.width [0] - 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-	//moveIn3D ('y', params_JOIN.ang, -0.0455, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-	//moveIn3D ('z', params_JOIN.ang, 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-
-	//// 처음 행
-	//elemList.Push (placeJOIN (params_JOIN));
-	//moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-	//elemList.Push (placeJOIN (params_JOIN));
-	//moveIn3D ('x', params_JOIN.ang, (placementInfo.width [0] - 0.150) - cell.horLen - (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-	//moveIn3D ('z', params_JOIN.ang, cell.verLen - 0.300, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-
-	//// 마지막 행
-	//elemList.Push (placeJOIN (params_JOIN));
-	//moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-	//elemList.Push (placeJOIN (params_JOIN));
-
-	//// 그룹화하기
-	//if (!elemList.IsEmpty ()) {
-	//	GSSize nElems = elemList.GetSize ();
-	//	API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-	//	if (elemHead != NULL) {
-	//		for (GSIndex i = 0; i < nElems; i++)
-	//			(*elemHead)[i].guid = elemList[i];
-
-	//		ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-	//		BMKillHandle ((GSHandle *) &elemHead);
-	//	}
-	//}
-	//elemList.Clear (false);
-
-	////////////////////////////////////////////////////////////////// 반대면
-	//if (placingZone.bDoubleSide) {
-	//	moveIn3D ('x', cell.ang, cell.horLen, &cell.leftBottomX, &cell.leftBottomY, &cell.leftBottomY);
-	//	moveIn3D ('y', cell.ang, infoWall.wallThk, &cell.leftBottomX, &cell.leftBottomY, &cell.leftBottomY);
-	//	cell.ang += DegreeToRad (180.0);
-
-	//	// 유로폼 설치 (반대편에서 변경됨)
-	//	params_UFOM.leftBottomX = cell.leftBottomX;
-	//	params_UFOM.leftBottomY = cell.leftBottomY;
-	//	params_UFOM.leftBottomZ = cell.leftBottomZ;
-	//	params_UFOM.ang = cell.ang;
-
-	//	for (xx = placementInfo.nHorEuroform - 1 ; xx >= 0 ; --xx) {
-	//		height = 0.0;
-	//		for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
-	//			params_UFOM.width	= placementInfo.width [xx];
-	//			params_UFOM.height	= placementInfo.height [yy];
-	//			height += placementInfo.height [yy];
-	//			elemList.Push (placeUFOM (params_UFOM));
-	//			moveIn3D ('z', params_UFOM.ang, placementInfo.height [yy], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
-	//		}
-	//		moveIn3D ('x', params_UFOM.ang, placementInfo.width [xx], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
-	//		moveIn3D ('z', params_UFOM.ang, -height, &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
-	//	}
-
-	//	// 비계 파이프 (수평) 배치
-	//	params_SPIP.leftBottomX = cell.leftBottomX;
-	//	params_SPIP.leftBottomY = cell.leftBottomY;
-	//	params_SPIP.leftBottomZ = cell.leftBottomZ;
-	//	params_SPIP.ang = cell.ang;
-	//	params_SPIP.length = cell.horLen - (horizontalGap * 2);
-	//	params_SPIP.pipeAng = DegreeToRad (0);
-
-	//	moveIn3D ('x', params_SPIP.ang, horizontalGap, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//	moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//	moveIn3D ('z', params_SPIP.ang, 0.150 - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-
-	//	for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
-	//		if (xx == 0) {
-	//			// 1행
-	//			elemList.Push (placeSPIP (params_SPIP));
-	//			moveIn3D ('z', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//			elemList.Push (placeSPIP (params_SPIP));
-	//			moveIn3D ('z', params_SPIP.ang, -0.031 - 0.150 + placementInfo.height [xx] - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//		} else if (xx == placementInfo.nVerEuroform) {
-	//			// 마지막 행
-	//			moveIn3D ('z', params_SPIP.ang, -0.150, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//			elemList.Push (placeSPIP (params_SPIP));
-	//			moveIn3D ('z', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//			elemList.Push (placeSPIP (params_SPIP));
-	//		} else {
-	//			// 나머지 행
-	//			elemList.Push (placeSPIP (params_SPIP));
-	//			moveIn3D ('z', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//			elemList.Push (placeSPIP (params_SPIP));
-	//			moveIn3D ('z', params_SPIP.ang, -0.031 + placementInfo.height [xx] - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//		}
-	//	}
-
-	//	// 비계 파이프 (수직) 배치
-	//	params_SPIP.leftBottomX = cell.leftBottomX;
-	//	params_SPIP.leftBottomY = cell.leftBottomY;
-	//	params_SPIP.leftBottomZ = cell.leftBottomZ;
-	//	params_SPIP.ang = cell.ang;
-	//	params_SPIP.length = cell.verLen - 0.100;
-	//	params_SPIP.pipeAng = DegreeToRad (90);
-
-	//	moveIn3D ('x', params_SPIP.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150 - 0.035, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//	moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.075), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//	moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-
-	//	// 1열
-	//	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, 0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, -0.070 - (placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//	// 2열
-	//	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('x', params_SPIP.ang, 0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-	//	elemList.Push (placeSPIP (params_SPIP));
-
-	//	// 핀볼트 배치 (수평 - 최하단, 최상단) (반대편에서 변경됨)
-	//	params_PINB.leftBottomX = cell.leftBottomX;
-	//	params_PINB.leftBottomY = cell.leftBottomY;
-	//	params_PINB.leftBottomZ = cell.leftBottomZ;
-	//	params_PINB.ang = cell.ang;
-	//	params_PINB.bPinBoltRot90 = TRUE;
-	//	params_PINB.boltLen = 0.100;
-	//	params_PINB.angX = DegreeToRad (270.0);
-	//	params_PINB.angY = DegreeToRad (0.0);
-
-	//	moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-
-	//	// 최하단 행
-	//	moveIn3D ('z', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	width = 0.0;
-	//	for (xx = placementInfo.nHorEuroform - 1 ; xx > 0 ; --xx) {
-	//		width += placementInfo.width [xx];
-	//		moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-
-	//		elemList.Push (placePINB (params_PINB));
-	//	}
-	//	// 최상단 행
-	//	moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	moveIn3D ('z', params_PINB.ang, cell.verLen - 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	for (xx = placementInfo.nHorEuroform - 1 ; xx > 0 ; --xx) {
-	//		moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-
-	//		elemList.Push (placePINB (params_PINB));
-	//	}
-
-	//	// 핀볼트 배치 (수평 - 나머지) (반대편에서 변경됨)
-	//	params_PINB.leftBottomX = cell.leftBottomX;
-	//	params_PINB.leftBottomY = cell.leftBottomY;
-	//	params_PINB.leftBottomZ = cell.leftBottomZ;
-	//	params_PINB.ang = cell.ang;
-	//	params_PINB.bPinBoltRot90 = FALSE;
-	//	params_PINB.boltLen = 0.100;
-	//	params_PINB.angX = DegreeToRad (270.0);
-	//	params_PINB.angY = DegreeToRad (0.0);
-
-	//	moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-
-	//	if (placementInfo.nHorEuroform >= 3) {
-	//		moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//		moveIn3D ('z', params_PINB.ang, placementInfo.height [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//		for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
-	//			width = 0.0;
-	//			for (yy = placementInfo.nHorEuroform - 1 ; yy >= 0 ; --yy) {
-	//				// 1열
-	//				if (yy == placementInfo.nHorEuroform - 1) {
-	//					elemList.Push (placePINB (params_PINB));
-	//					moveIn3D ('x', params_PINB.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					width += placementInfo.width [placementInfo.nHorEuroform-1] - 0.150;
-	//				// 마지막 열
-	//				} else if (yy == 0) {
-	//					width += placementInfo.width [0] - 0.150;
-	//					moveIn3D ('x', params_PINB.ang, placementInfo.width [0] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					elemList.Push (placePINB (params_PINB));
-	//				// 나머지 열
-	//				} else {
-	//					width += placementInfo.width [yy];
-	//					if (abs (placementInfo.width [yy] - 0.600) < EPS) {
-	//						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//						elemList.Push (placePINB (params_PINB));
-	//						moveIn3D ('x', params_PINB.ang, 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//						elemList.Push (placePINB (params_PINB));
-	//						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
-	//						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//						elemList.Push (placePINB (params_PINB));
-	//						moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//						elemList.Push (placePINB (params_PINB));
-	//						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
-	//						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//						elemList.Push (placePINB (params_PINB));
-	//						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//						elemList.Push (placePINB (params_PINB));
-	//						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
-	//						moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//						elemList.Push (placePINB (params_PINB));
-	//						moveIn3D ('x', params_PINB.ang, 0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//						elemList.Push (placePINB (params_PINB));
-	//						moveIn3D ('x', params_PINB.ang, 0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					} else if (abs (placementInfo.width [yy] - 0.300) < EPS) {
-	//						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//						elemList.Push (placePINB (params_PINB));
-	//						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					} else if (abs (placementInfo.width [yy] - 0.200) < EPS) {
-	//						moveIn3D ('x', params_PINB.ang, 0.050, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//						elemList.Push (placePINB (params_PINB));
-	//						moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//					}
-	//				}
-	//			}
-	//			moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//			moveIn3D ('z', params_PINB.ang, placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//		}
-	//	}
-
-	//	// 핀볼트 배치 (수직)
-	//	params_PINB.leftBottomX = cell.leftBottomX;
-	//	params_PINB.leftBottomY = cell.leftBottomY;
-	//	params_PINB.leftBottomZ = cell.leftBottomZ;
-	//	params_PINB.ang = cell.ang;
-	//	params_PINB.bPinBoltRot90 = FALSE;
-	//	params_PINB.boltLen = 0.150;
-	//	params_PINB.angX = DegreeToRad (270.0);
-	//	params_PINB.angY = DegreeToRad (0.0);
-
-	//	moveIn3D ('x', params_PINB.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	moveIn3D ('y', params_PINB.ang, -(0.2135), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	moveIn3D ('z', params_PINB.ang, placementInfo.height [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-
-	//	// 1열
-	//	height = 0.0;
-	//	for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
-	//		elemList.Push (placePINB (params_PINB));
-	//		moveIn3D ('z', params_PINB.ang, placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//		height += placementInfo.height [xx];
-	//	}
-	//	// 2열
-	//	moveIn3D ('x', params_PINB.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	moveIn3D ('z', params_PINB.ang, -height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//	for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
-	//		elemList.Push (placePINB (params_PINB));
-	//		moveIn3D ('z', params_PINB.ang, placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
-	//		height += placementInfo.height [xx];
-	//	}
-
-	//	// 벽체 타이 (현재면에서 했으므로 생략)
-
-	//	// 직교 클램프
-	//	//params_CLAM.leftBottomX = cell.leftBottomX;
-	//	//params_CLAM.leftBottomY = cell.leftBottomY;
-	//	//params_CLAM.leftBottomZ = cell.leftBottomZ;
-	//	//params_CLAM.ang = cell.ang;
-	//	//params_CLAM.angX = DegreeToRad (0.0);
-	//	//params_CLAM.angY = DegreeToRad (0.0);
-
-	//	//params_CLAM.leftBottomX = moveXinPerpend (params_CLAM.leftBottomX, params_CLAM.ang, -0.1835);
-	//	//params_CLAM.leftBottomY = moveYinPerpend (params_CLAM.leftBottomY, params_CLAM.ang, -0.1835);
-	//	//params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.450 - 0.035);
-	//	//params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.450 - 0.035);
-	//	//params_CLAM.leftBottomZ = moveZ (params_CLAM.leftBottomZ, 0.099);
-
-	//	//for (xx = 0 ; xx < 2 ; ++xx) {
-	//	//	elemList.Push (placeCLAM (params_CLAM));
-	//	//	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.070);
-	//	//	params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.070);
-	//	//	elemList.Push (placeCLAM (params_CLAM));
-	//	//	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, -0.035 - 0.450 + cell.horLen - 0.450 - 0.035);
-	//	//	params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, -0.035 - 0.450 + cell.horLen - 0.450 - 0.035);
-	//	//	elemList.Push (placeCLAM (params_CLAM));
-	//	//	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, 0.070);
-	//	//	params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, 0.070);
-	//	//	elemList.Push (placeCLAM (params_CLAM));
-	//	//	params_CLAM.leftBottomX = moveXinParallel (params_CLAM.leftBottomX, params_CLAM.ang, -0.035 + 0.450 - cell.horLen + 0.450 - 0.035);
-	//	//	params_CLAM.leftBottomY = moveYinParallel (params_CLAM.leftBottomY, params_CLAM.ang, -0.035 + 0.450 - cell.horLen + 0.450 - 0.035);
-	//	//	params_CLAM.leftBottomZ = moveZ (params_CLAM.leftBottomZ, -0.099 + cell.verLen - 0.099);	params_CLAM.angY = DegreeToRad (180.0);
-	//	//}
-
-	//	// 헤드 피스
-	//	params_PUSH.leftBottomX = cell.leftBottomX;
-	//	params_PUSH.leftBottomY = cell.leftBottomY;
-	//	params_PUSH.leftBottomZ = cell.leftBottomZ;
-	//	params_PUSH.ang = cell.ang;
-
-	//	moveIn3D ('x', params_PUSH.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150 - 0.100, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//	moveIn3D ('y', params_PUSH.ang, -0.1725, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//	moveIn3D ('z', params_PUSH.ang, 0.600, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-
-	//	// 처음 행
-	//	elemList.Push (placePUSH (params_PUSH));
-	//	moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//	elemList.Push (placePUSH (params_PUSH));
-	//	moveIn3D ('x', params_PUSH.ang, (placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) - cell.horLen - (-placementInfo.width [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//	//if (cell.verLen > 4.000) {
-	//	//	elev_headpiece = 4.000 * 0.80;
-	//	//} else {
-	//	//	elev_headpiece = cell.verLen * 0.80;
-	//	//}
-	//	elev_headpiece = 2.100;
-	//	moveIn3D ('z', params_PUSH.ang, -0.600 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//	// 마지막 행
-	//	elemList.Push (placePUSH (params_PUSH));
-	//	moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	//	elemList.Push (placePUSH (params_PUSH));
-
-	//	// 결합철물
-	//	params_JOIN.leftBottomX = cell.leftBottomX;
-	//	params_JOIN.leftBottomY = cell.leftBottomY;
-	//	params_JOIN.leftBottomZ = cell.leftBottomZ;
-	//	params_JOIN.ang = cell.ang;
-
-	//	moveIn3D ('x', params_JOIN.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-	//	moveIn3D ('y', params_JOIN.ang, -0.0455, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-	//	moveIn3D ('z', params_JOIN.ang, 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-
-	//	// 처음 행
-	//	elemList.Push (placeJOIN (params_JOIN));
-	//	moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-	//	elemList.Push (placeJOIN (params_JOIN));
-	//	moveIn3D ('x', params_JOIN.ang, (placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) - cell.horLen - (-placementInfo.width [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-	//	moveIn3D ('z', params_JOIN.ang, cell.verLen - 0.300, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-
-	//	// 마지막 행
-	//	elemList.Push (placeJOIN (params_JOIN));
-	//	moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
-	//	elemList.Push (placeJOIN (params_JOIN));
-
-	//	// 그룹화하기
-	//	if (!elemList.IsEmpty ()) {
-	//		GSSize nElems = elemList.GetSize ();
-	//		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-	//		if (elemHead != NULL) {
-	//			for (GSIndex i = 0; i < nElems; i++)
-	//				(*elemHead)[i].guid = elemList[i];
-
-	//			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-	//			BMKillHandle ((GSHandle *) &elemHead);
-	//		}
-	//	}
-	//	elemList.Clear (false);
-	//}
+	placementInfoForWallTableform	placementInfo;
+
+	short		xx, yy;
+	double		width, height;
+	double		remainder;				// fmod 함수에 쓸 변수
+	double		elev_headpiece;
+	double		verticalGap = 0.050;	// 수직재 양쪽 이격거리
+
+	Euroform		params_UFOM;
+	SquarePipe		params_SPIP;
+	PinBoltSet		params_PINB;
+	WallTie			params_TIE;
+	//CrossClamp		params_CLAM;
+	HeadpieceOfPushPullProps	params_PUSH;
+	MetalFittings	params_JOIN;
+
+	placementInfo.nHorEuroform = 0;
+	placementInfo.nVerEuroform = 0;
+	for (xx = 0 ; xx < 7 ; ++xx) {
+		placementInfo.width [xx] = 0.0;
+		placementInfo.height [xx] = 0.0;
+	}
+
+	if (abs (cell.verLen - 2.300) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 2.250) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 2.200) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 2.150) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 2.100) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.300;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 2.050) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 2.000) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.950) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.300;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.900) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.850) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.800) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.750) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.500;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.700) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.650) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.600) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.550) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.500) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.450) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.400) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.350) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.300) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.250) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.200) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.150) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.100) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.050) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.300;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.000) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.950) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 0.900) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.850) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 0.800) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.750) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 0.700) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.650) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 0.600) < EPS) {
+		placementInfo.nVerEuroform = 1;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.0;		placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.500) < EPS) {
+		placementInfo.nVerEuroform = 1;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.0;		placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.450) < EPS) {
+		placementInfo.nVerEuroform = 1;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.0;		placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 0.400) < EPS) {
+		placementInfo.nVerEuroform = 1;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.0;		placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else {
+		placementInfo.nVerEuroform = 0;
+		placementInfo.height [0] = 0.0;		placementInfo.height [1] = 0.0;		placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+	}
+
+	if (abs (cell.horLen - 6.000) < EPS) {
+		placementInfo.nHorEuroform = 5;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 1.200;
+		placementInfo.width [4] = 1.200;
+	} else if (abs (cell.horLen - 5.700) < EPS) {
+		placementInfo.nHorEuroform = 5;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 1.200;
+		placementInfo.width [4] = 0.900;
+	} else if (abs (cell.horLen - 5.400) < EPS) {
+		placementInfo.nHorEuroform = 5;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 0.900;
+		placementInfo.width [4] = 0.900;
+	} else if (abs (cell.horLen - 5.100) < EPS) {
+		placementInfo.nHorEuroform = 5;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 0.900;
+		placementInfo.width [4] = 0.600;
+	} else if (abs (cell.horLen - 4.800) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 1.200;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 4.500) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 0.900;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 4.200) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 0.900;
+		placementInfo.width [3] = 0.900;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 3.900) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 0.900;
+		placementInfo.width [3] = 0.600;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 3.600) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 3.300) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 0.900;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 3.000) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 0.600;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 2.700) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 0.900;
+		placementInfo.width [2] = 0.600;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 2.400) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 0.0;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 2.100) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 0.900;
+		placementInfo.width [2] = 0.0;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 1.800) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.900;
+		placementInfo.width [1] = 0.900;
+		placementInfo.width [2] = 0.0;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 1.500) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.900;
+		placementInfo.width [1] = 0.600;
+		placementInfo.width [2] = 0.0;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else {
+		placementInfo.nHorEuroform = 0;
+		placementInfo.width [0] = 0.0;
+		placementInfo.width [1] = 0.0;
+		placementInfo.width [2] = 0.0;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	}
+
+	// 너비나 높이가 0이면 아무것도 배치하지 않음
+	if ((placementInfo.nHorEuroform == 0) || (placementInfo.nVerEuroform == 0))
+		return	NoError;
+
+	//////////////////////////////////////////////////////////////// 현재면
+	// 유로폼 설치
+	params_UFOM.leftBottomX = cell.leftBottomX;
+	params_UFOM.leftBottomY = cell.leftBottomY;
+	params_UFOM.leftBottomZ = cell.leftBottomZ;
+	params_UFOM.ang = cell.ang;
+	params_UFOM.u_ins_wall = false;
+
+	for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		height = 0.0;
+		for (yy = placementInfo.nVerEuroform-1 ; yy >= 0 ; --yy) {
+			params_UFOM.width	= placementInfo.height [yy];
+			params_UFOM.height	= placementInfo.width [xx];
+			height += placementInfo.height [yy];
+			elemList.Push (placeUFOM (params_UFOM));
+			moveIn3D ('z', params_UFOM.ang, placementInfo.height [yy], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+		}
+		moveIn3D ('x', params_UFOM.ang, placementInfo.width [xx], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+		moveIn3D ('z', params_UFOM.ang, -height, &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+	}
+
+	// 비계 파이프 (수직) 배치
+	params_SPIP.leftBottomX = cell.leftBottomX;
+	params_SPIP.leftBottomY = cell.leftBottomY;
+	params_SPIP.leftBottomZ = cell.leftBottomZ;
+	params_SPIP.ang = cell.ang;
+	params_SPIP.length = cell.verLen - (verticalGap * 2);
+	params_SPIP.pipeAng = DegreeToRad (90.0);
+
+	moveIn3D ('z', params_SPIP.ang, verticalGap, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('x', params_SPIP.ang, 0.150 - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+	for (xx = 0 ; xx <= placementInfo.nHorEuroform ; ++xx) {
+		if (xx == 0) {
+			// 1행
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('x', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('x', params_SPIP.ang, -0.031 - 0.150 + placementInfo.width [xx] - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		} else if (xx == placementInfo.nHorEuroform) {
+			// 마지막 행
+			moveIn3D ('x', params_SPIP.ang, -0.150, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('x', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			elemList.Push (placeSPIP (params_SPIP));
+		} else {
+			// 나머지 행
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('x', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('x', params_SPIP.ang, -0.031 + placementInfo.width [xx] - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		}
+	}
+
+	// 비계 파이프 (수평) 배치
+	params_SPIP.leftBottomX = cell.leftBottomX;
+	params_SPIP.leftBottomY = cell.leftBottomY;
+	params_SPIP.leftBottomZ = cell.leftBottomZ;
+	params_SPIP.ang = cell.ang;
+	params_SPIP.length = cell.horLen - 0.100;
+	params_SPIP.pipeAng = DegreeToRad (0);
+
+	height = 0.0;
+	for (xx = placementInfo.nVerEuroform-1 ; xx >= 0 ; --xx) {
+		height += placementInfo.height [xx];
+	}
+	moveIn3D ('z', params_SPIP.ang, height - placementInfo.height [0] + 0.150 + 0.035, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.075), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('x', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+	// 1열
+	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, -0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, 0.070 + (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	// 2열
+	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, -0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	elemList.Push (placeSPIP (params_SPIP));
+
+	// 핀볼트 배치 (수직 - 최하단, 최상단)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = FALSE;
+	params_PINB.boltLen = 0.100;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+	// 최하단 행
+	moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	height = 0.0;
+	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		height += placementInfo.height [xx];
+	}
+	moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	height = 0.0;
+	for (xx = 0 ; xx < placementInfo.nVerEuroform-1 ; ++xx) {
+		height += placementInfo.height [xx];
+		moveIn3D ('z', params_PINB.ang, -placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		elemList.Push (placePINB (params_PINB));
+	}
+	// 최상단 행
+	moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	moveIn3D ('x', params_PINB.ang, cell.horLen - 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	for (xx = 0 ; xx < placementInfo.nVerEuroform-1 ; ++xx) {
+		moveIn3D ('z', params_PINB.ang, -placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		elemList.Push (placePINB (params_PINB));
+	}
+
+	// 핀볼트 배치 (수직 - 나머지)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = TRUE;
+	params_PINB.boltLen = 0.100;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+	// 2 ~ [n-1]행
+	if (placementInfo.nVerEuroform >= 3) {
+		height = 0.0;
+		for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+			height += placementInfo.height [xx];
+		}
+		moveIn3D ('z', params_PINB.ang, height - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		moveIn3D ('x', params_PINB.ang, placementInfo.width [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+			height = 0.0;
+			for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
+				// 1열
+				if (yy == 0) {
+					elemList.Push (placePINB (params_PINB));
+					moveIn3D ('z', params_PINB.ang, -(placementInfo.height [0] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					height += placementInfo.height [0] - 0.150;
+				// 마지막 열
+				} else if (yy == placementInfo.nVerEuroform - 1) {
+					height += placementInfo.height [placementInfo.nVerEuroform-1] - 0.150;
+					moveIn3D ('z', params_PINB.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					elemList.Push (placePINB (params_PINB));
+				// 나머지 열
+				} else {
+					height += placementInfo.height [yy];
+					if (abs (placementInfo.height [yy] - 0.600) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.height [yy] - 0.500) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.height [yy] - 0.450) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.height [yy] - 0.400) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.height [yy] - 0.300) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.height [yy] - 0.200) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.050, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					}
+				}
+			}
+			moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+			moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		}
+	}
+
+	// 핀볼트 배치 (수평)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = TRUE;
+	params_PINB.boltLen = 0.150;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	height = 0.0;
+	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		height += placementInfo.height [xx];
+	}
+	moveIn3D ('z', params_PINB.ang, height - (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	moveIn3D ('y', params_PINB.ang, -(0.2135), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	moveIn3D ('x', params_PINB.ang, placementInfo.width [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+	// 1열
+	width = 0.0;
+	for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		elemList.Push (placePINB (params_PINB));
+		moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		width += placementInfo.width [xx];
+	}
+	// 2열
+	moveIn3D ('z', params_PINB.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		elemList.Push (placePINB (params_PINB));
+		moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		width += placementInfo.width [xx];
+	}
+
+	// 벽체 타이
+	if (placingZone.bDoubleSide) {
+		params_TIE.leftBottomX = cell.leftBottomX;
+		params_TIE.leftBottomY = cell.leftBottomY;
+		params_TIE.leftBottomZ = cell.leftBottomZ;
+		params_TIE.ang = cell.ang;
+		remainder = fmod ((infoWall.wallThk + 0.327), 0.100);
+		params_TIE.boltLen = (infoWall.wallThk + 0.327 + (0.100 - remainder));
+		params_TIE.pipeBeg = 0.0365 + 0.1635;
+		params_TIE.pipeEnd = 0.0365 + 0.1635 + infoWall.wallThk;
+		params_TIE.clampBeg = 0.0365;
+		params_TIE.clampEnd = 0.0365 + infoWall.wallThk + 0.327;
+
+		height = 0.0;
+		for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+			height += placementInfo.height [xx];
+		}
+		moveIn3D ('z', params_TIE.ang, height - (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+		moveIn3D ('y', params_TIE.ang, -(0.1635 + 0.0365), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+		moveIn3D ('x', params_TIE.ang, 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+
+		for (xx = 0 ; xx < 2 ; ++xx) {
+			for (yy = 0 ; yy < placementInfo.nHorEuroform ; ++yy) {
+				// 최하위 행
+				if (yy == 0) {
+					elemList.Push (placeTIE (params_TIE));
+					moveIn3D ('x', params_TIE.ang, placementInfo.width [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+		
+				// 최상위 행
+				} else if (yy == placementInfo.nHorEuroform - 1) {
+					moveIn3D ('x', params_TIE.ang, placementInfo.width [yy] - 0.350*2, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+					elemList.Push (placeTIE (params_TIE));
+					moveIn3D ('z', params_TIE.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+					moveIn3D ('x', params_TIE.ang, (0.350 - cell.horLen + 0.350), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+				
+				// 2 ~ [n-1]행
+				} else {
+					elemList.Push (placeTIE (params_TIE));
+					moveIn3D ('x', params_TIE.ang, placementInfo.width [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+				}
+			}
+		}
+	}
+
+	// 헤드 피스
+	params_PUSH.leftBottomX = cell.leftBottomX;
+	params_PUSH.leftBottomY = cell.leftBottomY;
+	params_PUSH.leftBottomZ = cell.leftBottomZ;
+	params_PUSH.ang = cell.ang;
+
+	height = 0.0;
+	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		height += placementInfo.height [xx];
+	}
+	width = 0.0;
+	for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		width += placementInfo.width [xx];
+	}
+	moveIn3D ('z', params_PUSH.ang, height - (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150 - 0.100) - 0.200, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('y', params_PUSH.ang, -0.1725, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('x', params_PUSH.ang, 0.600, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+
+	// 처음 행
+	elemList.Push (placePUSH (params_PUSH));
+	moveIn3D ('z', params_PUSH.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	elemList.Push (placePUSH (params_PUSH));
+	moveIn3D ('z', params_PUSH.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) + cell.verLen + (-placementInfo.height [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	elev_headpiece = width - 0.800;
+	moveIn3D ('x', params_PUSH.ang, -0.600 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	// 마지막 행
+	elemList.Push (placePUSH (params_PUSH));
+	moveIn3D ('z', params_PUSH.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	elemList.Push (placePUSH (params_PUSH));
+
+	// 결합철물
+	params_JOIN.leftBottomX = cell.leftBottomX;
+	params_JOIN.leftBottomY = cell.leftBottomY;
+	params_JOIN.leftBottomZ = cell.leftBottomZ;
+	params_JOIN.ang = cell.ang;
+
+	height = 0.0;
+	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		height += placementInfo.height [xx];
+	}
+	moveIn3D ('z', params_JOIN.ang, height - (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('y', params_JOIN.ang, -0.0455, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('x', params_JOIN.ang, 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+	// 처음 행
+	elemList.Push (placeJOIN (params_JOIN));
+	moveIn3D ('z', params_JOIN.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	elemList.Push (placeJOIN (params_JOIN));
+	moveIn3D ('z', params_JOIN.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) + cell.verLen + (-placementInfo.height [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('x', params_JOIN.ang, cell.horLen - 0.300, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+	// 마지막 행
+	elemList.Push (placeJOIN (params_JOIN));
+	moveIn3D ('z', params_JOIN.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	elemList.Push (placeJOIN (params_JOIN));
+
+	// 그룹화하기
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+	elemList.Clear (false);
+
+	//////////////////////////////////////////////////////////////// 반대면
+	if (placingZone.bDoubleSide) {
+		moveIn3D ('x', cell.ang, cell.horLen, &cell.leftBottomX, &cell.leftBottomY, &cell.leftBottomY);
+		moveIn3D ('y', cell.ang, infoWall.wallThk, &cell.leftBottomX, &cell.leftBottomY, &cell.leftBottomY);
+		cell.ang += DegreeToRad (180.0);
+
+		// 유로폼 설치 (반대편에서 변경됨)
+		params_UFOM.leftBottomX = cell.leftBottomX;
+		params_UFOM.leftBottomY = cell.leftBottomY;
+		params_UFOM.leftBottomZ = cell.leftBottomZ;
+		params_UFOM.ang = cell.ang;
+		params_UFOM.u_ins_wall = false;
+
+		for (xx = placementInfo.nHorEuroform-1 ; xx >= 0 ; --xx) {
+			height = 0.0;
+			for (yy = placementInfo.nVerEuroform-1 ; yy >= 0 ; --yy) {
+				params_UFOM.width	= placementInfo.height [yy];
+				params_UFOM.height	= placementInfo.width [xx];
+				height += placementInfo.height [yy];
+				elemList.Push (placeUFOM (params_UFOM));
+				moveIn3D ('z', params_UFOM.ang, placementInfo.height [yy], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+			}
+			moveIn3D ('x', params_UFOM.ang, placementInfo.width [xx], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+			moveIn3D ('z', params_UFOM.ang, -height, &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+		}
+
+		//// 비계 파이프 (수직) 배치
+		//params_SPIP.leftBottomX = cell.leftBottomX;
+		//params_SPIP.leftBottomY = cell.leftBottomY;
+		//params_SPIP.leftBottomZ = cell.leftBottomZ;
+		//params_SPIP.ang = cell.ang;
+		//params_SPIP.length = cell.verLen - (verticalGap * 2);
+		//params_SPIP.pipeAng = DegreeToRad (90.0);
+
+		//moveIn3D ('z', params_SPIP.ang, verticalGap, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//moveIn3D ('x', params_SPIP.ang, 0.150 - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+		//for (xx = 0 ; xx <= placementInfo.nHorEuroform ; ++xx) {
+		//	if (xx == 0) {
+		//		// 1행
+		//		elemList.Push (placeSPIP (params_SPIP));
+		//		moveIn3D ('x', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//		elemList.Push (placeSPIP (params_SPIP));
+		//		moveIn3D ('x', params_SPIP.ang, -0.031 - 0.150 + placementInfo.width [xx] - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//	} else if (xx == placementInfo.nHorEuroform) {
+		//		// 마지막 행
+		//		moveIn3D ('x', params_SPIP.ang, -0.150, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//		elemList.Push (placeSPIP (params_SPIP));
+		//		moveIn3D ('x', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//		elemList.Push (placeSPIP (params_SPIP));
+		//	} else {
+		//		// 나머지 행
+		//		elemList.Push (placeSPIP (params_SPIP));
+		//		moveIn3D ('x', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//		elemList.Push (placeSPIP (params_SPIP));
+		//		moveIn3D ('x', params_SPIP.ang, -0.031 + placementInfo.width [xx] - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//	}
+		//}
+
+		//// 비계 파이프 (수평) 배치
+		//params_SPIP.leftBottomX = cell.leftBottomX;
+		//params_SPIP.leftBottomY = cell.leftBottomY;
+		//params_SPIP.leftBottomZ = cell.leftBottomZ;
+		//params_SPIP.ang = cell.ang;
+		//params_SPIP.length = cell.horLen - 0.100;
+		//params_SPIP.pipeAng = DegreeToRad (0);
+
+		//height = 0.0;
+		//for (xx = placementInfo.nVerEuroform-1 ; xx >= 0 ; --xx) {
+		//	height += placementInfo.height [xx];
+		//}
+		//moveIn3D ('z', params_SPIP.ang, height - placementInfo.height [0] + 0.150 + 0.035, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.075), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//moveIn3D ('x', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+		//// 1열
+		//elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, -0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, 0.070 + (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//// 2열
+		//elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, -0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		//elemList.Push (placeSPIP (params_SPIP));
+
+		//// 핀볼트 배치 (수직 - 최하단, 최상단)
+		//params_PINB.leftBottomX = cell.leftBottomX;
+		//params_PINB.leftBottomY = cell.leftBottomY;
+		//params_PINB.leftBottomZ = cell.leftBottomZ;
+		//params_PINB.ang = cell.ang;
+		//params_PINB.bPinBoltRot90 = FALSE;
+		//params_PINB.boltLen = 0.100;
+		//params_PINB.angX = DegreeToRad (270.0);
+		//params_PINB.angY = DegreeToRad (0.0);
+
+		//moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		//// 최하단 행
+		//moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//height = 0.0;
+		//for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		//	height += placementInfo.height [xx];
+		//}
+		//moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//height = 0.0;
+		//for (xx = 0 ; xx < placementInfo.nVerEuroform-1 ; ++xx) {
+		//	height += placementInfo.height [xx];
+		//	moveIn3D ('z', params_PINB.ang, -placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		//	elemList.Push (placePINB (params_PINB));
+		//}
+		//// 최상단 행
+		//moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//moveIn3D ('x', params_PINB.ang, cell.horLen - 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//for (xx = 0 ; xx < placementInfo.nVerEuroform-1 ; ++xx) {
+		//	moveIn3D ('z', params_PINB.ang, -placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		//	elemList.Push (placePINB (params_PINB));
+		//}
+
+		//// 핀볼트 배치 (수직 - 나머지)
+		//params_PINB.leftBottomX = cell.leftBottomX;
+		//params_PINB.leftBottomY = cell.leftBottomY;
+		//params_PINB.leftBottomZ = cell.leftBottomZ;
+		//params_PINB.ang = cell.ang;
+		//params_PINB.bPinBoltRot90 = TRUE;
+		//params_PINB.boltLen = 0.100;
+		//params_PINB.angX = DegreeToRad (270.0);
+		//params_PINB.angY = DegreeToRad (0.0);
+
+		//moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		//// 2 ~ [n-1]행
+		//if (placementInfo.nVerEuroform >= 3) {
+		//	height = 0.0;
+		//	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		//		height += placementInfo.height [xx];
+		//	}
+		//	moveIn3D ('z', params_PINB.ang, height - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//	moveIn3D ('x', params_PINB.ang, placementInfo.width [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//	for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		//		height = 0.0;
+		//		for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
+		//			// 1열
+		//			if (yy == 0) {
+		//				elemList.Push (placePINB (params_PINB));
+		//				moveIn3D ('z', params_PINB.ang, -(placementInfo.height [0] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//				height += placementInfo.height [0] - 0.150;
+		//			// 마지막 열
+		//			} else if (yy == placementInfo.nVerEuroform - 1) {
+		//				height += placementInfo.height [placementInfo.nVerEuroform-1] - 0.150;
+		//				moveIn3D ('z', params_PINB.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//				elemList.Push (placePINB (params_PINB));
+		//			// 나머지 열
+		//			} else {
+		//				height += placementInfo.height [yy];
+		//				if (abs (placementInfo.height [yy] - 0.600) < EPS) {
+		//					moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//					elemList.Push (placePINB (params_PINB));
+		//					moveIn3D ('z', params_PINB.ang, -0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//					elemList.Push (placePINB (params_PINB));
+		//					moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//				} else if (abs (placementInfo.height [yy] - 0.500) < EPS) {
+		//					moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//					elemList.Push (placePINB (params_PINB));
+		//					moveIn3D ('z', params_PINB.ang, -0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//					elemList.Push (placePINB (params_PINB));
+		//					moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//				} else if (abs (placementInfo.height [yy] - 0.450) < EPS) {
+		//					moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//					elemList.Push (placePINB (params_PINB));
+		//					moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//					elemList.Push (placePINB (params_PINB));
+		//					moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//				} else if (abs (placementInfo.height [yy] - 0.400) < EPS) {
+		//					moveIn3D ('z', params_PINB.ang, -0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//					elemList.Push (placePINB (params_PINB));
+		//					moveIn3D ('z', params_PINB.ang, -0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//					elemList.Push (placePINB (params_PINB));
+		//					moveIn3D ('z', params_PINB.ang, -0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//				} else if (abs (placementInfo.height [yy] - 0.300) < EPS) {
+		//					moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//					elemList.Push (placePINB (params_PINB));
+		//					moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//				} else if (abs (placementInfo.height [yy] - 0.200) < EPS) {
+		//					moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//					elemList.Push (placePINB (params_PINB));
+		//					moveIn3D ('z', params_PINB.ang, -0.050, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//				}
+		//			}
+		//		}
+		//		moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//		moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//	}
+		//}
+
+		//// 핀볼트 배치 (수평)
+		//params_PINB.leftBottomX = cell.leftBottomX;
+		//params_PINB.leftBottomY = cell.leftBottomY;
+		//params_PINB.leftBottomZ = cell.leftBottomZ;
+		//params_PINB.ang = cell.ang;
+		//params_PINB.bPinBoltRot90 = TRUE;
+		//params_PINB.boltLen = 0.150;
+		//params_PINB.angX = DegreeToRad (270.0);
+		//params_PINB.angY = DegreeToRad (0.0);
+
+		//height = 0.0;
+		//for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		//	height += placementInfo.height [xx];
+		//}
+		//moveIn3D ('z', params_PINB.ang, height - (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//moveIn3D ('y', params_PINB.ang, -(0.2135), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//moveIn3D ('x', params_PINB.ang, placementInfo.width [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		//// 1열
+		//width = 0.0;
+		//for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		//	elemList.Push (placePINB (params_PINB));
+		//	moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//	width += placementInfo.width [xx];
+		//}
+		//// 2열
+		//moveIn3D ('z', params_PINB.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		//	elemList.Push (placePINB (params_PINB));
+		//	moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		//	width += placementInfo.width [xx];
+		//}
+
+		//// 벽체 타이 (현재면에서 했으므로 생략)
+
+		//// 헤드 피스
+		//params_PUSH.leftBottomX = cell.leftBottomX;
+		//params_PUSH.leftBottomY = cell.leftBottomY;
+		//params_PUSH.leftBottomZ = cell.leftBottomZ;
+		//params_PUSH.ang = cell.ang;
+
+		//height = 0.0;
+		//for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		//	height += placementInfo.height [xx];
+		//}
+		//width = 0.0;
+		//for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		//	width += placementInfo.width [xx];
+		//}
+		//moveIn3D ('z', params_PUSH.ang, height - (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150 - 0.100) - 0.200, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		//moveIn3D ('y', params_PUSH.ang, -0.1725, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		//moveIn3D ('x', params_PUSH.ang, 0.600, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+
+		//// 처음 행
+		//elemList.Push (placePUSH (params_PUSH));
+		//moveIn3D ('z', params_PUSH.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		//elemList.Push (placePUSH (params_PUSH));
+		//moveIn3D ('z', params_PUSH.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) + cell.verLen + (-placementInfo.height [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		//elev_headpiece = width - 0.800;
+		//moveIn3D ('x', params_PUSH.ang, -0.600 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		//// 마지막 행
+		//elemList.Push (placePUSH (params_PUSH));
+		//moveIn3D ('z', params_PUSH.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		//elemList.Push (placePUSH (params_PUSH));
+
+		//// 결합철물
+		//params_JOIN.leftBottomX = cell.leftBottomX;
+		//params_JOIN.leftBottomY = cell.leftBottomY;
+		//params_JOIN.leftBottomZ = cell.leftBottomZ;
+		//params_JOIN.ang = cell.ang;
+
+		//height = 0.0;
+		//for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		//	height += placementInfo.height [xx];
+		//}
+		//moveIn3D ('z', params_JOIN.ang, height - (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		//moveIn3D ('y', params_JOIN.ang, -0.0455, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		//moveIn3D ('x', params_JOIN.ang, 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+		//// 처음 행
+		//elemList.Push (placeJOIN (params_JOIN));
+		//moveIn3D ('z', params_JOIN.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		//elemList.Push (placeJOIN (params_JOIN));
+		//moveIn3D ('z', params_JOIN.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) + cell.verLen + (-placementInfo.height [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		//moveIn3D ('x', params_JOIN.ang, cell.horLen - 0.300, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+		//// 마지막 행
+		//elemList.Push (placeJOIN (params_JOIN));
+		//moveIn3D ('z', params_JOIN.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		//elemList.Push (placeJOIN (params_JOIN));
+
+		//// 그룹화하기
+		//if (!elemList.IsEmpty ()) {
+		//	GSSize nElems = elemList.GetSize ();
+		//	API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		//	if (elemHead != NULL) {
+		//		for (GSIndex i = 0; i < nElems; i++)
+		//			(*elemHead)[i].guid = elemList[i];
+
+		//		ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+		//		BMKillHandle ((GSHandle *) &elemHead);
+		//	}
+		//}
+		//elemList.Clear (false);
+	}
 
 	return	err;
 }
@@ -5531,7 +5528,6 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 }
 
 // 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 3차 다이얼로그 - 가로 방향
-// !!!
 short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short	result;
@@ -5547,296 +5543,296 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 	double	euroformWidth1 = 0.0, euroformWidth2 = 0.0;
 
 
-	//switch (message) {
-	//	case DG_MSG_INIT:
-	//		// 다이얼로그 타이틀
-	//		DGSetDialogTitle (dialogID, "벽 상단 채우기");
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "벽 상단 채우기");
 
-	//		// 적용 버튼
-	//		DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 70, 240, 70, 25);
-	//		DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, DG_OK, "예");
-	//		DGShowItem (dialogID, DG_OK);
+			// 적용 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 70, 240, 70, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "예");
+			DGShowItem (dialogID, DG_OK);
 
-	//		// 종료 버튼
-	//		DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 160, 240, 70, 25);
-	//		DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, DG_CANCEL, "아니오");
-	//		DGShowItem (dialogID, DG_CANCEL);
+			// 종료 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 160, 240, 70, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "아니오");
+			DGShowItem (dialogID, DG_CANCEL);
 
-	//		// 라벨: 설명
-	//		idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 10, 260, 23);
-	//		DGSetItemFont (dialogID, LABEL_DESC1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, LABEL_DESC1_TOPREST, "벽 상부에 다음 높이 만큼의 공간이 있습니다.");
-	//		DGShowItem (dialogID, LABEL_DESC1_TOPREST);
+			// 라벨: 설명
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 10, 260, 23);
+			DGSetItemFont (dialogID, LABEL_DESC1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_DESC1_TOPREST, "벽 상부에 다음 높이 만큼의 공간이 있습니다.");
+			DGShowItem (dialogID, LABEL_DESC1_TOPREST);
 
-	//		// 라벨: 높이
-	//		idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 40, 50, 23);
-	//		DGSetItemFont (dialogID, LABEL_HEIGHT_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, LABEL_HEIGHT_TOPREST, "높이");
-	//		DGShowItem (dialogID, LABEL_HEIGHT_TOPREST);
+			// 라벨: 높이
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 40, 50, 23);
+			DGSetItemFont (dialogID, LABEL_HEIGHT_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_HEIGHT_TOPREST, "높이");
+			DGShowItem (dialogID, LABEL_HEIGHT_TOPREST);
 
-	//		// Edit 컨트롤: 높이
-	//		DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 140, 40-6, 70, 25);
-	//		DGSetItemFont (dialogID, EDITCONTROL_HEIGHT_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGShowItem (dialogID, EDITCONTROL_HEIGHT_TOPREST);
-	//		DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT_TOPREST, placingZone.marginTop);
-	//		DGDisableItem (dialogID, EDITCONTROL_HEIGHT_TOPREST);
+			// Edit 컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 140, 40-6, 70, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_HEIGHT_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, EDITCONTROL_HEIGHT_TOPREST);
+			DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT_TOPREST, placingZone.marginTop);
+			DGDisableItem (dialogID, EDITCONTROL_HEIGHT_TOPREST);
 
-	//		// 라벨: 설명
-	//		idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 50, 80, 200, 23);
-	//		DGSetItemFont (dialogID, LABEL_DESC2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, LABEL_DESC2_TOPREST, "유로폼으로 채우시겠습니까?");
-	//		DGShowItem (dialogID, LABEL_DESC2_TOPREST);
+			// 라벨: 설명
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 50, 80, 200, 23);
+			DGSetItemFont (dialogID, LABEL_DESC2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_DESC2_TOPREST, "유로폼으로 채우시겠습니까?");
+			DGShowItem (dialogID, LABEL_DESC2_TOPREST);
 
-	//		// 라벨: '위'
-	//		idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 20, 120, 30, 23);
-	//		DGSetItemFont (dialogID, LABEL_UP_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, LABEL_UP_TOPREST, "위");
-	//		DGShowItem (dialogID, LABEL_UP_TOPREST);
+			// 라벨: '위'
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 20, 120, 30, 23);
+			DGSetItemFont (dialogID, LABEL_UP_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_UP_TOPREST, "위");
+			DGShowItem (dialogID, LABEL_UP_TOPREST);
 
-	//		// 라벨: '↑'
-	//		idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 20, 150, 30, 23);
-	//		DGSetItemFont (dialogID, LABEL_ARROWUP_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, LABEL_ARROWUP_TOPREST, "↑");
-	//		DGShowItem (dialogID, LABEL_ARROWUP_TOPREST);
+			// 라벨: '↑'
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 20, 150, 30, 23);
+			DGSetItemFont (dialogID, LABEL_ARROWUP_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_ARROWUP_TOPREST, "↑");
+			DGShowItem (dialogID, LABEL_ARROWUP_TOPREST);
 
-	//		// 라벨: '아래'
-	//		idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 20, 180, 30, 23);
-	//		DGSetItemFont (dialogID, LABEL_DOWN_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, LABEL_DOWN_TOPREST, "아래");
-	//		DGShowItem (dialogID, LABEL_DOWN_TOPREST);
+			// 라벨: '아래'
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 20, 180, 30, 23);
+			DGSetItemFont (dialogID, LABEL_DOWN_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_DOWN_TOPREST, "아래");
+			DGShowItem (dialogID, LABEL_DOWN_TOPREST);
 
-	//		// 체크박스: 폼 On/Off (1단 - 맨 아래)
-	//		DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 70, 180-6, 70, 25);
-	//		DGSetItemFont (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST, "유로폼");
-	//		DGShowItem (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST);
+			// 체크박스: 폼 On/Off (1단 - 맨 아래)
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 70, 180-6, 70, 25);
+			DGSetItemFont (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST, "유로폼");
+			DGShowItem (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST);
 
-	//		// 체크박스: 폼 On/Off (2단 - 중간)
-	//		DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 70, 150-6, 70, 25);
-	//		DGSetItemFont (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST, "유로폼");
-	//		DGShowItem (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST);
+			// 체크박스: 폼 On/Off (2단 - 중간)
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 70, 150-6, 70, 25);
+			DGSetItemFont (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST, "유로폼");
+			DGShowItem (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST);
 
-	//		// 라벨: 합판
-	//		idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 120, 70, 23);
-	//		DGSetItemFont (dialogID, LABEL_PLYWOOD_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
-	//		DGShowItem (dialogID, LABEL_PLYWOOD_TOPREST);
+			// 라벨: 합판
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 120, 70, 23);
+			DGSetItemFont (dialogID, LABEL_PLYWOOD_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
+			DGShowItem (dialogID, LABEL_PLYWOOD_TOPREST);
 
-	//		// 체크박스: 규격폼 (1단 - 맨 아래)
-	//		DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 150, 180-6, 70, 25);
-	//		DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST, "규격폼");
-	//		DGShowItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
-	//		DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST, TRUE);
+			// 체크박스: 규격폼 (1단 - 맨 아래)
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 150, 180-6, 70, 25);
+			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST, "규격폼");
+			DGShowItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
+			DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST, TRUE);
 
-	//		// 체크박스: 규격폼 (2단 - 중간)
-	//		DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 150, 150-6, 70, 25);
-	//		DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST, "규격폼");
-	//		DGShowItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
-	//		DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST, TRUE);
+			// 체크박스: 규격폼 (2단 - 중간)
+			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 150, 150-6, 70, 25);
+			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST, "규격폼");
+			DGShowItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
+			DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST, TRUE);
 
-	//		// 팝업 컨트롤: 유로폼 (1단) 너비
-	//		DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 220, 180-6, 70, 25);
-	//		DGSetItemFont (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "600");
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "500");
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "450");
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "400");
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "300");
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "200");
-	//		DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			// 팝업 컨트롤: 유로폼 (1단) 너비
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 220, 180-6, 70, 25);
+			DGSetItemFont (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "600");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "500");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "450");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "400");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "300");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_POPUP_BOTTOM, "200");
+			DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
 
-	//		// 팝업 컨트롤: 유로폼 (2단) 너비
-	//		DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 220, 150-6, 70, 25);
-	//		DGSetItemFont (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "600");
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "500");
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "450");
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "400");
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "300");
-	//		DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
-	//		DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "200");
-	//		DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			// 팝업 컨트롤: 유로폼 (2단) 너비
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 220, 150-6, 70, 25);
+			DGSetItemFont (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "600");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "500");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "450");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "400");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "300");
+			DGPopUpInsertItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_POPUP_BOTTOM, "200");
+			DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
 
-	//		// Edit 컨트롤: 유로폼 (1단) 너비
-	//		DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 180-6, 60, 25);
-	//		DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			// Edit 컨트롤: 유로폼 (1단) 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 180-6, 60, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
 
-	//		// Edit 컨트롤: 유로폼 (2단) 너비
-	//		DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 150-6, 60, 25);
-	//		DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			// Edit 컨트롤: 유로폼 (2단) 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 150-6, 60, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
 
-	//		// Edit 컨트롤: 합판 또는 목재 너비
-	//		DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 120-6, 60, 25);
-	//		DGSetItemFont (dialogID, EDITCONTROL_PLYWOOD_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGShowItem (dialogID, EDITCONTROL_PLYWOOD_TOPREST);
-	//		DGDisableItem (dialogID, EDITCONTROL_PLYWOOD_TOPREST);
+			// Edit 컨트롤: 합판 또는 목재 너비
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 220, 120-6, 60, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_PLYWOOD_TOPREST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, EDITCONTROL_PLYWOOD_TOPREST);
+			DGDisableItem (dialogID, EDITCONTROL_PLYWOOD_TOPREST);
 
-	//		if (placingZone.marginTop < EPS) {
-	//			DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
-	//		} else if (placingZone.marginTop < 0.110) {
-	//			DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
-	//		} else {
-	//			DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
-	//		}
-	//		DGSetItemValDouble (dialogID, EDITCONTROL_PLYWOOD_TOPREST, placingZone.marginTop);
+			if (placingZone.marginTop < EPS) {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
+			} else if (placingZone.marginTop < 0.110) {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
+			} else {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
+			}
+			DGSetItemValDouble (dialogID, EDITCONTROL_PLYWOOD_TOPREST, placingZone.marginTop);
 
-	//		break;
+			break;
 
-	//	case DG_MSG_CHANGE:
-	//		switch (item) {
-	//			case CHECKBOX_SET_STANDARD_1_TOPREST:
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST) == TRUE) {
-	//					DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
-	//					DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
-	//				} else {
-	//					DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
-	//					DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
-	//				}
-	//				break;
-	//			
-	//			case CHECKBOX_SET_STANDARD_2_TOPREST:
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST) == TRUE) {
-	//					DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
-	//					DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
-	//				} else {
-	//					DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
-	//					DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
-	//				}
-	//				break;
-	//		}
+		case DG_MSG_CHANGE:
+			switch (item) {
+				case CHECKBOX_SET_STANDARD_1_TOPREST:
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST) == TRUE) {
+						DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+					} else {
+						DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+					}
+					break;
+				
+				case CHECKBOX_SET_STANDARD_2_TOPREST:
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST) == TRUE) {
+						DGShowItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+						DGHideItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+					} else {
+						DGHideItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+						DGShowItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+					}
+					break;
+			}
 
-	//		// 폼의 너비에 따라 합판/목재 영역의 높이가 달라짐
-	//		if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST) == TRUE)
-	//			bEuroform1 = true;
-	//		else
-	//			bEuroform1 = false;
-	//		if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST) == TRUE)
-	//			bEuroform2 = true;
-	//		else
-	//			bEuroform2 = false;
-	//		if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST) == TRUE)
-	//			bEuroformStandard1 = true;
-	//		else
-	//			bEuroformStandard1 = false;
-	//		if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST) == TRUE)
-	//			bEuroformStandard2 = true;
-	//		else
-	//			bEuroformStandard2 = false;
+			// 폼의 너비에 따라 합판/목재 영역의 높이가 달라짐
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST) == TRUE)
+				bEuroform1 = true;
+			else
+				bEuroform1 = false;
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST) == TRUE)
+				bEuroform2 = true;
+			else
+				bEuroform2 = false;
+			if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST) == TRUE)
+				bEuroformStandard1 = true;
+			else
+				bEuroformStandard1 = false;
+			if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST) == TRUE)
+				bEuroformStandard2 = true;
+			else
+				bEuroformStandard2 = false;
 
-	//		initPlywoodHeight = placingZone.marginTop;
+			initPlywoodHeight = placingZone.marginTop;
 
-	//		changedPlywoodHeight = initPlywoodHeight;
-	//		euroformWidth1 = 0.0;
-	//		euroformWidth2 = 0.0;
+			changedPlywoodHeight = initPlywoodHeight;
+			euroformWidth1 = 0.0;
+			euroformWidth2 = 0.0;
 
-	//		if (bEuroform1) {
-	//			if (bEuroformStandard1)
-	//				euroformWidth1 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST)).ToCStr ()) / 1000.0;
-	//			else
-	//				euroformWidth1 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
-	//		}
+			if (bEuroform1) {
+				if (bEuroformStandard1)
+					euroformWidth1 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST)).ToCStr ()) / 1000.0;
+				else
+					euroformWidth1 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			}
 
-	//		if (bEuroform2) {
-	//			if (bEuroformStandard2)
-	//				euroformWidth2 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST)).ToCStr ()) / 1000.0;
-	//			else
-	//				euroformWidth2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
-	//		}
+			if (bEuroform2) {
+				if (bEuroformStandard2)
+					euroformWidth2 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST)).ToCStr ()) / 1000.0;
+				else
+					euroformWidth2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			}
 
-	//		changedPlywoodHeight -= (euroformWidth1 + euroformWidth2);
+			changedPlywoodHeight -= (euroformWidth1 + euroformWidth2);
 
-	//		if (changedPlywoodHeight < EPS) {
-	//			DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
-	//		} else if (changedPlywoodHeight < 0.110) {
-	//			DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
-	//		} else {
-	//			DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
-	//		}
-	//		DGSetItemValDouble (dialogID, EDITCONTROL_PLYWOOD_TOPREST, changedPlywoodHeight);
+			if (changedPlywoodHeight < EPS) {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
+			} else if (changedPlywoodHeight < 0.110) {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
+			} else {
+				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
+			}
+			DGSetItemValDouble (dialogID, EDITCONTROL_PLYWOOD_TOPREST, changedPlywoodHeight);
 
-	//		break;
+			break;
 
-	//	case DG_MSG_CLICK:
-	//		switch (item) {
-	//			case DG_OK:
-	//				// 각 유로폼 및 합판 영역의 높이를 계산함
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST) == TRUE)
-	//					bEuroform1 = true;
-	//				else
-	//					bEuroform1 = false;
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST) == TRUE)
-	//					bEuroform2 = true;
-	//				else
-	//					bEuroform2 = false;
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST) == TRUE)
-	//					bEuroformStandard1 = true;
-	//				else
-	//					bEuroformStandard1 = false;
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST) == TRUE)
-	//					bEuroformStandard2 = true;
-	//				else
-	//					bEuroformStandard2 = false;
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					// 각 유로폼 및 합판 영역의 높이를 계산함
+					if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST) == TRUE)
+						bEuroform1 = true;
+					else
+						bEuroform1 = false;
+					if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST) == TRUE)
+						bEuroform2 = true;
+					else
+						bEuroform2 = false;
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST) == TRUE)
+						bEuroformStandard1 = true;
+					else
+						bEuroformStandard1 = false;
+					if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST) == TRUE)
+						bEuroformStandard2 = true;
+					else
+						bEuroformStandard2 = false;
 
-	//				initPlywoodHeight = placingZone.marginTop;
-	//		
-	//				changedPlywoodHeight = initPlywoodHeight;
-	//				euroformWidth1 = 0.0;
-	//				euroformWidth2 = 0.0;
+					initPlywoodHeight = placingZone.marginTop;
+			
+					changedPlywoodHeight = initPlywoodHeight;
+					euroformWidth1 = 0.0;
+					euroformWidth2 = 0.0;
 
-	//				if (bEuroform1) {
-	//					if (bEuroformStandard1)
-	//						euroformWidth1 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST)).ToCStr ()) / 1000.0;
-	//					else
-	//						euroformWidth1 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
-	//				}
+					if (bEuroform1) {
+						if (bEuroformStandard1)
+							euroformWidth1 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST)).ToCStr ()) / 1000.0;
+						else
+							euroformWidth1 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+					}
 
-	//				if (bEuroform2) {
-	//					if (bEuroformStandard2)
-	//						euroformWidth2 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST)).ToCStr ()) / 1000.0;
-	//					else
-	//						euroformWidth2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
-	//				}
+					if (bEuroform2) {
+						if (bEuroformStandard2)
+							euroformWidth2 = atof (DGPopUpGetItemText (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST, DGPopUpGetSelected (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST)).ToCStr ()) / 1000.0;
+						else
+							euroformWidth2 = DGGetItemValDouble (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+					}
 
-	//				changedPlywoodHeight -= (euroformWidth1 + euroformWidth2);
+					changedPlywoodHeight -= (euroformWidth1 + euroformWidth2);
 
-	//				for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
-	//					placingZone.upperCells [xx].bFill = true;
+					for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
+						placingZone.upperCells [xx].bFill = true;
 
-	//					placingZone.upperCells [xx].bEuroform1 = bEuroform1;
-	//					placingZone.upperCells [xx].bEuroformStandard1 = bEuroformStandard1;
-	//					placingZone.upperCells [xx].formWidth1 = euroformWidth1;
+						placingZone.upperCells [xx].bEuroform1 = bEuroform1;
+						placingZone.upperCells [xx].bEuroformStandard1 = bEuroformStandard1;
+						placingZone.upperCells [xx].formWidth1 = euroformWidth1;
 
-	//					placingZone.upperCells [xx].bEuroform2 = bEuroform2;
-	//					placingZone.upperCells [xx].bEuroformStandard2 = bEuroformStandard2;
-	//					placingZone.upperCells [xx].formWidth2 = euroformWidth2;
-	//				}
+						placingZone.upperCells [xx].bEuroform2 = bEuroform2;
+						placingZone.upperCells [xx].bEuroformStandard2 = bEuroformStandard2;
+						placingZone.upperCells [xx].formWidth2 = euroformWidth2;
+					}
 
-	//				break;
-	//			case DG_CANCEL:
-	//				break;
-	//		}
-	//	case DG_MSG_CLOSE:
-	//		switch (item) {
-	//			case DG_CLOSEBOX:
-	//				break;
-	//		}
-	//}
+					break;
+				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
 
 	result = item;
 
@@ -5900,7 +5896,13 @@ API_Guid	WallTableformPlacingZone::placeUFOM (Euroform params)
 	sprintf (tempStr, "%.0f", params.height * 1000);
 	setParameterByName (&memo, "eu_hei", tempStr);
 
-	setParameterByName (&memo, "u_ins", "벽세우기");			// 설치방향
+	// 설치방향
+	if (params.u_ins_wall == true)
+		setParameterByName (&memo, "u_ins", "벽세우기");
+	else {
+		setParameterByName (&memo, "u_ins", "벽눕히기");
+		moveIn2D ('x', params.ang, params.height, &elem.object.pos.x, &elem.object.pos.y);
+	}
 	setParameterByName (&memo, "ang_x", DegreeToRad (90.0));	// 회전X
 
 	// 객체 배치
