@@ -59,7 +59,8 @@ API_Guid	placeFittings (MetalFittingsWithRectWasher params);	// 결합철물 (사각와
 API_Guid	placeSqrPipe (SquarePipe params);					// 비계 파이프 배치
 API_Guid	placePinbolt (PinBoltSet params);					// 핀볼트 세트 배치
 API_Guid	placeWalltie (WallTie params);						// 벽체 타이 배치
-API_Guid	placeHeadpiece (HeadpieceOfPushPullProps params);	// 헤드피스 배치
+API_Guid	placeHeadpiece (HeadpieceOfPushPullProps params);	// 헤드피스 배치 (세로 방향: 타입 A)
+API_Guid	placeHeadpiece2 (HeadpieceOfPushPullProps params);	// 헤드피스 배치 (가로 방향: 타입 B)
 
 short DGCALLBACK convertVirtualTCOHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 객체의 레이어를 선택하기 위한 다이얼로그
 

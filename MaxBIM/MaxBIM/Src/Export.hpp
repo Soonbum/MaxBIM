@@ -13,6 +13,7 @@ namespace exportDG {
 	};
 
 	enum	layerTypeEnum {
+		UNDEFINED,	// 정의되지 않음
 		WALL,	// 벽 -> 면의 앞뒷면 캡쳐할 것
 		SLAB,	// 슬래브 -> 면의 아래면 캡쳐할 것
 		COLU,	// 기둥 -> 네측면 캡쳐할 것

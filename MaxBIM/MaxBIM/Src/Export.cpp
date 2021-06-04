@@ -1408,7 +1408,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 	// 레이어 타입에 따라 캡쳐 방향 지정
 	char*			foundLayerName;
-	short			layerType = WALL;
+	short			layerType = UNDEFINED;
 
 	// 기타
 	char			buffer [256];
@@ -1500,6 +1500,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			fullLayerName [strlen (fullLayerName)] = '\0';
 
 			// 레이어 이름 식별하기 (WALL: 벽, SLAB: 슬래브, COLU: 기둥, BEAM: 보, WLBM: 눈썹보)
+			layerType = UNDEFINED;
 			foundLayerName = strstr (fullLayerName, "WALL");
 			if (foundLayerName != NULL)	layerType = WALL;
 			foundLayerName = strstr (fullLayerName, "SLAB");
@@ -1518,8 +1519,9 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			fp = fopen (filename, "w+");
 
 			if (fp == NULL) {
-				ACAPI_WriteReport ("파일을 열 수 없습니다.", true);
-				return err;
+				sprintf (buffer, "레이어 %s는 파일명이 될 수 없으므로 생략합니다.", fullLayerName);
+				ACAPI_WriteReport (buffer, true);
+				continue;
 			}
 
 			// 선택한 요소들의 정보 요약하기

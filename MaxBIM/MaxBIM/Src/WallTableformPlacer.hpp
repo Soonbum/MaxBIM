@@ -209,16 +209,17 @@ public:
 	GSErrCode	placeTableformOnWall_Horizontal (CellForWallTableform cell);										// 테이블폼 배치하기 - 가로 방향
 	GSErrCode	placeTableformOnWall_Horizontal (CellForWallTableform cell, UpperCellForWallTableform upperCell);	// 테이블폼 상단 배치하기 - 가로 방향
 
-	API_Guid	placeUFOM (Euroform params);					// 배치: 유로폼
-	API_Guid	placeUFOM_up (Euroform params);					// 배치: 유로폼 (상부)
-	API_Guid	placeSPIP (SquarePipe params);					// 배치: 비계 파이프
-	API_Guid	placePINB (PinBoltSet params);					// 배치: 핀볼트 세트
-	API_Guid	placeTIE  (WallTie params);						// 배치: 벽체 타이
-	API_Guid	placeCLAM (CrossClamp params);					// 배치: 직교 클램프
-	API_Guid	placePUSH (HeadpieceOfPushPullProps params);	// 배치: 헤드피스
-	API_Guid	placeJOIN (MetalFittings params);				// 배치: 결합철물
-	API_Guid	placePLYW (Plywood params);						// 배치: 합판
-	API_Guid	placeTIMB (Wood params);						// 배치: 목재
+	API_Guid	placeUFOM (Euroform params);						// 배치: 유로폼
+	API_Guid	placeUFOM_up (Euroform params);						// 배치: 유로폼 (상부)
+	API_Guid	placeSPIP (SquarePipe params);						// 배치: 비계 파이프
+	API_Guid	placePINB (PinBoltSet params);						// 배치: 핀볼트 세트
+	API_Guid	placeTIE  (WallTie params);							// 배치: 벽체 타이
+	API_Guid	placeCLAM (CrossClamp params);						// 배치: 직교 클램프
+	API_Guid	placePUSH (HeadpieceOfPushPullProps params);		// 배치: 헤드피스 (세로 방향: 타입 A)
+	API_Guid	placePUSH_hor (HeadpieceOfPushPullProps params);	// 배치: 헤드피스 (가로 방향: 타입 B)
+	API_Guid	placeJOIN (MetalFittings params);					// 배치: 결합철물
+	API_Guid	placePLYW (Plywood params);							// 배치: 합판
+	API_Guid	placeTIMB (Wood params);							// 배치: 목재
 };
 
 GSErrCode	placeTableformOnWall_Vertical (void);		// 벽에 테이블폼을 배치하는 통합 루틴 - 세로 방향
