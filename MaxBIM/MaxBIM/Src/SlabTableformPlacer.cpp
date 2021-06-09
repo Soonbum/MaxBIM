@@ -1185,7 +1185,7 @@ API_Guid	SlabTableformPlacingZone::placeLibPartOnSlabTableform (CellForSlabTable
 	return element.header.guid;
 }
 
-// 유로폼을 채운 후 자투리 공간 채우기 !!!
+// 유로폼을 채운 후 자투리 공간 채우기
 GSErrCode	SlabTableformPlacingZone::fillRestAreas (void)
 {
 	GSErrCode	err = NoError;

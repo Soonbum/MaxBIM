@@ -458,6 +458,303 @@ GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bCom
 	return	err;
 }
 
+// 클래스: 쉬운 객체 배치 - 생성자
+EasyObjectPlacement::EasyObjectPlacement ()
+{
+}
+
+// 클래스: 쉬운 객체 배치 - 생성자
+EasyObjectPlacement::EasyObjectPlacement (const GS::uchar_t* gsmName, short layerInd, short floorInd, double posX = 0.0, double posY = 0.0, double posZ = 0.0, double radAng = 0.0)
+{
+	this->gsmName = gsmName;
+	this->layerInd = layerInd;
+	this->floorInd = floorInd;
+
+	this->posX = posX;
+	this->posY = posY;
+	this->posZ = posZ;
+	this->radAng = radAng;
+}
+
+// 클래스: 쉬운 객체 배치 - 초기화 함수
+void		EasyObjectPlacement::init (const GS::uchar_t* gsmName, short layerInd, short floorInd, double posX, double posY, double posZ, double radAng)
+{
+	this->gsmName = gsmName;
+	this->layerInd = layerInd;
+	this->floorInd = floorInd;
+	this->posX = posX;
+	this->posY = posY;
+	this->posZ = posZ;
+	this->radAng = radAng;
+}
+
+// 클래스: 쉬운 객체 배치 - GSM 파일명 지정
+void		EasyObjectPlacement::setGsmName (const GS::uchar_t* gsmName)
+{
+	this->gsmName = gsmName;
+}
+
+// 클래스: 쉬운 객체 배치 - 레이어 인덱스 지정 (1부터 시작)
+void		EasyObjectPlacement::setLayerInd (short layerInd)
+{
+	this->layerInd = layerInd;
+}
+
+// 클래스: 쉬운 객체 배치 - 층 인덱스 지정 (음수, 0, 양수 가능)
+void		EasyObjectPlacement::setFloorInd (short floorInd)
+{
+	this->floorInd = floorInd;
+}
+
+// 클래스: 쉬운 객체 배치 - 파라미터 지정
+void		EasyObjectPlacement::setParameters (short nParams, const char* paramNameList [], API_AddParID* paramTypeList, const char* paramValList [])
+{
+	// 파라미터 개수 저장
+	this->nParams = nParams;
+
+	for (short xx = 0 ; xx < nParams ; ++xx) {
+		this->paramName [xx] = paramNameList [xx];
+		this->paramType [xx] = paramTypeList [xx];
+		this->paramVal [xx] = paramValList [xx];
+	}
+}
+
+// 클래스: 쉬운 객체 배치 - 객체 배치
+API_Guid	EasyObjectPlacement::placeObject (double posX, double posY, double posZ, double radAng)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	char				paramName [128];
+	char				paramValStr [128];
+	double				paramValDouble;
+	
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, this->gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	this->posX = posX;
+	this->posY = posY;
+	this->posZ = posZ;
+	this->radAng = radAng;
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.pos.x += posX;
+	elem.object.pos.y += posY;
+	elem.object.level += posZ;
+	elem.object.angle += radAng;
+	elem.header.floorInd = this->floorInd;	// 층 인덱스
+	elem.header.layer = this->layerInd;		// 레이어 인덱스
+
+	for (short xx = 0 ; xx < this->nParams ; ++xx) {
+
+		if ((this->paramType [xx] != APIParT_Separator) || (this->paramType [xx] != APIParT_Title) || (this->paramType [xx] != API_ZombieParT)) {
+			if (this->paramType [xx] == APIParT_CString) {
+				sprintf (paramName, "%s", this->paramName [xx]);
+				sprintf (paramValStr, "%s", this->paramVal [xx]);
+				setParameterByName (&memo, paramName, paramValStr);
+			} else {
+				sprintf (paramName, "%s", this->paramName [xx]);
+				paramValDouble = atof (this->paramVal [xx]);
+				setParameterByName (&memo, paramName, paramValDouble);
+			}
+		}
+	}
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 클래스: 쉬운 객체 배치 - 객체 배치
+API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short nParams, const char* paramNameList [], API_AddParID* paramTypeList, const char* paramValList [], short layerInd, short floorInd, double posX, double posY, double posZ, double radAng)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	char				paramName [128];
+	char				paramValStr [128];
+	double				paramValDouble;
+	
+	// 파라미터 개수 저장
+	this->nParams = nParams;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	this->gsmName = gsmName;
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	this->posX = posX;
+	this->posY = posY;
+	this->posZ = posZ;
+	this->radAng = radAng;
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.pos.x += posX;
+	elem.object.pos.y += posY;
+	elem.object.level += posZ;
+	elem.object.angle += radAng;
+	this->floorInd = elem.header.floorInd = floorInd;	// 층 인덱스
+	this->layerInd = elem.header.layer = layerInd;		// 레이어 인덱스
+
+	for (short xx = 0 ; xx < nParams ; ++xx) {
+
+		this->paramName [xx] = paramNameList [xx];
+		this->paramType [xx] = paramTypeList [xx];
+		this->paramVal [xx] = paramValList [xx];
+
+		if ((paramTypeList [xx] != APIParT_Separator) || (paramTypeList [xx] != APIParT_Title) || (paramTypeList [xx] != API_ZombieParT)) {
+			if (paramTypeList [xx] == APIParT_CString) {
+				sprintf (paramName, "%s", paramNameList [xx]);
+				sprintf (paramValStr, "%s", paramValList [xx]);
+				setParameterByName (&memo, paramName, paramValStr);
+			} else {
+				sprintf (paramName, "%s", paramNameList [xx]);
+				paramValDouble = atof (paramValList [xx]);
+				setParameterByName (&memo, paramName, paramValDouble);
+			}
+		}
+	}
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 클래스: 쉬운 객체 배치 - 객체 배치 (파라미터의 개수 및 파라미터 이름/타입/값만 입력)
+API_Guid	EasyObjectPlacement::placeObject (short nParams, ...)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	char				paramName [128];
+	char				paramValStr [128];
+	double				paramValDouble;
+	
+	// 파라미터 개수 저장
+	this->nParams = nParams;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, this->gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.pos.x += this->posX;
+	elem.object.pos.y += this->posY;
+	elem.object.level += this->posZ;
+	elem.object.angle += this->radAng;
+	elem.header.floorInd = this->floorInd;	// 층 인덱스
+	elem.header.layer = this->layerInd;		// 레이어 인덱스
+
+	va_list ap;
+
+	va_start (ap, nParams);
+
+	for (short xx = 0 ; xx < this->nParams ; ++xx) {
+
+		this->paramName [xx] = va_arg (ap, char*);
+		this->paramType [xx] = va_arg (ap, API_AddParID);
+		this->paramVal [xx] = va_arg (ap, char*);
+		
+		if ((this->paramType [xx] != APIParT_Separator) || (this->paramType [xx] != APIParT_Title) || (this->paramType [xx] != API_ZombieParT)) {
+			if (this->paramType [xx] == APIParT_CString) {
+				sprintf (paramName, "%s", this->paramName [xx]);
+				sprintf (paramValStr, "%s", this->paramVal [xx]);
+				setParameterByName (&memo, paramName, paramValStr);
+			} else {
+				sprintf (paramName, "%s", this->paramName [xx]);
+				paramValDouble = atof (this->paramVal [xx]);
+				setParameterByName (&memo, paramName, paramValDouble);
+			}
+		}
+	}
+
+	va_end (ap);
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+
 ////////////////////////////////////////////////// 라이브러리 변수 접근 (Getter/Setter)
 // pName 파라미터의 값을 value로 설정함 (실수형) - 성공하면 true, 실패하면 false
 bool	setParameterByName (API_ElementMemo* memo, char* pName, double value)

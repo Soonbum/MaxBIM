@@ -3,6 +3,7 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <stdarg.h>
 #include "MaxBIM.hpp"
 
 // 각도 변환
@@ -50,6 +51,49 @@ short	isStringDouble (char *str);																			// 문자열 s가 숫자로 된 문자
 
 // 객체 배치
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment = false, std::string comment = "", short layerInd = 1, short floorInd = 0);		// 좌표 라벨을 배치함
+
+// 클래스: 쉬운 객체 배치
+class EasyObjectPlacement
+{
+private:
+	const char*		paramName [50];
+	API_AddParID	paramType [50];
+	const char*		paramVal [50];
+	short			nParams;
+
+	short			layerInd;
+	short			floorInd;
+	const GS::uchar_t*	gsmName;
+
+	double			posX;
+	double			posY;
+	double			posZ;
+	double			radAng;
+public:
+	EasyObjectPlacement ();		// 생성자
+	EasyObjectPlacement (const GS::uchar_t* gsmName, short layerInd, short floorInd, double posX, double posY, double posZ, double radAng);	// 생성자
+	void		init (const GS::uchar_t* gsmName, short layerInd, short floorInd, double posX, double posY, double posZ, double radAng);	// 초기화 함수
+	void		setGsmName (const GS::uchar_t* gsmName);	// GSM 파일명 지정
+	void		setLayerInd (short layerInd);	// 레이어 인덱스 지정 (1부터 시작)
+	void		setFloorInd (short floorInd);	// 층 인덱스 지정 (음수, 0, 양수 가능)
+	void		setParameters (short nParams, const char* paramNameList [], API_AddParID* paramTypeList, const char* paramValList []);	// 파라미터 지정
+	API_Guid	placeObject (double posX, double posY, double posZ, double radAng);		// 객체 배치
+	API_Guid	placeObject (const GS::uchar_t* gsmName, short nParams, const char* paramNameList [], API_AddParID* paramTypeList, const char* paramValList [], short layerInd, short floorInd, double posX, double posY, double posZ, double radAng);	// 객체 배치
+	API_Guid	placeObject (short nParams, ...);	// 객체 배치 (파라미터의 개수 및 파라미터 이름/타입/값만 입력)
+
+	// 사용법 안내
+	/*
+	EasyObjectPlacement	objP (L("유로폼v2.0.gsm"), 1, 0, 0, 0, 0, 0);
+	objP.placeObject (7,
+		"A", APIParT_Length, "0.0",
+		"B", APIParT_Length, "0.0",
+		"ZZYZX", APIParT_Length, "0.0",
+		"eu_stan_onoff", APIParT_Boolean, "1.0",
+		"eu_wid", APIParT_CString, "500",
+		"eu_hei", APIParT_CString, "900",
+		"u_ins", APIParT_CString, "벽세우기");
+	*/
+};
 
 // 라이브러리 변수 접근 (Getter/Setter)
 bool		setParameterByName (API_ElementMemo* memo, char* pName, double value);			// pName 파라미터의 값을 value로 설정함 (실수형) - 성공하면 true, 실패하면 false

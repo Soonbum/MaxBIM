@@ -59,7 +59,7 @@ GSErrCode	__ACENV_CALL	RegisterInterface (void)
 	
 	err = ACAPI_Register_Menu (32001, 32002, MenuCode_UserDef, MenuFlag_Default);	// 유로폼 배치
 	err = ACAPI_Register_Menu (32011, 32012, MenuCode_UserDef, MenuFlag_Default);	// 테이블폼 배치
-	err = ACAPI_Register_Menu (32013, 32014, MenuCode_UserDef, MenuFlag_Default);	// 라이브러리 변환
+	err = ACAPI_Register_Menu (32013, 32014, MenuCode_UserDef, MenuFlag_Default);	// Library Converting
 	err = ACAPI_Register_Menu (32005, 32006, MenuCode_UserDef, MenuFlag_Default);	// 레이어 유틸
 	err = ACAPI_Register_Menu (32007, 32008, MenuCode_UserDef, MenuFlag_Default);	// 내보내기
 	err = ACAPI_Register_Menu (32009, 32010, MenuCode_UserDef, MenuFlag_Default);	// 물량 산출
@@ -141,7 +141,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			}
 			break;
 		case 32013:
-			// 라이브러리 변환
+			// Library Converting
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:
 					// 가상 가설재 모두 변환
@@ -218,6 +218,17 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 
+						// ...
+						EasyObjectPlacement	objP (L("유로폼v2.0.gsm"), 1, 0, 0, 0, 0, 0);
+						objP.placeObject (7,
+							"A", APIParT_Length, "0.0",
+							"B", APIParT_Length, "0.0",
+							"ZZYZX", APIParT_Length, "0.0",
+							"eu_stan_onoff", APIParT_Boolean, "1.0",
+							"eu_wid", APIParT_CString, "500",
+							"eu_hei", APIParT_CString, "900",
+							"u_ins", APIParT_CString, "벽세우기");
+
 						return err;
 					});
 
@@ -240,7 +251,7 @@ GSErrCode __ACENV_CALL	Initialize (void)
 	
 	err = ACAPI_Install_MenuHandler (32001, MenuCommandHandler);	// 유로폼 배치
 	err = ACAPI_Install_MenuHandler (32011, MenuCommandHandler);	// 테이블폼 배치
-	err = ACAPI_Install_MenuHandler (32013, MenuCommandHandler);	// 라이브러리 변환
+	err = ACAPI_Install_MenuHandler (32013, MenuCommandHandler);	// Library Converting
 	err = ACAPI_Install_MenuHandler (32005, MenuCommandHandler);	// 레이어 유틸
 	err = ACAPI_Install_MenuHandler (32007, MenuCommandHandler);	// 내보내기
 	err = ACAPI_Install_MenuHandler (32009, MenuCommandHandler);	// 물량 산출
