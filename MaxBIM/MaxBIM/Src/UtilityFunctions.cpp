@@ -563,10 +563,10 @@ API_Guid	EasyObjectPlacement::placeObject (double posX, double posY, double posZ
 	elem.object.libInd = libPart.index;
 	elem.object.xRatio = aParam;
 	elem.object.yRatio = bParam;
-	elem.object.pos.x += posX;
-	elem.object.pos.y += posY;
-	elem.object.level += posZ;
-	elem.object.angle += radAng;
+	elem.object.pos.x = posX;
+	elem.object.pos.y = posY;
+	elem.object.level = posZ;
+	elem.object.angle = radAng;
 	elem.header.floorInd = this->floorInd;	// 층 인덱스
 	elem.header.layer = this->layerInd;		// 레이어 인덱스
 
@@ -640,10 +640,10 @@ API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short nPa
 	elem.object.libInd = libPart.index;
 	elem.object.xRatio = aParam;
 	elem.object.yRatio = bParam;
-	elem.object.pos.x += posX;
-	elem.object.pos.y += posY;
-	elem.object.level += posZ;
-	elem.object.angle += radAng;
+	elem.object.pos.x = posX;
+	elem.object.pos.y = posY;
+	elem.object.level = posZ;
+	elem.object.angle = radAng;
 	this->floorInd = elem.header.floorInd = floorInd;	// 층 인덱스
 	this->layerInd = elem.header.layer = layerInd;		// 레이어 인덱스
 
@@ -715,10 +715,10 @@ API_Guid	EasyObjectPlacement::placeObject (short nParams, ...)
 	elem.object.libInd = libPart.index;
 	elem.object.xRatio = aParam;
 	elem.object.yRatio = bParam;
-	elem.object.pos.x += this->posX;
-	elem.object.pos.y += this->posY;
-	elem.object.level += this->posZ;
-	elem.object.angle += this->radAng;
+	elem.object.pos.x = this->posX;
+	elem.object.pos.y = this->posY;
+	elem.object.level = this->posZ;
+	elem.object.angle = this->radAng;
 	elem.header.floorInd = this->floorInd;	// 층 인덱스
 	elem.header.layer = this->layerInd;		// 레이어 인덱스
 

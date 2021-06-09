@@ -46,7 +46,7 @@ API_Coord	getUnrotatedPoint (API_Coord rotatedPoint, API_Coord axisPoint, double
 double	round (double x, int digit);																		// 반올림
 
 // 문자열
-std::string	format_string(const std::string fmt, ...);														// std::string 변수 값에 formatted string을 입력 받음
+std::string	format_string (const std::string fmt, ...);														// std::string 변수 값에 formatted string을 입력 받음
 short	isStringDouble (char *str);																			// 문자열 s가 숫자로 된 문자열인지 알려줌 (숫자는 1, 문자열은 0)
 
 // 객체 배치
@@ -64,12 +64,12 @@ private:
 	short			layerInd;
 	short			floorInd;
 	const GS::uchar_t*	gsmName;
-
+public:
 	double			posX;
 	double			posY;
 	double			posZ;
 	double			radAng;
-public:
+
 	EasyObjectPlacement ();		// 생성자
 	EasyObjectPlacement (const GS::uchar_t* gsmName, short layerInd, short floorInd, double posX, double posY, double posZ, double radAng);	// 생성자
 	void		init (const GS::uchar_t* gsmName, short layerInd, short floorInd, double posX, double posY, double posZ, double radAng);	// 초기화 함수
@@ -83,15 +83,24 @@ public:
 
 	// 사용법 안내
 	/*
-	EasyObjectPlacement	objP (L("유로폼v2.0.gsm"), 1, 0, 0, 0, 0, 0);
-	objP.placeObject (7,
-		"A", APIParT_Length, "0.0",
-		"B", APIParT_Length, "0.0",
-		"ZZYZX", APIParT_Length, "0.0",
-		"eu_stan_onoff", APIParT_Boolean, "1.0",
-		"eu_wid", APIParT_CString, "500",
-		"eu_hei", APIParT_CString, "900",
-		"u_ins", APIParT_CString, "벽세우기");
+	EasyObjectPlacement objP;
+	objP.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoWall.floorInd, cell.leftBottomX, cell.leftBottomY, cell.leftBottomZ, cell.ang);
+
+	for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		height = 0.0;
+		for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
+			height += placementInfo.height [yy];
+			elemList.Push (objP.placeObject (5,
+				"eu_stan_onoff", APIParT_Boolean, "1.0",
+				"eu_wid", APIParT_CString, format_string ("%.0f", round (placementInfo.width [xx]*1000, 0)).c_str (),
+				"eu_hei", APIParT_CString, format_string ("%.0f", round (placementInfo.height [yy]*1000, 0)).c_str (),
+				"u_ins", APIParT_CString, "벽세우기",
+				"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			moveIn3D ('z', objP.radAng, placementInfo.height [yy], &objP.posX, &objP.posY, &objP.posZ);
+		}
+		moveIn3D ('x', objP.radAng, placementInfo.width [xx], &objP.posX, &objP.posY, &objP.posZ);
+		moveIn3D ('z', objP.radAng, -height, &objP.posX, &objP.posY, &objP.posZ);
+	}
 	*/
 };
 
