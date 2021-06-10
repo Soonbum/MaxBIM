@@ -146,14 +146,14 @@ GSErrCode	convertVirtualTCO (void)
 		strncpy (productName, tempStr, strlen (tempStr));
 		productName [strlen (tempStr)] = '\0';
 
-		if (strncmp (productName, "가상 가설재", strlen ("가상 가설재")) == 0) {
+		if (my_strcmp (productName, "가상 가설재") == 0) {
 			
 			// 가상 가설재의 파라미터 값 불러오기
 			tempStr = getParameterStringByName (&memo, "objType");
 			strncpy (objType, tempStr, strlen (tempStr));
 			objType [strlen (tempStr)] = '\0';
 
-			if (strncmp (objType, "테이블폼(벽)", strlen ("테이블폼(벽)")) == 0) {
+			if (my_strcmp (objType, "테이블폼(벽)") == 0) {
 				bLayerInd_Euroform = true;
 				bLayerInd_RectPipe = true;
 				bLayerInd_PinBolt = true;
@@ -161,30 +161,30 @@ GSErrCode	convertVirtualTCO (void)
 				bLayerInd_HeadPiece = true;
 				bLayerInd_Join = true;
 
-			} else if (strncmp (objType, "테이블폼(슬래브)", strlen ("테이블폼(슬래브)")) == 0) {
+			} else if (my_strcmp (objType, "테이블폼(슬래브)") == 0) {
 				bLayerInd_SlabTableform = true;
 				bLayerInd_Profile = true;
 				bLayerInd_Join = true;
 
-			} else if (strncmp (objType, "유로폼", strlen ("유로폼")) == 0) {
+			} else if (my_strcmp (objType, "유로폼") == 0) {
 				bLayerInd_Euroform = true;
 
-			} else if (strncmp (objType, "스틸폼", strlen ("스틸폼")) == 0) {
+			} else if (my_strcmp (objType, "스틸폼") == 0) {
 				bLayerInd_Steelform = true;
 
-			} else if (strncmp (objType, "합판", strlen ("합판")) == 0) {
+			} else if (my_strcmp (objType, "합판") == 0) {
 				bLayerInd_Plywood = true;
 
-			} else if (strncmp (objType, "휠러스페이서", strlen ("휠러스페이서")) == 0) {
+			} else if (my_strcmp (objType, "휠러스페이서") == 0) {
 				bLayerInd_Fillersp = true;
 
-			} else if (strncmp (objType, "아웃코너앵글", strlen ("아웃코너앵글")) == 0) {
+			} else if (my_strcmp (objType, "아웃코너앵글") == 0) {
 				bLayerInd_OutcornerAngle = true;
 
-			} else if (strncmp (objType, "아웃코너판넬", strlen ("아웃코너판넬")) == 0) {
+			} else if (my_strcmp (objType, "아웃코너판넬") == 0) {
 				bLayerInd_OutcornerPanel = true;
 
-			} else if (strncmp (objType, "인코너판넬", strlen ("인코너판넬")) == 0) {
+			} else if (my_strcmp (objType, "인코너판넬") == 0) {
 				bLayerInd_IncornerPanel = true;
 			}
 		}
@@ -211,7 +211,7 @@ GSErrCode	convertVirtualTCO (void)
 		strncpy (productName, tempStr, strlen (tempStr));
 		productName [strlen (tempStr)] = '\0';
 
-		if (strncmp (productName, "가상 가설재", strlen ("가상 가설재")) == 0) {
+		if (my_strcmp (productName, "가상 가설재") == 0) {
 
 			// 가상 가설재의 층 인덱스 가져옴
 			floorInd = elem.header.floorInd;
@@ -258,7 +258,7 @@ GSErrCode	convertVirtualTCO (void)
 			IncornerPanel	incornerPanel;
 
 			// 실제 가설재를 배치함
-			if (strncmp (objType, "테이블폼(벽)", strlen ("테이블폼(벽)")) == 0) {
+			if (my_strcmp (objType, "테이블폼(벽)") == 0) {
 				
 				walltableform.leftBottomX = elem.object.pos.x;
 				walltableform.leftBottomY = elem.object.pos.y;
@@ -270,13 +270,13 @@ GSErrCode	convertVirtualTCO (void)
 				// 벽 두께
 				wallThk = oppSideOffset;
 
-				if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+				if (my_strcmp (coverSide, "양면") == 0) {
 					bDoubleSide = true;
 				} else {
 					bDoubleSide = false;
 				}
 
-				if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+				if (my_strcmp (dir, "벽세우기") == 0) {
 					for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
 						for (yy = 0 ; yy < num_A ; ++yy) {
 							placeTableformOnWall_portrait (walltableform);
@@ -285,7 +285,7 @@ GSErrCode	convertVirtualTCO (void)
 						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &walltableform.leftBottomX, &walltableform.leftBottomY, &walltableform.leftBottomZ);
 						moveIn3D ('z', elem.object.angle, unit_ZZYZX, &walltableform.leftBottomX, &walltableform.leftBottomY, &walltableform.leftBottomZ);
 					}
-				} else if (strncmp (dir, "벽눕히기", strlen ("벽눕히기")) == 0) {
+				} else if (my_strcmp (dir, "벽눕히기") == 0) {
 					for (xx = 0 ; xx < num_A ; ++xx) {
 						for (yy = 0 ; yy < num_ZZYZX ; ++yy) {
 							placeTableformOnWall_landscape (walltableform);
@@ -295,7 +295,7 @@ GSErrCode	convertVirtualTCO (void)
 						moveIn3D ('z', elem.object.angle, unit_A, &walltableform.leftBottomX, &walltableform.leftBottomY, &walltableform.leftBottomZ);
 					}
 				}
-			} else if (strncmp (objType, "테이블폼(슬래브)", strlen ("테이블폼(슬래브)")) == 0) {
+			} else if (my_strcmp (objType, "테이블폼(슬래브)") == 0) {
 
 				slabtableform.leftBottomX = elem.object.pos.x;
 				slabtableform.leftBottomY = elem.object.pos.y;
@@ -307,7 +307,7 @@ GSErrCode	convertVirtualTCO (void)
 				slabtableform.verLen = unit_B;
 				sprintf (slabtableform.type, "%.0f x %.0f", round (unit_A * 1000, 0), round (unit_B * 1000, 0));
 				
-				if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+				if (my_strcmp (dir, "바닥깔기") == 0) {
 
 					// 슬래브폼 배치
 					for (xx = 0 ; xx < num_B ; ++xx) {
@@ -334,7 +334,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 				}
 				elemList.Clear (false);
-			} else if (strncmp (objType, "유로폼", strlen ("유로폼")) == 0) {
+			} else if (my_strcmp (objType, "유로폼") == 0) {
 
 				euroform.ang = elem.object.angle;
 				euroform.eu_stan_onoff = bRegularSize;
@@ -346,7 +346,7 @@ GSErrCode	convertVirtualTCO (void)
 					euroform.eu_hei2 = unit_ZZYZX;
 				}
 
-				if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+				if (my_strcmp (dir, "벽세우기") == 0) {
 					euroform.leftBottomX = elem.object.pos.x;
 					euroform.leftBottomY = elem.object.pos.y;
 					euroform.leftBottomZ = elem.object.level;
@@ -363,7 +363,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 
 					// 양면
-					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+					if (my_strcmp (coverSide, "양면") == 0) {
 						euroform.leftBottomX = elem.object.pos.x;
 						euroform.leftBottomY = elem.object.pos.y;
 						euroform.leftBottomZ = elem.object.level;
@@ -380,7 +380,7 @@ GSErrCode	convertVirtualTCO (void)
 							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 						}
 					}
-				} else if (strncmp (dir, "벽눕히기", strlen ("벽눕히기")) == 0) {
+				} else if (my_strcmp (dir, "벽눕히기") == 0) {
 					euroform.leftBottomX = elem.object.pos.x;
 					euroform.leftBottomY = elem.object.pos.y;
 					euroform.leftBottomZ = elem.object.level;
@@ -398,7 +398,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 
 					// 양면
-					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+					if (my_strcmp (coverSide, "양면") == 0) {
 						euroform.leftBottomX = elem.object.pos.x;
 						euroform.leftBottomY = elem.object.pos.y;
 						euroform.leftBottomZ = elem.object.level;
@@ -414,7 +414,7 @@ GSErrCode	convertVirtualTCO (void)
 							moveIn3D ('z', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 						}
 					}
-				} else if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+				} else if (my_strcmp (dir, "바닥깔기") == 0) {
 					euroform.leftBottomX = elem.object.pos.x;
 					euroform.leftBottomY = elem.object.pos.y;
 					euroform.leftBottomZ = elem.object.level;
@@ -430,7 +430,7 @@ GSErrCode	convertVirtualTCO (void)
 						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 						moveIn3D ('y', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 					}
-				} else if (strncmp (dir, "바닥덮기", strlen ("바닥덮기")) == 0) {
+				} else if (my_strcmp (dir, "바닥덮기") == 0) {
 					euroform.leftBottomX = elem.object.pos.x;
 					euroform.leftBottomY = elem.object.pos.y;
 					euroform.leftBottomZ = elem.object.level;
@@ -476,7 +476,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 				}
 				elemListBack.Clear (false);
-			} else if (strncmp (objType, "스틸폼", strlen ("스틸폼")) == 0) {
+			} else if (my_strcmp (objType, "스틸폼") == 0) {
 
 				euroform.ang = elem.object.angle;
 				euroform.eu_stan_onoff = bRegularSize;
@@ -488,7 +488,7 @@ GSErrCode	convertVirtualTCO (void)
 					euroform.eu_hei2 = unit_ZZYZX;
 				}
 
-				if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+				if (my_strcmp (dir, "벽세우기") == 0) {
 					euroform.leftBottomX = elem.object.pos.x;
 					euroform.leftBottomY = elem.object.pos.y;
 					euroform.leftBottomZ = elem.object.level;
@@ -505,7 +505,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 
 					// 양면
-					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+					if (my_strcmp (coverSide, "양면") == 0) {
 						euroform.leftBottomX = elem.object.pos.x;
 						euroform.leftBottomY = elem.object.pos.y;
 						euroform.leftBottomZ = elem.object.level;
@@ -522,7 +522,7 @@ GSErrCode	convertVirtualTCO (void)
 							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 						}
 					}
-				} else if (strncmp (dir, "벽눕히기", strlen ("벽눕히기")) == 0) {
+				} else if (my_strcmp (dir, "벽눕히기") == 0) {
 					euroform.leftBottomX = elem.object.pos.x;
 					euroform.leftBottomY = elem.object.pos.y;
 					euroform.leftBottomZ = elem.object.level;
@@ -540,7 +540,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 
 					// 양면
-					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+					if (my_strcmp (coverSide, "양면") == 0) {
 						euroform.leftBottomX = elem.object.pos.x;
 						euroform.leftBottomY = elem.object.pos.y;
 						euroform.leftBottomZ = elem.object.level;
@@ -556,7 +556,7 @@ GSErrCode	convertVirtualTCO (void)
 							moveIn3D ('z', elem.object.angle, unit_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 						}
 					}
-				} else if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+				} else if (my_strcmp (dir, "바닥깔기") == 0) {
 					euroform.leftBottomX = elem.object.pos.x;
 					euroform.leftBottomY = elem.object.pos.y;
 					euroform.leftBottomZ = elem.object.level;
@@ -572,7 +572,7 @@ GSErrCode	convertVirtualTCO (void)
 						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 						moveIn3D ('y', elem.object.angle, unit_ZZYZX, &euroform.leftBottomX, &euroform.leftBottomY, &euroform.leftBottomZ);
 					}
-				} else if (strncmp (dir, "바닥덮기", strlen ("바닥덮기")) == 0) {
+				} else if (my_strcmp (dir, "바닥덮기") == 0) {
 					euroform.leftBottomX = elem.object.pos.x;
 					euroform.leftBottomY = elem.object.pos.y;
 					euroform.leftBottomZ = elem.object.level;
@@ -618,7 +618,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 				}
 				elemListBack.Clear (false);
-			} else if (strncmp (objType, "합판", strlen ("합판")) == 0) {
+			} else if (my_strcmp (objType, "합판") == 0) {
 
 				plywood.ang = elem.object.angle;
 				plywood.leftBottomX = elem.object.pos.x;
@@ -627,7 +627,7 @@ GSErrCode	convertVirtualTCO (void)
 				plywood.p_wid = unit_A;
 				plywood.p_leng = unit_ZZYZX;
 
-				if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+				if (my_strcmp (dir, "벽세우기") == 0) {
 					plywood.w_dir = 1;
 
 					for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
@@ -640,7 +640,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 
 					// 양면
-					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+					if (my_strcmp (coverSide, "양면") == 0) {
 						plywood.leftBottomX = elem.object.pos.x;
 						plywood.leftBottomY = elem.object.pos.y;
 						plywood.leftBottomZ = elem.object.level;
@@ -657,7 +657,7 @@ GSErrCode	convertVirtualTCO (void)
 							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
 						}
 					}
-				} else if (strncmp (dir, "벽눕히기", strlen ("벽눕히기")) == 0) {
+				} else if (my_strcmp (dir, "벽눕히기") == 0) {
 					plywood.w_dir = 2;
 
 					for (xx = 0 ; xx < num_A ; ++xx) {
@@ -670,7 +670,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 
 					// 양면
-					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+					if (my_strcmp (coverSide, "양면") == 0) {
 						plywood.leftBottomX = elem.object.pos.x;
 						plywood.leftBottomY = elem.object.pos.y;
 						plywood.leftBottomZ = elem.object.level;
@@ -687,7 +687,7 @@ GSErrCode	convertVirtualTCO (void)
 							moveIn3D ('z', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
 						}
 					}
-				} else if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+				} else if (my_strcmp (dir, "바닥깔기") == 0) {
 					plywood.w_dir = 3;
 
 					moveIn3D ('x', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
@@ -701,7 +701,7 @@ GSErrCode	convertVirtualTCO (void)
 						moveIn3D ('x', elem.object.angle, -unit_A * num_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
 						moveIn3D ('y', elem.object.angle, unit_ZZYZX, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
 					}
-				} else if (strncmp (dir, "바닥덮기", strlen ("바닥덮기")) == 0) {
+				} else if (my_strcmp (dir, "바닥덮기") == 0) {
 					plywood.w_dir = 4;
 
 					moveIn3D ('x', elem.object.angle, unit_A, &plywood.leftBottomX, &plywood.leftBottomY, &plywood.leftBottomZ);
@@ -746,7 +746,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 				}
 				elemListBack.Clear (false);
-			} else if (strncmp (objType, "휠러스페이서", strlen ("휠러스페이서")) == 0) {
+			} else if (my_strcmp (objType, "휠러스페이서") == 0) {
 
 				fillersp.ang = elem.object.angle;
 				fillersp.leftBottomX = elem.object.pos.x;
@@ -755,7 +755,7 @@ GSErrCode	convertVirtualTCO (void)
 				fillersp.f_thk = unit_A;
 				fillersp.f_leng = unit_ZZYZX;
 
-				if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+				if (my_strcmp (dir, "벽세우기") == 0) {
 					fillersp.f_ang = DegreeToRad (90.0);
 					fillersp.f_rota = DegreeToRad (0.0);
 					moveIn3D ('x', elem.object.angle, unit_A, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
@@ -770,7 +770,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 
 					// 양면
-					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+					if (my_strcmp (coverSide, "양면") == 0) {
 						fillersp.leftBottomX = elem.object.pos.x;
 						fillersp.leftBottomY = elem.object.pos.y;
 						fillersp.leftBottomZ = elem.object.level;
@@ -786,7 +786,7 @@ GSErrCode	convertVirtualTCO (void)
 							moveIn3D ('z', elem.object.angle, unit_ZZYZX, &fillersp.leftBottomX, &fillersp.leftBottomY, &fillersp.leftBottomZ);
 						}
 					}
-				} else if (strncmp (dir, "벽눕히기", strlen ("벽눕히기")) == 0) {
+				} else if (my_strcmp (dir, "벽눕히기") == 0) {
 					fillersp.f_ang = DegreeToRad (0.0);
 					fillersp.f_rota = DegreeToRad (0.0);
 
@@ -800,7 +800,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 
 					// 양면
-					if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+					if (my_strcmp (coverSide, "양면") == 0) {
 						fillersp.leftBottomX = elem.object.pos.x;
 						fillersp.leftBottomY = elem.object.pos.y;
 						fillersp.leftBottomZ = elem.object.level;
@@ -848,7 +848,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 				}
 				elemListBack.Clear (false);
-			} else if (strncmp (objType, "아웃코너앵글", strlen ("아웃코너앵글")) == 0) {
+			} else if (my_strcmp (objType, "아웃코너앵글") == 0) {
 
 				outcornerAngle.ang = elem.object.angle;
 				outcornerAngle.leftBottomX = elem.object.pos.x;
@@ -857,7 +857,7 @@ GSErrCode	convertVirtualTCO (void)
 				outcornerAngle.a_leng = unit_ZZYZX;
 				
 				if (leftSide == true) {
-					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+					if (my_strcmp (dir, "벽세우기") == 0) {
 						moveIn3D ('x', outcornerAngle.ang, unit_A, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
 						outcornerAngle.a_ang = DegreeToRad (90.0);
 
@@ -869,7 +869,7 @@ GSErrCode	convertVirtualTCO (void)
 						}
 
 						// 양면
-						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						if (my_strcmp (coverSide, "양면") == 0) {
 							outcornerAngle.leftBottomX = elem.object.pos.x;
 							outcornerAngle.leftBottomY = elem.object.pos.y;
 							outcornerAngle.leftBottomZ = elem.object.level;
@@ -884,7 +884,7 @@ GSErrCode	convertVirtualTCO (void)
 								moveIn3D ('z', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
 							}
 						}
-					} else if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+					} else if (my_strcmp (dir, "바닥깔기") == 0) {
 						moveIn3D ('x', outcornerAngle.ang, unit_A, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
 						outcornerAngle.a_ang = DegreeToRad (0.0);
 
@@ -894,7 +894,7 @@ GSErrCode	convertVirtualTCO (void)
 							outcornerAngle.ang = elem.object.angle;
 							moveIn3D ('y', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
 						}
-					} else if (strncmp (dir, "바닥덮기", strlen ("바닥덮기")) == 0) {
+					} else if (my_strcmp (dir, "바닥덮기") == 0) {
 						moveIn3D ('x', elem.object.angle, unit_A, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
 						moveIn3D ('y', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
 						outcornerAngle.a_ang = DegreeToRad (180.0);
@@ -907,7 +907,7 @@ GSErrCode	convertVirtualTCO (void)
 						}
 					}
 				} else {
-					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+					if (my_strcmp (dir, "벽세우기") == 0) {
 						outcornerAngle.a_ang = DegreeToRad (90.0);
 
 						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
@@ -918,7 +918,7 @@ GSErrCode	convertVirtualTCO (void)
 						}
 
 						// 양면
-						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						if (my_strcmp (coverSide, "양면") == 0) {
 							outcornerAngle.leftBottomX = elem.object.pos.x;
 							outcornerAngle.leftBottomY = elem.object.pos.y;
 							outcornerAngle.leftBottomZ = elem.object.level;
@@ -931,7 +931,7 @@ GSErrCode	convertVirtualTCO (void)
 								moveIn3D ('z', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
 							}
 						}
-					} else if (strncmp (dir, "바닥깔기", strlen ("바닥깔기")) == 0) {
+					} else if (my_strcmp (dir, "바닥깔기") == 0) {
 						moveIn3D ('y', outcornerAngle.ang, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
 						outcornerAngle.a_ang = DegreeToRad (0.0);
 
@@ -941,7 +941,7 @@ GSErrCode	convertVirtualTCO (void)
 							outcornerAngle.ang = elem.object.angle;
 							moveIn3D ('y', elem.object.angle, unit_ZZYZX, &outcornerAngle.leftBottomX, &outcornerAngle.leftBottomY, &outcornerAngle.leftBottomZ);
 						}
-					} else if (strncmp (dir, "바닥덮기", strlen ("바닥덮기")) == 0) {
+					} else if (my_strcmp (dir, "바닥덮기") == 0) {
 						outcornerAngle.a_ang = DegreeToRad (180.0);
 
 						for (xx = 0 ; xx < num_ZZYZX ; ++xx) {
@@ -982,7 +982,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 				}
 				elemListBack.Clear (false);
-			} else if (strncmp (objType, "아웃코너판넬", strlen ("아웃코너판넬")) == 0) {
+			} else if (my_strcmp (objType, "아웃코너판넬") == 0) {
 
 				outcornerPanel.ang = elem.object.angle;
 				outcornerPanel.leftBottomX = elem.object.pos.x;
@@ -990,7 +990,7 @@ GSErrCode	convertVirtualTCO (void)
 				outcornerPanel.leftBottomZ = elem.object.level;
 
 				if (leftSide == true) {
-					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+					if (my_strcmp (dir, "벽세우기") == 0) {
 						outcornerPanel.wid_s = unit_A;
 						outcornerPanel.leng_s = unit_B;
 						outcornerPanel.hei_s = unit_ZZYZX;
@@ -1001,7 +1001,7 @@ GSErrCode	convertVirtualTCO (void)
 						}
 
 						// 양면
-						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						if (my_strcmp (coverSide, "양면") == 0) {
 							outcornerPanel.leftBottomX = elem.object.pos.x;
 							outcornerPanel.leftBottomY = elem.object.pos.y;
 							outcornerPanel.leftBottomZ = elem.object.level;
@@ -1021,7 +1021,7 @@ GSErrCode	convertVirtualTCO (void)
 						}
 					}
 				} else {
-					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+					if (my_strcmp (dir, "벽세우기") == 0) {
 						outcornerPanel.wid_s = unit_B;
 						outcornerPanel.leng_s = unit_A;
 						outcornerPanel.hei_s = unit_ZZYZX;
@@ -1034,7 +1034,7 @@ GSErrCode	convertVirtualTCO (void)
 						}
 
 						// 양면
-						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						if (my_strcmp (coverSide, "양면") == 0) {
 							outcornerPanel.leftBottomX = elem.object.pos.x;
 							outcornerPanel.leftBottomY = elem.object.pos.y;
 							outcornerPanel.leftBottomZ = elem.object.level;
@@ -1084,7 +1084,7 @@ GSErrCode	convertVirtualTCO (void)
 					}
 				}
 				elemListBack.Clear (false);
-			} else if (strncmp (objType, "인코너판넬", strlen ("인코너판넬")) == 0) {
+			} else if (my_strcmp (objType, "인코너판넬") == 0) {
 
 				incornerPanel.ang = elem.object.angle;
 				incornerPanel.leftBottomX = elem.object.pos.x;
@@ -1092,7 +1092,7 @@ GSErrCode	convertVirtualTCO (void)
 				incornerPanel.leftBottomZ = elem.object.level;
 
 				if (leftSide == true) {
-					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+					if (my_strcmp (dir, "벽세우기") == 0) {
 						incornerPanel.wid_s = unit_B;
 						incornerPanel.leng_s = unit_A;
 						incornerPanel.hei_s = unit_ZZYZX;
@@ -1105,7 +1105,7 @@ GSErrCode	convertVirtualTCO (void)
 						}
 
 						// 양면
-						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						if (my_strcmp (coverSide, "양면") == 0) {
 							incornerPanel.leftBottomX = elem.object.pos.x;
 							incornerPanel.leftBottomY = elem.object.pos.y;
 							incornerPanel.leftBottomZ = elem.object.level;
@@ -1124,7 +1124,7 @@ GSErrCode	convertVirtualTCO (void)
 						}
 					}
 				} else {
-					if (strncmp (dir, "벽세우기", strlen ("벽세우기")) == 0) {
+					if (my_strcmp (dir, "벽세우기") == 0) {
 						incornerPanel.wid_s = unit_A;
 						incornerPanel.leng_s = unit_B;
 						incornerPanel.hei_s = unit_ZZYZX;
@@ -1137,7 +1137,7 @@ GSErrCode	convertVirtualTCO (void)
 						}
 
 						// 양면
-						if (strncmp (coverSide, "양면", strlen ("양면")) == 0) {
+						if (my_strcmp (coverSide, "양면") == 0) {
 							incornerPanel.leftBottomX = elem.object.pos.x;
 							incornerPanel.leftBottomY = elem.object.pos.y;
 							incornerPanel.leftBottomZ = elem.object.level;

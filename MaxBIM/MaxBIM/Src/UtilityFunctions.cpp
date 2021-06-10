@@ -134,6 +134,25 @@ long	compareRanges (double aMin, double aMax, double bMin, double bMax)
 	return	result;
 }
 
+// 문자열 비교
+int		my_strcmp (const char *str1, const char *str2)
+{
+	while (*str1 != '\0' || *str2 != '\0') {
+
+		*str1++;
+		*str2++;
+
+		if (*str1 == *str2)
+			continue;
+		else if (*str1 > *str2)
+			return 1;
+		else if (*str1 < *str2)
+			return -1;
+	}
+
+	return 0;
+}
+
 ////////////////////////////////////////////////// 교환하기
 // a와 b 값을 교환함
 void	exchangeDoubles (double* a, double* b)
@@ -989,7 +1008,7 @@ short findLayerIndex (const char* layerName)
 		err = ACAPI_Attribute_Get (&attrib);
 
 		if (err == NoError) {
-			if (strncmp (attrib.layer.head.name, layerName, strlen (layerName)) == 0) {
+			if (my_strcmp (attrib.layer.head.name, layerName) == 0) {
 				return	attrib.layer.head.index;
 			}
 		}

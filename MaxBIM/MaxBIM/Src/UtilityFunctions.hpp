@@ -20,6 +20,7 @@ double	distOfPointBetweenLine (API_Coord p, API_Coord a, API_Coord b);										
 // 비교하기
 long	compareDoubles (const double a, const double b);													// 어떤 수가 더 큰지 비교함
 long	compareRanges (double aMin, double aMax, double bMin, double bMax);									// a와 b의 각 값 범위의 관계를 알려줌
+int		my_strcmp (const char *str1, const char *str2);														// 문자열 비교
 
 // 교환하기
 void	exchangeDoubles (double* a, double* b);																// a와 b 값을 교환함

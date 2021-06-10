@@ -602,7 +602,7 @@ GSErrCode	exportSelectedElementInfo (void)
 			if (foundStr != NULL) {
 				foundObject = true;
 
-				if (strncmp (foundStr, objectInfo.nameVal [yy].c_str (), strlen (objectInfo.nameVal [yy].c_str ())) == 0) {
+				if (my_strcmp (foundStr, objectInfo.nameVal [yy].c_str ()) == 0) {
 					foundExistValue = false;
 
 					value_string [0] = "";
@@ -861,9 +861,9 @@ GSErrCode	exportSelectedElementInfo (void)
 				fprintf (fp, buffer);
 			}
 
-			if (strncmp (objectInfo.nameVal [xx].c_str (), "유로폼 후크", strlen ("유로폼 후크")) == 0) {
+			if (my_strcmp (objectInfo.nameVal [xx].c_str (), "유로폼 후크") == 0) {
 				// 원형
-				if (strncmp (objectInfo.var2value [xx][yy].c_str (), "원형", strlen ("원형")) == 0) {
+				if (my_strcmp (objectInfo.var2value [xx][yy].c_str (), "원형") == 0) {
 					sprintf (buffer, "원형, %s ", objectInfo.var1value [xx][yy].c_str ());
 
 				// 사각
@@ -872,7 +872,7 @@ GSErrCode	exportSelectedElementInfo (void)
 				}
 				fprintf (fp, buffer);
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "유로폼", strlen ("유로폼")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "유로폼") == 0) {
 				// 규격폼
 				if (atoi (objectInfo.var1value [xx][yy].c_str ()) > 0) {
 					sprintf (buffer, "%s X %s ", objectInfo.var2value [xx][yy], objectInfo.var3value [xx][yy]);
@@ -885,7 +885,7 @@ GSErrCode	exportSelectedElementInfo (void)
 				}
 				fprintf (fp, buffer);
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "스틸폼", strlen ("스틸폼")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "스틸폼") == 0) {
 				// 규격폼
 				if (atoi (objectInfo.var1value [xx][yy].c_str ()) > 0) {
 					sprintf (buffer, "%s X %s ", objectInfo.var2value [xx][yy], objectInfo.var3value [xx][yy]);
@@ -898,14 +898,14 @@ GSErrCode	exportSelectedElementInfo (void)
 				}
 				fprintf (fp, buffer);
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "목재", strlen ("목재")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "목재") == 0) {
 				length = atof (objectInfo.var1value [xx][yy].c_str ());
 				length2 = atof (objectInfo.var2value [xx][yy].c_str ());
 				length3 = atof (objectInfo.var3value [xx][yy].c_str ());
 				sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
 				fprintf (fp, buffer);
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "합판(다각형)", strlen ("합판(다각형)")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "합판(다각형)") == 0) {
 				sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.var1value [xx][yy].c_str ());
 				fprintf (fp, buffer);
 
@@ -914,8 +914,8 @@ GSErrCode	exportSelectedElementInfo (void)
 					fprintf (fp, buffer);
 				}
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "합판", strlen ("합판")) == 0) {
-				if (strncmp (objectInfo.var1value [xx][yy].c_str (), "3x6 [910x1820]", strlen ("3x6 [910x1820]")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "합판") == 0) {
+				if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "3x6 [910x1820]") == 0) {
 					sprintf (buffer, "910 X 1820 X %s ", objectInfo.var2value [xx][yy].c_str ());
 					fprintf (fp, buffer);
 
@@ -924,7 +924,7 @@ GSErrCode	exportSelectedElementInfo (void)
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 						fprintf (fp, buffer);
 					}
-				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "4x8 [1220x2440]", strlen ("4x8 [1220x2440]")) == 0) {
+				} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "4x8 [1220x2440]") == 0) {
 					sprintf (buffer, "1220 X 2440 X %s ", objectInfo.var2value [xx][yy].c_str ());
 					fprintf (fp, buffer);
 
@@ -933,7 +933,7 @@ GSErrCode	exportSelectedElementInfo (void)
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 						fprintf (fp, buffer);
 					}
-				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "2x5 [606x1520]", strlen ("2x5 [606x1520]")) == 0) {
+				} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "2x5 [606x1520]") == 0) {
 					sprintf (buffer, "606 X 1520 X %s ", objectInfo.var2value [xx][yy].c_str ());
 					fprintf (fp, buffer);
 
@@ -942,7 +942,7 @@ GSErrCode	exportSelectedElementInfo (void)
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 						fprintf (fp, buffer);
 					}
-				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "2x6 [606x1820]", strlen ("2x6 [606x1820]")) == 0) {
+				} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "2x6 [606x1820]") == 0) {
 					sprintf (buffer, "606 X 1820 X %s ", objectInfo.var2value [xx][yy].c_str ());
 					fprintf (fp, buffer);
 
@@ -951,7 +951,7 @@ GSErrCode	exportSelectedElementInfo (void)
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 						fprintf (fp, buffer);
 					}
-				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "3x5 [910x1520]", strlen ("3x5 [910x1520]")) == 0) {
+				} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "3x5 [910x1520]") == 0) {
 					sprintf (buffer, "910 X 1520 X %s ", objectInfo.var2value [xx][yy].c_str ());
 					fprintf (fp, buffer);
 
@@ -960,7 +960,7 @@ GSErrCode	exportSelectedElementInfo (void)
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 						fprintf (fp, buffer);
 					}
-				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "비규격", strlen ("비규격")) == 0) {
+				} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "비규격") == 0) {
 					// 가로 X 세로 X 두께
 					length = atof (objectInfo.var3value [xx][yy].c_str ());
 					length2 = atof (objectInfo.var4value [xx][yy].c_str ());
@@ -972,7 +972,7 @@ GSErrCode	exportSelectedElementInfo (void)
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 						fprintf (fp, buffer);
 					}
-				} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "비정형", strlen ("비정형")) == 0) {
+				} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "비정형") == 0) {
 					sprintf (buffer, "비정형 ");
 					fprintf (fp, buffer);
 
@@ -986,7 +986,26 @@ GSErrCode	exportSelectedElementInfo (void)
 					fprintf (fp, buffer);
 				}
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "사각파이프", strlen ("사각파이프")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "RS Push-Pull Props") == 0) {
+				// 베이스 플레이트 유무
+				if (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1) {
+					sprintf (buffer, "베이스 플레이트(있음) ");
+				} else {
+					sprintf (buffer, "베이스 플레이트(없음) ");
+				}
+				fprintf (fp, buffer);
+
+				// 규격(상부)
+				sprintf (buffer, "규격(상부): %s ", objectInfo.var2value [xx][yy].c_str ());
+				fprintf (fp, buffer);
+
+				// 규격(하부) - 선택사항
+				if (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1) {
+					sprintf (buffer, "규격(하부): %s ", objectInfo.var3value [xx][yy].c_str ());
+				}
+				fprintf (fp, buffer);
+
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "사각파이프") == 0) {
 				// 사각파이프
 				if (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0) {
 					length = atof (objectInfo.var2value [xx][yy].c_str ());
@@ -999,17 +1018,17 @@ GSErrCode	exportSelectedElementInfo (void)
 				}
 				fprintf (fp, buffer);
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "원형파이프", strlen ("원형파이프")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "원형파이프") == 0) {
 				length = atof (objectInfo.var1value [xx][yy].c_str ());
 				sprintf (buffer, "%.0f ", round (length*1000, 0));
 				fprintf (fp, buffer);
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "아웃코너앵글", strlen ("아웃코너앵글")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "아웃코너앵글") == 0) {
 				length = atof (objectInfo.var1value [xx][yy].c_str ());
 				sprintf (buffer, "%.0f ", round (length*1000, 0));
 				fprintf (fp, buffer);
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "매직바", strlen ("매직바")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "매직바") == 0) {
 				if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
 					length = atof (objectInfo.var1value [xx][yy].c_str ());
 					length2 = atof (objectInfo.var5value [xx][yy].c_str ());
@@ -1020,16 +1039,16 @@ GSErrCode	exportSelectedElementInfo (void)
 				}
 				fprintf (fp, buffer);
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "블루목심", strlen ("블루목심")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "블루목심") == 0) {
 				sprintf (buffer, "%s ", objectInfo.var1value [xx][yy].c_str ());
 				fprintf (fp, buffer);
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "보 멍에제", strlen ("보 멍에제")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "보 멍에제") == 0) {
 				length = atof (objectInfo.var1value [xx][yy].c_str ());
 				sprintf (buffer, "%.0f ", round (length*1000, 0));
 				fprintf (fp, buffer);
 
-			} else if (strncmp (objectInfo.nameVal [xx].c_str (), "물량합판", strlen ("물량합판")) == 0) {
+			} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "물량합판") == 0) {
 				sprintf (buffer, "%s ㎡ ", objectInfo.var1value [xx][yy].c_str ());
 				fprintf (fp, buffer);
 
@@ -1583,7 +1602,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 					if (foundStr != NULL) {
 						foundObject = true;
 
-						if (strncmp (foundStr, objectInfo.nameVal [yy].c_str (), strlen (objectInfo.nameVal [yy].c_str ())) == 0) {
+						if (my_strcmp (foundStr, objectInfo.nameVal [yy].c_str ()) == 0) {
 							foundExistValue = false;
 
 							value_string [0] = "";
@@ -1841,9 +1860,9 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 						fprintf (fp, buffer);
 					}
 
-					if (strncmp (objectInfo.nameVal [xx].c_str (), "유로폼 후크", strlen ("유로폼 후크")) == 0) {
+					if (my_strcmp (objectInfo.nameVal [xx].c_str (), "유로폼 후크") == 0) {
 						// 원형
-						if (strncmp (objectInfo.var2value [xx][yy].c_str (), "원형", strlen ("원형")) == 0) {
+						if (my_strcmp (objectInfo.var2value [xx][yy].c_str (), "원형") == 0) {
 							sprintf (buffer, "원형, %s ", objectInfo.var1value [xx][yy].c_str ());
 
 						// 사각
@@ -1852,7 +1871,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 						}
 						fprintf (fp, buffer);
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "유로폼", strlen ("유로폼")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "유로폼") == 0) {
 						// 규격폼
 						if (atoi (objectInfo.var1value [xx][yy].c_str ()) > 0) {
 							sprintf (buffer, "%s X %s ", objectInfo.var2value [xx][yy], objectInfo.var3value [xx][yy]);
@@ -1865,7 +1884,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 						}
 						fprintf (fp, buffer);
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "스틸폼", strlen ("스틸폼")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "스틸폼") == 0) {
 						// 규격폼
 						if (atoi (objectInfo.var1value [xx][yy].c_str ()) > 0) {
 							sprintf (buffer, "%s X %s ", objectInfo.var2value [xx][yy], objectInfo.var3value [xx][yy]);
@@ -1878,14 +1897,14 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 						}
 						fprintf (fp, buffer);
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "목재", strlen ("목재")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "목재") == 0) {
 						length = atof (objectInfo.var1value [xx][yy].c_str ());
 						length2 = atof (objectInfo.var2value [xx][yy].c_str ());
 						length3 = atof (objectInfo.var3value [xx][yy].c_str ());
 						sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
 						fprintf (fp, buffer);
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "합판(다각형)", strlen ("합판(다각형)")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "합판(다각형)") == 0) {
 						sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.var1value [xx][yy].c_str ());
 						fprintf (fp, buffer);
 
@@ -1894,8 +1913,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							fprintf (fp, buffer);
 						}
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "합판", strlen ("합판")) == 0) {
-						if (strncmp (objectInfo.var1value [xx][yy].c_str (), "3x6 [910x1820]", strlen ("3x6 [910x1820]")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "합판") == 0) {
+						if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "3x6 [910x1820]") == 0) {
 							sprintf (buffer, "910 X 1820 X %s ", objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
 
@@ -1904,7 +1923,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
 							}
-						} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "4x8 [1220x2440]", strlen ("4x8 [1220x2440]")) == 0) {
+						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "4x8 [1220x2440]") == 0) {
 							sprintf (buffer, "1220 X 2440 X %s ", objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
 
@@ -1913,7 +1932,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
 							}
-						} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "2x5 [606x1520]", strlen ("2x5 [606x1520]")) == 0) {
+						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "2x5 [606x1520]") == 0) {
 							sprintf (buffer, "606 X 1520 X %s ", objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
 
@@ -1922,7 +1941,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
 							}
-						} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "2x6 [606x1820]", strlen ("2x6 [606x1820]")) == 0) {
+						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "2x6 [606x1820]") == 0) {
 							sprintf (buffer, "606 X 1820 X %s ", objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
 
@@ -1931,7 +1950,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
 							}
-						} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "3x5 [910x1520]", strlen ("3x5 [910x1520]")) == 0) {
+						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "3x5 [910x1520]") == 0) {
 							sprintf (buffer, "910 X 1520 X %s ", objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
 
@@ -1940,7 +1959,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
 							}
-						} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "비규격", strlen ("비규격")) == 0) {
+						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "비규격") == 0) {
 							// 가로 X 세로 X 두께
 							length = atof (objectInfo.var3value [xx][yy].c_str ());
 							length2 = atof (objectInfo.var4value [xx][yy].c_str ());
@@ -1952,7 +1971,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
 							}
-						} else if (strncmp (objectInfo.var1value [xx][yy].c_str (), "비정형", strlen ("비정형")) == 0) {
+						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "비정형") == 0) {
 							sprintf (buffer, "비정형 ");
 							fprintf (fp, buffer);
 
@@ -1966,7 +1985,26 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							fprintf (fp, buffer);
 						}
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "사각파이프", strlen ("사각파이프")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "RS Push-Pull Props") == 0) {
+						// 베이스 플레이트 유무
+						if (atoi (objectInfo.var1value [xx][yy].c_str ()) == 1) {
+							sprintf (buffer, "베이스 플레이트(있음) ");
+						} else {
+							sprintf (buffer, "베이스 플레이트(없음) ");
+						}
+						fprintf (fp, buffer);
+
+						// 규격(상부)
+						sprintf (buffer, "규격(상부): %s ", objectInfo.var2value [xx][yy].c_str ());
+						fprintf (fp, buffer);
+
+						// 규격(하부) - 선택사항
+						if (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1) {
+							sprintf (buffer, "규격(하부): %s ", objectInfo.var3value [xx][yy].c_str ());
+						}
+						fprintf (fp, buffer);
+
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "사각파이프") == 0) {
 						// 사각파이프
 						if (atoi (objectInfo.var1value [xx][yy].c_str ()) == 0) {
 							length = atof (objectInfo.var2value [xx][yy].c_str ());
@@ -1979,17 +2017,17 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 						}
 						fprintf (fp, buffer);
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "원형파이프", strlen ("원형파이프")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "원형파이프") == 0) {
 						length = atof (objectInfo.var1value [xx][yy].c_str ());
 						sprintf (buffer, "%.0f ", round (length*1000, 0));
 						fprintf (fp, buffer);
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "아웃코너앵글", strlen ("아웃코너앵글")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "아웃코너앵글") == 0) {
 						length = atof (objectInfo.var1value [xx][yy].c_str ());
 						sprintf (buffer, "%.0f ", round (length*1000, 0));
 						fprintf (fp, buffer);
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "매직바", strlen ("매직바")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "매직바") == 0) {
 						if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
 							length = atof (objectInfo.var1value [xx][yy].c_str ());
 							length2 = atof (objectInfo.var5value [xx][yy].c_str ());
@@ -2000,16 +2038,16 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 						}
 						fprintf (fp, buffer);
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "블루목심", strlen ("블루목심")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "블루목심") == 0) {
 						sprintf (buffer, "%s ", objectInfo.var1value [xx][yy].c_str ());
 						fprintf (fp, buffer);
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "보 멍에제", strlen ("보 멍에제")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "보 멍에제") == 0) {
 						length = atof (objectInfo.var1value [xx][yy].c_str ());
 						sprintf (buffer, "%.0f ", round (length*1000, 0));
 						fprintf (fp, buffer);
 
-					} else if (strncmp (objectInfo.nameVal [xx].c_str (), "물량합판", strlen ("물량합판")) == 0) {
+					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "물량합판") == 0) {
 						sprintf (buffer, "%s ㎡ ", objectInfo.var1value [xx][yy].c_str ());
 						fprintf (fp, buffer);
 

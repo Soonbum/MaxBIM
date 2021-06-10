@@ -978,72 +978,72 @@ GSErrCode	calcAreasOfQuantityPlywood (void)
 
 		if (typeStr == NULL) continue;
 
-		if (strncmp (typeStr, "벽체(내벽)", strlen ("벽체(내벽)")) == 0) {
+		if (my_strcmp (typeStr, "벽체(내벽)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_wall_in += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "벽체(외벽)", strlen ("벽체(외벽)")) == 0) {
+		} else if (my_strcmp (typeStr, "벽체(외벽)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_wall_out += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "벽체(합벽)", strlen ("벽체(합벽)")) == 0) {
+		} else if (my_strcmp (typeStr, "벽체(합벽)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_wall_composite += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "벽체(파라펫)", strlen ("벽체(파라펫)")) == 0) {
+		} else if (my_strcmp (typeStr, "벽체(파라펫)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_wall_parapet += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "벽체(방수턱)", strlen ("벽체(방수턱)")) == 0) {
+		} else if (my_strcmp (typeStr, "벽체(방수턱)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_wall_waterproof += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "스라브(기초)", strlen ("스라브(기초)")) == 0) {
+		} else if (my_strcmp (typeStr, "스라브(기초)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_slab_base += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "스라브(RC)", strlen ("스라브(RC)")) == 0) {
+		} else if (my_strcmp (typeStr, "스라브(RC)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_slab_rc += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "스라브(데크)", strlen ("스라브(데크)")) == 0) {
+		} else if (my_strcmp (typeStr, "스라브(데크)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_slab_deck += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "스라브(램프)", strlen ("스라브(램프)")) == 0) {
+		} else if (my_strcmp (typeStr, "스라브(램프)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_slab_ramp += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "보", strlen ("보")) == 0) {
+		} else if (my_strcmp (typeStr, "보") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_beam += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "기둥(독립)", strlen ("기둥(독립)")) == 0) {
+		} else if (my_strcmp (typeStr, "기둥(독립)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_column_iso += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "기둥(벽체)", strlen ("기둥(벽체)")) == 0) {
+		} else if (my_strcmp (typeStr, "기둥(벽체)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_column_inwall += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "기둥(원형)", strlen ("기둥(원형)")) == 0) {
+		} else if (my_strcmp (typeStr, "기둥(원형)") == 0) {
 			thk = atoi (getParameterStringByName (&memo, "m_size"));
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_column_circle += quantity.symb.volume / thk;
 
-		} else if (strncmp (typeStr, "램프구간(벽)", strlen ("램프구간(벽)")) == 0) {
+		} else if (my_strcmp (typeStr, "램프구간(벽)") == 0) {
 			thk = getParameterValueByName (&memo, "m_size");
 			thk = thk / 1000;	// mm 단위를 m 단위로 변환
 			qElemType.areas_ramp_wall += quantity.symb.volume / thk;
