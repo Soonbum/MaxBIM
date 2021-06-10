@@ -754,6 +754,88 @@ API_Guid	EasyObjectPlacement::placeObject (short nParams, ...)
 	return	elem.header.guid;
 }
 
+// 클래스: 쉬운 객체 배치 - 초기화를 하는 동시에 객체 배치 (가변 파라미터: 파라미터의 개수 및 파라미터 이름/타입/값만 입력)
+API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short layerInd, short floorInd, double posX, double posY, double posZ, double radAng, short nParams, ...)
+{
+	this->init (gsmName, layerInd, floorInd, posX, posY, posZ, radAng);
+
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	char				paramName [128];
+	char				paramValStr [128];
+	double				paramValDouble;
+	
+	// 파라미터 개수 저장
+	this->nParams = nParams;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, this->gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.pos.x = this->posX;
+	elem.object.pos.y = this->posY;
+	elem.object.level = this->posZ;
+	elem.object.angle = this->radAng;
+	elem.header.floorInd = this->floorInd;	// 층 인덱스
+	elem.header.layer = this->layerInd;		// 레이어 인덱스
+
+	va_list ap;
+
+	va_start (ap, nParams);
+
+	for (short xx = 0 ; xx < this->nParams ; ++xx) {
+
+		this->paramName [xx] = va_arg (ap, char*);
+		this->paramType [xx] = va_arg (ap, API_AddParID);
+		this->paramVal [xx] = va_arg (ap, char*);
+		
+		if ((this->paramType [xx] != APIParT_Separator) || (this->paramType [xx] != APIParT_Title) || (this->paramType [xx] != API_ZombieParT)) {
+			if (this->paramType [xx] == APIParT_CString) {
+				sprintf (paramName, "%s", this->paramName [xx]);
+				sprintf (paramValStr, "%s", this->paramVal [xx]);
+				setParameterByName (&memo, paramName, paramValStr);
+			} else {
+				sprintf (paramName, "%s", this->paramName [xx]);
+				paramValDouble = atof (this->paramVal [xx]);
+				setParameterByName (&memo, paramName, paramValDouble);
+			}
+		}
+	}
+
+	va_end (ap);
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
 
 ////////////////////////////////////////////////// 라이브러리 변수 접근 (Getter/Setter)
 // pName 파라미터의 값을 value로 설정함 (실수형) - 성공하면 true, 실패하면 false
