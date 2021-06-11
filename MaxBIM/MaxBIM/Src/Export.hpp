@@ -142,5 +142,6 @@ GSErrCode	exportGridElementInfo (void);														// 부재(기둥,보,슬래브)들의
 short		DGCALLBACK inputThresholdHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그] 기둥 간 최소 간격 거리를 사용자에게 입력 받음 (기본값: 2000 mm)
 GSErrCode	exportSelectedElementInfo (void);													// 선택한 부재 정보 내보내기 (Single 모드)
 GSErrCode	exportElementInfoOnVisibleLayers (void);											// 선택한 부재 정보 내보내기 (Multi 모드)
+GSErrCode	filterSelection (void);																// 부재별 선택 후 보여주기
 
 #endif

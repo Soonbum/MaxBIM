@@ -3025,6 +3025,98 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	return	err;
 }
 
+// 부재별 선택 후 보여주기
+GSErrCode	filterSelection (void)
+{
+	GSErrCode	err = NoError;
+	short		xx;
+	bool		regenerate = true;
+	short		result;
+
+	//vector<string>	1열: 변수명
+	//vector<string>	2열: 객체명
+	//					존재 여부
+	//					표시 여부
+
+	FILE		*fp;		// 파일 포인터
+	char	line [10240];	// 파일에서 읽어온 라인 하나
+	char	*token;			// 읽어온 문자열의 토큰
+	short	lineCount;		// 읽어온 라인 수
+	short	tokCount;		// 읽어온 토큰 개수
+	char	nthToken [50][50];	// n번째 토큰
+
+	// GUID 저장을 위한 변수
+	GS::Array<API_Guid>	objects	= GS::Array<API_Guid> ();	long nObjects	= 0;
+	GS::Array<API_Guid>	walls	= GS::Array<API_Guid> ();	long nWalls		= 0;
+	GS::Array<API_Guid>	columns	= GS::Array<API_Guid> ();	long nColumns	= 0;
+	GS::Array<API_Guid>	beams	= GS::Array<API_Guid> ();	long nBeams		= 0;
+	GS::Array<API_Guid>	slabs	= GS::Array<API_Guid> ();	long nSlabs		= 0;
+	GS::Array<API_Guid>	roofs	= GS::Array<API_Guid> ();	long nRoofs		= 0;
+	GS::Array<API_Guid>	meshes	= GS::Array<API_Guid> ();	long nMeshes	= 0;
+	GS::Array<API_Guid>	morphs	= GS::Array<API_Guid> ();	long nMorphs	= 0;
+	GS::Array<API_Guid>	shells	= GS::Array<API_Guid> ();	long nShells	= 0;
+
+	
+	ACAPI_Element_GetElemList (API_ObjectID, &objects, APIFilt_OnVisLayer);		nObjects = objects.GetSize ();	// 보이는 레이어 상의 객체 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ObjectID, &walls, APIFilt_OnVisLayer);		nWalls = objects.GetSize ();	// 보이는 레이어 상의 벽 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ObjectID, &columns, APIFilt_OnVisLayer);		nColumns = objects.GetSize ();	// 보이는 레이어 상의 기둥 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ObjectID, &beams, APIFilt_OnVisLayer);		nBeams = objects.GetSize ();	// 보이는 레이어 상의 보 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ObjectID, &slabs, APIFilt_OnVisLayer);		nSlabs = objects.GetSize ();	// 보이는 레이어 상의 슬래브 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ObjectID, &roofs, APIFilt_OnVisLayer);		nRoofs = objects.GetSize ();	// 보이는 레이어 상의 루프 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ObjectID, &meshes, APIFilt_OnVisLayer);		nMeshes = objects.GetSize ();	// 보이는 레이어 상의 메시 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ObjectID, &morphs, APIFilt_OnVisLayer);		nMorphs = objects.GetSize ();	// 보이는 레이어 상의 모프 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ObjectID, &shells, APIFilt_OnVisLayer);		nShells = objects.GetSize ();	// 보이는 레이어 상의 셸 타입만 가져오기
+
+	if (nObjects == 0 && nWalls == 0 && nColumns == 0 && nBeams == 0 && nSlabs == 0 && nRoofs == 0 && nMeshes == 0 && nMorphs == 0 && nShells == 0) {
+		result = DGAlert (DG_INFORMATION, "종료 알림", "아무 객체도 존재하지 않습니다.", "", "확인", "", "");
+		return	err;
+	}
+
+	// 객체 정보 파일 가져오기
+	fp = fopen ("C:\\objectInfo.csv", "r");
+
+	if (fp == NULL) {
+		result = DGAlert (DG_WARNING, "파일 오류", "objectInfo.csv 파일을 C:\\로 복사하십시오.", "", "확인", "", "");
+		return	err;
+	}
+
+	lineCount = 0;
+
+	while (!feof (fp)) {
+		tokCount = 0;
+		fgets (line, sizeof (line), fp);
+
+		token = strtok (line, ",");
+		tokCount ++;
+		lineCount ++;
+
+		// 한 라인씩 처리
+		while (token != NULL) {
+			if (strlen (token) > 0) {
+				strncpy (nthToken [tokCount-1], token, strlen (token)+1);
+			}
+			token = strtok (NULL, ",");
+			tokCount ++;
+		}
+
+		//nthToken [0]: 변수명
+		//nthToken [1]: 변수에 들어갈 수 있는 이름 - 유로폼, 원형파이프 등
+	}
+
+	// 파일 닫기
+	fclose (fp);
+
+	// 1. objectInfo의 1, 2열 필드 정보를 기반으로 부재별 리스트를 만듦
+		// vector<string>에 저장할 것: 1, 2열 필드의 문자열 + 존재 여부 필드 + 표시 여부 필드
+	// 2. 켜져 있는 레이어 상에서 존재하는 부재들이 있으면 존재 여부 필드에 체크함
+	// 3. 생성된 리스트를 기반으로 다이얼로그 창을 만듦
+	// 4. 확인 버튼을 누르면 보이는 레이어 상에서 해당 속성을 가진 요소를 선택한다. (반복)
+		// 표시 여부 필드를 먼저 체크하고...
+	// 5. 선택 작업을 마치면 3D 상에서 선택한 것들을 보여준다.
+
+	return	err;
+}
+
 // [다이얼로그] 기둥 간 최소 간격 거리를 사용자에게 입력 받음 (기본값: 2000 mm)
 short DGCALLBACK inputThresholdHandler (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {

@@ -181,6 +181,9 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 3:		// 선택한 부재 정보 내보내기 (Multi 모드)
 					err = exportElementInfoOnVisibleLayers ();
 					break;
+				case 4:		// 부재별 선택 후 보여주기
+					err = filterSelection ();
+					break;
 			}
 			break;
 		case 32009:
@@ -218,58 +221,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 
-						short		xx;
-						long		nSel;
-
-						API_SelectionInfo		selectionInfo;
-						API_Element				tElem;
-						API_Neig				**selNeigs;
-
-						GS::Array<API_Guid>&	objects = GS::Array<API_Guid> ();
-						long					nObjects = 0;
-						API_Element				elem;
-						API_ElementMemo			memo;
-
-						// ... 선택한 객체를 불러옴
-						err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-						BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
-						if (err != NoError) {
-							BMKillHandle ((GSHandle *) &selNeigs);
-							return err;
-						}
-
-						if (selectionInfo.typeID != API_SelEmpty) {
-							nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-							for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-								tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-
-								tElem.header.guid = (*selNeigs)[xx].guid;
-								if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
-									continue;
-
-								if (tElem.header.typeID == API_ObjectID)
-									objects.Push (tElem.header.guid);
-
-							}
-						}
-						BMKillHandle ((GSHandle *) &selNeigs);
-						nObjects = objects.GetSize ();
-
-						// ... 선택한 객체의 ID를 출력함
-						// ... 선택한 객체의 ID를 변경함
-						for (xx = 0 ; xx < nObjects ; ++xx) {
-							BNZeroMemory (&elem, sizeof (API_Element));
-							BNZeroMemory (&memo, sizeof (API_ElementMemo));
-							elem.header.guid = objects.Pop ();
-							err = ACAPI_Element_Get (&elem);
-							err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
-
-							// ...
-							GS::UniString *tempStr = memo.elemInfoString;
-							ACAPI_WriteReport (tempStr->ToCStr ().Get (), true);
-
-							ACAPI_DisposeElemMemoHdls (&memo);
-						}
+						// ...
 
 						return err;
 					});
