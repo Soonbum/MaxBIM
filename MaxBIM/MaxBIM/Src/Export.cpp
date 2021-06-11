@@ -864,11 +864,11 @@ GSErrCode	exportSelectedElementInfo (void)
 			if (my_strcmp (objectInfo.nameVal [xx].c_str (), "유로폼 후크") == 0) {
 				// 원형
 				if (my_strcmp (objectInfo.var2value [xx][yy].c_str (), "원형") == 0) {
-					sprintf (buffer, "원형, %s ", objectInfo.var1value [xx][yy].c_str ());
+					sprintf (buffer, "원형 / %s ", objectInfo.var1value [xx][yy].c_str ());
 
 				// 사각
 				} else {
-					sprintf (buffer, "사각, %s ", objectInfo.var1value [xx][yy].c_str ());
+					sprintf (buffer, "사각 / %s ", objectInfo.var1value [xx][yy].c_str ());
 				}
 				fprintf (fp, buffer);
 
@@ -1084,7 +1084,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), "아니오");
 						}
 					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), objectInfo.var1value [xx][yy]);
+						sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), objectInfo.var1value [xx][yy].c_str ());
 					}
 					if (bShow) fprintf (fp, buffer);
 				}
@@ -1118,7 +1118,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), "아니오");
 						}
 					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), objectInfo.var2value [xx][yy]);
+						sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), objectInfo.var2value [xx][yy].c_str ());
 					}
 					if (bShow) fprintf (fp, buffer);
 				}
@@ -1152,7 +1152,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), "아니오");
 						}
 					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), objectInfo.var3value [xx][yy]);
+						sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), objectInfo.var3value [xx][yy].c_str ());
 					}
 					if (bShow) fprintf (fp, buffer);
 				}
@@ -1186,7 +1186,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), "아니오");
 						}
 					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), objectInfo.var4value [xx][yy]);
+						sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), objectInfo.var4value [xx][yy].c_str ());
 					}
 					if (bShow) fprintf (fp, buffer);
 				}
@@ -1220,7 +1220,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), "아니오");
 						}
 					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), objectInfo.var5value [xx][yy]);
+						sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), objectInfo.var5value [xx][yy].c_str ());
 					}
 					if (bShow) fprintf (fp, buffer);
 				}
@@ -1254,7 +1254,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), "아니오");
 						}
 					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), objectInfo.var6value [xx][yy]);
+						sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), objectInfo.var6value [xx][yy].c_str ());
 					}
 					if (bShow) fprintf (fp, buffer);
 				}
@@ -1288,7 +1288,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), "아니오");
 						}
 					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), objectInfo.var7value [xx][yy]);
+						sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), objectInfo.var7value [xx][yy].c_str ());
 					}
 					if (bShow) fprintf (fp, buffer);
 				}
@@ -1322,7 +1322,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), "아니오");
 						}
 					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), objectInfo.var8value [xx][yy]);
+						sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), objectInfo.var8value [xx][yy].c_str ());
 					}
 					if (bShow) fprintf (fp, buffer);
 				}
@@ -1356,7 +1356,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), "아니오");
 						}
 					} else {
-						sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), objectInfo.var9value [xx][yy]);
+						sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), objectInfo.var9value [xx][yy].c_str ());
 					}
 					if (bShow) fprintf (fp, buffer);
 				}
@@ -1863,11 +1863,11 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 					if (my_strcmp (objectInfo.nameVal [xx].c_str (), "유로폼 후크") == 0) {
 						// 원형
 						if (my_strcmp (objectInfo.var2value [xx][yy].c_str (), "원형") == 0) {
-							sprintf (buffer, "원형, %s ", objectInfo.var1value [xx][yy].c_str ());
+							sprintf (buffer, "원형 / %s ", objectInfo.var1value [xx][yy].c_str ());
 
 						// 사각
 						} else {
-							sprintf (buffer, "사각, %s ", objectInfo.var1value [xx][yy].c_str ());
+							sprintf (buffer, "사각 / %s ", objectInfo.var1value [xx][yy].c_str ());
 						}
 						fprintf (fp, buffer);
 
@@ -2083,7 +2083,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 									sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), "아니오");
 								}
 							} else {
-								sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), objectInfo.var1value [xx][yy]);
+								sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), objectInfo.var1value [xx][yy].c_str ());
 							}
 							if (bShow) fprintf (fp, buffer);
 						}
@@ -2117,7 +2117,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 									sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), "아니오");
 								}
 							} else {
-								sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), objectInfo.var2value [xx][yy]);
+								sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), objectInfo.var2value [xx][yy].c_str ());
 							}
 							if (bShow) fprintf (fp, buffer);
 						}
@@ -2151,7 +2151,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 									sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), "아니오");
 								}
 							} else {
-								sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), objectInfo.var3value [xx][yy]);
+								sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), objectInfo.var3value [xx][yy].c_str ());
 							}
 							if (bShow) fprintf (fp, buffer);
 						}
@@ -2185,7 +2185,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 									sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), "아니오");
 								}
 							} else {
-								sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), objectInfo.var4value [xx][yy]);
+								sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), objectInfo.var4value [xx][yy].c_str ());
 							}
 							if (bShow) fprintf (fp, buffer);
 						}
@@ -2219,7 +2219,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 									sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), "아니오");
 								}
 							} else {
-								sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), objectInfo.var5value [xx][yy]);
+								sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), objectInfo.var5value [xx][yy].c_str ());
 							}
 							if (bShow) fprintf (fp, buffer);
 						}
@@ -2253,7 +2253,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 									sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), "아니오");
 								}
 							} else {
-								sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), objectInfo.var6value [xx][yy]);
+								sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), objectInfo.var6value [xx][yy].c_str ());
 							}
 							if (bShow) fprintf (fp, buffer);
 						}
@@ -2287,7 +2287,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 									sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), "아니오");
 								}
 							} else {
-								sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), objectInfo.var7value [xx][yy]);
+								sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), objectInfo.var7value [xx][yy].c_str ());
 							}
 							if (bShow) fprintf (fp, buffer);
 						}
@@ -2321,7 +2321,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 									sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), "아니오");
 								}
 							} else {
-								sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), objectInfo.var8value [xx][yy]);
+								sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), objectInfo.var8value [xx][yy].c_str ());
 							}
 							if (bShow) fprintf (fp, buffer);
 						}
@@ -2355,7 +2355,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 									sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), "아니오");
 								}
 							} else {
-								sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), objectInfo.var9value [xx][yy]);
+								sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), objectInfo.var9value [xx][yy].c_str ());
 							}
 							if (bShow) fprintf (fp, buffer);
 						}
