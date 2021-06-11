@@ -19,6 +19,22 @@
 
   - 만약 메뉴가 제대로 표시되지 않는다면 옵션 > 작업 환경 > 메뉴를 통해 직접 메뉴를 구성하셔야 됩니다.
 
+* 프로젝트 구성 디렉토리 (2021.06.11 업데이트)
+
+  - MaxBIM : MaxBIM.sln
+
+    - MaxBIM : MaxBIM..vcxproj, MaxBIM.vcxproj, MaxBIM.vcxproj.user
+
+      - Doc : 애드온 실행에 필요한 외부 입력 파일(.csv)들이 있음
+
+      - RFIX : MaxBIMFix.grc (애드온 및 메뉴 설명) 및 이미지 리소스 파일들이 있음
+
+      - RFIX.WIN : MaxBIM.rc2
+
+      - RINT : MaxBIM.grc (개발자/애드온 ID, 이미지/아이콘 리소스 ID, 다이얼로그 리소스 ID 등)
+
+      - Src : 여러 가지 C/C++ header, source 파일들이 있음
+
 * 메뉴 구성 (2021.05.31 업데이트)
 
   - 유로폼 배치
