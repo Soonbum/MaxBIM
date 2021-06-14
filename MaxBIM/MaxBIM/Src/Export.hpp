@@ -20,6 +20,12 @@ namespace exportDG {
 		BEAM,	// 보 -> 측면, 하부 캡쳐할 것
 		WLBM	// 눈썹보 -> 측면, 하부 캡쳐할 것
 	};
+
+	enum	filterSelectionDG {
+		BUTTON_ALL_SEL = 3,
+		BUTTON_ALL_UNSEL,
+		CHECKBOX_INCLUDE_UNKNOWN_OBJECT
+	};
 }
 
 // 개별 기둥의 정보
@@ -135,6 +141,54 @@ public:
 	short nUnknownObjects;						// 지정되지 않은 객체의 개수
 };
 
+// 보이는 레이어 상의 객체별 명칭, 존재 여부, 보이기 여부
+struct VisibleObjectInfo
+{
+	// Object 타입
+	short	nKinds;				// 객체 종류 개수
+	char	varName [100][50];	// 1열: 변수명
+	char	objName [100][128];	// 2열: 객체명
+	bool	bExist [100];		// 존재 여부
+	bool	bShow [100];		// 표시 여부
+	short	itmIdx [100];		// 다이얼로그 내 인덱스
+
+	// 나머지 타입
+	bool	bExist_Walls;
+	bool	bShow_Walls;
+	short	itmIdx_Walls;
+
+	bool	bExist_Columns;
+	bool	bShow_Columns;
+	short	itmIdx_Columns;
+
+	bool	bExist_Beams;
+	bool	bShow_Beams;
+	short	itmIdx_Beams;
+
+	bool	bExist_Slabs;
+	bool	bShow_Slabs;
+	short	itmIdx_Slabs;
+
+	bool	bExist_Roofs;
+	bool	bShow_Roofs;
+	short	itmIdx_Roofs;
+
+	bool	bExist_Meshes;
+	bool	bShow_Meshes;
+	short	itmIdx_Meshes;
+
+	bool	bExist_Morphs;
+	bool	bShow_Morphs;
+	short	itmIdx_Morphs;
+
+	bool	bExist_Shells;
+	bool	bShow_Shells;
+	short	itmIdx_Shells;
+
+	// 존재하는 항목 전체 개수
+	short	nItems;
+};
+
 void		initArray (double arr [], short arrSize);											// 배열 초기화 함수
 int			compare (const void* first, const void* second);									// 오름차순으로 정렬할 때 사용하는 비교함수 (퀵소트)
 ColumnInfo	findColumn (ColumnPos* columnPos, short iHor, short iVer, short floorInd);			// 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
@@ -143,5 +197,6 @@ short		DGCALLBACK inputThresholdHandler (short message, short dialogID, short it
 GSErrCode	exportSelectedElementInfo (void);													// 선택한 부재 정보 내보내기 (Single 모드)
 GSErrCode	exportElementInfoOnVisibleLayers (void);											// 선택한 부재 정보 내보내기 (Multi 모드)
 GSErrCode	filterSelection (void);																// 부재별 선택 후 보여주기
+short		DGCALLBACK filterSelectionHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그] 다이얼로그에서 보이는 레이어 상에 있는 객체들의 종류를 보여주고, 체크한 종류의 객체들만 선택 후 보여줌
 
 #endif

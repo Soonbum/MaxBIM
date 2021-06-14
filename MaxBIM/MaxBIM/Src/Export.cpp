@@ -9,7 +9,7 @@
 using namespace exportDG;
 
 double DIST_BTW_COLUMN = 2.000;		// 기둥 간 최소 간격 (기본값), 추후 다이얼로그에서 변경할 수 있음
-
+VisibleObjectInfo	visibleObjInfo;	// 보이는 레이어 상의 객체별 명칭, 존재 여부, 보이기 여부
 
 // 배열 초기화 함수
 void initArray (double arr [], short arrSize)
@@ -378,7 +378,7 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 	short	tokCount;		// 읽어온 토큰 개수
 	short	xx;
 
-	char	nthToken [50][50];	// n번째 토큰
+	char	nthToken [100][50];	// n번째 토큰
 
 	// 객체 정보 파일 가져오기
 	fp = fopen ("C:\\objectInfo.csv", "r");
@@ -1442,7 +1442,9 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
 	IO::Location		location;
 	GS::UniString		resultString;
+	API_MiscAppInfo		miscAppInfo;
 	FILE				*fp;
+	FILE				*fp_unite;
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -1477,6 +1479,15 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			attrib.layer.head.flags |= APILay_Hidden;
 			ACAPI_Attribute_Modify (&attrib, NULL);
 		}
+	}
+
+	ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
+	sprintf (filename, "%s - 선택한 부재 정보 (통합).csv", miscAppInfo.caption);
+	fp_unite = fopen (filename, "w+");
+
+	if (fp_unite == NULL) {
+		ACAPI_WriteReport ("통합 버전 엑셀파일을 만들 수 없습니다.", true);
+		return	NoError;
 	}
 
 	// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 "선택한 부재 정보 내보내기" 루틴 실행
@@ -1542,6 +1553,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 				ACAPI_WriteReport (buffer, true);
 				continue;
 			}
+
+			// 레이어 이름 (통합 버전에만)
+			sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
+			fprintf (fp_unite, buffer);
 
 			// 선택한 요소들의 정보 요약하기
 			API_Element			elem;
@@ -1858,6 +1873,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 					if (yy == 0) {
 						sprintf (buffer, "\n[%s]\n", objectInfo.nameVal [xx].c_str ());
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 					}
 
 					if (my_strcmp (objectInfo.nameVal [xx].c_str (), "유로폼 후크") == 0) {
@@ -1870,6 +1886,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							sprintf (buffer, "사각 / %s ", objectInfo.var1value [xx][yy].c_str ());
 						}
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "유로폼") == 0) {
 						// 규격폼
@@ -1883,6 +1900,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
 						}
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "스틸폼") == 0) {
 						// 규격폼
@@ -1896,6 +1914,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
 						}
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "목재") == 0) {
 						length = atof (objectInfo.var1value [xx][yy].c_str ());
@@ -1903,61 +1922,74 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 						length3 = atof (objectInfo.var3value [xx][yy].c_str ());
 						sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "합판(다각형)") == 0) {
 						sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.var1value [xx][yy].c_str ());
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 						if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
 							sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var3value [xx][yy].c_str ());
 							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 						}
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "합판") == 0) {
 						if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "3x6 [910x1820]") == 0) {
 							sprintf (buffer, "910 X 1820 X %s ", objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 							}
 						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "4x8 [1220x2440]") == 0) {
 							sprintf (buffer, "1220 X 2440 X %s ", objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 							}
 						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "2x5 [606x1520]") == 0) {
 							sprintf (buffer, "606 X 1520 X %s ", objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 							}
 						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "2x6 [606x1820]") == 0) {
 							sprintf (buffer, "606 X 1820 X %s ", objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 							}
 						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "3x5 [910x1520]") == 0) {
 							sprintf (buffer, "910 X 1520 X %s ", objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 							}
 						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "비규격") == 0) {
 							// 가로 X 세로 X 두께
@@ -1965,24 +1997,29 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							length2 = atof (objectInfo.var4value [xx][yy].c_str ());
 							sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.var2value [xx][yy].c_str ());
 							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 							}
 						} else if (my_strcmp (objectInfo.var1value [xx][yy].c_str (), "비정형") == 0) {
 							sprintf (buffer, "비정형 ");
 							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.var5value [xx][yy].c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.var6value [xx][yy].c_str ());
 								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 							}
 						} else {
 							sprintf (buffer, "합판(다각형) ");
 							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 						}
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "RS Push-Pull Props") == 0) {
@@ -1993,16 +2030,19 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							sprintf (buffer, "베이스 플레이트(없음) ");
 						}
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 						// 규격(상부)
 						sprintf (buffer, "규격(상부): %s ", objectInfo.var2value [xx][yy].c_str ());
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 						// 규격(하부) - 선택사항
 						if (atoi (objectInfo.var4value [xx][yy].c_str ()) == 1) {
 							sprintf (buffer, "규격(하부): %s ", objectInfo.var3value [xx][yy].c_str ());
 						}
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "사각파이프") == 0) {
 						// 사각파이프
@@ -2016,16 +2056,19 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							sprintf (buffer, "%s x %.0f ", objectInfo.var1value [xx][yy].c_str (), round (length*1000, 0));
 						}
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "원형파이프") == 0) {
 						length = atof (objectInfo.var1value [xx][yy].c_str ());
 						sprintf (buffer, "%.0f ", round (length*1000, 0));
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "아웃코너앵글") == 0) {
 						length = atof (objectInfo.var1value [xx][yy].c_str ());
 						sprintf (buffer, "%.0f ", round (length*1000, 0));
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "매직바") == 0) {
 						if (atoi (objectInfo.var2value [xx][yy].c_str ()) > 0) {
@@ -2037,19 +2080,23 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							sprintf (buffer, "%.0f ", round (length*1000, 0));
 						}
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "블루목심") == 0) {
 						sprintf (buffer, "%s ", objectInfo.var1value [xx][yy].c_str ());
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "보 멍에제") == 0) {
 						length = atof (objectInfo.var1value [xx][yy].c_str ());
 						sprintf (buffer, "%.0f ", round (length*1000, 0));
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else if (my_strcmp (objectInfo.nameVal [xx].c_str (), "물량합판") == 0) {
 						sprintf (buffer, "%s ㎡ ", objectInfo.var1value [xx][yy].c_str ());
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 
 					} else {
 						// 변수별 값 표현
@@ -2085,7 +2132,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							} else {
 								sprintf (buffer, "%s(%s) ", objectInfo.var1desc [xx].c_str (), objectInfo.var1value [xx][yy].c_str ());
 							}
-							if (bShow) fprintf (fp, buffer);
+							if (bShow) {
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+							}
 						}
 						if (objectInfo.var2name [xx].size () > 1) {
 							bShow = false;
@@ -2119,7 +2169,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							} else {
 								sprintf (buffer, "%s(%s) ", objectInfo.var2desc [xx].c_str (), objectInfo.var2value [xx][yy].c_str ());
 							}
-							if (bShow) fprintf (fp, buffer);
+							if (bShow) {
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+							}
 						}
 						if (objectInfo.var3name [xx].size () > 1) {
 							bShow = false;
@@ -2153,7 +2206,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							} else {
 								sprintf (buffer, "%s(%s) ", objectInfo.var3desc [xx].c_str (), objectInfo.var3value [xx][yy].c_str ());
 							}
-							if (bShow) fprintf (fp, buffer);
+							if (bShow) {
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+							}
 						}
 						if (objectInfo.var4name [xx].size () > 1) {
 							bShow = false;
@@ -2187,7 +2243,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							} else {
 								sprintf (buffer, "%s(%s) ", objectInfo.var4desc [xx].c_str (), objectInfo.var4value [xx][yy].c_str ());
 							}
-							if (bShow) fprintf (fp, buffer);
+							if (bShow) {
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+							}
 						}
 						if (objectInfo.var5name [xx].size () > 1) {
 							bShow = false;
@@ -2221,7 +2280,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							} else {
 								sprintf (buffer, "%s(%s) ", objectInfo.var5desc [xx].c_str (), objectInfo.var5value [xx][yy].c_str ());
 							}
-							if (bShow) fprintf (fp, buffer);
+							if (bShow) {
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+							}
 						}
 						if (objectInfo.var6name [xx].size () > 1) {
 							bShow = false;
@@ -2255,7 +2317,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							} else {
 								sprintf (buffer, "%s(%s) ", objectInfo.var6desc [xx].c_str (), objectInfo.var6value [xx][yy].c_str ());
 							}
-							if (bShow) fprintf (fp, buffer);
+							if (bShow) {
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+							}
 						}
 						if (objectInfo.var7name [xx].size () > 1) {
 							bShow = false;
@@ -2289,7 +2354,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							} else {
 								sprintf (buffer, "%s(%s) ", objectInfo.var7desc [xx].c_str (), objectInfo.var7value [xx][yy].c_str ());
 							}
-							if (bShow) fprintf (fp, buffer);
+							if (bShow) {
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+							}
 						}
 						if (objectInfo.var8name [xx].size () > 1) {
 							bShow = false;
@@ -2323,7 +2391,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							} else {
 								sprintf (buffer, "%s(%s) ", objectInfo.var8desc [xx].c_str (), objectInfo.var8value [xx][yy].c_str ());
 							}
-							if (bShow) fprintf (fp, buffer);
+							if (bShow) {
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+							}
 						}
 						if (objectInfo.var9name [xx].size () > 1) {
 							bShow = false;
@@ -2357,7 +2428,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							} else {
 								sprintf (buffer, "%s(%s) ", objectInfo.var9desc [xx].c_str (), objectInfo.var9value [xx][yy].c_str ());
 							}
-							if (bShow) fprintf (fp, buffer);
+							if (bShow) {
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+							}
 						}
 					}
 
@@ -2365,6 +2439,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 					if (objectInfo.combinationCount [xx][yy] > 0) {
 						sprintf (buffer, ": %d EA\n", objectInfo.combinationCount [xx][yy]);
 						fprintf (fp, buffer);
+						fprintf (fp_unite, buffer);
 					}
 				}
 			}
@@ -2372,16 +2447,20 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			// 일반 요소 - 보
 			for (xx = 0 ; xx < objectInfo.nCountsBeam ; ++xx) {
 				if (xx == 0) {
-					fprintf (fp, "\n[보]\n");
+					sprintf (buffer, "\n[보]\n");
+					fprintf (fp, buffer);
+					fprintf (fp_unite, buffer);
 				}
 				sprintf (buffer, "%d : %d EA\n", objectInfo.beamLength [xx], objectInfo.beamCount [xx]);
 				fprintf (fp, buffer);
+				fprintf (fp_unite, buffer);
 			}
 
 			// 알 수 없는 객체
 			if (objectInfo.nUnknownObjects > 0) {
 				sprintf (buffer, "\n알 수 없는 객체 : %d EA\n", objectInfo.nUnknownObjects);
 				fprintf (fp, buffer);
+				fprintf (fp_unite, buffer);
 			}
 
 			fclose (fp);
@@ -2999,6 +3078,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 		}
 	}
 
+	fclose (fp_unite);
+
 	// 모든 프로세스를 마치면 처음에 수집했던 보이는 레이어들을 다시 켜놓을 것
 	for (xx = 1 ; xx <= nVisibleLayers ; ++xx) {
 		BNZeroMemory (&attrib, sizeof (API_Attribute));
@@ -3029,21 +3110,20 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 GSErrCode	filterSelection (void)
 {
 	GSErrCode	err = NoError;
-	short		xx;
+	short		xx, yy;
 	bool		regenerate = true;
 	short		result;
+	const char*	tempStr;
 
-	//vector<string>	1열: 변수명
-	//vector<string>	2열: 객체명
-	//					존재 여부
-	//					표시 여부
+	FILE	*fp;				// 파일 포인터
+	char	line [10240];		// 파일에서 읽어온 라인 하나
+	char	*token;				// 읽어온 문자열의 토큰
+	short	lineCount;			// 읽어온 라인 수
+	short	tokCount;			// 읽어온 토큰 개수
+	char	nthToken [100][50];	// n번째 토큰
 
-	FILE		*fp;		// 파일 포인터
-	char	line [10240];	// 파일에서 읽어온 라인 하나
-	char	*token;			// 읽어온 문자열의 토큰
-	short	lineCount;		// 읽어온 라인 수
-	short	tokCount;		// 읽어온 토큰 개수
-	char	nthToken [50][50];	// n번째 토큰
+	API_Element			elem;
+	API_ElementMemo		memo;
 
 	// GUID 저장을 위한 변수
 	GS::Array<API_Guid>	objects	= GS::Array<API_Guid> ();	long nObjects	= 0;
@@ -3058,14 +3138,14 @@ GSErrCode	filterSelection (void)
 
 	
 	ACAPI_Element_GetElemList (API_ObjectID, &objects, APIFilt_OnVisLayer);		nObjects = objects.GetSize ();	// 보이는 레이어 상의 객체 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ObjectID, &walls, APIFilt_OnVisLayer);		nWalls = objects.GetSize ();	// 보이는 레이어 상의 벽 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ObjectID, &columns, APIFilt_OnVisLayer);		nColumns = objects.GetSize ();	// 보이는 레이어 상의 기둥 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ObjectID, &beams, APIFilt_OnVisLayer);		nBeams = objects.GetSize ();	// 보이는 레이어 상의 보 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ObjectID, &slabs, APIFilt_OnVisLayer);		nSlabs = objects.GetSize ();	// 보이는 레이어 상의 슬래브 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ObjectID, &roofs, APIFilt_OnVisLayer);		nRoofs = objects.GetSize ();	// 보이는 레이어 상의 루프 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ObjectID, &meshes, APIFilt_OnVisLayer);		nMeshes = objects.GetSize ();	// 보이는 레이어 상의 메시 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ObjectID, &morphs, APIFilt_OnVisLayer);		nMorphs = objects.GetSize ();	// 보이는 레이어 상의 모프 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ObjectID, &shells, APIFilt_OnVisLayer);		nShells = objects.GetSize ();	// 보이는 레이어 상의 셸 타입만 가져오기
+	ACAPI_Element_GetElemList (API_WallID, &walls, APIFilt_OnVisLayer);			nWalls = walls.GetSize ();	// 보이는 레이어 상의 벽 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ColumnID, &columns, APIFilt_OnVisLayer);		nColumns = columns.GetSize ();	// 보이는 레이어 상의 기둥 타입만 가져오기
+	ACAPI_Element_GetElemList (API_BeamID, &beams, APIFilt_OnVisLayer);			nBeams = beams.GetSize ();	// 보이는 레이어 상의 보 타입만 가져오기
+	ACAPI_Element_GetElemList (API_SlabID, &slabs, APIFilt_OnVisLayer);			nSlabs = slabs.GetSize ();	// 보이는 레이어 상의 슬래브 타입만 가져오기
+	ACAPI_Element_GetElemList (API_RoofID, &roofs, APIFilt_OnVisLayer);			nRoofs = roofs.GetSize ();	// 보이는 레이어 상의 루프 타입만 가져오기
+	ACAPI_Element_GetElemList (API_MeshID, &meshes, APIFilt_OnVisLayer);		nMeshes = meshes.GetSize ();	// 보이는 레이어 상의 메시 타입만 가져오기
+	ACAPI_Element_GetElemList (API_MorphID, &morphs, APIFilt_OnVisLayer);		nMorphs = morphs.GetSize ();	// 보이는 레이어 상의 모프 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ShellID, &shells, APIFilt_OnVisLayer);		nShells = shells.GetSize ();	// 보이는 레이어 상의 셸 타입만 가져오기
 
 	if (nObjects == 0 && nWalls == 0 && nColumns == 0 && nBeams == 0 && nSlabs == 0 && nRoofs == 0 && nMeshes == 0 && nMorphs == 0 && nShells == 0) {
 		result = DGAlert (DG_INFORMATION, "종료 알림", "아무 객체도 존재하지 않습니다.", "", "확인", "", "");
@@ -3099,20 +3179,86 @@ GSErrCode	filterSelection (void)
 			tokCount ++;
 		}
 
-		//nthToken [0]: 변수명
-		//nthToken [1]: 변수에 들어갈 수 있는 이름 - 유로폼, 원형파이프 등
+		sprintf (visibleObjInfo.varName [lineCount-1], "%s", nthToken [0]);
+		sprintf (visibleObjInfo.objName [lineCount-1], "%s", nthToken [1]);
+	}
+
+	visibleObjInfo.nKinds = lineCount;
+
+	// 끝에 같은 항목이 2번 들어갈 수 있으므로 중복 제거
+	if (lineCount >= 2) {
+		if (my_strcmp (visibleObjInfo.varName [lineCount-1], visibleObjInfo.varName [lineCount-2]) == 0) {
+			visibleObjInfo.nKinds --;
+		}
 	}
 
 	// 파일 닫기
 	fclose (fp);
 
-	// 1. objectInfo의 1, 2열 필드 정보를 기반으로 부재별 리스트를 만듦
-		// vector<string>에 저장할 것: 1, 2열 필드의 문자열 + 존재 여부 필드 + 표시 여부 필드
-	// 2. 켜져 있는 레이어 상에서 존재하는 부재들이 있으면 존재 여부 필드에 체크함
-	// 3. 생성된 리스트를 기반으로 다이얼로그 창을 만듦
-	// 4. 확인 버튼을 누르면 보이는 레이어 상에서 해당 속성을 가진 요소를 선택한다. (반복)
-		// 표시 여부 필드를 먼저 체크하고...
-	// 5. 선택 작업을 마치면 3D 상에서 선택한 것들을 보여준다.
+	// 존재 여부, 표시 여부 초기화
+	for (xx = 0 ; xx < 50 ; ++xx) {
+		visibleObjInfo.bExist [xx] = false;
+		visibleObjInfo.bShow [xx] = false;
+	}
+	visibleObjInfo.bExist_Walls = false;
+	visibleObjInfo.bShow_Walls = false;
+	visibleObjInfo.bExist_Columns = false;
+	visibleObjInfo.bShow_Columns = false;
+	visibleObjInfo.bExist_Beams = false;
+	visibleObjInfo.bShow_Beams = false;
+	visibleObjInfo.bExist_Slabs = false;
+	visibleObjInfo.bShow_Slabs = false;
+	visibleObjInfo.bExist_Roofs = false;
+	visibleObjInfo.bShow_Roofs = false;
+	visibleObjInfo.bExist_Meshes = false;
+	visibleObjInfo.bShow_Meshes = false;
+	visibleObjInfo.bExist_Morphs = false;
+	visibleObjInfo.bShow_Morphs = false;
+	visibleObjInfo.bExist_Shells = false;
+	visibleObjInfo.bShow_Shells = false;
+
+	// 존재 여부 체크
+	for (xx = 0 ; xx < nObjects ; ++xx) {
+		BNZeroMemory (&elem, sizeof (API_Element));
+		BNZeroMemory (&memo, sizeof (API_ElementMemo));
+		elem.header.guid = objects.Pop ();
+		err = ACAPI_Element_Get (&elem);
+		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+		for (yy = 0 ; yy < visibleObjInfo.nKinds ; ++yy) {
+			tempStr = getParameterStringByName (&memo, visibleObjInfo.varName [yy]);
+			if (tempStr != NULL) {
+				if (my_strcmp (tempStr, visibleObjInfo.objName [yy]) == 0) {
+					visibleObjInfo.bExist [yy] = true;
+				}
+			}
+		}
+
+		ACAPI_DisposeElemMemoHdls (&memo);
+	}
+	if (nWalls > 0)		visibleObjInfo.bExist_Walls = true;
+	if (nColumns > 0)	visibleObjInfo.bExist_Columns = true;
+	if (nBeams > 0)		visibleObjInfo.bExist_Beams = true;
+	if (nSlabs > 0)		visibleObjInfo.bExist_Slabs = true;
+	if (nRoofs > 0)		visibleObjInfo.bExist_Roofs = true;
+	if (nMeshes > 0)	visibleObjInfo.bExist_Meshes = true;
+	if (nMorphs > 0)	visibleObjInfo.bExist_Morphs = true;
+	if (nShells > 0)	visibleObjInfo.bExist_Shells = true;
+
+	visibleObjInfo.nItems = visibleObjInfo.nKinds +
+		(visibleObjInfo.bExist_Walls * 1) +
+		(visibleObjInfo.bExist_Columns * 1) +
+		(visibleObjInfo.bExist_Beams * 1) +
+		(visibleObjInfo.bExist_Slabs * 1) +
+		(visibleObjInfo.bExist_Roofs * 1) +
+		(visibleObjInfo.bExist_Meshes * 1) +
+		(visibleObjInfo.bExist_Morphs * 1) +
+		(visibleObjInfo.bExist_Shells * 1);
+
+	// [DIALOG] 다이얼로그에서 보이는 레이어 상에 있는 객체들의 종류를 보여주고, 체크한 종류의 객체들만 선택 후 보여줌
+	result = DGBlankModalDialog (750, 500, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, filterSelectionHandler, 0);
+
+	// ...
 
 	return	err;
 }
@@ -3169,6 +3315,181 @@ short DGCALLBACK inputThresholdHandler (short message, short dialogID, short ite
 					break;
 
 				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
+}
+
+// [다이얼로그] 다이얼로그에서 보이는 레이어 상에 있는 객체들의 종류를 보여주고, 체크한 종류의 객체들만 선택 후 보여줌
+short DGCALLBACK filterSelectionHandler (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	short	result;
+	short	xx;
+	short	itmIdx;
+	short	itmPosX, itmPosY;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "선택한 타입의 객체 선택 후 보여주기");
+
+			// 확인 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 10, 80, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "확인");
+			DGShowItem (dialogID, DG_OK);
+
+			// 취소 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 10, 80, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGShowItem (dialogID, DG_CANCEL);
+
+			// 버튼: 전체선택
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 50, 80, 25);
+			DGSetItemFont (dialogID, BUTTON_ALL_SEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_ALL_SEL, "전체선택");
+			DGShowItem (dialogID, BUTTON_ALL_SEL);
+
+			// 버튼: 전체선택 해제
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 50, 80, 25);
+			DGSetItemFont (dialogID, BUTTON_ALL_UNSEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_ALL_UNSEL, "전체선택\n해제");
+			DGShowItem (dialogID, BUTTON_ALL_UNSEL);
+
+			// 체크박스: 알려지지 않은 객체 포함
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 220, 50, 250, 25);
+			DGSetItemFont (dialogID, CHECKBOX_INCLUDE_UNKNOWN_OBJECT, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_INCLUDE_UNKNOWN_OBJECT, "알려지지 않은 객체 포함");
+			DGShowItem (dialogID, CHECKBOX_INCLUDE_UNKNOWN_OBJECT);
+
+			// 구분자
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 5, 90, 740, 1);
+			DGShowItem (dialogID, itmIdx);
+
+			// ...
+			// visibleObjInfo.nItems
+			// 다이얼로그 박스 크기?
+
+			// 체크박스 항목들 배치할 것
+			itmPosX = 20;	itmPosY = 105;	// Y의 범위 105 ~ 500까지
+
+			if (visibleObjInfo.bExist_Walls == true) {
+				visibleObjInfo.itmIdx_Walls = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 140, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "벽");
+				DGShowItem (dialogID, itmIdx);
+				itmPosY += 30;
+			}
+			if (visibleObjInfo.bExist_Columns == true) {
+				visibleObjInfo.itmIdx_Columns = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 140, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "기둥");
+				DGShowItem (dialogID, itmIdx);
+				itmPosY += 30;
+			}
+			if (visibleObjInfo.bExist_Beams == true) {
+				visibleObjInfo.itmIdx_Beams = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 140, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "보");
+				DGShowItem (dialogID, itmIdx);
+				itmPosY += 30;
+			}
+			if (visibleObjInfo.bExist_Slabs == true) {
+				visibleObjInfo.itmIdx_Slabs = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 140, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "슬래브");
+				DGShowItem (dialogID, itmIdx);
+				itmPosY += 30;
+			}
+			if (visibleObjInfo.bExist_Roofs == true) {
+				visibleObjInfo.itmIdx_Roofs = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 140, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "루프");
+				DGShowItem (dialogID, itmIdx);
+				itmPosY += 30;
+			}
+			if (visibleObjInfo.bExist_Meshes == true) {
+				visibleObjInfo.itmIdx_Meshes = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 140, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "메시");
+				DGShowItem (dialogID, itmIdx);
+				itmPosY += 30;
+			}
+			if (visibleObjInfo.bExist_Morphs == true) {
+				visibleObjInfo.itmIdx_Morphs = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 140, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "모프");
+				DGShowItem (dialogID, itmIdx);
+				itmPosY += 30;
+			}
+			if (visibleObjInfo.bExist_Shells == true) {
+				visibleObjInfo.itmIdx_Shells = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 140, 25);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
+				DGSetItemText (dialogID, itmIdx, "셸");
+				DGShowItem (dialogID, itmIdx);
+				itmPosY += 30;
+			}
+
+			for (xx = 0 ; xx < visibleObjInfo.nKinds ; ++xx) {
+				if (visibleObjInfo.bExist [xx] == true) {
+					visibleObjInfo.itmIdx [xx] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 140, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, visibleObjInfo.objName [xx]);
+					DGShowItem (dialogID, itmIdx);
+					itmPosY += 30;
+
+					//itmPosX += 150;
+					//itmPosY = 105;
+				}
+			}
+
+			break;
+		
+		case DG_MSG_CHANGE:
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					// visibleObjInfo.
+					//short	nKinds;				// 객체 종류 개수
+					//char	varName [100][50];	// 1열: 변수명
+					//char	objName [100][128];	// 2열: 객체명
+					//bool	bExist [100];		// 존재 여부
+					//bShow
+					//bExist_Walls;
+					//bShow_Walls;
+					//bExist_Columns;
+					//bShow_Columns;
+					//bExist_Beams;
+					//bShow_Beams;
+					//bExist_Slabs;
+					//bShow_Slabs;
+					//bExist_Roofs;
+					//bShow_Roofs;
+					//bExist_Meshes;
+					//bShow_Meshes;
+					//bExist_Morphs;
+					//bShow_Morphs;
+					//bExist_Shells;
+					//bShow_Shells;
+					break;
+
+				case DG_CANCEL:
+					break;
+
+				default:
+					item = 0;
 					break;
 			}
 		case DG_MSG_CLOSE:
