@@ -860,10 +860,17 @@ API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short lay
 // pName 파라미터의 값을 value로 설정함 (실수형) - 성공하면 true, 실패하면 false
 bool	setParameterByName (API_ElementMemo* memo, char* pName, double value)
 {
+	const char*	retStr = NULL;
+
 	for (short xx = 0 ; xx < 500 ; ++xx) {
-		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
-			memo->params [0][xx].value.real = value;
-			return	true;
+		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
+		if (retStr != NULL) {
+			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+				memo->params [0][xx].value.real = value;
+				return	true;
+			}
+		} else {
+			return false;
 		}
 	}
 
@@ -873,10 +880,17 @@ bool	setParameterByName (API_ElementMemo* memo, char* pName, double value)
 // pName 파라미터의 값을 value로 설정함 (문자열) - 성공하면 true, 실패하면 false
 bool	setParameterByName (API_ElementMemo* memo, char* pName, char* value)
 {
+	const char*	retStr = NULL;
+
 	for (short xx = 0 ; xx < 500 ; ++xx) {
-		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
-			GS::ucscpy (memo->params [0][xx].value.uStr, GS::UniString (value).ToUStr ().Get ());
-			return	true;
+		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
+		if (retStr != NULL) {
+			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+				GS::ucscpy (memo->params [0][xx].value.uStr, GS::UniString (value).ToUStr ().Get ());
+				return	true;
+			}
+		} else {
+			return false;
 		}
 	}
 
@@ -886,9 +900,16 @@ bool	setParameterByName (API_ElementMemo* memo, char* pName, char* value)
 // pName 파라미터의 값을 가져옴 (실수형) - 성공하면 true, 실패하면 false
 double	getParameterValueByName (API_ElementMemo* memo, char* pName)
 {
-	for (short xx = 0 ; xx < 50 ; ++xx) {
-		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
-			return memo->params [0][xx].value.real;
+	const char*	retStr = NULL;
+
+	for (short xx = 0 ; xx < 100 ; ++xx) {
+		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
+		if (retStr != NULL) {
+			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+				return memo->params [0][xx].value.real;
+			}
+		} else {
+			return 0.0;
 		}
 	}
 
@@ -900,10 +921,15 @@ const char*	getParameterStringByName (API_ElementMemo* memo, char* pName)
 {
 	const char*	retStr = NULL;
 
-	for (short xx = 0 ; xx < 50 ; ++xx) {
-		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
-			retStr = GS::UniString (memo->params [0][xx].value.uStr).ToCStr ().Get ();
-			return retStr;
+	for (short xx = 0 ; xx < 100 ; ++xx) {
+		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
+		if (retStr != NULL) {
+			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+				retStr = GS::UniString (memo->params [0][xx].value.uStr).ToCStr ().Get ();
+				return retStr;
+			}
+		} else {
+			return	retStr;
 		}
 	}
 
@@ -913,9 +939,16 @@ const char*	getParameterStringByName (API_ElementMemo* memo, char* pName)
 // pName 파라미터의 타입을 가져옴 - API_AddParID
 API_AddParID	getParameterTypeByName (API_ElementMemo* memo, char* pName)
 {
-	for (short xx = 0 ; xx < 50 ; ++xx) {
-		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
-			return memo->params [0][xx].typeID;
+	const char* retStr = NULL;
+
+	for (short xx = 0 ; xx < 100 ; ++xx) {
+		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
+		if (retStr != NULL) {
+			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+				return memo->params [0][xx].typeID;
+			}
+		} else {
+			return API_ZombieParT;
 		}
 	}
 

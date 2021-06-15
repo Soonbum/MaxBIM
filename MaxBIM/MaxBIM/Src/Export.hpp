@@ -127,6 +127,252 @@ public:
 	vector<vector<string>>	var9value;			// 변수9 이름에 대한 값
 	vector<API_AddParID>	var9type;			// 변수9 이름에 대한 값의 타입
 
+	vector<string>	var10name;					// 변수10 이름 (예: nom)
+	vector<string>	var10desc;					// 변수10 이름에 대한 설명 (예: 규격)
+	vector<short>	var10showFlag;				// 변수10 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var10value;			// 변수10 이름에 대한 값
+	vector<API_AddParID>	var10type;			// 변수10 이름에 대한 값의 타입
+
+	vector<string>	var11name;					// 변수11 이름 (예: nom)
+	vector<string>	var11desc;					// 변수11 이름에 대한 설명 (예: 규격)
+	vector<short>	var11showFlag;				// 변수11 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var11value;			// 변수11 이름에 대한 값
+	vector<API_AddParID>	var11type;			// 변수11 이름에 대한 값의 타입
+
+	vector<string>	var12name;					// 변수12 이름 (예: nom)
+	vector<string>	var12desc;					// 변수12 이름에 대한 설명 (예: 규격)
+	vector<short>	var12showFlag;				// 변수12 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var12value;			// 변수12 이름에 대한 값
+	vector<API_AddParID>	var12type;			// 변수12 이름에 대한 값의 타입
+
+	vector<string>	var13name;					// 변수13 이름 (예: nom)
+	vector<string>	var13desc;					// 변수13 이름에 대한 설명 (예: 규격)
+	vector<short>	var13showFlag;				// 변수13 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var13value;			// 변수13 이름에 대한 값
+	vector<API_AddParID>	var13type;			// 변수13 이름에 대한 값의 타입
+
+	vector<string>	var14name;					// 변수14 이름 (예: nom)
+	vector<string>	var14desc;					// 변수14 이름에 대한 설명 (예: 규격)
+	vector<short>	var14showFlag;				// 변수14 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var14value;			// 변수14 이름에 대한 값
+	vector<API_AddParID>	var14type;			// 변수14 이름에 대한 값의 타입
+
+	vector<string>	var15name;					// 변수15 이름 (예: nom)
+	vector<string>	var15desc;					// 변수15 이름에 대한 설명 (예: 규격)
+	vector<short>	var15showFlag;				// 변수15 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var15value;			// 변수15 이름에 대한 값
+	vector<API_AddParID>	var15type;			// 변수15 이름에 대한 값의 타입
+
+	vector<string>	var16name;					// 변수16 이름 (예: nom)
+	vector<string>	var16desc;					// 변수16 이름에 대한 설명 (예: 규격)
+	vector<short>	var16showFlag;				// 변수16 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var16value;			// 변수16 이름에 대한 값
+	vector<API_AddParID>	var16type;			// 변수16 이름에 대한 값의 타입
+
+	vector<string>	var17name;					// 변수17 이름 (예: nom)
+	vector<string>	var17desc;					// 변수17 이름에 대한 설명 (예: 규격)
+	vector<short>	var17showFlag;				// 변수17 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var17value;			// 변수17 이름에 대한 값
+	vector<API_AddParID>	var17type;			// 변수17 이름에 대한 값의 타입
+
+	vector<string>	var18name;					// 변수18 이름 (예: nom)
+	vector<string>	var18desc;					// 변수18 이름에 대한 설명 (예: 규격)
+	vector<short>	var18showFlag;				// 변수18 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var18value;			// 변수18 이름에 대한 값
+	vector<API_AddParID>	var18type;			// 변수18 이름에 대한 값의 타입
+
+	vector<string>	var19name;					// 변수19 이름 (예: nom)
+	vector<string>	var19desc;					// 변수19 이름에 대한 설명 (예: 규격)
+	vector<short>	var19showFlag;				// 변수19 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var19value;			// 변수19 이름에 대한 값
+	vector<API_AddParID>	var19type;			// 변수19 이름에 대한 값의 타입
+
+	vector<string>	var20name;					// 변수20 이름 (예: nom)
+	vector<string>	var20desc;					// 변수20 이름에 대한 설명 (예: 규격)
+	vector<short>	var20showFlag;				// 변수20 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var20value;			// 변수20 이름에 대한 값
+	vector<API_AddParID>	var20type;			// 변수20 이름에 대한 값의 타입
+
+	vector<string>	var21name;					// 변수21 이름 (예: nom)
+	vector<string>	var21desc;					// 변수21 이름에 대한 설명 (예: 규격)
+	vector<short>	var21showFlag;				// 변수21 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var21value;			// 변수21 이름에 대한 값
+	vector<API_AddParID>	var21type;			// 변수21 이름에 대한 값의 타입
+
+	vector<string>	var22name;					// 변수22 이름 (예: nom)
+	vector<string>	var22desc;					// 변수22 이름에 대한 설명 (예: 규격)
+	vector<short>	var22showFlag;				// 변수22 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var22value;			// 변수22 이름에 대한 값
+	vector<API_AddParID>	var22type;			// 변수22 이름에 대한 값의 타입
+
+	vector<string>	var23name;					// 변수23 이름 (예: nom)
+	vector<string>	var23desc;					// 변수23 이름에 대한 설명 (예: 규격)
+	vector<short>	var23showFlag;				// 변수23 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var23value;			// 변수23 이름에 대한 값
+	vector<API_AddParID>	var23type;			// 변수23 이름에 대한 값의 타입
+
+	vector<string>	var24name;					// 변수24 이름 (예: nom)
+	vector<string>	var24desc;					// 변수24 이름에 대한 설명 (예: 규격)
+	vector<short>	var24showFlag;				// 변수24 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var24value;			// 변수24 이름에 대한 값
+	vector<API_AddParID>	var24type;			// 변수24 이름에 대한 값의 타입
+
+	vector<string>	var25name;					// 변수25 이름 (예: nom)
+	vector<string>	var25desc;					// 변수25 이름에 대한 설명 (예: 규격)
+	vector<short>	var25showFlag;				// 변수25 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var25value;			// 변수25 이름에 대한 값
+	vector<API_AddParID>	var25type;			// 변수25 이름에 대한 값의 타입
+
+	vector<string>	var26name;					// 변수26 이름 (예: nom)
+	vector<string>	var26desc;					// 변수26 이름에 대한 설명 (예: 규격)
+	vector<short>	var26showFlag;				// 변수26 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var26value;			// 변수26 이름에 대한 값
+	vector<API_AddParID>	var26type;			// 변수26 이름에 대한 값의 타입
+
+	vector<string>	var27name;					// 변수27 이름 (예: nom)
+	vector<string>	var27desc;					// 변수27 이름에 대한 설명 (예: 규격)
+	vector<short>	var27showFlag;				// 변수27 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var27value;			// 변수27 이름에 대한 값
+	vector<API_AddParID>	var27type;			// 변수27 이름에 대한 값의 타입
+
+	vector<string>	var28name;					// 변수28 이름 (예: nom)
+	vector<string>	var28desc;					// 변수28 이름에 대한 설명 (예: 규격)
+	vector<short>	var28showFlag;				// 변수28 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var28value;			// 변수28 이름에 대한 값
+	vector<API_AddParID>	var28type;			// 변수28 이름에 대한 값의 타입
+
+	vector<string>	var29name;					// 변수29 이름 (예: nom)
+	vector<string>	var29desc;					// 변수29 이름에 대한 설명 (예: 규격)
+	vector<short>	var29showFlag;				// 변수29 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var29value;			// 변수29 이름에 대한 값
+	vector<API_AddParID>	var29type;			// 변수29 이름에 대한 값의 타입
+
+	vector<string>	var30name;					// 변수30 이름 (예: nom)
+	vector<string>	var30desc;					// 변수30 이름에 대한 설명 (예: 규격)
+	vector<short>	var30showFlag;				// 변수30 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var30value;			// 변수30 이름에 대한 값
+	vector<API_AddParID>	var30type;			// 변수30 이름에 대한 값의 타입
+
+	vector<string>	var31name;					// 변수31 이름 (예: nom)
+	vector<string>	var31desc;					// 변수31 이름에 대한 설명 (예: 규격)
+	vector<short>	var31showFlag;				// 변수31 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var31value;			// 변수31 이름에 대한 값
+	vector<API_AddParID>	var31type;			// 변수31 이름에 대한 값의 타입
+
+	vector<string>	var32name;					// 변수32 이름 (예: nom)
+	vector<string>	var32desc;					// 변수32 이름에 대한 설명 (예: 규격)
+	vector<short>	var32showFlag;				// 변수32 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var32value;			// 변수32 이름에 대한 값
+	vector<API_AddParID>	var32type;			// 변수32 이름에 대한 값의 타입
+
+	vector<string>	var33name;					// 변수33 이름 (예: nom)
+	vector<string>	var33desc;					// 변수33 이름에 대한 설명 (예: 규격)
+	vector<short>	var33showFlag;				// 변수33 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var33value;			// 변수33 이름에 대한 값
+	vector<API_AddParID>	var33type;			// 변수33 이름에 대한 값의 타입
+
+	vector<string>	var34name;					// 변수34 이름 (예: nom)
+	vector<string>	var34desc;					// 변수34 이름에 대한 설명 (예: 규격)
+	vector<short>	var34showFlag;				// 변수34 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var34value;			// 변수34 이름에 대한 값
+	vector<API_AddParID>	var34type;			// 변수34 이름에 대한 값의 타입
+
+	vector<string>	var35name;					// 변수35 이름 (예: nom)
+	vector<string>	var35desc;					// 변수35 이름에 대한 설명 (예: 규격)
+	vector<short>	var35showFlag;				// 변수35 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var35value;			// 변수35 이름에 대한 값
+	vector<API_AddParID>	var35type;			// 변수35 이름에 대한 값의 타입
+
+	vector<string>	var36name;					// 변수36 이름 (예: nom)
+	vector<string>	var36desc;					// 변수36 이름에 대한 설명 (예: 규격)
+	vector<short>	var36showFlag;				// 변수36 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var36value;			// 변수36 이름에 대한 값
+	vector<API_AddParID>	var36type;			// 변수36 이름에 대한 값의 타입
+
+	vector<string>	var37name;					// 변수37 이름 (예: nom)
+	vector<string>	var37desc;					// 변수37 이름에 대한 설명 (예: 규격)
+	vector<short>	var37showFlag;				// 변수37 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var37value;			// 변수37 이름에 대한 값
+	vector<API_AddParID>	var37type;			// 변수37 이름에 대한 값의 타입
+
+	vector<string>	var38name;					// 변수38 이름 (예: nom)
+	vector<string>	var38desc;					// 변수38 이름에 대한 설명 (예: 규격)
+	vector<short>	var38showFlag;				// 변수38 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var38value;			// 변수38 이름에 대한 값
+	vector<API_AddParID>	var38type;			// 변수38 이름에 대한 값의 타입
+
+	vector<string>	var39name;					// 변수39 이름 (예: nom)
+	vector<string>	var39desc;					// 변수39 이름에 대한 설명 (예: 규격)
+	vector<short>	var39showFlag;				// 변수39 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var39value;			// 변수39 이름에 대한 값
+	vector<API_AddParID>	var39type;			// 변수39 이름에 대한 값의 타입
+
+	vector<string>	var40name;					// 변수40 이름 (예: nom)
+	vector<string>	var40desc;					// 변수40 이름에 대한 설명 (예: 규격)
+	vector<short>	var40showFlag;				// 변수40 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var40value;			// 변수40 이름에 대한 값
+	vector<API_AddParID>	var40type;			// 변수40 이름에 대한 값의 타입
+
+	vector<string>	var41name;					// 변수41 이름 (예: nom)
+	vector<string>	var41desc;					// 변수41 이름에 대한 설명 (예: 규격)
+	vector<short>	var41showFlag;				// 변수41 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var41value;			// 변수41 이름에 대한 값
+	vector<API_AddParID>	var41type;			// 변수41 이름에 대한 값의 타입
+
+	vector<string>	var42name;					// 변수42 이름 (예: nom)
+	vector<string>	var42desc;					// 변수42 이름에 대한 설명 (예: 규격)
+	vector<short>	var42showFlag;				// 변수42 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var42value;			// 변수42 이름에 대한 값
+	vector<API_AddParID>	var42type;			// 변수42 이름에 대한 값의 타입
+
+	vector<string>	var43name;					// 변수43 이름 (예: nom)
+	vector<string>	var43desc;					// 변수43 이름에 대한 설명 (예: 규격)
+	vector<short>	var43showFlag;				// 변수43 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var43value;			// 변수43 이름에 대한 값
+	vector<API_AddParID>	var43type;			// 변수43 이름에 대한 값의 타입
+
+	vector<string>	var44name;					// 변수44 이름 (예: nom)
+	vector<string>	var44desc;					// 변수44 이름에 대한 설명 (예: 규격)
+	vector<short>	var44showFlag;				// 변수44 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var44value;			// 변수44 이름에 대한 값
+	vector<API_AddParID>	var44type;			// 변수44 이름에 대한 값의 타입
+
+	vector<string>	var45name;					// 변수45 이름 (예: nom)
+	vector<string>	var45desc;					// 변수45 이름에 대한 설명 (예: 규격)
+	vector<short>	var45showFlag;				// 변수45 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var45value;			// 변수45 이름에 대한 값
+	vector<API_AddParID>	var45type;			// 변수45 이름에 대한 값의 타입
+
+	vector<string>	var46name;					// 변수46 이름 (예: nom)
+	vector<string>	var46desc;					// 변수46 이름에 대한 설명 (예: 규격)
+	vector<short>	var46showFlag;				// 변수46 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var46value;			// 변수46 이름에 대한 값
+	vector<API_AddParID>	var46type;			// 변수46 이름에 대한 값의 타입
+
+	vector<string>	var47name;					// 변수47 이름 (예: nom)
+	vector<string>	var47desc;					// 변수47 이름에 대한 설명 (예: 규격)
+	vector<short>	var47showFlag;				// 변수47 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var47value;			// 변수47 이름에 대한 값
+	vector<API_AddParID>	var47type;			// 변수47 이름에 대한 값의 타입
+
+	vector<string>	var48name;					// 변수48 이름 (예: nom)
+	vector<string>	var48desc;					// 변수48 이름에 대한 설명 (예: 규격)
+	vector<short>	var48showFlag;				// 변수48 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var48value;			// 변수48 이름에 대한 값
+	vector<API_AddParID>	var48type;			// 변수48 이름에 대한 값의 타입
+
+	vector<string>	var49name;					// 변수49 이름 (예: nom)
+	vector<string>	var49desc;					// 변수49 이름에 대한 설명 (예: 규격)
+	vector<short>	var49showFlag;				// 변수49 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var49value;			// 변수49 이름에 대한 값
+	vector<API_AddParID>	var49type;			// 변수49 이름에 대한 값의 타입
+
+	vector<string>	var50name;					// 변수50 이름 (예: nom)
+	vector<string>	var50desc;					// 변수50 이름에 대한 설명 (예: 규격)
+	vector<short>	var50showFlag;				// 변수50 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	var50value;			// 변수50 이름에 대한 값
+	vector<API_AddParID>	var50type;			// 변수50 이름에 대한 값의 타입
+
 	vector<vector<short>>	combinationCount;	// 여러 변수들의 조합에 대한 개수
 
 	vector<short>	nCounts;					// 서로 다른 변수 조합 개수
@@ -151,6 +397,9 @@ struct VisibleObjectInfo
 	bool	bExist [100];		// 존재 여부
 	bool	bShow [100];		// 표시 여부
 	short	itmIdx [100];		// 다이얼로그 내 인덱스
+
+	// 알려지지 않은 Object 타입의 객체
+	bool	bShow_Unknown;
 
 	// 나머지 타입
 	bool	bExist_Walls;
