@@ -6544,9 +6544,9 @@ GSErrCode	filterSelection (void)
 {
 	GSErrCode	err = NoError;
 	short		xx, yy;
-	bool		regenerate = true;
 	short		result;
 	const char*	tempStr;
+	bool		foundObj;
 
 	short		selCount;
 	API_Neig**	selNeig;
@@ -6577,15 +6577,15 @@ GSErrCode	filterSelection (void)
 	GS::Array<API_Guid> selection_unknown = GS::Array<API_Guid> ();
 
 	
-	ACAPI_Element_GetElemList (API_ObjectID, &objects, APIFilt_OnVisLayer);		nObjects = objects.GetSize ();	// 보이는 레이어 상의 객체 타입만 가져오기
-	ACAPI_Element_GetElemList (API_WallID, &walls, APIFilt_OnVisLayer);			nWalls = walls.GetSize ();		// 보이는 레이어 상의 벽 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ColumnID, &columns, APIFilt_OnVisLayer);		nColumns = columns.GetSize ();	// 보이는 레이어 상의 기둥 타입만 가져오기
-	ACAPI_Element_GetElemList (API_BeamID, &beams, APIFilt_OnVisLayer);			nBeams = beams.GetSize ();		// 보이는 레이어 상의 보 타입만 가져오기
-	ACAPI_Element_GetElemList (API_SlabID, &slabs, APIFilt_OnVisLayer);			nSlabs = slabs.GetSize ();		// 보이는 레이어 상의 슬래브 타입만 가져오기
-	ACAPI_Element_GetElemList (API_RoofID, &roofs, APIFilt_OnVisLayer);			nRoofs = roofs.GetSize ();		// 보이는 레이어 상의 루프 타입만 가져오기
-	ACAPI_Element_GetElemList (API_MeshID, &meshes, APIFilt_OnVisLayer);		nMeshes = meshes.GetSize ();	// 보이는 레이어 상의 메시 타입만 가져오기
-	ACAPI_Element_GetElemList (API_MorphID, &morphs, APIFilt_OnVisLayer);		nMorphs = morphs.GetSize ();	// 보이는 레이어 상의 모프 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ShellID, &shells, APIFilt_OnVisLayer);		nShells = shells.GetSize ();	// 보이는 레이어 상의 셸 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ObjectID, &objects, APIFilt_OnVisLayer | APIFilt_In3D);	nObjects = objects.GetSize ();	// 보이는 레이어 상의 객체 타입만 가져오기
+	ACAPI_Element_GetElemList (API_WallID, &walls, APIFilt_OnVisLayer | APIFilt_In3D);		nWalls = walls.GetSize ();		// 보이는 레이어 상의 벽 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ColumnID, &columns, APIFilt_OnVisLayer | APIFilt_In3D);	nColumns = columns.GetSize ();	// 보이는 레이어 상의 기둥 타입만 가져오기
+	ACAPI_Element_GetElemList (API_BeamID, &beams, APIFilt_OnVisLayer | APIFilt_In3D);		nBeams = beams.GetSize ();		// 보이는 레이어 상의 보 타입만 가져오기
+	ACAPI_Element_GetElemList (API_SlabID, &slabs, APIFilt_OnVisLayer | APIFilt_In3D);		nSlabs = slabs.GetSize ();		// 보이는 레이어 상의 슬래브 타입만 가져오기
+	ACAPI_Element_GetElemList (API_RoofID, &roofs, APIFilt_OnVisLayer | APIFilt_In3D);		nRoofs = roofs.GetSize ();		// 보이는 레이어 상의 루프 타입만 가져오기
+	ACAPI_Element_GetElemList (API_MeshID, &meshes, APIFilt_OnVisLayer | APIFilt_In3D);		nMeshes = meshes.GetSize ();	// 보이는 레이어 상의 메시 타입만 가져오기
+	ACAPI_Element_GetElemList (API_MorphID, &morphs, APIFilt_OnVisLayer | APIFilt_In3D);	nMorphs = morphs.GetSize ();	// 보이는 레이어 상의 모프 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ShellID, &shells, APIFilt_OnVisLayer | APIFilt_In3D);	nShells = shells.GetSize ();	// 보이는 레이어 상의 셸 타입만 가져오기
 
 	if (nObjects == 0 && nWalls == 0 && nColumns == 0 && nBeams == 0 && nSlabs == 0 && nRoofs == 0 && nMeshes == 0 && nMorphs == 0 && nShells == 0) {
 		result = DGAlert (DG_INFORMATION, "종료 알림", "아무 객체도 존재하지 않습니다.", "", "확인", "", "");
@@ -6665,19 +6665,30 @@ GSErrCode	filterSelection (void)
 		err = ACAPI_Element_Get (&elem);
 		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
+		foundObj = false;
+
 		for (yy = 0 ; yy < visibleObjInfo.nKinds ; ++yy) {
 			tempStr = getParameterStringByName (&memo, visibleObjInfo.varName [yy]);
 			if (tempStr != NULL) {
 				if (my_strcmp (tempStr, visibleObjInfo.objName [yy]) == 0) {
 					visibleObjInfo.bExist [yy] = true;
+					foundObj = true;
 				}
-			} else {
-				selection_unknown.Push (objects [xx]);
 			}
 		}
 
+		// 끝내 찾지 못하면 알려지지 않은 Object 타입 리스트에 추가
+		if (foundObj == false)
+			selection_unknown.Push (objects [xx]);
+
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
+	
+	char msg [256];
+	sprintf (msg, "nObjects : %d\nselection_unknown.GetSize () : %d", nObjects, selection_unknown.GetSize ());
+	ACAPI_WriteReport (msg, true);
+	visibleObjInfo.nUnknownObjects = selection_unknown.GetSize ();
+
 	if (nWalls > 0)		visibleObjInfo.bExist_Walls = true;
 	if (nColumns > 0)	visibleObjInfo.bExist_Columns = true;
 	if (nBeams > 0)		visibleObjInfo.bExist_Beams = true;
@@ -6816,10 +6827,6 @@ GSErrCode	filterSelection (void)
 			BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
 		}
 		
-		// 화면 새로고침
-		//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-		//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
 		// 선택한 것만 3D로 보여주기
 		ACAPI_Automate (APIDo_ShowSelectionIn3DID, NULL, NULL);
 	}
@@ -6900,6 +6907,7 @@ short DGCALLBACK filterSelectionHandler (short message, short dialogID, short it
 	short	xx;
 	short	itmIdx;
 	short	itmPosX, itmPosY;
+	char	buffer [64];
 
 	switch (message) {
 		case DG_MSG_INIT:
@@ -6933,8 +6941,13 @@ short DGCALLBACK filterSelectionHandler (short message, short dialogID, short it
 			// 체크박스: 알려지지 않은 객체 포함
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 220, 50, 250, 25);
 			DGSetItemFont (dialogID, CHECKBOX_INCLUDE_UNKNOWN_OBJECT, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, CHECKBOX_INCLUDE_UNKNOWN_OBJECT, "알려지지 않은 객체 포함");
+			sprintf (buffer, "알려지지 않은 객체 포함 (%d)", visibleObjInfo.nUnknownObjects);
+			DGSetItemText (dialogID, CHECKBOX_INCLUDE_UNKNOWN_OBJECT, buffer);
 			DGShowItem (dialogID, CHECKBOX_INCLUDE_UNKNOWN_OBJECT);
+			if (visibleObjInfo.nUnknownObjects > 0)
+				DGEnableItem (dialogID, CHECKBOX_INCLUDE_UNKNOWN_OBJECT);
+			else
+				DGDisableItem (dialogID, CHECKBOX_INCLUDE_UNKNOWN_OBJECT);
 
 			// 구분자
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 5, 90, 740, 1);

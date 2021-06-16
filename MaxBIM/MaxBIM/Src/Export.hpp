@@ -400,6 +400,7 @@ struct VisibleObjectInfo
 
 	// 알려지지 않은 Object 타입의 객체
 	bool	bShow_Unknown;
+	long	nUnknownObjects;
 
 	// 나머지 타입
 	bool	bExist_Walls;
