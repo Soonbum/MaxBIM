@@ -11,10 +11,12 @@ namespace layersDG {
 		BUTTON_CODE	= 3,
 		BUTTON_DONG,
 		BUTTON_FLOOR,
+		BUTTON_CAST,
 		BUTTON_CJ,
 		BUTTON_ORDER,
 		BUTTON_OBJ,
-		BUTTON_SUBOBJ,
+		BUTTON_PRODUCT_SITE,
+		BUTTON_PRODUCT_NUM,
 
 		SEPARATOR_1,
 		SEPARATOR_2,
@@ -23,11 +25,9 @@ namespace layersDG {
 		SEPARATOR_5,
 		SEPARATOR_6,
 		SEPARATOR_7,
+		SEPARATOR_8,
 
-		CHECKBOX_DONG,
-		CHECKBOX_CJ,
-		CHECKBOX_ORDER,
-		CHECKBOX_SUBOBJ
+		CHECKBOX_PRODUCT_SITE_NUM
 	};
 }
 
@@ -44,10 +44,11 @@ struct LayerNameSystem
 	 CJ: 01~99 (단, 구분이 없으면 01)
 	 CJ 속 시공순서: 01~99 (단, 구분이 없으면 01)
 	 부재구분: WALL (벽), COLU (기둥) ...
-	 제작처구분: 현장시공, 공장제작
+	 제작처구분: 현장제작, 공장제작
 	 제작번호: 001~999
 	 */
-	// 예시: 05-T-0000-F01-01-01-01-WALL(-현장시공-001)	괄호 안은 선택사항
+	// 예시(기본): 05-T-0000-F01-01-01-01-WALL
+	// 예시(확장): 05-T-0000-F01-01-01-01-WALL-현장제작-001
 
 	// 공사 구분 (필수)
 	vector<string>	code_name;	// 코드 이름
@@ -93,12 +94,18 @@ struct LayerNameSystem
 	vector<string>	obj_cat;
 	bool	*obj_state;
 	short	*obj_idx;
+	bool	bObjAllShow;		// 모두 선택 버튼 보여주기
 
-	// 제작처 구분
-	// ...
+	// 제작처 구분 (선택)
+	vector<string>	productSite_name;
+	bool	*productSite_state;
+	short	*productSite_idx;
 
-	// 제작 번호
-	// ...
+	// 제작 번호 (선택)
+	vector<string>	productNum_name;
+	bool	*productNum_state;
+	short	*productNum_idx;
+	bool	bProductNumAllShow;	// 모드 선택 버튼 보여주기
 };
 
 struct StatusOfLayerNameSystem
@@ -124,11 +131,11 @@ struct StatusOfLayerNameSystem
 	// 부재 구분 (필수)
 	bool	obj_state [500];
 
-	// 제작처 구분
-	// ...
+	// 제작처 구분 (선택)
+	bool	productSite_state [10];
 
-	// 제작 번호
-	// ...
+	// 제작 번호 (선택)
+	bool	productNum_state [1000];
 };
 
 void		allocateMemory (LayerNameSystem *layerInfo);		// 메모리 할당

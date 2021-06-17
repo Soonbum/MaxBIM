@@ -17,97 +17,112 @@ short	clickedBtnItemIdx;	// 클릭한 버튼의 항목 인덱스
 
 short	BUTTON_LOAD;
 short	LABEL_CODE;
-short	SELECTALL_1_CONTYPE;
 short	SELECTALL_2_DONG;
 short	SELECTALL_3_FLOOR;
-short	SELECTALL_4_CJ;
-short	SELECTALL_5_ORDER;
+short	SELECTALL_4_CAST;
+short	SELECTALL_5_CJ;
+short	SELECTALL_6_ORDER;
+short	SELECTALL_7_OBJ;
+short	SELECTALL_8_PRODUCT_SITE;
+short	SELECTALL_9_PRODUCT_NUM;
 
 short	DONG_STRING_RADIOBUTTON;
 short	DONG_STRING_EDITCONTROL;	// 0101,0102 등 숫자로 된 동 문자열을 담는 Edit 컨트롤의 인덱스 
 short	DONG_REST_BUTTONS [100];	// 숫자가 아닌 동 문자열 체크버튼의 인덱스
 short	OBJ_BUTTONS [100];			// 부재 버튼의 인덱스
-short	SUBOBJ_BUTTONS [100];		// 객체 버튼의 인덱스
 
 // [다이얼로그] 레이어 옵션 필드 On/Off 여부
-bool	onCode2;
-bool	onCode4;
-bool	onCode5;
-bool	onCode7;
+bool	extendedLayer;
 
 
 // 메모리 할당
 void		allocateMemory (LayerNameSystem *layerInfo)
 {
-	//short	xx;
+	short	xx;
 
-	//// 레이어 정보 메모리 할당
-	//layerInfo->code_state		= new bool [layerInfo->code_name.size ()];
-	//layerInfo->dong_state		= new bool [layerInfo->dong_name.size ()];
-	//layerInfo->floor_state		= new bool [layerInfo->floor_name.size ()];
-	//layerInfo->CJ_state			= new bool [layerInfo->CJ_name.size ()];
-	//layerInfo->orderInCJ_state	= new bool [layerInfo->orderInCJ_name.size ()];
-	//layerInfo->obj_state		= new bool [layerInfo->obj_name.size ()];
-	//layerInfo->subObj_state		= new bool [layerInfo->subObj_name.size ()];
+	// 레이어 정보 메모리 할당
+	layerInfo->code_state			= new bool [layerInfo->code_name.size ()];
+	layerInfo->dong_state			= new bool [layerInfo->dong_name.size ()];
+	layerInfo->floor_state			= new bool [layerInfo->floor_name.size ()];
+	layerInfo->cast_state			= new bool [layerInfo->cast_name.size ()];
+	layerInfo->CJ_state				= new bool [layerInfo->CJ_name.size ()];
+	layerInfo->orderInCJ_state		= new bool [layerInfo->orderInCJ_name.size ()];
+	layerInfo->obj_state			= new bool [layerInfo->obj_name.size ()];
+	layerInfo->productSite_state	= new bool [layerInfo->productSite_name.size ()];
+	layerInfo->productNum_state		= new bool [layerInfo->productNum_name.size ()];
 
-	//layerInfo->code_idx			= new short [layerInfo->code_name.size ()];
-	//layerInfo->dong_idx			= new short [layerInfo->dong_name.size ()];
-	//layerInfo->floor_idx		= new short [layerInfo->floor_name.size ()];
-	//layerInfo->CJ_idx			= new short [layerInfo->CJ_name.size ()];
-	//layerInfo->orderInCJ_idx	= new short [layerInfo->orderInCJ_name.size ()];
-	//layerInfo->obj_idx			= new short [layerInfo->obj_name.size ()];
-	//layerInfo->subObj_idx		= new short [layerInfo->subObj_name.size ()];
+	layerInfo->code_idx			= new short [layerInfo->code_name.size ()];
+	layerInfo->dong_idx			= new short [layerInfo->dong_name.size ()];
+	layerInfo->floor_idx		= new short [layerInfo->floor_name.size ()];
+	layerInfo->cast_idx			= new short [layerInfo->cast_name.size ()];
+	layerInfo->CJ_idx			= new short [layerInfo->CJ_name.size ()];
+	layerInfo->orderInCJ_idx	= new short [layerInfo->orderInCJ_name.size ()];
+	layerInfo->obj_idx			= new short [layerInfo->obj_name.size ()];
+	layerInfo->productSite_idx	= new short [layerInfo->productSite_name.size ()];
+	layerInfo->productNum_idx	= new short [layerInfo->productNum_name.size ()];
 
-	//// 배열 초기화
-	//for (xx = 0 ; xx < layerInfo->code_name.size () ; ++xx) {
-	//	layerInfo->code_state [xx] = false;
-	//	layerInfo->code_idx [xx] = 0;
-	//}
-	//for (xx = 0 ; xx < layerInfo->dong_name.size () ; ++xx) {
-	//	layerInfo->dong_state [xx] = false;
-	//	layerInfo->dong_idx [xx] = 0;
-	//}
-	//for (xx = 0 ; xx < layerInfo->floor_name.size () ; ++xx) {
-	//	layerInfo->floor_state [xx] = false;
-	//	layerInfo->floor_idx [xx] = 0;
-	//}
-	//for (xx = 0 ; xx < layerInfo->CJ_name.size () ; ++xx) {
-	//	layerInfo->CJ_state [xx] = false;
-	//	layerInfo->CJ_idx [xx] = 0;
-	//}
-	//for (xx = 0 ; xx < layerInfo->orderInCJ_name.size () ; ++xx) {
-	//	layerInfo->orderInCJ_state [xx] = false;
-	//	layerInfo->orderInCJ_idx [xx] = 0;
-	//}
-	//for (xx = 0 ; xx < layerInfo->obj_name.size () ; ++xx) {
-	//	layerInfo->obj_state [xx] = false;
-	//	layerInfo->obj_idx [xx] = 0;
-	//}
-	//for (xx = 0 ; xx < layerInfo->subObj_name.size () ; ++xx) {
-	//	layerInfo->subObj_state [xx] = false;
-	//	layerInfo->subObj_idx [xx] = 0;
-	//}
+	// 배열 초기화
+	for (xx = 0 ; xx < layerInfo->code_name.size () ; ++xx) {
+		layerInfo->code_state [xx] = false;
+		layerInfo->code_idx [xx] = 0;
+	}
+	for (xx = 0 ; xx < layerInfo->dong_name.size () ; ++xx) {
+		layerInfo->dong_state [xx] = false;
+		layerInfo->dong_idx [xx] = 0;
+	}
+	for (xx = 0 ; xx < layerInfo->floor_name.size () ; ++xx) {
+		layerInfo->floor_state [xx] = false;
+		layerInfo->floor_idx [xx] = 0;
+	}
+	for (xx = 0 ; xx < layerInfo->cast_name.size () ; ++xx) {
+		layerInfo->cast_state [xx] = false;
+		layerInfo->cast_idx [xx] = 0;
+	}
+	for (xx = 0 ; xx < layerInfo->CJ_name.size () ; ++xx) {
+		layerInfo->CJ_state [xx] = false;
+		layerInfo->CJ_idx [xx] = 0;
+	}
+	for (xx = 0 ; xx < layerInfo->orderInCJ_name.size () ; ++xx) {
+		layerInfo->orderInCJ_state [xx] = false;
+		layerInfo->orderInCJ_idx [xx] = 0;
+	}
+	for (xx = 0 ; xx < layerInfo->obj_name.size () ; ++xx) {
+		layerInfo->obj_state [xx] = false;
+		layerInfo->obj_idx [xx] = 0;
+	}
+	for (xx = 0 ; xx < layerInfo->productSite_name.size () ; ++xx) {
+		layerInfo->productSite_state [xx] = false;
+		layerInfo->productSite_idx [xx] = 0;
+	}
+	for (xx = 0 ; xx < layerInfo->productNum_name.size () ; ++xx) {
+		layerInfo->productNum_state [xx] = false;
+		layerInfo->productNum_idx [xx] = 0;
+	}
 }
 
 // 메모리 해제
 void		deallocateMemory (LayerNameSystem *layerInfo)
 {
 	// 레이어 정보 메모리 해제
-	//delete []	layerInfo->code_state;
-	//delete []	layerInfo->dong_state;
-	//delete []	layerInfo->floor_state;
-	//delete []	layerInfo->CJ_state;
-	//delete []	layerInfo->orderInCJ_state;
-	//delete []	layerInfo->obj_state;
-	//delete []	layerInfo->subObj_state;
+	delete []	layerInfo->code_state;
+	delete []	layerInfo->dong_state;
+	delete []	layerInfo->floor_state;
+	delete []	layerInfo->cast_state;
+	delete []	layerInfo->CJ_state;
+	delete []	layerInfo->orderInCJ_state;
+	delete []	layerInfo->obj_state;
+	delete []	layerInfo->productSite_state;
+	delete []	layerInfo->productNum_state;
 
-	//delete []	layerInfo->code_idx;
-	//delete []	layerInfo->dong_idx;
-	//delete []	layerInfo->floor_idx;
-	//delete []	layerInfo->CJ_idx;
-	//delete []	layerInfo->orderInCJ_idx;
-	//delete []	layerInfo->obj_idx;
-	//delete []	layerInfo->subObj_idx;
+	delete []	layerInfo->code_idx;
+	delete []	layerInfo->dong_idx;
+	delete []	layerInfo->floor_idx;
+	delete []	layerInfo->cast_idx;
+	delete []	layerInfo->CJ_idx;
+	delete []	layerInfo->orderInCJ_idx;
+	delete []	layerInfo->obj_idx;
+	delete []	layerInfo->productSite_idx;
+	delete []	layerInfo->productNum_idx;
 }
 
 // 레이어 쉽게 선택하기
@@ -1310,101 +1325,132 @@ GSErrCode	makeLayersEasily (void)
 {
 	GSErrCode	err = NoError;
 
-	//FILE	*fp;			// 파일 포인터
-	//char	line [10240];	// 파일에서 읽어온 라인 하나
-	//string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
-	//char	*token;			// 읽어온 문자열의 토큰
-	//short	lineCount;		// 읽어온 라인 수
-	//short	tokCount;		// 읽어온 토큰 개수
+	FILE	*fp;			// 파일 포인터
+	char	line [10240];	// 파일에서 읽어온 라인 하나
+	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
+	char	*token;			// 읽어온 문자열의 토큰
+	short	lineCount;		// 읽어온 라인 수
+	short	tokCount;		// 읽어온 토큰 개수
 
-	//API_Attribute	attrib;
-	//API_AttributeDef  defs;
-	//short			xx;
+	API_Attribute	attrib;
+	API_AttributeDef  defs;
+	short			xx;
 
-	//char	tempStr [30];
+	char	tempStr [30];
 
-	//short	result;
+	short	result;
 
 
-	//// 레이어 정보 파일 가져오기
-	//fp = fopen ("C:\\layer.csv", "r");
+	// 레이어 정보 파일 가져오기
+	fp = fopen ("C:\\layer.csv", "r");
 
-	//for (lineCount = 1 ; lineCount <= 14 ; ++lineCount) {
-	//	if (fp != NULL) {
-	//		tokCount = 0;
-	//		fscanf (fp, "%s\n", line);
-	//		token = strtok (line, ",");
-	//		tokCount ++;
-	//		while (token != NULL) {
-	//			if (strlen (token) > 0) {
-	//				if (tokCount > 1) {
-	//					insElem = token;
+	for (lineCount = 1 ; lineCount <= 14 ; ++lineCount) {
+		if (fp != NULL) {
+			tokCount = 0;
+			fscanf (fp, "%s\n", line);
+			token = strtok (line, ",");
+			tokCount ++;
+			while (token != NULL) {
+				if (strlen (token) > 0) {
+					if (tokCount > 1) {
+						insElem = token;
 
-	//					if (lineCount == 1)		layerInfo.code_name.push_back (insElem);		// 공사구분
-	//					if (lineCount == 2)		layerInfo.code_desc.push_back (insElem);		// 공사구분 설명
-	//					if (lineCount == 3) {
-	//						// 만약 동 번호 숫자가 3자리로 들어오면 앞에 0을 붙일 것
-	//						if (strlen (token) == 3) {
-	//							strcpy (tempStr, "0");
-	//							strcat (tempStr, token);
-	//							insElem = tempStr;
-	//						}
+						if (lineCount == 1)		layerInfo.code_name.push_back (insElem);		// 공사구분
+						if (lineCount == 2)		layerInfo.code_desc.push_back (insElem);		// 공사구분 설명
+						if (lineCount == 3) {
+							// 만약 동 번호 숫자가 1자리로 들어오면 앞에 000을 붙일 것
+							if (strlen (token) == 1) {
+								strcpy (tempStr, "000");
+								strcat (tempStr, token);
+								insElem = tempStr;
+							}
 
-	//						layerInfo.dong_name.push_back (insElem);							// 동
-	//					}
-	//					if (lineCount == 4)		layerInfo.dong_desc.push_back (insElem);		// 동 설명
-	//					if (lineCount == 5)		layerInfo.floor_name.push_back (insElem);		// 층
-	//					if (lineCount == 6)		layerInfo.floor_desc.push_back (insElem);		// 층 설명
-	//					if (lineCount == 7) {
-	//						// 만약 CJ 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-	//						if (strlen (token) == 1) {
-	//							strcpy (tempStr, "0");
-	//							strcat (tempStr, token);
-	//							insElem = tempStr;
-	//						}
+							// 만약 동 번호 숫자가 3자리로 들어오면 앞에 0을 붙일 것
+							if (strlen (token) == 3) {
+								strcpy (tempStr, "0");
+								strcat (tempStr, token);
+								insElem = tempStr;
+							}
 
-	//						layerInfo.CJ_name.push_back (insElem);			// CJ
-	//					}
-	//					if (lineCount == 8) {
-	//						// 만약 CJ 속 시공순서 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-	//						if (strlen (token) == 1) {
-	//							strcpy (tempStr, "0");
-	//							strcat (tempStr, token);
-	//							insElem = tempStr;
-	//						}
+							layerInfo.dong_name.push_back (insElem);							// 동
+						}
+						if (lineCount == 4)		layerInfo.dong_desc.push_back (insElem);		// 동 설명
+						if (lineCount == 5)		layerInfo.floor_name.push_back (insElem);		// 층
+						if (lineCount == 6)		layerInfo.floor_desc.push_back (insElem);		// 층 설명
+						if (lineCount == 7) {
+							// 만약 타설번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
+							if (strlen (token) == 1) {
+								strcpy (tempStr, "0");
+								strcat (tempStr, token);
+								insElem = tempStr;
+							}
 
-	//						layerInfo.orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
-	//					}
-	//					if (lineCount == 9)		layerInfo.obj_name.push_back (insElem);			// 부재
-	//					if (lineCount == 10)	layerInfo.obj_desc.push_back (insElem);			// 부재 설명
-	//					if (lineCount == 11)	layerInfo.obj_cat.push_back (insElem);			// 부재가 속한 카테고리(공사구분)
-	//					if (lineCount == 12)	layerInfo.subObj_name.push_back (insElem);		// 객체
-	//					if (lineCount == 13)	layerInfo.subObj_desc.push_back (insElem);		// 객체 설명
-	//					if (lineCount == 14)	layerInfo.subObj_cat.push_back (insElem);		// 객체가 속한 카테고리(공사구분)
-	//				}
-	//			}
-	//			token = strtok (NULL, ",");
-	//			tokCount ++;
-	//		}
-	//	} else {
-	//		ACAPI_WriteReport ("layer.csv 파일을 C:\\로 복사하십시오.", true);
-	//		return	err;
-	//	}
-	//}
+							layerInfo.cast_name.push_back (insElem);		// 타설번호
+						}
+						if (lineCount == 8) {
+							// 만약 CJ 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
+							if (strlen (token) == 1) {
+								strcpy (tempStr, "0");
+								strcat (tempStr, token);
+								insElem = tempStr;
+							}
 
-	//fclose (fp);
+							layerInfo.CJ_name.push_back (insElem);			// CJ
+						}
+						if (lineCount == 9) {
+							// 만약 CJ 속 시공순서 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
+							if (strlen (token) == 1) {
+								strcpy (tempStr, "0");
+								strcat (tempStr, token);
+								insElem = tempStr;
+							}
 
-	//// 구조체 초기화
-	//allocateMemory (&layerInfo);
+							layerInfo.orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
+						}
+						if (lineCount == 10)	layerInfo.obj_name.push_back (insElem);			// 부재
+						if (lineCount == 11)	layerInfo.obj_desc.push_back (insElem);			// 부재 설명
+						if (lineCount == 12)	layerInfo.obj_cat.push_back (insElem);			// 부재가 속한 카테고리(공사구분)
+						if (lineCount == 13)	layerInfo.productSite_name.push_back (insElem);	// 제작처 구분
+						if (lineCount == 14) {
+							// 만약 제작 번호가 1자리로 들어오면 앞에 00을 붙일 것
+							if (strlen (token) == 1) {
+								strcpy (tempStr, "00");
+								strcat (tempStr, token);
+								insElem = tempStr;
+							}
+							// 만약 제작 번호가 2자리로 들어오면 앞에 0을 붙일 것
+							if (strlen (token) == 2) {
+								strcpy (tempStr, "0");
+								strcat (tempStr, token);
+								insElem = tempStr;
+							}
 
-	//// [다이얼로그 박스] 레이어 쉽게 만들기
-	//result = DGBlankModalDialog (900, 120, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerMakeHandler, 0);
+							layerInfo.productNum_name.push_back (insElem);	// 제작 번호
+						}
+					}
+				}
+				token = strtok (NULL, ",");
+				tokCount ++;
+			}
+		} else {
+			ACAPI_WriteReport ("layer.csv 파일을 C:\\로 복사하십시오.", true);
+			return	err;
+		}
+	}
 
-	//// OK 버튼이 아니면 메모리 해제하고 종료
-	//if (result != DG_OK) {
-	//	deallocateMemory (&layerInfo);
-	//	return	err;
-	//}
+	fclose (fp);
+
+	// 구조체 초기화
+	allocateMemory (&layerInfo);
+
+	// [다이얼로그 박스] 레이어 쉽게 만들기
+	result = DGBlankModalDialog (1100, 120, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerMakeHandler, 0);
+
+	// OK 버튼이 아니면 메모리 해제하고 종료
+	if (result != DG_OK) {
+		deallocateMemory (&layerInfo);
+		return	err;
+	}
 
 	//short	z;
 	//char	code1 [10][5];		// 공사 코드
@@ -1646,234 +1692,202 @@ GSErrCode	makeLayersEasily (void)
 short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short	result;
-	//short	itmIdx;
-	//short	itmPosX, itmPosY;
-	//short	dialogSizeX, dialogSizeY;
-	//short	xx;
-	//short	anyTrue;
+	short	itmIdx;
+	short	itmPosX, itmPosY;
+	short	dialogSizeX, dialogSizeY;
+	short	xx;
+	short	anyTrue;
 
-	//switch (message) {
-	//	case DG_MSG_INIT:
-	//		// 다이얼로그 타이틀
-	//		DGSetDialogTitle (dialogID, "레이어 쉽게 만들기: LayerName Ex) 05-T-(0101)-9B1-(01)-(01)-COLU-(UFOM)");
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "레이어 쉽게 만들기");
 
-	//		// 확인 버튼
-	//		DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 820, 20, 60, 25);
-	//		DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, DG_OK, "생성");
-	//		DGShowItem (dialogID, DG_OK);
+			// 확인 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 820, 20, 60, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "생성");
+			DGShowItem (dialogID, DG_OK);
 
-	//		// 취소 버튼
-	//		DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 820, 55, 60, 25);
-	//		DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, DG_CANCEL, "취소");
-	//		DGShowItem (dialogID, DG_CANCEL);
+			// 취소 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 820, 55, 60, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGShowItem (dialogID, DG_CANCEL);
 
-	//		// 버튼: 공사 구분
-	//		itmPosX = 30;
-	//		itmPosY = 50;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
-	//		DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, BUTTON_CODE, "공사 구분");
-	//		DGShowItem (dialogID, BUTTON_CODE);
+			// 버튼: 공사 구분
+			itmPosX = 30;
+			itmPosY = 50;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
+			DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_CODE, "공사 구분");
+			DGShowItem (dialogID, BUTTON_CODE);
 
-	//		// 버튼: 동 구분
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
-	//		DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, BUTTON_DONG, "동 구분");
-	//		DGShowItem (dialogID, BUTTON_DONG);
+			// 버튼: 동 구분
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
+			DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_DONG, "동 구분");
+			DGShowItem (dialogID, BUTTON_DONG);
 
-	//		// 버튼: 층 구분
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
-	//		DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, BUTTON_FLOOR, "층 구분");
-	//		DGShowItem (dialogID, BUTTON_FLOOR);
+			// 버튼: 층 구분
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
+			DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_FLOOR, "층 구분");
+			DGShowItem (dialogID, BUTTON_FLOOR);
 
-	//		// 버튼: CJ
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
-	//		DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, BUTTON_CJ, "CJ");
-	//		DGShowItem (dialogID, BUTTON_CJ);
+			// 버튼: 타설 번호
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
+			DGSetItemFont (dialogID, BUTTON_CAST, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_CAST, "타설 번호");
+			DGShowItem (dialogID, BUTTON_CAST);
 
-	//		// 버튼: 시공순서
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
-	//		DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, BUTTON_ORDER, "시공순서");
-	//		DGShowItem (dialogID, BUTTON_ORDER);
+			// 버튼: CJ
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
+			DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_CJ, "CJ");
+			DGShowItem (dialogID, BUTTON_CJ);
 
-	//		// 버튼: 부재
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
-	//		DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, BUTTON_OBJ, "부재");
-	//		DGShowItem (dialogID, BUTTON_OBJ);
+			// 버튼: 시공순서
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
+			DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_ORDER, "시공순서");
+			DGShowItem (dialogID, BUTTON_ORDER);
 
-	//		// 버튼: 객체
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
-	//		DGSetItemFont (dialogID, BUTTON_SUBOBJ, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, BUTTON_SUBOBJ, "객체");
-	//		DGShowItem (dialogID, BUTTON_SUBOBJ);
+			// 버튼: 부재
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
+			DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_OBJ, "부재");
+			DGShowItem (dialogID, BUTTON_OBJ);
 
-	//		// 구분자
-	//		itmPosX = 115;
-	//		itmPosY = 60;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
-	//		DGShowItem (dialogID, SEPARATOR_1);
+			// 버튼: 제작처 구분
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
+			DGSetItemFont (dialogID, BUTTON_PRODUCT_SITE, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_PRODUCT_SITE, "제작처 구분");
+			DGShowItem (dialogID, BUTTON_PRODUCT_SITE);
 
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
-	//		DGShowItem (dialogID, SEPARATOR_2);
+			// 버튼: 제작 번호
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 80, 23);
+			DGSetItemFont (dialogID, BUTTON_PRODUCT_NUM, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_PRODUCT_NUM, "제작 번호");
+			DGShowItem (dialogID, BUTTON_PRODUCT_NUM);
 
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
-	//		DGShowItem (dialogID, SEPARATOR_3);
+			// 구분자
+			itmPosX = 115;
+			itmPosY = 60;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
+			DGShowItem (dialogID, SEPARATOR_1);
 
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
-	//		DGShowItem (dialogID, SEPARATOR_4);
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
+			DGShowItem (dialogID, SEPARATOR_2);
 
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
-	//		DGShowItem (dialogID, SEPARATOR_5);
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
+			DGShowItem (dialogID, SEPARATOR_3);
 
-	//		itmPosX += 110;
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
-	//		DGShowItem (dialogID, SEPARATOR_6);
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
+			DGShowItem (dialogID, SEPARATOR_4);
 
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 800, 5, 1, 110);
-	//		DGShowItem (dialogID, SEPARATOR_7);
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
+			DGShowItem (dialogID, SEPARATOR_5);
 
-	//		// 체크박스 표시
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 160, 25, 40, 20);
-	//		DGSetItemFont (dialogID, CHECKBOX_DONG, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, CHECKBOX_DONG, "포함");
-	//		DGShowItem (dialogID, CHECKBOX_DONG);
-	//		DGSetItemValLong (dialogID, CHECKBOX_DONG, TRUE);
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
+			DGShowItem (dialogID, SEPARATOR_6);
 
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 380, 25, 40, 20);
-	//		DGSetItemFont (dialogID, CHECKBOX_CJ, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, CHECKBOX_CJ, "포함");
-	//		DGShowItem (dialogID, CHECKBOX_CJ);
-	//		DGSetItemValLong (dialogID, CHECKBOX_CJ, TRUE);
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
+			DGShowItem (dialogID, SEPARATOR_7);
 
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 490, 25, 40, 20);
-	//		DGSetItemFont (dialogID, CHECKBOX_ORDER, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, CHECKBOX_ORDER, "포함");
-	//		DGShowItem (dialogID, CHECKBOX_ORDER);
-	//		DGSetItemValLong (dialogID, CHECKBOX_ORDER, TRUE);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 800, 5, 1, 110);
+			DGShowItem (dialogID, SEPARATOR_8);
 
-	//		itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 710, 25, 40, 20);
-	//		DGSetItemFont (dialogID, CHECKBOX_SUBOBJ, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, CHECKBOX_SUBOBJ, "포함");
-	//		DGShowItem (dialogID, CHECKBOX_SUBOBJ);
-	//		DGSetItemValLong (dialogID, CHECKBOX_SUBOBJ, TRUE);
+			// 체크박스 표시
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 680, 25, 80, 20);
+			DGSetItemFont (dialogID, CHECKBOX_PRODUCT_SITE_NUM, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, CHECKBOX_PRODUCT_SITE_NUM, "제작처/번호 포함");
+			DGShowItem (dialogID, CHECKBOX_PRODUCT_SITE_NUM);
+			DGSetItemValLong (dialogID, CHECKBOX_PRODUCT_SITE_NUM, TRUE);
 
-	//		break;
-	//	
-	//	case DG_MSG_CHANGE:
-	//		switch (item) {
-	//			case CHECKBOX_DONG:
-	//			case CHECKBOX_CJ:
-	//			case CHECKBOX_ORDER:
-	//			case CHECKBOX_SUBOBJ:
+			break;
+		
+		case DG_MSG_CHANGE:
+			switch (item) {
+				case CHECKBOX_PRODUCT_SITE_NUM:
+					if (DGGetItemValLong (dialogID, CHECKBOX_PRODUCT_SITE_NUM) == TRUE) {
+						DGEnableItem (dialogID, BUTTON_PRODUCT_SITE);
+						DGEnableItem (dialogID, BUTTON_PRODUCT_NUM);
+					} else {
+						DGDisableItem (dialogID, BUTTON_PRODUCT_SITE);
+						DGDisableItem (dialogID, BUTTON_PRODUCT_NUM);
+					}
 
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_DONG) == TRUE) {
-	//					DGEnableItem (dialogID, BUTTON_DONG);
-	//				} else {
-	//					DGDisableItem (dialogID, BUTTON_DONG);
-	//				}
+					break;
+			}
 
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_CJ) == TRUE) {
-	//					DGEnableItem (dialogID, BUTTON_CJ);
-	//					DGEnableItem (dialogID, CHECKBOX_ORDER);
-	//				} else {
-	//					DGDisableItem (dialogID, BUTTON_CJ);
-	//					DGDisableItem (dialogID, CHECKBOX_ORDER);
-	//				}
+			break;
 
-	//				if ((DGGetItemValLong (dialogID, CHECKBOX_CJ) == TRUE) && (DGGetItemValLong (dialogID, CHECKBOX_ORDER) == TRUE)) {
-	//					DGEnableItem (dialogID, BUTTON_ORDER);
-	//				} else {
-	//					DGDisableItem (dialogID, BUTTON_ORDER);
-	//				}
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					if (DGGetItemValLong (dialogID, CHECKBOX_PRODUCT_SITE_NUM) == TRUE)
+						extendedLayer = true;
+					else
+						extendedLayer = false;
+					break;
 
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_SUBOBJ) == TRUE) {
-	//					DGEnableItem (dialogID, BUTTON_SUBOBJ);
-	//				} else {
-	//					DGDisableItem (dialogID, BUTTON_SUBOBJ);
-	//				}
+				case DG_CANCEL:
+					break;
 
-	//				break;
-	//		}
+				default:
+					clickedBtnItemIdx = item;
+					item = 0;	// 다른 버튼을 눌렀을 때 다이얼로그가 닫히지 않게 함
 
-	//		break;
+					dialogSizeX = 600;
+					dialogSizeY = 500;
 
-	//	case DG_MSG_CLICK:
-	//		switch (item) {
-	//			case DG_OK:
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_DONG) == TRUE)
-	//					onCode2 = true;
-	//				else
-	//					onCode2 = false;
+					// 메인 창 크기
+					if (clickedBtnItemIdx == BUTTON_CODE) {
+						dialogSizeX = 600;
+						dialogSizeY = 90;
+					} else if (clickedBtnItemIdx == BUTTON_DONG) {
+						dialogSizeX = 600;
+						dialogSizeY = 250;
+					} else if (clickedBtnItemIdx == BUTTON_FLOOR) {
+						dialogSizeX = 1000;
+						dialogSizeY = 550;
+					} else if (clickedBtnItemIdx == BUTTON_CAST) {
+						dialogSizeX = 500;
+						dialogSizeY = 350;
+					} else if (clickedBtnItemIdx == BUTTON_CJ) {
+						dialogSizeX = 500;
+						dialogSizeY = 350;
+					} else if (clickedBtnItemIdx == BUTTON_ORDER) {
+						dialogSizeX = 500;
+						dialogSizeY = 350;
+					} else if (clickedBtnItemIdx == BUTTON_OBJ) {
+						dialogSizeX = 1200;
+						dialogSizeY = 800;
+					} else if (clickedBtnItemIdx == BUTTON_PRODUCT_SITE) {
+						dialogSizeX = 600;
+						dialogSizeY = 90;
+					} else if (clickedBtnItemIdx == BUTTON_PRODUCT_NUM) {
+						dialogSizeX = 600;
+						dialogSizeY = 250;
+					}
 
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_CJ) == TRUE)
-	//					onCode4 = true;
-	//				else
-	//					onCode4 = false;
-
-	//				if ((DGGetItemValLong (dialogID, CHECKBOX_CJ) == TRUE) && (DGGetItemValLong (dialogID, CHECKBOX_ORDER) == TRUE))
-	//					onCode5 = true;
-	//				else
-	//					onCode5 = false;
-
-	//				if (DGGetItemValLong (dialogID, CHECKBOX_SUBOBJ) == TRUE)
-	//					onCode7 = true;
-	//				else
-	//					onCode7 = false;
-
-	//				break;
-
-	//			case DG_CANCEL:
-	//				break;
-
-	//			default:
-	//				clickedBtnItemIdx = item;
-	//				item = 0;	// 다른 버튼을 눌렀을 때 다이얼로그가 닫히지 않게 함
-
-	//				dialogSizeX = 600;
-	//				dialogSizeY = 500;
-
-	//				// 메인 창 크기
-	//				if (clickedBtnItemIdx == BUTTON_CODE) {
-	//					dialogSizeX = 600;
-	//					dialogSizeY = 90;
-	//				} else if (clickedBtnItemIdx == BUTTON_DONG) {
-	//					dialogSizeX = 600;
-	//					dialogSizeY = 250;
-	//				} else if (clickedBtnItemIdx == BUTTON_FLOOR) {
-	//					dialogSizeX = 1000;
-	//					dialogSizeY = 550;
-	//				} else if (clickedBtnItemIdx == BUTTON_CJ) {
-	//					dialogSizeX = 500;
-	//					dialogSizeY = 350;
-	//				} else if (clickedBtnItemIdx == BUTTON_ORDER) {
-	//					dialogSizeX = 500;
-	//					dialogSizeY = 350;
-	//				} else if (clickedBtnItemIdx == BUTTON_OBJ) {
-	//					dialogSizeX = 1200;
-	//					dialogSizeY = 800;
-	//				} else if (clickedBtnItemIdx == BUTTON_SUBOBJ) {
-	//					dialogSizeX = 1200;
-	//					dialogSizeY = 800;
-	//				}
-
-	//				// [다이얼로그 박스] 레이어 쉽게 만들기 2차
-	//				result = DGBlankModalDialog (dialogSizeX, dialogSizeY, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerMakeHandler_2, 0);
+					// [다이얼로그 박스] 레이어 쉽게 만들기 2차
+					result = DGBlankModalDialog (dialogSizeX, dialogSizeY, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerMakeHandler_2, 0);
 
 	//				// 버튼의 글꼴 설정 (공사 구분)
 	//				anyTrue = 0;
@@ -1938,18 +1952,18 @@ short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DG
 	//				else
 	//					DGSetItemFont (dialogID, BUTTON_SUBOBJ, DG_IS_LARGE | DG_IS_PLAIN);
 
-	//				break;
-	//		}
-	//		break;
+					break;
+			}
+			break;
 
-	//	case DG_MSG_CLOSE:
-	//		switch (item) {
-	//			case DG_CLOSEBOX:
-	//				break;
-	//		}
-	//}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
 
-	//result = item;
+	result = item;
 
 	return	result;
 }
@@ -1958,274 +1972,255 @@ short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DG
 short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short	result;
-	//short	itmIdx;
-	//short	itmPosX, itmPosY;
-	//short	xx, yy;
-	//char	tempStr [30];
-	//char	dongStr [256];	// Edit 컨트롤로부터 입력받은 ","로 구분된 동 문자열을 담은 변수
-	//short	restIdx;		// 숫자가 아닌 문자로 된 동 문자열 버튼의 인덱스
-	//char	*token;			// 읽어온 문자열의 토큰
-	//short	count;
+	short	itmIdx;
+	short	itmPosX, itmPosY;
+	short	xx, yy;
+	char	tempStr [30];
+	char	dongStr [256];			// Edit 컨트롤로부터 입력받은 "," 또는 "-"로 구분된 동 문자열을 담은 변수
+	char	productNumStr [256];	// Edit 컨트롤로부터 입력받은 "," 또는 "-"로 구분된 동 문자열을 담은 변수
+	short	restIdx;		// 숫자가 아닌 문자로 된 동 문자열 버튼의 인덱스
+	char	*token;			// 읽어온 문자열의 토큰
+	short	count;
 
-	//switch (message) {
-	//	case DG_MSG_INIT:
+	switch (message) {
+		case DG_MSG_INIT:
 
-	//		// 다이얼로그 타이틀
-	//		DGSetDialogTitle (dialogID, "세부 설정");
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "세부 설정");
 
-	//		// 확인 버튼
-	//		DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 10, 60, 25);
-	//		DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, DG_OK, "확인");
-	//		DGShowItem (dialogID, DG_OK);
+			// 확인 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 10, 60, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "확인");
+			DGShowItem (dialogID, DG_OK);
 
-	//		// 취소 버튼
-	//		DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 45, 60, 25);
-	//		DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, DG_CANCEL, "취소");
-	//		DGShowItem (dialogID, DG_CANCEL);
+			// 취소 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 45, 60, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGShowItem (dialogID, DG_CANCEL);
 
-	//		if (clickedBtnItemIdx == BUTTON_CODE) {
-	//			itmPosX = 90;
-	//			itmPosY = 10;
-	//			for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
-	//				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
-	//				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//				sprintf (tempStr, "%s %s", layerInfo.code_name [xx].c_str (), layerInfo.code_desc [xx].c_str ());
-	//				DGSetItemText (dialogID, itmIdx, tempStr);
-	//				DGShowItem (dialogID, itmIdx);
-	//				(layerInfo.code_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
+			if (clickedBtnItemIdx == BUTTON_CODE) {
+				itmPosX = 90;
+				itmPosY = 10;
+				for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					sprintf (tempStr, "%s %s", layerInfo.code_name [xx].c_str (), layerInfo.code_desc [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGShowItem (dialogID, itmIdx);
+					(layerInfo.code_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
-	//				itmPosX += 100;
-	//				if (itmPosX >= 500) {
-	//					itmPosX = 90;
-	//					itmPosY += 30;
-	//				}
-	//			}
-	//		} else if (clickedBtnItemIdx == BUTTON_DONG) {
-	//			itmPosX = 90;
-	//			itmPosY = 10;
+					itmPosX += 100;
+					if (itmPosX >= 500) {
+						itmPosX = 90;
+						itmPosY += 30;
+					}
+				}
+			} else if (clickedBtnItemIdx == BUTTON_DONG) {
+				itmPosX = 90;
+				itmPosY = 10;
 
-	//			// 동 번호는 별도로 입력 받을 것
-	//			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 300, 23);
-	//			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//			DGSetItemText (dialogID, itmIdx, "동 번호 [101~1599동까지 가능] (예: 0101,1102)");
-	//			DGShowItem (dialogID, itmIdx);
+				// 동 번호는 별도로 입력 받을 것
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 300, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "동 번호 [101~1599동까지 가능] (예: 0101-0105,1102)");
+				DGShowItem (dialogID, itmIdx);
 
-	//			itmPosY += 30;
+				itmPosY += 30;
 
-	//			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 90, 20);
-	//			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//			DGSetItemText (dialogID, itmIdx, "동 번호 입력");
-	//			DGShowItem (dialogID, itmIdx);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 90, 20);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "동 번호 입력");
+				DGShowItem (dialogID, itmIdx);
 
-	//			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_TEXT, 256, itmPosX + 90, itmPosY - 5, 210, 20);
-	//			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//			DGShowItem (dialogID, itmIdx);
-	//			DONG_STRING_EDITCONTROL = itmIdx;
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_TEXT, 256, itmPosX + 90, itmPosY - 5, 210, 20);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGShowItem (dialogID, itmIdx);
+				DONG_STRING_EDITCONTROL = itmIdx;
 
-	//			itmPosY += 40;
+				itmPosY += 40;
 
-	//			// 이미 등록된 동 번호 출력하기
-	//			strcpy (dongStr, "");
-	//			for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
-	//				if (strlen (layerInfo.dong_name [xx].c_str ()) != 4)
-	//					sprintf (tempStr, "0%s", layerInfo.dong_name [xx].c_str ());
-	//				else
-	//					sprintf (tempStr, "%s", layerInfo.dong_name [xx].c_str ());
+				// 이미 등록된 동 번호 출력하기
+				strcpy (dongStr, "");
+				for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
+					if (strlen (layerInfo.dong_name [xx].c_str ()) == 3)
+						sprintf (tempStr, "0%s", layerInfo.dong_name [xx].c_str ());
+					else if (strlen (layerInfo.dong_name [xx].c_str ()) == 1)
+						sprintf (tempStr, "000%s", layerInfo.dong_name [xx].c_str ());
+					else
+						sprintf (tempStr, "%s", layerInfo.dong_name [xx].c_str ());
 
-	//				if (isStringDouble (tempStr) == TRUE) {
-	//					if (layerInfo.dong_state [xx] == true) {
-	//						strcat (dongStr, tempStr);
-	//						strcat (dongStr, ",");
-	//					}
-	//				}
-	//			}
-	//			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 500, 23);
-	//			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//			DGSetItemText (dialogID, itmIdx, dongStr);
-	//			DGShowItem (dialogID, itmIdx);
-	//			
-	//			// 이미 등록된 동 번호를 Edit 컨트롤에도 넣어둘 것
-	//			DGSetItemText (dialogID, DONG_STRING_EDITCONTROL, dongStr);
+					if (isStringDouble (tempStr) == TRUE) {
+						if (layerInfo.dong_state [xx] == true) {
+							strcat (dongStr, tempStr);
+							strcat (dongStr, ",");
+						}
+					}
+				}
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 500, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, dongStr);
+				DGShowItem (dialogID, itmIdx);
+				
+				// 이미 등록된 동 번호를 Edit 컨트롤에도 넣어둘 것
+				DGSetItemText (dialogID, DONG_STRING_EDITCONTROL, dongStr);
 
-	//			itmPosY += 40;
+				itmPosY += 40;
 
-	//			// 만약 동 번호이면 생략하고, 동 번호가 아니면 출력할 것
-	//			restIdx = 0;
-	//			for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
-	//				if (strlen (layerInfo.dong_name [xx].c_str ()) != 4)
-	//					sprintf (tempStr, "0%s", layerInfo.dong_name [xx].c_str ());
-	//				else
-	//					sprintf (tempStr, layerInfo.dong_name [xx].c_str ());
+				// 만약 동 번호이면 생략하고, 동 번호가 아니면 출력할 것
+				restIdx = 0;
+				for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
+					if (strlen (layerInfo.dong_name [xx].c_str ()) == 3)
+						sprintf (tempStr, "0%s", layerInfo.dong_name [xx].c_str ());
+					else if (strlen (layerInfo.dong_name [xx].c_str ()) == 1)
+						sprintf (tempStr, "000%s", layerInfo.dong_name [xx].c_str ());
+					else
+						sprintf (tempStr, layerInfo.dong_name [xx].c_str ());
 
-	//				// 문자이면 출력, 숫자이면 스킵
-	//				if (isStringDouble (tempStr) == FALSE) {
-	//					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 35);
-	//					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//					sprintf (tempStr, "%s\n%s", layerInfo.dong_name [xx].c_str (), layerInfo.dong_desc [xx].c_str ());
-	//					DGSetItemText (dialogID, itmIdx, tempStr);
-	//					DGShowItem (dialogID, itmIdx);
-	//					DONG_REST_BUTTONS [restIdx] = itmIdx;
-	//					restIdx ++;
-	//					(layerInfo.dong_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
+					// 문자이면 출력, 숫자이면 스킵
+					if (isStringDouble (tempStr) == FALSE) {
+						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 35);
+						DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+						sprintf (tempStr, "%s\n%s", layerInfo.dong_name [xx].c_str (), layerInfo.dong_desc [xx].c_str ());
+						DGSetItemText (dialogID, itmIdx, tempStr);
+						DGShowItem (dialogID, itmIdx);
+						DONG_REST_BUTTONS [restIdx] = itmIdx;
+						restIdx ++;
+						(layerInfo.dong_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
-	//					itmPosX += 100;
-	//					if (itmPosX >= 500) {
-	//						itmPosX = 90;
-	//						itmPosY += 40;
-	//					}
-	//				}
-	//			}
-	//		} else if (clickedBtnItemIdx == BUTTON_FLOOR) {
-	//			itmPosX = 90;
-	//			itmPosY = 10;
-	//			for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
-	//				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 35);
-	//				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//				sprintf (tempStr, "%s\n%s", layerInfo.floor_name [xx].c_str (), layerInfo.floor_desc [xx].c_str ());
-	//				DGSetItemText (dialogID, itmIdx, tempStr);
-	//				DGShowItem (dialogID, itmIdx);
-	//				(layerInfo.floor_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
+						itmPosX += 100;
+						if (itmPosX >= 500) {
+							itmPosX = 90;
+							itmPosY += 40;
+						}
+					}
+				}
+			} else if (clickedBtnItemIdx == BUTTON_FLOOR) {
+				itmPosX = 90;
+				itmPosY = 10;
+				for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 35);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					sprintf (tempStr, "%s\n%s", layerInfo.floor_name [xx].c_str (), layerInfo.floor_desc [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGShowItem (dialogID, itmIdx);
+					(layerInfo.floor_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
-	//				itmPosX += 100;
-	//				if (itmPosX >= 950) {
-	//					itmPosX = 90;
-	//					itmPosY += 40;
-	//				}
-	//			}
-	//		} else if (clickedBtnItemIdx == BUTTON_CJ) {
-	//			itmPosX = 90;
-	//			itmPosY = 10;
-	//			for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
-	//				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 35, 25);
-	//				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//				sprintf (tempStr, "%s", layerInfo.CJ_name [xx].c_str ());
-	//				DGSetItemText (dialogID, itmIdx, tempStr);
-	//				DGShowItem (dialogID, itmIdx);
-	//				(layerInfo.CJ_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
+					itmPosX += 100;
+					if (itmPosX >= 950) {
+						itmPosX = 90;
+						itmPosY += 40;
+					}
+				}
+			} else if (clickedBtnItemIdx == BUTTON_CAST) {
+				itmPosX = 90;
+				itmPosY = 10;
+				for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx) {
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 35, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					sprintf (tempStr, "%s", layerInfo.cast_name [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGShowItem (dialogID, itmIdx);
+					(layerInfo.cast_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
-	//				itmPosX += 40;
-	//				if (itmPosX >= 480) {
-	//					itmPosX = 90;
-	//					itmPosY += 30;
-	//				}
-	//			}
-	//		} else if (clickedBtnItemIdx == BUTTON_ORDER) {
-	//			itmPosX = 90;
-	//			itmPosY = 10;
-	//			for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
-	//				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 35, 25);
-	//				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//				sprintf (tempStr, "%s", layerInfo.orderInCJ_name [xx].c_str ());
-	//				DGSetItemText (dialogID, itmIdx, tempStr);
-	//				DGShowItem (dialogID, itmIdx);
-	//				(layerInfo.orderInCJ_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
+					itmPosX += 40;
+					if (itmPosX >= 480) {
+						itmPosX = 90;
+						itmPosY += 30;
+					}
+				}
+			} else if (clickedBtnItemIdx == BUTTON_CJ) {
+				itmPosX = 90;
+				itmPosY = 10;
+				for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 35, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					sprintf (tempStr, "%s", layerInfo.CJ_name [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGShowItem (dialogID, itmIdx);
+					(layerInfo.CJ_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
-	//				itmPosX += 40;
-	//				if (itmPosX >= 480) {
-	//					itmPosX = 90;
-	//					itmPosY += 30;
-	//				}
-	//			}
-	//		} else if (clickedBtnItemIdx == BUTTON_OBJ) {
-	//			itmPosX = 90;
-	//			itmPosY = 10;
-	//			for (xx = 0 ; xx < 100 ; ++xx) {
-	//				OBJ_BUTTONS [xx] = 0;
-	//			}
-	//			count = 0;
-	//			for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
-	//				for (yy = 0 ; yy < layerInfo.obj_name.size () ; ++yy) {
-	//					if (yy == 0) {
-	//						itmPosY += 5;
+					itmPosX += 40;
+					if (itmPosX >= 480) {
+						itmPosX = 90;
+						itmPosY += 30;
+					}
+				}
+			} else if (clickedBtnItemIdx == BUTTON_ORDER) {
+				itmPosX = 90;
+				itmPosY = 10;
+				for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 35, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					sprintf (tempStr, "%s", layerInfo.orderInCJ_name [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGShowItem (dialogID, itmIdx);
+					(layerInfo.orderInCJ_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
-	//						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 100, 23);
-	//						DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//						sprintf (tempStr, "%s %s", layerInfo.code_name [xx].c_str (), layerInfo.code_desc [xx].c_str ());
-	//						DGSetItemText (dialogID, itmIdx, tempStr);
-	//						DGShowItem (dialogID, itmIdx);
+					itmPosX += 40;
+					if (itmPosX >= 480) {
+						itmPosX = 90;
+						itmPosY += 30;
+					}
+				}
+			} else if (clickedBtnItemIdx == BUTTON_OBJ) {
+				itmPosX = 90;
+				itmPosY = 10;
+				for (xx = 0 ; xx < 100 ; ++xx) {
+					OBJ_BUTTONS [xx] = 0;
+				}
+				count = 0;
+				for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
+					for (yy = 0 ; yy < layerInfo.obj_name.size () ; ++yy) {
+						if (yy == 0) {
+							itmPosY += 5;
 
-	//						itmPosY += 23;
-	//					}
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 100, 23);
+							DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+							sprintf (tempStr, "%s %s", layerInfo.code_name [xx].c_str (), layerInfo.code_desc [xx].c_str ());
+							DGSetItemText (dialogID, itmIdx, tempStr);
+							DGShowItem (dialogID, itmIdx);
 
-	//					if (strncmp (layerInfo.code_name [xx].c_str (), layerInfo.obj_cat [yy].c_str (), 4) == 0) {
-	//						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 95, 28);
-	//						DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-	//						sprintf (tempStr, "%s\n%s", layerInfo.obj_name [yy].c_str (), layerInfo.obj_desc [yy].c_str ());
-	//						DGSetItemText (dialogID, itmIdx, tempStr);
-	//						DGShowItem (dialogID, itmIdx);
-	//						OBJ_BUTTONS [count] = itmIdx;
-	//						(layerInfo.obj_state [yy] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
-	//						count ++;
+							itmPosY += 23;
+						}
 
-	//						itmPosX += 100;
-	//						if (itmPosX >= 1100) {
-	//							itmPosX = 90;
-	//							itmPosY += 30;
-	//						}
-	//					}
-	//				}
-	//				itmPosX = 90;
-	//				itmPosY += 30;
-	//			}
-	//		} else if (clickedBtnItemIdx == BUTTON_SUBOBJ) {
-	//			itmPosX = 90;
-	//			itmPosY = 10;
-	//			for (xx = 0 ; xx < 100 ; ++xx) {
-	//				SUBOBJ_BUTTONS [xx] = 0;
-	//			}
-	//			count = 0;
-	//			for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
-	//				for (yy = 0 ; yy < layerInfo.subObj_name.size () ; ++yy) {
-	//					if (yy == 0) {
-	//						itmPosY += 5;
+						if (strncmp (layerInfo.code_name [xx].c_str (), layerInfo.obj_cat [yy].c_str (), 4) == 0) {
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 95, 28);
+							DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
+							sprintf (tempStr, "%s\n%s", layerInfo.obj_name [yy].c_str (), layerInfo.obj_desc [yy].c_str ());
+							DGSetItemText (dialogID, itmIdx, tempStr);
+							DGShowItem (dialogID, itmIdx);
+							OBJ_BUTTONS [count] = itmIdx;
+							(layerInfo.obj_state [yy] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
+							count ++;
 
-	//						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 100, 23);
-	//						DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-	//						sprintf (tempStr, "%s %s", layerInfo.code_name [xx].c_str (), layerInfo.code_desc [xx].c_str ());
-	//						DGSetItemText (dialogID, itmIdx, tempStr);
-	//						DGShowItem (dialogID, itmIdx);
+							itmPosX += 100;
+							if (itmPosX >= 1100) {
+								itmPosX = 90;
+								itmPosY += 30;
+							}
+						}
+					}
+					itmPosX = 90;
+					itmPosY += 30;
+				}
+			}
 
-	//						itmPosY += 23;
-	//					}
+			break;
 
-	//					if (strncmp (layerInfo.code_name [xx].c_str (), layerInfo.subObj_cat [yy].c_str (), 4) == 0) {
-	//						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 95, 28);
-	//						DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-	//						sprintf (tempStr, "%s\n%s", layerInfo.subObj_name [yy].c_str (), layerInfo.subObj_desc [yy].c_str ());
-	//						DGSetItemText (dialogID, itmIdx, tempStr);
-	//						DGShowItem (dialogID, itmIdx);
-	//						SUBOBJ_BUTTONS [count] = itmIdx;
-	//						(layerInfo.subObj_state [yy] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
-	//						count ++;
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
 
-	//						itmPosX += 100;
-	//						if (itmPosX >= 1100) {
-	//							itmPosX = 90;
-	//							itmPosY += 30;
-	//						}
-	//					}
-	//				}
-	//				itmPosX = 90;
-	//				itmPosY += 30;
-	//			}
-	//		}
-
-	//		break;
-
-	//	case DG_MSG_CLICK:
-	//		switch (item) {
-	//			case DG_OK:
-
-	//				if (clickedBtnItemIdx == BUTTON_CODE) {
+					if (clickedBtnItemIdx == BUTTON_CODE) {
 	//					for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
 	//						if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
 	//							layerInfo.code_state [xx] = true;
 	//						else
 	//							layerInfo.code_state [xx] = false;
 	//					}
-	//				} else if (clickedBtnItemIdx == BUTTON_DONG) {
+					} else if (clickedBtnItemIdx == BUTTON_DONG) {
 	//					// 일단 false로 초기화
 	//					for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
 	//						layerInfo.dong_state [xx] = false;
@@ -2266,57 +2261,56 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 	//							restIdx ++;
 	//						}
 	//					}
-	//				} else if (clickedBtnItemIdx == BUTTON_FLOOR) {
+					} else if (clickedBtnItemIdx == BUTTON_FLOOR) {
 	//					for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
 	//						if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
 	//							layerInfo.floor_state [xx] = true;
 	//						else
 	//							layerInfo.floor_state [xx] = false;
 	//					}
-	//				} else if (clickedBtnItemIdx == BUTTON_CJ) {
+					} else if (clickedBtnItemIdx == BUTTON_CAST) {
+						// ...
+					} else if (clickedBtnItemIdx == BUTTON_CJ) {
 	//					for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
 	//						if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
 	//							layerInfo.CJ_state [xx] = true;
 	//						else
 	//							layerInfo.CJ_state [xx] = false;
 	//					}
-	//				} else if (clickedBtnItemIdx == BUTTON_ORDER) {
+					} else if (clickedBtnItemIdx == BUTTON_ORDER) {
 	//					for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
 	//						if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
 	//							layerInfo.orderInCJ_state [xx] = true;
 	//						else
 	//							layerInfo.orderInCJ_state [xx] = false;
 	//					}
-	//				} else if (clickedBtnItemIdx == BUTTON_OBJ) {
+					} else if (clickedBtnItemIdx == BUTTON_OBJ) {
 	//					for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
 	//						if (DGGetItemValLong (dialogID, OBJ_BUTTONS [xx]) == TRUE)
 	//							layerInfo.obj_state [xx] = true;
 	//						else
 	//							layerInfo.obj_state [xx] = false;
 	//					}
-	//				} else if (clickedBtnItemIdx == BUTTON_SUBOBJ) {
-	//					for (xx = 0 ; xx < layerInfo.subObj_name.size () ; ++xx) {
-	//						if (DGGetItemValLong (dialogID, SUBOBJ_BUTTONS [xx]) == TRUE)
-	//							layerInfo.subObj_state [xx] = true;
-	//						else
-	//							layerInfo.subObj_state [xx] = false;
-	//					}
-	//				}
+					} else if (clickedBtnItemIdx == BUTTON_PRODUCT_SITE) {
+						// ...
+					} else if (clickedBtnItemIdx == BUTTON_PRODUCT_NUM) {
+						// ...
+					}
 
-	//				break;
+					break;
 
-	//			case DG_CANCEL:
-	//				break;
-	//		}
-	//		break;
-	//	case DG_MSG_CLOSE:
-	//		switch (item) {
-	//			case DG_CLOSEBOX:
-	//				break;
-	//		}
-	//}
+				case DG_CANCEL:
+					break;
+			}
+			break;
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
 
-	//result = item;
+	result = item;
 
 	return	result;
 }
