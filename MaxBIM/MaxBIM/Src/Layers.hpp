@@ -34,15 +34,28 @@ namespace layersDG {
 // 레이어 코드 체계
 struct LayerNameSystem
 {
-	// 정규 코드 예시: 05-T-(0101)-9B1-(01)-(01)-COLU-(UFOM)  단, 괄호 안은 선택사항
+	// 기본 정규 코드 형식: 일련번호 - 공사구분 - 동구분 - 층구분 - 타설번호 - CJ - CJ속시공순서 - 부재구분
+	// 확장 정규 코드 형식: 일련번호 - 공사구분 - 동구분 - 층구분 - 타설번호 - CJ - CJ속시공순서 - 부재구분 - 제작처구분 - 제작번호
+	/*
+	 일련번호-공사구분: 01-S (구조), 02-A (건축마감), 03-M (기계설비), 04-E (전기설비), 05-T (가설재), 06-F (가시설), 07-Q (물량합판), 08-L (조경), 09-C (토목), 10-K (건설장비), 50-S,A,M,E,T,F,Q,L,C,K (각 공사별 2D 도면)
+	 동 구분: 101~1599동 (0101~1599), SHOP (근린생활시설), SECU (경비실) ... (단, 구분이 없으면 0000)
+	 층 구분: 1B9~9B1 (지하9층~1층), F01~F99 (지상1층~99층), PH1~PH9 (옥탑1층~9층) ...
+	 타설번호: 01~99 (단, 구분이 없으면 01)
+	 CJ: 01~99 (단, 구분이 없으면 01)
+	 CJ 속 시공순서: 01~99 (단, 구분이 없으면 01)
+	 부재구분: WALL (벽), COLU (기둥) ...
+	 제작처구분: 현장시공, 공장제작
+	 제작번호: 001~999
+	 */
+	// 예시: 05-T-0000-F01-01-01-01-WALL(-현장시공-001)	괄호 안은 선택사항
 
 	// 공사 구분 (필수)
-	vector<string>	code_name;
-	vector<string>	code_desc;
-	bool	*code_state;
-	short	*code_idx;
+	vector<string>	code_name;	// 코드 이름
+	vector<string>	code_desc;	// 코드 설명
+	bool	*code_state;		// On/Off 상태
+	short	*code_idx;			// 다이얼로그 상의 인덱스
 
-	// 동 구분 (선택)
+	// 동 구분 (필수)
 	vector<string>	dong_name;
 	vector<string>	dong_desc;
 	bool	*dong_state;
@@ -54,14 +67,21 @@ struct LayerNameSystem
 	vector<string>	floor_desc;
 	bool	*floor_state;
 	short	*floor_idx;
+	bool	bFloorAllShow;		// 모두 선택 버튼 보여주기
 
-	// CJ 구간 (선택)
+	// 타설번호 (필수)
+	vector<string>	cast_name;
+	bool	*cast_state;
+	short	*cast_idx;
+	bool	bCastAllShow;		// 모두 선택 버튼 보여주기
+
+	// CJ 구간 (필수)
 	vector<string>	CJ_name;
 	bool	*CJ_state;
 	short	*CJ_idx;
 	bool	bCJAllShow;			// 모두 선택 버튼 보여주기
 
-	// CJ 속 시공순서 (선택)
+	// CJ 속 시공순서 (필수)
 	vector<string>	orderInCJ_name;
 	bool	*orderInCJ_state;
 	short	*orderInCJ_idx;
@@ -74,12 +94,11 @@ struct LayerNameSystem
 	bool	*obj_state;
 	short	*obj_idx;
 
-	// 객체 구분 (선택)
-	vector<string>	subObj_name;
-	vector<string>	subObj_desc;
-	vector<string>	subObj_cat;
-	bool	*subObj_state;
-	short	*subObj_idx;
+	// 제작처 구분
+	// ...
+
+	// 제작 번호
+	// ...
 };
 
 struct StatusOfLayerNameSystem
@@ -87,23 +106,29 @@ struct StatusOfLayerNameSystem
 	// 공사 구분 (필수)
 	bool	code_state [10];
 
-	// 동 구분 (선택)
+	// 동 구분 (필수)
 	bool	dong_state [2000];
 
 	// 층 구분 (필수)
 	bool	floor_state [200];
 
-	// CJ 구간 (선택)
+	// 타설번호 (필수)
+	bool	cast_state [10];
+
+	// CJ 구간 (필수)
 	bool	CJ_state [10];
 
-	// CJ 속 시공순서 (선택)
+	// CJ 속 시공순서 (필수)
 	bool	orderInCJ_state [10];
 
 	// 부재 구분 (필수)
 	bool	obj_state [500];
 
-	// 객체 구분 (선택)
-	bool	subObj_state [500];
+	// 제작처 구분
+	// ...
+
+	// 제작 번호
+	// ...
 };
 
 void		allocateMemory (LayerNameSystem *layerInfo);		// 메모리 할당
