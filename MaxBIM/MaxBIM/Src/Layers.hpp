@@ -26,6 +26,7 @@ namespace layersDG {
 		SEPARATOR_6,
 		SEPARATOR_7,
 		SEPARATOR_8,
+		SEPARATOR_9,
 
 		CHECKBOX_PRODUCT_SITE_NUM
 	};
@@ -49,6 +50,8 @@ struct LayerNameSystem
 	 */
 	// 예시(기본): 05-T-0000-F01-01-01-01-WALL
 	// 예시(확장): 05-T-0000-F01-01-01-01-WALL-현장제작-001
+
+	bool	extendedLayer;		// 확장이면 true, 기본이면 false
 
 	// 공사 구분 (필수)
 	vector<string>	code_name;	// 코드 이름
@@ -140,6 +143,7 @@ struct StatusOfLayerNameSystem
 
 void		allocateMemory (LayerNameSystem *layerInfo);		// 메모리 할당
 void		deallocateMemory (LayerNameSystem *layerInfo);		// 메모리 해제
+bool		isFullLayer (LayerNameSystem *layerInfo);			// 레이어 필드 코드에 누락이 없는가?
 
 GSErrCode	showLayersEasily (void);		// 레이어 쉽게 선택하기
 short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그 박스] 레이어 쉽게 선택하기

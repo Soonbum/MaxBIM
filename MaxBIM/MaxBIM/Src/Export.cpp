@@ -2323,9 +2323,6 @@ GSErrCode	filterSelection (void)
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
 	
-	char msg [256];
-	sprintf (msg, "nObjects : %d\nselection_unknown.GetSize () : %d", nObjects, selection_unknown.GetSize ());
-	ACAPI_WriteReport (msg, true);
 	visibleObjInfo.nUnknownObjects = selection_unknown.GetSize ();
 
 	if (nWalls > 0)		visibleObjInfo.bExist_Walls = true;

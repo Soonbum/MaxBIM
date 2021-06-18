@@ -27,12 +27,10 @@ short	SELECTALL_8_PRODUCT_SITE;
 short	SELECTALL_9_PRODUCT_NUM;
 
 short	DONG_STRING_RADIOBUTTON;
-short	DONG_STRING_EDITCONTROL;	// 0101,0102 등 숫자로 된 동 문자열을 담는 Edit 컨트롤의 인덱스 
+short	DONG_STRING_EDITCONTROL;	// 0000,0101,0102 등 숫자로 된 동 문자열을 담는 Edit 컨트롤의 인덱스 
 short	DONG_REST_BUTTONS [100];	// 숫자가 아닌 동 문자열 체크버튼의 인덱스
 short	OBJ_BUTTONS [100];			// 부재 버튼의 인덱스
-
-// [다이얼로그] 레이어 옵션 필드 On/Off 여부
-bool	extendedLayer;
+short	PRODUCT_NUM_STRING_EDITCONTROL;		// 001-100 등 숫자로 된 제작 번호 문자열을 담는 Edit 컨트롤의 인덱스
 
 
 // 메모리 할당
@@ -123,6 +121,102 @@ void		deallocateMemory (LayerNameSystem *layerInfo)
 	delete []	layerInfo->obj_idx;
 	delete []	layerInfo->productSite_idx;
 	delete []	layerInfo->productNum_idx;
+}
+
+// 레이어 필드 코드에 누락이 없는가?
+bool		isFullLayer (LayerNameSystem *layerInfo)
+{
+	short	xx;
+	short	anyTrue = 0;
+	short	totalTrue = 0;
+	short	AddedTotalTrue = 0;
+
+	// 공사 구분
+	anyTrue = 0;
+	for (xx = 0 ; xx < layerInfo->code_name.size () ; ++xx)
+		if (layerInfo->code_state [xx] == true)	anyTrue++;
+	if (anyTrue > 0) {
+		totalTrue ++;
+	}
+
+	// 동 구분
+	anyTrue = 0;
+	for (xx = 0 ; xx < layerInfo->dong_name.size () ; ++xx)
+		if (layerInfo->dong_state [xx] == true)	anyTrue++;
+	if (anyTrue > 0) {
+		totalTrue ++;
+	}
+
+	// 층 구분
+	anyTrue = 0;
+	for (xx = 0 ; xx < layerInfo->floor_name.size () ; ++xx)
+		if (layerInfo->floor_state [xx] == true)	anyTrue++;
+	if (anyTrue > 0) {
+		totalTrue ++;
+	}
+
+	// 타설 번호
+	anyTrue = 0;
+	for (xx = 0 ; xx < layerInfo->cast_name.size () ; ++xx)
+		if (layerInfo->cast_state [xx] == true) anyTrue++;
+	if (anyTrue > 0) {
+		totalTrue ++;
+	}
+
+	// CJ
+	anyTrue = 0;
+	for (xx = 0 ; xx < layerInfo->CJ_name.size () ; ++xx)
+		if (layerInfo->CJ_state [xx] == true)	anyTrue++;
+	if (anyTrue > 0) {
+		totalTrue ++;
+	}
+
+	// 시공순서
+	anyTrue = 0;
+	for (xx = 0 ; xx < layerInfo->orderInCJ_name.size () ; ++xx)
+		if (layerInfo->orderInCJ_state [xx] == true)	anyTrue++;
+	if (anyTrue > 0) {
+		totalTrue ++;
+	}
+
+	// 부재
+	anyTrue = 0;
+	for (xx = 0 ; xx < layerInfo->obj_name.size () ; ++xx)
+		if (layerInfo->obj_state [xx] == true)	anyTrue++;
+	if (anyTrue > 0) {
+		totalTrue ++;
+	}
+
+	// 제작처 구분
+	anyTrue = 0;
+	for (xx = 0 ; xx < layerInfo->productSite_name.size () ; ++xx)
+		if (layerInfo->productSite_state [xx] == true)	anyTrue++;
+	if (anyTrue > 0) {
+		AddedTotalTrue ++;
+	}
+
+	// 제작 번호
+	anyTrue = 0;
+	for (xx = 0 ; xx < layerInfo->productNum_name.size () ; ++xx)
+		if (layerInfo->productNum_state [xx] == true)	anyTrue++;
+	if (anyTrue > 0) {
+		AddedTotalTrue ++;
+	}
+
+	// 기본형
+	if (layerInfo->extendedLayer == false) {
+		if (totalTrue == 7)
+			return true;
+		else
+			return false;
+	
+	// 확장형
+	} else {
+		if ((totalTrue == 7) && (AddedTotalTrue == 2))
+			return true;
+		else
+			return false;
+	}
 }
 
 // 레이어 쉽게 선택하기
@@ -1446,244 +1540,215 @@ GSErrCode	makeLayersEasily (void)
 	// [다이얼로그 박스] 레이어 쉽게 만들기
 	result = DGBlankModalDialog (1100, 120, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerMakeHandler, 0);
 
-	// OK 버튼이 아니면 메모리 해제하고 종료
-	if (result != DG_OK) {
+	// OK 버튼을 누르지 않았거나 레이어 코드 필드가 완성되어 있지 않으면 메모리를 해제하고 종료
+	if ((result != DG_OK) || (isFullLayer (&layerInfo) == false)) {
 		deallocateMemory (&layerInfo);
 		return	err;
 	}
 
-	//short	z;
-	//char	code1 [10][5];		// 공사 코드
-	//short	LenCode1;
-	//char	code2 [1600][5];	// 동 코드
-	//short	LenCode2;
-	//char	code3 [120][5];		// 층 코드
-	//short	LenCode3;
-	//char	code4 [100][5];		// CJ 코드
-	//short	LenCode4;
-	//char	code5 [100][5];		// CJ 속 시공순서 코드
-	//short	LenCode5;
-	//char	code6 [90][5];		// 부재 코드
-	//short	LenCode6;
-	//char	code7 [90][5];		// 객체 코드
-	//short	LenCode7;
+	short	z;
+	char	code1 [10][5];		// 공사 코드
+	short	LenCode1;
+	char	code2 [1600][5];	// 동 코드
+	short	LenCode2;
+	char	code3 [120][5];		// 층 코드
+	short	LenCode3;
+	char	code4 [100][5];		// 타설번호 코드
+	short	LenCode4;
+	char	code5 [100][5];		// CJ 코드
+	short	LenCode5;
+	char	code6 [100][5];		// CJ 속 시공순서 코드
+	short	LenCode6;
+	char	code7 [90][5];		// 부재 코드
+	short	LenCode7;
+	char	code8 [10][32];		// 제작처 코드
+	short	LenCode8;
+	char	code9 [1000][5];	// 제작번호 코드
+	short	LenCode9;
 
-	//char	fullLayerName [40];
-	//short	madeLayers;
-	//bool	bNormalLayer;
-	//short	x1, x2, x3, x4, x5, x6, x7;
+	char	fullLayerName [40];
+	short	madeLayers;
+	bool	bNormalLayer;
+	short	x1, x2, x3, x4, x5, x6, x7, x8, x9;
 
-	//// 1. 공사 코드 문자열 만들기
-	//z = 0;
-	//for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
-	//	if (layerInfo.code_state [xx] == true) {
-	//		sprintf (tempStr, "%s", layerInfo.code_name [xx].c_str ());
-	//		strcpy (code1 [z++], tempStr);
-	//	}
-	//}
-	//LenCode1 = z;
+	// 1. 공사 코드 문자열 만들기
+	z = 0;
+	for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
+		if (layerInfo.code_state [xx] == true) {
+			sprintf (tempStr, "%s", layerInfo.code_name [xx].c_str ());
+			strcpy (code1 [z++], tempStr);
+		}
+	}
+	LenCode1 = z;
 
-	//// 2. 동 코드 문자열 만들기
-	//z = 0;
-	//strcpy (code2 [z++], "????");
-	//for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
-	//	if (layerInfo.dong_state [xx] == true) {
-	//		sprintf (tempStr, "%s", layerInfo.dong_name [xx].c_str ());
-	//		strcpy (code2 [z++], tempStr);
-	//	}
-	//}
-	//LenCode2 = z;
+	// 2. 동 코드 문자열 만들기
+	z = 0;
+	for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
+		if (layerInfo.dong_state [xx] == true) {
+			sprintf (tempStr, "%s", layerInfo.dong_name [xx].c_str ());
+			strcpy (code2 [z++], tempStr);
+		}
+	}
+	LenCode2 = z;
 
-	//// 3. 층 코드 문자열 만들기
-	//z = 0;
-	//for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
-	//	if (layerInfo.floor_state [xx] == true) {
-	//		sprintf (tempStr, "%s", layerInfo.floor_name [xx].c_str ());
-	//		strcpy (code3 [z++], tempStr);
-	//	}
-	//}
-	//LenCode3 = z;
+	// 3. 층 코드 문자열 만들기
+	z = 0;
+	for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
+		if (layerInfo.floor_state [xx] == true) {
+			sprintf (tempStr, "%s", layerInfo.floor_name [xx].c_str ());
+			strcpy (code3 [z++], tempStr);
+		}
+	}
+	LenCode3 = z;
 
-	//// 4. CJ 코드 문자열 만들기
-	//z = 0;
-	//strcpy (code4 [z++], "??");
-	//for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
-	//	if (layerInfo.CJ_state [xx] == true) {
-	//		sprintf (tempStr, "%s", layerInfo.CJ_name [xx].c_str ());
-	//		strcpy (code4 [z++], tempStr);
-	//	}
-	//}
-	//LenCode4 = z;
+	// 4. 타설번호 코드 문자열 만들기
+	z = 0;
+	for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx) {
+		if (layerInfo.cast_state [xx] == true) {
+			sprintf (tempStr, "%s", layerInfo.cast_name [xx].c_str ());
+			strcpy (code4 [z++], tempStr);
+		}
+	}
+	LenCode4 = z;
 
-	//// 5. CJ 속 시공순서 문자열 만들기
-	//z = 0;
-	//strcpy (code5 [z++], "??");
-	//for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
-	//	if (layerInfo.orderInCJ_state [xx] == true) {
-	//		sprintf (tempStr, "%s", layerInfo.orderInCJ_name [xx].c_str ());
-	//		strcpy (code4 [z++], tempStr);
-	//	}
-	//}
-	//LenCode5 = z;
+	// 5. CJ 코드 문자열 만들기
+	z = 0;
+	for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
+		if (layerInfo.CJ_state [xx] == true) {
+			sprintf (tempStr, "%s", layerInfo.CJ_name [xx].c_str ());
+			strcpy (code5 [z++], tempStr);
+		}
+	}
+	LenCode5 = z;
 
-	//// 6. 부재 코드 문자열 만들기
-	//z = 0;
-	//for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
-	//	if (layerInfo.obj_state [xx] == true) {
-	//		sprintf (tempStr, "%s", layerInfo.obj_name [xx].c_str ());
-	//		strcpy (code6 [z++], tempStr);
-	//	}
-	//}
-	//LenCode6 = z;
+	// 6. CJ 속 시공순서 문자열 만들기
+	z = 0;
+	for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
+		if (layerInfo.orderInCJ_state [xx] == true) {
+			sprintf (tempStr, "%s", layerInfo.orderInCJ_name [xx].c_str ());
+			strcpy (code6 [z++], tempStr);
+		}
+	}
+	LenCode6 = z;
 
-	//// 7. 객체 코드 문자열 만들기 (가설재에 한함)
-	//z = 0;
-	//strcpy (code7 [z++], "????");
-	//for (xx = 0 ; xx < layerInfo.subObj_name.size () ; ++xx) {
-	//	if (layerInfo.subObj_state [xx] == true) {
-	//		sprintf (tempStr, "%s", layerInfo.subObj_name [xx].c_str ());
-	//		strcpy (code7 [z++], tempStr);
-	//	}
-	//}
-	//LenCode7 = z;
+	// 7. 부재 코드 문자열 만들기
+	z = 0;
+	for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
+		if (layerInfo.obj_state [xx] == true) {
+			sprintf (tempStr, "%s", layerInfo.obj_name [xx].c_str ());
+			strcpy (code7 [z++], tempStr);
+		}
+	}
+	LenCode7 = z;
 
-	//// 생성한 레이어 개수
-	//madeLayers = 0;
+	if (layerInfo.extendedLayer == true) {
+		// 8. 제작처 구분 코드 문자열 만들기
+		z = 0;
+		for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx) {
+			if (layerInfo.productSite_state [xx] == true) {
+				sprintf (tempStr, "%s", layerInfo.productSite_name [xx].c_str ());
+				strcpy (code8 [z++], tempStr);
+			}
+		}
+		LenCode8 = z;
 
-	//// 레이어 이름 조합하기
-	//for (x1 = 0 ; x1 < LenCode1 ; ++x1) {
-	//	for (x2 = 0 ; x2 < LenCode2 ; ++x2) {
-	//		for (x3 = 0 ; x3 < LenCode3 ; ++x3) {
-	//			for (x4 = 0 ; x4 < LenCode4 ; ++x4) {
-	//				for (x5 = 0 ; x5 < LenCode5 ; ++x5) {
-	//					for (x6 = 0 ; x6 < LenCode6 ; ++x6) {
-	//						for (x7 = 0 ; x7 < LenCode7 ; ++x7) {
+		// 9. 제작 번호 코드 문자열 만들기
+		z = 0;
+		for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx) {
+			if (layerInfo.productNum_state [xx] == true) {
+				sprintf (tempStr, "%s", layerInfo.productNum_name [xx].c_str ());
+				strcpy (code9 [z++], tempStr);
+			}
+		}
+		LenCode9 = z;
+	}
 
-	//							bNormalLayer = false;	// 레이어 이름이 정상적인 체계의 이름인가?
+	// 생성한 레이어 개수
+	madeLayers = 0;
 
-	//							// 공사 구분
-	//							strcpy (fullLayerName, "");
-	//							strcpy (fullLayerName, code1 [x1]);
+	// 레이어 이름 조합하기
+	for (x1 = 0 ; x1 < LenCode1 ; ++x1) {
+		for (x2 = 0 ; x2 < LenCode2 ; ++x2) {
+			for (x3 = 0 ; x3 < LenCode3 ; ++x3) {
+				for (x4 = 0 ; x4 < LenCode4 ; ++x4) {
+					for (x5 = 0 ; x5 < LenCode5 ; ++x5) {
+						for (x6 = 0 ; x6 < LenCode6 ; ++x6) {
+							for (x7 = 0 ; x7 < LenCode7 ; ++x7) {
+								
+								if (layerInfo.extendedLayer == true) {
+									for (x8 = 0 ; x8 < LenCode8 ; ++x8) {
+										for (x9 = 0 ; x9 < LenCode9 ; ++x9) {
+											// ...
+										}
+									}
+								} else {
+									bNormalLayer = isFullLayer (&layerInfo);	// 레이어 이름이 정상적인 체계의 이름인가?
 
-	//							// 동 구분
-	//							if ((LenCode2 > 1) && (onCode2 == true)) {
-	//								strcat (fullLayerName, "-");
-	//								strcat (fullLayerName, code2 [x2]);
+									// 공사 구분
+									strcpy (fullLayerName, "");
+									strcpy (fullLayerName, code1 [x1]);
 
-	//								if (strncmp (code2 [x2], "????", 4) == 0) {
-	//									bNormalLayer = false;
-	//									continue;
-	//								}
-	//							}
+									// 동 구분
+									strcat (fullLayerName, "-");
+									strcat (fullLayerName, code2 [x2]);
 
-	//							// 층 구분
-	//							strcat (fullLayerName, "-");
-	//							strcat (fullLayerName, code3 [x3]);
+									// 층 구분
+									strcat (fullLayerName, "-");
+									strcat (fullLayerName, code3 [x3]);
 
-	//							// CJ 구간
-	//							if (onCode4 == true) {
-	//								if (LenCode4 > 1) {
-	//									strcat (fullLayerName, "-");
-	//									strcat (fullLayerName, code4 [x4]);
+									// 타설번호
+									strcat (fullLayerName, "-");
+									strcat (fullLayerName, code4 [x4]);
 
-	//									if (strncmp (code4 [x4], "??", 2) == 0) {
-	//										bNormalLayer = false;
-	//										continue;
-	//									}
-	//								} else {
-	//									strcat (fullLayerName, "-00");
-	//								}
-	//							}
+									// CJ 구간
+									strcat (fullLayerName, "-");
+									strcat (fullLayerName, code5 [x5]);
 
-	//							// CJ 속 시공순서
-	//							if (onCode5 == true) {
-	//								if (LenCode5 > 1) {
-	//									strcat (fullLayerName, "-");
-	//									strcat (fullLayerName, code5 [x5]);
+									// CJ 속 시공순서
+									strcat (fullLayerName, "-");
+									strcat (fullLayerName, code6 [x6]);
 
-	//									if (strncmp (code5 [x5], "??", 2) == 0) {
-	//										bNormalLayer = false;
-	//										continue;
-	//									}
-	//								} else {
-	//									strcat (fullLayerName, "-00");
-	//								}
-	//							}
+									// 부재 구분
+									strcat (fullLayerName, "-");
+									strcat (fullLayerName, code7 [x7]);
 
-	//							// 부재
-	//							if (onCode7 == true) {
-	//								strcat (fullLayerName, "-");
-	//								strcat (fullLayerName, code6 [x6]);
-	//							} else {
-	//								// 단, 객체 필드가 없으면 부재의 카테고리는 공사 구분 코드에 속한 것이어야 함
-	//								for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
-	//									if (strncmp (code6 [x6], layerInfo.obj_name [xx].c_str (), strlen (code6 [x6])) == 0) {
-	//										if (strncmp (layerInfo.obj_cat [xx].c_str (), code1 [x1], 4) == 0)
-	//											bNormalLayer = true;
-	//										else
-	//											bNormalLayer = false;
-	//									}
-	//								}
+									// 정상적인 레이어 이름이면 레이어 속성을 생성함
+									if (bNormalLayer == true) {
+										// 레이어 생성하기
+										BNZeroMemory (&attrib, sizeof (API_Attribute));
+										BNZeroMemory (&defs, sizeof (API_AttributeDef));
 
-	//								strcat (fullLayerName, "-");
-	//								strcat (fullLayerName, code6 [x6]);
-	//							}
+										attrib.header.typeID = API_LayerID;
+										CHCopyC (fullLayerName, attrib.header.name);
+										err = ACAPI_Attribute_Create (&attrib, &defs);
 
-	//							// 객체
-	//							if (onCode7 == true) {
-	//								if (LenCode7 > 1) {
-	//									// 객체의 카테고리는 공사 구분 코드에 속한 것이어야 함
-	//									for (xx = 0 ; xx < layerInfo.subObj_name.size () ; ++xx) {
-	//										if (strncmp (code7 [x7], layerInfo.subObj_name [xx].c_str (), strlen (code7 [x7])) == 0) {
-	//											if (strncmp (layerInfo.subObj_cat [xx].c_str (), code1 [x1], 4) == 0)
-	//												bNormalLayer = true;
-	//											else
-	//												bNormalLayer = false;
-	//										}
-	//									}
+										ACAPI_DisposeAttrDefsHdls (&defs);
 
-	//									strcat (fullLayerName, "-");
-	//									strcat (fullLayerName, code7 [x7]);
-	//								} else {
-	//									// 없으면 생략
-	//								}
-	//							}
+										// 성공하면 레이어 생성 개수 누적
+										if (err == NoError)
+											madeLayers ++;
+									}
+								}
 
-	//							// 정상적인 레이어 이름이면 레이어 속성을 생성함
-	//							if (bNormalLayer == true) {
-	//								// 레이어 생성하기
-	//								BNZeroMemory (&attrib, sizeof (API_Attribute));
-	//								BNZeroMemory (&defs, sizeof (API_AttributeDef));
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-	//								attrib.header.typeID = API_LayerID;
-	//								CHCopyC (fullLayerName, attrib.header.name);
-	//								err = ACAPI_Attribute_Create (&attrib, &defs);
+	// 메모리 해제
+	deallocateMemory (&layerInfo);
 
-	//								ACAPI_DisposeAttrDefsHdls (&defs);
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	bool	regenerate = true;
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
-	//								// 성공하면 레이어 생성 개수 누적
-	//								if (err == NoError)
-	//									madeLayers ++;
-	//							}
-	//						}
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
-
-	//// 메모리 해제
-	//deallocateMemory (&layerInfo);
-
-	//// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//bool	regenerate = true;
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-	//// 생성된 레이어 개수 보여주기
-	//sprintf (tempStr, "총 %d 개의 레이어가 생성되었습니다.", madeLayers);
-	//ACAPI_WriteReport (tempStr, true);
+	// 생성된 레이어 개수 보여주기
+	sprintf (tempStr, "총 %d 개의 레이어가 생성되었습니다.", madeLayers);
+	ACAPI_WriteReport (tempStr, true);
 
 	return	err;
 }
@@ -1704,13 +1769,13 @@ short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DG
 			DGSetDialogTitle (dialogID, "레이어 쉽게 만들기");
 
 			// 확인 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 820, 20, 60, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 1020, 25, 60, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "생성");
 			DGShowItem (dialogID, DG_OK);
 
 			// 취소 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 820, 55, 60, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 1020, 60, 60, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_CANCEL, "취소");
 			DGShowItem (dialogID, DG_CANCEL);
@@ -1809,11 +1874,15 @@ short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DG
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
 			DGShowItem (dialogID, SEPARATOR_7);
 
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 800, 5, 1, 110);
+			itmPosX += 110;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 20, 1);
 			DGShowItem (dialogID, SEPARATOR_8);
 
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 1000, 5, 1, 110);
+			DGShowItem (dialogID, SEPARATOR_9);
+
 			// 체크박스 표시
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 680, 25, 80, 20);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 840, 25, 140, 20);
 			DGSetItemFont (dialogID, CHECKBOX_PRODUCT_SITE_NUM, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, CHECKBOX_PRODUCT_SITE_NUM, "제작처/번호 포함");
 			DGShowItem (dialogID, CHECKBOX_PRODUCT_SITE_NUM);
@@ -1841,9 +1910,9 @@ short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DG
 			switch (item) {
 				case DG_OK:
 					if (DGGetItemValLong (dialogID, CHECKBOX_PRODUCT_SITE_NUM) == TRUE)
-						extendedLayer = true;
+						layerInfo.extendedLayer = true;
 					else
-						extendedLayer = false;
+						layerInfo.extendedLayer = false;
 					break;
 
 				case DG_CANCEL:
@@ -1889,68 +1958,95 @@ short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DG
 					// [다이얼로그 박스] 레이어 쉽게 만들기 2차
 					result = DGBlankModalDialog (dialogSizeX, dialogSizeY, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerMakeHandler_2, 0);
 
-	//				// 버튼의 글꼴 설정 (공사 구분)
-	//				anyTrue = 0;
-	//				for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx)
-	//					if (layerInfo.code_state [xx] == true)	anyTrue++;
-	//				if (anyTrue > 0)
-	//					DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_BOLD);
-	//				else
-	//					DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_PLAIN);
+					// 버튼의 글꼴 설정 (공사 구분)
+					anyTrue = 0;
+					for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx)
+						if (layerInfo.code_state [xx] == true)	anyTrue++;
+					if (anyTrue > 0) {
+						DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_BOLD);
+					} else {
+						DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_PLAIN);
+					}
 
-	//				// 버튼의 글꼴 설정 (동 구분)
-	//				anyTrue = 0;
-	//				for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx)
-	//					if (layerInfo.dong_state [xx] == true)	anyTrue++;
-	//				if (anyTrue > 0)
-	//					DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_BOLD);
-	//				else
-	//					DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_PLAIN);
+					// 버튼의 글꼴 설정 (동 구분)
+					anyTrue = 0;
+					for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx)
+						if (layerInfo.dong_state [xx] == true)	anyTrue++;
+					if (anyTrue > 0) {
+						DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_BOLD);
+					} else {
+						DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_PLAIN);
+					}
 
-	//				// 버튼의 글꼴 설정 (층 구분)
-	//				anyTrue = 0;
-	//				for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx)
-	//					if (layerInfo.floor_state [xx] == true)	anyTrue++;
-	//				if (anyTrue > 0)
-	//					DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_BOLD);
-	//				else
-	//					DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_PLAIN);
+					// 버튼의 글꼴 설정 (층 구분)
+					anyTrue = 0;
+					for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx)
+						if (layerInfo.floor_state [xx] == true)	anyTrue++;
+					if (anyTrue > 0) {
+						DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_BOLD);
+					} else {
+						DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_PLAIN);
+					}
 
-	//				// 버튼의 글꼴 설정 (CJ)
-	//				anyTrue = 0;
-	//				for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx)
-	//					if (layerInfo.CJ_state [xx] == true)	anyTrue++;
-	//				if (anyTrue > 0)
-	//					DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_BOLD);
-	//				else
-	//					DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_PLAIN);
+					// 버튼의 글꼴 설정 (타설 번호)
+					anyTrue = 0;
+					for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx)
+						if (layerInfo.cast_state [xx] == true) anyTrue++;
+					if (anyTrue > 0) {
+						DGSetItemFont (dialogID, BUTTON_CAST, DG_IS_LARGE | DG_IS_BOLD);
+					} else {
+						DGSetItemFont (dialogID, BUTTON_CAST, DG_IS_LARGE | DG_IS_PLAIN);
+					}
 
-	//				// 버튼의 글꼴 설정 (시공순서)
-	//				anyTrue = 0;
-	//				for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx)
-	//					if (layerInfo.orderInCJ_state [xx] == true)	anyTrue++;
-	//				if (anyTrue > 0)
-	//					DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_BOLD);
-	//				else
-	//					DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_PLAIN);
+					// 버튼의 글꼴 설정 (CJ)
+					anyTrue = 0;
+					for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx)
+						if (layerInfo.CJ_state [xx] == true)	anyTrue++;
+					if (anyTrue > 0) {
+						DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_BOLD);
+					} else {
+						DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_PLAIN);
+					}
 
-	//				// 버튼의 글꼴 설정 (부재)
-	//				anyTrue = 0;
-	//				for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx)
-	//					if (layerInfo.obj_state [xx] == true)	anyTrue++;
-	//				if (anyTrue > 0)
-	//					DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_BOLD);
-	//				else
-	//					DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_PLAIN);
+					// 버튼의 글꼴 설정 (시공순서)
+					anyTrue = 0;
+					for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx)
+						if (layerInfo.orderInCJ_state [xx] == true)	anyTrue++;
+					if (anyTrue > 0) {
+						DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_BOLD);
+					} else {
+						DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_PLAIN);
+					}
 
-	//				// 버튼의 글꼴 설정 (객체)
-	//				anyTrue = 0;
-	//				for (xx = 0 ; xx < layerInfo.subObj_name.size () ; ++xx)
-	//					if (layerInfo.subObj_state [xx] == true)	anyTrue++;
-	//				if (anyTrue > 0)
-	//					DGSetItemFont (dialogID, BUTTON_SUBOBJ, DG_IS_LARGE | DG_IS_BOLD);
-	//				else
-	//					DGSetItemFont (dialogID, BUTTON_SUBOBJ, DG_IS_LARGE | DG_IS_PLAIN);
+					// 버튼의 글꼴 설정 (부재)
+					anyTrue = 0;
+					for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx)
+						if (layerInfo.obj_state [xx] == true)	anyTrue++;
+					if (anyTrue > 0) {
+						DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_BOLD);
+					} else {
+						DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_PLAIN);
+					}
+
+					// 버튼의 글꼴 설정 (제작처 구분)
+					anyTrue = 0;
+					for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx)
+						if (layerInfo.productSite_state [xx] == true)	anyTrue++;
+					if (anyTrue > 0) {
+						DGSetItemFont (dialogID, BUTTON_PRODUCT_SITE, DG_IS_LARGE | DG_IS_BOLD);
+					} else {
+						DGSetItemFont (dialogID, BUTTON_PRODUCT_SITE, DG_IS_LARGE | DG_IS_PLAIN);
+					}
+
+					// 버튼의 글꼴 설정 (제작 번호)
+					anyTrue = 0;
+					for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx)
+						if (layerInfo.productNum_state [xx] == true)	anyTrue++;
+					if (anyTrue > 0) {
+						DGSetItemFont (dialogID, BUTTON_PRODUCT_NUM, DG_IS_LARGE | DG_IS_BOLD);
+					} else {
+						DGSetItemFont (dialogID, BUTTON_PRODUCT_NUM, DG_IS_LARGE | DG_IS_PLAIN);
+					}
 
 					break;
 			}
@@ -1976,9 +2072,15 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 	short	itmPosX, itmPosY;
 	short	xx, yy;
 	char	tempStr [30];
-	char	dongStr [256];			// Edit 컨트롤로부터 입력받은 "," 또는 "-"로 구분된 동 문자열을 담은 변수
-	char	productNumStr [256];	// Edit 컨트롤로부터 입력받은 "," 또는 "-"로 구분된 동 문자열을 담은 변수
-	short	restIdx;		// 숫자가 아닌 문자로 된 동 문자열 버튼의 인덱스
+
+	char	dongStr [256];			// Edit 컨트롤로부터 입력받은 ","로 구분된 동 문자열을 담은 변수
+	short	restIdx;				// 숫자가 아닌 문자로 된 동 문자열 버튼의 인덱스
+
+	char	productNumStr [256];	// Edit 컨트롤로부터 입력받은 "-"로 구분된 동 문자열을 담은 변수
+	bool	bFoundFirstNum;			// 시작되는 제작 번호를 찾았는지 여부
+	bool	bFoundLastNum;			// 끝나는 제작 번호를 찾았는지 여부
+	char	firstNumStr [10], lastNumStr [10];		// 시작되는 제작 번호, 끝나는 제작 번호
+
 	char	*token;			// 읽어온 문자열의 토큰
 	short	count;
 
@@ -2022,24 +2124,24 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 				itmPosY = 10;
 
 				// 동 번호는 별도로 입력 받을 것
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 300, 23);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 300, 50);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "동 번호 [101~1599동까지 가능] (예: 0101-0105,1102)");
+				DGSetItemText (dialogID, itmIdx, "동 번호 [101~1599동까지 가능] (예: 0101,0105,1102)\n단, 동 구분 없을 시 0000");
 				DGShowItem (dialogID, itmIdx);
 
-				itmPosY += 30;
+				itmPosY += 45;
 
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 90, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "동 번호 입력");
 				DGShowItem (dialogID, itmIdx);
 
-				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_TEXT, 256, itmPosX + 90, itmPosY - 5, 210, 20);
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_TEXT, 256, itmPosX + 90, itmPosY - 5, 400, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGShowItem (dialogID, itmIdx);
 				DONG_STRING_EDITCONTROL = itmIdx;
 
-				itmPosY += 40;
+				itmPosY += 30;
 
 				// 이미 등록된 동 번호 출력하기
 				strcpy (dongStr, "");
@@ -2205,6 +2307,100 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 					itmPosX = 90;
 					itmPosY += 30;
 				}
+			} else if (clickedBtnItemIdx == BUTTON_PRODUCT_SITE) {
+				itmPosX = 90;
+				itmPosY = 10;
+				for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx) {
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					sprintf (tempStr, "%s", layerInfo.productSite_name [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGShowItem (dialogID, itmIdx);
+					(layerInfo.productSite_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
+
+					itmPosX += 100;
+					if (itmPosX >= 500) {
+						itmPosX = 90;
+						itmPosY += 30;
+					}
+				}
+			} else if (clickedBtnItemIdx == BUTTON_PRODUCT_NUM) {
+				itmPosX = 90;
+				itmPosY = 10;
+
+				// 제작 번호는 별도로 입력 받을 것
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 400, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "제작 번호 [001~999까지 가능] (예: 001-100, 연속으로 생성됨)");
+				DGShowItem (dialogID, itmIdx);
+
+				itmPosY += 30;
+
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 90, 20);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "제작 번호 입력");
+				DGShowItem (dialogID, itmIdx);
+
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_TEXT, 256, itmPosX + 90, itmPosY - 5, 400, 20);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGShowItem (dialogID, itmIdx);
+				PRODUCT_NUM_STRING_EDITCONTROL = itmIdx;
+
+				itmPosY += 30;
+
+				// 이미 등록된 제작 번호 출력하기
+				bFoundFirstNum = false;
+				bFoundLastNum = false;
+				firstNumStr [0] = '\0';
+				lastNumStr [0] = '\0';
+				strcpy (productNumStr, "");
+				for (xx = 0 ; xx < (layerInfo.productNum_name.size () - 1) ; ++xx) {
+					if (layerInfo.productNum_state [xx] == true) {
+						// 처음 찾은 제작 번호를 시작되는 제작 번호로 지정함
+						if ((bFoundFirstNum == false) && (firstNumStr [0] == '\0')) {
+							strcpy (firstNumStr, layerInfo.productNum_name [xx].c_str ());
+							bFoundFirstNum = true;
+						}
+
+						// 연속적인 제작 번호 중 마지막으로 발견된 제작 번호를 끝나는 제작 번호로 지정함
+						if ((bFoundLastNum == false) && (bFoundFirstNum == true) && (layerInfo.productNum_state [xx+1] == false)) {
+							strcpy (lastNumStr, layerInfo.productNum_name [xx].c_str ());
+							bFoundLastNum = true;
+						}
+					}
+				}
+
+				strcpy (productNumStr, "");
+				if (bFoundFirstNum == true) {
+					if (strlen (firstNumStr) == 3) {
+						sprintf (tempStr, "%s", firstNumStr);
+					} else if (strlen (firstNumStr) == 2) {
+						sprintf (tempStr, "0%s", firstNumStr);
+					} else if (strlen (firstNumStr) == 1) {
+						sprintf (tempStr, "00%s", firstNumStr);
+					}
+					strcat (productNumStr, tempStr);
+				}
+				if ((bFoundFirstNum == true) || (bFoundLastNum == true))
+					strcat (productNumStr, "-");
+				if (bFoundLastNum == true) {
+					if (strlen (lastNumStr) == 3) {
+						sprintf (tempStr, "%s", lastNumStr);
+					} else if (strlen (lastNumStr) == 2) {
+						sprintf (tempStr, "0%s", lastNumStr);
+					} else if (strlen (lastNumStr) == 1) {
+						sprintf (tempStr, "00%s", lastNumStr);
+					}
+					strcat (productNumStr, tempStr);
+				}
+
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 500, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, productNumStr);
+				DGShowItem (dialogID, itmIdx);
+				
+				// 이미 등록된 제작 번호를 Edit 컨트롤에도 넣어둘 것
+				DGSetItemText (dialogID, PRODUCT_NUM_STRING_EDITCONTROL, productNumStr);
 			}
 
 			break;
@@ -2214,87 +2410,149 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 				case DG_OK:
 
 					if (clickedBtnItemIdx == BUTTON_CODE) {
-	//					for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
-	//						if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
-	//							layerInfo.code_state [xx] = true;
-	//						else
-	//							layerInfo.code_state [xx] = false;
-	//					}
+						for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
+							if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
+								layerInfo.code_state [xx] = true;
+							else
+								layerInfo.code_state [xx] = false;
+						}
 					} else if (clickedBtnItemIdx == BUTTON_DONG) {
-	//					// 일단 false로 초기화
-	//					for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
-	//						layerInfo.dong_state [xx] = false;
-	//					}
+						// 일단 false로 초기화
+						for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
+							layerInfo.dong_state [xx] = false;
+						}
 
-	//					// DONG_STRING_EDITCONTROL 문자열을 ","로 잘라서 해당 동 번호를 찾아서 true
-	//					strcpy (dongStr, DGGetItemText (dialogID, DONG_STRING_EDITCONTROL).ToCStr ().Get ());
-	//					token = strtok (dongStr, ",");
-	//					while (token != NULL) {
-	//						// 숫자가 맞다면,
-	//						if (isStringDouble (token) == TRUE) {
-	//							for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
-	//								if (strncmp (layerInfo.dong_name [xx].c_str (), token, 4) == 0) {
-	//									layerInfo.dong_state [xx] = true;
-	//								}
-	//							}
-	//						}
+						// DONG_STRING_EDITCONTROL 문자열을 ","로 잘라서 해당 동 번호를 찾아서 true
+						strcpy (dongStr, DGGetItemText (dialogID, DONG_STRING_EDITCONTROL).ToCStr ().Get ());
+						token = strtok (dongStr, ",");
+						while (token != NULL) {
+							// 숫자가 맞다면,
+							if (isStringDouble (token) == TRUE) {
+								for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
+									if (strncmp (layerInfo.dong_name [xx].c_str (), token, 4) == 0) {
+										layerInfo.dong_state [xx] = true;
+									}
+								}
+							}
 
-	//						token = strtok (NULL, ",");
-	//					}
+							token = strtok (NULL, ",");
+						}
 
-	//					// 만약 동 번호이면 생략하고, 동 번호가 아니면 상태를 저장할 것
-	//					restIdx = 0;
-	//					for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
-	//						if (strlen (layerInfo.dong_name [xx].c_str ()) != 4)
-	//							sprintf (tempStr, "0%s", layerInfo.dong_name [xx].c_str ());
-	//						else
-	//							sprintf (tempStr, "%s", layerInfo.dong_name [xx].c_str ());
+						// 만약 동 번호이면 생략하고, 동 번호가 아니면 상태를 저장할 것
+						restIdx = 0;
+						for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
+							if (strlen (layerInfo.dong_name [xx].c_str ()) != 4)
+								sprintf (tempStr, "0%s", layerInfo.dong_name [xx].c_str ());
+							else
+								sprintf (tempStr, "%s", layerInfo.dong_name [xx].c_str ());
 
-	//						// 문자이면 출력, 숫자이면 스킵
-	//						if (isStringDouble (tempStr) == FALSE) {
-	//							if (DGGetItemValLong (dialogID, DONG_REST_BUTTONS [restIdx]) == TRUE) {
-	//								layerInfo.dong_state [xx] = true;
-	//							} else {
-	//								layerInfo.dong_state [xx] = false;
-	//							}
+							// 문자이면 출력, 숫자이면 스킵
+							if (isStringDouble (tempStr) == FALSE) {
+								if (DGGetItemValLong (dialogID, DONG_REST_BUTTONS [restIdx]) == TRUE) {
+									layerInfo.dong_state [xx] = true;
+								} else {
+									layerInfo.dong_state [xx] = false;
+								}
 
-	//							restIdx ++;
-	//						}
-	//					}
+								restIdx ++;
+							}
+						}
 					} else if (clickedBtnItemIdx == BUTTON_FLOOR) {
-	//					for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
-	//						if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
-	//							layerInfo.floor_state [xx] = true;
-	//						else
-	//							layerInfo.floor_state [xx] = false;
-	//					}
+						for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
+							if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
+								layerInfo.floor_state [xx] = true;
+							else
+								layerInfo.floor_state [xx] = false;
+						}
 					} else if (clickedBtnItemIdx == BUTTON_CAST) {
-						// ...
+						for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx) {
+							if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
+								layerInfo.cast_state [xx] = true;
+							else
+								layerInfo.cast_state [xx] = false;
+						}
 					} else if (clickedBtnItemIdx == BUTTON_CJ) {
-	//					for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
-	//						if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
-	//							layerInfo.CJ_state [xx] = true;
-	//						else
-	//							layerInfo.CJ_state [xx] = false;
-	//					}
+						for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
+							if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
+								layerInfo.CJ_state [xx] = true;
+							else
+								layerInfo.CJ_state [xx] = false;
+						}
 					} else if (clickedBtnItemIdx == BUTTON_ORDER) {
-	//					for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
-	//						if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
-	//							layerInfo.orderInCJ_state [xx] = true;
-	//						else
-	//							layerInfo.orderInCJ_state [xx] = false;
-	//					}
+						for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
+							if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
+								layerInfo.orderInCJ_state [xx] = true;
+							else
+								layerInfo.orderInCJ_state [xx] = false;
+						}
 					} else if (clickedBtnItemIdx == BUTTON_OBJ) {
-	//					for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
-	//						if (DGGetItemValLong (dialogID, OBJ_BUTTONS [xx]) == TRUE)
-	//							layerInfo.obj_state [xx] = true;
-	//						else
-	//							layerInfo.obj_state [xx] = false;
-	//					}
+						for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
+							if (DGGetItemValLong (dialogID, OBJ_BUTTONS [xx]) == TRUE)
+								layerInfo.obj_state [xx] = true;
+							else
+								layerInfo.obj_state [xx] = false;
+						}
 					} else if (clickedBtnItemIdx == BUTTON_PRODUCT_SITE) {
-						// ...
+						for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx) {
+							if (DGGetItemValLong (dialogID, 3 + xx) == TRUE)
+								layerInfo.productSite_state [xx] = true;
+							else
+								layerInfo.productSite_state [xx] = false;
+						}
 					} else if (clickedBtnItemIdx == BUTTON_PRODUCT_NUM) {
-						// ...
+						// 일단 false로 초기화
+						for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx) {
+							layerInfo.productNum_state [xx] = false;
+						}
+
+						// PRODUCT_NUM_STRING_EDITCONTROL 문자열을 "-"로 잘라서 앞 번호는 시작되는 제작 번호로, 뒤 번호는 끝나는 제작 번호로 지정함
+						bFoundFirstNum = false;
+						bFoundLastNum = false;
+						firstNumStr [0] = '\0';
+						lastNumStr [0] = '\0';
+						strcpy (productNumStr, DGGetItemText (dialogID, PRODUCT_NUM_STRING_EDITCONTROL).ToCStr ().Get ());
+						token = strtok (productNumStr, "-");
+						while (token != NULL) {
+							// 숫자가 맞다면,
+							if (isStringDouble (token) == TRUE) {
+								if ((bFoundFirstNum == false) && (firstNumStr [0] == '\0')) {
+									// 처음 변환한 숫자 값은 시작 번호가 됨
+									if (bFoundFirstNum == false) {
+										if (strlen (token) == 3) {
+											sprintf (firstNumStr, "%s", token);
+										} else if (strlen (token) == 2) {
+											sprintf (firstNumStr, "0%s", token);
+										} else if (strlen (token) == 1) {
+											sprintf (firstNumStr, "00%s", token);
+										}
+										bFoundFirstNum = true;
+										token = strtok (NULL, "-");
+									}
+
+									// 나중에 변환한 숫자 값은 끝 번호가 됨
+									if (token != NULL) {
+										if ((bFoundLastNum == false) && (bFoundFirstNum == true) && (lastNumStr [0] == '\0')) {
+											if (strlen (token) == 3) {
+												sprintf (lastNumStr, "%s", token);
+											} else if (strlen (token) == 2) {
+												sprintf (lastNumStr, "0%s", token);
+											} else if (strlen (token) == 1) {
+												sprintf (lastNumStr, "00%s", token);
+											}
+											bFoundLastNum = true;
+										}
+									}
+								}
+							}
+
+							token = strtok (NULL, "-");
+						}
+
+						for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx) {
+							if ((atoi (layerInfo.productNum_name [xx].c_str ()) >= atoi (firstNumStr)) && (atoi (layerInfo.productNum_name [xx].c_str ()) <= atoi (lastNumStr))) {
+								layerInfo.productNum_state [xx] = true;
+							}
+						}
 					}
 
 					break;
