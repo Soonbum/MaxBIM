@@ -53,58 +53,59 @@ struct LayerNameSystem
 
 	bool	extendedLayer;		// 확장이면 true, 기본이면 false
 
-	// 공사 구분 (필수)
+	// 1. 공사 구분 (필수)
 	vector<string>	code_name;	// 코드 이름
 	vector<string>	code_desc;	// 코드 설명
 	bool	*code_state;		// On/Off 상태
 	short	*code_idx;			// 다이얼로그 상의 인덱스
+	bool	bCodeAllShow;		// 모두 선택 버튼 보여주기
 
-	// 동 구분 (필수)
+	// 2. 동 구분 (필수)
 	vector<string>	dong_name;
 	vector<string>	dong_desc;
 	bool	*dong_state;
 	short	*dong_idx;
 	bool	bDongAllShow;		// 모두 선택 버튼 보여주기
 
-	// 층 구분 (필수)
+	// 3. 층 구분 (필수)
 	vector<string>	floor_name;
 	vector<string>	floor_desc;
 	bool	*floor_state;
 	short	*floor_idx;
 	bool	bFloorAllShow;		// 모두 선택 버튼 보여주기
 
-	// 타설번호 (필수)
+	// 4. 타설번호 (필수)
 	vector<string>	cast_name;
 	bool	*cast_state;
 	short	*cast_idx;
 	bool	bCastAllShow;		// 모두 선택 버튼 보여주기
 
-	// CJ 구간 (필수)
+	// 5. CJ 구간 (필수)
 	vector<string>	CJ_name;
 	bool	*CJ_state;
 	short	*CJ_idx;
 	bool	bCJAllShow;			// 모두 선택 버튼 보여주기
 
-	// CJ 속 시공순서 (필수)
+	// 6. CJ 속 시공순서 (필수)
 	vector<string>	orderInCJ_name;
 	bool	*orderInCJ_state;
 	short	*orderInCJ_idx;
 	bool	bOrderInCJAllShow;	// 모두 선택 버튼 보여주기
 
-	// 부재 구분 (필수)
+	// 7. 부재 구분 (필수)
 	vector<string>	obj_name;
 	vector<string>	obj_desc;
 	vector<string>	obj_cat;
 	bool	*obj_state;
 	short	*obj_idx;
-	bool	bObjAllShow;		// 모두 선택 버튼 보여주기
 
-	// 제작처 구분 (선택)
+	// 8. 제작처 구분 (선택)
 	vector<string>	productSite_name;
 	bool	*productSite_state;
 	short	*productSite_idx;
+	bool	bProductSiteAllShow;// 모드 선택 버튼 보여주기
 
-	// 제작 번호 (선택)
+	// 9. 제작 번호 (선택)
 	vector<string>	productNum_name;
 	bool	*productNum_state;
 	short	*productNum_idx;
