@@ -11,6 +11,7 @@ using namespace exportDG;
 double DIST_BTW_COLUMN = 2.000;		// 기둥 간 최소 간격 (기본값), 추후 다이얼로그에서 변경할 수 있음
 VisibleObjectInfo	visibleObjInfo;	// 보이는 레이어 상의 객체별 명칭, 존재 여부, 보이기 여부
 
+
 // 배열 초기화 함수
 void initArray (double arr [], short arrSize)
 {
@@ -964,6 +965,12 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	API_StoryInfo	storyInfo;
 	double			workLevel_object;		// 벽의 작업 층 높이
 
+	// 진행바를 표현하기 위한 변수
+	GS::UniString       title ("내보내기 진행 상황");
+	GS::UniString       subtitle ("진행중...");
+	short	nPhase;
+	Int32	cur, total;
+
 	// 엑셀 파일로 기둥 정보 내보내기
 	// 파일 저장을 위한 변수
 	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
@@ -972,6 +979,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	API_MiscAppInfo		miscAppInfo;
 	FILE				*fp;
 	FILE				*fp_unite;
+
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -1016,6 +1024,13 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 		ACAPI_WriteReport ("통합 버전 엑셀파일을 만들 수 없습니다.", true);
 		return	NoError;
 	}
+
+	// 진행 상황 표시하는 기능 - 초기화
+	nPhase = 1;
+	cur = 1;
+	total = nVisibleLayers;
+	ACAPI_Interface (APIIo_InitProcessWindowID, &title, &nPhase);
+	ACAPI_Interface (APIIo_SetNextProcessPhaseID, &subtitle, &total);
 
 	// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 "선택한 부재 정보 내보내기" 루틴 실행
 	for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
@@ -1108,7 +1123,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 				err = ACAPI_Element_Get (&elem);
 				err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-				// !!! 객체의 원점 수집하기 ==================================
+				// 객체의 원점 수집하기 ==================================
 				if (result == DG_OK) {
 					API_Coord3D	coord;
 
@@ -1118,7 +1133,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 					
 					vecPos.push_back (coord);
 				}
-				// !!! 객체의 원점 수집하기 ==================================
+				// 객체의 원점 수집하기 ==================================
 
 				// 작업 층 높이 반영 -- 객체
 				if (xx == 0) {
@@ -1535,7 +1550,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 			fclose (fp);
 
-			// !!! 3D 투영 정보 ==================================
+			// 3D 투영 정보 ==================================
 			if (result == DG_OK) {
 				API_3DProjectionInfo  proj3DInfo_beforeCapture;
 
@@ -2139,7 +2154,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 				// 화면 새로고침
 				ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
 				ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-				// !!! 3D 투영 정보 ==================================
+				// 3D 투영 정보 ==================================
 			}
 
 			delete objectInfo;
@@ -2148,7 +2163,16 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			attrib.layer.head.flags |= APILay_Hidden;
 			ACAPI_Attribute_Modify (&attrib, NULL);
 		}
+
+		// 진행 상황 표시하는 기능 - 진행
+		cur = mm;
+		ACAPI_Interface (APIIo_SetProcessValueID, &cur, NULL);
+		if (ACAPI_Interface (APIIo_IsProcessCanceledID, NULL, NULL) == APIERR_CANCEL)
+			break;
 	}
+
+	// 진행 상황 표시하는 기능 - 마무리
+	ACAPI_Interface (APIIo_CloseProcessWindowID, NULL, NULL);
 
 	fclose (fp_unite);
 
@@ -2186,6 +2210,7 @@ GSErrCode	filterSelection (void)
 	short		result;
 	const char*	tempStr;
 	bool		foundObj;
+	bool		suspGrp;
 
 	short		selCount;
 	API_Neig**	selNeig;
@@ -2216,6 +2241,10 @@ GSErrCode	filterSelection (void)
 	GS::Array<API_Guid> selection_unknown = GS::Array<API_Guid> ();
 
 	
+	// 그룹화 일시정지 ON
+	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
+	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+
 	ACAPI_Element_GetElemList (API_ObjectID, &objects, APIFilt_OnVisLayer | APIFilt_In3D);	nObjects = objects.GetSize ();	// 보이는 레이어 상의 객체 타입만 가져오기
 	ACAPI_Element_GetElemList (API_WallID, &walls, APIFilt_OnVisLayer | APIFilt_In3D);		nWalls = walls.GetSize ();		// 보이는 레이어 상의 벽 타입만 가져오기
 	ACAPI_Element_GetElemList (API_ColumnID, &columns, APIFilt_OnVisLayer | APIFilt_In3D);	nColumns = columns.GetSize ();	// 보이는 레이어 상의 기둥 타입만 가져오기
