@@ -79,7 +79,15 @@
 'GICN' 32521 "wallColumnSection_14" {
 	0  128  128
 }
-
+'GICN' 32522 "Gear" {
+	0  128  128
+}
+'GICN' 32523 "Full Rectangle" {
+	0  128  128
+}
+'GICN' 32524 "Hole Rectangle" {
+	0  128  128
+}
 
 /* ---------------------------------------------------------- place Euroform on Wall */
 'GDLG'  32511  Modal | grow	  0		  0		300		500		"유로폼 벽에 배치" {
@@ -462,4 +470,16 @@
 /* [ 30] */	UserControl		120		369		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
 /* [ 31] */	UserControl		120		399		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
 /* [ 32] */	UserControl		120		429		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER PANEL	*/
+}
+
+'GDLG' 32520  Palette | leftCaption | close	0	0	72	25  "" {
+/* [  1] */	IconButton		  3    2   22   22    32522		/* Settings  */
+/* [  2] */	IconButton		 26    2   22   22    32523		/* Rectangle quantity plywood */
+/* [  3] */	IconButton		 49    2   22   22    32524		/* Window quantity plywood */
+}
+
+'DLGH'  32520  DLG_32520_Palette {
+1	"물량합판의 레이어, 분류를 설정합니다."		IconButton_0
+2	"직사각형 물량합판을 부착합니다."			IconButton_1
+3	"창문형 물량합판을 부착합니다."				IconButton_2
 }

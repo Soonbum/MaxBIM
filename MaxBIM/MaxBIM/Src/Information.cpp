@@ -283,7 +283,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX + 270, itmPosY, 250, 23*10);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "5. 내보내기\n - 부재(기둥,보,슬래브) 정보 내보내기 (CSV) (개발보류)\n - 선택한 부재 정보 내보내기 (Single 모드)\n - 선택한 부재 정보 내보내기 (Multi 모드)\n - 부재별 선택 후 보여주기\n\n6. 물량 산출\n - 물량합판 부착하기\n - 물량합판 면적 계산하기");
+			DGSetItemText (dialogID, itmIdx, "5. 내보내기\n - 부재(기둥,보,슬래브) 정보 내보내기 (CSV) (개발보류)\n - 선택한 부재 정보 내보내기 (Single 모드)\n - 선택한 부재 정보 내보내기 (Multi 모드)\n - 부재별 선택 후 보여주기\n\n6. 물량 산출\n - 물량합판 부착하기");
 			DGShowItem (dialogID, itmIdx);
 
 			break;
