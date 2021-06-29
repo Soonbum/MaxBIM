@@ -472,14 +472,10 @@
 /* [ 32] */	UserControl		120		429		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER PANEL	*/
 }
 
-'GDLG' 32520  Palette | leftCaption | close	0	0	72	25  "" {
-/* [  1] */	IconButton		  3    2   22   22    32522		/* Settings  */
-/* [  2] */	IconButton		 26    2   22   22    32523		/* Rectangle quantity plywood */
-/* [  3] */	IconButton		 49    2   22   22    32524		/* Window quantity plywood */
-}
-
-'DLGH'  32520  DLG_32520_Palette {
-1	"물량합판의 레이어, 분류를 설정합니다."		IconButton_0
-2	"직사각형 물량합판을 부착합니다."			IconButton_1
-3	"창문형 물량합판을 부착합니다."				IconButton_2
+'GDLG' 32520  Palette | leftCaption | close		0	0	201	101 "" {
+/* [  1] */	LeftText		  0		  1		200		 23		LargePlain	"Explanation for usage"
+/* [  2] */	UserControl		  0		 24		200		 25		257	0x0006 0x0000 0		/* Layer Control - Quantity Plywood	*/
+/* [  3] */	PopupControl	  0		 49		200		 24		200		10
+/* [  4] */	Button			  0		 75		100		 25		LargePlain	"Draw Rect"
+/* [  5] */	Button			101		 75		100		 25		LargePlain	"Draw Window"
 }

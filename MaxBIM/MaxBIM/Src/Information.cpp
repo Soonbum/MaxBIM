@@ -229,10 +229,8 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					break;
 			}
 		case DG_MSG_CLOSE:
-			switch (item) {
-				case DG_CLOSEBOX:
-					break;
-			}
+			ACAPI_UnregisterModelessWindow (paletteID);
+			break;
 	}
 
 	result = item;
@@ -264,7 +262,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "배포일: 2021.06.23");
+			DGSetItemText (dialogID, itmIdx, "배포일: 2021.06.29");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
