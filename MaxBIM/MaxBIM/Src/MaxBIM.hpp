@@ -282,6 +282,11 @@ struct SlabTableform
 	double	horLen;			// 가로 길이
 	double	verLen;			// 세로 길이
 
+	bool	bLprofileOnNorth;	// 북쪽 방향에 L형강 부착
+	bool	bLprofileOnSouth;	// 남쪽 방향에 L형강 부착
+	bool	bLprofileOnWest;	// 서쪽 방향에 L형강 부착
+	bool	bLprofileOnEast;	// 동쪽 방향에 L형강 부착
+
 	char	type [20];		// 타입
 };
 

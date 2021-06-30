@@ -399,20 +399,13 @@
 /* [  1] */	Button			 70		375		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			160		375		 70		 25		LargePlain		"Cancel"
 
-/* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Tableform Settings"
+/* [  3] */	LeftText		 10		 10		300		 23		LargePlain		"Tableform Settings"
 /* [  4] */	RightText		 50		 40		 70		 23		LargePlain		"Width"
 /* [  5] */	PopupControl	140		 33		100		 25		200		10		/* 너비 */
-							NoIcon	"3032"
-							NoIcon	"2426"
-							NoIcon	"1820"
 /* [  6] */	RightText		 50		 70		 70		 23		LargePlain		"Height"
 /* [  7] */	PopupControl	140		 63		100		 25		100		10		/* 높이 */
-							NoIcon	"1818"
-							NoIcon	"1212"
 /* [  8] */	RightText		 50		100		 70		 23		LargePlain		"Orientation"
 /* [  9] */	PopupControl	140		 93		100		 25		100		10		/* 설치방향 */
-							NoIcon	"Horizontal"
-							NoIcon	"Vertical"
 /* [ 10] */	Separator		  5		130		290		  1
 
 /* [ 11] */	RightText		 10		145		100		 23		LargePlain		"Gap from Slab"
@@ -424,12 +417,13 @@
 /* [ 16] */	RightText		 10		215		100		 23		LargePlain		"Tableform"
 /* [ 17] */	RightText		 10		245		100		 23		LargePlain		"Plywood"
 /* [ 18] */	RightText		 10		275		100		 23		LargePlain		"Wood"
-/* [ 19] */	RightText		 10		305		100		 23		LargePlain		"Profile"
+/* [ 19] */	RightText		 10		305		100		 23		LargePlain		"C Profile"
 /* [ 20] */	RightText		 10		335		100		 23		LargePlain		"Fittings"
+
 /* [ 21] */	UserControl		120		209		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM	*/
 /* [ 22] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
 /* [ 23] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
-/* [ 24] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - PROFILE		*/
+/* [ 24] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - C PROFILE	*/
 /* [ 25] */	UserControl		120		329		160		 25		257	0x0006 0x0000 0		/* Layer Control - FITTINGS		*/
 }
 

@@ -10,8 +10,8 @@ namespace slabTableformPlacerDG {
 		SLAB_TABLEFORM,		// 슬래브 테이블폼 (콘판넬) v1.0
 		PLYWOOD,			// 합판v1.0
 		WOOD,				// 목재v1.0
-		PROFILE,			// KS프로파일v1.0
-		FITTINGS			// 결합철물 (사각와셔활용) v1.0
+		CPROFILE,			// KS프로파일v1.0 - C형강
+		FITTINGS,			// 결합철물 (사각와셔활용) v1.0
 	};
 
 	// 다이얼로그 항목 인덱스
@@ -34,14 +34,14 @@ namespace slabTableformPlacerDG {
 		LABEL_LAYER_SLABTABLEFORM,
 		LABEL_LAYER_PLYWOOD,
 		LABEL_LAYER_WOOD,
-		LABEL_LAYER_PROFILE,
+		LABEL_LAYER_CPROFILE,
 		LABEL_LAYER_FITTINGS,
 
 		USERCONTROL_LAYER_SLABTABLEFORM,
 		USERCONTROL_LAYER_PLYWOOD,
 		USERCONTROL_LAYER_WOOD,
-		USERCONTROL_LAYER_PROFILE,
-		USERCONTROL_LAYER_FITTINGS
+		USERCONTROL_LAYER_CPROFILE,
+		USERCONTROL_LAYER_FITTINGS,
 	};
 
 	enum	idxItems_2_forSlabBottomTableformPlacer {
@@ -85,12 +85,8 @@ namespace slabTableformPlacerDG {
 		EDITCONTROL_TABLEFORM_HEIGHT_OPTIONS,
 		LABEL_TABLEFORM_ORIENTATION_OPTIONS,
 		RADIO_ORIENTATION_1_TABLEFORM,
-		RADIO_ORIENTATION_2_TABLEFORM
-	};
-
-	enum	idxItems_4_forSlabBottomTableformPlacer {
-		LABEL_WOOD_WIDTH = 3,
-		EDITCONTROL_WOOD_WIDTH
+		RADIO_ORIENTATION_2_TABLEFORM,
+		LABEL_CAUTION
 	};
 }
 
@@ -121,7 +117,7 @@ struct CellForSlabTableform
 		SlabTableform	tableform;
 		Plywood			plywood;
 		Wood			wood;
-		KSProfile		profile;
+		KSProfile		cprofile;
 		MetalFittingsWithRectWasher		fittings;
 	} libPart;
 };
@@ -173,8 +169,6 @@ public:
 
 	double	gap;		// 슬래브와의 간격
 
-	double	woodWidth;	// 목재 너비
-
 	std::string		tb_wid;			// 테이블폼 너비
 	std::string		tb_hei;			// 테이블폼 높이
 	std::string		tb_ori;			// 테이블폼 방향
@@ -210,6 +204,5 @@ GSErrCode	placeTableformOnSlabBottom (void);	// 슬래브 하부에 테이블폼을 배치하�
 short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
-short DGCALLBACK slabBottomTableformPlacerHandler4 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 자투리 채우기를 할 때, 목재의 너비를 변경하기 위한 4차 다이얼로그
 
 #endif
