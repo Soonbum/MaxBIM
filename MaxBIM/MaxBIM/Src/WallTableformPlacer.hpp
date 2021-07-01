@@ -59,6 +59,24 @@ namespace wallTableformPlacerDG {
 		EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST,
 		EDITCONTROL_PLYWOOD_TOPREST
 	};
+
+	enum	idxItems_1_forWallTableformPlacerCustom {
+		LABEL_TABLEFORM_ORIENTATION_CUSTOM = 3,
+		POPUP_TABLEFORM_ORIENTATION_CUSTOM,
+		LABEL_TOTAL_WIDTH_CUSTOM,
+		EDITCONTROL_TOTAL_WIDTH_CUSTOM,
+		LABEL_REMAIN_WIDTH_CUSTOM,
+		EDITCONTROL_REMAIN_WIDTH_CUSTOM,
+		LABEL_TOTAL_HEIGHT_CUSTOM,
+		EDITCONTROL_TOTAL_HEIGHT_CUSTOM,
+		LABEL_REMAIN_HEIGHT_CUSTOM,
+		EDITCONTROL_REMAIN_HEIGHT_CUSTOM,
+		BUTTON_ADD_COL_CUSTOM,
+		BUTTON_DEL_COL_CUSTOM,
+		BUTTON_ADD_ROW_CUSTOM,
+		BUTTON_DEL_ROW_CUSTOM,
+		REST_ITEM_START_CUSTOM
+	};
 }
 
 // 모프 관련 정보
@@ -231,5 +249,8 @@ GSErrCode	placeTableformOnWall_Horizontal (void);		// 벽에 테이블폼을 배치하는 �
 short DGCALLBACK wallTableformPlacerHandler1_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 선호하는 테이블폼 너비를 선택하기 위한 다이얼로그 - 가로 방향
 short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼 배치를 위한 질의를 요청하는 다이얼로그 - 가로 방향
 short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 3차 다이얼로그 - 가로 방향
+
+GSErrCode	placeTableformOnWall_Custom (void);			// 벽에 테이블폼을 배치하는 통합 루틴 - 커스텀
+short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 맞춤 제작을 위한 다이얼로그 (테이블폼 방향, 유로폼 가로/세로 개수 및 길이)
 
 #endif

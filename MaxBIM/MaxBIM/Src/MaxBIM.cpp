@@ -134,6 +134,13 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					});
 					break;
 				case 3:
+					// 벽에 테이블폼 배치하기 - 커스텀
+					err = ACAPI_CallUndoableCommand ("벽에 테이블폼 배치 - 커스텀", [&] () -> GSErrCode {
+						err = placeTableformOnWall_Custom ();
+						return err;
+					});
+					break;
+				case 4:
 					// 슬래브 하부에 테이블폼 배치하기
 					err = ACAPI_CallUndoableCommand ("슬래브 하부에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnSlabBottom ();
