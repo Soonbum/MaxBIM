@@ -60,6 +60,11 @@ namespace wallTableformPlacerDG {
 		EDITCONTROL_PLYWOOD_TOPREST
 	};
 
+	enum	idxItems_1_forWallTableformPlacerCustomOrientation {
+		VERTICAL_DIRECTION = 1,
+		HORIZONTAL_DIRECTION
+	};
+
 	enum	idxItems_1_forWallTableformPlacerCustom {
 		LABEL_TABLEFORM_ORIENTATION_CUSTOM = 3,
 		POPUP_TABLEFORM_ORIENTATION_CUSTOM,

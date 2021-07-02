@@ -33,6 +33,10 @@ static short	EDITCONTROL_RECT_PIPE_HEIGHT;
 static double	preferWidth;
 static bool		clickedPrevButton;		// 이전 버튼을 눌렀습니까?
 
+// 커스텀 테이블 전용
+//static short	customTableRow = 1;		// 행 현재 개수
+//static short	customTableCol = 1;		// 열 현재 개수
+
 
 // 벽에 테이블폼을 배치하는 통합 루틴 - 세로 방향
 GSErrCode	placeTableformOnWall_Vertical (void)
@@ -1183,13 +1187,13 @@ FIRST_CUSTOM:
 	width = placingZone.horLen;
 
 	// [DIALOG] 1번째 다이얼로그에서 테이블폼의 방향과 가로/세로 방향 유로폼의 개수와 각각의 길이를 선택함
-	result = DGBlankModalDialog (550, 400, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler1_Custom, 0);
+	result = DGBlankModalDialog (550, 450, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler1_Custom, 0);
 
-	//if (result != DG_OK)
-	//	return err;
+	if (result != DG_OK)
+		return err;
 
 	//// 선호하는 테이블폼 너비에 따라 테이블 개수를 결정함
-	//while (wiㄱdth > EPS) {
+	//while (width > EPS) {
 	//	if (width + EPS >= preferWidth) {
 	//		if (abs (preferWidth - 2.300) < EPS) {
 	//			placingZone.n2300w ++;
@@ -1388,10 +1392,10 @@ FIRST_CUSTOM:
 	//	err = placingZone.placeTableformOnWall_Vertical (placingZone.cells [xx], placingZone.upperCells [xx]);
 	//}
 
-	//// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//bool	regenerate = true;
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	bool	regenerate = true;
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	return	err;
 }
@@ -6430,8 +6434,18 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 	short	itmIdx;
 	char	buffer [256];
 	short	itmPosX, itmPosY;
-	short	boxSizeX = 140, boxSizeY = 140;
-	//double	width, height;
+	short	boxSizeX = 120, boxSizeY = 120;
+	double	totalWidth, totalHeight;
+	short	xx, yy, zz;
+	static short	customTableRow = 1;		// 행 현재 개수
+	static short	customTableCol = 1;		// 열 현재 개수
+	const short		maxRow = 5;			// 행 최대 개수
+	const short		maxCol = 5;			// 열 최대 개수
+	static short	dialogSizeX;		// 현재 다이얼로그 크기 X
+	static short	dialogSizeY;		// 현재 다이얼로그 크기 Y
+	bool	bChanged;			// 화면이 변경되는가?
+	static short	itmIdx_width [10][10];
+	static short	itmIdx_height [10][10];
 
 	switch (message) {
 		case DG_MSG_INIT:
@@ -6453,13 +6467,13 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (나머지)
 			// 라벨: 테이블폼 방향
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 120, 20, 80, 23);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 20, 80, 23);
 			DGSetItemFont (dialogID, LABEL_TABLEFORM_ORIENTATION_CUSTOM, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_TABLEFORM_ORIENTATION_CUSTOM, "테이블폼 방향");
 			DGShowItem (dialogID, LABEL_TABLEFORM_ORIENTATION_CUSTOM);
 
 			// 팝업컨트롤: 테이블폼 방향
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 10, 220, 15, 100, 23);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 10, 300, 15, 100, 23);
 			DGSetItemFont (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM, DG_POPUP_BOTTOM, "세로방향");
@@ -6469,8 +6483,8 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 			DGShowItem (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM);
 
 			// 라벨: 총 너비 ("min ~ max 가능")
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 120, 60, 150, 50);
-			if (DGGetItemText (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM).Compare ("세로방향") == 0)
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 120, 60, 150, 25);
+			if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION)
 				strcpy (buffer, "총 너비\n(400 ~ 2300 가능)");
 			else
 				strcpy (buffer, "총 너비\n(1500 ~ 6000 가능)");
@@ -6482,6 +6496,7 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 160, 90, 70, 25);
 			DGDisableItem (dialogID, EDITCONTROL_TOTAL_WIDTH_CUSTOM);
 			DGShowItem (dialogID, EDITCONTROL_TOTAL_WIDTH_CUSTOM);
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_WIDTH_CUSTOM, placingZone.horLen);
 
 			// 라벨: 남은 너비
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 250, 60, 100, 23);
@@ -6496,8 +6511,8 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 
 			// 라벨: 총 높이 ("min ~ max 가능")
 			// 가로방향, 세로방향에 따라 뒤의 텍스트가 달라짐
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 10, 140, 150, 50);
-			if (DGGetItemText (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM).Compare ("세로방향") == 0)
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 10, 140, 150, 25);
+			if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION)
 				strcpy (buffer, "총 높이\n(1500 ~ 6000 가능)");
 			else
 				strcpy (buffer, "총 높이\n(400 ~ 2300 가능)");
@@ -6509,6 +6524,7 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 50, 170, 70, 25);
 			DGDisableItem (dialogID, EDITCONTROL_TOTAL_HEIGHT_CUSTOM);
 			DGShowItem (dialogID, EDITCONTROL_TOTAL_HEIGHT_CUSTOM);
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_HEIGHT_CUSTOM, placingZone.verLen);
 
 			// 라벨: 남은 높이
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 35, 220, 100, 23);
@@ -6545,27 +6561,376 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 			DGSetItemText (dialogID, BUTTON_DEL_ROW_CUSTOM, "행 삭제");
 			DGShowItem (dialogID, BUTTON_DEL_ROW_CUSTOM);
 
+			// 다이얼로그 크기 초기화
+			dialogSizeX = 550;
+			dialogSizeY = 450;
+
+			// 처음에는 행 개수 2개, 열 개수를 2개로 시작함
+			customTableRow = 2;
+			customTableCol = 2;
+
 			// 여기부터는 itmIdx의 개수가 동적: REST_ITEM_START_CUSTOM부터
 			itmPosX = 170;
-			itmPosY = 150;
-			// 구분자 !!!
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, boxSizeX, boxSizeY);
-			DGShowItem (dialogID, itmIdx);
-			// 팝업컨트롤: 너비
-			// ...
-			// 팝업컨트롤: 높이
-			// ...
+			itmPosY = 150 + (customTableRow-1) * boxSizeY;
+
+			for (xx = 0 ; xx < customTableRow ; ++xx) {
+				for (yy = 0 ; yy < customTableCol ; ++yy) {
+					// 구분자
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, boxSizeX, boxSizeY);
+					DGShowItem (dialogID, itmIdx);
+
+					// 팝업컨트롤: 너비
+					itmIdx_width [xx][yy] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 200, 10, itmPosX + boxSizeX/2 - 30, itmPosY + boxSizeY - 30, 60, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGPopUpDisableDraw (dialogID, itmIdx);
+					if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION) {
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "500");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "450");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "400");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "300");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "200");
+					} else {
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1200");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "900");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+					}
+					DGPopUpEnableDraw (dialogID, itmIdx);
+					DGShowItem (dialogID, itmIdx);
+			
+					// 팝업컨트롤: 높이
+					itmIdx_height [xx][yy] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 200, 10, itmPosX + 5, itmPosY + boxSizeY/2 - 15, 60, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGPopUpDisableDraw (dialogID, itmIdx);
+					if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION) {
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1200");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "900");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+					} else {
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "500");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "450");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "400");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "300");
+						DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "200");
+					}
+					DGPopUpEnableDraw (dialogID, itmIdx);
+					DGShowItem (dialogID, itmIdx);
+
+					itmPosX += boxSizeX;
+				}
+				itmPosX = 170;
+				itmPosY -= boxSizeY;
+			}
+
+			// 남은 너비 표시
+			totalWidth = 0.0;
+			for (xx = 0 ; xx < customTableCol ; ++xx) {
+				totalWidth += atof (DGPopUpGetItemText (dialogID, itmIdx_width [0][xx], static_cast<short>(DGGetItemValLong (dialogID, itmIdx_width [0][xx]))).ToCStr ().Get ()) / 1000;
+			}
+			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH_CUSTOM, placingZone.horLen - totalWidth);
+
+			// 남은 높이 표시
+			totalHeight = 0.0;
+			for (xx = 0 ; xx < customTableRow ; ++xx) {
+				totalHeight += atof (DGPopUpGetItemText (dialogID, itmIdx_height [xx][0], static_cast<short>(DGGetItemValLong (dialogID, itmIdx_height [xx][0]))).ToCStr ().Get ()) / 1000;
+			}
+			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_CUSTOM, placingZone.verLen - totalHeight);
 			
 			break;
 
 		case DG_MSG_CHANGE:
+			switch (item) {
+				case POPUP_TABLEFORM_ORIENTATION_CUSTOM:
+					// 테이블폼 방향이 바뀌면?
+					if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION) {
+						DGSetItemText (dialogID, LABEL_TOTAL_WIDTH_CUSTOM, "총 너비\n(400 ~ 2300 가능)");
+						DGSetItemText (dialogID, LABEL_TOTAL_HEIGHT_CUSTOM, "총 높이\n(1500 ~ 6000 가능)");
+
+						// 테이블폼 너비/높이 팝업컨트롤의 값이 바뀌어야 함
+						for (xx = 0 ; xx <= (customTableCol * customTableRow) ; ++xx) {
+							// 팝업컨트롤: 너비
+							itmIdx = REST_ITEM_START_CUSTOM + xx*3 + 1;
+							while (DGPopUpGetItemCount (dialogID, itmIdx) > 0)
+							DGPopUpDeleteItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "500");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "450");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "400");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "300");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "200");
+			
+							// 팝업컨트롤: 높이
+							itmIdx = REST_ITEM_START_CUSTOM + xx*3 + 2;
+							while (DGPopUpGetItemCount (dialogID, itmIdx) > 0)
+								DGPopUpDeleteItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1200");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "900");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+						}
+					} else {
+						DGSetItemText (dialogID, LABEL_TOTAL_WIDTH_CUSTOM, "총 너비\n(1500 ~ 6000 가능)");
+						DGSetItemText (dialogID, LABEL_TOTAL_HEIGHT_CUSTOM, "총 높이\n(400 ~ 2300 가능)");
+
+						// 테이블폼 너비/높이 팝업컨트롤의 값이 바뀌어야 함
+						for (xx = 0 ; xx <= (customTableCol * customTableRow) ; ++xx) {
+							// 팝업컨트롤: 너비
+							itmIdx = REST_ITEM_START_CUSTOM + xx*3 + 1;
+							while (DGPopUpGetItemCount (dialogID, itmIdx) > 0)
+								DGPopUpDeleteItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1200");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "900");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+			
+							// 팝업컨트롤: 높이
+							itmIdx = REST_ITEM_START_CUSTOM + xx*3 + 2;
+							while (DGPopUpGetItemCount (dialogID, itmIdx) > 0)
+								DGPopUpDeleteItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "500");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "450");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "400");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "300");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "200");
+						}
+					}
+
+					// 남은 너비 표시
+					totalWidth = 0.0;
+					for (xx = 0 ; xx < customTableCol ; ++xx) {
+						totalWidth += atof (DGPopUpGetItemText (dialogID, itmIdx_width [0][xx], static_cast<short>(DGGetItemValLong (dialogID, itmIdx_width [0][xx]))).ToCStr ().Get ()) / 1000;
+					}
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH_CUSTOM, placingZone.horLen - totalWidth);
+
+					// 남은 높이 표시
+					totalHeight = 0.0;
+					for (xx = 0 ; xx < customTableRow ; ++xx) {
+						totalHeight += atof (DGPopUpGetItemText (dialogID, itmIdx_height [xx][0], static_cast<short>(DGGetItemValLong (dialogID, itmIdx_height [xx][0]))).ToCStr ().Get ()) / 1000;
+					}
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_CUSTOM, placingZone.verLen - totalHeight);
+
+					break;
+
+				default:
+					for (xx = 0 ; xx < customTableRow ; ++xx) {
+						for (yy = 0 ; yy < customTableCol ; ++yy) {
+							if (item == itmIdx_width [xx][yy]) {
+								// 어떤 유로폼의 너비를 변경하면, 같은 열의 모든 행 유로폼 너비도 같이 변경됨
+								for (zz = 0 ; zz < customTableRow ; ++zz) {
+									if (xx != zz) {
+										DGPopUpSelectItem (dialogID, itmIdx_width [zz][yy], DGPopUpGetSelected (dialogID, itmIdx_width [xx][yy]));
+									}
+								}
+							}
+
+							if (item == itmIdx_height [xx][yy]) {
+								// 어떤 유로폼의 높이를 변경하면, 같은 행의 모든 열 유로폼 너비도 같이 변경됨
+								for (zz = 0 ; zz < customTableCol ; ++zz) {
+									if (yy != zz) {
+										DGPopUpSelectItem (dialogID, itmIdx_height [xx][zz], DGPopUpGetSelected (dialogID, itmIdx_height [xx][yy]));
+									}
+								}
+							}
+						}
+					}
+
+					// 남은 너비 표시
+					totalWidth = 0.0;
+					for (xx = 0 ; xx < customTableCol ; ++xx) {
+						totalWidth += atof (DGPopUpGetItemText (dialogID, itmIdx_width [0][xx], static_cast<short>(DGGetItemValLong (dialogID, itmIdx_width [0][xx]))).ToCStr ().Get ()) / 1000;
+					}
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH_CUSTOM, placingZone.horLen - totalWidth);
+
+					// 남은 높이 표시
+					totalHeight = 0.0;
+					for (xx = 0 ; xx < customTableRow ; ++xx) {
+						totalHeight += atof (DGPopUpGetItemText (dialogID, itmIdx_height [xx][0], static_cast<short>(DGGetItemValLong (dialogID, itmIdx_height [xx][0]))).ToCStr ().Get ()) / 1000;
+					}
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_CUSTOM, placingZone.verLen - totalHeight);
+
+					break;
+			}
+
 			break;
 
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
+
+					// ... 세로방향이면?
+					// ... 가로방향이면?
+
 					break;
+
 				case DG_CANCEL:
+					break;
+
+				case BUTTON_ADD_COL_CUSTOM:
+				case BUTTON_DEL_COL_CUSTOM:
+				case BUTTON_ADD_ROW_CUSTOM:
+				case BUTTON_DEL_ROW_CUSTOM:
+					bChanged = false;
+
+					if (item == BUTTON_ADD_COL_CUSTOM) {
+						if (customTableCol < maxCol) {
+							customTableCol ++;
+							bChanged = true;
+						}
+					}
+					if (item == BUTTON_DEL_COL_CUSTOM) {
+						if (customTableCol >= 2) {
+							customTableCol --;
+							bChanged = true;
+						}
+					}
+					if (item == BUTTON_ADD_ROW_CUSTOM) {
+						if (customTableRow < maxRow) {
+							customTableRow ++;
+							bChanged = true;
+						}
+					}
+					if (item == BUTTON_DEL_ROW_CUSTOM) {
+						if (customTableRow >= 2) {
+							customTableRow --;
+							bChanged = true;
+						}
+					}
+
+					item = 0;
+
+					if (bChanged == true) {
+						DGRemoveDialogItems (dialogID, REST_ITEM_START_CUSTOM);
+
+						// 테이블폼 관련 항목 재배치
+						itmPosX = 170;
+						itmPosY = 150 + (customTableRow-1) * boxSizeY;
+
+						for (xx = 0 ; xx < customTableRow ; ++xx) {
+							for (yy = 0 ; yy < customTableCol ; ++yy) {
+								// 구분자
+								itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, boxSizeX, boxSizeY);
+								DGShowItem (dialogID, itmIdx);
+
+								// 팝업컨트롤: 너비
+								itmIdx_width [xx][yy] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 200, 10, itmPosX + boxSizeX/2 - 30, itmPosY + boxSizeY - 30, 60, 23);
+								DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+								//DGPopUpDisableDraw (dialogID, itmIdx);
+								if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION) {
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "500");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "450");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "400");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "300");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "200");
+								} else {
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1200");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "900");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+								}
+								//DGPopUpEnableDraw (dialogID, itmIdx);
+								DGShowItem (dialogID, itmIdx);
+			
+								// 팝업컨트롤: 높이
+								itmIdx_height [xx][yy] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 200, 10, itmPosX + 5, itmPosY + boxSizeY/2 - 15, 60, 23);
+								DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+								//DGPopUpDisableDraw (dialogID, itmIdx);
+								if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION) {
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1200");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "900");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+								} else {
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "600");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "500");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "450");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "400");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "300");
+									DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+									DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "200");
+								}
+								//DGPopUpEnableDraw (dialogID, itmIdx);
+								DGShowItem (dialogID, itmIdx);
+
+								itmPosX += boxSizeX;
+							}
+							itmPosX = 170;
+							itmPosY -= boxSizeY;
+						}
+
+						// 남은 너비 표시
+						totalWidth = 0.0;
+						for (xx = 0 ; xx < customTableCol ; ++xx) {
+							totalWidth += atof (DGPopUpGetItemText (dialogID, REST_ITEM_START_CUSTOM + xx*3 + 1, static_cast<short>(DGGetItemValLong (dialogID, REST_ITEM_START_CUSTOM + xx*3 + 1))).ToCStr ().Get ()) / 1000;
+						}
+						DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH_CUSTOM, placingZone.horLen - totalWidth);
+
+						// 남은 높이 표시
+						totalHeight = 0.0;
+						for (xx = 0 ; xx < customTableRow ; ++xx) {
+							totalHeight += atof (DGPopUpGetItemText (dialogID, REST_ITEM_START_CUSTOM + customTableCol*3*xx + 2, static_cast<short>(DGGetItemValLong (dialogID, REST_ITEM_START_CUSTOM + customTableCol*3*xx + 2))).ToCStr ().Get ()) / 1000;
+						}
+						DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_CUSTOM, placingZone.verLen - totalHeight);
+
+						// 다이얼로그 크기 변경
+						dialogSizeX = 550;
+						if (customTableCol > 2)	dialogSizeX += boxSizeX * (customTableCol-2);
+						dialogSizeY = 450;
+						if (customTableRow > 2)	dialogSizeY += boxSizeY * (customTableRow-2);
+						DGSetDialogSize (dialogID, DG_CLIENT, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
+					}
+
 					break;
 			}
 		case DG_MSG_CLOSE:
