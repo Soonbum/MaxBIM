@@ -90,9 +90,9 @@
 }
 
 /* ---------------------------------------------------------- place Euroform on Wall */
-'GDLG'  32511  Modal | grow	  0		  0		300		500		"유로폼 벽에 배치" {
-/* [  1] */	Button			 70		460		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		460		 70		 25		LargePlain		"Cancel"
+'GDLG'  32511  Modal | grow	  0		  0		300		530		"유로폼 벽에 배치" {
+/* [  1] */	Button			 70		490		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		490		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Incorner Settings"
 /* [  4] */	CheckBox		 10		 33		 70		 25		LargePlain		"Left"
@@ -127,22 +127,23 @@
 
 /* [ 20] */	Icon			 85		263		 29		 14  	32502
 /* [ 21] */	LeftText		120		265		200		 23		LargePlain		"Layer Settings"
-/* [ 22] */	RightText		 10		295		100		 23		LargePlain		"Incorner"
-/* [ 23] */	RightText		 10		325		100		 23		LargePlain		"Euroform"
-/* [ 24] */	RightText		 10		355		100		 23		LargePlain		"Fillerspacer"
-/* [ 25] */	RightText		 10		385		100		 23		LargePlain		"Plywood"
-/* [ 26] */	RightText		 10		415		100		 23		LargePlain		"Wood"
-/* [ 27] */	UserControl		120		289		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER		*/
-/* [ 28] */	UserControl		120		319		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
-/* [ 29] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER	*/
-/* [ 30] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
-/* [ 31] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+/* [ 22] */	CheckBox		120		290		100		 23		LargePlain		"Coupling"
+/* [ 23] */	RightText		 10		325		100		 23		LargePlain		"Incorner"
+/* [ 24] */	RightText		 10		355		100		 23		LargePlain		"Euroform"
+/* [ 25] */	RightText		 10		385		100		 23		LargePlain		"Fillerspacer"
+/* [ 26] */	RightText		 10		415		100		 23		LargePlain		"Plywood"
+/* [ 27] */	RightText		 10		445		100		 23		LargePlain		"Wood"
+/* [ 28] */	UserControl		120		319		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER		*/
+/* [ 29] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
+/* [ 30] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER	*/
+/* [ 31] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
+/* [ 32] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
 }
 
 /* ---------------------------------------------------------- place Euroform on Slab Bottom */
-'GDLG'  32512  Modal | grow	  0		  0		300		355		"슬래브 하부에 배치" {
-/* [  1] */	Button			 70		315		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		315		 70		 25		LargePlain		"Cancel"
+'GDLG'  32512  Modal | grow	  0		  0		300		385		"슬래브 하부에 배치" {
+/* [  1] */	Button			 70		345		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		345		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Euroform Settings"
 /* [  4] */	RightText		 50		 40		 70		 23		LargePlain		"Width"
@@ -170,18 +171,19 @@
 
 /* [ 14] */	Icon			 85		183		 29		 14  	32502
 /* [ 15] */	LeftText		120		185		200		 23		LargePlain		"Layer Settings"
-/* [ 16] */	RightText		 10		215		100		 23		LargePlain		"Euroform"
-/* [ 17] */	RightText		 10		245		100		 23		LargePlain		"Plywood"
-/* [ 18] */	RightText		 10		275		100		 23		LargePlain		"Wood"
-/* [ 19] */	UserControl		120		209		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
-/* [ 20] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
-/* [ 21] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+/* [ 16] */	CheckBox		120		210		100		 23		LargePlain		"Coupling"
+/* [ 17] */	RightText		 10		245		100		 23		LargePlain		"Euroform"
+/* [ 18] */	RightText		 10		275		100		 23		LargePlain		"Plywood"
+/* [ 19] */	RightText		 10		305		100		 23		LargePlain		"Wood"
+/* [ 20] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
+/* [ 21] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
+/* [ 22] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
 }
 
 /* ---------------------------------------------------------- place Euroform on Beam */
-'GDLG'  32513  Modal | grow	  0		  0		500		610		"보에 배치" {
-/* [  1] */	Button			170		560		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			270		560		 70		 25		LargePlain		"Cancel"
+'GDLG'  32513  Modal | grow	  0		  0		500		640		"보에 배치" {
+/* [  1] */	Button			170		590		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		590		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Beam Section"
 
@@ -249,22 +251,23 @@
 
 /* [ 35] */	Icon			175		368		 29		 14  	32502
 /* [ 36] */	LeftText		210		370		200		 23		LargePlain		"Layer Settings"
-/* [ 37] */	RightText		100		400		100		 23		LargePlain		"Euroform"
-/* [ 38] */	RightText		100		430		100		 23		LargePlain		"Fillerspacer"
-/* [ 39] */	RightText		100		460		100		 23		LargePlain		"Plywood"
-/* [ 40] */	RightText		100		490		100		 23		LargePlain		"Wood"
-/* [ 41] */	RightText		100		520		100		 23		LargePlain		"OutcornerAngle"
-/* [ 42] */	UserControl		210		394		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 43] */	UserControl		210		424		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
-/* [ 44] */	UserControl		210		454		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
-/* [ 45] */	UserControl		210		484		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
-/* [ 46] */	UserControl		210		514		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
+/* [ 37] */	CheckBox		210		395		100		 23		LargePlain		"Coupling"
+/* [ 38] */	RightText		100		430		100		 23		LargePlain		"Euroform"
+/* [ 39] */	RightText		100		460		100		 23		LargePlain		"Fillerspacer"
+/* [ 40] */	RightText		100		490		100		 23		LargePlain		"Plywood"
+/* [ 41] */	RightText		100		520		100		 23		LargePlain		"Wood"
+/* [ 42] */	RightText		100		550		100		 23		LargePlain		"OutcornerAngle"
+/* [ 43] */	UserControl		210		424		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 44] */	UserControl		210		454		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
+/* [ 45] */	UserControl		210		484		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 46] */	UserControl		210		514		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
+/* [ 47] */	UserControl		210		544		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
 }
 
 /* ---------------------------------------------------------- place Euroform on Column */
-'GDLG'  32514  Modal | grow	  0		  0		500		520		"기둥에 배치" {
-/* [  1] */	Button			170		470		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			270		470		 70		 25		LargePlain		"Cancel"
+'GDLG'  32514  Modal | grow	  0		  0		500		550		"기둥에 배치" {
+/* [  1] */	Button			170		500		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		500		 70		 25		LargePlain		"Cancel"
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
 /* [  4] */	Icon    		140		 50		230		230  	32503
 
@@ -297,18 +300,19 @@
 
 /* [ 29] */	Icon			175		328		 29		 14  	32502
 /* [ 30] */	LeftText		210		330		200		 23		LargePlain		"Layer Settings"
-/* [ 31] */	RightText		100		360		100		 23		LargePlain		"Euroform"
-/* [ 32] */	RightText		100		390		100		 23		LargePlain		"Outcorner"
-/* [ 33] */	RightText		100		420		100		 23		LargePlain		"Plywood"
-/* [ 34] */	UserControl		210		354		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 35] */	UserControl		210		384		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER		*/
-/* [ 36] */	UserControl		210		414		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 31] */	CheckBox		210		355		100		 23		LargePlain		"Coupling"
+/* [ 32] */	RightText		100		390		100		 23		LargePlain		"Euroform"
+/* [ 33] */	RightText		100		420		100		 23		LargePlain		"Outcorner"
+/* [ 34] */	RightText		100		450		100		 23		LargePlain		"Plywood"
+/* [ 35] */	UserControl		210		384		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 36] */	UserControl		210		414		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER		*/
+/* [ 37] */	UserControl		210		444		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
 }
 
 /* ---------------------------------------------------------- place Euroform on Column */
-'GDLG'  32515  Modal | grow	  0		  0		500		600		"기둥에 배치" {
-/* [  1] */	Button			170		550		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			270		550		 70		 25		LargePlain		"Cancel"
+'GDLG'  32515  Modal | grow	  0		  0		500		630		"기둥에 배치" {
+/* [  1] */	Button			170		580		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		580		 70		 25		LargePlain		"Cancel"
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
 
 /* [  4] */	Icon    		115		 50		280		260  	32508
@@ -329,14 +333,15 @@
 
 /* [ 18] */	Icon			175		378		 29		 14  	32502
 /* [ 19] */	LeftText		210		380		200		 23		LargePlain		"Layer Settings"
-/* [ 20] */	RightText		100		410		100		 23		LargePlain		"Euroform"
-/* [ 21] */	RightText		100		440		100		 23		LargePlain		"Incorner"
-/* [ 22] */	RightText		100		470		100		 23		LargePlain		"Outcorner"
-/* [ 23] */	RightText		100		500		100		 23		LargePlain		"Plywood"
-/* [ 24] */	UserControl		210		404		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 25] */	UserControl		210		434		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER			*/
-/* [ 26] */	UserControl		210		464		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER		*/
-/* [ 27] */	UserControl		210		494		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 20] */	CheckBox		210		405		100		 23		LargePlain		"Coupling"
+/* [ 21] */	RightText		100		440		100		 23		LargePlain		"Euroform"
+/* [ 22] */	RightText		100		470		100		 23		LargePlain		"Incorner"
+/* [ 23] */	RightText		100		500		100		 23		LargePlain		"Outcorner"
+/* [ 24] */	RightText		100		530		100		 23		LargePlain		"Plywood"
+/* [ 25] */	UserControl		210		434		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 26] */	UserControl		210		464		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER			*/
+/* [ 27] */	UserControl		210		494		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER		*/
+/* [ 28] */	UserControl		210		524		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
 }
 
 /* ---------------------------------------------------------- Manual Palette */
@@ -356,7 +361,7 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Wall */
-'GDLG'  32517  Modal | grow	  0		  0		350		590		"벽에 배치" {
+'GDLG'  32517  Modal | grow	  0		  0		350		620		"벽에 배치" {
 /* [  1] */	Button			 15		 15		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			 15		 50		 70		 25		LargePlain		"Cancel"
 /* [  3] */	Button			 15		 85		 70		 25		LargePlain		"Prev"
@@ -375,29 +380,30 @@
 
 /* [ 14] */	Icon			 85		293		 29		 14  	32502
 /* [ 15] */	LeftText		120		295		200		 23		LargePlain		"Layer Settings"
-/* [ 16] */	RightText		 10		325		100		 23		LargePlain		"Euroform"
-/* [ 17] */	RightText		 10		355		100		 23		LargePlain		"Rect Pipe"
-/* [ 18] */	RightText		 10		385		100		 23		LargePlain		"Pinbolt"
-/* [ 19] */	RightText		 10		415		100		 23		LargePlain		"Wall Tie"
-/* [ 20] */	RightText		 10		445		100		 23		LargePlain		"Join"
-/* [ 21] */	RightText		 10		475		100		 23		LargePlain		"Headpiece"
-/* [ 22] */	RightText		 10		505		100		 23		LargePlain		"Plywood"
-/* [ 23] */	RightText		 10		535		100		 23		LargePlain		"Wood"
+/* [ 16] */	CheckBox		120		320		100		 23		LargePlain		"Coupling"
+/* [ 17] */	RightText		 10		355		100		 23		LargePlain		"Euroform"
+/* [ 18] */	RightText		 10		385		100		 23		LargePlain		"Rect Pipe"
+/* [ 19] */	RightText		 10		415		100		 23		LargePlain		"Pinbolt"
+/* [ 20] */	RightText		 10		445		100		 23		LargePlain		"Wall Tie"
+/* [ 21] */	RightText		 10		475		100		 23		LargePlain		"Join"
+/* [ 22] */	RightText		 10		505		100		 23		LargePlain		"Headpiece"
+/* [ 23] */	RightText		 10		535		100		 23		LargePlain		"Plywood"
+/* [ 24] */	RightText		 10		565		100		 23		LargePlain		"Wood"
 
-/* [ 24] */	UserControl		120		319		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
-/* [ 25] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE	*/
-/* [ 26] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT		*/
-/* [ 27] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE		*/
-/* [ 28] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN			*/
-/* [ 29] */	UserControl		120		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
-/* [ 30] */	UserControl		120		499		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
-/* [ 31] */	UserControl		120		529		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+/* [ 25] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
+/* [ 26] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE	*/
+/* [ 27] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT		*/
+/* [ 28] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE		*/
+/* [ 29] */	UserControl		120		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN			*/
+/* [ 30] */	UserControl		120		499		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
+/* [ 31] */	UserControl		120		529		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
+/* [ 32] */	UserControl		120		559		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
 }
 
 /* ---------------------------------------------------------- place Tableform on Slab Bottom */
-'GDLG'  32518  Modal | grow	  0		  0		300		415		"슬래브 하부에 배치" {
-/* [  1] */	Button			 70		375		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		375		 70		 25		LargePlain		"Cancel"
+'GDLG'  32518  Modal | grow	  0		  0		300		445		"슬래브 하부에 배치" {
+/* [  1] */	Button			 70		405		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		405		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 10		 10		300		 23		LargePlain		"Tableform Settings"
 /* [  4] */	RightText		 50		 40		 70		 23		LargePlain		"Width"
@@ -414,56 +420,58 @@
 
 /* [ 14] */	Icon			 85		183		 29		 14  	32502
 /* [ 15] */	LeftText		120		185		200		 23		LargePlain		"Layer Settings"
-/* [ 16] */	RightText		 10		215		100		 23		LargePlain		"Tableform"
-/* [ 17] */	RightText		 10		245		100		 23		LargePlain		"Plywood"
-/* [ 18] */	RightText		 10		275		100		 23		LargePlain		"Wood"
-/* [ 19] */	RightText		 10		305		100		 23		LargePlain		"C Profile"
-/* [ 20] */	RightText		 10		335		100		 23		LargePlain		"Fittings"
+/* [ 16] */	CheckBox		120		210		100		 23		LargePlain		"Coupling"
+/* [ 17] */	RightText		 10		245		100		 23		LargePlain		"Tableform"
+/* [ 18] */	RightText		 10		275		100		 23		LargePlain		"Plywood"
+/* [ 19] */	RightText		 10		305		100		 23		LargePlain		"Wood"
+/* [ 20] */	RightText		 10		335		100		 23		LargePlain		"C Profile"
+/* [ 21] */	RightText		 10		365		100		 23		LargePlain		"Fittings"
 
-/* [ 21] */	UserControl		120		209		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM	*/
-/* [ 22] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
-/* [ 23] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
-/* [ 24] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - C PROFILE	*/
-/* [ 25] */	UserControl		120		329		160		 25		257	0x0006 0x0000 0		/* Layer Control - FITTINGS		*/
+/* [ 22] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM	*/
+/* [ 23] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
+/* [ 24] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+/* [ 25] */	UserControl		120		329		160		 25		257	0x0006 0x0000 0		/* Layer Control - C PROFILE	*/
+/* [ 26] */	UserControl		120		359		160		 25		257	0x0006 0x0000 0		/* Layer Control - FITTINGS		*/
 }
 
 /* ---------------------------------------------------------- Library Converting - Temporary Construction Object */
-'GDLG'  32519  Modal | grow	  0		  0		300		540		"Layer assignment for TCO" {
-/* [  1] */	Button			 70		500		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		500		 70		 25		LargePlain		"Cancel"
+'GDLG'  32519  Modal | grow	  0		  0		300		570		"Layer assignment for TCO" {
+/* [  1] */	Button			 70		530		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		530		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	Icon			 85		 13		 29		 14  	32502
 /* [  4] */	LeftText		120		 15		200		 23		LargePlain		"Layer Settings"
+/* [  5] */	CheckBox		120		 45		100		 23		LargePlain		"Coupling"
 
-/* [  5] */	RightText		 10		 45		100		 23		LargePlain		"Tableform (Slab)"
-/* [  6] */	RightText		 10		 75		100		 23		LargePlain		"Profile"
-/* [  7] */	RightText		 10		105		100		 23		LargePlain		"Euroform"
-/* [  8] */	RightText		 10		135		100		 23		LargePlain		"Rect Pipe"
-/* [  9] */	RightText		 10		165		100		 23		LargePlain		"Pinbolt"
-/* [ 10] */	RightText		 10		195		100		 23		LargePlain		"Wall Tie"
-/* [ 11] */	RightText		 10		225		100		 23		LargePlain		"Join"
-/* [ 12] */	RightText		 10		255		100		 23		LargePlain		"Headpiece"
-/* [ 13] */	RightText		 10		285		100		 23		LargePlain		"Steelform"
-/* [ 14] */	RightText		 10		315		100		 23		LargePlain		"Plywood"
-/* [ 15] */	RightText		 10		345		100		 23		LargePlain		"Fillerspacer"
-/* [ 16] */	RightText		 10		375		100		 23		LargePlain		"Outcorner Angle"
-/* [ 17] */	RightText		 10		405		100		 23		LargePlain		"Outcorner Panel"
-/* [ 18] */	RightText		 10		435		100		 23		LargePlain		"Incorner Panel"
+/* [  6] */	RightText		 10		 75		100		 23		LargePlain		"Tableform (Slab)"
+/* [  7] */	RightText		 10		105		100		 23		LargePlain		"Profile"
+/* [  8] */	RightText		 10		135		100		 23		LargePlain		"Euroform"
+/* [  9] */	RightText		 10		165		100		 23		LargePlain		"Rect Pipe"
+/* [ 10] */	RightText		 10		195		100		 23		LargePlain		"Pinbolt"
+/* [ 11] */	RightText		 10		225		100		 23		LargePlain		"Wall Tie"
+/* [ 12] */	RightText		 10		255		100		 23		LargePlain		"Join"
+/* [ 13] */	RightText		 10		285		100		 23		LargePlain		"Headpiece"
+/* [ 14] */	RightText		 10		315		100		 23		LargePlain		"Steelform"
+/* [ 15] */	RightText		 10		345		100		 23		LargePlain		"Plywood"
+/* [ 16] */	RightText		 10		375		100		 23		LargePlain		"Fillerspacer"
+/* [ 17] */	RightText		 10		405		100		 23		LargePlain		"Outcorner Angle"
+/* [ 18] */	RightText		 10		435		100		 23		LargePlain		"Outcorner Panel"
+/* [ 19] */	RightText		 10		465		100		 23		LargePlain		"Incorner Panel"
 
-/* [ 19] */	UserControl		120		 39		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM (SLAB)	*/
-/* [ 20] */	UserControl		120		 69		160		 25		257	0x0006 0x0000 0		/* Layer Control - PROFILE			*/
-/* [ 21] */	UserControl		120		 99		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 22] */	UserControl		120		129		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE		*/
-/* [ 23] */	UserControl		120		159		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
-/* [ 24] */	UserControl		120		189		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE			*/
-/* [ 25] */	UserControl		120		219		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN				*/
-/* [ 26] */	UserControl		120		249		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
-/* [ 27] */	UserControl		120		279		160		 25		257	0x0006 0x0000 0		/* Layer Control - STEELFORM		*/
-/* [ 28] */	UserControl		120		309		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
-/* [ 29] */	UserControl		120		339		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
-/* [ 30] */	UserControl		120		369		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
-/* [ 31] */	UserControl		120		399		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
-/* [ 32] */	UserControl		120		429		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER PANEL	*/
+/* [ 20] */	UserControl		120		 69		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM (SLAB)	*/
+/* [ 21] */	UserControl		120		 99		160		 25		257	0x0006 0x0000 0		/* Layer Control - PROFILE			*/
+/* [ 22] */	UserControl		120		129		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 23] */	UserControl		120		159		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE		*/
+/* [ 24] */	UserControl		120		189		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
+/* [ 25] */	UserControl		120		219		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE			*/
+/* [ 26] */	UserControl		120		249		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN				*/
+/* [ 27] */	UserControl		120		279		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
+/* [ 28] */	UserControl		120		309		160		 25		257	0x0006 0x0000 0		/* Layer Control - STEELFORM		*/
+/* [ 29] */	UserControl		120		339		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 30] */	UserControl		120		369		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
+/* [ 31] */	UserControl		120		399		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
+/* [ 32] */	UserControl		120		429		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
+/* [ 33] */	UserControl		120		459		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER PANEL	*/
 }
 
 'GDLG' 32520  Palette | leftCaption | close		0	0	201	101 "" {

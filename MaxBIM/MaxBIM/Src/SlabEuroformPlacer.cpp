@@ -1840,6 +1840,10 @@ short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short 
 			// 라벨: 레이어 설정
 			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
 
+			// 체크박스: 레이어 묶음
+			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
+			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
+
 			// 라벨: 레이어 - 유로폼
 			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
 
@@ -1865,6 +1869,29 @@ short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short 
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, 1);
 
+			break;
+
+		case DG_MSG_CHANGE:
+			// 레이어 같이 바뀜
+			if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+				switch (item) {
+					case USERCONTROL_LAYER_EUROFORM:
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						break;
+					case USERCONTROL_LAYER_PLYWOOD:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						break;
+					case USERCONTROL_LAYER_WOOD:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						break;
+				}
+			}
 			break;
 
 		case DG_MSG_CLICK:

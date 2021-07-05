@@ -2455,6 +2455,10 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
 			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_ANGLE, "아웃코너앵글");
 
+			// 체크박스: 레이어 묶음
+			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
+			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
+
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
 			ucb.dialogID = dialogID;
@@ -2570,6 +2574,48 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 					(DGGetItemValLong (dialogID, CHECKBOX_R_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_R_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_R_FORM_BOTTOM);
 					break;
 			}
+
+			// 레이어 같이 바뀜
+			if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+				switch (item) {
+					case USERCONTROL_LAYER_EUROFORM:
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						break;
+					case USERCONTROL_LAYER_FILLERSPACER:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						break;
+					case USERCONTROL_LAYER_PLYWOOD:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						break;
+					case USERCONTROL_LAYER_WOOD:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						break;
+					case USERCONTROL_LAYER_OUTCORNER_ANGLE:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						break;
+				}
+			}
+			break;
 
 		case DG_MSG_CLICK:
 			switch (item) {

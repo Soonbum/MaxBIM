@@ -8,6 +8,7 @@ namespace libraryConvertDG {
 	enum	idxItems_1_forLibraryConvert {
 		ICON_LAYER = 3,
 		LABEL_LAYER_SETTINGS,
+		CHECKBOX_LAYER_COUPLING,
 
 		LABEL_LAYER_SLABTABLEFORM,
 		LABEL_LAYER_PROFILE,

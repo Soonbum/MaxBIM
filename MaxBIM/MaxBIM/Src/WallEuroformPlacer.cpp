@@ -1603,6 +1603,10 @@ short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, 
 			// 라벨: 레이어 설정
 			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
 
+			// 체크박스: 레이어 묶음
+			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
+			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
+
 			// 라벨: 레이어 - 인코너
 			DGSetItemText (dialogID, LABEL_LAYER_INCORNER, "인코너");
 
@@ -1655,6 +1659,47 @@ short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, 
 				DGShowItem (dialogID, EDITCONTROL_RIGHT_INCORNER);
 			else
 				DGHideItem (dialogID, EDITCONTROL_RIGHT_INCORNER);
+
+			// 레이어 같이 바뀜
+			if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+				switch (item) {
+					case USERCONTROL_LAYER_INCORNER:
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER));
+						break;
+					case USERCONTROL_LAYER_EUROFORM:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						break;
+					case USERCONTROL_LAYER_FILLERSPACER:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						break;
+					case USERCONTROL_LAYER_PLYWOOD:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						break;
+					case USERCONTROL_LAYER_WOOD:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						break;
+				}
+			}
 
 			break;
 

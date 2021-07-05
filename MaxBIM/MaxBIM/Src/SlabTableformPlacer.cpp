@@ -1721,6 +1721,10 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 			// 라벨: 레이어 설정
 			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
 
+			// 체크박스: 레이어 묶음
+			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
+			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
+
 			// 라벨: 레이어 - 슬래브 테이블폼
 			DGSetItemText (dialogID, LABEL_LAYER_SLABTABLEFORM, "테이블폼");
 
@@ -1782,6 +1786,50 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 
 			break;
 
+		case DG_MSG_CHANGE:
+			// 레이어 같이 바뀜
+			if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+				switch (item) {
+					case USERCONTROL_LAYER_SLABTABLEFORM:
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						break;
+					case USERCONTROL_LAYER_PLYWOOD:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						break;
+					case USERCONTROL_LAYER_WOOD:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						break;
+					case USERCONTROL_LAYER_CPROFILE:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS, DGGetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE));
+						break;
+					case USERCONTROL_LAYER_FITTINGS:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS));
+						break;
+				}
+			}
+
+			break;
+
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
@@ -1805,6 +1853,7 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 				case DG_CANCEL:
 					break;
 			}
+
 		case DG_MSG_CLOSE:
 			switch (item) {
 				case DG_CLOSEBOX:
