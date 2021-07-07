@@ -425,4 +425,33 @@ struct MetalFittingsWithRectWasher
 	char	nutType [15];	// 너트 타입
 };
 
+// 유로폼 후크
+struct EuroformHook
+{
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	angX;			// 본체 회전 (X)
+	double	angY;			// 본체 회전 (Y)
+
+	short	iiHookType;		// 후크 타입
+	short	iHookShape;		// 후크 모양
+};
+
+// 각파이프 행거
+struct RectPipeHanger
+{
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	angX;			// 본체 회전 (X)
+	double	angY;			// 본체 회전 (Y)
+};
+
 #endif //__MAXBIM_HPP__

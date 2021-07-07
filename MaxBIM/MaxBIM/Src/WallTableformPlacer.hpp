@@ -5,8 +5,9 @@
 
 namespace wallTableformPlacerDG {
 	// 다이얼로그 항목 인덱스
-	enum	idxItems_2_forWallTableformPlacer {
+	enum	idxItems_2_forWallTableformPlacer_typeA {
 		DG_PREV = 3,
+		POPUP_TYPE_SELECTOR,
 		LABEL_HEIGHT,
 		EDITCONTROL_HEIGHT,
 		LABEL_ERR_MESSAGE,
@@ -39,6 +40,13 @@ namespace wallTableformPlacerDG {
 		USERCONTROL_LAYER_HEADPIECE,
 		USERCONTROL_LAYER_PLYWOOD,
 		USERCONTROL_LAYER_WOOD
+	};
+
+	enum	idxItems_2_forWallTableformPlacer_typeB {
+		LABEL_LAYER_RECTPIPE_HANGER = 20,	// 기존 핀볼트세트 레이어 활용
+		LABEL_LAYER_EUROFORM_HOOK = 21,		// 기존 벽체타이 레이어 활용
+		USERCONTROL_LAYER_RECTPIPE_HANGER = 28,
+		USERCONTROL_LAYER_EUROFORM_HOOK = 29
 	};
 
 	enum	idxItems_3_forWallTableformPlacer {
@@ -156,6 +164,8 @@ public:
 	double	verLen;			// 세로 길이
 	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
 
+	short	type;			// 타입A(1), 타입B(2)
+
 	bool	bDoubleSide;	// 양면이면 true, 단면이면 false
 
 	double	gap;			// 벽과의 간격
@@ -228,9 +238,11 @@ public:
 public:
 	void		initCells (WallTableformPlacingZone* placingZone);													// Cell 배열을 초기화함
 	double		getCellPositionLeftBottomX (WallTableformPlacingZone *placingZone, short idx);						// 해당 셀의 좌하단 좌표X 위치를 리턴
-	GSErrCode	placeTableformOnWall_Vertical (CellForWallTableform cell);											// 테이블폼 배치하기 - 세로 방향
+	GSErrCode	placeTableformOnWall_Vertical_Type1 (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입1)
+	GSErrCode	placeTableformOnWall_Vertical_Type2 (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입2)
+	GSErrCode	placeTableformOnWall_Horizontal_Type1 (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입1)
+	GSErrCode	placeTableformOnWall_Horizontal_Type2 (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입2)
 	GSErrCode	placeTableformOnWall_Vertical (CellForWallTableform cell, UpperCellForWallTableform upperCell);		// 테이블폼 상단 배치하기 - 세로 방향
-	GSErrCode	placeTableformOnWall_Horizontal (CellForWallTableform cell);										// 테이블폼 배치하기 - 가로 방향
 	GSErrCode	placeTableformOnWall_Horizontal (CellForWallTableform cell, UpperCellForWallTableform upperCell);	// 테이블폼 상단 배치하기 - 가로 방향
 
 	API_Guid	placeUFOM (Euroform params);						// 배치: 유로폼
@@ -244,6 +256,10 @@ public:
 	API_Guid	placeJOIN (MetalFittings params);					// 배치: 결합철물
 	API_Guid	placePLYW (Plywood params);							// 배치: 합판
 	API_Guid	placeTIMB (Wood params);							// 배치: 목재
+	API_Guid	placeJOIN2 (MetalFittings params);					// 배치: 사각파이프 연결철물
+	API_Guid	placePUSH2 (HeadpieceOfPushPullProps params);		// 배치: 빔조인트용 Push-Pull Props
+	API_Guid	placeHOOK (EuroformHook params);					// 배치: 유로폼 후크
+	API_Guid	placeHANG (RectPipeHanger params);					// 배치: 각파이프 행거
 };
 
 GSErrCode	placeTableformOnWall_Vertical (void);		// 벽에 테이블폼을 배치하는 통합 루틴 - 세로 방향

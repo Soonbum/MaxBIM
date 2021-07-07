@@ -13,13 +13,15 @@ static InfoWall						infoWall;		// 벽 객체 정보
 
 static short	layerInd_Euroform;		// 레이어 번호: 유로폼
 static short	layerInd_RectPipe;		// 레이어 번호: 비계 파이프
-static short	layerInd_PinBolt;		// 레이어 번호: 핀볼트 세트
-static short	layerInd_WallTie;		// 레이어 번호: 빅체 타이
-static short	layerInd_Clamp;			// 레이어 번호: 직교 클램프
-static short	layerInd_HeadPiece;		// 레이어 번호: 헤드피스
-static short	layerInd_Join;			// 레이어 번호: 결합철물
+static short	layerInd_PinBolt;		// 레이어 번호: 핀볼트 세트 (A타입 전용)
+static short	layerInd_WallTie;		// 레이어 번호: 빅체 타이 (A타입 전용, 더 이상 사용하지 않음)
+static short	layerInd_Clamp;			// 레이어 번호: 직교 클램프 (더 이상 사용하지 않음)
+static short	layerInd_HeadPiece;		// 레이어 번호: 헤드피스 (B타입에서는 빔조인트용 Push-Pull Props 헤드피스)
+static short	layerInd_Join;			// 레이어 번호: 결합철물 (B타입에서는 사각파이프 연결철물)
 static short	layerInd_Plywood;		// 레이어 번호: 합판
 static short	layerInd_Wood;			// 레이어 번호: 목재
+static short	layerInd_RectPipeHanger;	// 레이어 번호: 각파이프 행거 (B타입 전용)
+static short	layerInd_EuroformHook;		// 레이어 번호: 유로폼 후크 (B타입 전용)
 
 static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
@@ -32,10 +34,6 @@ static short	EDITCONTROL_RECT_PIPE_HEIGHT;
 
 static double	preferWidth;
 static bool		clickedPrevButton;		// 이전 버튼을 눌렀습니까?
-
-// 커스텀 테이블 전용
-//static short	customTableRow = 1;		// 행 현재 개수
-//static short	customTableCol = 1;		// 열 현재 개수
 
 
 // 벽에 테이블폼을 배치하는 통합 루틴 - 세로 방향
@@ -479,7 +477,10 @@ FIRST_VERTICAL:
 
 	// 테이블폼 배치하기
 	for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
-		err = placingZone.placeTableformOnWall_Vertical (placingZone.cells [xx]);
+		if (placingZone.type == 1)
+			err = placingZone.placeTableformOnWall_Vertical_Type1 (placingZone.cells [xx]);
+		else if (placingZone.type == 2)
+			err = placingZone.placeTableformOnWall_Vertical_Type2 (placingZone.cells [xx]);
 	}
 
 	// [DIALOG] 3번째 다이얼로그에서 벽 상단의 자투리 공간을 다른 규격의 유로폼으로 대체할 것인지 묻습니다.
@@ -898,7 +899,10 @@ FIRST_HORIZONTAL:
 
 	// 테이블폼 배치하기
 	for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
-		err = placingZone.placeTableformOnWall_Horizontal (placingZone.cells [xx]);
+		if (placingZone.type == 1)
+			err = placingZone.placeTableformOnWall_Horizontal_Type1 (placingZone.cells [xx]);
+		else if (placingZone.type == 2)
+			err = placingZone.placeTableformOnWall_Horizontal_Type2 (placingZone.cells [xx]);
 	}
 
 	// [DIALOG] 3번째 다이얼로그에서 벽 상단의 자투리 공간을 다른 규격의 유로폼으로 대체할 것인지 묻습니다.
@@ -1439,22 +1443,22 @@ double	WallTableformPlacingZone::getCellPositionLeftBottomX (WallTableformPlacin
 	return distance;
 }
 
-// 테이블폼 배치하기 - 세로 방향
-GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTableform cell)
+// 테이블폼 배치하기 - 세로 방향 (타입1)
+GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type1 (CellForWallTableform cell)
 {
 	GSErrCode	err = NoError;
 	placementInfoForWallTableform	placementInfo;
 
 	short		xx, yy;
 	double		width, height;
-	double		remainder;				// fmod 함수에 쓸 변수
+	//double		remainder;				// fmod 함수에 쓸 변수
 	double		elev_headpiece;
 	double		horizontalGap = 0.050;	// 수평재 양쪽 이격거리
 
 	Euroform		params_UFOM;
 	SquarePipe		params_SPIP;
 	PinBoltSet		params_PINB;
-	WallTie			params_TIE;
+	//WallTie			params_TIE;
 	//CrossClamp		params_CLAM;
 	HeadpieceOfPushPullProps	params_PUSH;
 	MetalFittings	params_JOIN;
@@ -1955,44 +1959,44 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 	}
 
 	// 벽체 타이
-	if (placingZone.bDoubleSide) {
-		params_TIE.leftBottomX = cell.leftBottomX;
-		params_TIE.leftBottomY = cell.leftBottomY;
-		params_TIE.leftBottomZ = cell.leftBottomZ;
-		params_TIE.ang = cell.ang;
-		remainder = fmod ((infoWall.wallThk + 0.327), 0.100);
-		params_TIE.boltLen = (infoWall.wallThk + 0.327 + (0.100 - remainder));
-		params_TIE.pipeBeg = 0.0365 + 0.1635;
-		params_TIE.pipeEnd = 0.0365 + 0.1635 + infoWall.wallThk;
-		params_TIE.clampBeg = 0.0365;
-		params_TIE.clampEnd = 0.0365 + infoWall.wallThk + 0.327;
+	//if (placingZone.bDoubleSide) {
+	//	params_TIE.leftBottomX = cell.leftBottomX;
+	//	params_TIE.leftBottomY = cell.leftBottomY;
+	//	params_TIE.leftBottomZ = cell.leftBottomZ;
+	//	params_TIE.ang = cell.ang;
+	//	remainder = fmod ((infoWall.wallThk + 0.327), 0.100);
+	//	params_TIE.boltLen = (infoWall.wallThk + 0.327 + (0.100 - remainder));
+	//	params_TIE.pipeBeg = 0.0365 + 0.1635;
+	//	params_TIE.pipeEnd = 0.0365 + 0.1635 + infoWall.wallThk;
+	//	params_TIE.clampBeg = 0.0365;
+	//	params_TIE.clampEnd = 0.0365 + infoWall.wallThk + 0.327;
 
-		moveIn3D ('x', params_TIE.ang, placementInfo.width [0] - 0.150, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-		moveIn3D ('y', params_TIE.ang, -(0.1635 + 0.0365), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-		moveIn3D ('z', params_TIE.ang, 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//	moveIn3D ('x', params_TIE.ang, placementInfo.width [0] - 0.150, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//	moveIn3D ('y', params_TIE.ang, -(0.1635 + 0.0365), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//	moveIn3D ('z', params_TIE.ang, 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
 
-		for (xx = 0 ; xx < 2 ; ++xx) {
-			for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
-				// 최하위 행
-				if (yy == 0) {
-					elemList.Push (placeTIE (params_TIE));
-					moveIn3D ('z', params_TIE.ang, placementInfo.height [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-		
-				// 최상위 행
-				} else if (yy == placementInfo.nVerEuroform - 1) {
-					moveIn3D ('z', params_TIE.ang, placementInfo.height [yy] - 0.350*2, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-					elemList.Push (placeTIE (params_TIE));
-					moveIn3D ('x', params_TIE.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-					moveIn3D ('z', params_TIE.ang, 0.350 - cell.verLen + 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-				
-				// 2 ~ [n-1]행
-				} else {
-					elemList.Push (placeTIE (params_TIE));
-					moveIn3D ('z', params_TIE.ang, placementInfo.height [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-				}
-			}
-		}
-	}
+	//	for (xx = 0 ; xx < 2 ; ++xx) {
+	//		for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
+	//			// 최하위 행
+	//			if (yy == 0) {
+	//				elemList.Push (placeTIE (params_TIE));
+	//				moveIn3D ('z', params_TIE.ang, placementInfo.height [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//	
+	//			// 최상위 행
+	//			} else if (yy == placementInfo.nVerEuroform - 1) {
+	//				moveIn3D ('z', params_TIE.ang, placementInfo.height [yy] - 0.350*2, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//				elemList.Push (placeTIE (params_TIE));
+	//				moveIn3D ('x', params_TIE.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//				moveIn3D ('z', params_TIE.ang, 0.350 - cell.verLen + 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//			
+	//			// 2 ~ [n-1]행
+	//			} else {
+	//				elemList.Push (placeTIE (params_TIE));
+	//				moveIn3D ('z', params_TIE.ang, placementInfo.height [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//			}
+	//		}
+	//	}
+	//}
 
 	// 직교 클램프
 	//params_CLAM.leftBottomX = cell.leftBottomX;
@@ -2032,7 +2036,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 
 	moveIn3D ('x', params_PUSH.ang, placementInfo.width [0] - 0.150 - 0.100, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	moveIn3D ('y', params_PUSH.ang, -0.1725, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-	moveIn3D ('z', params_PUSH.ang, 0.600, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('z', params_PUSH.ang, 0.231, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 
 	// 처음 행
 	elemList.Push (placePUSH (params_PUSH));
@@ -2045,7 +2049,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 	//	elev_headpiece = cell.verLen * 0.80;
 	//}
 	elev_headpiece = 2.100;
-	moveIn3D ('z', params_PUSH.ang, -0.600 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('z', params_PUSH.ang, -0.231 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	// 마지막 행
 	elemList.Push (placePUSH (params_PUSH));
 	moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [0] - 0.150) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
@@ -2338,7 +2342,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 
 		moveIn3D ('x', params_PUSH.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150 - 0.100, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		moveIn3D ('y', params_PUSH.ang, -0.1725, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
-		moveIn3D ('z', params_PUSH.ang, 0.600, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('z', params_PUSH.ang, 0.231, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 
 		// 처음 행
 		elemList.Push (placePUSH (params_PUSH));
@@ -2351,7 +2355,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 		//	elev_headpiece = cell.verLen * 0.80;
 		//}
 		elev_headpiece = 2.100;
-		moveIn3D ('z', params_PUSH.ang, -0.600 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('z', params_PUSH.ang, -0.231 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		// 마지막 행
 		elemList.Push (placePUSH (params_PUSH));
 		moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
@@ -2378,6 +2382,845 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 		elemList.Push (placeJOIN (params_JOIN));
 		moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.150) + cell.horLen + (-placementInfo.width [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 		elemList.Push (placeJOIN (params_JOIN));
+
+		// 그룹화하기
+		if (!elemList.IsEmpty ()) {
+			GSSize nElems = elemList.GetSize ();
+			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+			if (elemHead != NULL) {
+				for (GSIndex i = 0; i < nElems; i++)
+					(*elemHead)[i].guid = elemList[i];
+
+				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+				BMKillHandle ((GSHandle *) &elemHead);
+			}
+		}
+		elemList.Clear (false);
+	}
+
+	return	err;
+}
+
+// 테이블폼 배치하기 - 세로 방향 (타입2) ...
+GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+	placementInfoForWallTableform	placementInfo;
+
+	short		xx, yy;
+	double		width, height;
+	//double		remainder;				// fmod 함수에 쓸 변수
+	double		elev_headpiece;
+	double		horizontalGap = 0.050;	// 수평재 양쪽 이격거리
+
+	Euroform		params_UFOM;
+	SquarePipe		params_SPIP;
+	HeadpieceOfPushPullProps	params_PUSH;
+	MetalFittings	params_JOIN;
+	EuroformHook	params_HOOK;
+	RectPipeHanger	params_HANG;
+
+	placementInfo.nHorEuroform = 0;
+	placementInfo.nVerEuroform = 0;
+	for (xx = 0 ; xx < 7 ; ++xx) {
+		placementInfo.width [xx] = 0.0;
+		placementInfo.height [xx] = 0.0;
+	}
+
+	if (abs (cell.horLen - 2.300) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 2.250) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 2.200) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 2.150) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 2.100) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 2.050) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 2.000) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.950) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.900) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.850) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.200;	placementInfo.width [3] = 0.600;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.800) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.750) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.500;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.700) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.650) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.600) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.550) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.500) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.600;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.450) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.400) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.350) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.300) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.500;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.250) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.450;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.200) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.600;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.150) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.100) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.400;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 1.050) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.300;	placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 1.000) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.950) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.500;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 0.900) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.850) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.450;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 0.800) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.400;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.750) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 0.700) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.300;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.650) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.200;	placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 0.600) < EPS) {
+		placementInfo.nHorEuroform = 1;
+		placementInfo.width [0] = 0.600;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.500) < EPS) {
+		placementInfo.nHorEuroform = 1;
+		placementInfo.width [0] = 0.500;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else if (abs (cell.horLen - 0.450) < EPS) {
+		placementInfo.nHorEuroform = 1;
+		placementInfo.width [0] = 0.450;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.025;
+	} else if (abs (cell.horLen - 0.400) < EPS) {
+		placementInfo.nHorEuroform = 1;
+		placementInfo.width [0] = 0.400;	placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+		horizontalGap = 0.050;
+	} else {
+		placementInfo.nHorEuroform = 0;
+		placementInfo.width [0] = 0.0;		placementInfo.width [1] = 0.0;		placementInfo.width [2] = 0.0;		placementInfo.width [3] = 0.0;
+	}
+
+	if (abs (cell.verLen - 6.000) < EPS) {
+		placementInfo.nVerEuroform = 5;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 1.200;
+		placementInfo.height [4] = 1.200;
+	} else if (abs (cell.verLen - 5.700) < EPS) {
+		placementInfo.nVerEuroform = 5;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 1.200;
+		placementInfo.height [4] = 0.900;
+	} else if (abs (cell.verLen - 5.400) < EPS) {
+		placementInfo.nVerEuroform = 5;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 0.900;
+		placementInfo.height [4] = 0.900;
+	} else if (abs (cell.verLen - 5.100) < EPS) {
+		placementInfo.nVerEuroform = 5;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 0.900;
+		placementInfo.height [4] = 0.600;
+	} else if (abs (cell.verLen - 4.800) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 1.200;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 4.500) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 0.900;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 4.200) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 0.900;
+		placementInfo.height [3] = 0.900;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 3.900) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 0.900;
+		placementInfo.height [3] = 0.600;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 3.600) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 1.200;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 3.300) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 0.900;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 3.000) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 0.600;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 2.700) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 0.900;
+		placementInfo.height [2] = 0.600;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 2.400) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 1.200;
+		placementInfo.height [2] = 0.0;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 2.100) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 1.200;
+		placementInfo.height [1] = 0.900;
+		placementInfo.height [2] = 0.0;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 1.800) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.900;
+		placementInfo.height [1] = 0.900;
+		placementInfo.height [2] = 0.0;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
+	} else if (abs (cell.verLen - 1.500) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.900;
+		placementInfo.height [1] = 0.600;
+		placementInfo.height [2] = 0.0;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
+	} else {
+		placementInfo.nVerEuroform = 0;
+		placementInfo.height [0] = 0.0;
+		placementInfo.height [1] = 0.0;
+		placementInfo.height [2] = 0.0;
+		placementInfo.height [3] = 0.0;
+		placementInfo.height [4] = 0.0;
+	}
+
+	// 너비나 높이가 0이면 아무것도 배치하지 않음
+	if ((placementInfo.nHorEuroform == 0) || (placementInfo.nVerEuroform == 0))
+		return	NoError;
+
+	//////////////////////////////////////////////////////////////// 현재면
+	// 유로폼 설치
+	params_UFOM.leftBottomX = cell.leftBottomX;
+	params_UFOM.leftBottomY = cell.leftBottomY;
+	params_UFOM.leftBottomZ = cell.leftBottomZ;
+	params_UFOM.ang = cell.ang;
+	params_UFOM.u_ins_wall = true;
+
+	for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		height = 0.0;
+		for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
+			params_UFOM.width	= placementInfo.width [xx];
+			params_UFOM.height	= placementInfo.height [yy];
+			height += placementInfo.height [yy];
+			elemList.Push (placeUFOM (params_UFOM));
+			moveIn3D ('z', params_UFOM.ang, placementInfo.height [yy], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+		}
+		moveIn3D ('x', params_UFOM.ang, placementInfo.width [xx], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+		moveIn3D ('z', params_UFOM.ang, -height, &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+	}
+
+	// 비계 파이프 (수평) 배치
+	params_SPIP.leftBottomX = cell.leftBottomX;
+	params_SPIP.leftBottomY = cell.leftBottomY;
+	params_SPIP.leftBottomZ = cell.leftBottomZ;
+	params_SPIP.ang = cell.ang;
+	params_SPIP.length = cell.horLen - (horizontalGap * 2);
+	params_SPIP.pipeAng = DegreeToRad (0);
+
+	moveIn3D ('x', params_SPIP.ang, horizontalGap, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('z', params_SPIP.ang, 0.150 + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+	for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
+		if (xx == 0) {
+			// 1행
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('z', params_SPIP.ang, -0.031 - 0.150 + placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		} else if (xx == placementInfo.nVerEuroform) {
+			// 마지막 행
+			moveIn3D ('z', params_SPIP.ang, -0.150 + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			elemList.Push (placeSPIP (params_SPIP));
+		} else {
+			// 나머지 행
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('z', params_SPIP.ang, placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		}
+	}
+
+	// 비계 파이프 (수직) 배치
+	params_SPIP.leftBottomX = cell.leftBottomX;
+	params_SPIP.leftBottomY = cell.leftBottomY;
+	params_SPIP.leftBottomZ = cell.leftBottomZ;
+	params_SPIP.ang = cell.ang;
+	params_SPIP.length = cell.verLen - 0.100;
+	params_SPIP.pipeAng = DegreeToRad (90);
+
+	moveIn3D ('x', params_SPIP.ang, placementInfo.width [0] - 0.225, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.075), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+	// 1열
+	elemList.Push (placeSPIP (params_SPIP));
+	moveIn3D ('x', params_SPIP.ang, - (placementInfo.width [0] - 0.225) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.225), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	// 2열
+	elemList.Push (placeSPIP (params_SPIP));
+
+	// 유로폼 후크 배치 (수평 - 최하단, 최상단)
+	params_HOOK.leftBottomX = cell.leftBottomX;
+	params_HOOK.leftBottomY = cell.leftBottomY;
+	params_HOOK.leftBottomZ = cell.leftBottomZ;
+	params_HOOK.ang = cell.ang;
+	params_HOOK.iiHookType = 2;
+	params_HOOK.iHookShape = 2;
+	params_HOOK.angX = DegreeToRad (0.0);
+	params_HOOK.angY = DegreeToRad (90.0);
+
+	moveIn3D ('y', params_HOOK.ang, -0.0885, &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+
+	if (placementInfo.nHorEuroform >= 3) {
+		moveIn3D ('x', params_HOOK.ang, placementInfo.width [0], &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+		moveIn3D ('z', params_HOOK.ang, 0.030 + 0.150, &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+		// 1행
+		width = 0.0;
+		for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+			width += placementInfo.width [xx];
+			elemList.Push (placeHOOK (params_HOOK));
+			moveIn3D ('x', params_HOOK.ang, placementInfo.width [xx], &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+		}
+		moveIn3D ('x', params_HOOK.ang, -width, &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+		moveIn3D ('z', params_HOOK.ang, -0.150 + cell.verLen - 0.150, &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+
+		// 마지막 행
+		for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+			width += placementInfo.width [xx];
+			elemList.Push (placeHOOK (params_HOOK));
+			moveIn3D ('x', params_HOOK.ang, placementInfo.width [xx], &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+		}
+	}
+
+	// 각파이프행거 배치 (수평 - 최하단, 최상단을 제외한 나머지)
+	params_HANG.leftBottomX = cell.leftBottomX;
+	params_HANG.leftBottomY = cell.leftBottomY;
+	params_HANG.leftBottomZ = cell.leftBottomZ;
+	params_HANG.ang = cell.ang;
+	params_HANG.angX = DegreeToRad (0.0);
+	params_HANG.angY = DegreeToRad (270.0);
+
+	moveIn3D ('y', params_HANG.ang, -0.0635, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+
+	// 2 ~ [n-1]행
+	if (placementInfo.nHorEuroform >= 3) {
+		moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+		moveIn3D ('z', params_HANG.ang, placementInfo.height [0], &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+		for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
+			width = 0.0;
+			for (yy = 0 ; yy < placementInfo.nHorEuroform ; ++yy) {
+				// 1열
+				if (yy == 0) {
+					elemList.Push (placeHANG (params_HANG));
+					moveIn3D ('x', params_HANG.ang, placementInfo.width [0] - 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+					width += placementInfo.width [0] - 0.150;
+				// 마지막 열
+				} else if (yy == placementInfo.nHorEuroform - 1) {
+					width += placementInfo.width [placementInfo.nHorEuroform-1] - 0.150;
+					moveIn3D ('x', params_HANG.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+					elemList.Push (placeHANG (params_HANG));
+				// 나머지 열
+				} else {
+					width += placementInfo.width [yy];
+					if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+						moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, 0.300, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+						moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, 0.200, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+						moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+						moveIn3D ('x', params_HANG.ang, 0.100, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, 0.200, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, 0.100, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.300) < EPS) {
+						moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.200) < EPS) {
+						moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, 0.050, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+					}
+				}
+			}
+			moveIn3D ('x', params_HANG.ang, -width, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+			moveIn3D ('z', params_HANG.ang, placementInfo.height [xx], &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+		}
+	}
+
+	// 헤드 피스
+	params_PUSH.leftBottomX = cell.leftBottomX;
+	params_PUSH.leftBottomY = cell.leftBottomY;
+	params_PUSH.leftBottomZ = cell.leftBottomZ;
+	params_PUSH.ang = cell.ang;
+
+	moveIn3D ('x', params_PUSH.ang, placementInfo.width [0] - 0.2625, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('y', params_PUSH.ang, -0.2685, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('z', params_PUSH.ang, 0.291, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+
+	// 처음 행
+	elemList.Push (placePUSH2 (params_PUSH));
+	moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [0] - 0.2625) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.2625 - 0.075), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	elemList.Push (placePUSH2 (params_PUSH));
+	moveIn3D ('x', params_PUSH.ang, (placementInfo.width [0] - 0.2625) - cell.horLen - (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.2625 - 0.075), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	//if (cell.verLen > 4.000) {
+	//	elev_headpiece = 4.000 * 0.80;
+	//} else {
+	//	elev_headpiece = cell.verLen * 0.80;
+	//}
+	elev_headpiece = 1.900;
+	moveIn3D ('z', params_PUSH.ang, elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	// 마지막 행
+	elemList.Push (placePUSH2 (params_PUSH));
+	moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [0] - 0.2625) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.2625 - 0.075), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	elemList.Push (placePUSH2 (params_PUSH));
+
+	// 결합철물
+	params_JOIN.leftBottomX = cell.leftBottomX;
+	params_JOIN.leftBottomY = cell.leftBottomY;
+	params_JOIN.leftBottomZ = cell.leftBottomZ;
+	params_JOIN.ang = cell.ang;
+	params_JOIN.angX = DegreeToRad (180.0);
+	params_JOIN.angY = DegreeToRad (0.0);
+	
+	moveIn3D ('x', params_JOIN.ang, placementInfo.width [0] - 0.306, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('y', params_JOIN.ang, -0.1155, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('z', params_JOIN.ang, 0.230, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+	// 처음 열
+	for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
+		// 1행
+		if (xx == 0) {
+			elemList.Push (placeJOIN2 (params_JOIN));
+			moveIn3D ('z', params_JOIN.ang, placementInfo.height [xx] - 0.180, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		// 마지막 행
+		} else if (xx == placementInfo.nVerEuroform) {
+			moveIn3D ('z', params_JOIN.ang, -0.120, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+			elemList.Push (placeJOIN2 (params_JOIN));
+		// 나머지 행
+		} else {
+			elemList.Push (placeJOIN2 (params_JOIN));
+			moveIn3D ('z', params_JOIN.ang, placementInfo.height [xx], &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		}
+	}
+
+	moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [0] - 0.306) + cell.horLen - placementInfo.width [placementInfo.nHorEuroform-1] + 0.144, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('z', params_JOIN.ang, 0.300 - cell.verLen, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+	// 마지막 열
+	for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
+		// 1행
+		if (xx == 0) {
+			elemList.Push (placeJOIN2 (params_JOIN));
+			moveIn3D ('z', params_JOIN.ang, placementInfo.height [xx] - 0.180, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		// 마지막 행
+		} else if (xx == placementInfo.nVerEuroform) {
+			moveIn3D ('z', params_JOIN.ang, -0.120, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+			elemList.Push (placeJOIN2 (params_JOIN));
+		// 나머지 행
+		} else {
+			elemList.Push (placeJOIN2 (params_JOIN));
+			moveIn3D ('z', params_JOIN.ang, placementInfo.height [xx], &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		}
+	}
+
+	// 그룹화하기
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+	elemList.Clear (false);
+
+	//////////////////////////////////////////////////////////////// 반대면
+	if (placingZone.bDoubleSide) {
+		moveIn3D ('x', cell.ang, cell.horLen, &cell.leftBottomX, &cell.leftBottomY, &cell.leftBottomY);
+		moveIn3D ('y', cell.ang, infoWall.wallThk, &cell.leftBottomX, &cell.leftBottomY, &cell.leftBottomY);
+		cell.ang += DegreeToRad (180.0);
+
+		// 유로폼 설치 (반대편에서 변경됨)
+		params_UFOM.leftBottomX = cell.leftBottomX;
+		params_UFOM.leftBottomY = cell.leftBottomY;
+		params_UFOM.leftBottomZ = cell.leftBottomZ;
+		params_UFOM.ang = cell.ang;
+		params_UFOM.u_ins_wall = true;
+
+		for (xx = placementInfo.nHorEuroform - 1 ; xx >= 0 ; --xx) {
+			height = 0.0;
+			for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
+				params_UFOM.width	= placementInfo.width [xx];
+				params_UFOM.height	= placementInfo.height [yy];
+				height += placementInfo.height [yy];
+				elemList.Push (placeUFOM (params_UFOM));
+				moveIn3D ('z', params_UFOM.ang, placementInfo.height [yy], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+			}
+			moveIn3D ('x', params_UFOM.ang, placementInfo.width [xx], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+			moveIn3D ('z', params_UFOM.ang, -height, &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+		}
+
+		// 비계 파이프 (수평) 배치
+		params_SPIP.leftBottomX = cell.leftBottomX;
+		params_SPIP.leftBottomY = cell.leftBottomY;
+		params_SPIP.leftBottomZ = cell.leftBottomZ;
+		params_SPIP.ang = cell.ang;
+		params_SPIP.length = cell.horLen - (horizontalGap * 2);
+		params_SPIP.pipeAng = DegreeToRad (0);
+
+		moveIn3D ('x', params_SPIP.ang, horizontalGap, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('z', params_SPIP.ang, 0.150 + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+		for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
+			if (xx == 0) {
+				// 1행
+				elemList.Push (placeSPIP (params_SPIP));
+				moveIn3D ('z', params_SPIP.ang, -0.031 - 0.150 + placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			} else if (xx == placementInfo.nVerEuroform) {
+				// 마지막 행
+				moveIn3D ('z', params_SPIP.ang, -0.150 + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+				elemList.Push (placeSPIP (params_SPIP));
+			} else {
+				// 나머지 행
+				elemList.Push (placeSPIP (params_SPIP));
+				moveIn3D ('z', params_SPIP.ang, placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			}
+		}
+
+		// 비계 파이프 (수직) 배치
+		params_SPIP.leftBottomX = cell.leftBottomX;
+		params_SPIP.leftBottomY = cell.leftBottomY;
+		params_SPIP.leftBottomZ = cell.leftBottomZ;
+		params_SPIP.ang = cell.ang;
+		params_SPIP.length = cell.verLen - 0.100;
+		params_SPIP.pipeAng = DegreeToRad (90);
+
+		moveIn3D ('x', params_SPIP.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.225, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.075), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+		// 1열
+		elemList.Push (placeSPIP (params_SPIP));
+		moveIn3D ('x', params_SPIP.ang, - (placementInfo.width [placementInfo.nHorEuroform-1] - 0.225) + cell.horLen + (-placementInfo.width [0] + 0.225), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		// 2열
+		elemList.Push (placeSPIP (params_SPIP));
+
+		// 유로폼 후크 배치 (수평 - 최하단, 최상단)
+		params_HOOK.leftBottomX = cell.leftBottomX;
+		params_HOOK.leftBottomY = cell.leftBottomY;
+		params_HOOK.leftBottomZ = cell.leftBottomZ;
+		params_HOOK.ang = cell.ang;
+		params_HOOK.iiHookType = 2;
+		params_HOOK.iHookShape = 2;
+		params_HOOK.angX = DegreeToRad (0.0);
+		params_HOOK.angY = DegreeToRad (90.0);
+
+		moveIn3D ('y', params_HOOK.ang, -0.0885, &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+
+		if (placementInfo.nHorEuroform >= 3) {
+			moveIn3D ('x', params_HOOK.ang, placementInfo.width [placementInfo.nHorEuroform-1], &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+			moveIn3D ('z', params_HOOK.ang, 0.030 + 0.150, &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+			// 1행
+			width = 0.0;
+			for (xx = placementInfo.nHorEuroform-2 ; xx >= 0 ; --xx) {
+				width += placementInfo.width [xx];
+				elemList.Push (placeHOOK (params_HOOK));
+				moveIn3D ('x', params_HOOK.ang, placementInfo.width [xx], &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+			}
+			moveIn3D ('x', params_HOOK.ang, -width, &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+			moveIn3D ('z', params_HOOK.ang, -0.150 + cell.verLen - 0.150, &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+
+			// 마지막 행
+			for (xx = placementInfo.nHorEuroform-2 ; xx >= 0 ; --xx) {
+				width += placementInfo.width [xx];
+				elemList.Push (placeHOOK (params_HOOK));
+				moveIn3D ('x', params_HOOK.ang, placementInfo.width [xx], &params_HOOK.leftBottomX, &params_HOOK.leftBottomY, &params_HOOK.leftBottomZ);
+			}
+		}
+
+		// 각파이프행거 배치 (수평 - 최하단, 최상단을 제외한 나머지)
+		params_HANG.leftBottomX = cell.leftBottomX;
+		params_HANG.leftBottomY = cell.leftBottomY;
+		params_HANG.leftBottomZ = cell.leftBottomZ;
+		params_HANG.ang = cell.ang;
+		params_HANG.angX = DegreeToRad (0.0);
+		params_HANG.angY = DegreeToRad (270.0);
+
+		moveIn3D ('y', params_HANG.ang, -0.0635, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+
+		// 2 ~ [n-1]행
+		if (placementInfo.nHorEuroform >= 3) {
+			moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+			moveIn3D ('z', params_HANG.ang, placementInfo.height [0], &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+			for (xx = 1 ; xx < placementInfo.nVerEuroform ; ++xx) {
+				width = 0.0;
+				for (yy = placementInfo.nHorEuroform-1 ; yy >= 0 ; --yy) {
+					// 1열
+					if (yy == placementInfo.nHorEuroform-1) {
+						elemList.Push (placeHANG (params_HANG));
+						moveIn3D ('x', params_HANG.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						width += placementInfo.width [0] - 0.150;
+					// 마지막 열
+					} else if (yy == 0) {
+						width += placementInfo.width [placementInfo.nHorEuroform-1] - 0.150;
+						moveIn3D ('x', params_HANG.ang, placementInfo.width [0] - 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						elemList.Push (placeHANG (params_HANG));
+					// 나머지 열
+					} else {
+						width += placementInfo.width [yy];
+						if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+							moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+							elemList.Push (placeHANG (params_HANG));
+							moveIn3D ('x', params_HANG.ang, 0.300, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+							elemList.Push (placeHANG (params_HANG));
+							moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+							moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+							elemList.Push (placeHANG (params_HANG));
+							moveIn3D ('x', params_HANG.ang, 0.200, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+							elemList.Push (placeHANG (params_HANG));
+							moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+							moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+							elemList.Push (placeHANG (params_HANG));
+							moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+							elemList.Push (placeHANG (params_HANG));
+							moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+							moveIn3D ('x', params_HANG.ang, 0.100, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+							elemList.Push (placeHANG (params_HANG));
+							moveIn3D ('x', params_HANG.ang, 0.200, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+							elemList.Push (placeHANG (params_HANG));
+							moveIn3D ('x', params_HANG.ang, 0.100, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.300) < EPS) {
+							moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+							elemList.Push (placeHANG (params_HANG));
+							moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.200) < EPS) {
+							moveIn3D ('x', params_HANG.ang, 0.150, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+							elemList.Push (placeHANG (params_HANG));
+							moveIn3D ('x', params_HANG.ang, 0.050, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+						}
+					}
+				}
+				moveIn3D ('x', params_HANG.ang, -width, &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+				moveIn3D ('z', params_HANG.ang, placementInfo.height [xx], &params_HANG.leftBottomX, &params_HANG.leftBottomY, &params_HANG.leftBottomZ);
+			}
+		}
+
+		// 헤드 피스
+		params_PUSH.leftBottomX = cell.leftBottomX;
+		params_PUSH.leftBottomY = cell.leftBottomY;
+		params_PUSH.leftBottomZ = cell.leftBottomZ;
+		params_PUSH.ang = cell.ang;
+
+		moveIn3D ('x', params_PUSH.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.2625, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('y', params_PUSH.ang, -0.2685, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('z', params_PUSH.ang, 0.291, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+
+		// 처음 행
+		elemList.Push (placePUSH2 (params_PUSH));
+		moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.2625) + cell.horLen + (-placementInfo.width [0] + 0.2625 - 0.075), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		elemList.Push (placePUSH2 (params_PUSH));
+		moveIn3D ('x', params_PUSH.ang, (placementInfo.width [placementInfo.nHorEuroform-1] - 0.2625) - cell.horLen - (-placementInfo.width [0] + 0.2625 - 0.075), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		//if (cell.verLen > 4.000) {
+		//	elev_headpiece = 4.000 * 0.80;
+		//} else {
+		//	elev_headpiece = cell.verLen * 0.80;
+		//}
+		elev_headpiece = 1.900;
+		moveIn3D ('z', params_PUSH.ang, elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		// 마지막 행
+		elemList.Push (placePUSH2 (params_PUSH));
+		moveIn3D ('x', params_PUSH.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.2625) + cell.horLen + (-placementInfo.width [0] + 0.2625 - 0.075), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		elemList.Push (placePUSH2 (params_PUSH));
+
+		// 결합철물
+		params_JOIN.leftBottomX = cell.leftBottomX;
+		params_JOIN.leftBottomY = cell.leftBottomY;
+		params_JOIN.leftBottomZ = cell.leftBottomZ;
+		params_JOIN.ang = cell.ang;
+		params_JOIN.angX = DegreeToRad (180.0);
+		params_JOIN.angY = DegreeToRad (0.0);
+	
+		moveIn3D ('x', params_JOIN.ang, placementInfo.width [placementInfo.nHorEuroform-1] - 0.306, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('y', params_JOIN.ang, -0.1155, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('z', params_JOIN.ang, 0.230, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+		// 처음 열
+		for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
+			// 1행
+			if (xx == 0) {
+				elemList.Push (placeJOIN2 (params_JOIN));
+				moveIn3D ('z', params_JOIN.ang, placementInfo.height [xx] - 0.180, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+			// 마지막 행
+			} else if (xx == placementInfo.nVerEuroform) {
+				moveIn3D ('z', params_JOIN.ang, -0.120, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+				elemList.Push (placeJOIN2 (params_JOIN));
+			// 나머지 행
+			} else {
+				elemList.Push (placeJOIN2 (params_JOIN));
+				moveIn3D ('z', params_JOIN.ang, placementInfo.height [xx], &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+			}
+		}
+
+		moveIn3D ('x', params_JOIN.ang, -(placementInfo.width [placementInfo.nHorEuroform-1] - 0.306) + cell.horLen - placementInfo.width [0] + 0.144, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('z', params_JOIN.ang, 0.300 - cell.verLen, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+		// 마지막 열
+		for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
+			// 1행
+			if (xx == 0) {
+				elemList.Push (placeJOIN2 (params_JOIN));
+				moveIn3D ('z', params_JOIN.ang, placementInfo.height [xx] - 0.180, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+			// 마지막 행
+			} else if (xx == placementInfo.nVerEuroform) {
+				moveIn3D ('z', params_JOIN.ang, -0.120, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+				elemList.Push (placeJOIN2 (params_JOIN));
+			// 나머지 행
+			} else {
+				elemList.Push (placeJOIN2 (params_JOIN));
+				moveIn3D ('z', params_JOIN.ang, placementInfo.height [xx], &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+			}
+		}
 
 		// 그룹화하기
 		if (!elemList.IsEmpty ()) {
@@ -2882,22 +3725,22 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 	return	err;
 }
 
-// 테이블폼 배치하기 - 가로 방향
-GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWallTableform cell)
+// 테이블폼 배치하기 - 가로 방향 (타입1)
+GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellForWallTableform cell)
 {
 	GSErrCode	err = NoError;
 	placementInfoForWallTableform	placementInfo;
 
 	short		xx, yy;
 	double		width, height;
-	double		remainder;				// fmod 함수에 쓸 변수
+	//double		remainder;				// fmod 함수에 쓸 변수
 	double		elev_headpiece;
 	double		verticalGap = 0.050;	// 수직재 양쪽 이격거리
 
 	Euroform		params_UFOM;
 	SquarePipe		params_SPIP;
 	PinBoltSet		params_PINB;
-	WallTie			params_TIE;
+	//WallTie			params_TIE;
 	//CrossClamp		params_CLAM;
 	HeadpieceOfPushPullProps	params_PUSH;
 	MetalFittings	params_JOIN;
@@ -3415,48 +4258,1000 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 	}
 
 	// 벽체 타이
+	//if (placingZone.bDoubleSide) {
+	//	params_TIE.leftBottomX = cell.leftBottomX;
+	//	params_TIE.leftBottomY = cell.leftBottomY;
+	//	params_TIE.leftBottomZ = cell.leftBottomZ;
+	//	params_TIE.ang = cell.ang;
+	//	remainder = fmod ((infoWall.wallThk + 0.327), 0.100);
+	//	params_TIE.boltLen = (infoWall.wallThk + 0.327 + (0.100 - remainder));
+	//	params_TIE.pipeBeg = 0.0365 + 0.1635;
+	//	params_TIE.pipeEnd = 0.0365 + 0.1635 + infoWall.wallThk;
+	//	params_TIE.clampBeg = 0.0365;
+	//	params_TIE.clampEnd = 0.0365 + infoWall.wallThk + 0.327;
+
+	//	height = 0.0;
+	//	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+	//		height += placementInfo.height [xx];
+	//	}
+	//	moveIn3D ('z', params_TIE.ang, height - (placementInfo.height [0] - 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//	moveIn3D ('y', params_TIE.ang, -(0.1635 + 0.0365), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//	moveIn3D ('x', params_TIE.ang, 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+
+	//	for (xx = 0 ; xx < 2 ; ++xx) {
+	//		for (yy = 0 ; yy < placementInfo.nHorEuroform ; ++yy) {
+	//			// 최하위 행
+	//			if (yy == 0) {
+	//				elemList.Push (placeTIE (params_TIE));
+	//				moveIn3D ('x', params_TIE.ang, placementInfo.width [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//	
+	//			// 최상위 행
+	//			} else if (yy == placementInfo.nHorEuroform - 1) {
+	//				moveIn3D ('x', params_TIE.ang, placementInfo.width [yy] - 0.350*2, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//				elemList.Push (placeTIE (params_TIE));
+	//				moveIn3D ('z', params_TIE.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//				moveIn3D ('x', params_TIE.ang, (0.350 - cell.horLen + 0.350), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//			
+	//			// 2 ~ [n-1]행
+	//			} else {
+	//				elemList.Push (placeTIE (params_TIE));
+	//				moveIn3D ('x', params_TIE.ang, placementInfo.width [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//			}
+	//		}
+	//	}
+	//}
+
+	// 헤드 피스
+	params_PUSH.leftBottomX = cell.leftBottomX;
+	params_PUSH.leftBottomY = cell.leftBottomY;
+	params_PUSH.leftBottomZ = cell.leftBottomZ;
+	params_PUSH.ang = cell.ang;
+
+	height = 0.0;
+	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		height += placementInfo.height [xx];
+	}
+	width = 0.0;
+	for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		width += placementInfo.width [xx];
+	}
+	moveIn3D ('z', params_PUSH.ang, height - (placementInfo.height [0] - 0.150 - 0.100) - 0.200, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('y', params_PUSH.ang, -0.1725, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('x', params_PUSH.ang, 0.600, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+
+	// 처음 행
+	elemList.Push (placePUSH_hor (params_PUSH));
+	moveIn3D ('z', params_PUSH.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	elemList.Push (placePUSH_hor (params_PUSH));
+	moveIn3D ('z', params_PUSH.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) + cell.verLen + (-placementInfo.height [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	elev_headpiece = width - 0.800;
+	moveIn3D ('x', params_PUSH.ang, -0.600 + elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	// 마지막 행
+	elemList.Push (placePUSH_hor (params_PUSH));
+	moveIn3D ('z', params_PUSH.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	elemList.Push (placePUSH_hor (params_PUSH));
+
+	// 결합철물
+	params_JOIN.leftBottomX = cell.leftBottomX;
+	params_JOIN.leftBottomY = cell.leftBottomY;
+	params_JOIN.leftBottomZ = cell.leftBottomZ;
+	params_JOIN.ang = cell.ang;
+
+	height = 0.0;
+	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		height += placementInfo.height [xx];
+	}
+	moveIn3D ('z', params_JOIN.ang, height - (placementInfo.height [0] - 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('y', params_JOIN.ang, -0.0455, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('x', params_JOIN.ang, 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+	// 처음 행
+	elemList.Push (placeJOIN (params_JOIN));
+	moveIn3D ('z', params_JOIN.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	elemList.Push (placeJOIN (params_JOIN));
+	moveIn3D ('z', params_JOIN.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) + cell.verLen + (-placementInfo.height [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('x', params_JOIN.ang, cell.horLen - 0.300, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+	// 마지막 행
+	elemList.Push (placeJOIN (params_JOIN));
+	moveIn3D ('z', params_JOIN.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	elemList.Push (placeJOIN (params_JOIN));
+
+	// 그룹화하기
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+	elemList.Clear (false);
+
+	//////////////////////////////////////////////////////////////// 반대면
 	if (placingZone.bDoubleSide) {
-		params_TIE.leftBottomX = cell.leftBottomX;
-		params_TIE.leftBottomY = cell.leftBottomY;
-		params_TIE.leftBottomZ = cell.leftBottomZ;
-		params_TIE.ang = cell.ang;
-		remainder = fmod ((infoWall.wallThk + 0.327), 0.100);
-		params_TIE.boltLen = (infoWall.wallThk + 0.327 + (0.100 - remainder));
-		params_TIE.pipeBeg = 0.0365 + 0.1635;
-		params_TIE.pipeEnd = 0.0365 + 0.1635 + infoWall.wallThk;
-		params_TIE.clampBeg = 0.0365;
-		params_TIE.clampEnd = 0.0365 + infoWall.wallThk + 0.327;
+		moveIn3D ('x', cell.ang, cell.horLen, &cell.leftBottomX, &cell.leftBottomY, &cell.leftBottomY);
+		moveIn3D ('y', cell.ang, infoWall.wallThk, &cell.leftBottomX, &cell.leftBottomY, &cell.leftBottomY);
+		cell.ang += DegreeToRad (180.0);
+
+		// 유로폼 설치 (반대편에서 변경됨)
+		params_UFOM.leftBottomX = cell.leftBottomX;
+		params_UFOM.leftBottomY = cell.leftBottomY;
+		params_UFOM.leftBottomZ = cell.leftBottomZ;
+		params_UFOM.ang = cell.ang;
+		params_UFOM.u_ins_wall = false;
+
+		for (xx = placementInfo.nHorEuroform-1 ; xx >= 0 ; --xx) {
+			height = 0.0;
+			for (yy = placementInfo.nVerEuroform-1 ; yy >= 0 ; --yy) {
+				params_UFOM.width	= placementInfo.height [yy];
+				params_UFOM.height	= placementInfo.width [xx];
+				height += placementInfo.height [yy];
+				elemList.Push (placeUFOM (params_UFOM));
+				moveIn3D ('z', params_UFOM.ang, placementInfo.height [yy], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+			}
+			moveIn3D ('x', params_UFOM.ang, placementInfo.width [xx], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+			moveIn3D ('z', params_UFOM.ang, -height, &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+		}
+
+		// 비계 파이프 (수직) 배치
+		params_SPIP.leftBottomX = cell.leftBottomX;
+		params_SPIP.leftBottomY = cell.leftBottomY;
+		params_SPIP.leftBottomZ = cell.leftBottomZ;
+		params_SPIP.ang = cell.ang;
+		params_SPIP.length = cell.verLen - (verticalGap * 2);
+		params_SPIP.pipeAng = DegreeToRad (90.0);
+
+		moveIn3D ('z', params_SPIP.ang, verticalGap, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('x', params_SPIP.ang, cell.horLen - (0.150 - 0.031), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+		for (xx = 0 ; xx <= placementInfo.nHorEuroform ; ++xx) {
+			if (xx == 0) {
+				// 1행
+				elemList.Push (placeSPIP (params_SPIP));
+				moveIn3D ('x', params_SPIP.ang, -0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+				elemList.Push (placeSPIP (params_SPIP));
+				moveIn3D ('x', params_SPIP.ang, 0.031 + 0.150 - placementInfo.width [xx] + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			} else if (xx == placementInfo.nHorEuroform) {
+				// 마지막 행
+				moveIn3D ('x', params_SPIP.ang, 0.150, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+				elemList.Push (placeSPIP (params_SPIP));
+				moveIn3D ('x', params_SPIP.ang, -0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+				elemList.Push (placeSPIP (params_SPIP));
+			} else {
+				// 나머지 행
+				elemList.Push (placeSPIP (params_SPIP));
+				moveIn3D ('x', params_SPIP.ang, -0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+				elemList.Push (placeSPIP (params_SPIP));
+				moveIn3D ('x', params_SPIP.ang, 0.031 - placementInfo.width [xx] + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			}
+		}
+
+		// 비계 파이프 (수평) 배치
+		params_SPIP.leftBottomX = cell.leftBottomX;
+		params_SPIP.leftBottomY = cell.leftBottomY;
+		params_SPIP.leftBottomZ = cell.leftBottomZ;
+		params_SPIP.ang = cell.ang;
+		params_SPIP.length = cell.horLen - 0.100;
+		params_SPIP.pipeAng = DegreeToRad (0);
+
+		height = 0.0;
+		for (xx = placementInfo.nVerEuroform-1 ; xx >= 0 ; --xx) {
+			height += placementInfo.height [xx];
+		}
+		moveIn3D ('z', params_SPIP.ang, height - placementInfo.height [0] + 0.150 + 0.035, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.075), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('x', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+		// 1열
+		elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, -0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, 0.070 + (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		// 2열
+		elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, -0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		elemList.Push (placeSPIP (params_SPIP));
+
+		// 핀볼트 배치 (수직 - 최하단, 최상단)
+		params_PINB.leftBottomX = cell.leftBottomX;
+		params_PINB.leftBottomY = cell.leftBottomY;
+		params_PINB.leftBottomZ = cell.leftBottomZ;
+		params_PINB.ang = cell.ang;
+		params_PINB.bPinBoltRot90 = FALSE;
+		params_PINB.boltLen = 0.100;
+		params_PINB.angX = DegreeToRad (270.0);
+		params_PINB.angY = DegreeToRad (0.0);
+
+		moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		// 최하단 행
+		moveIn3D ('x', params_PINB.ang, cell.horLen - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		height = 0.0;
+		for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+			height += placementInfo.height [xx];
+		}
+		moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		height = 0.0;
+		for (xx = 0 ; xx < placementInfo.nVerEuroform-1 ; ++xx) {
+			height += placementInfo.height [xx];
+			moveIn3D ('z', params_PINB.ang, -placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+			elemList.Push (placePINB (params_PINB));
+		}
+		// 최상단 행
+		moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		moveIn3D ('x', params_PINB.ang, -cell.horLen + 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		for (xx = 0 ; xx < placementInfo.nVerEuroform-1 ; ++xx) {
+			moveIn3D ('z', params_PINB.ang, -placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+			elemList.Push (placePINB (params_PINB));
+		}
+
+		// 핀볼트 배치 (수직 - 나머지)
+		params_PINB.leftBottomX = cell.leftBottomX;
+		params_PINB.leftBottomY = cell.leftBottomY;
+		params_PINB.leftBottomZ = cell.leftBottomZ;
+		params_PINB.ang = cell.ang;
+		params_PINB.bPinBoltRot90 = TRUE;
+		params_PINB.boltLen = 0.100;
+		params_PINB.angX = DegreeToRad (270.0);
+		params_PINB.angY = DegreeToRad (0.0);
+
+		moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		// 2 ~ [n-1]행
+		if (placementInfo.nVerEuroform >= 3) {
+			height = 0.0;
+			for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+				height += placementInfo.height [xx];
+			}
+			moveIn3D ('z', params_PINB.ang, height - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+			moveIn3D ('x', params_PINB.ang, cell.horLen - placementInfo.width [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+			for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+				height = 0.0;
+				for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
+					// 1열
+					if (yy == 0) {
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -(placementInfo.height [0] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						height += placementInfo.height [0] - 0.150;
+					// 마지막 열
+					} else if (yy == placementInfo.nVerEuroform - 1) {
+						height += placementInfo.height [placementInfo.nVerEuroform-1] - 0.150;
+						moveIn3D ('z', params_PINB.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+					// 나머지 열
+					} else {
+						height += placementInfo.height [yy];
+						if (abs (placementInfo.height [yy] - 0.600) < EPS) {
+							moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('z', params_PINB.ang, -0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						} else if (abs (placementInfo.height [yy] - 0.500) < EPS) {
+							moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('z', params_PINB.ang, -0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						} else if (abs (placementInfo.height [yy] - 0.450) < EPS) {
+							moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						} else if (abs (placementInfo.height [yy] - 0.400) < EPS) {
+							moveIn3D ('z', params_PINB.ang, -0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('z', params_PINB.ang, -0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('z', params_PINB.ang, -0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						} else if (abs (placementInfo.height [yy] - 0.300) < EPS) {
+							moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						} else if (abs (placementInfo.height [yy] - 0.200) < EPS) {
+							moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+							elemList.Push (placePINB (params_PINB));
+							moveIn3D ('z', params_PINB.ang, -0.050, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						}
+					}
+				}
+				moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+				moveIn3D ('x', params_PINB.ang, -placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+			}
+		}
+
+		// 핀볼트 배치 (수평)
+		params_PINB.leftBottomX = cell.leftBottomX;
+		params_PINB.leftBottomY = cell.leftBottomY;
+		params_PINB.leftBottomZ = cell.leftBottomZ;
+		params_PINB.ang = cell.ang;
+		params_PINB.bPinBoltRot90 = TRUE;
+		params_PINB.boltLen = 0.150;
+		params_PINB.angX = DegreeToRad (270.0);
+		params_PINB.angY = DegreeToRad (0.0);
 
 		height = 0.0;
 		for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
 			height += placementInfo.height [xx];
 		}
-		moveIn3D ('z', params_TIE.ang, height - (placementInfo.height [0] - 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-		moveIn3D ('y', params_TIE.ang, -(0.1635 + 0.0365), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-		moveIn3D ('x', params_TIE.ang, 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+		moveIn3D ('z', params_PINB.ang, height - (placementInfo.height [0] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		moveIn3D ('y', params_PINB.ang, -(0.2135), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		moveIn3D ('x', params_PINB.ang, cell.horLen - placementInfo.width [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
 
-		for (xx = 0 ; xx < 2 ; ++xx) {
-			for (yy = 0 ; yy < placementInfo.nHorEuroform ; ++yy) {
-				// 최하위 행
-				if (yy == 0) {
-					elemList.Push (placeTIE (params_TIE));
-					moveIn3D ('x', params_TIE.ang, placementInfo.width [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-		
-				// 최상위 행
-				} else if (yy == placementInfo.nHorEuroform - 1) {
-					moveIn3D ('x', params_TIE.ang, placementInfo.width [yy] - 0.350*2, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-					elemList.Push (placeTIE (params_TIE));
-					moveIn3D ('z', params_TIE.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-					moveIn3D ('x', params_TIE.ang, (0.350 - cell.horLen + 0.350), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-				
-				// 2 ~ [n-1]행
-				} else {
-					elemList.Push (placeTIE (params_TIE));
-					moveIn3D ('x', params_TIE.ang, placementInfo.width [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
-				}
+		// 1열
+		width = 0.0;
+		for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+			elemList.Push (placePINB (params_PINB));
+			moveIn3D ('x', params_PINB.ang, -placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+			width += placementInfo.width [xx];
+		}
+		// 2열
+		moveIn3D ('z', params_PINB.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		moveIn3D ('x', params_PINB.ang, width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+			elemList.Push (placePINB (params_PINB));
+			moveIn3D ('x', params_PINB.ang, -placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+			width += placementInfo.width [xx];
+		}
+
+		// 벽체 타이 (현재면에서 했으므로 생략)
+
+		// 헤드 피스
+		params_PUSH.leftBottomX = cell.leftBottomX;
+		params_PUSH.leftBottomY = cell.leftBottomY;
+		params_PUSH.leftBottomZ = cell.leftBottomZ;
+		params_PUSH.ang = cell.ang;
+
+		height = 0.0;
+		for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+			height += placementInfo.height [xx];
+		}
+		width = 0.0;
+		for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
+			width += placementInfo.width [xx];
+		}
+		moveIn3D ('z', params_PUSH.ang, height - (placementInfo.height [0] - 0.150 - 0.100) - 0.200, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('y', params_PUSH.ang, -0.1725, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('x', params_PUSH.ang, cell.horLen - 0.800, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+
+		// 처음 행
+		elemList.Push (placePUSH_hor (params_PUSH));
+		moveIn3D ('z', params_PUSH.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		elemList.Push (placePUSH_hor (params_PUSH));
+		moveIn3D ('z', params_PUSH.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) + cell.verLen + (-placementInfo.height [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		elev_headpiece = width - 0.800;
+		moveIn3D ('x', params_PUSH.ang, 0.600 - elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		// 마지막 행
+		elemList.Push (placePUSH_hor (params_PUSH));
+		moveIn3D ('z', params_PUSH.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		elemList.Push (placePUSH_hor (params_PUSH));
+
+		// 결합철물
+		params_JOIN.leftBottomX = cell.leftBottomX;
+		params_JOIN.leftBottomY = cell.leftBottomY;
+		params_JOIN.leftBottomZ = cell.leftBottomZ;
+		params_JOIN.ang = cell.ang;
+
+		height = 0.0;
+		for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+			height += placementInfo.height [xx];
+		}
+		moveIn3D ('z', params_JOIN.ang, height - (placementInfo.height [0] - 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('y', params_JOIN.ang, -0.0455, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('x', params_JOIN.ang, cell.horLen - 0.150, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+		// 처음 행
+		elemList.Push (placeJOIN (params_JOIN));
+		moveIn3D ('z', params_JOIN.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		elemList.Push (placeJOIN (params_JOIN));
+		moveIn3D ('z', params_JOIN.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) + cell.verLen + (-placementInfo.height [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('x', params_JOIN.ang, -cell.horLen + 0.300, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+
+		// 마지막 행
+		elemList.Push (placeJOIN (params_JOIN));
+		moveIn3D ('z', params_JOIN.ang, (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		elemList.Push (placeJOIN (params_JOIN));
+
+		// 그룹화하기
+		if (!elemList.IsEmpty ()) {
+			GSSize nElems = elemList.GetSize ();
+			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+			if (elemHead != NULL) {
+				for (GSIndex i = 0; i < nElems; i++)
+					(*elemHead)[i].guid = elemList[i];
+
+				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+				BMKillHandle ((GSHandle *) &elemHead);
 			}
 		}
+		elemList.Clear (false);
 	}
+
+	return	err;
+}
+
+// 테이블폼 배치하기 - 가로 방향 (타입2) ...
+GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellForWallTableform cell)
+{
+	GSErrCode	err = NoError;
+	placementInfoForWallTableform	placementInfo;
+
+	short		xx, yy;
+	double		width, height;
+	//double		remainder;				// fmod 함수에 쓸 변수
+	double		elev_headpiece;
+	double		verticalGap = 0.050;	// 수직재 양쪽 이격거리
+
+	Euroform		params_UFOM;
+	SquarePipe		params_SPIP;
+	PinBoltSet		params_PINB;
+	//WallTie			params_TIE;
+	//CrossClamp		params_CLAM;
+	HeadpieceOfPushPullProps	params_PUSH;
+	MetalFittings	params_JOIN;
+
+	placementInfo.nHorEuroform = 0;
+	placementInfo.nVerEuroform = 0;
+	for (xx = 0 ; xx < 7 ; ++xx) {
+		placementInfo.width [xx] = 0.0;
+		placementInfo.height [xx] = 0.0;
+	}
+
+	if (abs (cell.verLen - 2.300) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 2.250) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 2.200) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 2.150) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 2.100) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.300;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 2.050) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 2.000) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.950) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.300;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.900) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.850) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.800) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.750) < EPS) {
+		placementInfo.nVerEuroform = 4;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.500;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.700) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.650) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.600) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.550) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.500) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.450) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.400) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.350) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.300) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.250) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.200) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.150) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.100) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 1.050) < EPS) {
+		placementInfo.nVerEuroform = 3;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.300;	placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 1.000) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.950) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 0.900) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.850) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 0.800) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.750) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 0.700) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.650) < EPS) {
+		placementInfo.nVerEuroform = 2;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 0.600) < EPS) {
+		placementInfo.nVerEuroform = 1;
+		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.0;		placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.500) < EPS) {
+		placementInfo.nVerEuroform = 1;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.0;		placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else if (abs (cell.verLen - 0.450) < EPS) {
+		placementInfo.nVerEuroform = 1;
+		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.0;		placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.025;
+	} else if (abs (cell.verLen - 0.400) < EPS) {
+		placementInfo.nVerEuroform = 1;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.0;		placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		verticalGap = 0.050;
+	} else {
+		placementInfo.nVerEuroform = 0;
+		placementInfo.height [0] = 0.0;		placementInfo.height [1] = 0.0;		placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+	}
+
+	if (abs (cell.horLen - 6.000) < EPS) {
+		placementInfo.nHorEuroform = 5;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 1.200;
+		placementInfo.width [4] = 1.200;
+	} else if (abs (cell.horLen - 5.700) < EPS) {
+		placementInfo.nHorEuroform = 5;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 1.200;
+		placementInfo.width [4] = 0.900;
+	} else if (abs (cell.horLen - 5.400) < EPS) {
+		placementInfo.nHorEuroform = 5;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 0.900;
+		placementInfo.width [4] = 0.900;
+	} else if (abs (cell.horLen - 5.100) < EPS) {
+		placementInfo.nHorEuroform = 5;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 0.900;
+		placementInfo.width [4] = 0.600;
+	} else if (abs (cell.horLen - 4.800) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 1.200;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 4.500) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 0.900;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 4.200) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 0.900;
+		placementInfo.width [3] = 0.900;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 3.900) < EPS) {
+		placementInfo.nHorEuroform = 4;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 0.900;
+		placementInfo.width [3] = 0.600;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 3.600) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 1.200;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 3.300) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 0.900;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 3.000) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 0.600;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 2.700) < EPS) {
+		placementInfo.nHorEuroform = 3;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 0.900;
+		placementInfo.width [2] = 0.600;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 2.400) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 1.200;
+		placementInfo.width [2] = 0.0;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 2.100) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 1.200;
+		placementInfo.width [1] = 0.900;
+		placementInfo.width [2] = 0.0;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 1.800) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.900;
+		placementInfo.width [1] = 0.900;
+		placementInfo.width [2] = 0.0;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else if (abs (cell.horLen - 1.500) < EPS) {
+		placementInfo.nHorEuroform = 2;
+		placementInfo.width [0] = 0.900;
+		placementInfo.width [1] = 0.600;
+		placementInfo.width [2] = 0.0;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	} else {
+		placementInfo.nHorEuroform = 0;
+		placementInfo.width [0] = 0.0;
+		placementInfo.width [1] = 0.0;
+		placementInfo.width [2] = 0.0;
+		placementInfo.width [3] = 0.0;
+		placementInfo.width [4] = 0.0;
+	}
+
+	// 너비나 높이가 0이면 아무것도 배치하지 않음
+	if ((placementInfo.nHorEuroform == 0) || (placementInfo.nVerEuroform == 0))
+		return	NoError;
+
+	//////////////////////////////////////////////////////////////// 현재면
+	// 유로폼 설치
+	params_UFOM.leftBottomX = cell.leftBottomX;
+	params_UFOM.leftBottomY = cell.leftBottomY;
+	params_UFOM.leftBottomZ = cell.leftBottomZ;
+	params_UFOM.ang = cell.ang;
+	params_UFOM.u_ins_wall = false;
+
+	for (xx = 0 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		height = 0.0;
+		for (yy = placementInfo.nVerEuroform-1 ; yy >= 0 ; --yy) {
+			params_UFOM.width	= placementInfo.height [yy];
+			params_UFOM.height	= placementInfo.width [xx];
+			height += placementInfo.height [yy];
+			elemList.Push (placeUFOM (params_UFOM));
+			moveIn3D ('z', params_UFOM.ang, placementInfo.height [yy], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+		}
+		moveIn3D ('x', params_UFOM.ang, placementInfo.width [xx], &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+		moveIn3D ('z', params_UFOM.ang, -height, &params_UFOM.leftBottomX, &params_UFOM.leftBottomY, &params_UFOM.leftBottomZ);
+	}
+
+	// 비계 파이프 (수직) 배치
+	params_SPIP.leftBottomX = cell.leftBottomX;
+	params_SPIP.leftBottomY = cell.leftBottomY;
+	params_SPIP.leftBottomZ = cell.leftBottomZ;
+	params_SPIP.ang = cell.ang;
+	params_SPIP.length = cell.verLen - (verticalGap * 2);
+	params_SPIP.pipeAng = DegreeToRad (90.0);
+
+	moveIn3D ('z', params_SPIP.ang, verticalGap, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('x', params_SPIP.ang, 0.150 - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+	for (xx = 0 ; xx <= placementInfo.nHorEuroform ; ++xx) {
+		if (xx == 0) {
+			// 1행
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('x', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('x', params_SPIP.ang, -0.031 - 0.150 + placementInfo.width [xx] - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		} else if (xx == placementInfo.nHorEuroform) {
+			// 마지막 행
+			moveIn3D ('x', params_SPIP.ang, -0.150, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('x', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			elemList.Push (placeSPIP (params_SPIP));
+		} else {
+			// 나머지 행
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('x', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			elemList.Push (placeSPIP (params_SPIP));
+			moveIn3D ('x', params_SPIP.ang, -0.031 + placementInfo.width [xx] - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		}
+	}
+
+	// 비계 파이프 (수평) 배치
+	params_SPIP.leftBottomX = cell.leftBottomX;
+	params_SPIP.leftBottomY = cell.leftBottomY;
+	params_SPIP.leftBottomZ = cell.leftBottomZ;
+	params_SPIP.ang = cell.ang;
+	params_SPIP.length = cell.horLen - 0.100;
+	params_SPIP.pipeAng = DegreeToRad (0);
+
+	height = 0.0;
+	for (xx = placementInfo.nVerEuroform-1 ; xx >= 0 ; --xx) {
+		height += placementInfo.height [xx];
+	}
+	moveIn3D ('z', params_SPIP.ang, height - placementInfo.height [0] + 0.150 + 0.035, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.075), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	moveIn3D ('x', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+
+	// 1열
+	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, -0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, 0.070 + (placementInfo.height [placementInfo.nVerEuroform-1] - 0.150) - cell.verLen - (-placementInfo.height [0] + 0.150), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	// 2열
+	elemList.Push (placeSPIP (params_SPIP));	moveIn3D ('z', params_SPIP.ang, -0.070, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+	elemList.Push (placeSPIP (params_SPIP));
+
+	// 핀볼트 배치 (수직 - 최하단, 최상단)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = FALSE;
+	params_PINB.boltLen = 0.100;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+	// 최하단 행
+	moveIn3D ('x', params_PINB.ang, 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	height = 0.0;
+	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		height += placementInfo.height [xx];
+	}
+	moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	height = 0.0;
+	for (xx = 0 ; xx < placementInfo.nVerEuroform-1 ; ++xx) {
+		height += placementInfo.height [xx];
+		moveIn3D ('z', params_PINB.ang, -placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		elemList.Push (placePINB (params_PINB));
+	}
+	// 최상단 행
+	moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	moveIn3D ('x', params_PINB.ang, cell.horLen - 0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	for (xx = 0 ; xx < placementInfo.nVerEuroform-1 ; ++xx) {
+		moveIn3D ('z', params_PINB.ang, -placementInfo.height [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+		elemList.Push (placePINB (params_PINB));
+	}
+
+	// 핀볼트 배치 (수직 - 나머지)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = TRUE;
+	params_PINB.boltLen = 0.100;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	moveIn3D ('y', params_PINB.ang, -(0.1635), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+	// 2 ~ [n-1]행
+	if (placementInfo.nVerEuroform >= 3) {
+		height = 0.0;
+		for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+			height += placementInfo.height [xx];
+		}
+		moveIn3D ('z', params_PINB.ang, height - 0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		moveIn3D ('x', params_PINB.ang, placementInfo.width [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+			height = 0.0;
+			for (yy = 0 ; yy < placementInfo.nVerEuroform ; ++yy) {
+				// 1열
+				if (yy == 0) {
+					elemList.Push (placePINB (params_PINB));
+					moveIn3D ('z', params_PINB.ang, -(placementInfo.height [0] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					height += placementInfo.height [0] - 0.150;
+				// 마지막 열
+				} else if (yy == placementInfo.nVerEuroform - 1) {
+					height += placementInfo.height [placementInfo.nVerEuroform-1] - 0.150;
+					moveIn3D ('z', params_PINB.ang, -(placementInfo.height [placementInfo.nVerEuroform-1] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					elemList.Push (placePINB (params_PINB));
+				// 나머지 열
+				} else {
+					height += placementInfo.height [yy];
+					if (abs (placementInfo.height [yy] - 0.600) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.300, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.height [yy] - 0.500) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.height [yy] - 0.450) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.height [yy] - 0.400) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.200, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.100, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.height [yy] - 0.300) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					} else if (abs (placementInfo.height [yy] - 0.200) < EPS) {
+						moveIn3D ('z', params_PINB.ang, -0.150, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+						elemList.Push (placePINB (params_PINB));
+						moveIn3D ('z', params_PINB.ang, -0.050, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+					}
+				}
+			}
+			moveIn3D ('z', params_PINB.ang, height, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+			moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		}
+	}
+
+	// 핀볼트 배치 (수평)
+	params_PINB.leftBottomX = cell.leftBottomX;
+	params_PINB.leftBottomY = cell.leftBottomY;
+	params_PINB.leftBottomZ = cell.leftBottomZ;
+	params_PINB.ang = cell.ang;
+	params_PINB.bPinBoltRot90 = TRUE;
+	params_PINB.boltLen = 0.150;
+	params_PINB.angX = DegreeToRad (270.0);
+	params_PINB.angY = DegreeToRad (0.0);
+
+	height = 0.0;
+	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+		height += placementInfo.height [xx];
+	}
+	moveIn3D ('z', params_PINB.ang, height - (placementInfo.height [0] - 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	moveIn3D ('y', params_PINB.ang, -(0.2135), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	moveIn3D ('x', params_PINB.ang, placementInfo.width [0], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+
+	// 1열
+	width = 0.0;
+	for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		elemList.Push (placePINB (params_PINB));
+		moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		width += placementInfo.width [xx];
+	}
+	// 2열
+	moveIn3D ('z', params_PINB.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	moveIn3D ('x', params_PINB.ang, -width, &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+	for (xx = 1 ; xx < placementInfo.nHorEuroform ; ++xx) {
+		elemList.Push (placePINB (params_PINB));
+		moveIn3D ('x', params_PINB.ang, placementInfo.width [xx], &params_PINB.leftBottomX, &params_PINB.leftBottomY, &params_PINB.leftBottomZ);
+		width += placementInfo.width [xx];
+	}
+
+	// 벽체 타이
+	//if (placingZone.bDoubleSide) {
+	//	params_TIE.leftBottomX = cell.leftBottomX;
+	//	params_TIE.leftBottomY = cell.leftBottomY;
+	//	params_TIE.leftBottomZ = cell.leftBottomZ;
+	//	params_TIE.ang = cell.ang;
+	//	remainder = fmod ((infoWall.wallThk + 0.327), 0.100);
+	//	params_TIE.boltLen = (infoWall.wallThk + 0.327 + (0.100 - remainder));
+	//	params_TIE.pipeBeg = 0.0365 + 0.1635;
+	//	params_TIE.pipeEnd = 0.0365 + 0.1635 + infoWall.wallThk;
+	//	params_TIE.clampBeg = 0.0365;
+	//	params_TIE.clampEnd = 0.0365 + infoWall.wallThk + 0.327;
+
+	//	height = 0.0;
+	//	for (xx = 0 ; xx < placementInfo.nVerEuroform ; ++xx) {
+	//		height += placementInfo.height [xx];
+	//	}
+	//	moveIn3D ('z', params_TIE.ang, height - (placementInfo.height [0] - 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//	moveIn3D ('y', params_TIE.ang, -(0.1635 + 0.0365), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//	moveIn3D ('x', params_TIE.ang, 0.350, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+
+	//	for (xx = 0 ; xx < 2 ; ++xx) {
+	//		for (yy = 0 ; yy < placementInfo.nHorEuroform ; ++yy) {
+	//			// 최하위 행
+	//			if (yy == 0) {
+	//				elemList.Push (placeTIE (params_TIE));
+	//				moveIn3D ('x', params_TIE.ang, placementInfo.width [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//	
+	//			// 최상위 행
+	//			} else if (yy == placementInfo.nHorEuroform - 1) {
+	//				moveIn3D ('x', params_TIE.ang, placementInfo.width [yy] - 0.350*2, &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//				elemList.Push (placeTIE (params_TIE));
+	//				moveIn3D ('z', params_TIE.ang, (placementInfo.height [0] - 0.150) - cell.verLen - (-placementInfo.height [placementInfo.nVerEuroform-1] + 0.150), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//				moveIn3D ('x', params_TIE.ang, (0.350 - cell.horLen + 0.350), &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//			
+	//			// 2 ~ [n-1]행
+	//			} else {
+	//				elemList.Push (placeTIE (params_TIE));
+	//				moveIn3D ('x', params_TIE.ang, placementInfo.width [yy], &params_TIE.leftBottomX, &params_TIE.leftBottomY, &params_TIE.leftBottomZ);
+	//			}
+	//		}
+	//	}
+	//}
 
 	// 헤드 피스
 	params_PUSH.leftBottomX = cell.leftBottomX;
@@ -4727,6 +6522,12 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 			DGSetItemText (dialogID, DG_PREV, "이 전");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (나머지)
+			DGSetItemFont (dialogID, POPUP_TYPE_SELECTOR, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_TYPE_SELECTOR, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE_SELECTOR, DG_POPUP_BOTTOM, "타입A");
+			DGPopUpInsertItem (dialogID, POPUP_TYPE_SELECTOR, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE_SELECTOR, DG_POPUP_BOTTOM, "타입B");
+
 			DGSetItemText (dialogID, LABEL_HEIGHT, "높이");
 			DGSetItemText (dialogID, LABEL_WIDTH, "너비");
 			DGSetItemText (dialogID, LABEL_ERR_MESSAGE, "높이는 다음 치수만 가능함\n1500, 1800, 2100, 2400, 2700, 3000, 3300, 3600, 3900\n4200, 4500, 4800, 5100, 5400, 5700, 6000");
@@ -4741,6 +6542,7 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 			DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE, "비계 파이프");
 			DGSetItemText (dialogID, LABEL_LAYER_PINBOLT, "핀볼트 세트");
 			DGSetItemText (dialogID, LABEL_LAYER_WALLTIE, "벽체 타이");
+			DGDisableItem (dialogID, LABEL_LAYER_WALLTIE);
 			DGSetItemText (dialogID, LABEL_LAYER_JOIN, "결합철물");
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
@@ -4769,6 +6571,7 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 			ucb.itemID	 = USERCONTROL_LAYER_WALLTIE;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, 1);
+			DGDisableItem (dialogID, USERCONTROL_LAYER_WALLTIE);
 
 			ucb.itemID	 = USERCONTROL_LAYER_JOIN;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
@@ -5088,89 +6891,195 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 				width += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ()) / 1000.0;
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH, placingZone.horLen - width);
 
-			// 레이어 같이 바뀜
-			if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
-				switch (item) {
-					case USERCONTROL_LAYER_EUROFORM:
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						break;
-					case USERCONTROL_LAYER_RECTPIPE:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						break;
-					case USERCONTROL_LAYER_PINBOLT:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						break;
-					case USERCONTROL_LAYER_WALLTIE:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						break;
-					case USERCONTROL_LAYER_JOIN:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						break;
-					case USERCONTROL_LAYER_HEADPIECE:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						break;
-					case USERCONTROL_LAYER_PLYWOOD:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						break;
-					case USERCONTROL_LAYER_WOOD:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						break;
+			if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 1) {
+				// 벽체타이 레이어 비활성화
+				DGDisableItem (dialogID, LABEL_LAYER_WALLTIE);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_WALLTIE);
+
+				// 레이어 이름 변경
+				DGSetItemText (dialogID, LABEL_LAYER_PINBOLT, "핀볼트 세트");
+				DGSetItemText (dialogID, LABEL_LAYER_WALLTIE, "벽체 타이");
+				DGSetItemText (dialogID, LABEL_LAYER_JOIN, "결합철물");
+
+				// 레이어 같이 바뀜
+				if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+					switch (item) {
+						case USERCONTROL_LAYER_EUROFORM:
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							break;
+						case USERCONTROL_LAYER_RECTPIPE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							break;
+						case USERCONTROL_LAYER_PINBOLT:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							break;
+						case USERCONTROL_LAYER_WALLTIE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							break;
+						case USERCONTROL_LAYER_JOIN:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							break;
+						case USERCONTROL_LAYER_HEADPIECE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							break;
+						case USERCONTROL_LAYER_PLYWOOD:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							break;
+						case USERCONTROL_LAYER_WOOD:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							break;
+					}
+				}
+			} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
+				// 벽체타이 레이어 활성화
+				DGEnableItem (dialogID, LABEL_LAYER_WALLTIE);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_WALLTIE);
+
+				// 레이어 이름 변경
+				DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE_HANGER, "각파이프 행거");
+				DGSetItemText (dialogID, LABEL_LAYER_EUROFORM_HOOK, "유로폼 후크");
+				DGSetItemText (dialogID, LABEL_LAYER_JOIN, "연결철물");
+
+				// 레이어 같이 바뀜
+				if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+					switch (item) {
+						case USERCONTROL_LAYER_EUROFORM:
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							break;
+						case USERCONTROL_LAYER_RECTPIPE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							break;
+						case USERCONTROL_LAYER_RECTPIPE_HANGER:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							break;
+						case USERCONTROL_LAYER_EUROFORM_HOOK:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							break;
+						case USERCONTROL_LAYER_JOIN:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							break;
+						case USERCONTROL_LAYER_HEADPIECE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							break;
+						case USERCONTROL_LAYER_PLYWOOD:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							break;
+						case USERCONTROL_LAYER_WOOD:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							break;
+					}
 				}
 			}
 
@@ -5228,15 +7137,34 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 					else
 						placingZone.bDoubleSide = false;
 
-					// 레이어 번호 저장
-					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
-					layerInd_RectPipe		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE);
-					layerInd_PinBolt		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT);
-					layerInd_WallTie		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE);
-					layerInd_Join			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN);
-					layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
-					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
-					layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+					if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 1) {
+						// 타입 지정
+						placingZone.type = 1;
+
+						// 레이어 번호 저장
+						layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
+						layerInd_RectPipe		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE);
+						layerInd_PinBolt		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT);
+						layerInd_WallTie		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE);
+						layerInd_Join			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN);
+						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
+						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
+						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
+						// 타입 지정
+						placingZone.type = 2;
+
+						// 레이어 번호 저장
+						layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
+						layerInd_RectPipe		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE);
+						layerInd_RectPipeHanger	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER);
+						layerInd_EuroformHook	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK);
+						layerInd_Join			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN);
+						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
+						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
+						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+					}
 	
 					break;
 				case DG_CANCEL:
@@ -5846,6 +7774,12 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 			DGSetItemText (dialogID, DG_PREV, "이 전");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (나머지)
+			DGSetItemFont (dialogID, POPUP_TYPE_SELECTOR, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_TYPE_SELECTOR, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE_SELECTOR, DG_POPUP_BOTTOM, "타입A");
+			DGPopUpInsertItem (dialogID, POPUP_TYPE_SELECTOR, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE_SELECTOR, DG_POPUP_BOTTOM, "타입B");
+
 			DGSetItemText (dialogID, LABEL_HEIGHT, "높이");
 			DGSetItemText (dialogID, LABEL_WIDTH, "너비");
 			DGSetItemText (dialogID, LABEL_ERR_MESSAGE, "높이는 다음 치수만 가능함\n400, 450, 500, 또는 600 ~ 2300 (50 간격)");
@@ -5860,6 +7794,7 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 			DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE, "비계 파이프");
 			DGSetItemText (dialogID, LABEL_LAYER_PINBOLT, "핀볼트 세트");
 			DGSetItemText (dialogID, LABEL_LAYER_WALLTIE, "벽체 타이");
+			DGDisableItem (dialogID, LABEL_LAYER_WALLTIE);
 			DGSetItemText (dialogID, LABEL_LAYER_JOIN, "결합철물");
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
@@ -5888,6 +7823,7 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 			ucb.itemID	 = USERCONTROL_LAYER_WALLTIE;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, 1);
+			DGDisableItem (dialogID, USERCONTROL_LAYER_WALLTIE);
 
 			ucb.itemID	 = USERCONTROL_LAYER_JOIN;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
@@ -6081,89 +8017,195 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 				width += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ()) / 1000.0;
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH, placingZone.horLen - width);
 
-			// 레이어 같이 바뀜
-			if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
-				switch (item) {
-					case USERCONTROL_LAYER_EUROFORM:
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						break;
-					case USERCONTROL_LAYER_RECTPIPE:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-						break;
-					case USERCONTROL_LAYER_PINBOLT:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-						break;
-					case USERCONTROL_LAYER_WALLTIE:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
-						break;
-					case USERCONTROL_LAYER_JOIN:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-						break;
-					case USERCONTROL_LAYER_HEADPIECE:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-						break;
-					case USERCONTROL_LAYER_PLYWOOD:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						break;
-					case USERCONTROL_LAYER_WOOD:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						break;
+			if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 1) {
+				// 벽체타이 레이어 비활성화
+				DGDisableItem (dialogID, LABEL_LAYER_WALLTIE);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_WALLTIE);
+
+				// 레이어 이름 변경
+				DGSetItemText (dialogID, LABEL_LAYER_PINBOLT, "핀볼트 세트");
+				DGSetItemText (dialogID, LABEL_LAYER_WALLTIE, "벽체 타이");
+				DGSetItemText (dialogID, LABEL_LAYER_JOIN, "결합철물");
+
+				// 레이어 같이 바뀜
+				if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+					switch (item) {
+						case USERCONTROL_LAYER_EUROFORM:
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							break;
+						case USERCONTROL_LAYER_RECTPIPE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							break;
+						case USERCONTROL_LAYER_PINBOLT:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							break;
+						case USERCONTROL_LAYER_WALLTIE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							break;
+						case USERCONTROL_LAYER_JOIN:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							break;
+						case USERCONTROL_LAYER_HEADPIECE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							break;
+						case USERCONTROL_LAYER_PLYWOOD:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							break;
+						case USERCONTROL_LAYER_WOOD:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							break;
+					}
+				}
+			} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
+				// 벽체타이 레이어 활성화
+				DGEnableItem (dialogID, LABEL_LAYER_WALLTIE);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_WALLTIE);
+
+				// 레이어 이름 변경
+				DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE_HANGER, "각파이프 행거");
+				DGSetItemText (dialogID, LABEL_LAYER_EUROFORM_HOOK, "유로폼 후크");
+				DGSetItemText (dialogID, LABEL_LAYER_JOIN, "연결철물");
+
+				// 레이어 같이 바뀜
+				if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+					switch (item) {
+						case USERCONTROL_LAYER_EUROFORM:
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							break;
+						case USERCONTROL_LAYER_RECTPIPE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							break;
+						case USERCONTROL_LAYER_RECTPIPE_HANGER:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+							break;
+						case USERCONTROL_LAYER_EUROFORM_HOOK:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+							break;
+						case USERCONTROL_LAYER_JOIN:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							break;
+						case USERCONTROL_LAYER_HEADPIECE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							break;
+						case USERCONTROL_LAYER_PLYWOOD:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							break;
+						case USERCONTROL_LAYER_WOOD:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							break;
+					}
 				}
 			}
 
@@ -6265,15 +8307,34 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 					else
 						placingZone.bDoubleSide = false;
 
-					// 레이어 번호 저장
-					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
-					layerInd_RectPipe		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE);
-					layerInd_PinBolt		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT);
-					layerInd_WallTie		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE);
-					layerInd_Join			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN);
-					layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
-					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
-					layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+					if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 1) {
+						// 타입 지정
+						placingZone.type = 1;
+
+						// 레이어 번호 저장
+						layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
+						layerInd_RectPipe		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE);
+						layerInd_PinBolt		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT);
+						layerInd_WallTie		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE);
+						layerInd_Join			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN);
+						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
+						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
+						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
+						// 타입 지정
+						placingZone.type = 2;
+
+						// 레이어 번호 저장
+						layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
+						layerInd_RectPipe		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE);
+						layerInd_RectPipeHanger	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER);
+						layerInd_EuroformHook	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK);
+						layerInd_Join			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN);
+						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
+						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
+						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+					}
 	
 					break;
 				case DG_CANCEL:
@@ -7827,6 +9888,226 @@ API_Guid	WallTableformPlacingZone::placeTIMB (Wood params)
 		elem.object.pos.x += ( params.w_h * cos(params.ang) );
 		elem.object.pos.y += ( params.w_h * sin(params.ang) );
 	}
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 배치: 사각파이프 연결철물
+API_Guid	WallTableformPlacingZone::placeJOIN2 (MetalFittings params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("사각파이프 연결철물 v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_Join;
+
+	setParameterByName (&memo, "angX", params.angX);	// 회전X
+	setParameterByName (&memo, "angY", params.angY);	// 회전Y
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 배치: 빔조인트용 Push-Pull Props
+API_Guid	WallTableformPlacingZone::placePUSH2 (HeadpieceOfPushPullProps params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_HeadPiece;
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 배치: 유로폼 후크
+API_Guid	WallTableformPlacingZone::placeHOOK (EuroformHook params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("유로폼 후크.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang + DegreeToRad (180.0);
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_EuroformHook;
+
+	setParameterByName (&memo, "rotationX", params.angX);			// X축 회전
+	setParameterByName (&memo, "rotationY", params.angY);			// Y축 회전
+	setParameterByName (&memo, "iHookType", params.iiHookType);		// (1)수직-대, (2)수평-소
+	setParameterByName (&memo, "iHookShape", params.iHookShape);	// (1)원형, (2)사각
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 배치: 각파이프 행거
+API_Guid	WallTableformPlacingZone::placeHANG (RectPipeHanger params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("각파이프행거.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang - DegreeToRad (90);
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_RectPipeHanger;
+
+	setParameterByName (&memo, "m_type", "각파이프행거");	// 품명
+	setParameterByName (&memo, "angX", params.angX);		// 회전X
+	setParameterByName (&memo, "angY", params.angY);		// 회전Y
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);

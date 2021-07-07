@@ -366,38 +366,40 @@
 /* [  2] */	Button			 15		 50		 70		 25		LargePlain		"Cancel"
 /* [  3] */	Button			 15		 85		 70		 25		LargePlain		"Prev"
 
-/* [  4] */	LeftText		110		 82		 50		 23		LargePlain		"Height"
-/* [  5] */	LengthEdit		110		100		 50		 25		LargePlain		"0"	"20.0"
-/* [  6] */ LeftText		 30		160		300		 50		LargePlain		"Error message about height"
-/* [  7] */ LeftText		180		 20		 30		 23		LargePlain		"Width"
-/* [  8] */ LengthEdit		210		 13		 50		 25		LargePlain		"0"	"100.0"
+/* [  4] */	PopupControl	100		 15		 70		 25		200		1		/* 타입 */
 
-/* [  9] */	RightText		 10		220		100		 23		LargePlain		"Gap from Wall"
-/* [ 10] */	LengthEdit		140		213		 50		 25		LargePlain		"0"	"1.0"
-/* [ 11] */ RightText		 10		255		100		 23		LargePlain		"Double/Single"
-/* [ 12] */ PushRadio		140		250		 40		 25		LargePlain		1	"Double"
-/* [ 13] */ PushRadio		190		250		 40		 25		LargePlain		1	"Single"
+/* [  5] */	LeftText		110		 82		 50		 23		LargePlain		"Height"
+/* [  6] */	LengthEdit		110		100		 50		 25		LargePlain		"0"	"20.0"
+/* [  7] */ LeftText		 30		160		300		 50		LargePlain		"Error message about height"
+/* [  8] */ LeftText		180		 20		 30		 23		LargePlain		"Width"
+/* [  9] */ LengthEdit		210		 13		 50		 25		LargePlain		"0"	"100.0"
 
-/* [ 14] */	Icon			 85		293		 29		 14  	32502
-/* [ 15] */	LeftText		120		295		200		 23		LargePlain		"Layer Settings"
-/* [ 16] */	CheckBox		120		320		100		 23		LargePlain		"Coupling"
-/* [ 17] */	RightText		 10		355		100		 23		LargePlain		"Euroform"
-/* [ 18] */	RightText		 10		385		100		 23		LargePlain		"Rect Pipe"
-/* [ 19] */	RightText		 10		415		100		 23		LargePlain		"Pinbolt"
-/* [ 20] */	RightText		 10		445		100		 23		LargePlain		"Wall Tie"
-/* [ 21] */	RightText		 10		475		100		 23		LargePlain		"Join"
-/* [ 22] */	RightText		 10		505		100		 23		LargePlain		"Headpiece"
-/* [ 23] */	RightText		 10		535		100		 23		LargePlain		"Plywood"
-/* [ 24] */	RightText		 10		565		100		 23		LargePlain		"Wood"
+/* [ 10] */	RightText		 10		220		100		 23		LargePlain		"Gap from Wall"
+/* [ 11] */	LengthEdit		140		213		 50		 25		LargePlain		"0"	"1.0"
+/* [ 12] */ RightText		 10		255		100		 23		LargePlain		"Double/Single"
+/* [ 13] */ PushRadio		140		250		 40		 25		LargePlain		1	"Double"
+/* [ 14] */ PushRadio		190		250		 40		 25		LargePlain		1	"Single"
 
-/* [ 25] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
-/* [ 26] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE	*/
-/* [ 27] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT		*/
-/* [ 28] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE		*/
-/* [ 29] */	UserControl		120		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN			*/
-/* [ 30] */	UserControl		120		499		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
-/* [ 31] */	UserControl		120		529		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
-/* [ 32] */	UserControl		120		559		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+/* [ 15] */	Icon			 85		293		 29		 14  	32502
+/* [ 16] */	LeftText		120		295		200		 23		LargePlain		"Layer Settings"
+/* [ 17] */	CheckBox		120		320		100		 23		LargePlain		"Coupling"
+/* [ 18] */	RightText		 10		355		100		 23		LargePlain		"Euroform"
+/* [ 19] */	RightText		 10		385		100		 23		LargePlain		"Rect Pipe"
+/* [ 20] */	RightText		 10		415		100		 23		LargePlain		"Pinbolt"
+/* [ 21] */	RightText		 10		445		100		 23		LargePlain		"Wall Tie"
+/* [ 22] */	RightText		 10		475		100		 23		LargePlain		"Join"
+/* [ 23] */	RightText		 10		505		100		 23		LargePlain		"Headpiece"
+/* [ 24] */	RightText		 10		535		100		 23		LargePlain		"Plywood"
+/* [ 25] */	RightText		 10		565		100		 23		LargePlain		"Wood"
+
+/* [ 26] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
+/* [ 27] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE	*/
+/* [ 28] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT		*/
+/* [ 29] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE		*/
+/* [ 30] */	UserControl		120		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN			*/
+/* [ 31] */	UserControl		120		499		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
+/* [ 32] */	UserControl		120		529		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
+/* [ 33] */	UserControl		120		559		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
 }
 
 /* ---------------------------------------------------------- place Tableform on Slab Bottom */
