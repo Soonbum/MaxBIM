@@ -2415,7 +2415,6 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 	double		elev_headpiece;
 	double		horizontalGap = 0.050;	// 수평재 양쪽 이격거리
 	API_Guid	tempGuid;
-	InfoColumn	column;
 	Cylinder	cylinder;
 
 	Euroform		params_UFOM;
@@ -2747,82 +2746,71 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 	moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 	moveIn3D ('z', params_SPIP.ang, 0.150 + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 
+	cylinder.angleFromPlane = DegreeToRad (90.0);
+	cylinder.length = 0.050;
+	cylinder.radius = 0.013/2;
+	cylinder.ang = cell.ang;
+	cylinder.leftBottomX = params_SPIP.leftBottomX;
+	cylinder.leftBottomY = params_SPIP.leftBottomY;
+	cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+
 	for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
 		if (xx == 0) {
 			// 1행
 			tempGuid = placeSPIP (params_SPIP);
 			elemList.Push (tempGuid);
+			cylinder.leftBottomX = params_SPIP.leftBottomX;
+			cylinder.leftBottomY = params_SPIP.leftBottomY;
+			cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+			moveIn3D ('z', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			for (yy = 0 ; yy < 6 ; ++yy) {
-				cylinder.ang = cell.ang;
-				cylinder.angleFromPlane = DegreeToRad (90.0);
-				cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
-				cylinder.leftBottomY = params_SPIP.leftBottomY;
-				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-				cylinder.length = 0.050;
-				cylinder.radius = 0.013/2;
+				moveIn3D ('x', cylinder.ang, 0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				placeHOLE (tempGuid, cylinder);
 			}
+			moveIn3D ('x', cylinder.ang, -0.300 + cell.horLen - (horizontalGap * 2), &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			for (yy = 0 ; yy < 6 ; ++yy) {
-				cylinder.ang = cell.ang;
-				cylinder.angleFromPlane = DegreeToRad (90.0);
-				cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
-				cylinder.leftBottomY = params_SPIP.leftBottomY;
-				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-				cylinder.length = 0.050;
-				cylinder.radius = 0.013/2;
+				moveIn3D ('x', cylinder.ang, -0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				placeHOLE (tempGuid, cylinder);
 			}
 			moveIn3D ('z', params_SPIP.ang, -0.031 - 0.150 + placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			moveIn3D ('x', cylinder.ang, 0.300 - cell.horLen + (horizontalGap * 2), &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 		} else if (xx == placementInfo.nVerEuroform) {
 			// 마지막 행
 			moveIn3D ('z', params_SPIP.ang, -0.150 + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 			tempGuid = placeSPIP (params_SPIP);
 			elemList.Push (tempGuid);
+			cylinder.leftBottomX = params_SPIP.leftBottomX;
+			cylinder.leftBottomY = params_SPIP.leftBottomY;
+			cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+			moveIn3D ('z', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			for (yy = 0 ; yy < 6 ; ++yy) {
-				cylinder.ang = cell.ang;
-				cylinder.angleFromPlane = DegreeToRad (90.0);
-				cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
-				cylinder.leftBottomY = params_SPIP.leftBottomY;
-				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-				cylinder.length = 0.050;
-				cylinder.radius = 0.013/2;
+				moveIn3D ('x', cylinder.ang, 0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				placeHOLE (tempGuid, cylinder);
 			}
+			moveIn3D ('x', cylinder.ang, -0.300 + cell.horLen - (horizontalGap * 2), &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			for (yy = 0 ; yy < 6 ; ++yy) {
-				cylinder.ang = cell.ang;
-				cylinder.angleFromPlane = DegreeToRad (90.0);
-				cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
-				cylinder.leftBottomY = params_SPIP.leftBottomY;
-				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-				cylinder.length = 0.050;
-				cylinder.radius = 0.013/2;
+				moveIn3D ('x', cylinder.ang, -0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				placeHOLE (tempGuid, cylinder);
 			}
 		} else {
 			// 나머지 행
 			tempGuid = placeSPIP (params_SPIP);
 			elemList.Push (tempGuid);
+			cylinder.leftBottomX = params_SPIP.leftBottomX;
+			cylinder.leftBottomY = params_SPIP.leftBottomY;
+			cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+			moveIn3D ('z', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			for (yy = 0 ; yy < 6 ; ++yy) {
-				cylinder.ang = cell.ang;
-				cylinder.angleFromPlane = DegreeToRad (90.0);
-				cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
-				cylinder.leftBottomY = params_SPIP.leftBottomY;
-				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-				cylinder.length = 0.050;
-				cylinder.radius = 0.013/2;
+				moveIn3D ('x', cylinder.ang, 0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				placeHOLE (tempGuid, cylinder);
 			}
+			moveIn3D ('x', cylinder.ang, -0.300 + cell.horLen - (horizontalGap * 2), &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			for (yy = 0 ; yy < 6 ; ++yy) {
-				cylinder.ang = cell.ang;
-				cylinder.angleFromPlane = DegreeToRad (90.0);
-				cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
-				cylinder.leftBottomY = params_SPIP.leftBottomY;
-				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-				cylinder.length = 0.050;
-				cylinder.radius = 0.013/2;
+				moveIn3D ('x', cylinder.ang, -0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				placeHOLE (tempGuid, cylinder);
 			}
 			moveIn3D ('z', params_SPIP.ang, placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+			moveIn3D ('x', cylinder.ang, 0.300 - cell.horLen + (horizontalGap * 2), &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 		}
 	}
 
@@ -2839,50 +2827,41 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 	moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 
 	// 1열
+	cylinder.angleFromPlane = DegreeToRad (0.0);
+	cylinder.length = 0.050;
+	cylinder.radius = 0.013/2;
+	cylinder.ang = cell.ang;
+	cylinder.leftBottomX = params_SPIP.leftBottomX;
+	cylinder.leftBottomY = params_SPIP.leftBottomY;
+	cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+
 	tempGuid = placeSPIP (params_SPIP);
 	elemList.Push (tempGuid);
+	moveIn3D ('x', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 	for (xx = 0 ; xx < 6 ; ++xx) {
-		cylinder.ang = cell.ang;
-		cylinder.angleFromPlane = DegreeToRad (0.0);
-		cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
-		cylinder.leftBottomY = params_SPIP.leftBottomY;
-		cylinder.leftBottomZ = params_SPIP.leftBottomZ + 0.050 * (xx+1);
-		cylinder.length = 0.050;
-		cylinder.radius = 0.013/2;
+		moveIn3D ('z', cylinder.ang, 0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 		placeHOLE (tempGuid, cylinder);
 	}
+	moveIn3D ('z', cylinder.ang, -0.300 + cell.verLen - 0.100, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 	for (xx = 0 ; xx < 6 ; ++xx) {
-		cylinder.ang = cell.ang;
-		cylinder.angleFromPlane = DegreeToRad (0.0);
-		cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
-		cylinder.leftBottomY = params_SPIP.leftBottomY;
-		cylinder.leftBottomZ = params_SPIP.leftBottomZ + cell.verLen - 0.100 - 0.050 * (xx+1);
-		cylinder.length = 0.050;
-		cylinder.radius = 0.013/2;
+		moveIn3D ('z', cylinder.ang, -0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 		placeHOLE (tempGuid, cylinder);
 	}
 	moveIn3D ('x', params_SPIP.ang, - (placementInfo.width [0] - 0.225) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.225), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 	// 2열
 	tempGuid = placeSPIP (params_SPIP);
 	elemList.Push (tempGuid);
+	cylinder.leftBottomX = params_SPIP.leftBottomX;
+	cylinder.leftBottomY = params_SPIP.leftBottomY;
+	cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+	moveIn3D ('x', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 	for (xx = 0 ; xx < 6 ; ++xx) {
-		cylinder.ang = cell.ang;
-		cylinder.angleFromPlane = DegreeToRad (0.0);
-		cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
-		cylinder.leftBottomY = params_SPIP.leftBottomY;
-		cylinder.leftBottomZ = params_SPIP.leftBottomZ + 0.050 * (xx+1);
-		cylinder.length = 0.050;
-		cylinder.radius = 0.013/2;
+		moveIn3D ('z', cylinder.ang, 0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 		placeHOLE (tempGuid, cylinder);
 	}
+	moveIn3D ('z', cylinder.ang, -0.300 + cell.verLen - 0.100, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 	for (xx = 0 ; xx < 6 ; ++xx) {
-		cylinder.ang = cell.ang;
-		cylinder.angleFromPlane = DegreeToRad (0.0);
-		cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
-		cylinder.leftBottomY = params_SPIP.leftBottomY;
-		cylinder.leftBottomZ = params_SPIP.leftBottomZ + cell.verLen - 0.100 - 0.050 * (xx+1);
-		cylinder.length = 0.050;
-		cylinder.radius = 0.013/2;
+		moveIn3D ('z', cylinder.ang, -0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 		placeHOLE (tempGuid, cylinder);
 	}
 
@@ -3118,82 +3097,72 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 		moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		moveIn3D ('z', params_SPIP.ang, 0.150 + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 
+		cylinder.angleFromPlane = DegreeToRad (90.0);
+		cylinder.length = 0.050;
+		cylinder.radius = 0.013/2;
+		cylinder.ang = cell.ang;
+		cylinder.leftBottomX = params_SPIP.leftBottomX;
+		cylinder.leftBottomY = params_SPIP.leftBottomY;
+		cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+		moveIn3D ('z', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
+
 		for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
 			if (xx == 0) {
 				// 1행
 				tempGuid = placeSPIP (params_SPIP);
 				elemList.Push (tempGuid);
+				cylinder.leftBottomX = params_SPIP.leftBottomX;
+				cylinder.leftBottomY = params_SPIP.leftBottomY;
+				cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+				moveIn3D ('z', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				for (yy = 0 ; yy < 6 ; ++yy) {
-					cylinder.ang = cell.ang;
-					cylinder.angleFromPlane = DegreeToRad (90.0);
-					cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
-					cylinder.leftBottomY = params_SPIP.leftBottomY;
-					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-					cylinder.length = 0.050;
-					cylinder.radius = 0.013/2;
+					moveIn3D ('x', cylinder.ang, 0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 					placeHOLE (tempGuid, cylinder);
 				}
+				moveIn3D ('x', cylinder.ang, -0.300 + cell.horLen - (horizontalGap * 2), &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				for (yy = 0 ; yy < 6 ; ++yy) {
-					cylinder.ang = cell.ang;
-					cylinder.angleFromPlane = DegreeToRad (90.0);
-					cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
-					cylinder.leftBottomY = params_SPIP.leftBottomY;
-					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-					cylinder.length = 0.050;
-					cylinder.radius = 0.013/2;
+					moveIn3D ('x', cylinder.ang, -0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 					placeHOLE (tempGuid, cylinder);
 				}
 				moveIn3D ('z', params_SPIP.ang, -0.031 - 0.150 + placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+				moveIn3D ('x', cylinder.ang, 0.300 - cell.horLen + (horizontalGap * 2), &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			} else if (xx == placementInfo.nVerEuroform) {
 				// 마지막 행
 				moveIn3D ('z', params_SPIP.ang, -0.150 + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 				tempGuid = placeSPIP (params_SPIP);
 				elemList.Push (tempGuid);
+				cylinder.leftBottomX = params_SPIP.leftBottomX;
+				cylinder.leftBottomY = params_SPIP.leftBottomY;
+				cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+				moveIn3D ('z', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				for (yy = 0 ; yy < 6 ; ++yy) {
-					cylinder.ang = cell.ang;
-					cylinder.angleFromPlane = DegreeToRad (90.0);
-					cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
-					cylinder.leftBottomY = params_SPIP.leftBottomY;
-					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-					cylinder.length = 0.050;
-					cylinder.radius = 0.013/2;
+					moveIn3D ('x', cylinder.ang, 0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 					placeHOLE (tempGuid, cylinder);
 				}
+				moveIn3D ('x', cylinder.ang, -0.300 + cell.horLen - (horizontalGap * 2), &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				for (yy = 0 ; yy < 6 ; ++yy) {
-					cylinder.ang = cell.ang;
-					cylinder.angleFromPlane = DegreeToRad (90.0);
-					cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
-					cylinder.leftBottomY = params_SPIP.leftBottomY;
-					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-					cylinder.length = 0.050;
-					cylinder.radius = 0.013/2;
+					moveIn3D ('x', cylinder.ang, -0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 					placeHOLE (tempGuid, cylinder);
 				}
 			} else {
 				// 나머지 행
 				tempGuid = placeSPIP (params_SPIP);
 				elemList.Push (tempGuid);
+				cylinder.leftBottomX = params_SPIP.leftBottomX;
+				cylinder.leftBottomY = params_SPIP.leftBottomY;
+				cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+				moveIn3D ('z', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				for (yy = 0 ; yy < 6 ; ++yy) {
-					cylinder.ang = cell.ang;
-					cylinder.angleFromPlane = DegreeToRad (90.0);
-					cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
-					cylinder.leftBottomY = params_SPIP.leftBottomY;
-					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-					cylinder.length = 0.050;
-					cylinder.radius = 0.013/2;
+					moveIn3D ('x', cylinder.ang, 0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 					placeHOLE (tempGuid, cylinder);
 				}
+				moveIn3D ('x', cylinder.ang, -0.300 + cell.horLen - (horizontalGap * 2), &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 				for (yy = 0 ; yy < 6 ; ++yy) {
-					cylinder.ang = cell.ang;
-					cylinder.angleFromPlane = DegreeToRad (90.0);
-					cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
-					cylinder.leftBottomY = params_SPIP.leftBottomY;
-					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
-					cylinder.length = 0.050;
-					cylinder.radius = 0.013/2;
+					moveIn3D ('x', cylinder.ang, -0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 					placeHOLE (tempGuid, cylinder);
 				}
 				moveIn3D ('z', params_SPIP.ang, placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+				moveIn3D ('x', cylinder.ang, 0.300 - cell.horLen + (horizontalGap * 2), &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			}
 		}
 
@@ -3210,50 +3179,41 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 		moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 
 		// 1열
+		cylinder.angleFromPlane = DegreeToRad (0.0);
+		cylinder.length = 0.050;
+		cylinder.radius = 0.013/2;
+		cylinder.ang = cell.ang;
+		cylinder.leftBottomX = params_SPIP.leftBottomX;
+		cylinder.leftBottomY = params_SPIP.leftBottomY;
+		cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+
 		tempGuid = placeSPIP (params_SPIP);
 		elemList.Push (tempGuid);
+		moveIn3D ('x', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 		for (xx = 0 ; xx < 6 ; ++xx) {
-			cylinder.ang = cell.ang;
-			cylinder.angleFromPlane = DegreeToRad (0.0);
-			cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
-			cylinder.leftBottomY = params_SPIP.leftBottomY;
-			cylinder.leftBottomZ = params_SPIP.leftBottomZ + 0.050 * (xx+1);
-			cylinder.length = 0.050;
-			cylinder.radius = 0.013/2;
+			moveIn3D ('z', cylinder.ang, 0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			placeHOLE (tempGuid, cylinder);
 		}
+		moveIn3D ('z', cylinder.ang, -0.300 + cell.verLen - 0.100, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 		for (xx = 0 ; xx < 6 ; ++xx) {
-			cylinder.ang = cell.ang;
-			cylinder.angleFromPlane = DegreeToRad (0.0);
-			cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
-			cylinder.leftBottomY = params_SPIP.leftBottomY;
-			cylinder.leftBottomZ = params_SPIP.leftBottomZ + cell.verLen - 0.100 - 0.050 * (xx+1);
-			cylinder.length = 0.050;
-			cylinder.radius = 0.013/2;
+			moveIn3D ('z', cylinder.ang, -0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			placeHOLE (tempGuid, cylinder);
 		}
 		moveIn3D ('x', params_SPIP.ang, - (placementInfo.width [placementInfo.nHorEuroform-1] - 0.225) + cell.horLen + (-placementInfo.width [0] + 0.225), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		// 2열
 		tempGuid = placeSPIP (params_SPIP);
 		elemList.Push (tempGuid);
+		cylinder.leftBottomX = params_SPIP.leftBottomX;
+		cylinder.leftBottomY = params_SPIP.leftBottomY;
+		cylinder.leftBottomZ = params_SPIP.leftBottomZ;
+		moveIn3D ('x', cylinder.ang, -0.025, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 		for (xx = 0 ; xx < 6 ; ++xx) {
-			cylinder.ang = cell.ang;
-			cylinder.angleFromPlane = DegreeToRad (0.0);
-			cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
-			cylinder.leftBottomY = params_SPIP.leftBottomY;
-			cylinder.leftBottomZ = params_SPIP.leftBottomZ + 0.050 * (xx+1);
-			cylinder.length = 0.050;
-			cylinder.radius = 0.013/2;
+			moveIn3D ('z', cylinder.ang, 0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			placeHOLE (tempGuid, cylinder);
 		}
+		moveIn3D ('z', cylinder.ang, -0.300 + cell.verLen - 0.100, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 		for (xx = 0 ; xx < 6 ; ++xx) {
-			cylinder.ang = cell.ang;
-			cylinder.angleFromPlane = DegreeToRad (0.0);
-			cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
-			cylinder.leftBottomY = params_SPIP.leftBottomY;
-			cylinder.leftBottomZ = params_SPIP.leftBottomZ + cell.verLen - 0.100 - 0.050 * (xx+1);
-			cylinder.length = 0.050;
-			cylinder.radius = 0.013/2;
+			moveIn3D ('z', cylinder.ang, -0.050, &cylinder.leftBottomX, &cylinder.leftBottomY, &cylinder.leftBottomZ);
 			placeHOLE (tempGuid, cylinder);
 		}
 
@@ -8935,6 +8895,15 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 			DGShowItem (dialogID, DG_CANCEL);
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (나머지)
+			// 팝업컨트롤: 타입
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 200, 1, 95, 10, 70, 25);
+			DGSetItemFont (dialogID, POPUP_TYPE_SELECTOR_CUSTOM, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, POPUP_TYPE_SELECTOR_CUSTOM, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE_SELECTOR_CUSTOM, DG_POPUP_BOTTOM, "타입A");
+			DGPopUpInsertItem (dialogID, POPUP_TYPE_SELECTOR_CUSTOM, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE_SELECTOR_CUSTOM, DG_POPUP_BOTTOM, "타입B");
+			DGShowItem (dialogID, POPUP_TYPE_SELECTOR_CUSTOM);
+
 			// 라벨: 테이블폼 방향
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 20, 80, 23);
 			DGSetItemFont (dialogID, LABEL_TABLEFORM_ORIENTATION_CUSTOM, DG_IS_LARGE | DG_IS_PLAIN);
@@ -9261,6 +9230,16 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
+
+					if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 1) {
+						// 타입 지정
+						placingZone.type = 1;
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 2) {
+						// 타입 지정
+						placingZone.type = 2;
+
+					}
 
 					// ... 세로방향이면?
 					// ... 가로방향이면?
@@ -10390,6 +10369,8 @@ API_Guid	WallTableformPlacingZone::placeHOLE (API_Guid guid_Target, Cylinder ope
 	elem.header.layer = layerInd_Hidden;
 
 	// 편집 모드는 "각도-길이" 고정
+	setParameterByName (&memo, "edit_mode", "각도-길이");
+	setParameterByName (&memo, "end_mode", "직각");
 	setParameterByName (&memo, "gamma", operator_Object.angleFromPlane);
 	setParameterByName (&memo, "length", operator_Object.length);
 	setParameterByName (&memo, "radius_1", operator_Object.radius);
