@@ -238,6 +238,11 @@ public:
 	short	n5700h;
 	short	n6000h;
 
+	// 타입B의 경우, 수평바 양 끝으로부터 수직바의 위치 오프셋
+	short	nVerticalBar;
+	double	verticalBarLeftOffset;
+	double	verticalBarRightOffset;
+
 public:
 	void		initCells (WallTableformPlacingZone* placingZone);													// Cell 배열을 초기화함
 	double		getCellPositionLeftBottomX (WallTableformPlacingZone *placingZone, short idx);						// 해당 셀의 좌하단 좌표X 위치를 리턴
