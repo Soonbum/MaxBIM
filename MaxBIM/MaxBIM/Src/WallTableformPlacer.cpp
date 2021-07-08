@@ -22,6 +22,7 @@ static short	layerInd_Plywood;		// 레이어 번호: 합판
 static short	layerInd_Wood;			// 레이어 번호: 목재
 static short	layerInd_RectPipeHanger;	// 레이어 번호: 각파이프 행거 (B타입 전용)
 static short	layerInd_EuroformHook;		// 레이어 번호: 유로폼 후크 (B타입 전용)
+static short	layerInd_Hidden;		// 레이어 번호: 숨김
 
 static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
@@ -2413,6 +2414,9 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 	//double		remainder;				// fmod 함수에 쓸 변수
 	double		elev_headpiece;
 	double		horizontalGap = 0.050;	// 수평재 양쪽 이격거리
+	API_Guid	tempGuid;
+	InfoColumn	column;
+	Cylinder	cylinder;
 
 	Euroform		params_UFOM;
 	SquarePipe		params_SPIP;
@@ -2746,15 +2750,78 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 	for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
 		if (xx == 0) {
 			// 1행
-			elemList.Push (placeSPIP (params_SPIP));
+			tempGuid = placeSPIP (params_SPIP);
+			elemList.Push (tempGuid);
+			for (yy = 0 ; yy < 6 ; ++yy) {
+				cylinder.ang = cell.ang;
+				cylinder.angleFromPlane = DegreeToRad (90.0);
+				cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
+				cylinder.leftBottomY = params_SPIP.leftBottomY;
+				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+				cylinder.length = 0.050;
+				cylinder.radius = 0.013/2;
+				placeHOLE (tempGuid, cylinder);
+			}
+			for (yy = 0 ; yy < 6 ; ++yy) {
+				cylinder.ang = cell.ang;
+				cylinder.angleFromPlane = DegreeToRad (90.0);
+				cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
+				cylinder.leftBottomY = params_SPIP.leftBottomY;
+				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+				cylinder.length = 0.050;
+				cylinder.radius = 0.013/2;
+				placeHOLE (tempGuid, cylinder);
+			}
 			moveIn3D ('z', params_SPIP.ang, -0.031 - 0.150 + placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		} else if (xx == placementInfo.nVerEuroform) {
 			// 마지막 행
 			moveIn3D ('z', params_SPIP.ang, -0.150 + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-			elemList.Push (placeSPIP (params_SPIP));
+			tempGuid = placeSPIP (params_SPIP);
+			elemList.Push (tempGuid);
+			for (yy = 0 ; yy < 6 ; ++yy) {
+				cylinder.ang = cell.ang;
+				cylinder.angleFromPlane = DegreeToRad (90.0);
+				cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
+				cylinder.leftBottomY = params_SPIP.leftBottomY;
+				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+				cylinder.length = 0.050;
+				cylinder.radius = 0.013/2;
+				placeHOLE (tempGuid, cylinder);
+			}
+			for (yy = 0 ; yy < 6 ; ++yy) {
+				cylinder.ang = cell.ang;
+				cylinder.angleFromPlane = DegreeToRad (90.0);
+				cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
+				cylinder.leftBottomY = params_SPIP.leftBottomY;
+				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+				cylinder.length = 0.050;
+				cylinder.radius = 0.013/2;
+				placeHOLE (tempGuid, cylinder);
+			}
 		} else {
 			// 나머지 행
-			elemList.Push (placeSPIP (params_SPIP));
+			tempGuid = placeSPIP (params_SPIP);
+			elemList.Push (tempGuid);
+			for (yy = 0 ; yy < 6 ; ++yy) {
+				cylinder.ang = cell.ang;
+				cylinder.angleFromPlane = DegreeToRad (90.0);
+				cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
+				cylinder.leftBottomY = params_SPIP.leftBottomY;
+				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+				cylinder.length = 0.050;
+				cylinder.radius = 0.013/2;
+				placeHOLE (tempGuid, cylinder);
+			}
+			for (yy = 0 ; yy < 6 ; ++yy) {
+				cylinder.ang = cell.ang;
+				cylinder.angleFromPlane = DegreeToRad (90.0);
+				cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
+				cylinder.leftBottomY = params_SPIP.leftBottomY;
+				cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+				cylinder.length = 0.050;
+				cylinder.radius = 0.013/2;
+				placeHOLE (tempGuid, cylinder);
+			}
 			moveIn3D ('z', params_SPIP.ang, placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		}
 	}
@@ -2772,10 +2839,52 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 	moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 
 	// 1열
-	elemList.Push (placeSPIP (params_SPIP));
+	tempGuid = placeSPIP (params_SPIP);
+	elemList.Push (tempGuid);
+	for (xx = 0 ; xx < 6 ; ++xx) {
+		cylinder.ang = cell.ang;
+		cylinder.angleFromPlane = DegreeToRad (0.0);
+		cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
+		cylinder.leftBottomY = params_SPIP.leftBottomY;
+		cylinder.leftBottomZ = params_SPIP.leftBottomZ + 0.050 * (xx+1);
+		cylinder.length = 0.050;
+		cylinder.radius = 0.013/2;
+		placeHOLE (tempGuid, cylinder);
+	}
+	for (xx = 0 ; xx < 6 ; ++xx) {
+		cylinder.ang = cell.ang;
+		cylinder.angleFromPlane = DegreeToRad (0.0);
+		cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
+		cylinder.leftBottomY = params_SPIP.leftBottomY;
+		cylinder.leftBottomZ = params_SPIP.leftBottomZ + cell.verLen - 0.100 - 0.050 * (xx+1);
+		cylinder.length = 0.050;
+		cylinder.radius = 0.013/2;
+		placeHOLE (tempGuid, cylinder);
+	}
 	moveIn3D ('x', params_SPIP.ang, - (placementInfo.width [0] - 0.225) + cell.horLen + (-placementInfo.width [placementInfo.nHorEuroform-1] + 0.225), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 	// 2열
-	elemList.Push (placeSPIP (params_SPIP));
+	tempGuid = placeSPIP (params_SPIP);
+	elemList.Push (tempGuid);
+	for (xx = 0 ; xx < 6 ; ++xx) {
+		cylinder.ang = cell.ang;
+		cylinder.angleFromPlane = DegreeToRad (0.0);
+		cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
+		cylinder.leftBottomY = params_SPIP.leftBottomY;
+		cylinder.leftBottomZ = params_SPIP.leftBottomZ + 0.050 * (xx+1);
+		cylinder.length = 0.050;
+		cylinder.radius = 0.013/2;
+		placeHOLE (tempGuid, cylinder);
+	}
+	for (xx = 0 ; xx < 6 ; ++xx) {
+		cylinder.ang = cell.ang;
+		cylinder.angleFromPlane = DegreeToRad (0.0);
+		cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
+		cylinder.leftBottomY = params_SPIP.leftBottomY;
+		cylinder.leftBottomZ = params_SPIP.leftBottomZ + cell.verLen - 0.100 - 0.050 * (xx+1);
+		cylinder.length = 0.050;
+		cylinder.radius = 0.013/2;
+		placeHOLE (tempGuid, cylinder);
+	}
 
 	// 유로폼 후크 배치 (수평 - 최하단, 최상단)
 	params_HOOK.leftBottomX = cell.leftBottomX;
@@ -3012,15 +3121,78 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 		for (xx = 0 ; xx <= placementInfo.nVerEuroform ; ++xx) {
 			if (xx == 0) {
 				// 1행
-				elemList.Push (placeSPIP (params_SPIP));
+				tempGuid = placeSPIP (params_SPIP);
+				elemList.Push (tempGuid);
+				for (yy = 0 ; yy < 6 ; ++yy) {
+					cylinder.ang = cell.ang;
+					cylinder.angleFromPlane = DegreeToRad (90.0);
+					cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
+					cylinder.leftBottomY = params_SPIP.leftBottomY;
+					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+					cylinder.length = 0.050;
+					cylinder.radius = 0.013/2;
+					placeHOLE (tempGuid, cylinder);
+				}
+				for (yy = 0 ; yy < 6 ; ++yy) {
+					cylinder.ang = cell.ang;
+					cylinder.angleFromPlane = DegreeToRad (90.0);
+					cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
+					cylinder.leftBottomY = params_SPIP.leftBottomY;
+					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+					cylinder.length = 0.050;
+					cylinder.radius = 0.013/2;
+					placeHOLE (tempGuid, cylinder);
+				}
 				moveIn3D ('z', params_SPIP.ang, -0.031 - 0.150 + placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 			} else if (xx == placementInfo.nVerEuroform) {
 				// 마지막 행
 				moveIn3D ('z', params_SPIP.ang, -0.150 + 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-				elemList.Push (placeSPIP (params_SPIP));
+				tempGuid = placeSPIP (params_SPIP);
+				elemList.Push (tempGuid);
+				for (yy = 0 ; yy < 6 ; ++yy) {
+					cylinder.ang = cell.ang;
+					cylinder.angleFromPlane = DegreeToRad (90.0);
+					cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
+					cylinder.leftBottomY = params_SPIP.leftBottomY;
+					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+					cylinder.length = 0.050;
+					cylinder.radius = 0.013/2;
+					placeHOLE (tempGuid, cylinder);
+				}
+				for (yy = 0 ; yy < 6 ; ++yy) {
+					cylinder.ang = cell.ang;
+					cylinder.angleFromPlane = DegreeToRad (90.0);
+					cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
+					cylinder.leftBottomY = params_SPIP.leftBottomY;
+					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+					cylinder.length = 0.050;
+					cylinder.radius = 0.013/2;
+					placeHOLE (tempGuid, cylinder);
+				}
 			} else {
 				// 나머지 행
-				elemList.Push (placeSPIP (params_SPIP));
+				tempGuid = placeSPIP (params_SPIP);
+				elemList.Push (tempGuid);
+				for (yy = 0 ; yy < 6 ; ++yy) {
+					cylinder.ang = cell.ang;
+					cylinder.angleFromPlane = DegreeToRad (90.0);
+					cylinder.leftBottomX = params_SPIP.leftBottomX + 0.050 * (yy+1);
+					cylinder.leftBottomY = params_SPIP.leftBottomY;
+					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+					cylinder.length = 0.050;
+					cylinder.radius = 0.013/2;
+					placeHOLE (tempGuid, cylinder);
+				}
+				for (yy = 0 ; yy < 6 ; ++yy) {
+					cylinder.ang = cell.ang;
+					cylinder.angleFromPlane = DegreeToRad (90.0);
+					cylinder.leftBottomX = params_SPIP.leftBottomX + cell.horLen - (horizontalGap * 2) - 0.050 * (yy+1);
+					cylinder.leftBottomY = params_SPIP.leftBottomY;
+					cylinder.leftBottomZ = params_SPIP.leftBottomZ - 0.025;
+					cylinder.length = 0.050;
+					cylinder.radius = 0.013/2;
+					placeHOLE (tempGuid, cylinder);
+				}
 				moveIn3D ('z', params_SPIP.ang, placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 			}
 		}
@@ -3038,10 +3210,52 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 		moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 
 		// 1열
-		elemList.Push (placeSPIP (params_SPIP));
+		tempGuid = placeSPIP (params_SPIP);
+		elemList.Push (tempGuid);
+		for (xx = 0 ; xx < 6 ; ++xx) {
+			cylinder.ang = cell.ang;
+			cylinder.angleFromPlane = DegreeToRad (0.0);
+			cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
+			cylinder.leftBottomY = params_SPIP.leftBottomY;
+			cylinder.leftBottomZ = params_SPIP.leftBottomZ + 0.050 * (xx+1);
+			cylinder.length = 0.050;
+			cylinder.radius = 0.013/2;
+			placeHOLE (tempGuid, cylinder);
+		}
+		for (xx = 0 ; xx < 6 ; ++xx) {
+			cylinder.ang = cell.ang;
+			cylinder.angleFromPlane = DegreeToRad (0.0);
+			cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
+			cylinder.leftBottomY = params_SPIP.leftBottomY;
+			cylinder.leftBottomZ = params_SPIP.leftBottomZ + cell.verLen - 0.100 - 0.050 * (xx+1);
+			cylinder.length = 0.050;
+			cylinder.radius = 0.013/2;
+			placeHOLE (tempGuid, cylinder);
+		}
 		moveIn3D ('x', params_SPIP.ang, - (placementInfo.width [placementInfo.nHorEuroform-1] - 0.225) + cell.horLen + (-placementInfo.width [0] + 0.225), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		// 2열
-		elemList.Push (placeSPIP (params_SPIP));
+		tempGuid = placeSPIP (params_SPIP);
+		elemList.Push (tempGuid);
+		for (xx = 0 ; xx < 6 ; ++xx) {
+			cylinder.ang = cell.ang;
+			cylinder.angleFromPlane = DegreeToRad (0.0);
+			cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
+			cylinder.leftBottomY = params_SPIP.leftBottomY;
+			cylinder.leftBottomZ = params_SPIP.leftBottomZ + 0.050 * (xx+1);
+			cylinder.length = 0.050;
+			cylinder.radius = 0.013/2;
+			placeHOLE (tempGuid, cylinder);
+		}
+		for (xx = 0 ; xx < 6 ; ++xx) {
+			cylinder.ang = cell.ang;
+			cylinder.angleFromPlane = DegreeToRad (0.0);
+			cylinder.leftBottomX = params_SPIP.leftBottomX - 0.025;
+			cylinder.leftBottomY = params_SPIP.leftBottomY;
+			cylinder.leftBottomZ = params_SPIP.leftBottomZ + cell.verLen - 0.100 - 0.050 * (xx+1);
+			cylinder.length = 0.050;
+			cylinder.radius = 0.013/2;
+			placeHOLE (tempGuid, cylinder);
+		}
 
 		// 유로폼 후크 배치 (수평 - 최하단, 최상단)
 		params_HOOK.leftBottomX = cell.leftBottomX;
@@ -6547,6 +6761,7 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
 			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
+			DGSetItemText (dialogID, LABEL_LAYER_HIDDEN, "숨김");
 
 			// 체크박스: 레이어 묶음
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
@@ -6588,6 +6803,10 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 			ucb.itemID	 = USERCONTROL_LAYER_WOOD;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_HIDDEN;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN, 1);
 
 			// 기본값: 양면 채우기
 			DGSetItemValLong (dialogID, RADIOBUTTON_DOUBLE, TRUE);
@@ -7150,6 +7369,7 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+						layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
 						// 타입 지정
@@ -7164,6 +7384,7 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+						layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 					}
 	
 					break;
@@ -7799,6 +8020,7 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
 			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
+			DGSetItemText (dialogID, LABEL_LAYER_HIDDEN, "숨김");
 
 			// 체크박스: 레이어 묶음
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
@@ -7840,6 +8062,10 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 			ucb.itemID	 = USERCONTROL_LAYER_WOOD;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_HIDDEN;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN, 1);
 
 			// 기본값: 양면 채우기
 			DGSetItemValLong (dialogID, RADIOBUTTON_DOUBLE, TRUE);
@@ -8320,6 +8546,7 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+						layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
 						// 타입 지정
@@ -8334,6 +8561,7 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+						layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 					}
 	
 					break;
@@ -10112,6 +10340,66 @@ API_Guid	WallTableformPlacingZone::placeHANG (RectPipeHanger params)
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
 	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 타공을 위한 기둥 객체를 배치하고 숨김, "원통 19" 객체를 이용함
+API_Guid	WallTableformPlacingZone::placeHOLE (API_Guid guid_Target, Cylinder operator_Object)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("원통 19.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = operator_Object.leftBottomX;
+	elem.object.pos.y = operator_Object.leftBottomY;
+	elem.object.level = operator_Object.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = operator_Object.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_Hidden;
+
+	// 편집 모드는 "각도-길이" 고정
+	setParameterByName (&memo, "gamma", operator_Object.angleFromPlane);
+	setParameterByName (&memo, "length", operator_Object.length);
+	setParameterByName (&memo, "radius_1", operator_Object.radius);
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// guid_Target 타공하기
+	ACAPI_Element_SolidLink_Create (guid_Target, elem.header.guid, APISolid_Substract, 0);
 
 	return	elem.header.guid;
 }

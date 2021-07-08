@@ -31,6 +31,7 @@ namespace wallTableformPlacerDG {
 		LABEL_LAYER_HEADPIECE,
 		LABEL_LAYER_PLYWOOD,
 		LABEL_LAYER_WOOD,
+		LABEL_LAYER_HIDDEN,
 
 		USERCONTROL_LAYER_EUROFORM,
 		USERCONTROL_LAYER_RECTPIPE,
@@ -39,14 +40,15 @@ namespace wallTableformPlacerDG {
 		USERCONTROL_LAYER_JOIN,
 		USERCONTROL_LAYER_HEADPIECE,
 		USERCONTROL_LAYER_PLYWOOD,
-		USERCONTROL_LAYER_WOOD
+		USERCONTROL_LAYER_WOOD,
+		USERCONTROL_LAYER_HIDDEN
 	};
 
 	enum	idxItems_2_forWallTableformPlacer_typeB {
-		LABEL_LAYER_RECTPIPE_HANGER = 20,	// 기존 핀볼트세트 레이어 활용
-		LABEL_LAYER_EUROFORM_HOOK = 21,		// 기존 벽체타이 레이어 활용
-		USERCONTROL_LAYER_RECTPIPE_HANGER = 28,
-		USERCONTROL_LAYER_EUROFORM_HOOK = 29
+		LABEL_LAYER_RECTPIPE_HANGER = LABEL_LAYER_PINBOLT,				// 기존 핀볼트세트 레이어 활용
+		LABEL_LAYER_EUROFORM_HOOK = LABEL_LAYER_WALLTIE,				// 기존 벽체타이 레이어 활용
+		USERCONTROL_LAYER_RECTPIPE_HANGER = USERCONTROL_LAYER_PINBOLT,
+		USERCONTROL_LAYER_EUROFORM_HOOK = USERCONTROL_LAYER_WALLTIE
 	};
 
 	enum	idxItems_3_forWallTableformPlacer {
@@ -260,6 +262,7 @@ public:
 	API_Guid	placePUSH2 (HeadpieceOfPushPullProps params);		// 배치: 빔조인트용 Push-Pull Props
 	API_Guid	placeHOOK (EuroformHook params);					// 배치: 유로폼 후크
 	API_Guid	placeHANG (RectPipeHanger params);					// 배치: 각파이프 행거
+	API_Guid	placeHOLE (API_Guid guid_Target, Cylinder operator_Object);				// 타공을 위한 기둥 객체를 배치하고 숨김, "원통 19" 객체를 이용함
 };
 
 GSErrCode	placeTableformOnWall_Vertical (void);		// 벽에 테이블폼을 배치하는 통합 루틴 - 세로 방향

@@ -454,4 +454,19 @@ struct RectPipeHanger
 	double	angY;			// 본체 회전 (Y)
 };
 
+// 원통 19
+struct Cylinder
+{
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	// 편집 모드는 "각도-길이" 고정
+	double	angleFromPlane;	// XY 평면에서의 각도
+	double	radius;			// 원통 반지름
+	double	length;			// 원통 길이
+};
+
 #endif //__MAXBIM_HPP__
