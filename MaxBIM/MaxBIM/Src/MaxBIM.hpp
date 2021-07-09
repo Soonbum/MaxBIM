@@ -437,7 +437,7 @@ struct EuroformHook
 	double	angX;			// 본체 회전 (X)
 	double	angY;			// 본체 회전 (Y)
 
-	short	iiHookType;		// 후크 타입
+	short	iHookType;		// 후크 타입
 	short	iHookShape;		// 후크 모양
 };
 
