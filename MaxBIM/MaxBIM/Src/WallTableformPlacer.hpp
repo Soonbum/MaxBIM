@@ -265,7 +265,8 @@ public:
 	API_Guid	placePLYW (Plywood params);							// 배치: 합판
 	API_Guid	placeTIMB (Wood params);							// 배치: 목재
 	API_Guid	placeJOIN2 (MetalFittings params);					// 배치: 사각파이프 연결철물
-	API_Guid	placePUSH2 (HeadpieceOfPushPullProps params);		// 배치: 빔조인트용 Push-Pull Props
+	API_Guid	placePUSH2 (HeadpieceOfPushPullProps params);		// 배치: 빔조인트용 Push-Pull Props (세로 방향: 타입 A)
+	API_Guid	placePUSH2_hor (HeadpieceOfPushPullProps params);	// 배치: 빔조인트용 Push-Pull Props (가로 방향: 타입 B)
 	API_Guid	placeHOOK (EuroformHook params);					// 배치: 유로폼 후크
 	API_Guid	placeHANG (RectPipeHanger params);					// 배치: 각파이프 행거
 	API_Guid	placeHOLE (API_Guid guid_Target, Cylinder operator_Object);				// 타공을 위한 기둥 객체를 배치하고 숨김, "원통 19" 객체를 이용함

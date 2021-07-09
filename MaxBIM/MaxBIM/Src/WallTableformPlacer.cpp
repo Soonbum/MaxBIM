@@ -3094,16 +3094,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 	params_PUSH.leftBottomZ = cell.leftBottomZ;
 	params_PUSH.ang = cell.ang;
 
-	moveIn3D ('x', params_PUSH.ang, horizontalGap + placingZone.verticalBarLeftOffset - 0.0375, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('x', params_PUSH.ang, horizontalGap + placingZone.verticalBarLeftOffset - 0.0475, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	moveIn3D ('y', params_PUSH.ang, -0.2685, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	moveIn3D ('z', params_PUSH.ang, 0.291, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 
 	// 처음 행
 	elemList.Push (placePUSH2 (params_PUSH));
-	moveIn3D ('x', params_PUSH.ang, -(horizontalGap + placingZone.verticalBarLeftOffset - 0.0375) + cell.horLen - (horizontalGap + placingZone.verticalBarRightOffset + 0.0375), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('x', params_PUSH.ang, -(horizontalGap + placingZone.verticalBarLeftOffset - 0.0475) + cell.horLen - (horizontalGap + placingZone.verticalBarRightOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	if (placingZone.nVerticalBar > 1)
 		elemList.Push (placePUSH2 (params_PUSH));
-	moveIn3D ('x', params_PUSH.ang, (horizontalGap + placingZone.verticalBarLeftOffset - 0.0375) - cell.horLen + (horizontalGap + placingZone.verticalBarRightOffset + 0.0375), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('x', params_PUSH.ang, (horizontalGap + placingZone.verticalBarLeftOffset - 0.0475) - cell.horLen + (horizontalGap + placingZone.verticalBarRightOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	//if (cell.verLen > 4.000) {
 	//	elev_headpiece = 4.000 * 0.80;
 	//} else {
@@ -3113,7 +3113,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 	moveIn3D ('z', params_PUSH.ang, elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	// 마지막 행
 		elemList.Push (placePUSH2 (params_PUSH));
-	moveIn3D ('x', params_PUSH.ang, -(horizontalGap + placingZone.verticalBarLeftOffset - 0.0375) + cell.horLen - (horizontalGap + placingZone.verticalBarRightOffset + 0.0375), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('x', params_PUSH.ang, -(horizontalGap + placingZone.verticalBarLeftOffset - 0.0475) + cell.horLen - (horizontalGap + placingZone.verticalBarRightOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	if (placingZone.nVerticalBar > 1)
 		elemList.Push (placePUSH2 (params_PUSH));
 
@@ -3452,16 +3452,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 		params_PUSH.leftBottomZ = cell.leftBottomZ;
 		params_PUSH.ang = cell.ang;
 
-		moveIn3D ('x', params_PUSH.ang, horizontalGap + placingZone.verticalBarRightOffset - 0.0375, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('x', params_PUSH.ang, horizontalGap + placingZone.verticalBarRightOffset - 0.0475, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		moveIn3D ('y', params_PUSH.ang, -0.2685, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		moveIn3D ('z', params_PUSH.ang, 0.291, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 
 		// 처음 행
 		elemList.Push (placePUSH2 (params_PUSH));
-		moveIn3D ('x', params_PUSH.ang, -(horizontalGap + placingZone.verticalBarRightOffset - 0.0375) + cell.horLen - (horizontalGap + placingZone.verticalBarLeftOffset + 0.0375), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('x', params_PUSH.ang, -(horizontalGap + placingZone.verticalBarRightOffset - 0.0475) + cell.horLen - (horizontalGap + placingZone.verticalBarLeftOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		if (placingZone.nVerticalBar > 1)
 			elemList.Push (placePUSH2 (params_PUSH));
-		moveIn3D ('x', params_PUSH.ang, (horizontalGap + placingZone.verticalBarRightOffset - 0.0375) - cell.horLen + (horizontalGap + placingZone.verticalBarLeftOffset + 0.0375), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('x', params_PUSH.ang, (horizontalGap + placingZone.verticalBarRightOffset - 0.0475) - cell.horLen + (horizontalGap + placingZone.verticalBarLeftOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		//if (cell.verLen > 4.000) {
 		//	elev_headpiece = 4.000 * 0.80;
 		//} else {
@@ -3471,7 +3471,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_Type2 (CellFor
 		moveIn3D ('z', params_PUSH.ang, elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		// 마지막 행
 		elemList.Push (placePUSH2 (params_PUSH));
-		moveIn3D ('x', params_PUSH.ang, -(horizontalGap + placingZone.verticalBarRightOffset - 0.0375) + cell.horLen - (horizontalGap + placingZone.verticalBarLeftOffset + 0.0375), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('x', params_PUSH.ang, -(horizontalGap + placingZone.verticalBarRightOffset - 0.0475) + cell.horLen - (horizontalGap + placingZone.verticalBarLeftOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		if (placingZone.nVerticalBar > 1)
 			elemList.Push (placePUSH2 (params_PUSH));
 
@@ -10288,7 +10288,7 @@ API_Guid	WallTableformPlacingZone::placeJOIN2 (MetalFittings params)
 	return	elem.header.guid;
 }
 
-// 배치: 빔조인트용 Push-Pull Props
+// 배치: 빔조인트용 Push-Pull Props (세로 방향: 타입 A)
 API_Guid	WallTableformPlacingZone::placePUSH2 (HeadpieceOfPushPullProps params)
 {
 	GSErrCode	err = NoError;
@@ -10332,6 +10332,64 @@ API_Guid	WallTableformPlacingZone::placePUSH2 (HeadpieceOfPushPullProps params)
 
 	// 레이어
 	elem.header.layer = layerInd_HeadPiece;
+
+	// 타입 지정
+	setParameterByName (&memo, "type", "타입 A");
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 배치: 빔조인트용 Push-Pull Props (가로 방향: 타입 B)
+API_Guid	placePUSH2_hor (HeadpieceOfPushPullProps params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_HeadPiece;
+
+	// 타입 지정
+	setParameterByName (&memo, "type", "타입 B");
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);

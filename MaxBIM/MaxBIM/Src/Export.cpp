@@ -720,6 +720,9 @@ GSErrCode	exportSelectedElementInfo (void)
 				if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
 					sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [2][xx][yy].c_str ());
 					fprintf (fp, buffer);
+
+					sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+					fprintf (fp, buffer);
 				}
 
 			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판") == 0) {
@@ -731,6 +734,9 @@ GSErrCode	exportSelectedElementInfo (void)
 					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
 						fprintf (fp, buffer);
+
+						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+						fprintf (fp, buffer);
 					}
 				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "4x8 [1220x2440]") == 0) {
 					sprintf (buffer, "1220 X 2440 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
@@ -739,6 +745,9 @@ GSErrCode	exportSelectedElementInfo (void)
 					// 제작틀 ON
 					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+						fprintf (fp, buffer);
+
+						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
 						fprintf (fp, buffer);
 					}
 				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x5 [606x1520]") == 0) {
@@ -749,6 +758,9 @@ GSErrCode	exportSelectedElementInfo (void)
 					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
 						fprintf (fp, buffer);
+
+						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+						fprintf (fp, buffer);
 					}
 				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x6 [606x1820]") == 0) {
 					sprintf (buffer, "606 X 1820 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
@@ -758,6 +770,9 @@ GSErrCode	exportSelectedElementInfo (void)
 					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
 						fprintf (fp, buffer);
+
+						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+						fprintf (fp, buffer);
 					}
 				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "3x5 [910x1520]") == 0) {
 					sprintf (buffer, "910 X 1520 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
@@ -766,6 +781,9 @@ GSErrCode	exportSelectedElementInfo (void)
 					// 제작틀 ON
 					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+						fprintf (fp, buffer);
+
+						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
 						fprintf (fp, buffer);
 					}
 				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비규격") == 0) {
@@ -778,6 +796,9 @@ GSErrCode	exportSelectedElementInfo (void)
 					// 제작틀 ON
 					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
 						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+						fprintf (fp, buffer);
+
+						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
 						fprintf (fp, buffer);
 					}
 				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비정형") == 0) {
@@ -1324,6 +1345,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [2][xx][yy].c_str ());
 							fprintf (fp, buffer);
 							fprintf (fp_unite, buffer);
+
+							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 						}
 
 					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판") == 0) {
@@ -1337,6 +1362,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
+
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 							}
 						} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "4x8 [1220x2440]") == 0) {
 							sprintf (buffer, "1220 X 2440 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
@@ -1346,6 +1375,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							// 제작틀 ON
 							if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
 							}
@@ -1359,6 +1392,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
+
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 							}
 						} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x6 [606x1820]") == 0) {
 							sprintf (buffer, "606 X 1820 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
@@ -1370,6 +1407,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
+
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 							}
 						} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "3x5 [910x1520]") == 0) {
 							sprintf (buffer, "910 X 1520 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
@@ -1379,6 +1420,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							// 제작틀 ON
 							if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
 							}
@@ -1393,6 +1438,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							// 제작틀 ON
 							if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
 							}
