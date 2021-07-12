@@ -439,9 +439,9 @@
 }
 
 /* ---------------------------------------------------------- Library Converting - Temporary Construction Object */
-'GDLG'  32519  Modal | grow	  0		  0		300		570		"Layer assignment for TCO" {
-/* [  1] */	Button			 70		530		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		530		 70		 25		LargePlain		"Cancel"
+'GDLG'  32519  Modal | grow	  0		  0		300		660		"Layer assignment for TCO" {
+/* [  1] */	Button			 70		620		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		620		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	Icon			 85		 13		 29		 14  	32502
 /* [  4] */	LeftText		120		 15		200		 23		LargePlain		"Layer Settings"
@@ -461,21 +461,27 @@
 /* [ 17] */	RightText		 10		405		100		 23		LargePlain		"Outcorner Angle"
 /* [ 18] */	RightText		 10		435		100		 23		LargePlain		"Outcorner Panel"
 /* [ 19] */	RightText		 10		465		100		 23		LargePlain		"Incorner Panel"
+/* [ 20] */	RightText		 10		495		100		 23		LargePlain		"Rectpipe Hanger"
+/* [ 21] */	RightText		 10		525		100		 23		LargePlain		"Euroform Hook"
+/* [ 22] */	RightText		 10		555		100		 23		LargePlain		"Hidden"
 
-/* [ 20] */	UserControl		120		 69		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM (SLAB)	*/
-/* [ 21] */	UserControl		120		 99		160		 25		257	0x0006 0x0000 0		/* Layer Control - PROFILE			*/
-/* [ 22] */	UserControl		120		129		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 23] */	UserControl		120		159		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE		*/
-/* [ 24] */	UserControl		120		189		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
-/* [ 25] */	UserControl		120		219		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE			*/
-/* [ 26] */	UserControl		120		249		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN				*/
-/* [ 27] */	UserControl		120		279		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
-/* [ 28] */	UserControl		120		309		160		 25		257	0x0006 0x0000 0		/* Layer Control - STEELFORM		*/
-/* [ 29] */	UserControl		120		339		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
-/* [ 30] */	UserControl		120		369		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
-/* [ 31] */	UserControl		120		399		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
-/* [ 32] */	UserControl		120		429		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
-/* [ 33] */	UserControl		120		459		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER PANEL	*/
+/* [ 23] */	UserControl		120		 69		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM (SLAB)	*/
+/* [ 24] */	UserControl		120		 99		160		 25		257	0x0006 0x0000 0		/* Layer Control - PROFILE			*/
+/* [ 25] */	UserControl		120		129		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 26] */	UserControl		120		159		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE		*/
+/* [ 27] */	UserControl		120		189		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
+/* [ 28] */	UserControl		120		219		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE			*/
+/* [ 29] */	UserControl		120		249		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN				*/
+/* [ 30] */	UserControl		120		279		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
+/* [ 31] */	UserControl		120		309		160		 25		257	0x0006 0x0000 0		/* Layer Control - STEELFORM		*/
+/* [ 32] */	UserControl		120		339		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 33] */	UserControl		120		369		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
+/* [ 34] */	UserControl		120		399		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
+/* [ 35] */	UserControl		120		429		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
+/* [ 36] */	UserControl		120		459		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER PANEL	*/
+/* [ 37] */	UserControl		120		489		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECTPIPE HANGER	*/
+/* [ 38] */	UserControl		120		519		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM HOOK	*/
+/* [ 39] */	UserControl		120		549		160		 25		257	0x0006 0x0000 0		/* Layer Control - HIDDEN			*/
 }
 
 'GDLG' 32520  Palette | leftCaption | close		0	0	201	101 "" {
