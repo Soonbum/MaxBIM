@@ -12,6 +12,8 @@
 #include "WallTableformPlacer.hpp"
 #include "SlabTableformPlacer.hpp"
 
+#include "SupportingPostPlacer.hpp"
+
 #include "LibraryConvert.hpp"
 
 #include "Layers.hpp"
@@ -59,6 +61,7 @@ GSErrCode	__ACENV_CALL	RegisterInterface (void)
 	
 	err = ACAPI_Register_Menu (32001, 32002, MenuCode_UserDef, MenuFlag_Default);	// 유로폼 배치
 	err = ACAPI_Register_Menu (32011, 32012, MenuCode_UserDef, MenuFlag_Default);	// 테이블폼 배치
+	err = ACAPI_Register_Menu (32015, 32016, MenuCode_UserDef, MenuFlag_Default);	// 동바리 배치
 	err = ACAPI_Register_Menu (32013, 32014, MenuCode_UserDef, MenuFlag_Default);	// Library Converting
 	err = ACAPI_Register_Menu (32005, 32006, MenuCode_UserDef, MenuFlag_Default);	// 레이어 유틸
 	err = ACAPI_Register_Menu (32007, 32008, MenuCode_UserDef, MenuFlag_Default);	// 내보내기
@@ -147,6 +150,19 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						return err;
 					});
 					break;
+			}
+			break;
+
+		case 32015:
+			// 동바리 배치
+			switch (menuParams->menuItemRef.itemIndex) {
+			case 1:
+				// PERI 동바리 자동 배치
+				err = ACAPI_CallUndoableCommand ("PERI 동바리 자동 배치", [&] () -> GSErrCode {
+					err = placePERIPost ();
+					return err;
+				});
+				break;
 			}
 			break;
 
@@ -240,7 +256,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
-
+						//
 						// *** 원하는 코드를 위에 넣으시오.
 						return err;
 					});
@@ -264,6 +280,7 @@ GSErrCode __ACENV_CALL	Initialize (void)
 	
 	err = ACAPI_Install_MenuHandler (32001, MenuCommandHandler);	// 유로폼 배치
 	err = ACAPI_Install_MenuHandler (32011, MenuCommandHandler);	// 테이블폼 배치
+	err = ACAPI_Install_MenuHandler (32015, MenuCommandHandler);	// 동바리 배치
 	err = ACAPI_Install_MenuHandler (32013, MenuCommandHandler);	// Library Converting
 	err = ACAPI_Install_MenuHandler (32005, MenuCommandHandler);	// 레이어 유틸
 	err = ACAPI_Install_MenuHandler (32007, MenuCommandHandler);	// 내보내기

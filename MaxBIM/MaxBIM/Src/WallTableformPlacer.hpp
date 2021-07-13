@@ -177,8 +177,11 @@ public:
 
 	CellForWallTableform		cells [50];			// 테이블폼 셀 정보
 	UpperCellForWallTableform	upperCells [50];	// 테이블폼 상단의 유로폼 또는 합판 셀 정보
-	short		nCells;								// 테이블폼 셀 개수
+	short		nCells;								// 테이블폼 셀 개수 (수평 방향으로)
 	double		marginTop;							// 상단 여백 높이
+
+	short		nCells_vertical;					// 테이블폼 셀 개수 (수직 방향으로) - 커스텀 전용
+	CellForWallTableform		customCells [5][5];	// 테이블폼 셀 정보 - 커스텀 전용
 
 	// 테이블폼 개수 (각각은 너비 400~2300의 테이블폼을 의미함) - 세로 방향
 	short	n400w;
@@ -259,13 +262,13 @@ public:
 	API_Guid	placePINB (PinBoltSet params);						// 배치: 핀볼트 세트
 	API_Guid	placeTIE  (WallTie params);							// 배치: 벽체 타이
 	API_Guid	placeCLAM (CrossClamp params);						// 배치: 직교 클램프
-	API_Guid	placePUSH (HeadpieceOfPushPullProps params);		// 배치: 헤드피스 (세로 방향: 타입 A)
+	API_Guid	placePUSH_ver (HeadpieceOfPushPullProps params);	// 배치: 헤드피스 (세로 방향: 타입 A)
 	API_Guid	placePUSH_hor (HeadpieceOfPushPullProps params);	// 배치: 헤드피스 (가로 방향: 타입 B)
 	API_Guid	placeJOIN (MetalFittings params);					// 배치: 결합철물
 	API_Guid	placePLYW (Plywood params);							// 배치: 합판
 	API_Guid	placeTIMB (Wood params);							// 배치: 목재
 	API_Guid	placeJOIN2 (MetalFittings params);					// 배치: 사각파이프 연결철물
-	API_Guid	placePUSH2 (HeadpieceOfPushPullProps params);		// 배치: 빔조인트용 Push-Pull Props (세로 방향: 타입 A)
+	API_Guid	placePUSH2_ver (HeadpieceOfPushPullProps params);	// 배치: 빔조인트용 Push-Pull Props (세로 방향: 타입 A)
 	API_Guid	placePUSH2_hor (HeadpieceOfPushPullProps params);	// 배치: 빔조인트용 Push-Pull Props (가로 방향: 타입 B)
 	API_Guid	placeHOOK (EuroformHook params);					// 배치: 유로폼 후크
 	API_Guid	placeHANG (RectPipeHanger params);					// 배치: 각파이프 행거
@@ -283,6 +286,6 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 벽 상단의 합판/목재 영역을 유로폼으로 채울지 물어보는 3차 다이얼로그 - 가로 방향
 
 GSErrCode	placeTableformOnWall_Custom (void);			// 벽에 테이블폼을 배치하는 통합 루틴 - 커스텀
-short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 맞춤 제작을 위한 다이얼로그 (테이블폼 방향, 유로폼 가로/세로 개수 및 길이)
+short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 맞춤 제작을 위한 다이얼로그 (테이블폼 방향, 유로폼 가로/세로 개수 및 길이) - 커스텀
 
 #endif

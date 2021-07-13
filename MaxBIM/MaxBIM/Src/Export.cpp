@@ -720,9 +720,6 @@ GSErrCode	exportSelectedElementInfo (void)
 				if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
 					sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [2][xx][yy].c_str ());
 					fprintf (fp, buffer);
-
-					sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-					fprintf (fp, buffer);
 				}
 
 			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판") == 0) {
@@ -1343,10 +1340,6 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 						if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
 							sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [2][xx][yy].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
 							fprintf (fp, buffer);
 							fprintf (fp_unite, buffer);
 						}
