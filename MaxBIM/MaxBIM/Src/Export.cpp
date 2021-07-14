@@ -535,10 +535,10 @@ GSErrCode	exportSelectedElementInfo (void)
 		return err;
 	}
 
-	double			value_numeric [50];
-	string			value_string [50];
-	API_AddParID	value_type [50];
-	char			tempStr [50];
+	double			value_numeric [256];
+	string			value_string [256];
+	API_AddParID	value_type [256];
+	char			tempStr [256];
 	const char*		foundStr;
 	bool			foundObject;
 
@@ -552,7 +552,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
 		// 파라미터 스크립트를 강제로 실행시킴
-		ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+		//ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
 
 		for (yy = 0 ; yy < objectInfo->nameKey.size () ; ++yy) {
 
@@ -1002,7 +1002,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
 	// [DIALOG] 다이얼로그에서 객체 이미지를 캡쳐할지 여부를 물어봄
-	result = DGAlert (DG_INFORMATION, "캡쳐 여부 질문", "캡쳐 작업을 수행하시겠습니까?", "", "예", "아니오", "");
+	//result = DGAlert (DG_INFORMATION, "캡쳐 여부 질문", "캡쳐 작업을 수행하시겠습니까?", "", "예", "아니오", "");
+	result = DG_CANCEL;
 
 	// 프로젝트 내 레이어 개수를 알아냄
 	BNZeroMemory (&attrib, sizeof (API_Attribute));
@@ -1125,10 +1126,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 			SummaryOfObjectInfo		*objectInfo = new SummaryOfObjectInfo ();
 
-			double			value_numeric [50];
-			string			value_string [50];
-			API_AddParID	value_type [50];
-			char			tempStr [50];
+			double			value_numeric [256];
+			string			value_string [256];
+			API_AddParID	value_type [256];
+			char			tempStr [256];
 			const char*		foundStr;
 			bool			foundObject;
 
@@ -1142,15 +1143,13 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 				err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
 				// 객체의 원점 수집하기 ==================================
-				if (result == DG_OK) {
-					API_Coord3D	coord;
+				API_Coord3D	coord;
 
-					coord.x = elem.object.pos.x;
-					coord.y = elem.object.pos.y;
-					coord.z = elem.object.level;
+				coord.x = elem.object.pos.x;
+				coord.y = elem.object.pos.y;
+				coord.z = elem.object.level;
 					
-					vecPos.push_back (coord);
-				}
+				vecPos.push_back (coord);
 				// 객체의 원점 수집하기 ==================================
 
 				// 작업 층 높이 반영 -- 객체
@@ -1168,7 +1167,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 				}
 
 				// 파라미터 스크립트를 강제로 실행시킴
-				ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+				//ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
 
 				for (yy = 0 ; yy < objectInfo->nameKey.size () ; ++yy) {
 

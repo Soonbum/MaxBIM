@@ -5429,16 +5429,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 	params_PUSH.leftBottomZ = cell.leftBottomZ;
 	params_PUSH.ang = cell.ang;
 
-	moveIn3D ('z', params_PUSH.ang, cell.verLen - (verticalGap + placingZone.verticalBarLeftOffset - 0.0475) - 0.0975, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('z', params_PUSH.ang, cell.verLen - (verticalGap + placingZone.verticalBarRightOffset - 0.0475) - 0.0975, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	moveIn3D ('y', params_PUSH.ang, -0.2685, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	moveIn3D ('x', params_PUSH.ang, 0.291, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 
 	// 처음 행
 	elemList.Push (placePUSH2_hor (params_PUSH));
-	moveIn3D ('z', params_PUSH.ang, (verticalGap + placingZone.verticalBarLeftOffset - 0.0475) - cell.verLen + (verticalGap + placingZone.verticalBarRightOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('z', params_PUSH.ang, (verticalGap + placingZone.verticalBarRightOffset - 0.0475) - cell.verLen + (verticalGap + placingZone.verticalBarLeftOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	if (placingZone.nVerticalBar > 1)
 		elemList.Push (placePUSH2_hor (params_PUSH));
-	moveIn3D ('z', params_PUSH.ang, -(verticalGap + placingZone.verticalBarLeftOffset - 0.0475) + cell.verLen - (verticalGap + placingZone.verticalBarRightOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('z', params_PUSH.ang, -(verticalGap + placingZone.verticalBarRightOffset - 0.0475) + cell.verLen - (verticalGap + placingZone.verticalBarLeftOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	//if (cell.verLen > 4.000) {
 	//	elev_headpiece = 4.000 * 0.80;
 	//} else {
@@ -5448,7 +5448,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 	moveIn3D ('x', params_PUSH.ang, elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	// 마지막 행
 		elemList.Push (placePUSH2_hor (params_PUSH));
-	moveIn3D ('z', params_PUSH.ang, (verticalGap + placingZone.verticalBarLeftOffset - 0.0475) - cell.verLen + (verticalGap + placingZone.verticalBarRightOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+	moveIn3D ('z', params_PUSH.ang, (verticalGap + placingZone.verticalBarRightOffset - 0.0475) - cell.verLen + (verticalGap + placingZone.verticalBarLeftOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 	if (placingZone.nVerticalBar > 1)
 		elemList.Push (placePUSH2_hor (params_PUSH));
 
@@ -5460,7 +5460,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 	params_JOIN.angX = DegreeToRad (180.0);
 	params_JOIN.angY = DegreeToRad (90.0);
 	
-	moveIn3D ('z', params_JOIN.ang, cell.verLen - (verticalGap + placingZone.verticalBarLeftOffset + 0.081), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('z', params_JOIN.ang, cell.verLen - (verticalGap + placingZone.verticalBarRightOffset + 0.081), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 	moveIn3D ('y', params_JOIN.ang, -0.1155, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 	moveIn3D ('x', params_JOIN.ang, 0.130, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 
@@ -5480,7 +5480,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 			moveIn3D ('x', params_JOIN.ang, placementInfo.width [xx], &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 		}
 	}
-	moveIn3D ('z', params_JOIN.ang, (verticalGap + placingZone.verticalBarLeftOffset + 0.081) - cell.verLen + (verticalGap + placingZone.verticalBarRightOffset + 0.081) - 0.162, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+	moveIn3D ('z', params_JOIN.ang, (verticalGap + placingZone.verticalBarRightOffset + 0.081) - cell.verLen + (verticalGap + placingZone.verticalBarLeftOffset + 0.081) - 0.162, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 	moveIn3D ('x', params_JOIN.ang, 0.300 - cell.horLen, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 
 	if (placingZone.nVerticalBar > 1) {
@@ -5785,16 +5785,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		params_PUSH.leftBottomZ = cell.leftBottomZ;
 		params_PUSH.ang = cell.ang;
 
-		moveIn3D ('z', params_PUSH.ang, cell.verLen - (verticalGap + placingZone.verticalBarLeftOffset - 0.0475) - 0.0975, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('z', params_PUSH.ang, cell.verLen - (verticalGap + placingZone.verticalBarRightOffset - 0.0475) - 0.0975, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		moveIn3D ('y', params_PUSH.ang, -0.2685, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		moveIn3D ('x', params_PUSH.ang, cell.horLen - 0.291 - 0.095, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 
 		// 처음 행
 		elemList.Push (placePUSH2_hor (params_PUSH));
-		moveIn3D ('z', params_PUSH.ang, (verticalGap + placingZone.verticalBarLeftOffset - 0.0475) - cell.verLen + (verticalGap + placingZone.verticalBarRightOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('z', params_PUSH.ang, (verticalGap + placingZone.verticalBarRightOffset - 0.0475) - cell.verLen + (verticalGap + placingZone.verticalBarLeftOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		if (placingZone.nVerticalBar > 1)
 			elemList.Push (placePUSH2_hor (params_PUSH));
-		moveIn3D ('z', params_PUSH.ang, -(verticalGap + placingZone.verticalBarLeftOffset - 0.0475) + cell.verLen - (verticalGap + placingZone.verticalBarRightOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('z', params_PUSH.ang, -(verticalGap + placingZone.verticalBarRightOffset - 0.0475) + cell.verLen - (verticalGap + placingZone.verticalBarLeftOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		//if (cell.verLen > 4.000) {
 		//	elev_headpiece = 4.000 * 0.80;
 		//} else {
@@ -5804,7 +5804,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		moveIn3D ('x', params_PUSH.ang, -elev_headpiece, &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		// 마지막 행
 			elemList.Push (placePUSH2_hor (params_PUSH));
-		moveIn3D ('z', params_PUSH.ang, (verticalGap + placingZone.verticalBarLeftOffset - 0.0475) - cell.verLen + (verticalGap + placingZone.verticalBarRightOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
+		moveIn3D ('z', params_PUSH.ang, (verticalGap + placingZone.verticalBarRightOffset - 0.0475) - cell.verLen + (verticalGap + placingZone.verticalBarLeftOffset + 0.0475), &params_PUSH.leftBottomX, &params_PUSH.leftBottomY, &params_PUSH.leftBottomZ);
 		if (placingZone.nVerticalBar > 1)
 			elemList.Push (placePUSH2_hor (params_PUSH));
 
@@ -5816,7 +5816,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		params_JOIN.angX = DegreeToRad (180.0);
 		params_JOIN.angY = DegreeToRad (90.0);
 	
-		moveIn3D ('z', params_JOIN.ang, cell.verLen - (verticalGap + placingZone.verticalBarLeftOffset + 0.081), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('z', params_JOIN.ang, cell.verLen - (verticalGap + placingZone.verticalBarRightOffset + 0.081), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 		moveIn3D ('y', params_JOIN.ang, -0.1155, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 		moveIn3D ('x', params_JOIN.ang, cell.horLen - 0.130 - 0.100, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 
@@ -5836,7 +5836,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 				moveIn3D ('x', params_JOIN.ang, -placementInfo.width [xx], &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 			}
 		}
-		moveIn3D ('z', params_JOIN.ang, (verticalGap + placingZone.verticalBarLeftOffset + 0.081) - cell.verLen + (verticalGap + placingZone.verticalBarRightOffset + 0.081) - 0.162, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
+		moveIn3D ('z', params_JOIN.ang, (verticalGap + placingZone.verticalBarRightOffset + 0.081) - cell.verLen + (verticalGap + placingZone.verticalBarLeftOffset + 0.081) - 0.162, &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 		moveIn3D ('x', params_JOIN.ang, -(0.300 - cell.horLen), &params_JOIN.leftBottomX, &params_JOIN.leftBottomY, &params_JOIN.leftBottomZ);
 
 		if (placingZone.nVerticalBar > 1) {

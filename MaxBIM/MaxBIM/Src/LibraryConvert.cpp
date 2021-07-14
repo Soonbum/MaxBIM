@@ -5006,16 +5006,16 @@ GSErrCode	placeTableformOnWall_landscape_Type2 (WallTableform params)
 	headpiece.leftBottomZ = params.leftBottomZ;
 	headpiece.ang = params.ang;
 
-	moveIn3D ('z', headpiece.ang, params.height - (verticalGap + verticalBarLeftOffset - 0.0475) - 0.0975, &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
+	moveIn3D ('z', headpiece.ang, params.height - (verticalGap + verticalBarRightOffset - 0.0475) - 0.0975, &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 	moveIn3D ('y', headpiece.ang, -0.2685, &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 	moveIn3D ('x', headpiece.ang, 0.291, &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 
 	// 처음 행
 	elemList.Push (placeJointHeadpeace_hor (headpiece));
-	moveIn3D ('z', headpiece.ang, (verticalGap + verticalBarLeftOffset - 0.0475) - params.height + (verticalGap + verticalBarRightOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
+	moveIn3D ('z', headpiece.ang, (verticalGap + verticalBarRightOffset - 0.0475) - params.height + (verticalGap + verticalBarLeftOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 	if (nVerticalBar > 1)
 		elemList.Push (placeJointHeadpeace_hor (headpiece));
-	moveIn3D ('z', headpiece.ang, -(verticalGap + verticalBarLeftOffset - 0.0475) + params.height - (verticalGap + verticalBarRightOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
+	moveIn3D ('z', headpiece.ang, -(verticalGap + verticalBarRightOffset - 0.0475) + params.height - (verticalGap + verticalBarLeftOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 	//if (cell.verLen > 4.000) {
 	//	elev_headpiece = 4.000 * 0.80;
 	//} else {
@@ -5025,7 +5025,7 @@ GSErrCode	placeTableformOnWall_landscape_Type2 (WallTableform params)
 	moveIn3D ('x', headpiece.ang, elev_headpiece, &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 	// 마지막 행
 		elemList.Push (placeJointHeadpeace_hor (headpiece));
-	moveIn3D ('z', headpiece.ang, (verticalGap + verticalBarLeftOffset - 0.0475) - params.height + (verticalGap + verticalBarRightOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
+	moveIn3D ('z', headpiece.ang, (verticalGap + verticalBarRightOffset - 0.0475) - params.height + (verticalGap + verticalBarLeftOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 	if (nVerticalBar > 1)
 		elemList.Push (placeJointHeadpeace_hor (headpiece));
 
@@ -5037,7 +5037,7 @@ GSErrCode	placeTableformOnWall_landscape_Type2 (WallTableform params)
 	fittings.angX = DegreeToRad (180.0);
 	fittings.angY = DegreeToRad (90.0);
 	
-	moveIn3D ('z', fittings.ang, params.height - (verticalGap + verticalBarLeftOffset + 0.081), &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
+	moveIn3D ('z', fittings.ang, params.height - (verticalGap + verticalBarRightOffset + 0.081), &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 	moveIn3D ('y', fittings.ang, -0.1155, &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 	moveIn3D ('x', fittings.ang, 0.130, &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 
@@ -5057,7 +5057,7 @@ GSErrCode	placeTableformOnWall_landscape_Type2 (WallTableform params)
 			moveIn3D ('x', fittings.ang, width [xx], &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 		}
 	}
-	moveIn3D ('z', fittings.ang, (verticalGap + verticalBarLeftOffset + 0.081) - params.height + (verticalGap + verticalBarRightOffset + 0.081) - 0.162, &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
+	moveIn3D ('z', fittings.ang, (verticalGap + verticalBarRightOffset + 0.081) - params.height + (verticalGap + verticalBarLeftOffset + 0.081) - 0.162, &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 	moveIn3D ('x', fittings.ang, 0.300 - params.width, &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 
 	if (nVerticalBar > 1) {
@@ -5362,16 +5362,16 @@ GSErrCode	placeTableformOnWall_landscape_Type2 (WallTableform params)
 		headpiece.leftBottomZ = params.leftBottomZ;
 		headpiece.ang = params.ang;
 
-		moveIn3D ('z', headpiece.ang, params.height - (verticalGap + verticalBarLeftOffset - 0.0475) - 0.0975, &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
+		moveIn3D ('z', headpiece.ang, params.height - (verticalGap + verticalBarRightOffset - 0.0475) - 0.0975, &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 		moveIn3D ('y', headpiece.ang, -0.2685, &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 		moveIn3D ('x', headpiece.ang, params.width - 0.291 - 0.095, &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 
 		// 처음 행
 		elemList.Push (placeJointHeadpeace_hor (headpiece));
-		moveIn3D ('z', headpiece.ang, (verticalGap + verticalBarLeftOffset - 0.0475) - params.height + (verticalGap + verticalBarRightOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
+		moveIn3D ('z', headpiece.ang, (verticalGap + verticalBarRightOffset - 0.0475) - params.height + (verticalGap + verticalBarLeftOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 		if (nVerticalBar > 1)
 			elemList.Push (placeJointHeadpeace_hor (headpiece));
-		moveIn3D ('z', headpiece.ang, -(verticalGap + verticalBarLeftOffset - 0.0475) + params.height - (verticalGap + verticalBarRightOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
+		moveIn3D ('z', headpiece.ang, -(verticalGap + verticalBarRightOffset - 0.0475) + params.height - (verticalGap + verticalBarLeftOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 		//if (cell.verLen > 4.000) {
 		//	elev_headpiece = 4.000 * 0.80;
 		//} else {
@@ -5381,7 +5381,7 @@ GSErrCode	placeTableformOnWall_landscape_Type2 (WallTableform params)
 		moveIn3D ('x', headpiece.ang, -elev_headpiece, &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 		// 마지막 행
 			elemList.Push (placeJointHeadpeace_hor (headpiece));
-		moveIn3D ('z', headpiece.ang, (verticalGap + verticalBarLeftOffset - 0.0475) - params.height + (verticalGap + verticalBarRightOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
+		moveIn3D ('z', headpiece.ang, (verticalGap + verticalBarRightOffset - 0.0475) - params.height + (verticalGap + verticalBarLeftOffset + 0.0475), &headpiece.leftBottomX, &headpiece.leftBottomY, &headpiece.leftBottomZ);
 		if (nVerticalBar > 1)
 			elemList.Push (placeJointHeadpeace_hor (headpiece));
 
@@ -5393,7 +5393,7 @@ GSErrCode	placeTableformOnWall_landscape_Type2 (WallTableform params)
 		fittings.angX = DegreeToRad (180.0);
 		fittings.angY = DegreeToRad (90.0);
 	
-		moveIn3D ('z', fittings.ang, params.height - (verticalGap + verticalBarLeftOffset + 0.081), &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
+		moveIn3D ('z', fittings.ang, params.height - (verticalGap + verticalBarRightOffset + 0.081), &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 		moveIn3D ('y', fittings.ang, -0.1155, &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 		moveIn3D ('x', fittings.ang, params.width - 0.130 - 0.100, &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 
@@ -5413,7 +5413,7 @@ GSErrCode	placeTableformOnWall_landscape_Type2 (WallTableform params)
 				moveIn3D ('x', fittings.ang, -width [xx], &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 			}
 		}
-		moveIn3D ('z', fittings.ang, (verticalGap + verticalBarLeftOffset + 0.081) - params.height + (verticalGap + verticalBarRightOffset + 0.081) - 0.162, &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
+		moveIn3D ('z', fittings.ang, (verticalGap + verticalBarRightOffset + 0.081) - params.height + (verticalGap + verticalBarLeftOffset + 0.081) - 0.162, &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 		moveIn3D ('x', fittings.ang, -(0.300 - params.width), &fittings.leftBottomX, &fittings.leftBottomY, &fittings.leftBottomZ);
 
 		if (nVerticalBar > 1) {

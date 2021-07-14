@@ -75,11 +75,11 @@ public:
 	vector<short>	nInfo;			// 표시할 정보 필드 개수
 
 	// 객체별 정보 (Object 타입)
-	vector<string>	varName [30];					// 변수 이름 (예: nom)
-	vector<string>	varDesc [30];					// 변수 이름에 대한 설명 (예: 규격)
-	vector<short>	varShowFlag [30];				// 변수 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
-	vector<vector<string>>	varValue [30];			// 변수 이름에 대한 값
-	vector<API_AddParID>	varType [30];			// 변수 이름에 대한 값의 타입
+	vector<string>	varName [200];					// 변수 이름 (예: nom)
+	vector<string>	varDesc [200];					// 변수 이름에 대한 설명 (예: 규격)
+	vector<short>	varShowFlag [200];				// 변수 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
+	vector<vector<string>>	varValue [200];			// 변수 이름에 대한 값
+	vector<API_AddParID>	varType [200];			// 변수 이름에 대한 값의 타입
 
 	vector<vector<short>>	combinationCount;	// 여러 변수들의 조합에 대한 개수
 
