@@ -64,36 +64,27 @@ class SummaryOfObjectInfo
 {
 public:
 	SummaryOfObjectInfo ();		// 생성자
+	int	quantityPlus1 (vector<string> record);		// 객체의 레코드 수량 1 증가 (있으면 증가, 없으면 신규 추가)
 
 public:
-	int vectorSize;			// 벡터 크기
-	int combinationSize;	// 조합 개수 크기
+	// objectInfo.csv 파일 정보
+	vector<string>			keyName;		// 객체를 구분할 수 있는 값(문자열)이 들어 있는 변수 이름 (예: u_comp)
+	vector<string>			keyDesc;		// 객체의 이름 (예: 유로폼)
+	vector<int>				nInfo;			// 표시할 정보 필드 개수
+	vector<vector<string>>	varName;		// 변수의 이름 (예: eu_stan_onoff)		-- 내부에 또 다른 vector<string>가 삽입되며, 그것의 길이는 해당 객체의 nInfo와 같음
+	vector<vector<string>>	varDesc;		// 변수의 이름에 대한 설명 (예: 규격폼)	-- 내부에 또 다른 vector<string>가 삽입되며, 그것의 길이는 해당 객체의 nInfo와 같음
 
-	// 키
-	vector<string>	nameKey;		// 객체를 구분할 수 있는 값(문자열)이 들어 있는 변수 이름 (예: sup_type)
-	vector<string>	nameVal;		// 객체의 이름 (예: KS프로파일)
+	// 객체의 변수 값들의 조합별 수량
+	vector<vector<string>>	records;		// 객체의 이름, 변수 값들의 조합, 조합에 해당하는 객체 개수를 담고 있음 (필드 1개의 예시: 인코너판넬 | 100 | 100 | 1200 | 3)
 
-	vector<short>	nInfo;			// 표시할 정보 필드 개수
-
-	// 객체별 정보 (Object 타입)	*배열 크기는 csv 파일에 등록할 수 있는 최대 변수 개수 (벡터의 1차원은 객체 종류 수, 2차원은 값이 다른 변수의 가짓수)
-	vector<string>	varName [30];					// 변수 이름 (예: nom)
-	vector<string>	varDesc [30];					// 변수 이름에 대한 설명 (예: 규격)
-	vector<short>	varShowFlag [30];				// 변수 항목 표시 여부 (0: 그대로 표시, n: n번 변수가 양수이면 표시, -n: n번 변수가 음수이면 표시)
-	vector<vector<string>>	varValue [30];			// 변수 이름에 대한 값
-	vector<API_AddParID>	varType [30];			// 변수 이름에 대한 값의 타입
-
-	vector<vector<short>>	combinationCount;		// 여러 변수들의 조합에 대한 개수 (벡터의 1차원은 객체 종류 수, 2차원은 값이 다른 변수의 가짓수)
-
-	vector<short>	nCounts;					// 서로 다른 변수 조합 개수
-	short nKnownObjects;						// 지정된 객체의 개수
+	// 기타
+	int nKnownObjects;						// 지정된 객체의 개수
+	int nUnknownObjects;					// 지정되지 않은 객체의 개수
 
 	// 객체별 정보 (Beam 타입)
-	vector<int>		beamLength;					// 보 길이
-	vector<short>	beamCount;					// 해당 보 길이에 대한 개수
-	short nCountsBeam;							// 보 종류별 개수
-
-	// 알 수 없는 객체
-	short nUnknownObjects;						// 지정되지 않은 객체의 개수
+	vector<int>		beamLength;				// 보 길이
+	vector<int>		beamCount;				// 해당 보 길이에 대한 개수
+	int				nCountsBeam;			// 보 종류별 개수
 };
 
 // 보이는 레이어 상의 객체별 명칭, 존재 여부, 보이기 여부

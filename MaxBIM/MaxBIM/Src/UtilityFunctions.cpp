@@ -137,20 +137,23 @@ long	compareRanges (double aMin, double aMax, double bMin, double bMax)
 // 문자열 비교
 int		my_strcmp (const char *str1, const char *str2)
 {
-	while (*str1 != '\0' || *str2 != '\0') {
+	for (; *str1 && (*str1 == *str2); ++str1, ++str2); 
+		return *str1 - *str2;
 
-		*str1++;
-		*str2++;
+	//while (*str1 != '\0' || *str2 != '\0') {
 
-		if (*str1 == *str2)
-			continue;
-		else if (*str1 > *str2)
-			return 1;
-		else if (*str1 < *str2)
-			return -1;
-	}
+	//	*str1++;
+	//	*str2++;
 
-	return 0;
+	//	if (*str1 == *str2)
+	//		continue;
+	//	else if (*str1 > *str2)
+	//		return 1;
+	//	else if (*str1 < *str2)
+	//		return -1;
+	//}
+
+	//return 0;
 }
 
 ////////////////////////////////////////////////// 교환하기

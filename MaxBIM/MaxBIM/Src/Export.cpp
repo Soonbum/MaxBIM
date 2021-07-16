@@ -373,14 +373,12 @@ GSErrCode	exportGridElementInfo (void)
 SummaryOfObjectInfo::SummaryOfObjectInfo ()
 {
 	FILE	*fp;			// 파일 포인터
-	char	line [1024];	// 파일에서 읽어온 라인 하나
+	char	line [2048];	// 파일에서 읽어온 라인 하나
 	char	*token;			// 읽어온 문자열의 토큰
 	short	lineCount;		// 읽어온 라인 수
 	short	tokCount;		// 읽어온 토큰 개수
 	short	xx, yy;
-
-	this->vectorSize = 30;			// 벡터 크기 *이것은 헤더파일에서 지정한 배열 크기와 같아야 함
-	this->combinationSize = 200;	// 조합 개수 크기
+	int		count;
 
 	char	nthToken [100][256];	// n번째 토큰
 
@@ -409,9 +407,6 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 				tokCount ++;
 			}
 
-			// 표시할 정보 필드 개수
-			this->nInfo.push_back ((short)(((tokCount-1) - 2) / 3));
-
 			// 토큰 개수가 2개 이상일 때 유효함
 			if ((tokCount-1) >= 2) {
 				// 토큰 개수가 2 + 3의 배수 개씩만 저장됨 (초과된 항목은 제외)
@@ -419,14 +414,21 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 					tokCount --;
 				}
 
-				this->nameKey.push_back (nthToken [0]);
-				this->nameVal.push_back (nthToken [1]);
+				this->keyName.push_back (nthToken [0]);		// 예: u_comp
+				this->keyDesc.push_back (nthToken [1]);		// 예: 유로폼
+				count = atoi (nthToken [2]);
+				this->nInfo.push_back (count);				// 예: 5
 
-				for (xx = 1 ; xx <= (this->vectorSize) ; ++xx) {
-					if ((tokCount-1) >= (xx*3))		this->varName [xx-1].push_back (nthToken [xx*3-1]);						else this->varName [xx-1].push_back ("");
-					if ((tokCount-1) >= (xx*3+1))	this->varDesc [xx-1].push_back (nthToken [xx*3]);						else this->varDesc [xx-1].push_back ("");
-					if ((tokCount-1) >= (xx*3+2))	this->varShowFlag [xx-1].push_back ((short)atoi (nthToken [xx*3+1]));	else this->varShowFlag [xx-1].push_back (0);
+				vector<string>	varNames;	// 해당 객체의 변수 이름들
+				vector<string>	varDescs;	// 해당 객체의 변수 이름에 대한 설명들
+
+				for (xx = 1 ; xx <= count ; ++xx) {
+					varNames.push_back (nthToken [1 + xx*2]);
+					varDescs.push_back (nthToken [1 + xx*2 + 1]);
 				}
+
+				this->varName.push_back (varNames);
+				this->varDesc.push_back (varDescs);
 			}
 		}
 
@@ -435,28 +437,51 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 
 		// 객체 종류 개수
 		this->nKnownObjects = lineCount - 1;
-
-		// 다른 멤버 변수 초기화
-		vector<string>			vec_empty_string = vector<string> (combinationSize, "");
-		vector<short>			vec_empty_short = vector<short> (combinationSize, 0);
-		vector<API_AddParID>	vec_empty_type = vector<API_AddParID> (combinationSize, API_ZombieParT);
-
-		for (xx = 1 ; xx <= (this->vectorSize) ; ++xx) {
-			this->varType [xx-1] = vec_empty_type;
-		}
-
-		//this->nCounts = vec_empty_short;
-		this->nCounts.assign (combinationSize, 0);
-		this->nCountsBeam = 0;
 		this->nUnknownObjects = 0;
+	}
+}
 
-		for (xx = 0 ; xx < lineCount-1 ; ++xx) {
-			for (yy = 1 ; yy <= (this->vectorSize) ; ++yy) {
-				this->varValue [yy-1].push_back (vec_empty_string);
+// 객체의 레코드 수량 1 증가 (있으면 증가, 없으면 신규 추가)
+int	SummaryOfObjectInfo::quantityPlus1 (vector<string> record)
+{
+	int		xx, yy;
+	size_t	vecLen;
+	size_t	inVecLen1, inVecLen2;
+	int		diff;
+	int		value;
+	char	tempStr [128];
+
+	vecLen = this->records.size ();
+
+	for (xx = 0 ; xx < vecLen ; ++xx) {
+		// 변수 값도 동일할 경우
+		inVecLen1 = this->records [xx].size () - 1;		// 끝의 개수 필드를 제외한 길이
+		inVecLen2 = record.size ();
+
+		if (inVecLen1 == inVecLen2) {
+			// 일치하지 않는 필드가 하나라도 있는지 찾아볼 것
+			diff = 0;
+			for (yy = 0 ; yy < inVecLen1 ; ++yy) {
+				if (my_strcmp (this->records [xx][yy].c_str (), record [yy].c_str ()) != 0)
+					diff++;
 			}
-			this->combinationCount.push_back (vec_empty_short);
+
+			// 모든 필드가 일치하면
+			if (diff == 0) {
+				value = atoi (this->records [xx][inVecLen1].c_str ());
+				value++;
+				sprintf (tempStr, "%d", value);
+				this->records [xx].pop_back ();
+				this->records [xx].push_back (tempStr);
+				return value;
+			}
 		}
 	}
+
+	// 없으면 신규 레코드 추가하고 1 리턴
+	record.push_back ("1");
+	this->records.push_back (record);
+	return 1;
 }
 
 // 선택한 부재 정보 내보내기 (Single 모드)
@@ -512,12 +537,16 @@ GSErrCode	exportSelectedElementInfo (void)
 	// 선택한 요소들의 정보 요약하기
 	API_Element			elem;
 	API_ElementMemo		memo;
-	bool				foundExistValue;
+	SummaryOfObjectInfo	objectInfo;
 
-	SummaryOfObjectInfo*	objectInfo = new SummaryOfObjectInfo ();
-
-	char				buffer [256];
-	char				filename [256];
+	char			buffer [256];
+	char			filename [256];
+	char			tempStr [256];
+	const char*		foundStr;
+	bool			foundObject;
+	bool			foundExistValue;
+	API_AddParID	varType;
+	vector<string>	record;
 
 	// 엑셀 파일로 기둥 정보 내보내기
 	// 파일 저장을 위한 변수
@@ -534,16 +563,8 @@ GSErrCode	exportSelectedElementInfo (void)
 
 	if (fp == NULL) {
 		ACAPI_WriteReport ("파일을 열 수 없습니다.", true);
-		delete objectInfo;
 		return err;
 	}
-
-	double			value_numeric [256];
-	string			value_string [256];
-	API_AddParID	value_type [256];
-	char			tempStr [256];
-	const char*		foundStr;
-	bool			foundObject;
 
 	for (xx = 0 ; xx < nObjects ; ++xx) {
 		foundObject = false;
@@ -557,384 +578,419 @@ GSErrCode	exportSelectedElementInfo (void)
 		// 파라미터 스크립트를 강제로 실행시킴
 		ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
 
-		for (yy = 0 ; yy < objectInfo->nameKey.size () ; ++yy) {
-			//strcpy (tempStr, objectInfo->nameKey [yy].c_str ());
-			sprintf (tempStr, "%s", objectInfo->nameKey [yy].c_str ());
+		for (yy = 0 ; yy < objectInfo.keyName.size () ; ++yy) {
+			strcpy (tempStr, objectInfo.keyName [yy].c_str ());
 			foundStr = getParameterStringByName (&memo, tempStr);
 
 			// 객체 종류를 찾았다면,
 			if (foundStr != NULL) {
 				foundObject = true;
 
-				if (my_strcmp (foundStr, objectInfo->nameVal [yy].c_str ()) == 0) {
+				if (my_strcmp (objectInfo.keyDesc [yy].c_str (), foundStr) == 0) {
 					foundExistValue = false;
 
-					for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz)
-						value_string [zz-1] = "";
+					// 발견한 객체의 데이터를 기반으로 레코드 추가
+					if (!record.empty ())
+						record.clear ();
 
-					// 변수 종류별로 순회
-					for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
-						//strcpy (tempStr, objectInfo->varName [zz-1][yy].c_str ());
-						sprintf (tempStr, "%s", objectInfo->varName [zz-1][yy].c_str ());
-						value_type [zz-1] = getParameterTypeByName (&memo, tempStr);
-						objectInfo->varType [zz-1][yy] = value_type [zz-1];
+					record.push_back (objectInfo.keyDesc [yy]);		// 객체 이름
+					for (zz = 0 ; zz < objectInfo.nInfo [yy] ; ++zz) {
+						sprintf (buffer, "%s", objectInfo.varName [yy][zz].c_str ());
+						varType = getParameterTypeByName (&memo, buffer);
 
-						if ((value_type [zz-1] != APIParT_Separator) || (value_type [zz-1] != APIParT_Title) || (value_type [zz-1] != API_ZombieParT)) {
-							if (value_type [zz-1] == APIParT_CString) {
-								// 문자열
-								value_string [zz-1] = getParameterStringByName (&memo, tempStr);
-								value_numeric [zz-1] = 0.0;
-							} else {
-								// 숫자
-								value_numeric [zz-1] = getParameterValueByName (&memo, tempStr);
-								sprintf (tempStr, "%f", value_numeric [zz-1]);
-								value_string [zz-1] = tempStr;
-							}
+						if ((varType != APIParT_Separator) || (varType != APIParT_Title) || (varType != API_ZombieParT)) {
+							if (varType == APIParT_CString)
+								sprintf (tempStr, "%s", getParameterStringByName (&memo, buffer));	// 문자열
+							else
+								sprintf (tempStr, "%.3f", getParameterValueByName (&memo, buffer));	// 숫자
 						}
+						record.push_back (tempStr);		// 변수값
 					}
+					objectInfo.quantityPlus1 (record);
 
-					// 중복 항목은 개수만 증가
-					for (zz = 0 ; zz < objectInfo->nCounts [yy] ; ++zz) {
-						int diff = 0;
-						for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
-							if (objectInfo->varValue [kk-1][yy][zz].compare (value_string [kk-1]) != 0)
-								++diff;
-						}
-						if (diff == 0) {
-							objectInfo->combinationCount [yy][zz] ++;
-							foundExistValue = true;
-							break;
-						}
-					}
-
-					// 신규 항목이면
-					if (!foundExistValue) {
-						for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
-							objectInfo->varValue [kk-1][yy][objectInfo->nCounts [yy]] = value_string [kk-1];
-						}
-
-						objectInfo->combinationCount [yy][objectInfo->nCounts [yy]] = 1;
-						objectInfo->nCounts [yy] ++;
-					}
 				}
 			}
 		}
 
 		// 끝내 찾지 못하면 알 수 없는 객체로 취급함
 		if (foundObject == false)
-			objectInfo->nUnknownObjects ++;
+			objectInfo.nUnknownObjects ++;
 
 		ACAPI_DisposeElemMemoHdls (&memo);
 	}
+
+	// ...
+	// 테스트
+	char msg [1024];
+	char temp [256];
+	for (xx = 0 ; xx < objectInfo.records.size () ; ++xx) {
+		strcpy (msg, "");
+		for (yy = 0 ; yy < objectInfo.records [xx].size () ; ++yy) {
+			sprintf (temp, " %s ", objectInfo.records [xx][yy].c_str ());
+			strcat (msg, temp);
+		}
+		WriteReport_Alert (msg);
+	}
+	// ...
 
 	// 보 개수 세기
-	for (xx = 0 ; xx < nBeams ; ++xx) {
-		BNZeroMemory (&elem, sizeof (API_Element));
-		BNZeroMemory (&memo, sizeof (API_ElementMemo));
-		elem.header.guid = beams.Pop ();
-		err = ACAPI_Element_Get (&elem);
-		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+	//for (xx = 0 ; xx < nBeams ; ++xx) {
+	//	BNZeroMemory (&elem, sizeof (API_Element));
+	//	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	//	elem.header.guid = beams.Pop ();
+	//	err = ACAPI_Element_Get (&elem);
+	//	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-		foundExistValue = false;
+	//	foundExistValue = false;
 
-		int len;
+	//	int len;
 
-		len = static_cast<int> (round (GetDistance (elem.beam.begC, elem.beam.endC) * 1000, 0));
+	//	len = static_cast<int> (round (GetDistance (elem.beam.begC, elem.beam.endC) * 1000, 0));
 
-		// 중복 항목은 개수만 증가
-		for (zz = 0 ; zz < objectInfo->nCountsBeam ; ++zz) {
-			if (objectInfo->beamLength [zz] == len) {
-				objectInfo->beamCount [zz] ++;
-				foundExistValue = true;
-				break;
-			}
-		}
+	//	// 중복 항목은 개수만 증가
+	//	for (zz = 0 ; zz < objectInfo.nCountsBeam ; ++zz) {
+	//		if (objectInfo.beamLength [zz] == len) {
+	//			objectInfo.beamCount [zz] ++;
+	//			foundExistValue = true;
+	//			break;
+	//		}
+	//	}
 
-		// 신규 항목 추가하고 개수도 증가
-		if ( !foundExistValue ) {
-			objectInfo->beamLength.push_back (len);
-			objectInfo->beamCount.push_back (1);
-			objectInfo->nCountsBeam ++;
-		}
+	//	// 신규 항목 추가하고 개수도 증가
+	//	if ( !foundExistValue ) {
+	//		objectInfo.beamLength.push_back (len);
+	//		objectInfo.beamCount.push_back (1);
+	//		objectInfo.nCountsBeam ++;
+	//	}
 
-		ACAPI_DisposeElemMemoHdls (&memo);
-	}
+	//	ACAPI_DisposeElemMemoHdls (&memo);
+	//}
 
 	// 최종 텍스트 표시
 	// APIParT_Length인 경우 1000배 곱해서 표현
 	// APIParT_Boolean인 경우 예/아니오 표현
 	double	length, length2, length3;
-	bool	bShow;
+	bool	bTitleAppeared;
 
-	for (xx = 0 ; xx < objectInfo->nKnownObjects ; ++xx) {
-		for (yy = 0 ; yy < objectInfo->nCounts [xx] ; ++yy) {
-			// 제목
-			if (yy == 0) {
-				sprintf (buffer, "\n[%s]\n", objectInfo->nameVal [xx].c_str ());
-				fprintf (fp, buffer);
-			}
+	// 객체 종류별로 수량 출력
+	for (xx = 0 ; xx < objectInfo.keyDesc.size () ; ++xx) {
+		bTitleAppeared = false;
 
-			if (my_strcmp (objectInfo->nameVal [xx].c_str (), "유로폼 후크") == 0) {
-				// 원형
-				if (my_strcmp (objectInfo->varValue [1][xx][yy].c_str (), "원형") == 0) {
-					sprintf (buffer, "원형 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
+		// 레코드를 전부 순회
+		for (yy = 0 ; yy < objectInfo.records.size () ; ++yy) {
+			// !!! 개수가 2번 출력되는 오류가 있음
+			// 객체 종류 이름과 레코드의 1번 필드가 일치하는 경우만 찾아서 출력함
+			if (my_strcmp (objectInfo.keyDesc [xx].c_str (), objectInfo.records [yy][0].c_str ()) == 0) {
+				//if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "유로폼 후크") == 0) {
+					// 제목 1회만 출력
+					//if (bTitleAppeared == false) {
+					//	sprintf (buffer, "\n[%s]\n", objectInfo.keyDesc [xx].c_str ());
+					//	fprintf (fp, buffer);
 
-				// 사각
-				} else {
-					sprintf (buffer, "사각 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
-				}
-				fprintf (fp, buffer);
+					//	bTitleAppeared = true;
+					//}
 
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "유로폼") == 0) {
-				// 규격폼
-				if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) > 0) {
-					sprintf (buffer, "%s X %s ", objectInfo->varValue [1][xx][yy], objectInfo->varValue [2][xx][yy]);
-				// 비규격폼
-				} else {
-					// 4열 X 5열
-					length = atof (objectInfo->varValue [3][xx][yy].c_str ());
-					length2 = atof (objectInfo->varValue [4][xx][yy].c_str ());
-					sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
-				}
-				fprintf (fp, buffer);
+					//// 원형
+					//if (objectInfo.records [yy][2].compare ("원형") == 0) {
+					//	sprintf (buffer, "원형 / %s", objectInfo.records [yy][1]);
+					//}
 
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "스틸폼") == 0) {
-				// 규격폼
-				if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) > 0) {
-					sprintf (buffer, "%s X %s ", objectInfo->varValue [1][xx][yy], objectInfo->varValue [2][xx][yy]);
-				// 비규격폼
-				} else {
-					// 4열 X 5열
-					length = atol (objectInfo->varValue [3][xx][yy].c_str ());
-					length2 = atol (objectInfo->varValue [4][xx][yy].c_str ());
-					sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
-				}
-				fprintf (fp, buffer);
+					//// 사각
+					//if (objectInfo.records [yy][2].compare ("사각") == 0) {
+					//	sprintf (buffer, "사각 / %s", objectInfo.records [yy][1]);
+					//}
+					//fprintf (fp, buffer);
 
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "목재") == 0) {
-				length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-				length2 = atof (objectInfo->varValue [1][xx][yy].c_str ());
-				length3 = atof (objectInfo->varValue [2][xx][yy].c_str ());
-				sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
-				fprintf (fp, buffer);
+					//// 수량 출력
+					//sprintf (buffer, ": %s EA\n", objectInfo.records [yy][3].c_str ());
+					//fprintf (fp, buffer);
 
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판(다각형)") == 0) {
-				sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo->varValue [0][xx][yy].c_str ());
-				fprintf (fp, buffer);
-
-				if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
-					sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [2][xx][yy].c_str ());
-					fprintf (fp, buffer);
-				}
-
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판") == 0) {
-				if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "3x6 [910x1820]") == 0) {
-					sprintf (buffer, "910 X 1820 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
-					fprintf (fp, buffer);
-
-					// 제작틀 ON
-					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-						fprintf (fp, buffer);
-
-						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-						fprintf (fp, buffer);
-					}
-				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "4x8 [1220x2440]") == 0) {
-					sprintf (buffer, "1220 X 2440 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
-					fprintf (fp, buffer);
-
-					// 제작틀 ON
-					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-						fprintf (fp, buffer);
-
-						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-						fprintf (fp, buffer);
-					}
-				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x5 [606x1520]") == 0) {
-					sprintf (buffer, "606 X 1520 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
-					fprintf (fp, buffer);
-
-					// 제작틀 ON
-					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-						fprintf (fp, buffer);
-
-						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-						fprintf (fp, buffer);
-					}
-				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x6 [606x1820]") == 0) {
-					sprintf (buffer, "606 X 1820 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
-					fprintf (fp, buffer);
-
-					// 제작틀 ON
-					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-						fprintf (fp, buffer);
-
-						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-						fprintf (fp, buffer);
-					}
-				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "3x5 [910x1520]") == 0) {
-					sprintf (buffer, "910 X 1520 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
-					fprintf (fp, buffer);
-
-					// 제작틀 ON
-					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-						fprintf (fp, buffer);
-
-						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-						fprintf (fp, buffer);
-					}
-				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비규격") == 0) {
-					// 가로 X 세로 X 두께
-					length = atol (objectInfo->varValue [2][xx][yy].c_str ());
-					length2 = atol (objectInfo->varValue [3][xx][yy].c_str ());
-					sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo->varValue [1][xx][yy].c_str ());
-					fprintf (fp, buffer);
-
-					// 제작틀 ON
-					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-						fprintf (fp, buffer);
-
-						sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-						fprintf (fp, buffer);
-					}
-				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비정형") == 0) {
-					sprintf (buffer, "비정형 ");
-					fprintf (fp, buffer);
-
-					// 제작틀 ON
-					if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-						fprintf (fp, buffer);
-					}
-				} else {
-					sprintf (buffer, "합판(다각형) ");
-					fprintf (fp, buffer);
-				}
-
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "RS Push-Pull Props") == 0) {
-				// 베이스 플레이트 유무
-				if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) == 1) {
-					sprintf (buffer, "베이스 플레이트(있음) ");
-				} else {
-					sprintf (buffer, "베이스 플레이트(없음) ");
-				}
-				fprintf (fp, buffer);
-
-				// 규격(상부)
-				sprintf (buffer, "규격(상부): %s ", objectInfo->varValue [1][xx][yy].c_str ());
-				fprintf (fp, buffer);
-
-				// 규격(하부) - 선택사항
-				if (atoi (objectInfo->varValue [3][xx][yy].c_str ()) == 1) {
-					sprintf (buffer, "규격(하부): %s ", objectInfo->varValue [2][xx][yy].c_str ());
-				}
-				fprintf (fp, buffer);
-
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "사각파이프") == 0) {
-				// 사각파이프
-				if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) == 0) {
-					length = atof (objectInfo->varValue [1][xx][yy].c_str ());
-					sprintf (buffer, "50 x 50 x %.0f ", round (length*1000, 0));
-
-				// 직사각파이프
-				} else {
-					length = atof (objectInfo->varValue [1][xx][yy].c_str ());
-					sprintf (buffer, "%s x %.0f ", objectInfo->varValue [0][xx][yy].c_str (), round (length*1000, 0));
-				}
-				fprintf (fp, buffer);
-
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "원형파이프") == 0) {
-				length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-				sprintf (buffer, "%.0f ", round (length*1000, 0));
-				fprintf (fp, buffer);
-
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "아웃코너앵글") == 0) {
-				length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-				sprintf (buffer, "%.0f ", round (length*1000, 0));
-				fprintf (fp, buffer);
-
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "매직바") == 0) {
-				if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
-					length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-					length2 = atof (objectInfo->varValue [4][xx][yy].c_str ());
-					sprintf (buffer, "%.0f, 합판 %.0f", round (length*1000, 0), round (length2*1000, 0));
-				} else {
-					length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-					sprintf (buffer, "%.0f ", round (length*1000, 0));
-				}
-				fprintf (fp, buffer);
-
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "블루목심") == 0) {
-				sprintf (buffer, "%s ", objectInfo->varValue [0][xx][yy].c_str ());
-				fprintf (fp, buffer);
-
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "보 멍에제") == 0) {
-				length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-				sprintf (buffer, "%.0f ", round (length*1000, 0));
-				fprintf (fp, buffer);
-
-			} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "물량합판") == 0) {
-				sprintf (buffer, "%s ㎡ ", objectInfo->varValue [0][xx][yy].c_str ());
-				fprintf (fp, buffer);
-
-			} else {
-				// 변수별 값 표현
-				for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
-					if (objectInfo->varName [zz-1][xx].size () > 1) {
-						bShow = false;
-						if (objectInfo->varShowFlag [zz-1][xx] == 0)	bShow = true;
-						for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
-							if ((zz != kk) && (objectInfo->varShowFlag [zz-1][xx] == kk) && (atoi (objectInfo->varValue [kk-1][xx][yy].c_str ()) == 1))	bShow = true;
-							if ((zz != kk) && (objectInfo->varShowFlag [zz-1][xx] == -kk) && (atoi (objectInfo->varValue [kk-1][xx][yy].c_str ()) == 0))	bShow = true;
+				//} else if (objectInfo.keyDesc [xx].compare ("유로폼") == 0) {
+					// ...
+				//} else {
+					// 레코드 필드 2번 필드부터 출력
+					for (zz = 0 ; zz < objectInfo.nInfo [xx] ; ++zz) {
+						// 제목 1회만 출력
+						if (bTitleAppeared == false) {
+							sprintf (buffer, "\n[%s]\n", objectInfo.keyDesc [xx].c_str ());
+							fprintf (fp, buffer);
+							bTitleAppeared = true;
 						}
 
-						if (objectInfo->varType [zz-1][xx] == APIParT_Length) {
-							length = atof (objectInfo->varValue [zz-1][xx][yy].c_str ());
-							sprintf (buffer, "%s(%.0f) ", objectInfo->varDesc [zz-1][xx].c_str (), round (length*1000, 0));
-						} else if (objectInfo->varType [zz-1][xx] == APIParT_Boolean) {
-							if (atoi (objectInfo->varValue [zz-1][xx][yy].c_str ()) > 0) {
-								sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), "예");
-							} else {
-								sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), "아니오");
-							}
-						} else {
-							sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), objectInfo->varValue [zz-1][xx][yy].c_str ());
-						}
-						if (bShow) fprintf (fp, buffer);
+						// 변수별 값 출력
+						sprintf (buffer, "%s(%s) ", objectInfo.varDesc [xx][zz].c_str (), objectInfo.records [yy][zz+1]);
+						fprintf (fp, buffer);
 					}
-				}
-			}
 
-			// 수량 표현
-			if (objectInfo->combinationCount [xx][yy] > 0) {
-				sprintf (buffer, ": %d EA\n", objectInfo->combinationCount [xx][yy]);
-				fprintf (fp, buffer);
+					// 수량 출력
+					sprintf (buffer, ": %s EA\n", objectInfo.records [yy][zz+1].c_str ());
+					fprintf (fp, buffer);
+				//}
 			}
 		}
 	}
+
+
+	//		if (my_strcmp (objectInfo->nameVal [xx].c_str (), "유로폼 후크") == 0) {
+	//			// 원형
+	//			if (my_strcmp (objectInfo->varValue [1][xx][yy].c_str (), "원형") == 0) {
+	//				sprintf (buffer, "원형 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
+
+	//			// 사각
+	//			} else {
+	//				sprintf (buffer, "사각 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
+	//			}
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "유로폼") == 0) {
+	//			// 규격폼
+	//			if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) > 0) {
+	//				sprintf (buffer, "%s X %s ", objectInfo->varValue [1][xx][yy], objectInfo->varValue [2][xx][yy]);
+	//			// 비규격폼
+	//			} else {
+	//				// 4열 X 5열
+	//				length = atof (objectInfo->varValue [3][xx][yy].c_str ());
+	//				length2 = atof (objectInfo->varValue [4][xx][yy].c_str ());
+	//				sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
+	//			}
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "스틸폼") == 0) {
+	//			// 규격폼
+	//			if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) > 0) {
+	//				sprintf (buffer, "%s X %s ", objectInfo->varValue [1][xx][yy], objectInfo->varValue [2][xx][yy]);
+	//			// 비규격폼
+	//			} else {
+	//				// 4열 X 5열
+	//				length = atol (objectInfo->varValue [3][xx][yy].c_str ());
+	//				length2 = atol (objectInfo->varValue [4][xx][yy].c_str ());
+	//				sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
+	//			}
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "목재") == 0) {
+	//			length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//			length2 = atof (objectInfo->varValue [1][xx][yy].c_str ());
+	//			length3 = atof (objectInfo->varValue [2][xx][yy].c_str ());
+	//			sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판(다각형)") == 0) {
+	//			sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo->varValue [0][xx][yy].c_str ());
+	//			fprintf (fp, buffer);
+
+	//			if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
+	//				sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [2][xx][yy].c_str ());
+	//				fprintf (fp, buffer);
+	//			}
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판") == 0) {
+	//			if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "3x6 [910x1820]") == 0) {
+	//				sprintf (buffer, "910 X 1820 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//				fprintf (fp, buffer);
+
+	//				// 제작틀 ON
+	//				if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//					sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+
+	//					sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//				}
+	//			} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "4x8 [1220x2440]") == 0) {
+	//				sprintf (buffer, "1220 X 2440 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//				fprintf (fp, buffer);
+
+	//				// 제작틀 ON
+	//				if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//					sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+
+	//					sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//				}
+	//			} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x5 [606x1520]") == 0) {
+	//				sprintf (buffer, "606 X 1520 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//				fprintf (fp, buffer);
+
+	//				// 제작틀 ON
+	//				if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//					sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+
+	//					sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//				}
+	//			} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x6 [606x1820]") == 0) {
+	//				sprintf (buffer, "606 X 1820 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//				fprintf (fp, buffer);
+
+	//				// 제작틀 ON
+	//				if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//					sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+
+	//					sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//				}
+	//			} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "3x5 [910x1520]") == 0) {
+	//				sprintf (buffer, "910 X 1520 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//				fprintf (fp, buffer);
+
+	//				// 제작틀 ON
+	//				if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//					sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+
+	//					sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//				}
+	//			} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비규격") == 0) {
+	//				// 가로 X 세로 X 두께
+	//				length = atol (objectInfo->varValue [2][xx][yy].c_str ());
+	//				length2 = atol (objectInfo->varValue [3][xx][yy].c_str ());
+	//				sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo->varValue [1][xx][yy].c_str ());
+	//				fprintf (fp, buffer);
+
+	//				// 제작틀 ON
+	//				if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//					sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+
+	//					sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//				}
+	//			} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비정형") == 0) {
+	//				sprintf (buffer, "비정형 ");
+	//				fprintf (fp, buffer);
+
+	//				// 제작틀 ON
+	//				if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//					sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//				}
+	//			} else {
+	//				sprintf (buffer, "합판(다각형) ");
+	//				fprintf (fp, buffer);
+	//			}
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "RS Push-Pull Props") == 0) {
+	//			// 베이스 플레이트 유무
+	//			if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) == 1) {
+	//				sprintf (buffer, "베이스 플레이트(있음) ");
+	//			} else {
+	//				sprintf (buffer, "베이스 플레이트(없음) ");
+	//			}
+	//			fprintf (fp, buffer);
+
+	//			// 규격(상부)
+	//			sprintf (buffer, "규격(상부): %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//			fprintf (fp, buffer);
+
+	//			// 규격(하부) - 선택사항
+	//			if (atoi (objectInfo->varValue [3][xx][yy].c_str ()) == 1) {
+	//				sprintf (buffer, "규격(하부): %s ", objectInfo->varValue [2][xx][yy].c_str ());
+	//			}
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "사각파이프") == 0) {
+	//			// 사각파이프
+	//			if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) == 0) {
+	//				length = atof (objectInfo->varValue [1][xx][yy].c_str ());
+	//				sprintf (buffer, "50 x 50 x %.0f ", round (length*1000, 0));
+
+	//			// 직사각파이프
+	//			} else {
+	//				length = atof (objectInfo->varValue [1][xx][yy].c_str ());
+	//				sprintf (buffer, "%s x %.0f ", objectInfo->varValue [0][xx][yy].c_str (), round (length*1000, 0));
+	//			}
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "원형파이프") == 0) {
+	//			length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//			sprintf (buffer, "%.0f ", round (length*1000, 0));
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "아웃코너앵글") == 0) {
+	//			length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//			sprintf (buffer, "%.0f ", round (length*1000, 0));
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "매직바") == 0) {
+	//			if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
+	//				length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//				length2 = atof (objectInfo->varValue [4][xx][yy].c_str ());
+	//				sprintf (buffer, "%.0f, 합판 %.0f", round (length*1000, 0), round (length2*1000, 0));
+	//			} else {
+	//				length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//				sprintf (buffer, "%.0f ", round (length*1000, 0));
+	//			}
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "블루목심") == 0) {
+	//			sprintf (buffer, "%s ", objectInfo->varValue [0][xx][yy].c_str ());
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "보 멍에제") == 0) {
+	//			length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//			sprintf (buffer, "%.0f ", round (length*1000, 0));
+	//			fprintf (fp, buffer);
+
+	//		} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "물량합판") == 0) {
+	//			sprintf (buffer, "%s ㎡ ", objectInfo->varValue [0][xx][yy].c_str ());
+	//			fprintf (fp, buffer);
+
+	//		} else {
+	//			// 변수별 값 표현
+	//			for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
+	//				if (objectInfo->varName [zz-1][xx].size () > 1) {
+	//					bShow = false;
+	//					if (objectInfo->varShowFlag [zz-1][xx] == 0)	bShow = true;
+	//					for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
+	//						if ((zz != kk) && (objectInfo->varShowFlag [zz-1][xx] == kk) && (atoi (objectInfo->varValue [kk-1][xx][yy].c_str ()) == 1))	bShow = true;
+	//						if ((zz != kk) && (objectInfo->varShowFlag [zz-1][xx] == -kk) && (atoi (objectInfo->varValue [kk-1][xx][yy].c_str ()) == 0))	bShow = true;
+	//					}
+
+	//					if (objectInfo->varType [zz-1][xx] == APIParT_Length) {
+	//						length = atof (objectInfo->varValue [zz-1][xx][yy].c_str ());
+	//						sprintf (buffer, "%s(%.0f) ", objectInfo->varDesc [zz-1][xx].c_str (), round (length*1000, 0));
+	//					} else if (objectInfo->varType [zz-1][xx] == APIParT_Boolean) {
+	//						if (atoi (objectInfo->varValue [zz-1][xx][yy].c_str ()) > 0) {
+	//							sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), "예");
+	//						} else {
+	//							sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), "아니오");
+	//						}
+	//					} else {
+	//						sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), objectInfo->varValue [zz-1][xx][yy].c_str ());
+	//					}
+	//					if (bShow) fprintf (fp, buffer);
+	//				}
+	//			}
+	//		}
+
+	//		// 수량 표현
+	//		if (objectInfo->combinationCount [xx][yy] > 0) {
+	//			sprintf (buffer, ": %d EA\n", objectInfo->combinationCount [xx][yy]);
+	//			fprintf (fp, buffer);
+	//		}
+	//	}
+	//}
 
 	// 일반 요소 - 보
-	for (xx = 0 ; xx < objectInfo->nCountsBeam ; ++xx) {
-		if (xx == 0) {
-			fprintf (fp, "\n[보]\n");
-		}
-		sprintf (buffer, "%d : %d EA\n", objectInfo->beamLength [xx], objectInfo->beamCount [xx]);
-		fprintf (fp, buffer);
-	}
+	//for (xx = 0 ; xx < objectInfo.nCountsBeam ; ++xx) {
+	//	if (xx == 0) {
+	//		fprintf (fp, "\n[보]\n");
+	//	}
+	//	sprintf (buffer, "%d : %d EA\n", objectInfo.beamLength [xx], objectInfo.beamCount [xx]);
+	//	fprintf (fp, buffer);
+	//}
 
-	// 알 수 없는 객체
-	if (objectInfo->nUnknownObjects > 0) {
-		sprintf (buffer, "\n알 수 없는 객체 : %d EA\n", objectInfo->nUnknownObjects);
-		fprintf (fp, buffer);
-	}
+	//// 알 수 없는 객체
+	//if (objectInfo.nUnknownObjects > 0) {
+	//	sprintf (buffer, "\n알 수 없는 객체 : %d EA\n", objectInfo.nUnknownObjects);
+	//	fprintf (fp, buffer);
+	//}
 
-	delete objectInfo;
 	fclose (fp);
 
 	// 화면 새로고침
@@ -1009,1243 +1065,1243 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	//result = DGAlert (DG_INFORMATION, "캡쳐 여부 질문", "캡쳐 작업을 수행하시겠습니까?", "", "예", "아니오", "");
 	result = DG_CANCEL;
 
-	// 프로젝트 내 레이어 개수를 알아냄
-	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	attrib.layer.head.typeID = API_LayerID;
-	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
-
-	// 보이는 레이어들의 목록 저장하기
-	for (xx = 1 ; xx <= nLayers ; ++xx) {
-		BNZeroMemory (&attrib, sizeof (API_Attribute));
-		attrib.layer.head.typeID = API_LayerID;
-		attrib.layer.head.index = xx;
-		err = ACAPI_Attribute_Get (&attrib);
-		if (err == NoError) {
-			if (!((attrib.layer.head.flags & APILay_Hidden) == true)) {
-				visLayerList [nVisibleLayers++] = attrib.layer.head.index;
-			}
-		}
-	}
-
-	// 일시적으로 모든 레이어 숨기기
-	for (xx = 1 ; xx <= nLayers ; ++xx) {
-		BNZeroMemory (&attrib, sizeof (API_Attribute));
-		attrib.layer.head.typeID = API_LayerID;
-		attrib.layer.head.index = xx;
-		err = ACAPI_Attribute_Get (&attrib);
-		if (err == NoError) {
-			attrib.layer.head.flags |= APILay_Hidden;
-			ACAPI_Attribute_Modify (&attrib, NULL);
-		}
-	}
-
-	ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
-	sprintf (filename, "%s - 선택한 부재 정보 (통합).csv", miscAppInfo.caption);
-	fp_unite = fopen (filename, "w+");
-
-	if (fp_unite == NULL) {
-		ACAPI_WriteReport ("통합 버전 엑셀파일을 만들 수 없습니다.", true);
-		return	NoError;
-	}
-
-	// 진행 상황 표시하는 기능 - 초기화
-	nPhase = 1;
-	cur = 1;
-	total = nVisibleLayers;
-	ACAPI_Interface (APIIo_InitProcessWindowID, &title, &nPhase);
-	ACAPI_Interface (APIIo_SetNextProcessPhaseID, &subtitle, &total);
-
-	// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 "선택한 부재 정보 내보내기" 루틴 실행
-	for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
-		BNZeroMemory (&attrib, sizeof (API_Attribute));
-		attrib.layer.head.typeID = API_LayerID;
-		attrib.layer.head.index = visLayerList [mm-1];
-		err = ACAPI_Attribute_Get (&attrib);
-
-		// 초기화
-		objects.Clear ();
-		beams.Clear ();
-		vecPos.clear ();
-
-		if (err == NoError) {
-			// 레이어 보이기
-			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
-				attrib.layer.head.flags ^= APILay_Hidden;
-				ACAPI_Attribute_Modify (&attrib, NULL);
-			}
-
-			// 모든 요소 가져오기
-			ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer | APIFilt_In3D);		// 보이는 레이어에 있음, 객체 타입만
-			while (elemList.GetSize () > 0) {
-				objects.Push (elemList.Pop ());
-			}
-
-			ACAPI_Element_GetElemList (API_BeamID, &elemList, APIFilt_OnVisLayer | APIFilt_In3D);		// 보이는 레이어에 있음, 보 타입만
-			while (elemList.GetSize () > 0) {
-				beams.Push (elemList.Pop ());
-			}
-			nObjects = objects.GetSize ();
-			nBeams = beams.GetSize ();
-
-			if ((nObjects == 0) && (nBeams == 0))
-				continue;
-
-			// 레이어 이름 가져옴
-			sprintf (fullLayerName, "%s", attrib.layer.head.name);
-			fullLayerName [strlen (fullLayerName)] = '\0';
-
-			// 레이어 이름 식별하기 (WALL: 벽, SLAB: 슬래브, COLU: 기둥, BEAM: 보, WLBM: 눈썹보)
-			layerType = UNDEFINED;
-			foundLayerName = strstr (fullLayerName, "WALL");
-			if (foundLayerName != NULL)	layerType = WALL;
-			foundLayerName = strstr (fullLayerName, "SLAB");
-			if (foundLayerName != NULL)	layerType = SLAB;
-			foundLayerName = strstr (fullLayerName, "COLU");
-			if (foundLayerName != NULL)	layerType = COLU;
-			foundLayerName = strstr (fullLayerName, "BEAM");
-			if (foundLayerName != NULL)	layerType = BEAM;
-			foundLayerName = strstr (fullLayerName, "WLBM");
-			if (foundLayerName != NULL)	layerType = WLBM;
-
-			// 모든 요소들을 3D로 보여줌
-			err = ACAPI_Automate (APIDo_ShowAllIn3DID);
-
-			sprintf (filename, "%s - 선택한 부재 정보.csv", fullLayerName);
-			fp = fopen (filename, "w+");
-
-			if (fp == NULL) {
-				sprintf (buffer, "레이어 %s는 파일명이 될 수 없으므로 생략합니다.", fullLayerName);
-				ACAPI_WriteReport (buffer, true);
-				continue;
-			}
-
-			// 레이어 이름 (통합 버전에만)
-			sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
-			fprintf (fp_unite, buffer);
-
-			// 선택한 요소들의 정보 요약하기
-			API_Element			elem;
-			API_ElementMemo		memo;
-			bool				foundExistValue;
-
-			SummaryOfObjectInfo*	objectInfo = new SummaryOfObjectInfo ();
-
-			double			value_numeric [256];
-			string			value_string [256];
-			API_AddParID	value_type [256];
-			char			tempStr [256];
-			const char*		foundStr;
-			bool			foundObject;
-
-			for (xx = 0 ; xx < nObjects ; ++xx) {
-				foundObject = false;
-
-				BNZeroMemory (&elem, sizeof (API_Element));
-				BNZeroMemory (&memo, sizeof (API_ElementMemo));
-				elem.header.guid = objects.Pop ();
-				err = ACAPI_Element_Get (&elem);
-				err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
-
-				// 객체의 원점 수집하기 ==================================
-				API_Coord3D	coord;
-
-				coord.x = elem.object.pos.x;
-				coord.y = elem.object.pos.y;
-				coord.z = elem.object.level;
-					
-				vecPos.push_back (coord);
-				// 객체의 원점 수집하기 ==================================
-
-				// 작업 층 높이 반영 -- 객체
-				if (xx == 0) {
-					BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-					workLevel_object = 0.0;
-					ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-					for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
-						if (storyInfo.data [0][yy].index == elem.header.floorInd) {
-							workLevel_object = storyInfo.data [0][yy].level;
-							break;
-						}
-					}
-					BMKillHandle ((GSHandle *) &storyInfo.data);
-				}
-
-				// 파라미터 스크립트를 강제로 실행시킴
-				ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
-
-				for (yy = 0 ; yy < objectInfo->nameKey.size () ; ++yy) {
-
-					//strcpy (tempStr, objectInfo->nameKey [yy].c_str ());
-					sprintf (tempStr, "%s", objectInfo->nameKey [yy].c_str ());
-					foundStr = getParameterStringByName (&memo, tempStr);
-
-					// 객체 종류를 찾았다면,
-					if (foundStr != NULL) {
-						foundObject = true;
-
-						if (my_strcmp (foundStr, objectInfo->nameVal [yy].c_str ()) == 0) {
-							foundExistValue = false;
-
-							for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz)
-								value_string [zz-1] = "";
-
-							// 변수 종류별로 순회
-							for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
-								//strcpy (tempStr, objectInfo->varName [zz-1][yy].c_str ());
-								sprintf (tempStr, "%s", objectInfo->varName [zz-1][yy].c_str ());
-								value_type [zz-1] = getParameterTypeByName (&memo, tempStr);
-								objectInfo->varType [zz-1][yy] = value_type [zz-1];
-
-								if ((value_type [zz-1] != APIParT_Separator) || (value_type [zz-1] != APIParT_Title) || (value_type [zz-1] != API_ZombieParT)) {
-									if (value_type [zz-1] == APIParT_CString) {
-										// 문자열
-										value_string [zz-1] = getParameterStringByName (&memo, tempStr);
-										value_numeric [zz-1] = 0.0;
-									} else {
-										// 숫자
-										value_numeric [zz-1] = getParameterValueByName (&memo, tempStr);
-										sprintf (tempStr, "%f", value_numeric [zz-1]);
-										value_string [zz-1] = tempStr;
-									}
-								}
-							}
-
-							// 중복 항목은 개수만 증가
-							for (zz = 0 ; zz < objectInfo->nCounts [yy] ; ++zz) {
-								int diff = 0;
-								for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
-									if (objectInfo->varValue [kk-1][yy][zz].compare (value_string [kk-1]) != 0)
-										++diff;
-								}
-								if (diff == 0) {
-									objectInfo->combinationCount [yy][zz] ++;
-									foundExistValue = true;
-									break;
-								}
-							}
-
-							// 신규 항목이면
-							if (!foundExistValue) {
-								for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
-									objectInfo->varValue [kk-1][yy][objectInfo->nCounts [yy]] = value_string [kk-1];
-								}
-
-								objectInfo->combinationCount [yy][objectInfo->nCounts [yy]] = 1;
-								objectInfo->nCounts [yy] ++;
-							}
-						}
-					}
-				}
-
-				// 끝내 찾지 못하면 알 수 없는 객체로 취급함
-				if (foundObject == false)
-					objectInfo->nUnknownObjects ++;
-
-				ACAPI_DisposeElemMemoHdls (&memo);
-			}
-
-			// 보 개수 세기
-			for (xx = 0 ; xx < nBeams ; ++xx) {
-				BNZeroMemory (&elem, sizeof (API_Element));
-				BNZeroMemory (&memo, sizeof (API_ElementMemo));
-				elem.header.guid = beams.Pop ();
-				err = ACAPI_Element_Get (&elem);
-				err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
-
-				foundExistValue = false;
-
-				int len;
-
-				len = static_cast<int> (round (GetDistance (elem.beam.begC, elem.beam.endC) * 1000, 0));
-
-				// 중복 항목은 개수만 증가
-				for (zz = 0 ; zz < objectInfo->nCountsBeam ; ++zz) {
-					if (objectInfo->beamLength [zz] == len) {
-						objectInfo->beamCount [zz] ++;
-						foundExistValue = true;
-						break;
-					}
-				}
-
-				// 신규 항목 추가하고 개수도 증가
-				if ( !foundExistValue ) {
-					objectInfo->beamLength.push_back (len);
-					objectInfo->beamCount.push_back (1);
-					objectInfo->nCountsBeam ++;
-				}
-
-				ACAPI_DisposeElemMemoHdls (&memo);
-			}
-
-			// APIParT_Length인 경우 1000배 곱해서 표현
-			// APIParT_Boolean인 경우 예/아니오 표현
-			double	length, length2, length3;
-			bool	bShow;
-
-			for (xx = 0 ; xx < objectInfo->nKnownObjects ; ++xx) {
-				for (yy = 0 ; yy < objectInfo->nCounts [xx] ; ++yy) {
-					// 제목
-					if (yy == 0) {
-						sprintf (buffer, "\n[%s]\n", objectInfo->nameVal [xx].c_str ());
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-					}
-
-					if (my_strcmp (objectInfo->nameVal [xx].c_str (), "유로폼 후크") == 0) {
-						// 원형
-						if (my_strcmp (objectInfo->varValue [1][xx][yy].c_str (), "원형") == 0) {
-							sprintf (buffer, "원형 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
-
-						// 사각
-						} else {
-							sprintf (buffer, "사각 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
-						}
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "유로폼") == 0) {
-						// 규격폼
-						if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) > 0) {
-							sprintf (buffer, "%s X %s ", objectInfo->varValue [1][xx][yy], objectInfo->varValue [2][xx][yy]);
-						// 비규격폼
-						} else {
-							// 4열 X 5열
-							length = atof (objectInfo->varValue [3][xx][yy].c_str ());
-							length2 = atof (objectInfo->varValue [4][xx][yy].c_str ());
-							sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
-						}
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "스틸폼") == 0) {
-						// 규격폼
-						if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) > 0) {
-							sprintf (buffer, "%s X %s ", objectInfo->varValue [1][xx][yy], objectInfo->varValue [2][xx][yy]);
-						// 비규격폼
-						} else {
-							// 4열 X 5열
-							length = atol (objectInfo->varValue [3][xx][yy].c_str ());
-							length2 = atol (objectInfo->varValue [4][xx][yy].c_str ());
-							sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
-						}
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "목재") == 0) {
-						length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-						length2 = atof (objectInfo->varValue [1][xx][yy].c_str ());
-						length3 = atof (objectInfo->varValue [2][xx][yy].c_str ());
-						sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판(다각형)") == 0) {
-						sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo->varValue [0][xx][yy].c_str ());
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-						if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
-							sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [2][xx][yy].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-						}
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판") == 0) {
-						if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "3x6 [910x1820]") == 0) {
-							sprintf (buffer, "910 X 1820 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 제작틀 ON
-							if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-
-								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-							}
-						} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "4x8 [1220x2440]") == 0) {
-							sprintf (buffer, "1220 X 2440 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 제작틀 ON
-							if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-
-								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-							}
-						} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x5 [606x1520]") == 0) {
-							sprintf (buffer, "606 X 1520 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 제작틀 ON
-							if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-
-								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-							}
-						} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x6 [606x1820]") == 0) {
-							sprintf (buffer, "606 X 1820 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 제작틀 ON
-							if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-
-								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-							}
-						} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "3x5 [910x1520]") == 0) {
-							sprintf (buffer, "910 X 1520 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 제작틀 ON
-							if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-
-								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-							}
-						} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비규격") == 0) {
-							// 가로 X 세로 X 두께
-							length = atof (objectInfo->varValue [2][xx][yy].c_str ());
-							length2 = atof (objectInfo->varValue [3][xx][yy].c_str ());
-							sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo->varValue [1][xx][yy].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 제작틀 ON
-							if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-
-								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-							}
-						} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비정형") == 0) {
-							sprintf (buffer, "비정형 ");
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 제작틀 ON
-							if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
-								sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-							}
-						} else {
-							sprintf (buffer, "합판(다각형) ");
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-						}
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "RS Push-Pull Props") == 0) {
-						// 베이스 플레이트 유무
-						if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) == 1) {
-							sprintf (buffer, "베이스 플레이트(있음) ");
-						} else {
-							sprintf (buffer, "베이스 플레이트(없음) ");
-						}
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-						// 규격(상부)
-						sprintf (buffer, "규격(상부): %s ", objectInfo->varValue [1][xx][yy].c_str ());
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-						// 규격(하부) - 선택사항
-						if (atoi (objectInfo->varValue [3][xx][yy].c_str ()) == 1) {
-							sprintf (buffer, "규격(하부): %s ", objectInfo->varValue [2][xx][yy].c_str ());
-						}
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "사각파이프") == 0) {
-						// 사각파이프
-						if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) == 0) {
-							length = atof (objectInfo->varValue [1][xx][yy].c_str ());
-							sprintf (buffer, "50 x 50 x %.0f ", round (length*1000, 0));
-
-						// 직사각파이프
-						} else {
-							length = atof (objectInfo->varValue [1][xx][yy].c_str ());
-							sprintf (buffer, "%s x %.0f ", objectInfo->varValue [0][xx][yy].c_str (), round (length*1000, 0));
-						}
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "원형파이프") == 0) {
-						length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-						sprintf (buffer, "%.0f ", round (length*1000, 0));
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "아웃코너앵글") == 0) {
-						length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-						sprintf (buffer, "%.0f ", round (length*1000, 0));
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "매직바") == 0) {
-						if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
-							length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-							length2 = atof (objectInfo->varValue [4][xx][yy].c_str ());
-							sprintf (buffer, "%.0f, 합판 %.0f", round (length*1000, 0), round (length2*1000, 0));
-						} else {
-							length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-							sprintf (buffer, "%.0f ", round (length*1000, 0));
-						}
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "블루목심") == 0) {
-						sprintf (buffer, "%s ", objectInfo->varValue [0][xx][yy].c_str ());
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "보 멍에제") == 0) {
-						length = atof (objectInfo->varValue [0][xx][yy].c_str ());
-						sprintf (buffer, "%.0f ", round (length*1000, 0));
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "물량합판") == 0) {
-						sprintf (buffer, "%s ㎡ ", objectInfo->varValue [0][xx][yy].c_str ());
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-
-					} else {
-						// 변수별 값 표현
-						for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
-							if (objectInfo->varName [zz-1][xx].size () > 1) {
-								bShow = false;
-								if (objectInfo->varShowFlag [zz-1][xx] == 0)	bShow = true;
-								for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
-									if ((zz != kk) && (objectInfo->varShowFlag [zz-1][xx] == kk) && (atoi (objectInfo->varValue [kk-1][xx][yy].c_str ()) == 1))	bShow = true;
-									if ((zz != kk) && (objectInfo->varShowFlag [zz-1][xx] == -kk) && (atoi (objectInfo->varValue [kk-1][xx][yy].c_str ()) == 0))	bShow = true;
-								}
-
-								if (objectInfo->varType [zz-1][xx] == APIParT_Length) {
-									length = atof (objectInfo->varValue [zz-1][xx][yy].c_str ());
-									sprintf (buffer, "%s(%.0f) ", objectInfo->varDesc [zz-1][xx].c_str (), round (length*1000, 0));
-								} else if (objectInfo->varType [zz-1][xx] == APIParT_Boolean) {
-									if (atoi (objectInfo->varValue [zz-1][xx][yy].c_str ()) > 0) {
-										sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), "예");
-									} else {
-										sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), "아니오");
-									}
-								} else {
-									sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), objectInfo->varValue [zz-1][xx][yy].c_str ());
-								}
-								if (bShow) {
-									fprintf (fp, buffer);
-									fprintf (fp_unite, buffer);
-								}
-							}
-						}
-					}
-
-					// 수량 표현
-					if (objectInfo->combinationCount [xx][yy] > 0) {
-						sprintf (buffer, ": %d EA\n", objectInfo->combinationCount [xx][yy]);
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
-					}
-				}
-			}
-
-			// 일반 요소 - 보
-			for (xx = 0 ; xx < objectInfo->nCountsBeam ; ++xx) {
-				if (xx == 0) {
-					sprintf (buffer, "\n[보]\n");
-					fprintf (fp, buffer);
-					fprintf (fp_unite, buffer);
-				}
-				sprintf (buffer, "%d : %d EA\n", objectInfo->beamLength [xx], objectInfo->beamCount [xx]);
-				fprintf (fp, buffer);
-				fprintf (fp_unite, buffer);
-			}
-
-			// 알 수 없는 객체
-			if (objectInfo->nUnknownObjects > 0) {
-				sprintf (buffer, "\n알 수 없는 객체 : %d EA\n", objectInfo->nUnknownObjects);
-				fprintf (fp, buffer);
-				fprintf (fp_unite, buffer);
-			}
-
-			fclose (fp);
-
-			// 3D 투영 정보 ==================================
-			if (result == DG_OK) {
-				API_3DProjectionInfo  proj3DInfo_beforeCapture;
-
-				BNZeroMemory (&proj3DInfo_beforeCapture, sizeof (API_3DProjectionInfo));
-				err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo_beforeCapture, NULL);
-
-
-				API_3DProjectionInfo  proj3DInfo;
-
-				BNZeroMemory (&proj3DInfo, sizeof (API_3DProjectionInfo));
-				err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo, NULL);
-
-				double	lowestZ, highestZ, cameraZ, targetZ;	// 가장 낮은 높이, 가장 높은 높이, 카메라 및 대상 높이
-				API_Coord3D		p1, p2, p3, p4, p5;				// 점 좌표 저장
-				double	distanceOfPoints;						// 두 점 간의 거리
-				double	angleOfPoints;							// 두 점 간의 각도
-				API_Coord3D		camPos1, camPos2;				// 카메라가 있을 수 있는 점 2개
-
-				API_FileSavePars		fsp;			// 파일 저장을 위한 변수
-				API_SavePars_Picture	pars_pict;		// 그림 파일에 대한 설명
-
-				if (err == NoError && proj3DInfo.isPersp) {
-					// 벽 타입 레이어의 경우
-					if (layerType == WALL) {
-						// 높이 값의 범위를 구함
-						// 가장 작은 x값을 갖는 점 p1도 찾아냄
-						lowestZ = highestZ = vecPos [0].z;
-						p1 = vecPos [0];
-						for (xx = 1 ; xx < vecPos.size () ; ++xx) {
-							if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
-							if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
-
-							if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
-						}
-						cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
-
-						distanceOfPoints = 0.0;
-						for (xx = 0 ; xx < vecPos.size () ; ++xx) {
-							if (distanceOfPoints < GetDistance (p1, vecPos [xx])) {
-								distanceOfPoints = GetDistance (p1, vecPos [xx]);
-								p2 = vecPos [xx];
-							}
-						}
-
-						// 두 점(p1, p2) 간의 각도 구하기
-						angleOfPoints = RadToDegree (atan2 ((p2.y - p1.y), (p2.x - p1.x)));
-
-						// 카메라와 대상이 있을 수 있는 위치 2개를 찾음
-						camPos1 = p1;
-						moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos1.x, &camPos1.y, &camPos1.z);
-						if (distanceOfPoints > (highestZ - lowestZ))
-							moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
-						else
-							moveIn3D ('y', DegreeToRad (angleOfPoints), -(highestZ - lowestZ) * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
-						camPos2 = p1;
-						moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos2.x, &camPos2.y, &camPos2.z);
-						if (distanceOfPoints > (highestZ - lowestZ))
-							moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
-						else
-							moveIn3D ('y', DegreeToRad (angleOfPoints), (highestZ - lowestZ) * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
-
-						camPos1.z = cameraZ;
-						camPos2.z = cameraZ;
-
-						// ========== 1번째 캡쳐
-						// 카메라 및 대상 위치 설정
-						proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
-						proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
-						proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
-						proj3DInfo.u.persp.azimuth = angleOfPoints + 90.0;	// 카메라 방위각
-
-						proj3DInfo.u.persp.pos.x = camPos1.x;
-						proj3DInfo.u.persp.pos.y = camPos1.y;
-						proj3DInfo.u.persp.cameraZ = camPos1.z;
-
-						proj3DInfo.u.persp.target.x = camPos2.x;
-						proj3DInfo.u.persp.target.y = camPos2.y;
-						proj3DInfo.u.persp.targetZ = camPos2.z;
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-
-						// ========== 2번째 캡쳐
-						// 카메라 및 대상 위치 설정
-						proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
-						proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
-						proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
-						proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
-
-						proj3DInfo.u.persp.pos.x = camPos2.x;
-						proj3DInfo.u.persp.pos.y = camPos2.y;
-						proj3DInfo.u.persp.cameraZ = camPos2.z;
-
-						proj3DInfo.u.persp.target.x = camPos1.x;
-						proj3DInfo.u.persp.target.y = camPos1.y;
-						proj3DInfo.u.persp.targetZ = camPos1.z;
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-					}
-					// 슬래브 타입 레이어의 경우
-					else if (layerType == SLAB) {
-						// p1: 가장 작은 x을 찾음
-						// p2: 가장 작은 y를 찾음
-						// p3: 가장 큰 x를 찾음
-						// p4: 가장 큰 y를 찾음
-						// lowestZ: 가장 작은 z를 찾음
-						// highestZ: 가장 높은 z를 찾음
-						p1 = vecPos [0];
-						p2 = vecPos [0];
-						p3 = vecPos [0];
-						p4 = vecPos [0];
-						lowestZ = highestZ = vecPos [0].z;
-						for (xx = 1 ; xx < vecPos.size () ; ++xx) {
-							if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
-							if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
-							if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
-							if (vecPos [xx].y < p2.y)	p2 = vecPos [xx];
-							if (vecPos [xx].x > p3.x)	p3 = vecPos [xx];
-							if (vecPos [xx].y > p4.y)	p4 = vecPos [xx];
-						}
-
-						// p5: 면의 중심 찾기
-						p5.x = (p1.x + p3.x) / 2;
-						p5.y = (p2.y + p4.y) / 2;
-						p5.z = lowestZ;
-
-						// p1과 p3 간의 거리, p2와 p4 간의 거리 중 가장 먼 거리를 찾음
-						if (GetDistance (p1, p3) > GetDistance (p2, p4))
-							distanceOfPoints = GetDistance (p1, p3);
-						else
-							distanceOfPoints = GetDistance (p2, p4);
-
-						// 슬래브 회전 각도를 구함 (p1과 p3 간의 각도 - 45도)
-						angleOfPoints = RadToDegree (atan2 ((p3.y - p1.y), (p3.x - p1.x))) - 45.0;
-
-						// 카메라 높이, 대상 높이 지정
-						cameraZ = lowestZ - (distanceOfPoints * 10) + workLevel_object;		// 이 값에 의해 실질적으로 거리가 달라짐
-						targetZ = highestZ + (distanceOfPoints * 2) + workLevel_object;
-
-						// 카메라 및 대상 위치 설정
-						proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
-						proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
-						proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
-						proj3DInfo.u.persp.azimuth = angleOfPoints;		// 카메라 방위각
-						proj3DInfo.u.persp.distance = (targetZ - cameraZ) * 1000;	// 거리
-
-						proj3DInfo.u.persp.pos.x = p5.x;
-						proj3DInfo.u.persp.pos.y = p5.y;
-						proj3DInfo.u.persp.cameraZ = cameraZ;
-
-						proj3DInfo.u.persp.target.x = p5.x + 0.010;		// 카메라와 대상 간의 X, Y 좌표가 정확하게 일치한 채로 고도 차이만 있으면 캡쳐에 실패하므로 갭이 있어야 함
-						proj3DInfo.u.persp.target.y = p5.y;
-						proj3DInfo.u.persp.targetZ = targetZ;
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// ========== 1번째 캡쳐
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-
-						// ========== 2번째 캡쳐
-						proj3DInfo.u.persp.rollAngle = 90.0;			// 카메라 롤 각도
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-
-						// 롤 각도 초기화
-						proj3DInfo.u.persp.rollAngle = 0.0;			// 카메라 롤 각도
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-					}
-					// 기둥 타입 레이어의 경우
-					else if (layerType == COLU) {
-						// p1: 가장 작은 x을 찾음
-						// p2: 가장 작은 y를 찾음
-						// p3: 가장 큰 x를 찾음
-						// p4: 가장 큰 y를 찾음
-						// lowestZ: 가장 작은 z를 찾음
-						// highestZ: 가장 높은 z를 찾음
-						p1 = vecPos [0];
-						p2 = vecPos [0];
-						p3 = vecPos [0];
-						p4 = vecPos [0];
-						lowestZ = highestZ = vecPos [0].z;
-						for (xx = 1 ; xx < vecPos.size () ; ++xx) {
-							if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
-							if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
-							if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
-							if (vecPos [xx].y < p2.y)	p2 = vecPos [xx];
-							if (vecPos [xx].x > p3.x)	p3 = vecPos [xx];
-							if (vecPos [xx].y > p4.y)	p4 = vecPos [xx];
-						}
-
-						// p5: 면의 중심 찾기
-						p5.x = (p1.x + p3.x) / 2;
-						p5.y = (p2.y + p4.y) / 2;
-						p5.z = lowestZ;
-
-						// p1과 p3 간의 거리, p2와 p4 간의 거리 중 가장 먼 거리를 찾음
-						if (GetDistance (p1, p3) > GetDistance (p2, p4))
-							distanceOfPoints = GetDistance (p1, p3);
-						else
-							distanceOfPoints = GetDistance (p2, p4);
-
-						// 기둥 회전 각도를 구함 (p1과 p3 간의 각도 - 45도)
-						angleOfPoints = RadToDegree (atan2 ((p3.y - p1.y), (p3.x - p1.x))) - 45.0;
-
-						// 카메라 높이, 대상 높이 지정
-						targetZ = cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
-
-						// ========== 1번째 캡쳐 (북쪽에서)
-						// 카메라 및 대상 위치 설정
-						proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
-						proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
-						proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
-						proj3DInfo.u.persp.azimuth = 270.0;				// 카메라 방위각
-						proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
-
-						proj3DInfo.u.persp.pos.x = p5.x;
-						proj3DInfo.u.persp.pos.y = p5.y + distanceOfPoints;
-						proj3DInfo.u.persp.cameraZ = cameraZ;
-
-						proj3DInfo.u.persp.target.x = p5.x;
-						proj3DInfo.u.persp.target.y = p5.y - distanceOfPoints;
-						proj3DInfo.u.persp.targetZ = targetZ;
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-
-						// ========== 2번째 캡쳐 (남쪽에서)
-						// 카메라 및 대상 위치 설정
-						proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
-						proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
-						proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
-						proj3DInfo.u.persp.azimuth = 90.0;				// 카메라 방위각
-						proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
-
-						proj3DInfo.u.persp.pos.x = p5.x;
-						proj3DInfo.u.persp.pos.y = p5.y - distanceOfPoints;
-						proj3DInfo.u.persp.cameraZ = cameraZ;
-
-						proj3DInfo.u.persp.target.x = p5.x;
-						proj3DInfo.u.persp.target.y = p5.y + distanceOfPoints;
-						proj3DInfo.u.persp.targetZ = targetZ;
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-
-						// ========== 3번째 캡쳐 (동쪽에서)
-						// 카메라 및 대상 위치 설정
-						proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
-						proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
-						proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
-						proj3DInfo.u.persp.azimuth = 180.0;				// 카메라 방위각
-						proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
-
-						proj3DInfo.u.persp.pos.x = p5.x + distanceOfPoints;
-						proj3DInfo.u.persp.pos.y = p5.y;
-						proj3DInfo.u.persp.cameraZ = cameraZ;
-
-						proj3DInfo.u.persp.target.x = p5.x - distanceOfPoints;
-						proj3DInfo.u.persp.target.y = p5.y;
-						proj3DInfo.u.persp.targetZ = targetZ;
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (3).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-
-						// ========== 4번째 캡쳐 (서쪽에서)
-						// 카메라 및 대상 위치 설정
-						proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
-						proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
-						proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
-						proj3DInfo.u.persp.azimuth = 0.0;				// 카메라 방위각
-						proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
-
-						proj3DInfo.u.persp.pos.x = p5.x - distanceOfPoints;
-						proj3DInfo.u.persp.pos.y = p5.y;
-						proj3DInfo.u.persp.cameraZ = cameraZ;
-
-						proj3DInfo.u.persp.target.x = p5.x + distanceOfPoints;
-						proj3DInfo.u.persp.target.y = p5.y;
-						proj3DInfo.u.persp.targetZ = targetZ;
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (4).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-					}
-					// 보, 눈썹보 타입 레이어의 경우
-					else if ((layerType == BEAM) || (layerType == WLBM)) {
-						// 높이 값의 범위를 구함
-						// 가장 작은 x값을 갖는 점 p1도 찾아냄
-						lowestZ = highestZ = vecPos [0].z;
-						p1 = vecPos [0];
-						for (xx = 1 ; xx < vecPos.size () ; ++xx) {
-							if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
-							if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
-
-							if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
-						}
-						cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
-
-						distanceOfPoints = 0.0;
-						for (xx = 0 ; xx < vecPos.size () ; ++xx) {
-							if (distanceOfPoints < GetDistance (p1, vecPos [xx])) {
-								distanceOfPoints = GetDistance (p1, vecPos [xx]);
-								p2 = vecPos [xx];
-							}
-						}
-
-						// 두 점(p1, p2) 간의 각도 구하기
-						angleOfPoints = RadToDegree (atan2 ((p2.y - p1.y), (p2.x - p1.x)));
-
-						// 중심점 구하기
-						p3 = p1;
-						moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &p3.x, &p3.y, &p3.z);
-						p3.z += workLevel_object;
-
-						// 카메라와 대상이 있을 수 있는 위치 2개를 찾음
-						camPos1 = p1;
-						moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos1.x, &camPos1.y, &camPos1.z);
-						if (distanceOfPoints > (highestZ - lowestZ))
-							moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
-						else
-							moveIn3D ('y', DegreeToRad (angleOfPoints), -(highestZ - lowestZ) * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
-						camPos2 = p1;
-						moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos2.x, &camPos2.y, &camPos2.z);
-						if (distanceOfPoints > (highestZ - lowestZ))
-							moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
-						else
-							moveIn3D ('y', DegreeToRad (angleOfPoints), (highestZ - lowestZ) * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
-
-						camPos1.z = cameraZ;
-						camPos2.z = cameraZ;
-
-						// ========== 1번째 캡쳐
-						// 카메라 및 대상 위치 설정
-						proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
-						proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
-						proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
-						proj3DInfo.u.persp.azimuth = angleOfPoints + 90.0;	// 카메라 방위각
-
-						proj3DInfo.u.persp.pos.x = camPos1.x;
-						proj3DInfo.u.persp.pos.y = camPos1.y;
-						proj3DInfo.u.persp.cameraZ = camPos1.z;
-
-						proj3DInfo.u.persp.target.x = camPos2.x;
-						proj3DInfo.u.persp.target.y = camPos2.y;
-						proj3DInfo.u.persp.targetZ = camPos2.z;
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-
-						// ========== 2번째 캡쳐
-						// 카메라 및 대상 위치 설정
-						proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
-						proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
-						proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
-						proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
-
-						proj3DInfo.u.persp.pos.x = camPos2.x;
-						proj3DInfo.u.persp.pos.y = camPos2.y;
-						proj3DInfo.u.persp.cameraZ = camPos2.z;
-
-						proj3DInfo.u.persp.target.x = camPos1.x;
-						proj3DInfo.u.persp.target.y = camPos1.y;
-						proj3DInfo.u.persp.targetZ = camPos1.z;
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-
-						// ========== 3번째 캡쳐
-						// 카메라 및 대상 위치 설정
-						proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
-						proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
-						proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
-						proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
-
-						proj3DInfo.u.persp.pos.x = p3.x;
-						proj3DInfo.u.persp.pos.y = p3.y;
-						proj3DInfo.u.persp.cameraZ = p3.z - distanceOfPoints;
-
-						proj3DInfo.u.persp.target.x = p3.x - 0.001;
-						proj3DInfo.u.persp.target.y = p3.y;
-						proj3DInfo.u.persp.targetZ = p3.z;
-
-						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-						// 화면 새로고침
-						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-						// 화면 캡쳐
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						fsp.fileTypeID = APIFType_PNGFile;
-						sprintf (filename, "%s - 캡쳐 (3).png", fullLayerName);
-						fsp.file = new IO::Location (location, IO::Name (filename));
-
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth	= APIColorDepth_TC24;
-						pars_pict.dithered		= false;
-						pars_pict.view2D		= false;
-						pars_pict.crop			= false;
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-					
-						delete fsp.file;
-					}
-				}
-
-				// 화면을 캡쳐 이전 상태로 돌려놓음
-				err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo_beforeCapture, NULL, NULL);
-
-				// 화면 새로고침
-				ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-				ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-				// 3D 투영 정보 ==================================
-			}
-
-			delete objectInfo;
-
-			// 레이어 숨기기
-			attrib.layer.head.flags |= APILay_Hidden;
-			ACAPI_Attribute_Modify (&attrib, NULL);
-		}
-
-		// 진행 상황 표시하는 기능 - 진행
-		cur = mm;
-		ACAPI_Interface (APIIo_SetProcessValueID, &cur, NULL);
-		if (ACAPI_Interface (APIIo_IsProcessCanceledID, NULL, NULL) == APIERR_CANCEL)
-			break;
-	}
-
-	// 진행 상황 표시하는 기능 - 마무리
-	ACAPI_Interface (APIIo_CloseProcessWindowID, NULL, NULL);
-
-	fclose (fp_unite);
-
-	// 모든 프로세스를 마치면 처음에 수집했던 보이는 레이어들을 다시 켜놓을 것
-	for (xx = 1 ; xx <= nVisibleLayers ; ++xx) {
-		BNZeroMemory (&attrib, sizeof (API_Attribute));
-		attrib.layer.head.typeID = API_LayerID;
-		attrib.layer.head.index = visLayerList [xx-1];
-		err = ACAPI_Attribute_Get (&attrib);
-		if (err == NoError) {
-			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
-				attrib.layer.head.flags ^= APILay_Hidden;
-				ACAPI_Attribute_Modify (&attrib, NULL);
-			}
-		}
-	}
-
-	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-	location.ToDisplayText (&resultString);
-	sprintf (buffer, "결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
-	ACAPI_WriteReport (buffer, true);
+	//// 프로젝트 내 레이어 개수를 알아냄
+	//BNZeroMemory (&attrib, sizeof (API_Attribute));
+	//attrib.layer.head.typeID = API_LayerID;
+	//err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+
+	//// 보이는 레이어들의 목록 저장하기
+	//for (xx = 1 ; xx <= nLayers ; ++xx) {
+	//	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	//	attrib.layer.head.typeID = API_LayerID;
+	//	attrib.layer.head.index = xx;
+	//	err = ACAPI_Attribute_Get (&attrib);
+	//	if (err == NoError) {
+	//		if (!((attrib.layer.head.flags & APILay_Hidden) == true)) {
+	//			visLayerList [nVisibleLayers++] = attrib.layer.head.index;
+	//		}
+	//	}
+	//}
+
+	//// 일시적으로 모든 레이어 숨기기
+	//for (xx = 1 ; xx <= nLayers ; ++xx) {
+	//	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	//	attrib.layer.head.typeID = API_LayerID;
+	//	attrib.layer.head.index = xx;
+	//	err = ACAPI_Attribute_Get (&attrib);
+	//	if (err == NoError) {
+	//		attrib.layer.head.flags |= APILay_Hidden;
+	//		ACAPI_Attribute_Modify (&attrib, NULL);
+	//	}
+	//}
+
+	//ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
+	//sprintf (filename, "%s - 선택한 부재 정보 (통합).csv", miscAppInfo.caption);
+	//fp_unite = fopen (filename, "w+");
+
+	//if (fp_unite == NULL) {
+	//	ACAPI_WriteReport ("통합 버전 엑셀파일을 만들 수 없습니다.", true);
+	//	return	NoError;
+	//}
+
+	//// 진행 상황 표시하는 기능 - 초기화
+	//nPhase = 1;
+	//cur = 1;
+	//total = nVisibleLayers;
+	//ACAPI_Interface (APIIo_InitProcessWindowID, &title, &nPhase);
+	//ACAPI_Interface (APIIo_SetNextProcessPhaseID, &subtitle, &total);
+
+	//// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 "선택한 부재 정보 내보내기" 루틴 실행
+	//for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
+	//	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	//	attrib.layer.head.typeID = API_LayerID;
+	//	attrib.layer.head.index = visLayerList [mm-1];
+	//	err = ACAPI_Attribute_Get (&attrib);
+
+	//	// 초기화
+	//	objects.Clear ();
+	//	beams.Clear ();
+	//	vecPos.clear ();
+
+	//	if (err == NoError) {
+	//		// 레이어 보이기
+	//		if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+	//			attrib.layer.head.flags ^= APILay_Hidden;
+	//			ACAPI_Attribute_Modify (&attrib, NULL);
+	//		}
+
+	//		// 모든 요소 가져오기
+	//		ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer | APIFilt_In3D);		// 보이는 레이어에 있음, 객체 타입만
+	//		while (elemList.GetSize () > 0) {
+	//			objects.Push (elemList.Pop ());
+	//		}
+
+	//		ACAPI_Element_GetElemList (API_BeamID, &elemList, APIFilt_OnVisLayer | APIFilt_In3D);		// 보이는 레이어에 있음, 보 타입만
+	//		while (elemList.GetSize () > 0) {
+	//			beams.Push (elemList.Pop ());
+	//		}
+	//		nObjects = objects.GetSize ();
+	//		nBeams = beams.GetSize ();
+
+	//		if ((nObjects == 0) && (nBeams == 0))
+	//			continue;
+
+	//		// 레이어 이름 가져옴
+	//		sprintf (fullLayerName, "%s", attrib.layer.head.name);
+	//		fullLayerName [strlen (fullLayerName)] = '\0';
+
+	//		// 레이어 이름 식별하기 (WALL: 벽, SLAB: 슬래브, COLU: 기둥, BEAM: 보, WLBM: 눈썹보)
+	//		layerType = UNDEFINED;
+	//		foundLayerName = strstr (fullLayerName, "WALL");
+	//		if (foundLayerName != NULL)	layerType = WALL;
+	//		foundLayerName = strstr (fullLayerName, "SLAB");
+	//		if (foundLayerName != NULL)	layerType = SLAB;
+	//		foundLayerName = strstr (fullLayerName, "COLU");
+	//		if (foundLayerName != NULL)	layerType = COLU;
+	//		foundLayerName = strstr (fullLayerName, "BEAM");
+	//		if (foundLayerName != NULL)	layerType = BEAM;
+	//		foundLayerName = strstr (fullLayerName, "WLBM");
+	//		if (foundLayerName != NULL)	layerType = WLBM;
+
+	//		// 모든 요소들을 3D로 보여줌
+	//		err = ACAPI_Automate (APIDo_ShowAllIn3DID);
+
+	//		sprintf (filename, "%s - 선택한 부재 정보.csv", fullLayerName);
+	//		fp = fopen (filename, "w+");
+
+	//		if (fp == NULL) {
+	//			sprintf (buffer, "레이어 %s는 파일명이 될 수 없으므로 생략합니다.", fullLayerName);
+	//			ACAPI_WriteReport (buffer, true);
+	//			continue;
+	//		}
+
+	//		// 레이어 이름 (통합 버전에만)
+	//		sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
+	//		fprintf (fp_unite, buffer);
+
+	//		// 선택한 요소들의 정보 요약하기
+	//		API_Element			elem;
+	//		API_ElementMemo		memo;
+	//		bool				foundExistValue;
+
+	//		SummaryOfObjectInfo*	objectInfo = new SummaryOfObjectInfo ();
+
+	//		double			value_numeric [256];
+	//		string			value_string [256];
+	//		API_AddParID	value_type [256];
+	//		char			tempStr [256];
+	//		const char*		foundStr;
+	//		bool			foundObject;
+
+	//		for (xx = 0 ; xx < nObjects ; ++xx) {
+	//			foundObject = false;
+
+	//			BNZeroMemory (&elem, sizeof (API_Element));
+	//			BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	//			elem.header.guid = objects.Pop ();
+	//			err = ACAPI_Element_Get (&elem);
+	//			err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+	//			// 객체의 원점 수집하기 ==================================
+	//			API_Coord3D	coord;
+
+	//			coord.x = elem.object.pos.x;
+	//			coord.y = elem.object.pos.y;
+	//			coord.z = elem.object.level;
+	//				
+	//			vecPos.push_back (coord);
+	//			// 객체의 원점 수집하기 ==================================
+
+	//			// 작업 층 높이 반영 -- 객체
+	//			if (xx == 0) {
+	//				BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+	//				workLevel_object = 0.0;
+	//				ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+	//				for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+	//					if (storyInfo.data [0][yy].index == elem.header.floorInd) {
+	//						workLevel_object = storyInfo.data [0][yy].level;
+	//						break;
+	//					}
+	//				}
+	//				BMKillHandle ((GSHandle *) &storyInfo.data);
+	//			}
+
+	//			// 파라미터 스크립트를 강제로 실행시킴
+	//			ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+
+	//			for (yy = 0 ; yy < objectInfo->nameKey.size () ; ++yy) {
+
+	//				//strcpy (tempStr, objectInfo->nameKey [yy].c_str ());
+	//				sprintf (tempStr, "%s", objectInfo->nameKey [yy].c_str ());
+	//				foundStr = getParameterStringByName (&memo, tempStr);
+
+	//				// 객체 종류를 찾았다면,
+	//				if (foundStr != NULL) {
+	//					foundObject = true;
+
+	//					if (my_strcmp (foundStr, objectInfo->nameVal [yy].c_str ()) == 0) {
+	//						foundExistValue = false;
+
+	//						for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz)
+	//							value_string [zz-1] = "";
+
+	//						// 변수 종류별로 순회
+	//						for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
+	//							//strcpy (tempStr, objectInfo->varName [zz-1][yy].c_str ());
+	//							sprintf (tempStr, "%s", objectInfo->varName [zz-1][yy].c_str ());
+	//							value_type [zz-1] = getParameterTypeByName (&memo, tempStr);
+	//							objectInfo->varType [zz-1][yy] = value_type [zz-1];
+
+	//							if ((value_type [zz-1] != APIParT_Separator) || (value_type [zz-1] != APIParT_Title) || (value_type [zz-1] != API_ZombieParT)) {
+	//								if (value_type [zz-1] == APIParT_CString) {
+	//									// 문자열
+	//									value_string [zz-1] = getParameterStringByName (&memo, tempStr);
+	//									value_numeric [zz-1] = 0.0;
+	//								} else {
+	//									// 숫자
+	//									value_numeric [zz-1] = getParameterValueByName (&memo, tempStr);
+	//									sprintf (tempStr, "%f", value_numeric [zz-1]);
+	//									value_string [zz-1] = tempStr;
+	//								}
+	//							}
+	//						}
+
+	//						// 중복 항목은 개수만 증가
+	//						for (zz = 0 ; zz < objectInfo->nCounts [yy] ; ++zz) {
+	//							int diff = 0;
+	//							for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
+	//								if (objectInfo->varValue [kk-1][yy][zz].compare (value_string [kk-1]) != 0)
+	//									++diff;
+	//							}
+	//							if (diff == 0) {
+	//								objectInfo->combinationCount [yy][zz] ++;
+	//								foundExistValue = true;
+	//								break;
+	//							}
+	//						}
+
+	//						// 신규 항목이면
+	//						if (!foundExistValue) {
+	//							for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
+	//								objectInfo->varValue [kk-1][yy][objectInfo->nCounts [yy]] = value_string [kk-1];
+	//							}
+
+	//							objectInfo->combinationCount [yy][objectInfo->nCounts [yy]] = 1;
+	//							objectInfo->nCounts [yy] ++;
+	//						}
+	//					}
+	//				}
+	//			}
+
+	//			// 끝내 찾지 못하면 알 수 없는 객체로 취급함
+	//			if (foundObject == false)
+	//				objectInfo->nUnknownObjects ++;
+
+	//			ACAPI_DisposeElemMemoHdls (&memo);
+	//		}
+
+	//		// 보 개수 세기
+	//		for (xx = 0 ; xx < nBeams ; ++xx) {
+	//			BNZeroMemory (&elem, sizeof (API_Element));
+	//			BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	//			elem.header.guid = beams.Pop ();
+	//			err = ACAPI_Element_Get (&elem);
+	//			err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+	//			foundExistValue = false;
+
+	//			int len;
+
+	//			len = static_cast<int> (round (GetDistance (elem.beam.begC, elem.beam.endC) * 1000, 0));
+
+	//			// 중복 항목은 개수만 증가
+	//			for (zz = 0 ; zz < objectInfo->nCountsBeam ; ++zz) {
+	//				if (objectInfo->beamLength [zz] == len) {
+	//					objectInfo->beamCount [zz] ++;
+	//					foundExistValue = true;
+	//					break;
+	//				}
+	//			}
+
+	//			// 신규 항목 추가하고 개수도 증가
+	//			if ( !foundExistValue ) {
+	//				objectInfo->beamLength.push_back (len);
+	//				objectInfo->beamCount.push_back (1);
+	//				objectInfo->nCountsBeam ++;
+	//			}
+
+	//			ACAPI_DisposeElemMemoHdls (&memo);
+	//		}
+
+	//		// APIParT_Length인 경우 1000배 곱해서 표현
+	//		// APIParT_Boolean인 경우 예/아니오 표현
+	//		double	length, length2, length3;
+	//		bool	bShow;
+
+	//		for (xx = 0 ; xx < objectInfo->nKnownObjects ; ++xx) {
+	//			for (yy = 0 ; yy < objectInfo->nCounts [xx] ; ++yy) {
+	//				// 제목
+	//				if (yy == 0) {
+	//					sprintf (buffer, "\n[%s]\n", objectInfo->nameVal [xx].c_str ());
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+	//				}
+
+	//				if (my_strcmp (objectInfo->nameVal [xx].c_str (), "유로폼 후크") == 0) {
+	//					// 원형
+	//					if (my_strcmp (objectInfo->varValue [1][xx][yy].c_str (), "원형") == 0) {
+	//						sprintf (buffer, "원형 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
+
+	//					// 사각
+	//					} else {
+	//						sprintf (buffer, "사각 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
+	//					}
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "유로폼") == 0) {
+	//					// 규격폼
+	//					if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) > 0) {
+	//						sprintf (buffer, "%s X %s ", objectInfo->varValue [1][xx][yy], objectInfo->varValue [2][xx][yy]);
+	//					// 비규격폼
+	//					} else {
+	//						// 4열 X 5열
+	//						length = atof (objectInfo->varValue [3][xx][yy].c_str ());
+	//						length2 = atof (objectInfo->varValue [4][xx][yy].c_str ());
+	//						sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
+	//					}
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "스틸폼") == 0) {
+	//					// 규격폼
+	//					if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) > 0) {
+	//						sprintf (buffer, "%s X %s ", objectInfo->varValue [1][xx][yy], objectInfo->varValue [2][xx][yy]);
+	//					// 비규격폼
+	//					} else {
+	//						// 4열 X 5열
+	//						length = atol (objectInfo->varValue [3][xx][yy].c_str ());
+	//						length2 = atol (objectInfo->varValue [4][xx][yy].c_str ());
+	//						sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
+	//					}
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "목재") == 0) {
+	//					length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//					length2 = atof (objectInfo->varValue [1][xx][yy].c_str ());
+	//					length3 = atof (objectInfo->varValue [2][xx][yy].c_str ());
+	//					sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판(다각형)") == 0) {
+	//					sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo->varValue [0][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//					if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
+	//						sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [2][xx][yy].c_str ());
+	//						fprintf (fp, buffer);
+	//						fprintf (fp_unite, buffer);
+	//					}
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "합판") == 0) {
+	//					if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "3x6 [910x1820]") == 0) {
+	//						sprintf (buffer, "910 X 1820 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//						fprintf (fp, buffer);
+	//						fprintf (fp_unite, buffer);
+
+	//						// 제작틀 ON
+	//						if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//							sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+
+	//							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+	//						}
+	//					} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "4x8 [1220x2440]") == 0) {
+	//						sprintf (buffer, "1220 X 2440 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//						fprintf (fp, buffer);
+	//						fprintf (fp_unite, buffer);
+
+	//						// 제작틀 ON
+	//						if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//							sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+
+	//							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+	//						}
+	//					} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x5 [606x1520]") == 0) {
+	//						sprintf (buffer, "606 X 1520 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//						fprintf (fp, buffer);
+	//						fprintf (fp_unite, buffer);
+
+	//						// 제작틀 ON
+	//						if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//							sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+
+	//							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+	//						}
+	//					} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "2x6 [606x1820]") == 0) {
+	//						sprintf (buffer, "606 X 1820 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//						fprintf (fp, buffer);
+	//						fprintf (fp_unite, buffer);
+
+	//						// 제작틀 ON
+	//						if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//							sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+
+	//							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+	//						}
+	//					} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "3x5 [910x1520]") == 0) {
+	//						sprintf (buffer, "910 X 1520 X %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//						fprintf (fp, buffer);
+	//						fprintf (fp_unite, buffer);
+
+	//						// 제작틀 ON
+	//						if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//							sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+
+	//							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+	//						}
+	//					} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비규격") == 0) {
+	//						// 가로 X 세로 X 두께
+	//						length = atof (objectInfo->varValue [2][xx][yy].c_str ());
+	//						length2 = atof (objectInfo->varValue [3][xx][yy].c_str ());
+	//						sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo->varValue [1][xx][yy].c_str ());
+	//						fprintf (fp, buffer);
+	//						fprintf (fp_unite, buffer);
+
+	//						// 제작틀 ON
+	//						if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//							sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+
+	//							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo->varValue [6][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+	//						}
+	//					} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비정형") == 0) {
+	//						sprintf (buffer, "비정형 ");
+	//						fprintf (fp, buffer);
+	//						fprintf (fp_unite, buffer);
+
+	//						// 제작틀 ON
+	//						if (atoi (objectInfo->varValue [4][xx][yy].c_str ()) > 0) {
+	//							sprintf (buffer, "(각재 총길이: %s) ", objectInfo->varValue [5][xx][yy].c_str ());
+	//							fprintf (fp, buffer);
+	//							fprintf (fp_unite, buffer);
+	//						}
+	//					} else {
+	//						sprintf (buffer, "합판(다각형) ");
+	//						fprintf (fp, buffer);
+	//						fprintf (fp_unite, buffer);
+	//					}
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "RS Push-Pull Props") == 0) {
+	//					// 베이스 플레이트 유무
+	//					if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) == 1) {
+	//						sprintf (buffer, "베이스 플레이트(있음) ");
+	//					} else {
+	//						sprintf (buffer, "베이스 플레이트(없음) ");
+	//					}
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//					// 규격(상부)
+	//					sprintf (buffer, "규격(상부): %s ", objectInfo->varValue [1][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//					// 규격(하부) - 선택사항
+	//					if (atoi (objectInfo->varValue [3][xx][yy].c_str ()) == 1) {
+	//						sprintf (buffer, "규격(하부): %s ", objectInfo->varValue [2][xx][yy].c_str ());
+	//					}
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "사각파이프") == 0) {
+	//					// 사각파이프
+	//					if (atoi (objectInfo->varValue [0][xx][yy].c_str ()) == 0) {
+	//						length = atof (objectInfo->varValue [1][xx][yy].c_str ());
+	//						sprintf (buffer, "50 x 50 x %.0f ", round (length*1000, 0));
+
+	//					// 직사각파이프
+	//					} else {
+	//						length = atof (objectInfo->varValue [1][xx][yy].c_str ());
+	//						sprintf (buffer, "%s x %.0f ", objectInfo->varValue [0][xx][yy].c_str (), round (length*1000, 0));
+	//					}
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "원형파이프") == 0) {
+	//					length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//					sprintf (buffer, "%.0f ", round (length*1000, 0));
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "아웃코너앵글") == 0) {
+	//					length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//					sprintf (buffer, "%.0f ", round (length*1000, 0));
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "매직바") == 0) {
+	//					if (atoi (objectInfo->varValue [1][xx][yy].c_str ()) > 0) {
+	//						length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//						length2 = atof (objectInfo->varValue [4][xx][yy].c_str ());
+	//						sprintf (buffer, "%.0f, 합판 %.0f", round (length*1000, 0), round (length2*1000, 0));
+	//					} else {
+	//						length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//						sprintf (buffer, "%.0f ", round (length*1000, 0));
+	//					}
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "블루목심") == 0) {
+	//					sprintf (buffer, "%s ", objectInfo->varValue [0][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "보 멍에제") == 0) {
+	//					length = atof (objectInfo->varValue [0][xx][yy].c_str ());
+	//					sprintf (buffer, "%.0f ", round (length*1000, 0));
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else if (my_strcmp (objectInfo->nameVal [xx].c_str (), "물량합판") == 0) {
+	//					sprintf (buffer, "%s ㎡ ", objectInfo->varValue [0][xx][yy].c_str ());
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+
+	//				} else {
+	//					// 변수별 값 표현
+	//					for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
+	//						if (objectInfo->varName [zz-1][xx].size () > 1) {
+	//							bShow = false;
+	//							if (objectInfo->varShowFlag [zz-1][xx] == 0)	bShow = true;
+	//							for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
+	//								if ((zz != kk) && (objectInfo->varShowFlag [zz-1][xx] == kk) && (atoi (objectInfo->varValue [kk-1][xx][yy].c_str ()) == 1))	bShow = true;
+	//								if ((zz != kk) && (objectInfo->varShowFlag [zz-1][xx] == -kk) && (atoi (objectInfo->varValue [kk-1][xx][yy].c_str ()) == 0))	bShow = true;
+	//							}
+
+	//							if (objectInfo->varType [zz-1][xx] == APIParT_Length) {
+	//								length = atof (objectInfo->varValue [zz-1][xx][yy].c_str ());
+	//								sprintf (buffer, "%s(%.0f) ", objectInfo->varDesc [zz-1][xx].c_str (), round (length*1000, 0));
+	//							} else if (objectInfo->varType [zz-1][xx] == APIParT_Boolean) {
+	//								if (atoi (objectInfo->varValue [zz-1][xx][yy].c_str ()) > 0) {
+	//									sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), "예");
+	//								} else {
+	//									sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), "아니오");
+	//								}
+	//							} else {
+	//								sprintf (buffer, "%s(%s) ", objectInfo->varDesc [zz-1][xx].c_str (), objectInfo->varValue [zz-1][xx][yy].c_str ());
+	//							}
+	//							if (bShow) {
+	//								fprintf (fp, buffer);
+	//								fprintf (fp_unite, buffer);
+	//							}
+	//						}
+	//					}
+	//				}
+
+	//				// 수량 표현
+	//				if (objectInfo->combinationCount [xx][yy] > 0) {
+	//					sprintf (buffer, ": %d EA\n", objectInfo->combinationCount [xx][yy]);
+	//					fprintf (fp, buffer);
+	//					fprintf (fp_unite, buffer);
+	//				}
+	//			}
+	//		}
+
+	//		// 일반 요소 - 보
+	//		for (xx = 0 ; xx < objectInfo->nCountsBeam ; ++xx) {
+	//			if (xx == 0) {
+	//				sprintf (buffer, "\n[보]\n");
+	//				fprintf (fp, buffer);
+	//				fprintf (fp_unite, buffer);
+	//			}
+	//			sprintf (buffer, "%d : %d EA\n", objectInfo->beamLength [xx], objectInfo->beamCount [xx]);
+	//			fprintf (fp, buffer);
+	//			fprintf (fp_unite, buffer);
+	//		}
+
+	//		// 알 수 없는 객체
+	//		if (objectInfo->nUnknownObjects > 0) {
+	//			sprintf (buffer, "\n알 수 없는 객체 : %d EA\n", objectInfo->nUnknownObjects);
+	//			fprintf (fp, buffer);
+	//			fprintf (fp_unite, buffer);
+	//		}
+
+	//		fclose (fp);
+
+	//		// 3D 투영 정보 ==================================
+	//		if (result == DG_OK) {
+	//			API_3DProjectionInfo  proj3DInfo_beforeCapture;
+
+	//			BNZeroMemory (&proj3DInfo_beforeCapture, sizeof (API_3DProjectionInfo));
+	//			err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo_beforeCapture, NULL);
+
+
+	//			API_3DProjectionInfo  proj3DInfo;
+
+	//			BNZeroMemory (&proj3DInfo, sizeof (API_3DProjectionInfo));
+	//			err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo, NULL);
+
+	//			double	lowestZ, highestZ, cameraZ, targetZ;	// 가장 낮은 높이, 가장 높은 높이, 카메라 및 대상 높이
+	//			API_Coord3D		p1, p2, p3, p4, p5;				// 점 좌표 저장
+	//			double	distanceOfPoints;						// 두 점 간의 거리
+	//			double	angleOfPoints;							// 두 점 간의 각도
+	//			API_Coord3D		camPos1, camPos2;				// 카메라가 있을 수 있는 점 2개
+
+	//			API_FileSavePars		fsp;			// 파일 저장을 위한 변수
+	//			API_SavePars_Picture	pars_pict;		// 그림 파일에 대한 설명
+
+	//			if (err == NoError && proj3DInfo.isPersp) {
+	//				// 벽 타입 레이어의 경우
+	//				if (layerType == WALL) {
+	//					// 높이 값의 범위를 구함
+	//					// 가장 작은 x값을 갖는 점 p1도 찾아냄
+	//					lowestZ = highestZ = vecPos [0].z;
+	//					p1 = vecPos [0];
+	//					for (xx = 1 ; xx < vecPos.size () ; ++xx) {
+	//						if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
+	//						if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
+
+	//						if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
+	//					}
+	//					cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
+
+	//					distanceOfPoints = 0.0;
+	//					for (xx = 0 ; xx < vecPos.size () ; ++xx) {
+	//						if (distanceOfPoints < GetDistance (p1, vecPos [xx])) {
+	//							distanceOfPoints = GetDistance (p1, vecPos [xx]);
+	//							p2 = vecPos [xx];
+	//						}
+	//					}
+
+	//					// 두 점(p1, p2) 간의 각도 구하기
+	//					angleOfPoints = RadToDegree (atan2 ((p2.y - p1.y), (p2.x - p1.x)));
+
+	//					// 카메라와 대상이 있을 수 있는 위치 2개를 찾음
+	//					camPos1 = p1;
+	//					moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos1.x, &camPos1.y, &camPos1.z);
+	//					if (distanceOfPoints > (highestZ - lowestZ))
+	//						moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
+	//					else
+	//						moveIn3D ('y', DegreeToRad (angleOfPoints), -(highestZ - lowestZ) * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
+	//					camPos2 = p1;
+	//					moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos2.x, &camPos2.y, &camPos2.z);
+	//					if (distanceOfPoints > (highestZ - lowestZ))
+	//						moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
+	//					else
+	//						moveIn3D ('y', DegreeToRad (angleOfPoints), (highestZ - lowestZ) * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
+
+	//					camPos1.z = cameraZ;
+	//					camPos2.z = cameraZ;
+
+	//					// ========== 1번째 캡쳐
+	//					// 카메라 및 대상 위치 설정
+	//					proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+	//					proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+	//					proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+	//					proj3DInfo.u.persp.azimuth = angleOfPoints + 90.0;	// 카메라 방위각
+
+	//					proj3DInfo.u.persp.pos.x = camPos1.x;
+	//					proj3DInfo.u.persp.pos.y = camPos1.y;
+	//					proj3DInfo.u.persp.cameraZ = camPos1.z;
+
+	//					proj3DInfo.u.persp.target.x = camPos2.x;
+	//					proj3DInfo.u.persp.target.y = camPos2.y;
+	//					proj3DInfo.u.persp.targetZ = camPos2.z;
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+
+	//					// ========== 2번째 캡쳐
+	//					// 카메라 및 대상 위치 설정
+	//					proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+	//					proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+	//					proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+	//					proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
+
+	//					proj3DInfo.u.persp.pos.x = camPos2.x;
+	//					proj3DInfo.u.persp.pos.y = camPos2.y;
+	//					proj3DInfo.u.persp.cameraZ = camPos2.z;
+
+	//					proj3DInfo.u.persp.target.x = camPos1.x;
+	//					proj3DInfo.u.persp.target.y = camPos1.y;
+	//					proj3DInfo.u.persp.targetZ = camPos1.z;
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+	//				}
+	//				// 슬래브 타입 레이어의 경우
+	//				else if (layerType == SLAB) {
+	//					// p1: 가장 작은 x을 찾음
+	//					// p2: 가장 작은 y를 찾음
+	//					// p3: 가장 큰 x를 찾음
+	//					// p4: 가장 큰 y를 찾음
+	//					// lowestZ: 가장 작은 z를 찾음
+	//					// highestZ: 가장 높은 z를 찾음
+	//					p1 = vecPos [0];
+	//					p2 = vecPos [0];
+	//					p3 = vecPos [0];
+	//					p4 = vecPos [0];
+	//					lowestZ = highestZ = vecPos [0].z;
+	//					for (xx = 1 ; xx < vecPos.size () ; ++xx) {
+	//						if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
+	//						if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
+	//						if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
+	//						if (vecPos [xx].y < p2.y)	p2 = vecPos [xx];
+	//						if (vecPos [xx].x > p3.x)	p3 = vecPos [xx];
+	//						if (vecPos [xx].y > p4.y)	p4 = vecPos [xx];
+	//					}
+
+	//					// p5: 면의 중심 찾기
+	//					p5.x = (p1.x + p3.x) / 2;
+	//					p5.y = (p2.y + p4.y) / 2;
+	//					p5.z = lowestZ;
+
+	//					// p1과 p3 간의 거리, p2와 p4 간의 거리 중 가장 먼 거리를 찾음
+	//					if (GetDistance (p1, p3) > GetDistance (p2, p4))
+	//						distanceOfPoints = GetDistance (p1, p3);
+	//					else
+	//						distanceOfPoints = GetDistance (p2, p4);
+
+	//					// 슬래브 회전 각도를 구함 (p1과 p3 간의 각도 - 45도)
+	//					angleOfPoints = RadToDegree (atan2 ((p3.y - p1.y), (p3.x - p1.x))) - 45.0;
+
+	//					// 카메라 높이, 대상 높이 지정
+	//					cameraZ = lowestZ - (distanceOfPoints * 10) + workLevel_object;		// 이 값에 의해 실질적으로 거리가 달라짐
+	//					targetZ = highestZ + (distanceOfPoints * 2) + workLevel_object;
+
+	//					// 카메라 및 대상 위치 설정
+	//					proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
+	//					proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
+	//					proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
+	//					proj3DInfo.u.persp.azimuth = angleOfPoints;		// 카메라 방위각
+	//					proj3DInfo.u.persp.distance = (targetZ - cameraZ) * 1000;	// 거리
+
+	//					proj3DInfo.u.persp.pos.x = p5.x;
+	//					proj3DInfo.u.persp.pos.y = p5.y;
+	//					proj3DInfo.u.persp.cameraZ = cameraZ;
+
+	//					proj3DInfo.u.persp.target.x = p5.x + 0.010;		// 카메라와 대상 간의 X, Y 좌표가 정확하게 일치한 채로 고도 차이만 있으면 캡쳐에 실패하므로 갭이 있어야 함
+	//					proj3DInfo.u.persp.target.y = p5.y;
+	//					proj3DInfo.u.persp.targetZ = targetZ;
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// ========== 1번째 캡쳐
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+
+	//					// ========== 2번째 캡쳐
+	//					proj3DInfo.u.persp.rollAngle = 90.0;			// 카메라 롤 각도
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+
+	//					// 롤 각도 초기화
+	//					proj3DInfo.u.persp.rollAngle = 0.0;			// 카메라 롤 각도
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+	//				}
+	//				// 기둥 타입 레이어의 경우
+	//				else if (layerType == COLU) {
+	//					// p1: 가장 작은 x을 찾음
+	//					// p2: 가장 작은 y를 찾음
+	//					// p3: 가장 큰 x를 찾음
+	//					// p4: 가장 큰 y를 찾음
+	//					// lowestZ: 가장 작은 z를 찾음
+	//					// highestZ: 가장 높은 z를 찾음
+	//					p1 = vecPos [0];
+	//					p2 = vecPos [0];
+	//					p3 = vecPos [0];
+	//					p4 = vecPos [0];
+	//					lowestZ = highestZ = vecPos [0].z;
+	//					for (xx = 1 ; xx < vecPos.size () ; ++xx) {
+	//						if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
+	//						if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
+	//						if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
+	//						if (vecPos [xx].y < p2.y)	p2 = vecPos [xx];
+	//						if (vecPos [xx].x > p3.x)	p3 = vecPos [xx];
+	//						if (vecPos [xx].y > p4.y)	p4 = vecPos [xx];
+	//					}
+
+	//					// p5: 면의 중심 찾기
+	//					p5.x = (p1.x + p3.x) / 2;
+	//					p5.y = (p2.y + p4.y) / 2;
+	//					p5.z = lowestZ;
+
+	//					// p1과 p3 간의 거리, p2와 p4 간의 거리 중 가장 먼 거리를 찾음
+	//					if (GetDistance (p1, p3) > GetDistance (p2, p4))
+	//						distanceOfPoints = GetDistance (p1, p3);
+	//					else
+	//						distanceOfPoints = GetDistance (p2, p4);
+
+	//					// 기둥 회전 각도를 구함 (p1과 p3 간의 각도 - 45도)
+	//					angleOfPoints = RadToDegree (atan2 ((p3.y - p1.y), (p3.x - p1.x))) - 45.0;
+
+	//					// 카메라 높이, 대상 높이 지정
+	//					targetZ = cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
+
+	//					// ========== 1번째 캡쳐 (북쪽에서)
+	//					// 카메라 및 대상 위치 설정
+	//					proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
+	//					proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
+	//					proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
+	//					proj3DInfo.u.persp.azimuth = 270.0;				// 카메라 방위각
+	//					proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
+
+	//					proj3DInfo.u.persp.pos.x = p5.x;
+	//					proj3DInfo.u.persp.pos.y = p5.y + distanceOfPoints;
+	//					proj3DInfo.u.persp.cameraZ = cameraZ;
+
+	//					proj3DInfo.u.persp.target.x = p5.x;
+	//					proj3DInfo.u.persp.target.y = p5.y - distanceOfPoints;
+	//					proj3DInfo.u.persp.targetZ = targetZ;
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+
+	//					// ========== 2번째 캡쳐 (남쪽에서)
+	//					// 카메라 및 대상 위치 설정
+	//					proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
+	//					proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
+	//					proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
+	//					proj3DInfo.u.persp.azimuth = 90.0;				// 카메라 방위각
+	//					proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
+
+	//					proj3DInfo.u.persp.pos.x = p5.x;
+	//					proj3DInfo.u.persp.pos.y = p5.y - distanceOfPoints;
+	//					proj3DInfo.u.persp.cameraZ = cameraZ;
+
+	//					proj3DInfo.u.persp.target.x = p5.x;
+	//					proj3DInfo.u.persp.target.y = p5.y + distanceOfPoints;
+	//					proj3DInfo.u.persp.targetZ = targetZ;
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+
+	//					// ========== 3번째 캡쳐 (동쪽에서)
+	//					// 카메라 및 대상 위치 설정
+	//					proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
+	//					proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
+	//					proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
+	//					proj3DInfo.u.persp.azimuth = 180.0;				// 카메라 방위각
+	//					proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
+
+	//					proj3DInfo.u.persp.pos.x = p5.x + distanceOfPoints;
+	//					proj3DInfo.u.persp.pos.y = p5.y;
+	//					proj3DInfo.u.persp.cameraZ = cameraZ;
+
+	//					proj3DInfo.u.persp.target.x = p5.x - distanceOfPoints;
+	//					proj3DInfo.u.persp.target.y = p5.y;
+	//					proj3DInfo.u.persp.targetZ = targetZ;
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (3).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+
+	//					// ========== 4번째 캡쳐 (서쪽에서)
+	//					// 카메라 및 대상 위치 설정
+	//					proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
+	//					proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
+	//					proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
+	//					proj3DInfo.u.persp.azimuth = 0.0;				// 카메라 방위각
+	//					proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
+
+	//					proj3DInfo.u.persp.pos.x = p5.x - distanceOfPoints;
+	//					proj3DInfo.u.persp.pos.y = p5.y;
+	//					proj3DInfo.u.persp.cameraZ = cameraZ;
+
+	//					proj3DInfo.u.persp.target.x = p5.x + distanceOfPoints;
+	//					proj3DInfo.u.persp.target.y = p5.y;
+	//					proj3DInfo.u.persp.targetZ = targetZ;
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (4).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+	//				}
+	//				// 보, 눈썹보 타입 레이어의 경우
+	//				else if ((layerType == BEAM) || (layerType == WLBM)) {
+	//					// 높이 값의 범위를 구함
+	//					// 가장 작은 x값을 갖는 점 p1도 찾아냄
+	//					lowestZ = highestZ = vecPos [0].z;
+	//					p1 = vecPos [0];
+	//					for (xx = 1 ; xx < vecPos.size () ; ++xx) {
+	//						if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
+	//						if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
+
+	//						if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
+	//					}
+	//					cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
+
+	//					distanceOfPoints = 0.0;
+	//					for (xx = 0 ; xx < vecPos.size () ; ++xx) {
+	//						if (distanceOfPoints < GetDistance (p1, vecPos [xx])) {
+	//							distanceOfPoints = GetDistance (p1, vecPos [xx]);
+	//							p2 = vecPos [xx];
+	//						}
+	//					}
+
+	//					// 두 점(p1, p2) 간의 각도 구하기
+	//					angleOfPoints = RadToDegree (atan2 ((p2.y - p1.y), (p2.x - p1.x)));
+
+	//					// 중심점 구하기
+	//					p3 = p1;
+	//					moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &p3.x, &p3.y, &p3.z);
+	//					p3.z += workLevel_object;
+
+	//					// 카메라와 대상이 있을 수 있는 위치 2개를 찾음
+	//					camPos1 = p1;
+	//					moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos1.x, &camPos1.y, &camPos1.z);
+	//					if (distanceOfPoints > (highestZ - lowestZ))
+	//						moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
+	//					else
+	//						moveIn3D ('y', DegreeToRad (angleOfPoints), -(highestZ - lowestZ) * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
+	//					camPos2 = p1;
+	//					moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos2.x, &camPos2.y, &camPos2.z);
+	//					if (distanceOfPoints > (highestZ - lowestZ))
+	//						moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
+	//					else
+	//						moveIn3D ('y', DegreeToRad (angleOfPoints), (highestZ - lowestZ) * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
+
+	//					camPos1.z = cameraZ;
+	//					camPos2.z = cameraZ;
+
+	//					// ========== 1번째 캡쳐
+	//					// 카메라 및 대상 위치 설정
+	//					proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+	//					proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+	//					proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+	//					proj3DInfo.u.persp.azimuth = angleOfPoints + 90.0;	// 카메라 방위각
+
+	//					proj3DInfo.u.persp.pos.x = camPos1.x;
+	//					proj3DInfo.u.persp.pos.y = camPos1.y;
+	//					proj3DInfo.u.persp.cameraZ = camPos1.z;
+
+	//					proj3DInfo.u.persp.target.x = camPos2.x;
+	//					proj3DInfo.u.persp.target.y = camPos2.y;
+	//					proj3DInfo.u.persp.targetZ = camPos2.z;
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+
+	//					// ========== 2번째 캡쳐
+	//					// 카메라 및 대상 위치 설정
+	//					proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+	//					proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+	//					proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+	//					proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
+
+	//					proj3DInfo.u.persp.pos.x = camPos2.x;
+	//					proj3DInfo.u.persp.pos.y = camPos2.y;
+	//					proj3DInfo.u.persp.cameraZ = camPos2.z;
+
+	//					proj3DInfo.u.persp.target.x = camPos1.x;
+	//					proj3DInfo.u.persp.target.y = camPos1.y;
+	//					proj3DInfo.u.persp.targetZ = camPos1.z;
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+
+	//					// ========== 3번째 캡쳐
+	//					// 카메라 및 대상 위치 설정
+	//					proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+	//					proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+	//					proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+	//					proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
+
+	//					proj3DInfo.u.persp.pos.x = p3.x;
+	//					proj3DInfo.u.persp.pos.y = p3.y;
+	//					proj3DInfo.u.persp.cameraZ = p3.z - distanceOfPoints;
+
+	//					proj3DInfo.u.persp.target.x = p3.x - 0.001;
+	//					proj3DInfo.u.persp.target.y = p3.y;
+	//					proj3DInfo.u.persp.targetZ = p3.z;
+
+	//					err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+	//					// 화면 새로고침
+	//					ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//					ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//					// 화면 캡쳐
+	//					ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//					BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+	//					fsp.fileTypeID = APIFType_PNGFile;
+	//					sprintf (filename, "%s - 캡쳐 (3).png", fullLayerName);
+	//					fsp.file = new IO::Location (location, IO::Name (filename));
+
+	//					BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+	//					pars_pict.colorDepth	= APIColorDepth_TC24;
+	//					pars_pict.dithered		= false;
+	//					pars_pict.view2D		= false;
+	//					pars_pict.crop			= false;
+	//					err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+	//				
+	//					delete fsp.file;
+	//				}
+	//			}
+
+	//			// 화면을 캡쳐 이전 상태로 돌려놓음
+	//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo_beforeCapture, NULL, NULL);
+
+	//			// 화면 새로고침
+	//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//			// 3D 투영 정보 ==================================
+	//		}
+
+	//		delete objectInfo;
+
+	//		// 레이어 숨기기
+	//		attrib.layer.head.flags |= APILay_Hidden;
+	//		ACAPI_Attribute_Modify (&attrib, NULL);
+	//	}
+
+	//	// 진행 상황 표시하는 기능 - 진행
+	//	cur = mm;
+	//	ACAPI_Interface (APIIo_SetProcessValueID, &cur, NULL);
+	//	if (ACAPI_Interface (APIIo_IsProcessCanceledID, NULL, NULL) == APIERR_CANCEL)
+	//		break;
+	//}
+
+	//// 진행 상황 표시하는 기능 - 마무리
+	//ACAPI_Interface (APIIo_CloseProcessWindowID, NULL, NULL);
+
+	//fclose (fp_unite);
+
+	//// 모든 프로세스를 마치면 처음에 수집했던 보이는 레이어들을 다시 켜놓을 것
+	//for (xx = 1 ; xx <= nVisibleLayers ; ++xx) {
+	//	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	//	attrib.layer.head.typeID = API_LayerID;
+	//	attrib.layer.head.index = visLayerList [xx-1];
+	//	err = ACAPI_Attribute_Get (&attrib);
+	//	if (err == NoError) {
+	//		if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+	//			attrib.layer.head.flags ^= APILay_Hidden;
+	//			ACAPI_Attribute_Modify (&attrib, NULL);
+	//		}
+	//	}
+	//}
+
+	//// 화면 새로고침
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	//ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	//location.ToDisplayText (&resultString);
+	//sprintf (buffer, "결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
+	//ACAPI_WriteReport (buffer, true);
 
 	return	err;
 }
