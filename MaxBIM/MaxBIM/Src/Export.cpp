@@ -379,9 +379,10 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 	short	tokCount;		// 읽어온 토큰 개수
 	short	xx, yy;
 
-	this->vectorSize = 30;		// 벡터 크기 *이것은 헤더파일에서 지정한 배열 크기와 같아야 함
+	this->vectorSize = 30;			// 벡터 크기 *이것은 헤더파일에서 지정한 배열 크기와 같아야 함
+	this->combinationSize = 200;	// 조합 개수 크기
 
-	char	nthToken [50][64];	// n번째 토큰
+	char	nthToken [100][256];	// n번째 토큰
 
 	// 객체 정보 파일 가져오기
 	fp = fopen ("C:\\objectInfo.csv", "r");
@@ -436,15 +437,16 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 		this->nKnownObjects = lineCount - 1;
 
 		// 다른 멤버 변수 초기화
-		vector<string>			vec_empty_string = vector<string> (200, "");
-		vector<short>			vec_empty_short = vector<short> (200, 0);
-		vector<API_AddParID>	vec_empty_type = vector<API_AddParID> (200, API_ZombieParT);
+		vector<string>			vec_empty_string = vector<string> (combinationSize, "");
+		vector<short>			vec_empty_short = vector<short> (combinationSize, 0);
+		vector<API_AddParID>	vec_empty_type = vector<API_AddParID> (combinationSize, API_ZombieParT);
 
 		for (xx = 1 ; xx <= (this->vectorSize) ; ++xx) {
 			this->varType [xx-1] = vec_empty_type;
 		}
 
-		this->nCounts = vec_empty_short;
+		//this->nCounts = vec_empty_short;
+		this->nCounts.assign (combinationSize, 0);
 		this->nCountsBeam = 0;
 		this->nUnknownObjects = 0;
 
@@ -536,9 +538,9 @@ GSErrCode	exportSelectedElementInfo (void)
 		return err;
 	}
 
-	double			value_numeric [50];
-	string			value_string [50];
-	API_AddParID	value_type [50];
+	double			value_numeric [256];
+	string			value_string [256];
+	API_AddParID	value_type [256];
 	char			tempStr [256];
 	const char*		foundStr;
 	bool			foundObject;
@@ -553,10 +555,11 @@ GSErrCode	exportSelectedElementInfo (void)
 		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
 		// 파라미터 스크립트를 강제로 실행시킴
-		//ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+		ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
 
 		for (yy = 0 ; yy < objectInfo->nameKey.size () ; ++yy) {
-			strcpy (tempStr, objectInfo->nameKey [yy].c_str ());
+			//strcpy (tempStr, objectInfo->nameKey [yy].c_str ());
+			sprintf (tempStr, "%s", objectInfo->nameKey [yy].c_str ());
 			foundStr = getParameterStringByName (&memo, tempStr);
 
 			// 객체 종류를 찾았다면,
@@ -571,7 +574,8 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					// 변수 종류별로 순회
 					for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
-						strcpy (tempStr, objectInfo->varName [zz-1][yy].c_str ());
+						//strcpy (tempStr, objectInfo->varName [zz-1][yy].c_str ());
+						sprintf (tempStr, "%s", objectInfo->varName [zz-1][yy].c_str ());
 						value_type [zz-1] = getParameterTypeByName (&memo, tempStr);
 						objectInfo->varType [zz-1][yy] = value_type [zz-1];
 
@@ -593,7 +597,6 @@ GSErrCode	exportSelectedElementInfo (void)
 					for (zz = 0 ; zz < objectInfo->nCounts [yy] ; ++zz) {
 						int diff = 0;
 						for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
-							//if (my_strcmp (objectInfo->varValue [kk-1][yy][zz].c_str (), value_string [kk-1].c_str ()) != 0)
 							if (objectInfo->varValue [kk-1][yy][zz].compare (value_string [kk-1]) != 0)
 								++diff;
 						}
@@ -1127,9 +1130,9 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 			SummaryOfObjectInfo*	objectInfo = new SummaryOfObjectInfo ();
 
-			double			value_numeric [50];
-			string			value_string [50];
-			API_AddParID	value_type [50];
+			double			value_numeric [256];
+			string			value_string [256];
+			API_AddParID	value_type [256];
 			char			tempStr [256];
 			const char*		foundStr;
 			bool			foundObject;
@@ -1168,11 +1171,12 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 				}
 
 				// 파라미터 스크립트를 강제로 실행시킴
-				//ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+				ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
 
 				for (yy = 0 ; yy < objectInfo->nameKey.size () ; ++yy) {
 
-					strcpy (tempStr, objectInfo->nameKey [yy].c_str ());
+					//strcpy (tempStr, objectInfo->nameKey [yy].c_str ());
+					sprintf (tempStr, "%s", objectInfo->nameKey [yy].c_str ());
 					foundStr = getParameterStringByName (&memo, tempStr);
 
 					// 객체 종류를 찾았다면,
@@ -1187,7 +1191,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 							// 변수 종류별로 순회
 							for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
-								strcpy (tempStr, objectInfo->varName [zz-1][yy].c_str ());
+								//strcpy (tempStr, objectInfo->varName [zz-1][yy].c_str ());
+								sprintf (tempStr, "%s", objectInfo->varName [zz-1][yy].c_str ());
 								value_type [zz-1] = getParameterTypeByName (&memo, tempStr);
 								objectInfo->varType [zz-1][yy] = value_type [zz-1];
 
@@ -1209,7 +1214,6 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							for (zz = 0 ; zz < objectInfo->nCounts [yy] ; ++zz) {
 								int diff = 0;
 								for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
-									//if (my_strcmp (objectInfo->varValue [kk-1][yy][zz].c_str (), value_string [kk-1].c_str ()) != 0)
 									if (objectInfo->varValue [kk-1][yy][zz].compare (value_string [kk-1]) != 0)
 										++diff;
 								}

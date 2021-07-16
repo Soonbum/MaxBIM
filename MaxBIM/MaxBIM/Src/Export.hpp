@@ -66,7 +66,8 @@ public:
 	SummaryOfObjectInfo ();		// 생성자
 
 public:
-	int vectorSize;
+	int vectorSize;			// 벡터 크기
+	int combinationSize;	// 조합 개수 크기
 
 	// 키
 	vector<string>	nameKey;		// 객체를 구분할 수 있는 값(문자열)이 들어 있는 변수 이름 (예: sup_type)
