@@ -8,6 +8,11 @@
 
 using namespace SupportingPostPlacerDG;
 
+static short	layerInd_vPost;		// 레이어 번호: 수직재
+static short	layerInd_hPost;		// 레이어 번호: 수평재
+
+static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
+
 // 선택한 직육면체 모프를 기반으로 PERI 동바리를 배치함
 GSErrCode	placePERIPost (void)
 {

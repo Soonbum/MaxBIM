@@ -250,7 +250,7 @@ GSErrCode	exportGridElementInfo (void)
 
 	if (fp != NULL) {
 		// 헤더행
-		strcpy (buffer, "주열구분,구분");
+		sprintf (buffer, "주열구분,구분");
 		for (xx = storyInfo.firstStory ; xx <= storyInfo.lastStory ; ++xx) {
 			if (xx < 0) {
 				sprintf (piece, ",B%d", -xx);	// 지하층
@@ -275,7 +275,7 @@ GSErrCode	exportGridElementInfo (void)
 				fprintf (fp, buffer);
 
 				// 세로
-				strcpy (buffer, ",세로,");
+				sprintf (buffer, ",세로,");
 				for (zz = columnPos.firstStory ; zz <= columnPos.lastStory ; ++zz) {
 					resultColumn = findColumn (&columnPos, xx, yy, zz);
 					sprintf (piece, "%.0f,", resultColumn.verLen * 1000);
@@ -285,7 +285,7 @@ GSErrCode	exportGridElementInfo (void)
 				fprintf (fp, buffer);
 
 				// 높이
-				strcpy (buffer, ",높이,");
+				sprintf (buffer, ",높이,");
 				for (zz = columnPos.firstStory ; zz <= columnPos.lastStory ; ++zz) {
 					resultColumn = findColumn (&columnPos, xx, yy, zz);
 					sprintf (piece, "%.0f,", resultColumn.height * 1000);
@@ -373,15 +373,15 @@ GSErrCode	exportGridElementInfo (void)
 SummaryOfObjectInfo::SummaryOfObjectInfo ()
 {
 	FILE	*fp;			// 파일 포인터
-	char	line [10240];	// 파일에서 읽어온 라인 하나
+	char	line [1024];	// 파일에서 읽어온 라인 하나
 	char	*token;			// 읽어온 문자열의 토큰
 	short	lineCount;		// 읽어온 라인 수
 	short	tokCount;		// 읽어온 토큰 개수
 	short	xx, yy;
 
-	this->vectorSize = 20;		// 벡터 크기
+	this->vectorSize = 30;		// 벡터 크기 *이것은 헤더파일에서 지정한 배열 크기와 같아야 함
 
-	char	nthToken [200][50];	// n번째 토큰
+	char	nthToken [50][64];	// n번째 토큰
 
 	// 객체 정보 파일 가져오기
 	fp = fopen ("C:\\objectInfo.csv", "r");
@@ -449,8 +449,9 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 		this->nUnknownObjects = 0;
 
 		for (xx = 0 ; xx < lineCount-1 ; ++xx) {
-			for (yy = 1 ; yy <= (this->vectorSize) ; ++yy)
+			for (yy = 1 ; yy <= (this->vectorSize) ; ++yy) {
 				this->varValue [yy-1].push_back (vec_empty_string);
+			}
 			this->combinationCount.push_back (vec_empty_short);
 		}
 	}
@@ -511,7 +512,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	API_ElementMemo		memo;
 	bool				foundExistValue;
 
-	SummaryOfObjectInfo		*objectInfo = new SummaryOfObjectInfo ();
+	SummaryOfObjectInfo*	objectInfo = new SummaryOfObjectInfo ();
 
 	char				buffer [256];
 	char				filename [256];
@@ -535,9 +536,9 @@ GSErrCode	exportSelectedElementInfo (void)
 		return err;
 	}
 
-	double			value_numeric [256];
-	string			value_string [256];
-	API_AddParID	value_type [256];
+	double			value_numeric [50];
+	string			value_string [50];
+	API_AddParID	value_type [50];
 	char			tempStr [256];
 	const char*		foundStr;
 	bool			foundObject;
@@ -555,7 +556,6 @@ GSErrCode	exportSelectedElementInfo (void)
 		//ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
 
 		for (yy = 0 ; yy < objectInfo->nameKey.size () ; ++yy) {
-
 			strcpy (tempStr, objectInfo->nameKey [yy].c_str ());
 			foundStr = getParameterStringByName (&memo, tempStr);
 
@@ -569,7 +569,7 @@ GSErrCode	exportSelectedElementInfo (void)
 					for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz)
 						value_string [zz-1] = "";
 
-					// 변수 1~50
+					// 변수 종류별로 순회
 					for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
 						strcpy (tempStr, objectInfo->varName [zz-1][yy].c_str ());
 						value_type [zz-1] = getParameterTypeByName (&memo, tempStr);
@@ -591,11 +591,13 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					// 중복 항목은 개수만 증가
 					for (zz = 0 ; zz < objectInfo->nCounts [yy] ; ++zz) {
-						int retSum = 0;
+						int diff = 0;
 						for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
-							retSum += objectInfo->varValue [kk-1][yy][zz].compare (value_string [kk-1]);
+							//if (my_strcmp (objectInfo->varValue [kk-1][yy][zz].c_str (), value_string [kk-1].c_str ()) != 0)
+							if (objectInfo->varValue [kk-1][yy][zz].compare (value_string [kk-1]) != 0)
+								++diff;
 						}
-						if (retSum == 0) {
+						if (diff == 0) {
 							objectInfo->combinationCount [yy][zz] ++;
 							foundExistValue = true;
 							break;
@@ -672,11 +674,11 @@ GSErrCode	exportSelectedElementInfo (void)
 			if (my_strcmp (objectInfo->nameVal [xx].c_str (), "유로폼 후크") == 0) {
 				// 원형
 				if (my_strcmp (objectInfo->varValue [1][xx][yy].c_str (), "원형") == 0) {
-					sprintf (buffer, "원형 / %s ", objectInfo->varValue [1][xx][yy].c_str ());
+					sprintf (buffer, "원형 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
 
 				// 사각
 				} else {
-					sprintf (buffer, "사각 / %s ", objectInfo->varValue [1][xx][yy].c_str ());
+					sprintf (buffer, "사각 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
 				}
 				fprintf (fp, buffer);
 
@@ -700,8 +702,8 @@ GSErrCode	exportSelectedElementInfo (void)
 				// 비규격폼
 				} else {
 					// 4열 X 5열
-					length = atof (objectInfo->varValue [3][xx][yy].c_str ());
-					length2 = atof (objectInfo->varValue [4][xx][yy].c_str ());
+					length = atol (objectInfo->varValue [3][xx][yy].c_str ());
+					length2 = atol (objectInfo->varValue [4][xx][yy].c_str ());
 					sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
 				}
 				fprintf (fp, buffer);
@@ -785,8 +787,8 @@ GSErrCode	exportSelectedElementInfo (void)
 					}
 				} else if (my_strcmp (objectInfo->varValue [0][xx][yy].c_str (), "비규격") == 0) {
 					// 가로 X 세로 X 두께
-					length = atof (objectInfo->varValue [2][xx][yy].c_str ());
-					length2 = atof (objectInfo->varValue [3][xx][yy].c_str ());
+					length = atol (objectInfo->varValue [2][xx][yy].c_str ());
+					length2 = atol (objectInfo->varValue [3][xx][yy].c_str ());
 					sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo->varValue [1][xx][yy].c_str ());
 					fprintf (fp, buffer);
 
@@ -929,6 +931,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		fprintf (fp, buffer);
 	}
 
+	delete objectInfo;
 	fclose (fp);
 
 	// 화면 새로고침
@@ -939,8 +942,6 @@ GSErrCode	exportSelectedElementInfo (void)
 	location.ToDisplayText (&resultString);
 	sprintf (buffer, "결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
 	ACAPI_WriteReport (buffer, true);
-
-	delete objectInfo;
 
 	return	err;
 }
@@ -1124,11 +1125,11 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			API_ElementMemo		memo;
 			bool				foundExistValue;
 
-			SummaryOfObjectInfo		*objectInfo = new SummaryOfObjectInfo ();
+			SummaryOfObjectInfo*	objectInfo = new SummaryOfObjectInfo ();
 
-			double			value_numeric [256];
-			string			value_string [256];
-			API_AddParID	value_type [256];
+			double			value_numeric [50];
+			string			value_string [50];
+			API_AddParID	value_type [50];
 			char			tempStr [256];
 			const char*		foundStr;
 			bool			foundObject;
@@ -1184,7 +1185,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz)
 								value_string [zz-1] = "";
 
-							// 변수 1~50
+							// 변수 종류별로 순회
 							for (zz = 1 ; zz <= objectInfo->vectorSize ; ++zz) {
 								strcpy (tempStr, objectInfo->varName [zz-1][yy].c_str ());
 								value_type [zz-1] = getParameterTypeByName (&memo, tempStr);
@@ -1206,11 +1207,13 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 							// 중복 항목은 개수만 증가
 							for (zz = 0 ; zz < objectInfo->nCounts [yy] ; ++zz) {
-								int retSum = 0;
+								int diff = 0;
 								for (kk = 1 ; kk <= objectInfo->vectorSize ; ++kk) {
-									retSum += objectInfo->varValue [kk-1][yy][zz].compare (value_string [kk-1]);
+									//if (my_strcmp (objectInfo->varValue [kk-1][yy][zz].c_str (), value_string [kk-1].c_str ()) != 0)
+									if (objectInfo->varValue [kk-1][yy][zz].compare (value_string [kk-1]) != 0)
+										++diff;
 								}
-								if (retSum == 0) {
+								if (diff == 0) {
 									objectInfo->combinationCount [yy][zz] ++;
 									foundExistValue = true;
 									break;
@@ -1287,11 +1290,11 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 					if (my_strcmp (objectInfo->nameVal [xx].c_str (), "유로폼 후크") == 0) {
 						// 원형
 						if (my_strcmp (objectInfo->varValue [1][xx][yy].c_str (), "원형") == 0) {
-							sprintf (buffer, "원형 / %s ", objectInfo->varValue [1][xx][yy].c_str ());
+							sprintf (buffer, "원형 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
 
 						// 사각
 						} else {
-							sprintf (buffer, "사각 / %s ", objectInfo->varValue [1][xx][yy].c_str ());
+							sprintf (buffer, "사각 / %s ", objectInfo->varValue [0][xx][yy].c_str ());
 						}
 						fprintf (fp, buffer);
 						fprintf (fp_unite, buffer);
@@ -1317,8 +1320,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 						// 비규격폼
 						} else {
 							// 4열 X 5열
-							length = atof (objectInfo->varValue [3][xx][yy].c_str ());
-							length2 = atof (objectInfo->varValue [4][xx][yy].c_str ());
+							length = atol (objectInfo->varValue [3][xx][yy].c_str ());
+							length2 = atol (objectInfo->varValue [4][xx][yy].c_str ());
 							sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
 						}
 						fprintf (fp, buffer);

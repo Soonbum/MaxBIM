@@ -83,6 +83,26 @@ struct InfoMorphForSupportingPost
 	API_Coord3D	points [8];	// 8개의 꼭지점 좌표
 };
 
+// PERI 동바리 배치 관련 정보
+struct PERISupportingPostPlacementInfo
+{
+	// 수직재 1단 유무
+	// 수직재 1단 규격
+	// 수직재 1단 높이
+
+	// 수직재 2단 유무
+	// 수직재 2단 규격
+	// 수직재 2단 높이
+
+	// 크로스헤드 유무
+
+	// 수평재 유무
+	// 수평재 너비(북)
+	// 수평재 너비(서)
+	// 수평재 너비(동)
+	// 수평재 너비(남)
+};
+
 GSErrCode	placePERIPost (void);		// 선택한 직육면체 모프를 기반으로 PERI 동바리를 배치함
 short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 수직재 단수 (1/2단, 높이가 6미터 초과되면 2단 권유할 것), 수직재의 규격/높이, 수평재 유무(단, 높이가 3500 이상이면 추가할 것을 권유할 것), 수평재 너비, 크로스헤드 유무, 수직재/수평재 레이어를 설정
 
