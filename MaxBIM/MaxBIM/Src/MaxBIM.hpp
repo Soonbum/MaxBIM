@@ -39,6 +39,7 @@
 #include "APICommon.h"
 #include <string.h>
 #include <vector>
+#include <exception>
 
 #define TRUE	1
 #define FALSE	0

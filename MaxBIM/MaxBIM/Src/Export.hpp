@@ -64,6 +64,7 @@ class SummaryOfObjectInfo
 {
 public:
 	SummaryOfObjectInfo ();		// 생성자
+	void clear ();				// 레코드 내용 지우기
 	int	quantityPlus1 (vector<string> record);		// 객체의 레코드 수량 1 증가 (있으면 증가, 없으면 신규 추가)
 
 public:
