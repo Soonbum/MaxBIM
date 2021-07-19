@@ -65,6 +65,7 @@ namespace SupportingPostPlacerDG {
 struct InfoMorphForSupportingPost
 {
 	API_Guid	guid;		// 모프의 GUID
+	short		floorInd;	// 층 인덱스
 
 	double	width;			// 가로 길이
 	double	depth;			// 세로 길이
@@ -84,23 +85,28 @@ struct InfoMorphForSupportingPost
 };
 
 // PERI 동바리 배치 관련 정보
-struct PERISupportingPostPlacementInfo
+class PERISupportingPostPlacementInfo
 {
-	// 수직재 1단 유무
-	// 수직재 1단 규격
-	// 수직재 1단 높이
+public:
+	bool	bVPost1;				// 수직재 1단 유무
+	char	nomVPost1 [16];			// 수직재 1단 규격 - GDL의 수직재 규격과 동일
+	double	heightVPost1;			// 수직재 1단 높이
 
-	// 수직재 2단 유무
-	// 수직재 2단 규격
-	// 수직재 2단 높이
+	bool	bVPost2;				// 수직재 2단 유무
+	char	nomVPost2 [16];			// 수직재 2단 규격 - GDL의 수직재 규격과 동일
+	double	heightVPost2;			// 수직재 2단 높이
 
-	// 크로스헤드 유무
+	bool	bCrosshead;				// 크로스헤드 유무
 
-	// 수평재 유무
-	// 수평재 너비(북)
-	// 수평재 너비(서)
-	// 수평재 너비(동)
-	// 수평재 너비(남)
+	bool	bHPost;					// 수평재 유무
+	char	nomHPost_North [16];	// 수평재 너비(북) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
+	char	nomHPost_West [16];		// 수평재 너비(서) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
+	char	nomHPost_East [16];		// 수평재 너비(동) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
+	char	nomHPost_South [16];	// 수평재 너비(남) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
+
+public:
+	API_Guid	placeVPost (PERI_VPost params);		// 수직재 배치
+	API_Guid	placeHPost (PERI_HPost params);		// 수평재 배치
 };
 
 GSErrCode	placePERIPost (void);		// 선택한 직육면체 모프를 기반으로 PERI 동바리를 배치함

@@ -8,6 +8,8 @@
 
 using namespace SupportingPostPlacerDG;
 
+InfoMorphForSupportingPost			infoMorph;				// 모프 정보
+PERISupportingPostPlacementInfo		placementInfoForPERI;	// PERI 동바리 배치 정보
 static short	layerInd_vPost;		// 레이어 번호: 수직재
 static short	layerInd_hPost;		// 레이어 번호: 수평재
 
@@ -42,9 +44,6 @@ GSErrCode	placePERIPost (void)
 	GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
 	long					nNodes;
 	API_Coord3D				point3D;
-
-	// 모프 객체 정보
-	InfoMorphForSupportingPost	infoMorph;
 
 	// 작업 층 정보
 	API_StoryInfo	storyInfo;
@@ -105,6 +104,9 @@ GSErrCode	placePERIPost (void)
 
 	// 모프의 GUID 저장
 	infoMorph.guid = elem.header.guid;
+
+	// 모프의 층 인덱스 저장
+	infoMorph.floorInd = elem.header.floorInd;
 
 	// 모프의 3D 바디를 가져옴
 	BNZeroMemory (&component, sizeof (API_Component3D));
@@ -171,7 +173,7 @@ GSErrCode	placePERIPost (void)
 	infoMorph.height = abs (info3D.bounds.zMax - info3D.bounds.zMin);
 
 	// [다이얼로그] 수직재 단수 (1/2단, 높이가 6미터 초과되면 2단 권유할 것), 수직재의 규격/높이, 수평재 유무(단, 높이가 3500 이상이면 추가할 것을 권유할 것), 수평재 너비, 크로스헤드 유무, 수직재/수평재 레이어
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32521, ACAPI_GetOwnResModule (), PERISupportingPostPlacerHandler1, (DGUserData) &infoMorph);
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32521, ACAPI_GetOwnResModule (), PERISupportingPostPlacerHandler1, 0);
 
 	// 영역 모프 제거
 	API_Elem_Head* headList = new API_Elem_Head [1];
@@ -181,17 +183,173 @@ GSErrCode	placePERIPost (void)
 
 	// 입력한 데이터를 기반으로 수직재, 수평재 배치
 	if (result == DG_OK) {
-		// ...
+		// ... placementInfoForPERI
+		// 1. 수직재 1단 배치 (2단 없으면 크로스헤드 유무 고려)
+		// 2. 수직재 2단 배치 (단, 옵션이 On일 때에만, 크로스헤드 유무 고려)
+		// 3. 수평재 유무 고려
+		// 3-1. 수평재 On이면, 수평재 (서쪽/동쪽) 배치 (단, 없음이 아닐 경우)
+		// 3-2. 수평재 On이면, 수평재 (북쪽/남쪽) 배치 (단, 없음이 아닐 경우)
+
+		//bool	bVPost1;				// 수직재 1단 유무
+		//char	nomVPost1 [16];			// 수직재 1단 규격 - GDL의 수직재 규격과 동일
+		//double	heightVPost1;			// 수직재 1단 높이
+
+		//bool	bVPost2;				// 수직재 2단 유무
+		//char	nomVPost2 [16];			// 수직재 2단 규격 - GDL의 수직재 규격과 동일
+		//double	heightVPost2;			// 수직재 2단 높이
+
+		//bool	bCrosshead;				// 크로스헤드 유무
+
+		//bool	bHPost;					// 수평재 유무
+		//char	nomHPost_North [16];	// 수평재 너비(북) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
+		//char	nomHPost_West [16];		// 수평재 너비(서) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
+		//char	nomHPost_East [16];		// 수평재 너비(동) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
+		//char	nomHPost_South [16];	// 수평재 너비(남) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
 	}
 
 	return	err;
 }
 
-// 수직재 단수 (1/2단, 높이가 6미터 초과되면 2단 권유할 것), 수직재의 규격/높이, 수평재 유무(단, 높이가 3500 이상이면 추가할 것을 권유할 것), 수평재 너비, 크로스헤드 유무, 수직재/수평재 레이어를 설정
-short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData /* msgData */)
+// 수직재 배치
+API_Guid	PERISupportingPostPlacementInfo::placeVPost (PERI_VPost params)
 {
-	InfoMorphForSupportingPost *dlgData = (InfoMorphForSupportingPost *) userData;
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("PERI동바리 수직재 v0.1.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoMorph.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_vPost;
+
+	//setParameterByName (&memo, "bolt_len", params.boltLen);		// 볼트 길이
+	//setParameterByName (&memo, "bolt_dia", 0.010);				// 볼트 직경
+	//setParameterByName (&memo, "washer_pos", 0.050);			// 와셔 위치
+	//setParameterByName (&memo, "washer_size", 0.100);			// 와셔 크기
+	//setParameterByName (&memo, "angX", params.angX);			// X축 회전
+	//setParameterByName (&memo, "angY", params.angY);			// Y축 회전
+
+	//char	stType [16];		// 규격
+	//bool	bCrosshead;			// 크로스헤드 On/Off
+	//char	posCrosshead [16];	// 크로스헤드 위치 (상단, 하단)
+	//char	crossheadType [16];	// 크로스헤드 타입 (PERI, 당사 제작품)
+	//double	angCrosshead;		// 크로스헤드 회전각도
+	//double	len_current;		// 현재 길이
+	//double	pos_lever;			// 레버 위치
+	//double	angY;				// 회전 Y
+
+	//bool	text2_onoff;		// 2D 텍스트 On/Off
+	//bool	text_onoff;			// 3D 텍스트 On/Off
+	//bool	bShowCoords;		// 좌표값 표시 On/Off
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 수평재 배치
+API_Guid	PERISupportingPostPlacementInfo::placeHPost (PERI_HPost params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("PERI동바리 수평재 v0.2.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoMorph.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_hPost;
+
+	//setParameterByName (&memo, "bolt_len", params.boltLen);		// 볼트 길이
+	//setParameterByName (&memo, "bolt_dia", 0.010);				// 볼트 직경
+	//setParameterByName (&memo, "washer_pos", 0.050);			// 와셔 위치
+	//setParameterByName (&memo, "washer_size", 0.100);			// 와셔 크기
+	//setParameterByName (&memo, "angX", params.angX);			// X축 회전
+	//setParameterByName (&memo, "angY", params.angY);			// Y축 회전
+
+	//char	stType [16];		// 규격
+	//double	angX;				// 회전 X
+	//double	angY;				// 회전 Y
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 수직재 단수 (1/2단, 높이가 6미터 초과되면 2단 권유할 것), 수직재의 규격/높이, 수평재 유무(단, 높이가 3500 이상이면 추가할 것을 권유할 것), 수평재 너비, 크로스헤드 유무, 수직재/수평재 레이어를 설정
+short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
 	short	result;
+	char	tempStr [16];
 	API_UCCallbackType	ucb;
 
 	short	itmIdx;
@@ -284,7 +442,10 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 
 			// 3. 수직재 1단 On, 2단 Off
 			DGSetItemValLong (dialogID, CHECKBOX_VPOST1, TRUE);
+			DGDisableItem (dialogID, CHECKBOX_VPOST1);
 			DGSetItemValLong (dialogID, CHECKBOX_VPOST2, FALSE);
+			DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+			DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
 
 			// 4. 수평재의 너비 4개 비활성화
 			DGSetItemValLong (dialogID, CHECKBOX_HPOST, FALSE);
@@ -415,14 +576,14 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			// 7. 총 높이, 남은 높이 비활성화 및 값 출력
 			DGDisableItem (dialogID, EDITCONTROL_TOTAL_HEIGHT);
 			DGDisableItem (dialogID, EDITCONTROL_REMAIN_HEIGHT);
-			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_HEIGHT, dlgData->height);
-			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, dlgData->height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST1) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - 0.003 * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD));
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_HEIGHT, infoMorph.height);
+			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST1) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - 0.003 * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD));
 
 			// 8. 수평재 가로, 세로 값 비활성화 및 값 출력
 			DGDisableItem (dialogID, EDITCONTROL_PLAN_WIDTH);
 			DGDisableItem (dialogID, EDITCONTROL_PLAN_DEPTH);
-			DGSetItemValDouble (dialogID, EDITCONTROL_PLAN_WIDTH, dlgData->width);
-			DGSetItemValDouble (dialogID, EDITCONTROL_PLAN_DEPTH, dlgData->depth);
+			DGSetItemValDouble (dialogID, EDITCONTROL_PLAN_WIDTH, infoMorph.width);
+			DGSetItemValDouble (dialogID, EDITCONTROL_PLAN_DEPTH, infoMorph.depth);
 
 			break;
 
@@ -439,7 +600,16 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 				}
 			}
 
-			// 2. 수직재 규격이 바뀔 때마다 높이 범위 문자열이 변경되고, 수직재 높이 값의 최소/최대값 변경됨 - MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
+			// 2. 수직재 2단을 켜고 끌 때마다 수직재 2단의 규격, 높이 입력 컨트롤을 활성화/비활성화
+			if (DGGetItemValLong (dialogID, CHECKBOX_VPOST2) == TRUE) {
+				DGEnableItem (dialogID, POPUP_VPOST2_NOMINAL);
+				DGEnableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+			} else {
+				DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+				DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+			}
+
+			// 3. 수직재 규격이 바뀔 때마다 높이 범위 문자열이 변경되고, 수직재 높이 값의 최소/최대값 변경됨 - MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
 			if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 1) {
 				DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 800~1200");
 				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.800);
@@ -484,10 +654,10 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 6.250);
 			}
 
-			// 3. 수직재 규격이 바뀌거나, 수직재 1단/2단 체크박스 상태가 바뀌거나, 수직재 높이가 바뀌거나, 크로스헤드 체크 상태에 따라 남은 높이 변경됨
-			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, dlgData->height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST1) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - 0.003 * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD));
+			// 4. 수직재 규격이 바뀌거나, 수직재 1단/2단 체크박스 상태가 바뀌거나, 수직재 높이가 바뀌거나, 크로스헤드 체크 상태에 따라 남은 높이 변경됨
+			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST1) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - 0.003 * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD));
 
-			// 4. 수평재 체크박스에 따라 수평재 UI의 너비 관련 내용 (서쪽, 남쪽) 활성화/비활성화
+			// 5. 수평재 체크박스에 따라 수평재 UI의 너비 관련 내용 (서쪽, 남쪽) 활성화/비활성화
 			if (DGGetItemValLong (dialogID, CHECKBOX_HPOST) == TRUE) {
 				DGEnableItem (dialogID, LABEL_WIDTH_WEST);
 				DGEnableItem (dialogID, POPUP_WIDTH_WEST);
@@ -500,7 +670,7 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 				DGDisableItem (dialogID, POPUP_WIDTH_SOUTH);
 			}
 
-			// 5. 수평재 서쪽/남쪽 너비가 바뀌면 동쪽/북쪽 너비도 동일하게 변경됨
+			// 6. 수평재 서쪽/남쪽 너비가 바뀌면 동쪽/북쪽 너비도 동일하게 변경됨
 			DGPopUpSelectItem (dialogID, POPUP_WIDTH_EAST, DGPopUpGetSelected (dialogID, POPUP_WIDTH_WEST));
 			DGPopUpSelectItem (dialogID, POPUP_WIDTH_NORTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH_SOUTH));
 
@@ -509,7 +679,91 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
-					// ...
+
+					if (DGGetItemValLong (dialogID, CHECKBOX_VPOST1) == TRUE)
+						placementInfoForPERI.bVPost1 = true;
+					else
+						placementInfoForPERI.bVPost1 = false;
+					sprintf (placementInfoForPERI.nomVPost1, "%s", DGPopUpGetItemText (dialogID, POPUP_VPOST1_NOMINAL, DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL)).ToCStr ().Get ());
+					placementInfoForPERI.heightVPost1 = DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT);
+					
+					if (DGGetItemValLong (dialogID, CHECKBOX_VPOST2) == TRUE)
+						placementInfoForPERI.bVPost2 = true;
+					else
+						placementInfoForPERI.bVPost2 = false;
+					sprintf (placementInfoForPERI.nomVPost2, "%s", DGPopUpGetItemText (dialogID, POPUP_VPOST2_NOMINAL, DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL)).ToCStr ().Get ());
+					placementInfoForPERI.heightVPost2 = DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+
+					if (DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD) == TRUE)
+						placementInfoForPERI.bCrosshead = true;
+					else
+						placementInfoForPERI.bCrosshead = false;
+
+					if (DGGetItemValLong (dialogID, CHECKBOX_HPOST) == TRUE)
+						placementInfoForPERI.bHPost = true;
+					else
+						placementInfoForPERI.bHPost = false;
+
+					sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_NORTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH_NORTH)).ToCStr ().Get ());
+					if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "");
+					if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "62.5 cm");
+					if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "75 cm");
+					if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "90 cm");
+					if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "120 cm");
+					if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "137.5 cm");
+					if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "150 cm");
+					if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "201.5 cm");
+					if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "225 cm");
+					if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "230 cm");
+					if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "237 cm");
+					if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "266 cm");
+					if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "296 cm");
+
+					sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_WEST, DGPopUpGetSelected (dialogID, POPUP_WIDTH_WEST)).ToCStr ().Get ());
+					if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "");
+					if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "62.5 cm");
+					if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "75 cm");
+					if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "90 cm");
+					if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "120 cm");
+					if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "137.5 cm");
+					if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "150 cm");
+					if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "201.5 cm");
+					if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "225 cm");
+					if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "230 cm");
+					if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "237 cm");
+					if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "266 cm");
+					if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "296 cm");
+
+					sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_EAST, DGPopUpGetSelected (dialogID, POPUP_WIDTH_EAST)).ToCStr ().Get ());
+					if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "");
+					if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "62.5 cm");
+					if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "75 cm");
+					if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "90 cm");
+					if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "120 cm");
+					if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "137.5 cm");
+					if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "150 cm");
+					if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "201.5 cm");
+					if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "225 cm");
+					if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "230 cm");
+					if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "237 cm");
+					if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "266 cm");
+					if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "296 cm");
+
+					sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_SOUTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH_SOUTH)).ToCStr ().Get ());
+					if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "");
+					if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "62.5 cm");
+					if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "75 cm");
+					if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "90 cm");
+					if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "120 cm");
+					if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "137.5 cm");
+					if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "150 cm");
+					if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "201.5 cm");
+					if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "225 cm");
+					if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "230 cm");
+					if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "237 cm");
+					if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "266 cm");
+					if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "296 cm");
+
 					break;
 				case DG_CANCEL:
 					break;

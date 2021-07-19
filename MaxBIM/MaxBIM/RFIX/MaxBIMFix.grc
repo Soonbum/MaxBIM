@@ -493,7 +493,7 @@
 }
 
 /* ---------------------------------------------------------- place PERI Supporting Post */
-'GDLG'  32521  Modal | grow	  0		  0		700		500		"PERI Supporting Post Placer" {
+'GDLG'  32521  Modal | grow	  0		  0		700		600		"PERI Supporting Post Placer" {
 /* [  1] */	Button			270		560		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			360		560		 70		 25		LargePlain		"Cancel"
 

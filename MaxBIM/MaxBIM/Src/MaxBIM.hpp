@@ -470,4 +470,41 @@ struct Cylinder
 	double	length;			// 원통 길이
 };
 
+// PERI동바리 수직재
+struct PERI_VPost
+{
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
+
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	char	stType [16];		// 규격
+	bool	bCrosshead;			// 크로스헤드 On/Off
+	char	posCrosshead [16];	// 크로스헤드 위치 (상단, 하단)
+	char	crossheadType [16];	// 크로스헤드 타입 (PERI, 당사 제작품)
+	double	angCrosshead;		// 크로스헤드 회전각도
+	double	len_current;		// 현재 길이
+	double	pos_lever;			// 레버 위치
+	double	angY;				// 회전 Y
+
+	bool	text2_onoff;		// 2D 텍스트 On/Off
+	bool	text_onoff;			// 3D 텍스트 On/Off
+	bool	bShowCoords;		// 좌표값 표시 On/Off
+};
+
+// PERI동바리 수평재
+struct PERI_HPost
+{
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
+
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	char	stType [16];		// 규격
+	double	angX;				// 회전 X
+	double	angY;				// 회전 Y
+};
+
 #endif //__MAXBIM_HPP__
