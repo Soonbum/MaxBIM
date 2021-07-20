@@ -491,8 +491,13 @@ int	SummaryOfObjectInfo::quantityPlus1 (vector<string> record)
 	}
 
 	// 없으면 신규 레코드 추가하고 1 리턴
-	record.push_back ("1");
-	this->records.push_back (record);
+	try {
+		record.push_back ("1");
+		this->records.push_back (record);
+	} catch (std::exception e) {
+		DGAlert (DG_ERROR, "오류 발생", "신규 레코드 추가할 때 오류가 발생했습니다.", "", "확인", "", "");
+	}
+
 	return 1;
 }
 
@@ -502,10 +507,13 @@ void SummaryOfObjectInfo::clear ()
 	int xx;
 	size_t recordSize = this->records.size ();
 
-	for (xx = 0 ; xx < recordSize ; ++xx)
-		this->records.at (xx).clear ();
-
-	this->records.clear ();
+	try {
+		for (xx = 0 ; xx < recordSize ; ++xx)
+			this->records.at (xx).clear ();
+		this->records.clear ();
+	} catch (std::exception e) {
+		DGAlert (DG_ERROR, "오류 발생", "objectInfo.clear 함수에서 오류가 발생했습니다.", "", "확인", "", "");
+	}
 }
 
 // 선택한 부재 정보 내보내기 (Single 모드)
@@ -570,6 +578,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	bool			foundObject;
 	bool			foundExistValue;
 	int				retVal;
+	int				nInfo;
 	API_AddParID	varType;
 	vector<string>	record;
 
@@ -616,7 +625,7 @@ GSErrCode	exportSelectedElementInfo (void)
 				foundObject = true;
 
 				try {
-					retVal = my_strcmp (objectInfo.keyDesc.at (yy).c_str (), foundStr);
+					retVal = my_strcmp (objectInfo.keyDesc.at(yy).c_str (), foundStr);
 				} catch (std::exception e) {
 					DGAlert (DG_ERROR, "오류 발생", "objectInfo.keyDesc 변수 접근시 인덱싱 오류가 발생했습니다. (1)", "", "확인", "", "");
 				}
@@ -629,11 +638,16 @@ GSErrCode	exportSelectedElementInfo (void)
 						record.clear ();
 
 					try {
-						record.push_back (objectInfo.keyDesc.at (yy));		// 객체 이름
+						record.push_back (objectInfo.keyDesc.at(yy));		// 객체 이름
 					} catch (std::exception e) {
 						DGAlert (DG_ERROR, "오류 발생", "objectInfo.keyDesc 변수 접근시 인덱싱 오류가 발생했습니다. (2)", "", "확인", "", "");
 					}
-					for (zz = 0 ; zz < objectInfo.nInfo [yy] ; ++zz) {
+					try {
+						nInfo = objectInfo.nInfo.at(yy);
+					} catch (std::exception e) {
+						DGAlert (DG_ERROR, "오류 발생", "objectInfo.nInfo 변수 접근시 인덱싱 오류가 발생했습니다.", "", "확인", "", "");
+					}
+					for (zz = 0 ; zz < nInfo ; ++zz) {
 						try {
 							sprintf (buffer, "%s", objectInfo.varName.at(yy).at(zz).c_str ());
 						} catch (std::exception e) {
@@ -798,6 +812,39 @@ GSErrCode	exportSelectedElementInfo (void)
 						}
 					} catch (std::exception e) {
 						DGAlert (DG_ERROR, "오류 발생", "합판(다각형) 루틴에서 인덱싱 오류가 발생했습니다.", "", "확인", "", "");
+					}
+
+				} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "콘판넬") == 0) {
+					try {
+						if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x6 [910x1820]") == 0) {
+							sprintf (buffer, "910 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "4x8 [1220x2440]") == 0) {
+							sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x5 [606x1520]") == 0) {
+							sprintf (buffer, "606 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x6 [606x1820]") == 0) {
+							sprintf (buffer, "606 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x5 [910x1520]") == 0) {
+							sprintf (buffer, "910 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "비규격") == 0) {
+							// 가로 X 세로 X 두께
+							length = atof (objectInfo.records.at(yy).at(3).c_str ());
+							length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
+							sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+						}
+					} catch (std::exception e) {
+						DGAlert (DG_ERROR, "오류 발생", "콘판넬 루틴에서 인덱싱 오류가 발생했습니다.", "", "확인", "", "");
 					}
 
 				} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "합판") == 0) {
@@ -1109,6 +1156,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	bool			foundObject;
 	bool			foundExistValue;
 	int				retVal;
+	int				nInfo;
 	API_AddParID	varType;
 	vector<string>	record;
 
@@ -1283,7 +1331,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 						foundObject = true;
 
 						try {
-							retVal = my_strcmp (objectInfo.keyDesc.at (yy).c_str (), foundStr);
+							retVal = my_strcmp (objectInfo.keyDesc.at(yy).c_str (), foundStr);
 						} catch (std::exception e) {
 							DGAlert (DG_ERROR, "오류 발생", "objectInfo.keyDesc 변수 접근시 인덱싱 오류가 발생했습니다. (1)", "", "확인", "", "");
 						}
@@ -1296,11 +1344,16 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								record.clear ();
 
 							try {
-								record.push_back (objectInfo.keyDesc.at (yy));		// 객체 이름
+								record.push_back (objectInfo.keyDesc.at(yy));		// 객체 이름
 							} catch (std::exception e) {
 								DGAlert (DG_ERROR, "오류 발생", "objectInfo.keyDesc 변수 접근시 인덱싱 오류가 발생했습니다. (2)", "", "확인", "", "");
 							}
-							for (zz = 0 ; zz < objectInfo.nInfo [yy] ; ++zz) {
+							try {
+								nInfo = objectInfo.nInfo.at(yy);
+							} catch (std::exception e) {
+								DGAlert (DG_ERROR, "오류 발생", "objectInfo.nInfo 변수 접근시 인덱싱 오류가 발생했습니다.", "", "확인", "", "");
+							}
+							for (zz = 0 ; zz < nInfo ; ++zz) {
 								try {
 									sprintf (buffer, "%s", objectInfo.varName.at(yy).at(zz).c_str ());
 								} catch (std::exception e) {
@@ -1454,6 +1507,39 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								}
 							} catch (std::exception e) {
 								DGAlert (DG_ERROR, "오류 발생", "합판(다각형) 루틴에서 인덱싱 오류가 발생했습니다.", "", "확인", "", "");
+							}
+
+						} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "콘판넬") == 0) {
+							try {
+								if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x6 [910x1820]") == 0) {
+									sprintf (buffer, "910 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "4x8 [1220x2440]") == 0) {
+									sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x5 [606x1520]") == 0) {
+									sprintf (buffer, "606 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x6 [606x1820]") == 0) {
+									sprintf (buffer, "606 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x5 [910x1520]") == 0) {
+									sprintf (buffer, "910 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "비규격") == 0) {
+									// 가로 X 세로 X 두께
+									length = atof (objectInfo.records.at(yy).at(3).c_str ());
+									length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
+									sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+								}
+							} catch (std::exception e) {
+								DGAlert (DG_ERROR, "오류 발생", "콘판넬 루틴에서 인덱싱 오류가 발생했습니다.", "", "확인", "", "");
 							}
 
 						} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "합판") == 0) {
