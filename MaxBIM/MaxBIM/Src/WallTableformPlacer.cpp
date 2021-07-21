@@ -9320,25 +9320,22 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 					placingZone.bDoubleSide = false;	// 단면 전용
 					placingZone.gap = 0.0;				// 벽과의 간격은 0.0
 
-					if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 1) {
-						placingZone.type = 1;	// 타입 지정
+					// 타입 지정 (타입A, 타입B)
+					if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 1)				placingZone.type = 1;
+					else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 2)		placingZone.type = 2;
 
-					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 2) {
-						placingZone.type = 2;	// 타입 지정
+					placingZone.nCells = customTableCol;
+					placingZone.nCells_vertical = customTableRow;
 
-					}
-
-					for (xx = 1 ; xx <= customTableRow ; ++xx) {
-						for (yy = 1 ; yy <= customTableCol ; ++yy) {
-							widthInd = (xx-1)*3*customTableCol + 3*(yy-1) + 1;
-							heightInd = (xx-1)*3*customTableCol + 3*(yy-1) + 2;
-
-							// 세로 방향일 경우
-							if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION) {
+					// 유로폼 너비, 높이 값 저장
+					if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION) {
+						// 세로 방향
+						for (xx = 1 ; xx <= customTableRow ; ++xx) {
+							for (yy = 1 ; yy <= customTableCol ; ++yy) {
+								widthInd = (xx-1)*3*customTableCol + 3*(yy-1) + 1;
+								heightInd = (xx-1)*3*customTableCol + 3*(yy-1) + 2;
 
 								// ...
-								placingZone.nCells = customTableCol;
-								placingZone.nCells_vertical = customTableRow;
 								placingZone.customCells [xx-1][yy-1].ang = placingZone.ang;
 								placingZone.customCells [xx-1][yy-1].horLen = atof (DGPopUpGetItemText (dialogID, widthInd, static_cast<short>(DGGetItemValLong (dialogID, widthInd))).ToCStr ().Get ()) / 1000;
 								placingZone.customCells [xx-1][yy-1].verLen = atof (DGPopUpGetItemText (dialogID, heightInd, static_cast<short>(DGGetItemValLong (dialogID, heightInd))).ToCStr ().Get ()) / 1000;
@@ -9357,9 +9354,14 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 								// ... ?
 								//placingZone.verticalBarRightOffset;
 								// ... ?
-
-							// 가로 방향일 경우
-							} else {
+							}
+						}
+					} else {
+						// 가로 방향
+						for (xx = 1 ; xx <= customTableRow ; ++xx) {
+							for (yy = 1 ; yy <= customTableCol ; ++yy) {
+								widthInd = (xx-1)*3*customTableCol + 3*(yy-1) + 1;
+								heightInd = (xx-1)*3*customTableCol + 3*(yy-1) + 2;
 
 								// ...
 							}
