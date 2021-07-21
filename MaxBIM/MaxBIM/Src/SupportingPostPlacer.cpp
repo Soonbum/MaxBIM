@@ -172,7 +172,7 @@ GSErrCode	placePERIPost (void)
 	infoMorph.depth = GetDistance (infoMorph.leftBottomX, infoMorph.leftBottomY, infoMorph.leftBottomX, infoMorph.rightTopY);
 	infoMorph.height = abs (info3D.bounds.zMax - info3D.bounds.zMin);
 
-	// [다이얼로그] 수직재 단수 (1/2단, 높이가 6미터 초과되면 2단 권유할 것), 수직재의 규격/높이, 수평재 유무(단, 높이가 3500 이상이면 추가할 것을 권유할 것), 수평재 너비, 크로스헤드 유무, 수직재/수평재 레이어
+	// [다이얼로그] 수직재 단수 (1/2단, 높이가 6미터 초과되면 2단 권유할 것?), 수직재의 규격/높이, 수평재 유무(단, 높이가 3500 이상이면 추가할 것을 권유할 것?), 수평재 너비, 크로스헤드 유무, 수직재/수평재 레이어
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32521, ACAPI_GetOwnResModule (), PERISupportingPostPlacerHandler1, 0);
 
 	// 영역 모프 제거
@@ -183,29 +183,195 @@ GSErrCode	placePERIPost (void)
 
 	// 입력한 데이터를 기반으로 수직재, 수평재 배치
 	if (result == DG_OK) {
-		// ... placementInfoForPERI
-		// 1. 수직재 1단 배치 (2단 없으면 크로스헤드 유무 고려)
-		// 2. 수직재 2단 배치 (단, 옵션이 On일 때에만, 크로스헤드 유무 고려)
-		// 3. 수평재 유무 고려
-		// 3-1. 수평재 On이면, 수평재 (서쪽/동쪽) 배치 (단, 없음이 아닐 경우)
-		// 3-2. 수평재 On이면, 수평재 (북쪽/남쪽) 배치 (단, 없음이 아닐 경우)
+		PERI_VPost vpost;
+		PERI_HPost hpost;
 
-		//bool	bVPost1;				// 수직재 1단 유무
-		//char	nomVPost1 [16];			// 수직재 1단 규격 - GDL의 수직재 규격과 동일
-		//double	heightVPost1;			// 수직재 1단 높이
+		// 수평재가 있을 경우, 수평재의 규격에 맞게 변경함
+		if (placementInfoForPERI.bHPost == true) {
+			// 남쪽/북쪽의 수평재 규격에 따라 모프 영역의 가로 길이가 달라짐
+			if (my_strcmp (placementInfoForPERI.nomHPost_South, "296 cm") == 0)			infoMorph.width = 2.960;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "266 cm") == 0)	infoMorph.width = 2.660;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "237 cm") == 0)	infoMorph.width = 2.370;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "230 cm") == 0)	infoMorph.width = 2.300;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "225 cm") == 0)	infoMorph.width = 2.250;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "201.5 cm") == 0)	infoMorph.width = 2.015;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "150 cm") == 0)	infoMorph.width = 1.500;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "137.5 cm") == 0)	infoMorph.width = 1.375;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "120 cm") == 0)	infoMorph.width = 1.200;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "90 cm") == 0)		infoMorph.width = 0.900;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "75 cm") == 0)		infoMorph.width = 0.750;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "62.5 cm") == 0)	infoMorph.width = 0.625;
 
-		//bool	bVPost2;				// 수직재 2단 유무
-		//char	nomVPost2 [16];			// 수직재 2단 규격 - GDL의 수직재 규격과 동일
-		//double	heightVPost2;			// 수직재 2단 높이
+			// 서쪽/동쪽의 수평재 규격에 따라 모프 영역의 세로 길이가 달라짐
+			if (my_strcmp (placementInfoForPERI.nomHPost_West, "296 cm") == 0)			infoMorph.depth = 2.960;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "266 cm") == 0)		infoMorph.depth = 2.660;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "237 cm") == 0)		infoMorph.depth = 2.370;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "230 cm") == 0)		infoMorph.depth = 2.300;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "225 cm") == 0)		infoMorph.depth = 2.250;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "201.5 cm") == 0)	infoMorph.depth = 2.015;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "150 cm") == 0)		infoMorph.depth = 1.500;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "137.5 cm") == 0)	infoMorph.depth = 1.375;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "120 cm") == 0)		infoMorph.depth = 1.200;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "90 cm") == 0)		infoMorph.depth = 0.900;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "75 cm") == 0)		infoMorph.depth = 0.750;
+			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "62.5 cm") == 0)	infoMorph.depth = 0.625;
+		}
 
-		//bool	bCrosshead;				// 크로스헤드 유무
+		// 수직재 1단 배치
+		// 회전Y(180), 크로스헤드 위치(하단), 위로 len_current만큼 이동해야 함
+		vpost.leftBottomX = infoMorph.leftBottomX;
+		vpost.leftBottomY = infoMorph.leftBottomY;
+		vpost.leftBottomZ = infoMorph.leftBottomZ + placementInfoForPERI.heightVPost1;
+		vpost.ang = infoMorph.ang;
+		if (placementInfoForPERI.bVPost2 == false)
+			vpost.bCrosshead = placementInfoForPERI.bCrosshead;
+		else
+			vpost.bCrosshead = false;
+		sprintf (vpost.stType, "%s", placementInfoForPERI.nomVPost1);
+		sprintf (vpost.crossheadType, "PERI");
+		sprintf (vpost.posCrosshead, "하단");
+		vpost.angCrosshead = 0.0;
+		vpost.angY = DegreeToRad (180.0);
+		vpost.len_current = placementInfoForPERI.heightVPost1;
+		vpost.text2_onoff = true;
+		vpost.text_onoff = true;
+		vpost.bShowCoords = true;
 
-		//bool	bHPost;					// 수평재 유무
-		//char	nomHPost_North [16];	// 수평재 너비(북) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
-		//char	nomHPost_West [16];		// 수평재 너비(서) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
-		//char	nomHPost_East [16];		// 수평재 너비(동) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
-		//char	nomHPost_South [16];	// 수평재 너비(남) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
+		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌하단
+		moveIn3D ('x', vpost.ang, infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우하단
+		moveIn3D ('y', vpost.ang, infoMorph.depth, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우상단
+		moveIn3D ('x', vpost.ang, -infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌상단
+
+		// 수직재 2단이 있을 경우
+		if (placementInfoForPERI.bVPost2 == true) {
+			// 회전Y(0), 크로스헤드 위치(상단)
+			vpost.leftBottomX = infoMorph.leftBottomX;
+			vpost.leftBottomY = infoMorph.leftBottomY;
+			vpost.leftBottomZ = infoMorph.leftBottomZ + placementInfoForPERI.heightVPost1;
+			vpost.ang = infoMorph.ang;
+			vpost.bCrosshead = placementInfoForPERI.bCrosshead;
+			sprintf (vpost.stType, "%s", placementInfoForPERI.nomVPost2);
+			sprintf (vpost.crossheadType, "PERI");
+			sprintf (vpost.posCrosshead, "상단");
+			vpost.angCrosshead = 0.0;
+			vpost.angY = 0.0;
+			vpost.len_current = placementInfoForPERI.heightVPost2;
+			vpost.text2_onoff = true;
+			vpost.text_onoff = true;
+			vpost.bShowCoords = true;
+
+			elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌하단
+			moveIn3D ('x', vpost.ang, infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+			elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우하단
+			moveIn3D ('y', vpost.ang, infoMorph.depth, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+			elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우상단
+			moveIn3D ('x', vpost.ang, -infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+			elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌상단
+		}
+
+		// 수평재가 있을 경우
+		if (placementInfoForPERI.bHPost == true) {
+			hpost.leftBottomX = infoMorph.leftBottomX;
+			hpost.leftBottomY = infoMorph.leftBottomY;
+			hpost.leftBottomZ = infoMorph.leftBottomZ;
+			hpost.ang = infoMorph.ang;
+			hpost.angX = 0.0;
+			hpost.angY = 0.0;
+			
+			// 1단 ----------------------------------------------------------------------------------------------------
+			// 남쪽
+			moveIn3D ('z', hpost.ang, 2.000, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+			moveIn3D ('x', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_South);	// 빈 문자열이면 배치하지 않음
+			if (my_strcmp (placementInfoForPERI.nomHPost_South, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+
+			// 동쪽
+			moveIn3D ('x', hpost.ang, infoMorph.width - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+			moveIn3D ('y', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+			hpost.ang = infoMorph.ang + DegreeToRad (90.0);
+			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_East);	// 빈 문자열이면 배치하지 않음
+			if (my_strcmp (placementInfoForPERI.nomHPost_East, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+			hpost.ang = infoMorph.ang;
+
+			// 북쪽
+			moveIn3D ('x', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+			moveIn3D ('y', hpost.ang, infoMorph.depth - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+			hpost.ang = infoMorph.ang + DegreeToRad (180.0);
+			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_North);	// 빈 문자열이면 배치하지 않음
+			if (my_strcmp (placementInfoForPERI.nomHPost_North, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+			hpost.ang = infoMorph.ang;
+
+			// 서쪽
+			moveIn3D ('x', hpost.ang, 0.050 - infoMorph.width, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+			moveIn3D ('y', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+			hpost.ang = infoMorph.ang + DegreeToRad (270.0);
+			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_West);	// 빈 문자열이면 배치하지 않음
+			if (my_strcmp (placementInfoForPERI.nomHPost_West, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+			hpost.ang = infoMorph.ang;
+
+			// 2단 ----------------------------------------------------------------------------------------------------
+			hpost.leftBottomX = infoMorph.leftBottomX;
+			hpost.leftBottomY = infoMorph.leftBottomY;
+			hpost.leftBottomZ = infoMorph.leftBottomZ;
+			hpost.ang = infoMorph.ang;
+
+			// 수직재 1단/2단 높이의 합이 4000 이상일 경우
+			if (((placementInfoForPERI.bVPost1 * placementInfoForPERI.heightVPost1) + (placementInfoForPERI.bVPost2 * placementInfoForPERI.heightVPost2)) > 4.000) {
+				// 남쪽
+				moveIn3D ('z', hpost.ang, 4.000, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+				moveIn3D ('x', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+				sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_South);	// 빈 문자열이면 배치하지 않음
+				if (my_strcmp (placementInfoForPERI.nomHPost_South, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+
+				// 동쪽
+				moveIn3D ('x', hpost.ang, infoMorph.width - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+				moveIn3D ('y', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+				hpost.ang = infoMorph.ang + DegreeToRad (90.0);
+				sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_East);	// 빈 문자열이면 배치하지 않음
+				if (my_strcmp (placementInfoForPERI.nomHPost_East, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+				hpost.ang = infoMorph.ang;
+
+				// 북쪽
+				moveIn3D ('x', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+				moveIn3D ('y', hpost.ang, infoMorph.depth - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+				hpost.ang = infoMorph.ang + DegreeToRad (180.0);
+				sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_North);	// 빈 문자열이면 배치하지 않음
+				if (my_strcmp (placementInfoForPERI.nomHPost_North, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+				hpost.ang = infoMorph.ang;
+
+				// 서쪽
+				moveIn3D ('x', hpost.ang, 0.050 - infoMorph.width, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+				moveIn3D ('y', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+				hpost.ang = infoMorph.ang + DegreeToRad (270.0);
+				sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_West);	// 빈 문자열이면 배치하지 않음
+				if (my_strcmp (placementInfoForPERI.nomHPost_West, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+				hpost.ang = infoMorph.ang;
+			}
+		}
+
+		// 그룹화 하기
+		if (!elemList.IsEmpty ()) {
+			GSSize nElems = elemList.GetSize ();
+			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+			if (elemHead != NULL) {
+				for (GSIndex i = 0; i < nElems; i++)
+					(*elemHead)[i].guid = elemList[i];
+
+				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+				BMKillHandle ((GSHandle *) &elemHead);
+			}
+		}
+		elemList.Clear (false);
 	}
+
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	bool	regenerate = true;
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	return	err;
 }
@@ -255,29 +421,47 @@ API_Guid	PERISupportingPostPlacementInfo::placeVPost (PERI_VPost params)
 	// 레이어
 	elem.header.layer = layerInd_vPost;
 
-	//setParameterByName (&memo, "bolt_len", params.boltLen);		// 볼트 길이
-	//setParameterByName (&memo, "bolt_dia", 0.010);				// 볼트 직경
-	//setParameterByName (&memo, "washer_pos", 0.050);			// 와셔 위치
-	//setParameterByName (&memo, "washer_size", 0.100);			// 와셔 크기
-	//setParameterByName (&memo, "angX", params.angX);			// X축 회전
-	//setParameterByName (&memo, "angY", params.angY);			// Y축 회전
+	setParameterByName (&memo, "stType", params.stType);				// 규격
+	setParameterByName (&memo, "bCrosshead", params.bCrosshead);		// 크로스헤드 On/Off
+	setParameterByName (&memo, "posCrosshead", params.posCrosshead);	// 크로스헤드 위치 (상단, 하단)
+	setParameterByName (&memo, "crossheadType", params.crossheadType);	// 크로스헤드 타입 (PERI, 당사 제작품)
+	setParameterByName (&memo, "angCrosshead", params.angCrosshead);	// 크로스헤드 회전각도
+	setParameterByName (&memo, "len_current", params.len_current);		// 현재 길이
+	setParameterByName (&memo, "angY", params.angY);					// 회전 Y
 
-	//char	stType [16];		// 규격
-	//bool	bCrosshead;			// 크로스헤드 On/Off
-	//char	posCrosshead [16];	// 크로스헤드 위치 (상단, 하단)
-	//char	crossheadType [16];	// 크로스헤드 타입 (PERI, 당사 제작품)
-	//double	angCrosshead;		// 크로스헤드 회전각도
-	//double	len_current;		// 현재 길이
-	//double	pos_lever;			// 레버 위치
-	//double	angY;				// 회전 Y
+	setParameterByName (&memo, "text2_onoff", params.text2_onoff);		// 2D 텍스트 On/Off
+	setParameterByName (&memo, "text_onoff", params.text_onoff);		// 3D 텍스트 On/Off
+	setParameterByName (&memo, "bShowCoords", params.bShowCoords);		// 좌표값 표시 On/Off
 
-	//bool	text2_onoff;		// 2D 텍스트 On/Off
-	//bool	text_onoff;			// 3D 텍스트 On/Off
-	//bool	bShowCoords;		// 좌표값 표시 On/Off
+	// 규격에 따라 최소 길이, 최대 길이를 자동으로 설정
+	if (my_strcmp (params.stType, "MP 120") == 0) {
+		setParameterByName (&memo, "pos_lever", 0.600);
+		setParameterByName (&memo, "len_min", 0.800);
+		setParameterByName (&memo, "len_max", 1.200);
+	} else if (my_strcmp (params.stType, "MP 250") == 0) {
+		setParameterByName (&memo, "pos_lever", 1.250);
+		setParameterByName (&memo, "len_min", 1.450);
+		setParameterByName (&memo, "len_max", 2.500);
+	} else if (my_strcmp (params.stType, "MP 350") == 0) {
+		setParameterByName (&memo, "pos_lever", 1.750);
+		setParameterByName (&memo, "len_min", 1.950);
+		setParameterByName (&memo, "len_max", 3.500);
+	} else if (my_strcmp (params.stType, "MP 480") == 0) {
+		setParameterByName (&memo, "pos_lever", 2.400);
+		setParameterByName (&memo, "len_min", 2.600);
+		setParameterByName (&memo, "len_max", 4.800);
+	} else if (my_strcmp (params.stType, "MP 625") == 0) {
+		setParameterByName (&memo, "pos_lever", 4.100);
+		setParameterByName (&memo, "len_min", 4.300);
+		setParameterByName (&memo, "len_max", 6.250);
+	}
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
 	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// 파라미터 스크립트를 강제로 실행시킴
+	ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
 
 	return	elem.header.guid;
 }
@@ -314,6 +498,21 @@ API_Guid	PERISupportingPostPlacementInfo::placeHPost (PERI_HPost params)
 	ACAPI_Element_GetDefaults (&elem, &memo);
 	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
 
+	if (my_strcmp (params.stType, "296 cm") == 0)			{ setParameterByName (&memo, "A", 2.960);	aParam = 2.960;	}
+	else if (my_strcmp (params.stType, "266 cm") == 0)		{ setParameterByName (&memo, "A", 2.660);	aParam = 2.660;	}
+	else if (my_strcmp (params.stType, "237 cm") == 0)		{ setParameterByName (&memo, "A", 2.370);	aParam = 2.370;	}
+	else if (my_strcmp (params.stType, "230 cm") == 0)		{ setParameterByName (&memo, "A", 2.300);	aParam = 2.300;	}
+	else if (my_strcmp (params.stType, "225 cm") == 0)		{ setParameterByName (&memo, "A", 2.250);	aParam = 2.250;	}
+	else if (my_strcmp (params.stType, "201.5 cm") == 0)	{ setParameterByName (&memo, "A", 2.015);	aParam = 2.015;	}
+	else if (my_strcmp (params.stType, "150 cm") == 0)		{ setParameterByName (&memo, "A", 1.500);	aParam = 1.500;	}
+	else if (my_strcmp (params.stType, "137.5 cm") == 0)	{ setParameterByName (&memo, "A", 1.375);	aParam = 1.375;	}
+	else if (my_strcmp (params.stType, "120 cm") == 0)		{ setParameterByName (&memo, "A", 1.200);	aParam = 1.200;	}
+	else if (my_strcmp (params.stType, "90 cm") == 0)		{ setParameterByName (&memo, "A", 0.900);	aParam = 0.900;	}
+	else if (my_strcmp (params.stType, "75 cm") == 0)		{ setParameterByName (&memo, "A", 0.750);	aParam = 0.750;	}
+	else if (my_strcmp (params.stType, "62.5 cm") == 0)		{ setParameterByName (&memo, "A", 0.625);	aParam = 0.625;	}
+	
+	setParameterByName (&memo, "lenFrame", aParam - 0.100);
+
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
 	elem.object.pos.x = params.leftBottomX;
@@ -327,20 +526,16 @@ API_Guid	PERISupportingPostPlacementInfo::placeHPost (PERI_HPost params)
 	// 레이어
 	elem.header.layer = layerInd_hPost;
 
-	//setParameterByName (&memo, "bolt_len", params.boltLen);		// 볼트 길이
-	//setParameterByName (&memo, "bolt_dia", 0.010);				// 볼트 직경
-	//setParameterByName (&memo, "washer_pos", 0.050);			// 와셔 위치
-	//setParameterByName (&memo, "washer_size", 0.100);			// 와셔 크기
-	//setParameterByName (&memo, "angX", params.angX);			// X축 회전
-	//setParameterByName (&memo, "angY", params.angY);			// Y축 회전
-
-	//char	stType [16];		// 규격
-	//double	angX;				// 회전 X
-	//double	angY;				// 회전 Y
+	setParameterByName (&memo, "stType", params.stType);	// 규격
+	setParameterByName (&memo, "angX", params.angX);		// 회전 X
+	setParameterByName (&memo, "angY", params.angY);		// 회전 Y
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
 	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// 파라미터 스크립트를 강제로 실행시킴
+	ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
 
 	return	elem.header.guid;
 }
@@ -763,6 +958,9 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 					if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "237 cm");
 					if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "266 cm");
 					if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "296 cm");
+
+					layerInd_vPost	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_VPOST);
+					layerInd_hPost	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HPOST);
 
 					break;
 				case DG_CANCEL:

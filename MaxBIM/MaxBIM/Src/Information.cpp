@@ -27,7 +27,7 @@ GSErrCode	showAbout (void)
 	GSErrCode	err = NoError;
 	short	result;
 
-	result = DGBlankModalDialog (550, 400, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, aboutHandler, 0);
+	result = DGBlankModalDialog (550, 500, DG_DLG_NOGROW, 0, DG_DLG_NORMALFRAME, aboutHandler, 0);
 
 	return err;
 }
@@ -251,7 +251,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			DGSetDialogTitle (dialogID, "MaxBIM 애드온 정보");
 
 			// 확인 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 215, 360, 100, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 215, 460, 100, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "확인");
 			DGShowItem (dialogID, DG_OK);
@@ -262,7 +262,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "배포일: 2021.07.20");
+			DGSetItemText (dialogID, itmIdx, "배포일: 2021.07.21");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
@@ -274,14 +274,19 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			itmPosY += 30;
 
 			// 라벨: 프로그램 기능
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23*10);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 270);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "1. 유로폼 배치\n - 벽에 유로폼 배치\n - 슬래브 하부에 유로폼 배치\n - 보에 유로폼 배치\n - 기둥에 유로폼 배치\n\n2. 테이블폼 배치\n - 벽에 테이블폼 배치 - 세로 방향\n - 벽에 테이블폼 배치 - 가로 방향\n - 슬래브 하부에 테이블폼 배치\n\n3. Library Converting\n - 가상 가설재 모두 변환\n\n4. 레이어 유틸\n - 레이어 쉽게 선택하기\n - 레이어 쉽게 만들기\n - 레이어 쉽게 지정하기");
+			DGSetItemText (dialogID, itmIdx, "1. 유로폼 배치\n - 벽에 유로폼 배치\n - 슬래브 하부에 유로폼 배치\n - 보에 유로폼 배치\n - 기둥에 유로폼 배치\n\n\
+											 2. 테이블폼 배치\n - 벽에 테이블폼 배치 - 세로 방향\n - 벽에 테이블폼 배치 - 가로 방향\n - 벽에 테이블폼 배치 - 커스텀 (개발중)\n - 슬래브 하부에 테이블폼 배치\n\n\
+											 3. 동바리 배치\n - PERI 동바리 자동 배치\n\n\
+											 4. Library Converting\n - 가상 가설재 모두 변환\n\n\
+											 5. 레이어 유틸\n - 레이어 쉽게 선택하기\n - 레이어 쉽게 만들기\n - 레이어 쉽게 지정하기");
 			DGShowItem (dialogID, itmIdx);
 
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX + 270, itmPosY, 250, 23*10);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX + 270, itmPosY, 250, 270);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "5. 내보내기\n - 부재(기둥,보,슬래브) 정보 내보내기 (CSV) (개발보류)\n - 선택한 부재 정보 내보내기 (Single 모드)\n - 선택한 부재 정보 내보내기 (Multi 모드)\n - 부재별 선택 후 보여주기\n\n6. 물량 산출\n - 물량합판 부착하기");
+			DGSetItemText (dialogID, itmIdx, "6. 내보내기\n - 부재(기둥,보,슬래브) 정보 내보내기 (CSV) (개발보류)\n - 선택한 부재 정보 내보내기 (Single 모드)\n - 선택한 부재 정보 내보내기 (Multi 모드)\n - 부재별 선택 후 보여주기\n\n\
+											 7. 물량 산출\n - 물량합판 부착하기");
 			DGShowItem (dialogID, itmIdx);
 
 			break;
