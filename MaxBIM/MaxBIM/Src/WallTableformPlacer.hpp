@@ -94,6 +94,48 @@ namespace wallTableformPlacerDG {
 		BUTTON_DEL_ROW_CUSTOM,
 		REST_ITEM_START_CUSTOM
 	};
+
+	enum	idxItems_1_forLayerSelection {
+		ICON_LAYER_CUSTOM = 3,
+		LABEL_LAYER_SETTINGS_CUSTOM,
+		CHECKBOX_LAYER_COUPLING_CUSTOM,
+
+		LABEL_LAYER_SLABTABLEFORM_CUSTOM,
+		LABEL_LAYER_PROFILE_CUSTOM,
+		LABEL_LAYER_EUROFORM_CUSTOM,
+		LABEL_LAYER_RECTPIPE_CUSTOM,
+		LABEL_LAYER_PINBOLT_CUSTOM,
+		LABEL_LAYER_WALLTIE_CUSTOM,
+		LABEL_LAYER_JOIN_CUSTOM,
+		LABEL_LAYER_HEADPIECE_CUSTOM,
+		LABEL_LAYER_STEELFORM_CUSTOM,
+		LABEL_LAYER_PLYWOOD_CUSTOM,
+		LABEL_LAYER_FILLERSP_CUSTOM,
+		LABEL_LAYER_OUTCORNER_ANGLE_CUSTOM,
+		LABEL_LAYER_OUTCORNER_PANEL_CUSTOM,
+		LABEL_LAYER_INCORNER_PANEL_CUSTOM,
+		LABEL_LAYER_RECTPIPE_HANGER_CUSTOM,
+		LABEL_LAYER_EUROFORM_HOOK_CUSTOM,
+		LABEL_LAYER_HIDDEN_CUSTOM,
+
+		USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM,
+		USERCONTROL_LAYER_PROFILE_CUSTOM,
+		USERCONTROL_LAYER_EUROFORM_CUSTOM,
+		USERCONTROL_LAYER_RECTPIPE_CUSTOM,
+		USERCONTROL_LAYER_PINBOLT_CUSTOM,
+		USERCONTROL_LAYER_WALLTIE_CUSTOM,
+		USERCONTROL_LAYER_JOIN_CUSTOM,
+		USERCONTROL_LAYER_HEADPIECE_CUSTOM,
+		USERCONTROL_LAYER_STEELFORM_CUSTOM,
+		USERCONTROL_LAYER_PLYWOOD_CUSTOM,
+		USERCONTROL_LAYER_FILLERSP_CUSTOM,
+		USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM,
+		USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM,
+		USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM,
+		USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM,
+		USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM,
+		USERCONTROL_LAYER_HIDDEN_CUSTOM
+	};
 }
 
 // 모프 관련 정보
@@ -253,6 +295,8 @@ public:
 	GSErrCode	placeTableformOnWall_Vertical_Type2 (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입2)
 	GSErrCode	placeTableformOnWall_Horizontal_Type1 (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입1)
 	GSErrCode	placeTableformOnWall_Horizontal_Type2 (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입2)
+	GSErrCode	placeTableformOnWall_Custom_Type1 ();																// 테이블폼 배치하기 - 커스텀 (타입1)
+	GSErrCode	placeTableformOnWall_Custom_Type2 ();																// 테이블폼 배치하기 - 커스텀 (타입2)
 	GSErrCode	placeTableformOnWall_Vertical (CellForWallTableform cell, UpperCellForWallTableform upperCell);		// 테이블폼 상단 배치하기 - 세로 방향
 	GSErrCode	placeTableformOnWall_Horizontal (CellForWallTableform cell, UpperCellForWallTableform upperCell);	// 테이블폼 상단 배치하기 - 가로 방향
 
@@ -287,5 +331,6 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 
 GSErrCode	placeTableformOnWall_Custom (void);			// 벽에 테이블폼을 배치하는 통합 루틴 - 커스텀
 short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 맞춤 제작을 위한 다이얼로그 (테이블폼 방향, 유로폼 가로/세로 개수 및 길이) - 커스텀
+short DGCALLBACK wallTableformPlacerHandler2_Custom (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 객체의 레이어를 선택하기 위한 다이얼로그
 
 #endif
