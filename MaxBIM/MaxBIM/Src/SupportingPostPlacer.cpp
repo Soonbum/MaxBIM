@@ -32,7 +32,6 @@ GSErrCode	placePERIPost (void)
 
 	// 객체 정보 가져오기
 	API_Element				elem;
-	API_ElementMemo			memo;
 	API_ElemInfo3D			info3D;
 
 	// 모프 3D 구성요소 가져오기
@@ -43,11 +42,10 @@ GSErrCode	placePERIPost (void)
 	API_Coord3D				trCoord;
 	GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
 	long					nNodes;
-	API_Coord3D				point3D;
 
 	// 작업 층 정보
-	API_StoryInfo	storyInfo;
-	double			workLevel_morph;	// 모프의 작업 층 높이
+	//API_StoryInfo	storyInfo;
+	//double			workLevel_morph;	// 모프의 작업 층 높이
 
 
 	// 선택한 요소 가져오기
@@ -546,8 +544,6 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 	short	result;
 	char	tempStr [16];
 	API_UCCallbackType	ucb;
-
-	short	itmIdx;
 
 	switch (message) {
 		case DG_MSG_INIT:

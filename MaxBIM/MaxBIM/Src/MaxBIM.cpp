@@ -238,7 +238,17 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			// 정보
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:		// 애드온 사용법 보기
-					err = showHelp ();
+					extern short modelessDialogID;
+					if (modelessDialogID == 0) {
+						err = showHelp ();
+					} else {
+						if ((modelessDialogID != 0) || DGIsDialogOpen (modelessDialogID)) {
+							DGModelessClose (modelessDialogID);
+							modelessDialogID = 0;
+						}
+					}
+					return err;
+
 					break;
 				case 2:		// MaxBIM 애드온 정보
 					err = showAbout ();

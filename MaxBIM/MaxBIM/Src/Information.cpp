@@ -8,15 +8,19 @@
 
 using namespace informationDG;
 
-static short	paletteID;
+short	modelessDialogID;
 
 // 애드온 사용법 보기
 GSErrCode	showHelp (void)
 {
 	GSErrCode	err = NoError;
 
+	modelessDialogID = 0;
+
 	// 팔레트 창 열기 (모달리스 창과 호환됨)
-	paletteID = DGModelessInit (ACAPI_GetOwnResModule (), 32516, ACAPI_GetOwnResModule (), helpHandler, 0, 1);
+	if ((modelessDialogID == 0) || !DGIsDialogOpen (modelessDialogID)) {
+		modelessDialogID = DGModelessInit (ACAPI_GetOwnResModule (), 32516, ACAPI_GetOwnResModule (), helpHandler, 0, 1);
+	}
 	
 	return err;
 }
@@ -41,9 +45,10 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 	switch (message) {
 		case DG_MSG_INIT:
 			// 모달리스 창 등록
-			ACAPI_RegisterModelessWindow (dialogID, APIHelpPaletteAPIControlCallBack,
-							API_PalEnabled_FloorPlan + API_PalEnabled_Section + API_PalEnabled_Elevation + API_PalEnabled_InteriorElevation +
-							API_PalEnabled_Detail + API_PalEnabled_Worksheet + API_PalEnabled_Layout + API_PalEnabled_3D);
+			if (ACAPI_RegisterModelessWindow (dialogID, APIHelpPaletteAPIControlCallBack,
+						API_PalEnabled_FloorPlan + API_PalEnabled_Section + API_PalEnabled_Elevation +
+						API_PalEnabled_InteriorElevation + API_PalEnabled_Detail + API_PalEnabled_Worksheet + API_PalEnabled_3D + API_PalEnabled_Layout) != NoError)
+				DBPrintf ("Test:: ACAPI_RegisterModelessWindow failed\n");
 
 			// 다이얼로그 타이틀
 			DGSetDialogTitle (dialogID, "애드온 사용법");
@@ -79,9 +84,8 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
-					DGModelessClose (paletteID);
-					DGDestroyModelessDialog (paletteID);
-					ACAPI_UnregisterModelessWindow (paletteID);
+					ACAPI_UnregisterModelessWindow (modelessDialogID);
+					modelessDialogID = 0;
 					break;
 
 				case BUTTON_WALL:
@@ -229,7 +233,8 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					break;
 			}
 		case DG_MSG_CLOSE:
-			ACAPI_UnregisterModelessWindow (paletteID);
+			ACAPI_UnregisterModelessWindow (modelessDialogID);
+			modelessDialogID = 0;
 			break;
 	}
 
@@ -300,10 +305,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 					break;
 			}
 		case DG_MSG_CLOSE:
-			switch (item) {
-				case DG_CLOSEBOX:
-					break;
-			}
+			break;
 	}
 
 	result = item;
@@ -314,21 +316,18 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 // 모달리스 창을 제어하기 위한 콜백함수
 static GSErrCode __ACENV_CALL	APIHelpPaletteAPIControlCallBack (Int32 referenceID, API_PaletteMessageID messageID, GS::IntPtr /*param*/)
 {
-	if (referenceID == paletteID) {
+	if (referenceID == modelessDialogID) {
 		switch (messageID) {
-			case APIPalMsg_ClosePalette:		DGEndProcessEvents (paletteID);
-												DGModelessClose (paletteID);
-												DGDestroyModelessDialog (paletteID);
-												ACAPI_UnregisterModelessWindow (paletteID);
+			case APIPalMsg_ClosePalette:		DGModelessClose (modelessDialogID);
 												break;
-			case APIPalMsg_HidePalette_Begin:	DGHideModelessDialog (paletteID);
-												break;
-			case APIPalMsg_HidePalette_End:		DGShowModelessDialog (paletteID, DG_DF_FIRST);
-												break;
-			case APIPalMsg_DisableItems_Begin:
-			case APIPalMsg_DisableItems_End:	// actually do nothing, because the input finish functionality the buttons have to stay enabled
-			case APIPalMsg_IsPaletteVisible:
+
+			case APIPalMsg_HidePalette_Begin:	break;
+			case APIPalMsg_HidePalette_End:		break;
+
+			case APIPalMsg_DisableItems_Begin:	break;
+			case APIPalMsg_DisableItems_End:	break;
 			case APIPalMsg_OpenPalette:			break;
+			default:							break;
 		}
 	}
 
