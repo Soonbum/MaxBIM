@@ -222,6 +222,7 @@ public:
 	short		nCells;								// 테이블폼 셀 개수 (수평 방향으로)
 	double		marginTop;							// 상단 여백 높이
 
+	short		orientation;						// 세로방향 (VERTICAL_DIRECTION), 가로방향 (HORIZONTAL_DIRECTION)
 	short		nCells_vertical;					// 테이블폼 셀 개수 (수직 방향으로) - 커스텀 전용
 	CellForWallTableform		customCells [5][5];	// 테이블폼 셀 정보 - 커스텀 전용
 

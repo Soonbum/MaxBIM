@@ -5896,8 +5896,81 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_Type1 ()
 {
 	GSErrCode	err = NoError;
+	short	xx, yy;
 
-	// ...
+	Euroform		params_UFOM;
+
+	// 세로 방향
+	if (placingZone.orientation == VERTICAL_DIRECTION) {
+		// 유로폼 설치
+		params_UFOM.ang_x = DegreeToRad (90.0);
+		params_UFOM.eu_stan_onoff = true;
+		params_UFOM.u_ins_wall = true;
+
+		for (xx = 0 ; xx < placingZone.nCells_vertical ; ++xx) {
+			for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
+				params_UFOM.leftBottomX = placingZone.customCells [xx][yy].leftBottomX;
+				params_UFOM.leftBottomY = placingZone.customCells [xx][yy].leftBottomY;
+				params_UFOM.leftBottomZ = placingZone.customCells [xx][yy].leftBottomZ;
+				params_UFOM.ang = placingZone.customCells [xx][yy].ang;
+				params_UFOM.eu_wid = params_UFOM.width = placingZone.customCells [xx][yy].horLen;
+				params_UFOM.eu_hei = params_UFOM.height = placingZone.customCells [xx][yy].verLen;
+				elemList.Push (placeUFOM (params_UFOM));
+			}
+		}
+
+		// ...
+		// 비계 파이프 (수평) 배치
+		// 비계 파이프 (수직) 배치
+		// 핀볼트 배치 (수평 - 최하단, 최상단)
+		// 핀볼트 배치 (수평 - 나머지)
+		// 핀볼트 배치 (수직)
+		// 헤드 피스
+		// 결합철물
+	
+	// 가로 방향
+	} else {
+		// 유로폼 설치
+		params_UFOM.ang_x = DegreeToRad (90.0);
+		params_UFOM.eu_stan_onoff = true;
+		params_UFOM.u_ins_wall = false;
+
+		for (xx = 0 ; xx < placingZone.nCells_vertical ; ++xx) {
+			for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
+				params_UFOM.leftBottomX = placingZone.customCells [xx][yy].leftBottomX;
+				params_UFOM.leftBottomY = placingZone.customCells [xx][yy].leftBottomY;
+				params_UFOM.leftBottomZ = placingZone.customCells [xx][yy].leftBottomZ;
+				params_UFOM.ang = placingZone.customCells [xx][yy].ang;
+				params_UFOM.eu_wid = params_UFOM.width = placingZone.customCells [xx][yy].verLen;
+				params_UFOM.eu_hei = params_UFOM.height = placingZone.customCells [xx][yy].horLen;
+				elemList.Push (placeUFOM (params_UFOM));
+			}
+		}
+
+		// ...
+		// 비계 파이프 (수평) 배치
+		// 비계 파이프 (수직) 배치
+		// 핀볼트 배치 (수평 - 최하단, 최상단)
+		// 핀볼트 배치 (수평 - 나머지)
+		// 핀볼트 배치 (수직)
+		// 헤드 피스
+		// 결합철물
+	}
+
+	// 그룹화하기
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+	elemList.Clear (false);
 
 	return	err;
 }
@@ -5906,8 +5979,79 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_Type1 ()
 GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_Type2 ()
 {
 	GSErrCode	err = NoError;
+	short	xx, yy;
 
-	// ...
+	Euroform		params_UFOM;
+
+	// 세로 방향
+	if (placingZone.orientation == VERTICAL_DIRECTION) {
+		// 유로폼 설치
+		params_UFOM.ang_x = DegreeToRad (90.0);
+		params_UFOM.eu_stan_onoff = true;
+		params_UFOM.u_ins_wall = true;
+
+		for (xx = 0 ; xx < placingZone.nCells_vertical ; ++xx) {
+			for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
+				params_UFOM.leftBottomX = placingZone.customCells [xx][yy].leftBottomX;
+				params_UFOM.leftBottomY = placingZone.customCells [xx][yy].leftBottomY;
+				params_UFOM.leftBottomZ = placingZone.customCells [xx][yy].leftBottomZ;
+				params_UFOM.ang = placingZone.customCells [xx][yy].ang;
+				params_UFOM.eu_wid = params_UFOM.width = placingZone.customCells [xx][yy].horLen;
+				params_UFOM.eu_hei = params_UFOM.height = placingZone.customCells [xx][yy].verLen;
+				elemList.Push (placeUFOM (params_UFOM));
+			}
+		}
+
+		// ...
+		// 비계 파이프 (수평) 배치
+		// 비계 파이프 (수직) 배치
+		// 유로폼 후크 배치 (수평 - 최하단, 최상단)
+		// 각파이프행거 배치 (수평 - 최하단, 최상단을 제외한 나머지)
+		// 헤드 피스
+		// 결합철물
+
+	// 가로 방향
+	} else {
+		// 유로폼 설치
+		params_UFOM.ang_x = DegreeToRad (90.0);
+		params_UFOM.eu_stan_onoff = true;
+		params_UFOM.u_ins_wall = false;
+
+		for (xx = 0 ; xx < placingZone.nCells_vertical ; ++xx) {
+			for (yy = 0 ; yy < placingZone.nCells ; ++yy) {
+				params_UFOM.leftBottomX = placingZone.customCells [xx][yy].leftBottomX;
+				params_UFOM.leftBottomY = placingZone.customCells [xx][yy].leftBottomY;
+				params_UFOM.leftBottomZ = placingZone.customCells [xx][yy].leftBottomZ;
+				params_UFOM.ang = placingZone.customCells [xx][yy].ang;
+				params_UFOM.eu_wid = params_UFOM.width = placingZone.customCells [xx][yy].verLen;
+				params_UFOM.eu_hei = params_UFOM.height = placingZone.customCells [xx][yy].horLen;
+				elemList.Push (placeUFOM (params_UFOM));
+			}
+		}
+
+		// ...
+		// 비계 파이프 (수평) 배치
+		// 비계 파이프 (수직) 배치
+		// 유로폼 후크 배치 (수평 - 최하단, 최상단)
+		// 각파이프행거 배치 (수평 - 최하단, 최상단을 제외한 나머지)
+		// 헤드 피스
+		// 결합철물
+	}
+
+	// 그룹화하기
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+	elemList.Clear (false);
 
 	return	err;
 }
@@ -9355,6 +9499,11 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 
 					placingZone.bDoubleSide = false;	// 단면 전용
 					placingZone.gap = 0.0;				// 벽과의 간격은 0.0
+					
+					if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION)
+						placingZone.orientation = VERTICAL_DIRECTION;
+					else
+						placingZone.orientation = HORIZONTAL_DIRECTION;
 
 					// 타입 지정 (타입A, 타입B)
 					if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 1) {
@@ -9386,8 +9535,8 @@ short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialog
 					// 유로폼 너비, 높이 값 저장
 					for (xx = 1 ; xx <= customTableRow ; ++xx) {
 						for (yy = 1 ; yy <= customTableCol ; ++yy) {
-							widthInd = (xx-1)*3*customTableCol + 3*(yy-1) + 1;
-							heightInd = (xx-1)*3*customTableCol + 3*(yy-1) + 2;
+							widthInd = REST_ITEM_START_CUSTOM + (xx-1)*3*customTableCol + 3*(yy-1) + 1;
+							heightInd = REST_ITEM_START_CUSTOM + (xx-1)*3*customTableCol + 3*(yy-1) + 2;
 
 							placingZone.customCells [xx-1][yy-1].ang = placingZone.ang;
 							placingZone.customCells [xx-1][yy-1].horLen = atof (DGPopUpGetItemText (dialogID, widthInd, static_cast<short>(DGGetItemValLong (dialogID, widthInd))).ToCStr ().Get ()) / 1000;
