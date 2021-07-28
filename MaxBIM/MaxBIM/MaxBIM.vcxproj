@@ -56,7 +56,7 @@
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -137,6 +137,7 @@
     <ClInclude Include="Src\APICommon.h" />
     <ClInclude Include="Src\APIEnvir.h" />
     <ClInclude Include="Src\BeamEuroformPlacer.hpp" />
+    <ClInclude Include="Src\BeamTableformPlacer.hpp" />
     <ClInclude Include="Src\ColumnEuroformPlacer.hpp" />
     <ClInclude Include="Src\Export.hpp" />
     <ClInclude Include="Src\Information.hpp" />
@@ -154,6 +155,7 @@
   <ItemGroup>
     <ClCompile Include="Src\APICommon.c" />
     <ClCompile Include="Src\BeamEuroformPlacer.cpp" />
+    <ClCompile Include="Src\BeamTableformPlacer.cpp" />
     <ClCompile Include="Src\ColumnEuroformPlacer.cpp" />
     <ClCompile Include="Src\Export.cpp" />
     <ClCompile Include="Src\Information.cpp" />

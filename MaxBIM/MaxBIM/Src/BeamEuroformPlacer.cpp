@@ -13,10 +13,10 @@ static InfoBeam			infoBeam;					// 보 객체 정보
 static short			nInterfereBeams;			// 간섭 보 개수
 static InfoBeam			infoOtherBeams [10];		// 간섭 보 정보
 static short			layerInd_Euroform;			// 레이어 번호: 유로폼
-static short			layerInd_Fillerspacer;		// 레이어 번호: 휠러스페이서
 static short			layerInd_Plywood;			// 레이어 번호: 합판
 static short			layerInd_Wood;				// 레이어 번호: 목재
 static short			layerInd_OutcornerAngle;	// 레이어 번호: 아웃코너앵글
+static short			layerInd_Fillerspacer;		// 레이어 번호: 휠러스페이서
 static short			clickedBtnItemIdx;			// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool				clickedOKButton;			// OK 버튼을 눌렀습니까?
 static bool				clickedPrevButton;			// 이전 버튼을 눌렀습니까?
@@ -1602,10 +1602,10 @@ API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 	// 라이브러리 이름 선택
 	if (objInfo.objType == NONE)			return element.header.guid;
 	if (objInfo.objType == EUROFORM)		gsmName = L("유로폼v2.0.gsm");
-	if (objInfo.objType == FILLERSPACER)	gsmName = L("휠러스페이서v1.0.gsm");
 	if (objInfo.objType == PLYWOOD)			gsmName = L("합판v1.0.gsm");
 	if (objInfo.objType == WOOD)			gsmName = L("목재v1.0.gsm");
 	if (objInfo.objType == OUTCORNER_ANGLE)	gsmName = L("아웃코너앵글v1.0.gsm");
+	if (objInfo.objType == FILLERSPACER)	gsmName = L("휠러스페이서v1.0.gsm");
 
 	// 객체 로드
 	BNZeroMemory (&libPart, sizeof (libPart));
@@ -2450,10 +2450,10 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 			// 라벨: 레이어 설정
 			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
 			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
-			DGSetItemText (dialogID, LABEL_LAYER_FILLERSPACER, "휠러스페이서");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
 			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
 			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_ANGLE, "아웃코너앵글");
+			DGSetItemText (dialogID, LABEL_LAYER_FILLERSPACER, "휠러스페이서");
 
 			// 체크박스: 레이어 묶음
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
@@ -2467,10 +2467,6 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, 1);
 
-			ucb.itemID	 = USERCONTROL_LAYER_FILLERSPACER;
-			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-			DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, 1);
-
 			ucb.itemID	 = USERCONTROL_LAYER_PLYWOOD;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, 1);
@@ -2482,6 +2478,10 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 			ucb.itemID	 = USERCONTROL_LAYER_OUTCORNER_ANGLE;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_FILLERSPACER;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, 1);
 
 			// 보 높이/너비 계산
 			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_HEIGHT, placingZone.areaHeight);
@@ -2580,38 +2580,38 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 				switch (item) {
 					case USERCONTROL_LAYER_EUROFORM:
 						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-						break;
-					case USERCONTROL_LAYER_FILLERSPACER:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
-						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 						break;
 					case USERCONTROL_LAYER_PLYWOOD:
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						break;
 					case USERCONTROL_LAYER_WOOD:
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 						break;
 					case USERCONTROL_LAYER_OUTCORNER_ANGLE:
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
 						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						break;
+					case USERCONTROL_LAYER_FILLERSPACER:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER));
 						break;
 				}
 			}
@@ -2929,10 +2929,10 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 
 					// 레이어 번호 저장
 					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
-					layerInd_Fillerspacer	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER);
 					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 					layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
 					layerInd_OutcornerAngle	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE);
+					layerInd_Fillerspacer	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER);
 
 					break;
 				case DG_CANCEL:
@@ -4469,6 +4469,8 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "없음");
 			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "유로폼");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "합판");
 			DGShowItem (dialogID, POPUP_OBJ_TYPE);
 
 			// 체크박스: 규격폼

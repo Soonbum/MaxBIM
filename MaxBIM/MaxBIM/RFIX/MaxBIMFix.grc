@@ -253,15 +253,15 @@
 /* [ 36] */	LeftText		210		370		200		 23		LargePlain		"Layer Settings"
 /* [ 37] */	CheckBox		210		395		100		 23		LargePlain		"Coupling"
 /* [ 38] */	RightText		100		430		100		 23		LargePlain		"Euroform"
-/* [ 39] */	RightText		100		460		100		 23		LargePlain		"Fillerspacer"
-/* [ 40] */	RightText		100		490		100		 23		LargePlain		"Plywood"
-/* [ 41] */	RightText		100		520		100		 23		LargePlain		"Wood"
-/* [ 42] */	RightText		100		550		100		 23		LargePlain		"OutcornerAngle"
+/* [ 39] */	RightText		100		460		100		 23		LargePlain		"Plywood"
+/* [ 40] */	RightText		100		490		100		 23		LargePlain		"Wood"
+/* [ 41] */	RightText		100		520		100		 23		LargePlain		"OutcornerAngle"
+/* [ 42] */	RightText		100		550		100		 23		LargePlain		"Fillerspacer"
 /* [ 43] */	UserControl		210		424		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 44] */	UserControl		210		454		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
-/* [ 45] */	UserControl		210		484		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
-/* [ 46] */	UserControl		210		514		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
-/* [ 47] */	UserControl		210		544		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
+/* [ 44] */	UserControl		210		454		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 45] */	UserControl		210		484		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
+/* [ 46] */	UserControl		210		514		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
+/* [ 47] */	UserControl		210		544		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
 }
 
 /* ---------------------------------------------------------- place Euroform on Column */
