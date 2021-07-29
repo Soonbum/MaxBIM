@@ -20,6 +20,98 @@ namespace beamTableformPlacerDG {
 		LEFT_SIDE,
 		RIGHT_SIDE
 	};
+
+	// 다이얼로그 항목 인덱스
+	enum	idxItems_1_forBeamPlacer {
+		LABEL_BEAM_SECTION		= 3,
+		SEPARATOR_1_BEAM_SECTION,
+		LABEL_BEAM_HEIGHT,
+		EDITCONTROL_BEAM_HEIGHT,
+		LABEL_BEAM_WIDTH,
+		EDITCONTROL_BEAM_WIDTH,
+		
+		SEPARATOR_2_LEFT,
+		SEPARATOR_3_BOTTOM,
+		SEPARATOR_4_RIGHT,
+		EDITCONTROL_GAP_SIDE1,
+		EDITCONTROL_GAP_BOTTOM,
+		EDITCONTROL_GAP_SIDE2,
+
+		LABEL_TOTAL_HEIGHT,
+		EDITCONTROL_TOTAL_HEIGHT,
+		LABEL_TOTAL_WIDTH,
+		EDITCONTROL_TOTAL_WIDTH,
+
+		LABEL_REST_SIDE,
+		CHECKBOX_WOOD_SIDE,
+		CHECKBOX_T_FORM_SIDE,
+		CHECKBOX_FILLER_SIDE,
+		CHECKBOX_B_FORM_SIDE,
+
+		EDITCONTROL_REST_SIDE,
+		EDITCONTROL_WOOD_SIDE,
+		POPUP_T_FORM_SIDE,
+		EDITCONTROL_FILLER_SIDE,
+		POPUP_B_FORM_SIDE,
+
+		CHECKBOX_L_FORM_BOTTOM,
+		CHECKBOX_FILLER_BOTTOM,
+		CHECKBOX_R_FORM_BOTTOM,
+
+		POPUP_L_FORM_BOTTOM,
+		EDITCONTROL_FILLER_BOTTOM,
+		POPUP_R_FORM_BOTTOM,
+
+		ICON_LAYER,
+		LABEL_LAYER_SETTINGS,
+		CHECKBOX_LAYER_COUPLING,
+		LABEL_LAYER_EUROFORM,
+		LABEL_LAYER_PLYWOOD,
+		LABEL_LAYER_WOOD,
+		LABEL_LAYER_OUTCORNER_ANGLE,
+		LABEL_LAYER_FILLERSPACER,
+		LABEL_LAYER_RECTPIPE,
+		LABEL_LAYER_RECTPIPE_HANGER,
+		LABEL_LAYER_EUROFORM_HOOK,
+		LABEL_LAYER_TIMBER_RAIL,
+
+		USERCONTROL_LAYER_EUROFORM,
+		USERCONTROL_LAYER_PLYWOOD,
+		USERCONTROL_LAYER_WOOD,
+		USERCONTROL_LAYER_OUTCORNER_ANGLE,
+		USERCONTROL_LAYER_FILLERSPACER,
+		USERCONTROL_LAYER_RECTPIPE,
+		USERCONTROL_LAYER_RECTPIPE_HANGER,
+		USERCONTROL_LAYER_EUROFORM_HOOK,
+		USERCONTROL_LAYER_TIMBER_RAIL
+	};
+
+	enum	idxItems_2_forBeamPlacer {
+		DG_UPDATE_BUTTON		= 3,
+		DG_PREV,
+		LABEL_BEAM_SIDE_BOTTOM,
+		LABEL_BEAM_SIDE,
+		LABEL_BEAM_BOTTOM,
+		AFTER_ALL
+	};
+
+	enum	idxItems_3_forBeamPlacer {
+		LABEL_OBJ_TYPE			= 3,
+		POPUP_OBJ_TYPE,
+		CHECKBOX_SET_STANDARD,
+		LABEL_LENGTH,
+		EDITCONTROL_LENGTH,
+		POPUP_LENGTH
+	};
+
+	enum	cellType {
+		FROM_BEGIN_AT_SIDE = 1,
+		CENTER_AT_SIDE,
+		FROM_END_AT_SIDE,
+		FROM_BEGIN_AT_BOTTOM,
+		CENTER_AT_BOTTOM,
+		FROM_END_AT_BOTTOM
+	};
 }
 
 // 모프 관련 정보
@@ -124,10 +216,17 @@ public:
 	void		delLastColFromEndAtBottom (BeamTableformPlacingZone* target_zone);		// 하부 끝 부분 - 마지막 열을 삭제함
 	void		alignPlacingZone (BeamTableformPlacingZone* placingZone);				// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 	API_Guid	placeLibPart (CellForBeamTableform objInfo);							// 해당 셀 정보를 기반으로 라이브러리 배치
+	API_Guid	placeLibPart (EuroformHook params);										// 라이브러리 배치: 유로폼 후크
+	API_Guid	placeLibPart (RectPipeHanger params);									// 라이브러리 배치: 각파이프행거
+	API_Guid	placeLibPart (SquarePipe params);										// 라이브러리 배치: 비계파이프
+	API_Guid	placeLibPart (BlueTimberRail params);									// 라이브러리 배치: 블루목심
 	GSErrCode	fillRestAreas (BeamTableformPlacingZone* placingZone);					// 유로폼/휠러/목재를 채운 후 자투리 공간 채우기 (나머지 합판/목재 및 아웃코너앵글)
 };
 
 // 테이블폼폼 보 배치 함수
 GSErrCode	placeTableformOnBeam (void);		// 보에 테이블폼을 배치하는 통합 루틴
+short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
+short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
+short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
 
 #endif

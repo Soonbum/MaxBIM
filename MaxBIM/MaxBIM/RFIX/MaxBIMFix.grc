@@ -549,3 +549,97 @@
 /* [ 44] */	UserControl		320		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - VERTICAL POST	*/
 /* [ 45] */	UserControl		320		499		160		 25		257	0x0006 0x0000 0		/* Layer Control - HORIZONTAL POST	*/
 }
+
+/* ---------------------------------------------------------- place Euroform on Beam */
+'GDLG'  32522  Modal | grow	  0		  0		500		760		"보에 테이블폼 배치" {
+/* [  1] */	Button			170		710		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		710		 70		 25		LargePlain		"Cancel"
+
+/* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Beam Section"
+
+/* [  4] */	Separator		230		 50		200		200									/* Representation of Beam Section */
+/* [  5] */	LeftText		240		117		 70		 23		LargePlain		"B.Height"
+/* [  6] */	LengthEdit		235		140		 50		 25		LargePlain		"0"	"2.0"	/* Beam Height */
+/* [  7] */	LeftText		315		197		 70		 23		LargePlain		"B.Width"
+/* [  8] */	LengthEdit		310		220		 50		 25		LargePlain		"0"	"2.0"	/* Beam Width */
+
+/* [  9] */	Separator		190		 50		  1		200									/* Left Gap Line */
+/* [ 10] */	Separator		230		280		200		  1									/* Bottom Gap Line */
+/* [ 11] */	Separator		470		 50		  1		200									/* Right Gap Line */
+/* [ 12] */	LengthEdit		195		140		 30		 25		LargePlain		"0"	"1.0"	/* Left Gap */
+/* [ 13] */	LengthEdit		320		252		 30		 25		LargePlain		"0"	"1.0"	/* Bottom Gap */
+/* [ 14] */	LengthEdit		435		140		 30		 25		LargePlain		"0"	"1.0"	/* Right Gap */
+
+/* [ 15] */	RightText		175		 20		 70		 23		LargePlain		"T.Height"
+/* [ 16] */	LengthEdit		250		 13		 50		 25		LargePlain		"0"	"5.0"	/* Total Height */
+/* [ 17] */	RightText		305		 20		 70		 23		LargePlain		"T.Width"
+/* [ 18] */	LengthEdit		380		 13		 50		 25		LargePlain		"0"	"5.0"	/* Total Width */
+
+/* [ 19] */	LeftText		 60		 70		 60		 25		LargePlain		"Rest"
+/* [ 20] */	CheckBox		 60		105		 60		 25		LargePlain		"Wood"
+/* [ 21] */	CheckBox		 60		140		 60		 25		LargePlain		"Form"
+/* [ 22] */	CheckBox		 60		175		 60		 25		LargePlain		"Filler"
+/* [ 23] */	CheckBox		 60		210		 60		 25		LargePlain		"Form"
+
+/* [ 24] */	LengthEdit		125		 63		 60		 25		LargePlain		"-2.0"	"2.0"
+/* [ 25] */	LengthEdit		125		105		 60		 25		LargePlain		"0"	"1.0"
+/* [ 26] */	PopupControl	125		141		 60		 25		200		10
+							NoIcon	"200"
+							NoIcon	"300"
+							NoIcon	"400"
+							NoIcon	"450"
+							NoIcon	"500"
+							NoIcon	"600"
+/* [ 27] */	LengthEdit		125		175		 60		 25		LargePlain		"0"	"1.0"
+/* [ 28] */	PopupControl	125		208		 60		 25		200		10
+							NoIcon	"200"
+							NoIcon	"300"
+							NoIcon	"400"
+							NoIcon	"450"
+							NoIcon	"500"
+							NoIcon	"600"
+
+/* [ 29] */	CheckBox		230		320		 60		 25		LargePlain		"Form"
+/* [ 30] */	CheckBox		300		320		 60		 25		LargePlain		"Filler"
+/* [ 31] */	CheckBox		370		320		 60		 25		LargePlain		"Form"
+
+/* [ 32] */	PopupControl	230		290		 60		 25		200		10
+							NoIcon	"200"
+							NoIcon	"300"
+							NoIcon	"400"
+							NoIcon	"450"
+							NoIcon	"500"
+							NoIcon	"600"
+/* [ 33] */	LengthEdit		300		290		 60		 25		LargePlain		"0"	"1.0"
+/* [ 34] */	PopupControl	370		290		 60		 25		200		10
+							NoIcon	"200"
+							NoIcon	"300"
+							NoIcon	"400"
+							NoIcon	"450"
+							NoIcon	"500"
+							NoIcon	"600"
+
+/* [ 35] */	Icon			175		368		 29		 14  	32502
+/* [ 36] */	LeftText		210		370		200		 23		LargePlain		"Layer Settings"
+/* [ 37] */	CheckBox		210		395		100		 23		LargePlain		"Coupling"
+
+/* [ 38] */	RightText		100		430		100		 23		LargePlain		"Euroform"
+/* [ 39] */	RightText		100		460		100		 23		LargePlain		"Plywood"
+/* [ 40] */	RightText		100		490		100		 23		LargePlain		"Wood"
+/* [ 41] */	RightText		100		520		100		 23		LargePlain		"OutcornerAngle"
+/* [ 42] */	RightText		100		550		100		 23		LargePlain		"Fillerspacer"
+/* [ 43] */	RightText		100		580		100		 23		LargePlain		"Rectpipe"
+/* [ 44] */	RightText		100		610		100		 23		LargePlain		"Rectpipe Hanger"
+/* [ 45] */	RightText		100		640		100		 23		LargePlain		"Euroform Hook"
+/* [ 46] */	RightText		100		670		100		 23		LargePlain		"Timber Rail"
+
+/* [ 47] */	UserControl		210		424		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 48] */	UserControl		210		454		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 49] */	UserControl		210		484		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
+/* [ 50] */	UserControl		210		514		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
+/* [ 51] */	UserControl		210		544		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
+/* [ 52] */	UserControl		210		574		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE		*/
+/* [ 53] */	UserControl		210		604		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE HANGER	*/
+/* [ 54] */	UserControl		210		634		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM HOOK	*/
+/* [ 55] */	UserControl		210		664		160		 25		257	0x0006 0x0000 0		/* Layer Control - TIMBER RAIL		*/
+}

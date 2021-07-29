@@ -1724,6 +1724,10 @@ API_Guid	BeamPlacingZone::placeLibPart (CellForBeam objInfo)
 		setParameterByName (&memo, "p_wid", objInfo.libPart.plywood.p_wid);		// 가로
 		setParameterByName (&memo, "p_leng", objInfo.libPart.plywood.p_leng);	// 세로
 		setParameterByName (&memo, "sogak", 1.0);								// 제작틀 ON
+		setParameterByName (&memo, "gap_a", 0.0);
+		setParameterByName (&memo, "gap_b", 0.0);
+		setParameterByName (&memo, "gap_c", 0.0);
+		setParameterByName (&memo, "gap_d", 0.0);
 		
 		// 각도
 		if (objInfo.attached_side == BOTTOM_SIDE) {

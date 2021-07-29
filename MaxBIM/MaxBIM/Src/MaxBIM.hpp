@@ -507,4 +507,18 @@ struct PERI_HPost
 	double	angY;				// 회전 Y
 };
 
+// 블루목심
+struct BlueTimberRail
+{
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
+
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	char	railType [16];		// 규격
+	double	angX;				// 회전 X
+	double	angY;				// 회전 Y
+};
+
 #endif //__MAXBIM_HPP__
