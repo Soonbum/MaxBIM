@@ -2149,7 +2149,7 @@ GSErrCode	BeamPlacingZone::fillRestAreas (BeamPlacingZone* placingZone)
 			insCell.dirLen = placingZone->marginBeginAtBottom;
 			insCell.perLen = cellHeight_bottom;
 			insCell.leftBottomX = placingZone->begC.x;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (placingZone->marginBeginAtBottom < 0.110) {
@@ -2191,7 +2191,7 @@ GSErrCode	BeamPlacingZone::fillRestAreas (BeamPlacingZone* placingZone)
 			insCell.dirLen = placingZone->marginEndAtBottom;
 			insCell.perLen = cellHeight_bottom;
 			insCell.leftBottomX = placingZone->begC.x + placingZone->beamLength - placingZone->marginEndAtBottom;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset;
+			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
 			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 
 			if (placingZone->marginEndAtBottom < 0.110) {
@@ -3017,13 +3017,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 			DGSetItemText (dialogID, itmIdx, "여백 채움");
 			DGShowItem (dialogID, itmIdx);
 			MARGIN_FILL_FROM_BEGIN_AT_SIDE = itmIdx;
+			DGSetItemValLong (dialogID, itmIdx, TRUE);
 			// 라디오 버튼: 여백 (비움)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 111, 90, 135, 70, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "여백 비움");
 			DGShowItem (dialogID, itmIdx);
 			MARGIN_EMPTY_FROM_BEGIN_AT_SIDE = itmIdx;
-			DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 			// 측면 시작 부분 여백
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 100, 50, btnSizeX, btnSizeY);
@@ -3079,6 +3079,8 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				txtButton = "NONE";
 			} else if (placingZone.cellCenterAtRSide [0].objType == EUROFORM) {
 				txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellCenterAtRSide [0].dirLen * 1000);
+			} else if (placingZone.cellCenterAtRSide [0].objType == PLYWOOD) {
+				txtButton = format_string ("합판\n↔%.0f", placingZone.cellCenterAtRSide [0].dirLen * 1000);
 			}
 			DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
 			DGShowItem (dialogID, itmIdx);
@@ -3136,13 +3138,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 			DGSetItemText (dialogID, itmIdx, "여백 채움");
 			DGShowItem (dialogID, itmIdx);
 			MARGIN_FILL_FROM_END_AT_SIDE = itmIdx;
+			DGSetItemValLong (dialogID, itmIdx, TRUE);
 			// 라디오 버튼: 여백 (비움)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 112, btnPosX-10, 135, 70, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "여백 비움");
 			DGShowItem (dialogID, itmIdx);
 			MARGIN_EMPTY_FROM_END_AT_SIDE = itmIdx;
-			DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 			// 하부 시작 부분 여백 채움 여부 - bFillMarginBeginAtBottom
 			// 라디오 버튼: 여백 (채움)
@@ -3151,13 +3153,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 			DGSetItemText (dialogID, itmIdx, "여백 채움");
 			DGShowItem (dialogID, itmIdx);
 			MARGIN_FILL_FROM_BEGIN_AT_BOTTOM = itmIdx;
+			DGSetItemValLong (dialogID, itmIdx, TRUE);
 			// 라디오 버튼: 여백 (비움)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 113, 90, 295, 70, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "여백 비움");
 			DGShowItem (dialogID, itmIdx);
 			MARGIN_EMPTY_FROM_BEGIN_AT_BOTTOM = itmIdx;
-			DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 			// 하부 시작 부분 여백
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 100, 210, btnSizeX, btnSizeY);
@@ -3213,6 +3215,8 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				txtButton = "NONE";
 			} else if (placingZone.cellCenterAtBottom [0].objType == EUROFORM) {
 				txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellCenterAtBottom [0].dirLen * 1000);
+			} else if (placingZone.cellCenterAtBottom [0].objType == PLYWOOD) {
+				txtButton = format_string ("합판\n↔%.0f", placingZone.cellCenterAtBottom [0].dirLen * 1000);
 			}
 			DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
 			DGShowItem (dialogID, itmIdx);
@@ -3270,13 +3274,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 			DGSetItemText (dialogID, itmIdx, "여백 채움");
 			DGShowItem (dialogID, itmIdx);
 			MARGIN_FILL_FROM_END_AT_BOTTOM = itmIdx;
+			DGSetItemValLong (dialogID, itmIdx, TRUE);
 			// 라디오 버튼: 여백 (비움)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 114, btnPosX-10, 295, 70, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "여백 비움");
 			DGShowItem (dialogID, itmIdx);
 			MARGIN_EMPTY_FROM_END_AT_BOTTOM = itmIdx;
-			DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 			// 간섭 보가 붙는 곳 영역 길이 (측면)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtSide), 24, 50, 25);
@@ -3338,13 +3342,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_BEGIN_AT_SIDE = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 111, 90, 135, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_BEGIN_AT_SIDE = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 저장된 측면 시작 여백 여부 로드
 				if (placingZone.bFillMarginBeginAtSide == true) {
@@ -3409,6 +3413,8 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					txtButton = "NONE";
 				} else if (placingZone.cellCenterAtRSide [0].objType == EUROFORM) {
 					txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellCenterAtRSide [0].dirLen * 1000);
+				} else if (placingZone.cellCenterAtRSide [0].objType == PLYWOOD) {
+					txtButton = format_string ("합판\n↔%.0f", placingZone.cellCenterAtRSide [0].dirLen * 1000);
 				}
 				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
 				DGShowItem (dialogID, itmIdx);
@@ -3466,13 +3472,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_END_AT_SIDE = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 112, btnPosX-10, 135, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_END_AT_SIDE = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 저장된 측면 끝 여백 여부 로드
 				if (placingZone.bFillMarginEndAtSide == true) {
@@ -3490,13 +3496,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_BEGIN_AT_BOTTOM = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 113, 90, 295, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_BEGIN_AT_BOTTOM = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 저장된 하부 시작 여백 여부 로드
 				if (placingZone.bFillMarginBeginAtBottom == true) {
@@ -3561,6 +3567,8 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					txtButton = "NONE";
 				} else if (placingZone.cellCenterAtBottom [0].objType == EUROFORM) {
 					txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellCenterAtBottom [0].dirLen * 1000);
+				} else if (placingZone.cellCenterAtBottom [0].objType == PLYWOOD) {
+					txtButton = format_string ("합판\n↔%.0f", placingZone.cellCenterAtBottom [0].dirLen * 1000);
 				}
 				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
 				DGShowItem (dialogID, itmIdx);
@@ -3618,13 +3626,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_END_AT_BOTTOM = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 114, btnPosX-10, 295, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_END_AT_BOTTOM = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 저장된 하부 끝 여백 여부 로드
 				if (placingZone.bFillMarginEndAtBottom == true) {
@@ -3730,13 +3738,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_BEGIN_AT_SIDE = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 111, 90, 135, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_BEGIN_AT_SIDE = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 측면 시작 부분 여백
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 100, 50, btnSizeX, btnSizeY);
@@ -3792,6 +3800,8 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					txtButton = "NONE";
 				} else if (placingZone.cellCenterAtRSide [0].objType == EUROFORM) {
 					txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellCenterAtRSide [0].dirLen * 1000);
+				} else if (placingZone.cellCenterAtRSide [0].objType == PLYWOOD) {
+					txtButton = format_string ("합판\n↔%.0f", placingZone.cellCenterAtRSide [0].dirLen * 1000);
 				}
 				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
 				DGShowItem (dialogID, itmIdx);
@@ -3849,13 +3859,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_END_AT_SIDE = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 112, btnPosX-10, 135, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_END_AT_SIDE = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 하부 시작 부분 여백 채움 여부 - bFillMarginBeginAtBottom
 				// 라디오 버튼: 여백 (채움)
@@ -3864,13 +3874,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_BEGIN_AT_BOTTOM = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 113, 90, 295, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_BEGIN_AT_BOTTOM = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 하부 시작 부분 여백
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 100, 210, btnSizeX, btnSizeY);
@@ -3926,6 +3936,8 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					txtButton = "NONE";
 				} else if (placingZone.cellCenterAtBottom [0].objType == EUROFORM) {
 					txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellCenterAtBottom [0].dirLen * 1000);
+				} else if (placingZone.cellCenterAtBottom [0].objType == PLYWOOD) {
+					txtButton = format_string ("합판\n↔%.0f", placingZone.cellCenterAtBottom [0].dirLen * 1000);
 				}
 				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
 				DGShowItem (dialogID, itmIdx);
@@ -3983,13 +3995,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_END_AT_BOTTOM = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 114, btnPosX-10, 295, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_END_AT_BOTTOM = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 간섭 보가 붙는 곳 영역 길이 (측면)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 150 + (btnSizeX * placingZone.nCellsFromBeginAtSide), 24, 50, 25);
@@ -4062,13 +4074,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_BEGIN_AT_SIDE = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 111, 90, 135, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_BEGIN_AT_SIDE = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 저장된 측면 시작 여백 여부 로드
 				if (placingZone.bFillMarginBeginAtSide == true) {
@@ -4133,6 +4145,8 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					txtButton = "NONE";
 				} else if (placingZone.cellCenterAtRSide [0].objType == EUROFORM) {
 					txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellCenterAtRSide [0].dirLen * 1000);
+				} else if (placingZone.cellCenterAtRSide [0].objType == PLYWOOD) {
+					txtButton = format_string ("합판\n↔%.0f", placingZone.cellCenterAtRSide [0].dirLen * 1000);
 				}
 				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
 				DGShowItem (dialogID, itmIdx);
@@ -4190,13 +4204,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_END_AT_SIDE = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 112, btnPosX-10, 135, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_END_AT_SIDE = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 저장된 측면 끝 여백 여부 로드
 				if (placingZone.bFillMarginEndAtSide == true) {
@@ -4214,13 +4228,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_BEGIN_AT_BOTTOM = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 113, 90, 295, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_BEGIN_AT_BOTTOM = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 저장된 하부 시작 여백 여부 로드
 				if (placingZone.bFillMarginBeginAtBottom == true) {
@@ -4285,6 +4299,8 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 					txtButton = "NONE";
 				} else if (placingZone.cellCenterAtBottom [0].objType == EUROFORM) {
 					txtButton = format_string ("유로폼\n↔%.0f", placingZone.cellCenterAtBottom [0].dirLen * 1000);
+				} else if (placingZone.cellCenterAtBottom [0].objType == PLYWOOD) {
+					txtButton = format_string ("합판\n↔%.0f", placingZone.cellCenterAtBottom [0].dirLen * 1000);
 				}
 				DGSetItemText (dialogID, itmIdx, txtButton.c_str ());	// 그리드 버튼 텍스트 지정
 				DGShowItem (dialogID, itmIdx);
@@ -4342,13 +4358,13 @@ short DGCALLBACK beamPlacerHandler2 (short message, short dialogID, short item, 
 				DGSetItemText (dialogID, itmIdx, "여백 채움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_FILL_FROM_END_AT_BOTTOM = itmIdx;
+				DGSetItemValLong (dialogID, itmIdx, TRUE);
 				// 라디오 버튼: 여백 (비움)
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, 114, btnPosX-10, 295, 70, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 				DGSetItemText (dialogID, itmIdx, "여백 비움");
 				DGShowItem (dialogID, itmIdx);
 				MARGIN_EMPTY_FROM_END_AT_BOTTOM = itmIdx;
-				DGSetItemValLong (dialogID, itmIdx, TRUE);
 
 				// 저장된 하부 끝 여백 여부 로드
 				if (placingZone.bFillMarginEndAtBottom == true) {
@@ -4550,6 +4566,15 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 						DGSetItemMinDouble (dialogID, EDITCONTROL_LENGTH, 0.050);
 						DGSetItemMaxDouble (dialogID, EDITCONTROL_LENGTH, 1.500);
 					}
+				} else if (placingZone.cellCenterAtRSide [0].objType == PLYWOOD) {
+					DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, PLYWOOD + 1);
+
+					DGShowItem (dialogID, LABEL_LENGTH);
+					DGShowItem (dialogID, EDITCONTROL_LENGTH);
+
+					DGSetItemValDouble (dialogID, EDITCONTROL_LENGTH, placingZone.cellCenterAtRSide [0].libPart.plywood.p_wid);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_LENGTH, 0.090);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_LENGTH, 1.220);
 				}
 			}
 			if (iCellType == FROM_END_AT_SIDE) {
@@ -4631,6 +4656,15 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 						DGSetItemMinDouble (dialogID, EDITCONTROL_LENGTH, 0.050);
 						DGSetItemMaxDouble (dialogID, EDITCONTROL_LENGTH, 1.500);
 					}
+				} else if (placingZone.cellCenterAtBottom [0].objType == PLYWOOD) {
+					DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, PLYWOOD + 1);
+
+					DGShowItem (dialogID, LABEL_LENGTH);
+					DGShowItem (dialogID, EDITCONTROL_LENGTH);
+
+					DGSetItemValDouble (dialogID, EDITCONTROL_LENGTH, placingZone.cellCenterAtBottom [0].libPart.plywood.p_leng);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_LENGTH, 0.090);
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_LENGTH, 1.220);
 				}
 			}
 			if (iCellType == FROM_END_AT_BOTTOM) {
@@ -4677,6 +4711,11 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 						DGShowItem (dialogID, LABEL_LENGTH);
 						DGShowItem (dialogID, POPUP_LENGTH);
 						DGHideItem (dialogID, EDITCONTROL_LENGTH);
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PLYWOOD + 1) {
+						DGHideItem (dialogID, CHECKBOX_SET_STANDARD);
+						DGShowItem (dialogID, LABEL_LENGTH);
+						DGHideItem (dialogID, POPUP_LENGTH);
+						DGShowItem (dialogID, EDITCONTROL_LENGTH);
 					}
 					break;
 
@@ -4735,7 +4774,7 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 								placingZone.cellsFromBeginAtLSide [xx][idx].objType = NONE;
 								placingZone.cellsFromBeginAtRSide [xx][idx].objType = NONE;
 							}
-						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == EUROFORM + 1) {
+						} else {
 
 							// 규격폼으로 저장할 경우
 							if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
@@ -4899,6 +4938,23 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 								placingZone.cellCenterAtRSide [3].dirLen = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
 								placingZone.cellCenterAtRSide [3].libPart.wood.w_leng = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
 							}
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PLYWOOD + 1) {
+							for (xx = 0 ; xx < 4 ; ++xx) {
+								placingZone.cellCenterAtLSide [xx].objType = NONE;
+								placingZone.cellCenterAtRSide [xx].objType = NONE;
+							}
+
+							placingZone.cellCenterAtLSide [0].objType = PLYWOOD;
+							placingZone.cellCenterAtLSide [0].dirLen = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellCenterAtLSide [0].perLen = placingZone.areaHeight;
+							placingZone.cellCenterAtLSide [0].libPart.plywood.p_leng = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellCenterAtLSide [0].libPart.plywood.p_wid = placingZone.areaHeight + placingZone.gapBottom;
+
+							placingZone.cellCenterAtRSide [0].objType = PLYWOOD;
+							placingZone.cellCenterAtRSide [0].dirLen = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellCenterAtRSide [0].perLen = placingZone.areaHeight;
+							placingZone.cellCenterAtRSide [0].libPart.plywood.p_leng = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellCenterAtRSide [0].libPart.plywood.p_wid = placingZone.areaHeight + placingZone.gapBottom;
 						}
 					}
 					if (iCellType == FROM_END_AT_SIDE) {
@@ -4907,7 +4963,7 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 								placingZone.cellsFromEndAtLSide [xx][idx].objType = NONE;
 								placingZone.cellsFromEndAtRSide [xx][idx].objType = NONE;
 							}
-						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == EUROFORM + 1) {
+						} else {
 
 							// 규격폼으로 저장할 경우
 							if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
@@ -4992,7 +5048,7 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 							for (xx = 0 ; xx < 3 ; ++xx) {
 								placingZone.cellsFromBeginAtBottom [xx][idx].objType = NONE;
 							}
-						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == EUROFORM + 1) {
+						} else {
 
 							// 규격폼으로 저장할 경우
 							if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
@@ -5067,6 +5123,16 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 								placingZone.cellCenterAtBottom [2].libPart.form.eu_stan_onoff = false;
 								placingZone.cellCenterAtBottom [2].libPart.form.eu_hei2 = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
 							}
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PLYWOOD + 1) {
+							for (xx = 0 ; xx < 3 ; ++xx) {
+								placingZone.cellCenterAtBottom [xx].objType = NONE;
+							}
+
+							placingZone.cellCenterAtBottom [0].objType = PLYWOOD;
+							placingZone.cellCenterAtBottom [0].dirLen = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellCenterAtBottom [0].perLen = infoBeam.width + placingZone.gapSide*2;
+							placingZone.cellCenterAtBottom [0].libPart.plywood.p_leng = DGGetItemValDouble (dialogID, EDITCONTROL_LENGTH);
+							placingZone.cellCenterAtBottom [0].libPart.plywood.p_wid = infoBeam.width + placingZone.gapSide*2;
 						}
 					}
 					if (iCellType == FROM_END_AT_BOTTOM) {
@@ -5074,7 +5140,7 @@ short DGCALLBACK beamPlacerHandler3 (short message, short dialogID, short item, 
 							for (xx = 0 ; xx < 3 ; ++xx) {
 								placingZone.cellsFromEndAtBottom [xx][idx].objType = NONE;
 							}
-						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == EUROFORM + 1) {
+						} else {
 
 							// 규격폼으로 저장할 경우
 							if (DGGetItemValLong (dialogID, CHECKBOX_SET_STANDARD) == TRUE) {
