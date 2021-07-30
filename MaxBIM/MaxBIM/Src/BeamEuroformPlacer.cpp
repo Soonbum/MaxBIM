@@ -1797,6 +1797,7 @@ GSErrCode	BeamPlacingZone::fillRestAreas (BeamPlacingZone* placingZone)
 	double	width_bottom;	// 하부 중심 유로폼 너비
 	double	xPos;			// 위치 커서
 	double	accumDist;		// 이동 거리
+	double	length_outa;	// 아웃코너앵글 길이 계산
 
 	double	cellWidth_side;
 	double	cellHeight_side, cellHeight_bottom;
@@ -2236,61 +2237,134 @@ GSErrCode	BeamPlacingZone::fillRestAreas (BeamPlacingZone* placingZone)
 			accumDist += placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
 
 	// 아웃코너앵글 설치 (측면 시작 부분)
-	xPos = centerPos - width_side/2 - accumDist;
+	length_outa = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx) {
 		if (placingZone->cellsFromBeginAtLSide [0][xx].objType != NONE) {
-			// 좌측
-			insCell.objType = OUTCORNER_ANGLE;
-			insCell.ang = placingZone->ang;
-			insCell.attached_side = LEFT_SIDE;
-			insCell.leftBottomX = placingZone->begC.x + xPos;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
-			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-			insCell.libPart.outangle.a_leng = placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
-
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
-
-			rotatedPoint.x = insCell.leftBottomX;
-			rotatedPoint.y = insCell.leftBottomY;
-			rotatedPoint.z = insCell.leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
-
-			insCell.leftBottomX = unrotatedPoint.x;
-			insCell.leftBottomY = unrotatedPoint.y;
-			insCell.leftBottomZ = unrotatedPoint.z;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
-
-			// 우측
-			insCell.objType = OUTCORNER_ANGLE;
-			insCell.ang = placingZone->ang;
-			insCell.attached_side = RIGHT_SIDE;
-			insCell.leftBottomX = placingZone->begC.x + xPos;
-			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
-			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-			insCell.libPart.outangle.a_leng = placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
-
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
-
-			rotatedPoint.x = insCell.leftBottomX;
-			rotatedPoint.y = insCell.leftBottomY;
-			rotatedPoint.z = insCell.leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
-
-			insCell.leftBottomX = unrotatedPoint.x;
-			insCell.leftBottomY = unrotatedPoint.y;
-			insCell.leftBottomZ = unrotatedPoint.z;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
-
-			// 거리 이동
-			xPos += placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
+			length_outa += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
 		}
 	}
+
+	xPos = centerPos - width_side/2 - accumDist;
+	while (length_outa > EPS) {
+		// 좌측
+		insCell.objType = OUTCORNER_ANGLE;
+		insCell.ang = placingZone->ang;
+		insCell.attached_side = LEFT_SIDE;
+		insCell.leftBottomX = placingZone->begC.x + xPos;
+		insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+		if (length_outa > 2.400)
+			insCell.libPart.outangle.a_leng = 2.400;
+		else
+			insCell.libPart.outangle.a_leng = length_outa;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		elemList.Push (placingZone->placeLibPart (insCell));
+
+		// 우측
+		insCell.objType = OUTCORNER_ANGLE;
+		insCell.ang = placingZone->ang;
+		insCell.attached_side = RIGHT_SIDE;
+		insCell.leftBottomX = placingZone->begC.x + xPos;
+		insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+		if (length_outa > 2.400)
+			insCell.libPart.outangle.a_leng = 2.400;
+		else
+			insCell.libPart.outangle.a_leng = length_outa;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		elemList.Push (placingZone->placeLibPart (insCell));
+
+		// 거리 이동
+		xPos += insCell.libPart.outangle.a_leng;
+
+		// 남은 거리 감소
+		if (length_outa > 2.400)
+			length_outa -= 2.400;
+		else
+			length_outa = 0.0;
+	}
+
+	//xPos = centerPos - width_side/2 - accumDist;
+	//for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx) {
+	//	if (placingZone->cellsFromBeginAtLSide [0][xx].objType != NONE) {
+	//		// 좌측
+	//		insCell.objType = OUTCORNER_ANGLE;
+	//		insCell.ang = placingZone->ang;
+	//		insCell.attached_side = LEFT_SIDE;
+	//		insCell.leftBottomX = placingZone->begC.x + xPos;
+	//		insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+	//		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+	//		insCell.libPart.outangle.a_leng = placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+
+	//		axisPoint.x = placingZone->begC.x;
+	//		axisPoint.y = placingZone->begC.y;
+	//		axisPoint.z = placingZone->begC.z;
+
+	//		rotatedPoint.x = insCell.leftBottomX;
+	//		rotatedPoint.y = insCell.leftBottomY;
+	//		rotatedPoint.z = insCell.leftBottomZ;
+	//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+	//		insCell.leftBottomX = unrotatedPoint.x;
+	//		insCell.leftBottomY = unrotatedPoint.y;
+	//		insCell.leftBottomZ = unrotatedPoint.z;
+
+	//		elemList.Push (placingZone->placeLibPart (insCell));
+
+	//		// 우측
+	//		insCell.objType = OUTCORNER_ANGLE;
+	//		insCell.ang = placingZone->ang;
+	//		insCell.attached_side = RIGHT_SIDE;
+	//		insCell.leftBottomX = placingZone->begC.x + xPos;
+	//		insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+	//		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+	//		insCell.libPart.outangle.a_leng = placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
+
+	//		axisPoint.x = placingZone->begC.x;
+	//		axisPoint.y = placingZone->begC.y;
+	//		axisPoint.z = placingZone->begC.z;
+
+	//		rotatedPoint.x = insCell.leftBottomX;
+	//		rotatedPoint.y = insCell.leftBottomY;
+	//		rotatedPoint.z = insCell.leftBottomZ;
+	//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+	//		insCell.leftBottomX = unrotatedPoint.x;
+	//		insCell.leftBottomY = unrotatedPoint.y;
+	//		insCell.leftBottomZ = unrotatedPoint.z;
+
+	//		elemList.Push (placingZone->placeLibPart (insCell));
+
+	//		// 거리 이동
+	//		xPos += placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
+	//	}
+	//}
 
 	// 중심부터 끝으로 이동해야 함
 	accumDist = 0.0;
@@ -2299,62 +2373,135 @@ GSErrCode	BeamPlacingZone::fillRestAreas (BeamPlacingZone* placingZone)
 			accumDist += placingZone->cellsFromEndAtRSide [0][xx].dirLen;
 
 	// 아웃코너앵글 설치 (측면 끝 부분)
-	xPos = centerPos + width_side/2 + accumDist - placingZone->cellsFromEndAtLSide [0][0].dirLen;
+	length_outa = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx) {
 		if (placingZone->cellsFromEndAtLSide [0][xx].objType != NONE) {
-			// 좌측
-			insCell.objType = OUTCORNER_ANGLE;
-			insCell.ang = placingZone->ang;
-			insCell.attached_side = LEFT_SIDE;
-			insCell.leftBottomX = placingZone->begC.x + xPos;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
-			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-			insCell.libPart.outangle.a_leng = placingZone->cellsFromEndAtLSide [0][xx].dirLen;
-
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
-
-			rotatedPoint.x = insCell.leftBottomX;
-			rotatedPoint.y = insCell.leftBottomY;
-			rotatedPoint.z = insCell.leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
-
-			insCell.leftBottomX = unrotatedPoint.x;
-			insCell.leftBottomY = unrotatedPoint.y;
-			insCell.leftBottomZ = unrotatedPoint.z;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
-
-			// 우측
-			insCell.objType = OUTCORNER_ANGLE;
-			insCell.ang = placingZone->ang;
-			insCell.attached_side = RIGHT_SIDE;
-			insCell.leftBottomX = placingZone->begC.x + xPos;
-			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
-			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-			insCell.libPart.outangle.a_leng = placingZone->cellsFromEndAtRSide [0][xx].dirLen;
-
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
-
-			rotatedPoint.x = insCell.leftBottomX;
-			rotatedPoint.y = insCell.leftBottomY;
-			rotatedPoint.z = insCell.leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
-
-			insCell.leftBottomX = unrotatedPoint.x;
-			insCell.leftBottomY = unrotatedPoint.y;
-			insCell.leftBottomZ = unrotatedPoint.z;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
-
-			// 거리 이동
-			if (xx < placingZone->nCellsFromEndAtSide-1)
-				xPos -= placingZone->cellsFromEndAtRSide [0][xx+1].dirLen;
+			length_outa += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
 		}
 	}
+
+	xPos = centerPos + width_side/2;
+	while (length_outa > EPS) {
+		// 좌측
+		insCell.objType = OUTCORNER_ANGLE;
+		insCell.ang = placingZone->ang;
+		insCell.attached_side = LEFT_SIDE;
+		insCell.leftBottomX = placingZone->begC.x + xPos;
+		insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+		if (length_outa > 2.400)
+			insCell.libPart.outangle.a_leng = 2.400;
+		else
+			insCell.libPart.outangle.a_leng = length_outa;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		elemList.Push (placingZone->placeLibPart (insCell));
+
+		// 우측
+		insCell.objType = OUTCORNER_ANGLE;
+		insCell.ang = placingZone->ang;
+		insCell.attached_side = RIGHT_SIDE;
+		insCell.leftBottomX = placingZone->begC.x + xPos;
+		insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+		if (length_outa > 2.400)
+			insCell.libPart.outangle.a_leng = 2.400;
+		else
+			insCell.libPart.outangle.a_leng = length_outa;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		elemList.Push (placingZone->placeLibPart (insCell));
+
+		// 거리 이동
+		xPos += insCell.libPart.outangle.a_leng;
+
+		// 남은 거리 감소
+		if (length_outa > 2.400)
+			length_outa -= 2.400;
+		else
+			length_outa = 0.0;
+	}
+
+	//xPos = centerPos + width_side/2 + accumDist - placingZone->cellsFromEndAtLSide [0][0].dirLen;
+	//for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx) {
+	//	if (placingZone->cellsFromEndAtLSide [0][xx].objType != NONE) {
+	//		// 좌측
+	//		insCell.objType = OUTCORNER_ANGLE;
+	//		insCell.ang = placingZone->ang;
+	//		insCell.attached_side = LEFT_SIDE;
+	//		insCell.leftBottomX = placingZone->begC.x + xPos;
+	//		insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+	//		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+	//		insCell.libPart.outangle.a_leng = placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+
+	//		axisPoint.x = placingZone->begC.x;
+	//		axisPoint.y = placingZone->begC.y;
+	//		axisPoint.z = placingZone->begC.z;
+
+	//		rotatedPoint.x = insCell.leftBottomX;
+	//		rotatedPoint.y = insCell.leftBottomY;
+	//		rotatedPoint.z = insCell.leftBottomZ;
+	//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+	//		insCell.leftBottomX = unrotatedPoint.x;
+	//		insCell.leftBottomY = unrotatedPoint.y;
+	//		insCell.leftBottomZ = unrotatedPoint.z;
+
+	//		elemList.Push (placingZone->placeLibPart (insCell));
+
+	//		// 우측
+	//		insCell.objType = OUTCORNER_ANGLE;
+	//		insCell.ang = placingZone->ang;
+	//		insCell.attached_side = RIGHT_SIDE;
+	//		insCell.leftBottomX = placingZone->begC.x + xPos;
+	//		insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+	//		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+	//		insCell.libPart.outangle.a_leng = placingZone->cellsFromEndAtRSide [0][xx].dirLen;
+
+	//		axisPoint.x = placingZone->begC.x;
+	//		axisPoint.y = placingZone->begC.y;
+	//		axisPoint.z = placingZone->begC.z;
+
+	//		rotatedPoint.x = insCell.leftBottomX;
+	//		rotatedPoint.y = insCell.leftBottomY;
+	//		rotatedPoint.z = insCell.leftBottomZ;
+	//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+	//		insCell.leftBottomX = unrotatedPoint.x;
+	//		insCell.leftBottomY = unrotatedPoint.y;
+	//		insCell.leftBottomZ = unrotatedPoint.z;
+
+	//		elemList.Push (placingZone->placeLibPart (insCell));
+
+	//		// 거리 이동
+	//		if (xx < placingZone->nCellsFromEndAtSide-1)
+	//			xPos -= placingZone->cellsFromEndAtRSide [0][xx+1].dirLen;
+	//	}
+	//}
 
 	// 아웃코너 앵글 설치 (중앙 부분)
 	xPos = centerPos - width_side/2;

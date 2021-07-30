@@ -2026,11 +2026,18 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 	double	width_bottom;	// 하부 중심 유로폼 너비
 	double	xPos;			// 위치 커서
 	double	accumDist;		// 이동 거리
+	double	length_outa;	// 아웃코너앵글 길이 계산
+	double	length_pipe;	// 비계파이프 길이 계산
 
 	double	cellWidth_side;
 	double	cellHeight_side, cellHeight_bottom;
 	CellForBeamTableform	insCell;
 	API_Coord3D		axisPoint, rotatedPoint, unrotatedPoint;
+
+	SquarePipe	squarePipe;			// 비계파이프
+	EuroformHook	hook;			// 유로폼 후크
+	RectPipeHanger	hanger;			// 각파이프 행거
+	BlueTimberRail	timberRail;		// 블루목심
 
 
 	// 측면에서의 중심 위치 찾기
@@ -2465,60 +2472,77 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			accumDist += placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
 
 	// 아웃코너앵글 설치 (측면 시작 부분)
-	xPos = centerPos - width_side/2 - accumDist;
+	length_outa = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx) {
 		if (placingZone->cellsFromBeginAtLSide [0][xx].objType != NONE) {
-			// 좌측
-			insCell.objType = OUTCORNER_ANGLE;
-			insCell.ang = placingZone->ang;
-			insCell.attached_side = LEFT_SIDE;
-			insCell.leftBottomX = placingZone->begC.x + xPos;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
-			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-			insCell.libPart.outangle.a_leng = placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
-
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
-
-			rotatedPoint.x = insCell.leftBottomX;
-			rotatedPoint.y = insCell.leftBottomY;
-			rotatedPoint.z = insCell.leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
-
-			insCell.leftBottomX = unrotatedPoint.x;
-			insCell.leftBottomY = unrotatedPoint.y;
-			insCell.leftBottomZ = unrotatedPoint.z;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
-
-			// 우측
-			insCell.objType = OUTCORNER_ANGLE;
-			insCell.ang = placingZone->ang;
-			insCell.attached_side = RIGHT_SIDE;
-			insCell.leftBottomX = placingZone->begC.x + xPos;
-			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
-			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-			insCell.libPart.outangle.a_leng = placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
-
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
-
-			rotatedPoint.x = insCell.leftBottomX;
-			rotatedPoint.y = insCell.leftBottomY;
-			rotatedPoint.z = insCell.leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
-
-			insCell.leftBottomX = unrotatedPoint.x;
-			insCell.leftBottomY = unrotatedPoint.y;
-			insCell.leftBottomZ = unrotatedPoint.z;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
-
-			// 거리 이동
-			xPos += placingZone->cellsFromBeginAtRSide [0][xx].dirLen;
+			length_outa += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
 		}
+	}
+
+	xPos = centerPos - width_side/2 - accumDist;
+	while (length_outa > EPS) {
+		// 좌측
+		insCell.objType = OUTCORNER_ANGLE;
+		insCell.ang = placingZone->ang;
+		insCell.attached_side = LEFT_SIDE;
+		insCell.leftBottomX = placingZone->begC.x + xPos;
+		insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+		if (length_outa > 2.400)
+			insCell.libPart.outangle.a_leng = 2.400;
+		else
+			insCell.libPart.outangle.a_leng = length_outa;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		elemList.Push (placingZone->placeLibPart (insCell));
+
+		// 우측
+		insCell.objType = OUTCORNER_ANGLE;
+		insCell.ang = placingZone->ang;
+		insCell.attached_side = RIGHT_SIDE;
+		insCell.leftBottomX = placingZone->begC.x + xPos;
+		insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+		if (length_outa > 2.400)
+			insCell.libPart.outangle.a_leng = 2.400;
+		else
+			insCell.libPart.outangle.a_leng = length_outa;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		elemList.Push (placingZone->placeLibPart (insCell));
+
+		// 거리 이동
+		xPos += insCell.libPart.outangle.a_leng;
+
+		// 남은 거리 감소
+		if (length_outa > 2.400)
+			length_outa -= 2.400;
+		else
+			length_outa = 0.0;
 	}
 
 	// 중심부터 끝으로 이동해야 함
@@ -2528,61 +2552,77 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			accumDist += placingZone->cellsFromEndAtRSide [0][xx].dirLen;
 
 	// 아웃코너앵글 설치 (측면 끝 부분)
-	xPos = centerPos + width_side/2 + accumDist - placingZone->cellsFromEndAtLSide [0][0].dirLen;
+	length_outa = 0.0;
 	for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx) {
 		if (placingZone->cellsFromEndAtLSide [0][xx].objType != NONE) {
-			// 좌측
-			insCell.objType = OUTCORNER_ANGLE;
-			insCell.ang = placingZone->ang;
-			insCell.attached_side = LEFT_SIDE;
-			insCell.leftBottomX = placingZone->begC.x + xPos;
-			insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
-			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-			insCell.libPart.outangle.a_leng = placingZone->cellsFromEndAtLSide [0][xx].dirLen;
-
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
-
-			rotatedPoint.x = insCell.leftBottomX;
-			rotatedPoint.y = insCell.leftBottomY;
-			rotatedPoint.z = insCell.leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
-
-			insCell.leftBottomX = unrotatedPoint.x;
-			insCell.leftBottomY = unrotatedPoint.y;
-			insCell.leftBottomZ = unrotatedPoint.z;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
-
-			// 우측
-			insCell.objType = OUTCORNER_ANGLE;
-			insCell.ang = placingZone->ang;
-			insCell.attached_side = RIGHT_SIDE;
-			insCell.leftBottomX = placingZone->begC.x + xPos;
-			insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
-			insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
-			insCell.libPart.outangle.a_leng = placingZone->cellsFromEndAtRSide [0][xx].dirLen;
-
-			axisPoint.x = placingZone->begC.x;
-			axisPoint.y = placingZone->begC.y;
-			axisPoint.z = placingZone->begC.z;
-
-			rotatedPoint.x = insCell.leftBottomX;
-			rotatedPoint.y = insCell.leftBottomY;
-			rotatedPoint.z = insCell.leftBottomZ;
-			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
-
-			insCell.leftBottomX = unrotatedPoint.x;
-			insCell.leftBottomY = unrotatedPoint.y;
-			insCell.leftBottomZ = unrotatedPoint.z;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
-
-			// 거리 이동
-			if (xx < placingZone->nCellsFromEndAtSide-1)
-				xPos -= placingZone->cellsFromEndAtRSide [0][xx+1].dirLen;
+			length_outa += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
 		}
+	}
+
+	xPos = centerPos + width_side/2;
+	while (length_outa > EPS) {
+		// 좌측
+		insCell.objType = OUTCORNER_ANGLE;
+		insCell.ang = placingZone->ang;
+		insCell.attached_side = LEFT_SIDE;
+		insCell.leftBottomX = placingZone->begC.x + xPos;
+		insCell.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+		if (length_outa > 2.400)
+			insCell.libPart.outangle.a_leng = 2.400;
+		else
+			insCell.libPart.outangle.a_leng = length_outa;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		elemList.Push (placingZone->placeLibPart (insCell));
+
+		// 우측
+		insCell.objType = OUTCORNER_ANGLE;
+		insCell.ang = placingZone->ang;
+		insCell.attached_side = RIGHT_SIDE;
+		insCell.leftBottomX = placingZone->begC.x + xPos;
+		insCell.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+		insCell.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+		if (length_outa > 2.400)
+			insCell.libPart.outangle.a_leng = 2.400;
+		else
+			insCell.libPart.outangle.a_leng = length_outa;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = insCell.leftBottomX;
+		rotatedPoint.y = insCell.leftBottomY;
+		rotatedPoint.z = insCell.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		insCell.leftBottomX = unrotatedPoint.x;
+		insCell.leftBottomY = unrotatedPoint.y;
+		insCell.leftBottomZ = unrotatedPoint.z;
+
+		elemList.Push (placingZone->placeLibPart (insCell));
+
+		// 거리 이동
+		xPos += insCell.libPart.outangle.a_leng;
+
+		// 남은 거리 감소
+		if (length_outa > 2.400)
+			length_outa -= 2.400;
+		else
+			length_outa = 0.0;
 	}
 
 	// 아웃코너 앵글 설치 (중앙 부분)
@@ -2638,6 +2678,869 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			elemList.Push (placingZone->placeLibPart (insCell));
 		}
 	}
+
+	// 비계파이프 1단 (측면 시작 부분 - 왼쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 왼쪽)까지
+	xPos = 0.0;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < nCellsFromBeginAtSide ; ++xx)
+		length_pipe += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+	if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+		for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)
+			length_pipe += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+	}
+
+	if ((placingZone->cellsFromBeginAtLSide [0][0].perLen > EPS) && (placingZone->nCellsFromBeginAtSide > 0)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+			if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.100);
+			else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.300) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.200) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);		// 1행
+
+			if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
+				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+				squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+				if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += 0.300;
+				else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
+				else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += 0.150;
+				else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += 0.150;
+
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
+
+				rotatedPoint.x = squarePipe.leftBottomX;
+				rotatedPoint.y = squarePipe.leftBottomY;
+				rotatedPoint.z = squarePipe.leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+				squarePipe.leftBottomX = unrotatedPoint.x;
+				squarePipe.leftBottomY = unrotatedPoint.y;
+				squarePipe.leftBottomZ = unrotatedPoint.z;
+
+				placeLibPart (squarePipe);		// 2행
+			}
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 2단 (측면 시작 부분 - 왼쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 왼쪽)까지
+	xPos = 0.0;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < nCellsFromBeginAtSide ; ++xx)
+		length_pipe += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+	if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+		for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)
+			length_pipe += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+	}
+
+	if ((placingZone->cellsFromBeginAtLSide [2][0].perLen > EPS) && (placingZone->nCellsFromBeginAtSide > 0)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom + placingZone->cellsFromBeginAtLSide [0][0].perLen + placingZone->cellsFromBeginAtLSide [1][0].perLen;
+			if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.100);
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.300) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.200) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);		// 1행
+
+			if (placingZone->cellsFromBeginAtLSide [2][0].perLen > 0.300) {
+				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+				squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+				if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += 0.300;
+				else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
+				else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += 0.150;
+				else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += 0.150;
+
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
+
+				rotatedPoint.x = squarePipe.leftBottomX;
+				rotatedPoint.y = squarePipe.leftBottomY;
+				rotatedPoint.z = squarePipe.leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+				squarePipe.leftBottomX = unrotatedPoint.x;
+				squarePipe.leftBottomY = unrotatedPoint.y;
+				squarePipe.leftBottomZ = unrotatedPoint.z;
+
+				placeLibPart (squarePipe);		// 2행
+			}
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 1단 (측면 시작 부분 - 오른쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 오른쪽)까지
+	xPos = 0.0;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < nCellsFromBeginAtSide ; ++xx)
+		length_pipe += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+	if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+		for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)
+			length_pipe += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+	}
+
+	if ((placingZone->cellsFromBeginAtLSide [0][0].perLen > EPS) && (placingZone->nCellsFromBeginAtSide > 0)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+			if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.100);
+			else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.300) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.200) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);		// 1행
+
+			if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
+				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+				squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+				if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += 0.300;
+				else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
+				else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += 0.150;
+				else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += 0.150;
+
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
+
+				rotatedPoint.x = squarePipe.leftBottomX;
+				rotatedPoint.y = squarePipe.leftBottomY;
+				rotatedPoint.z = squarePipe.leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+				squarePipe.leftBottomX = unrotatedPoint.x;
+				squarePipe.leftBottomY = unrotatedPoint.y;
+				squarePipe.leftBottomZ = unrotatedPoint.z;
+
+				placeLibPart (squarePipe);		// 2행
+			}
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 2단 (측면 시작 부분 - 오른쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 오른쪽)까지
+	xPos = 0.0;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < nCellsFromBeginAtSide ; ++xx)
+		length_pipe += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+	if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+		for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)
+			length_pipe += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+	}
+
+	if ((placingZone->cellsFromBeginAtLSide [2][0].perLen > EPS) && (placingZone->nCellsFromBeginAtSide > 0)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom + placingZone->cellsFromBeginAtLSide [0][0].perLen + placingZone->cellsFromBeginAtLSide [1][0].perLen;
+			if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.100);
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.300) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.200) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);		// 1행
+
+			if (placingZone->cellsFromBeginAtLSide [2][0].perLen > 0.300) {
+				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+				squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide + 0.0878;
+				if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += 0.300;
+				else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
+				else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += 0.150;
+				else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += 0.150;
+
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
+
+				rotatedPoint.x = squarePipe.leftBottomX;
+				rotatedPoint.y = squarePipe.leftBottomY;
+				rotatedPoint.z = squarePipe.leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+				squarePipe.leftBottomX = unrotatedPoint.x;
+				squarePipe.leftBottomY = unrotatedPoint.y;
+				squarePipe.leftBottomZ = unrotatedPoint.z;
+
+				placeLibPart (squarePipe);		// 2행
+			}
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 1단 (측면 끝 부분 - 왼쪽), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < nCellsFromEndAtSide ; ++xx)
+		length_pipe += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+
+	if ((placingZone->cellsFromEndAtLSide [0][0].perLen > EPS) && (placingZone->nCellsFromEndAtSide > 0) && (abs (placingZone->cellCenterAtLSide [0].dirLen) > EPS)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
+			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+			if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.600) < EPS)			squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.100);
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.300) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.200) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);		// 1행
+
+			if (placingZone->cellsFromEndAtLSide [0][0].perLen > 0.300) {
+				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
+				squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+				if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.600) < EPS)			squarePipe.leftBottomZ += 0.300;
+				else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
+				else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += 0.150;
+				else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += 0.150;
+
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
+
+				rotatedPoint.x = squarePipe.leftBottomX;
+				rotatedPoint.y = squarePipe.leftBottomY;
+				rotatedPoint.z = squarePipe.leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+				squarePipe.leftBottomX = unrotatedPoint.x;
+				squarePipe.leftBottomY = unrotatedPoint.y;
+				squarePipe.leftBottomZ = unrotatedPoint.z;
+
+				placeLibPart (squarePipe);		// 2행
+			}
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 2단 (측면 끝 부분 - 왼쪽), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < nCellsFromEndAtSide ; ++xx)
+		length_pipe += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+
+	if ((placingZone->cellsFromEndAtLSide [2][0].perLen > EPS) && (placingZone->nCellsFromEndAtSide > 0) && (abs (placingZone->cellCenterAtLSide [0].dirLen) > EPS)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
+			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom + placingZone->cellsFromEndAtLSide [0][0].perLen + placingZone->cellsFromEndAtLSide [1][0].perLen;
+			if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.600) < EPS)			squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.100);
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.300) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.200) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);		// 1행
+
+			if (placingZone->cellsFromEndAtLSide [2][0].perLen > 0.300) {
+				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
+				squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+				if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.600) < EPS)			squarePipe.leftBottomZ += 0.300;
+				else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
+				else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += 0.150;
+				else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += 0.150;
+
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
+
+				rotatedPoint.x = squarePipe.leftBottomX;
+				rotatedPoint.y = squarePipe.leftBottomY;
+				rotatedPoint.z = squarePipe.leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+				squarePipe.leftBottomX = unrotatedPoint.x;
+				squarePipe.leftBottomY = unrotatedPoint.y;
+				squarePipe.leftBottomZ = unrotatedPoint.z;
+
+				placeLibPart (squarePipe);		// 2행
+			}
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 1단 (측면 끝 부분 - 오른쪽), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < nCellsFromEndAtSide ; ++xx)
+		length_pipe += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+
+	if ((placingZone->cellsFromEndAtLSide [0][0].perLen > EPS) && (placingZone->nCellsFromEndAtSide > 0) && (abs (placingZone->cellCenterAtLSide [0].dirLen) > EPS)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
+			squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+			if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.600) < EPS)			squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.100);
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.300) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.200) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);		// 1행
+
+			if (placingZone->cellsFromEndAtLSide [0][0].perLen > 0.300) {
+				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
+				squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+				if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.600) < EPS)			squarePipe.leftBottomZ += 0.300;
+				else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
+				else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += 0.150;
+				else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += 0.150;
+
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
+
+				rotatedPoint.x = squarePipe.leftBottomX;
+				rotatedPoint.y = squarePipe.leftBottomY;
+				rotatedPoint.z = squarePipe.leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+				squarePipe.leftBottomX = unrotatedPoint.x;
+				squarePipe.leftBottomY = unrotatedPoint.y;
+				squarePipe.leftBottomZ = unrotatedPoint.z;
+
+				placeLibPart (squarePipe);		// 2행
+			}
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 2단 (측면 끝 부분 - 오른쪽), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < nCellsFromEndAtSide ; ++xx)
+		length_pipe += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+
+	if ((placingZone->cellsFromEndAtLSide [2][0].perLen > EPS) && (placingZone->nCellsFromEndAtSide > 0) && (abs (placingZone->cellCenterAtLSide [0].dirLen) > EPS)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
+			squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom + placingZone->cellsFromEndAtLSide [0][0].perLen + placingZone->cellsFromEndAtLSide [1][0].perLen;
+			if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.600) < EPS)			squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.100);
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.300) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.150);
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.200) < EPS)	squarePipe.leftBottomZ += (0.030 + 0.050);
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);		// 1행
+
+			if (placingZone->cellsFromEndAtLSide [2][0].perLen > 0.300) {
+				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
+				squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+				if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.600) < EPS)			squarePipe.leftBottomZ += 0.300;
+				else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
+				else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.450) < EPS)	squarePipe.leftBottomZ += 0.150;
+				else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.400) < EPS)	squarePipe.leftBottomZ += 0.150;
+
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
+
+				rotatedPoint.x = squarePipe.leftBottomX;
+				rotatedPoint.y = squarePipe.leftBottomY;
+				rotatedPoint.z = squarePipe.leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+				squarePipe.leftBottomX = unrotatedPoint.x;
+				squarePipe.leftBottomY = unrotatedPoint.y;
+				squarePipe.leftBottomZ = unrotatedPoint.z;
+
+				placeLibPart (squarePipe);		// 2행
+			}
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 좌측 (하부 시작 부분), 만약 센터 여백이 없으면 (좌측 - 하부 끝 부분)까지
+	xPos = 0.0;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < nCellsFromBeginAtBottom ; ++xx)
+		length_pipe += placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
+	if (abs (placingZone->cellCenterAtBottom [0].dirLen) < EPS) {
+		for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
+			length_pipe += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+	}
+
+	if ((placingZone->cellsFromBeginAtBottom [0][0].perLen > EPS) && (placingZone->nCellsFromBeginAtBottom > 0)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 우측 (하부 시작 부분), 만약 센터 여백이 없으면 (우측 - 하부 끝 부분)까지
+	xPos = 0.0;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < nCellsFromBeginAtBottom ; ++xx)
+		length_pipe += placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
+	if (abs (placingZone->cellCenterAtBottom [0].dirLen) < EPS) {
+		for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
+			length_pipe += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+	}
+
+	if ((placingZone->cellsFromBeginAtBottom [0][0].perLen > EPS) && (placingZone->nCellsFromBeginAtBottom > 0)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 중앙 (하부 시작 부분), 만약 센터 여백이 없으면 (중앙 - 하부 끝 부분)까지
+	if (placingZone->cellsFromBeginAtBottom [2][0].perLen > EPS) {
+		xPos = 0.0;
+		length_pipe = 0.100;
+		for (xx = 0 ; xx < nCellsFromBeginAtBottom ; ++xx)
+			length_pipe += placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
+		if (abs (placingZone->cellCenterAtBottom [0].dirLen) < EPS) {
+			for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
+				length_pipe += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+		}
+
+		if ((placingZone->cellsFromBeginAtBottom [2][0].perLen > EPS) && (placingZone->nCellsFromBeginAtBottom > 0)) {
+			while (length_pipe > 0.0) {
+				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+				squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide - placingZone->cellsFromBeginAtBottom [0][0].perLen - placingZone->cellsFromBeginAtBottom [1][0].perLen;
+				squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
+				squarePipe.ang = placingZone->ang;
+				if (length_pipe > 6.000)
+					squarePipe.length = 6.000;
+				else
+					squarePipe.length = length_pipe;
+				squarePipe.pipeAng = DegreeToRad (0.0);
+
+				axisPoint.x = placingZone->begC.x;
+				axisPoint.y = placingZone->begC.y;
+				axisPoint.z = placingZone->begC.z;
+
+				rotatedPoint.x = squarePipe.leftBottomX;
+				rotatedPoint.y = squarePipe.leftBottomY;
+				rotatedPoint.z = squarePipe.leftBottomZ;
+				unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+				squarePipe.leftBottomX = unrotatedPoint.x;
+				squarePipe.leftBottomY = unrotatedPoint.y;
+				squarePipe.leftBottomZ = unrotatedPoint.z;
+
+				placeLibPart (squarePipe);
+
+				xPos += squarePipe.length;
+
+				if (length_pipe > 6.000)
+					length_pipe -= 6.000;
+				else
+					length_pipe = 0.0;
+			}
+		}
+	}
+
+	// 비계파이프 좌측 (하부 끝 부분), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
+		length_pipe += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+
+	if ((placingZone->cellsFromBeginAtBottom [0][0].perLen > EPS) && (placingZone->nCellsFromBeginAtBottom > 0) && (abs (placingZone->cellCenterAtBottom [0].dirLen) > EPS)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtBottom [0].dirLen / 2);
+			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 우측 (하부 끝 부분), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
+		length_pipe += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+
+	if ((placingZone->cellsFromBeginAtBottom [0][0].perLen > EPS) && (placingZone->nCellsFromBeginAtBottom > 0) && (abs (placingZone->cellCenterAtBottom [0].dirLen) > EPS)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtBottom [0].dirLen / 2);
+			squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// 비계파이프 중앙 (하부 끝 부분), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	length_pipe = 0.100;
+	for (xx = 0 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)
+		length_pipe += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+
+	if ((placingZone->cellsFromBeginAtBottom [2][0].perLen > EPS) && (placingZone->nCellsFromBeginAtBottom > 0) && (abs (placingZone->cellCenterAtBottom [0].dirLen) > EPS)) {
+		while (length_pipe > 0.0) {
+			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtBottom [0].dirLen / 2);
+			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide - placingZone->cellsFromBeginAtBottom [0][0].perLen;
+			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
+			squarePipe.ang = placingZone->ang;
+			if (length_pipe > 6.000)
+				squarePipe.length = 6.000;
+			else
+				squarePipe.length = length_pipe;
+			squarePipe.pipeAng = DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = squarePipe.leftBottomX;
+			rotatedPoint.y = squarePipe.leftBottomY;
+			rotatedPoint.z = squarePipe.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			squarePipe.leftBottomX = unrotatedPoint.x;
+			squarePipe.leftBottomY = unrotatedPoint.y;
+			squarePipe.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (squarePipe);
+
+			xPos += squarePipe.length;
+
+			if (length_pipe > 6.000)
+				length_pipe -= 6.000;
+			else
+				length_pipe = 0.0;
+		}
+	}
+
+	// ...
+	// 유로폼 후크
+	// 각파이프 행거
+	// 블루목심
 
 	return	err;
 }
