@@ -2192,7 +2192,8 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 
 	if (abs (params.height - 2.300) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.500;		height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.500;		height [3] = 0.600;
+		height [0] = 0.500;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.050;
 	} else if (abs (params.height - 2.250) < EPS) {
 		nVerEuroform = 4;
@@ -2200,11 +2201,13 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 		verticalGap = 0.025;
 	} else if (abs (params.height - 2.200) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.400;		height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.400;		height [3] = 0.600;
+		height [0] = 0.400;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.050;
 	} else if (abs (params.height - 2.150) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;		height [1] = 0.500;		height [2] = 0.450;		height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.500;		height [2] = 0.450;		height [3] = 0.600;
+		height [0] = 0.500;		height [1] = 0.600;		height [2] = 0.450;		height [3] = 0.600;
 		verticalGap = 0.025;
 	} else if (abs (params.height - 2.100) < EPS) {
 		nVerEuroform = 4;
@@ -2212,11 +2215,13 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 		verticalGap = 0.050;
 	} else if (abs (params.height - 2.050) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.400;		height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.400;		height [3] = 0.600;
+		height [0] = 0.400;		height [1] = 0.450;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.025;
 	} else if (abs (params.height - 2.000) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.200;		height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.200;		height [3] = 0.600;
+		height [0] = 0.200;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.050;
 	} else if (abs (params.height - 1.950) < EPS) {
 		nVerEuroform = 4;
@@ -2224,11 +2229,13 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 		verticalGap = 0.025;
 	} else if (abs (params.height - 1.900) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;		height [1] = 0.500;		height [2] = 0.200;		height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.500;		height [2] = 0.200;		height [3] = 0.600;
+		height [0] = 0.500;		height [1] = 0.200;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.050;
 	} else if (abs (params.height - 1.850) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.200;		height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.200;		height [3] = 0.600;
+		height [0] = 0.200;		height [1] = 0.450;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.025;
 	} else if (abs (params.height - 1.800) < EPS) {
 		nVerEuroform = 3;
@@ -2236,11 +2243,13 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 		verticalGap = 0.050;
 	} else if (abs (params.height - 1.750) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;		height [1] = 0.200;		height [2] = 0.450;		height [3] = 0.500;
+		//height [0] = 0.600;		height [1] = 0.200;		height [2] = 0.450;		height [3] = 0.500;
+		height [0] = 0.500;		height [1] = 0.200;		height [2] = 0.450;		height [3] = 0.600;
 		verticalGap = 0.025;
 	} else if (abs (params.height - 1.700) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;		height [1] = 0.500;		height [2] = 0.600;		height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.500;		height [2] = 0.600;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (params.height - 1.650) < EPS) {
 		nVerEuroform = 3;
@@ -2248,11 +2257,13 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 		verticalGap = 0.025;
 	} else if (abs (params.height - 1.600) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;		height [1] = 0.400;		height [2] = 0.600;		height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.400;		height [2] = 0.600;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (params.height - 1.550) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.500;		height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.500;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.450;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (params.height - 1.500) < EPS) {
 		nVerEuroform = 3;
@@ -2260,11 +2271,13 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 		verticalGap = 0.050;
 	} else if (abs (params.height - 1.450) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.500;		height [1] = 0.450;		height [2] = 0.500;		height [3] = 0.0;
+		//height [0] = 0.500;		height [1] = 0.450;		height [2] = 0.500;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.450;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (params.height - 1.400) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.500;		height [1] = 0.400;		height [2] = 0.500;		height [3] = 0.0;
+		//height [0] = 0.500;		height [1] = 0.400;		height [2] = 0.500;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.300;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (params.height - 1.350) < EPS) {
 		nVerEuroform = 3;
@@ -2272,11 +2285,13 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 		verticalGap = 0.025;
 	} else if (abs (params.height - 1.300) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;		height [1] = 0.200;		height [2] = 0.500;		height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.200;		height [2] = 0.500;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.200;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (params.height - 1.250) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;		height [1] = 0.200;		height [2] = 0.450;		height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.200;		height [2] = 0.450;		height [3] = 0.0;
+		height [0] = 0.200;		height [1] = 0.600;		height [2] = 0.450;		height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (params.height - 1.200) < EPS) {
 		nVerEuroform = 2;
@@ -2284,11 +2299,14 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 		verticalGap = 0.050;
 	} else if (abs (params.height - 1.150) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.450;		height [1] = 0.300;		height [2] = 0.400;		height [3] = 0.0;
+		//height [0] = 0.450;		height [1] = 0.300;		height [2] = 0.400;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.300;		height [2] = 0.450;		height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (params.height - 1.100) < EPS) {
-		nVerEuroform = 3;
-		height [0] = 0.400;		height [1] = 0.300;		height [2] = 0.400;		height [3] = 0.0;
+		//nVerEuroform = 3;
+		nVerEuroform = 2;
+		//height [0] = 0.400;		height [1] = 0.300;		height [2] = 0.400;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.600;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (params.height - 1.050) < EPS) {
 		nVerEuroform = 3;
@@ -2296,11 +2314,13 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 		verticalGap = 0.025;
 	} else if (abs (params.height - 1.000) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.600;		height [1] = 0.400;		height [2] = 0.0;		height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.400;		height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.600;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (params.height - 0.950) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.450;		height [1] = 0.500;		height [2] = 0.0;		height [3] = 0.0;
+		//height [0] = 0.450;		height [1] = 0.500;		height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.450;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (params.height - 0.900) < EPS) {
 		nVerEuroform = 2;
@@ -2324,7 +2344,8 @@ GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params)
 		verticalGap = 0.050;
 	} else if (abs (params.height - 0.650) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.450;		height [1] = 0.200;		height [2] = 0.0;		height [3] = 0.0;
+		//height [0] = 0.450;		height [1] = 0.200;		height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.200;		height [1] = 0.450;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (params.height - 0.600) < EPS) {
 		nVerEuroform = 1;
@@ -4345,266 +4366,287 @@ GSErrCode	placeTableformOnWall_landscape_Type2 (WallTableform params)
 
 	if (abs (params.height - 2.300) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.600;	height [2] = 0.500;	height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.500;		height [3] = 0.600;
+		height [0] = 0.500;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 2.250) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.600;	height [2] = 0.450;	height [3] = 0.600;
+		height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.450;		height [3] = 0.600;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 2.200) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.600;	height [2] = 0.400;	height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.400;		height [3] = 0.600;
+		height [0] = 0.400;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 2.150) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.500;	height [2] = 0.450;	height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.500;		height [2] = 0.450;		height [3] = 0.600;
+		height [0] = 0.500;		height [1] = 0.600;		height [2] = 0.450;		height [3] = 0.600;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 2.100) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.600;	height [2] = 0.300;	height [3] = 0.600;
+		height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.300;		height [3] = 0.600;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 2.050) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.450;	height [2] = 0.400;	height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.400;		height [3] = 0.600;
+		height [0] = 0.400;		height [1] = 0.450;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 2.000) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.600;	height [2] = 0.200;	height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.200;		height [3] = 0.600;
+		height [0] = 0.200;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.950) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.450;	height [2] = 0.300;	height [3] = 0.600;
+		height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.300;		height [3] = 0.600;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.900) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.500;	height [2] = 0.200;	height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.500;		height [2] = 0.200;		height [3] = 0.600;
+		height [0] = 0.500;		height [1] = 0.200;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.850) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.450;	height [2] = 0.200;	height [3] = 0.600;
+		//height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.200;		height [3] = 0.600;
+		height [0] = 0.200;		height [1] = 0.450;		height [2] = 0.600;		height [3] = 0.600;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.800) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;	height [1] = 0.600;	height [2] = 0.600;	height [3] = 0.0;
+		height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.750) < EPS) {
 		nVerEuroform = 4;
-		height [0] = 0.600;	height [1] = 0.200;	height [2] = 0.450;	height [3] = 0.500;
+		//height [0] = 0.600;		height [1] = 0.200;		height [2] = 0.450;		height [3] = 0.500;
+		height [0] = 0.500;		height [1] = 0.200;		height [2] = 0.450;		height [3] = 0.600;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.700) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;	height [1] = 0.500;	height [2] = 0.600;	height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.500;		height [2] = 0.600;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.650) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;	height [1] = 0.450;	height [2] = 0.600;	height [3] = 0.0;
+		height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.600) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;	height [1] = 0.400;	height [2] = 0.600;	height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.400;		height [2] = 0.600;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.600;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.550) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;	height [1] = 0.450;	height [2] = 0.500;	height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.450;		height [2] = 0.500;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.450;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.500) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;	height [1] = 0.300;	height [2] = 0.600;	height [3] = 0.0;
+		height [0] = 0.600;		height [1] = 0.300;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.450) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.500;	height [1] = 0.450;	height [2] = 0.500;	height [3] = 0.0;
+		//height [0] = 0.500;		height [1] = 0.450;		height [2] = 0.500;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.450;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.400) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.500;	height [1] = 0.400;	height [2] = 0.500;	height [3] = 0.0;
+		//height [0] = 0.500;		height [1] = 0.400;		height [2] = 0.500;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.300;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.350) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;	height [1] = 0.300;	height [2] = 0.450;	height [3] = 0.0;
+		height [0] = 0.600;		height [1] = 0.300;		height [2] = 0.450;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.300) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;	height [1] = 0.200;	height [2] = 0.500;	height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.200;		height [2] = 0.500;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.200;		height [2] = 0.600;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.250) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.600;	height [1] = 0.200;	height [2] = 0.450;	height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.200;		height [2] = 0.450;		height [3] = 0.0;
+		height [0] = 0.200;		height [1] = 0.600;		height [2] = 0.450;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.200) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.600;	height [1] = 0.600;	height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.600;		height [1] = 0.600;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.150) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.450;	height [1] = 0.300;	height [2] = 0.400;	height [3] = 0.0;
+		//height [0] = 0.450;		height [1] = 0.300;		height [2] = 0.400;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.300;		height [2] = 0.450;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.100) < EPS) {
-		nVerEuroform = 3;
-		height [0] = 0.400;	height [1] = 0.300;	height [2] = 0.400;	height [3] = 0.0;
+		//nVerEuroform = 3;
+		nVerEuroform = 2;
+		//height [0] = 0.400;		height [1] = 0.300;		height [2] = 0.400;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.600;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.050) < EPS) {
 		nVerEuroform = 3;
-		height [0] = 0.450;	height [1] = 0.300;	height [2] = 0.300;	height [3] = 0.0;
+		height [0] = 0.450;		height [1] = 0.300;		height [2] = 0.300;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 1.000) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.600;	height [1] = 0.400;	height [2] = 0.0;		height [3] = 0.0;
+		//height [0] = 0.600;		height [1] = 0.400;		height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.600;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 0.950) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.450;	height [1] = 0.500;	height [2] = 0.0;		height [3] = 0.0;
+		//height [0] = 0.450;		height [1] = 0.500;		height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.450;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 0.900) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.600;	height [1] = 0.300;	height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.600;		height [1] = 0.300;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 0.850) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.400;	height [1] = 0.450;	height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.450;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 0.800) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.400;	height [1] = 0.400;	height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.400;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.250;
 	} else if (abs (params.height - 0.750) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.450;	height [1] = 0.300;	height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.450;		height [1] = 0.300;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.200;
 	} else if (abs (params.height - 0.700) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.400;	height [1] = 0.300;	height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.300;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.250;
 		verticalBarRightOffset = 0.150;
 	} else if (abs (params.height - 0.650) < EPS) {
 		nVerEuroform = 2;
-		height [0] = 0.450;	height [1] = 0.200;	height [2] = 0.0;		height [3] = 0.0;
+		//height [0] = 0.450;		height [1] = 0.200;		height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.200;		height [1] = 0.450;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.200;
 		verticalBarRightOffset = 0.150;
 	} else if (abs (params.height - 0.600) < EPS) {
 		nVerEuroform = 1;
-		height [0] = 0.600;	height [1] = 0.0;		height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.600;		height [1] = 0.0;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 2;
 		verticalBarLeftOffset = 0.150;
 		verticalBarRightOffset = 0.150;
 	} else if (abs (params.height - 0.500) < EPS) {
 		nVerEuroform = 1;
-		height [0] = 0.500;	height [1] = 0.0;		height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.500;		height [1] = 0.0;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 1;
 		verticalBarLeftOffset = 0.200;
 		verticalBarRightOffset = 0.200;
 	} else if (abs (params.height - 0.450) < EPS) {
 		nVerEuroform = 1;
-		height [0] = 0.450;	height [1] = 0.0;		height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.450;		height [1] = 0.0;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.025;
 		nVerticalBar = 1;
 		verticalBarLeftOffset = 0.200;
 		verticalBarRightOffset = 0.200;
 	} else if (abs (params.height - 0.400) < EPS) {
 		nVerEuroform = 1;
-		height [0] = 0.400;	height [1] = 0.0;		height [2] = 0.0;		height [3] = 0.0;
+		height [0] = 0.400;		height [1] = 0.0;		height [2] = 0.0;		height [3] = 0.0;
 		verticalGap = 0.050;
 		nVerticalBar = 1;
 		verticalBarLeftOffset = 0.150;

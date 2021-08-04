@@ -3832,7 +3832,8 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 
 	if (abs (cell.verLen - 2.300) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 2.250) < EPS) {
 		placementInfo.nVerEuroform = 4;
@@ -3840,11 +3841,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 2.200) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 2.150) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 2.100) < EPS) {
 		placementInfo.nVerEuroform = 4;
@@ -3852,11 +3855,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 2.050) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 2.000) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.200;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 1.950) < EPS) {
 		placementInfo.nVerEuroform = 4;
@@ -3864,11 +3869,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 1.900) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 1.850) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.200;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 1.800) < EPS) {
 		placementInfo.nVerEuroform = 3;
@@ -3876,11 +3883,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 1.750) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.500;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.500;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 1.700) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 1.650) < EPS) {
 		placementInfo.nVerEuroform = 3;
@@ -3888,11 +3897,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 1.600) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 1.550) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 1.500) < EPS) {
 		placementInfo.nVerEuroform = 3;
@@ -3900,11 +3911,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 1.450) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 1.400) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 1.350) < EPS) {
 		placementInfo.nVerEuroform = 3;
@@ -3912,11 +3925,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 1.300) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 1.250) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.200;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 1.200) < EPS) {
 		placementInfo.nVerEuroform = 2;
@@ -3924,11 +3939,14 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 1.150) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 1.100) < EPS) {
-		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		//placementInfo.nVerEuroform = 3;
+		placementInfo.nVerEuroform = 2;
+		//placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 1.050) < EPS) {
 		placementInfo.nVerEuroform = 3;
@@ -3936,11 +3954,13 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 1.000) < EPS) {
 		placementInfo.nVerEuroform = 2;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 0.950) < EPS) {
 		placementInfo.nVerEuroform = 2;
-		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 0.900) < EPS) {
 		placementInfo.nVerEuroform = 2;
@@ -3964,7 +3984,8 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type1 (CellF
 		verticalGap = 0.050;
 	} else if (abs (cell.verLen - 0.650) < EPS) {
 		placementInfo.nVerEuroform = 2;
-		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.200;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 	} else if (abs (cell.verLen - 0.600) < EPS) {
 		placementInfo.nVerEuroform = 1;
@@ -4784,7 +4805,8 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 
 	if (abs (cell.verLen - 2.300) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.050;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
@@ -4798,14 +4820,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 2.200) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.050;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 2.150) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.025;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
@@ -4819,14 +4843,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 2.050) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.025;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 2.000) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.200;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.050;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
@@ -4840,14 +4866,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.900) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.050;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.850) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.200;	placementInfo.height [3] = 0.600;
+		placementInfo.height [0] = 0.200;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.025;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
@@ -4861,14 +4889,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.750) < EPS) {
 		placementInfo.nVerEuroform = 4;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.500;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.500;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.600;
 		verticalGap = 0.025;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.700) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
@@ -4882,14 +4912,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.600) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.550) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
@@ -4903,14 +4935,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.450) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.400) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
@@ -4924,14 +4958,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.300) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.500;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.600;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.250) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.200;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
@@ -4945,14 +4981,17 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.150) < EPS) {
 		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.450;	placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.100) < EPS) {
-		placementInfo.nVerEuroform = 3;
-		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		//placementInfo.nVerEuroform = 3;
+		placementInfo.nVerEuroform = 2;
+		//placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.300;	placementInfo.height [2] = 0.400;	placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
@@ -4966,14 +5005,16 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 1.000) < EPS) {
 		placementInfo.nVerEuroform = 2;
-		placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.600;	placementInfo.height [1] = 0.400;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.400;	placementInfo.height [1] = 0.600;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
 		verticalGap = 0.050;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
 		placingZone.verticalBarRightOffset = 0.250;
 	} else if (abs (cell.verLen - 0.950) < EPS) {
 		placementInfo.nVerEuroform = 2;
-		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.500;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.500;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.250;
@@ -5015,7 +5056,8 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal_Type2 (CellF
 		placingZone.verticalBarRightOffset = 0.150;
 	} else if (abs (cell.verLen - 0.650) < EPS) {
 		placementInfo.nVerEuroform = 2;
-		placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		//placementInfo.height [0] = 0.450;	placementInfo.height [1] = 0.200;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
+		placementInfo.height [0] = 0.200;	placementInfo.height [1] = 0.450;	placementInfo.height [2] = 0.0;		placementInfo.height [3] = 0.0;
 		verticalGap = 0.025;
 		placingZone.nVerticalBar = 2;
 		placingZone.verticalBarLeftOffset = 0.200;
