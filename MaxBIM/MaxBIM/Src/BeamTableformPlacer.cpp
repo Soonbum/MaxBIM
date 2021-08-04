@@ -2691,7 +2691,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 
 	if ((placingZone->cellsFromBeginAtLSide [0][0].perLen > EPS) && (placingZone->nCellsFromBeginAtSide > 0)) {
 		while (length_pipe > 0.0) {
-			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
 			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
 			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 			if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += (0.030 + 0.150);
@@ -2723,7 +2723,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			placeLibPart (squarePipe);		// 1행
 
 			if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
-				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+				squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
 				squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
 				if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += 0.300;
 				else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
@@ -2767,7 +2767,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 
 	if ((placingZone->cellsFromBeginAtLSide [2][0].perLen > EPS) && (placingZone->nCellsFromBeginAtSide > 0)) {
 		while (length_pipe > 0.0) {
-			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
 			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
 			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom + placingZone->cellsFromBeginAtLSide [0][0].perLen + placingZone->cellsFromBeginAtLSide [1][0].perLen;
 			if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += (0.030 + 0.150);
@@ -2799,7 +2799,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			placeLibPart (squarePipe);		// 1행
 
 			if (placingZone->cellsFromBeginAtLSide [2][0].perLen > 0.300) {
-				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+				squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
 				squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
 				if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += 0.300;
 				else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
@@ -2843,7 +2843,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 
 	if ((placingZone->cellsFromBeginAtLSide [0][0].perLen > EPS) && (placingZone->nCellsFromBeginAtSide > 0)) {
 		while (length_pipe > 0.0) {
-			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
 			squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
 			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
 			if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += (0.030 + 0.150);
@@ -2875,7 +2875,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			placeLibPart (squarePipe);		// 1행
 
 			if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
-				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+				squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
 				squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
 				if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += 0.300;
 				else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
@@ -2919,7 +2919,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 
 	if ((placingZone->cellsFromBeginAtLSide [2][0].perLen > EPS) && (placingZone->nCellsFromBeginAtSide > 0)) {
 		while (length_pipe > 0.0) {
-			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
 			squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
 			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom + placingZone->cellsFromBeginAtLSide [0][0].perLen + placingZone->cellsFromBeginAtLSide [1][0].perLen;
 			if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += (0.030 + 0.150);
@@ -2951,7 +2951,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			placeLibPart (squarePipe);		// 1행
 
 			if (placingZone->cellsFromBeginAtLSide [2][0].perLen > 0.300) {
-				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+				squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
 				squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide + 0.0878;
 				if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		squarePipe.leftBottomZ += 0.300;
 				else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.500) < EPS)	squarePipe.leftBottomZ += 0.250;
@@ -3283,7 +3283,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 
 	if ((placingZone->cellsFromBeginAtBottom [0][0].perLen > EPS) && (placingZone->nCellsFromBeginAtBottom > 0)) {
 		while (length_pipe > 0.0) {
-			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtBottom * marginBeginAtBottom) - 0.050 + xPos;
 			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide;
 			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
 			squarePipe.ang = placingZone->ang;
@@ -3329,7 +3329,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 
 	if ((placingZone->cellsFromBeginAtBottom [0][0].perLen > EPS) && (placingZone->nCellsFromBeginAtBottom > 0)) {
 		while (length_pipe > 0.0) {
-			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
+			squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtBottom * marginBeginAtBottom) - 0.050 + xPos;
 			squarePipe.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide;
 			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
 			squarePipe.ang = placingZone->ang;
@@ -3376,8 +3376,8 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 
 		if ((placingZone->cellsFromBeginAtBottom [2][0].perLen > EPS) && (placingZone->nCellsFromBeginAtBottom > 0)) {
 			while (length_pipe > 0.0) {
-				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos;
-				squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide - placingZone->cellsFromBeginAtBottom [0][0].perLen - placingZone->cellsFromBeginAtBottom [1][0].perLen;
+				squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtBottom * marginBeginAtBottom) - 0.050 + xPos;
+				squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide - 0.150 + 0.030;
 				squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
 				squarePipe.ang = placingZone->ang;
 				if (length_pipe > 6.000)
@@ -3504,7 +3504,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 	if ((placingZone->cellsFromBeginAtBottom [2][0].perLen > EPS) && (placingZone->nCellsFromBeginAtBottom > 0) && (abs (placingZone->cellCenterAtBottom [0].dirLen) > EPS)) {
 		while (length_pipe > 0.0) {
 			squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtBottom [0].dirLen / 2);
-			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide - placingZone->cellsFromBeginAtBottom [0][0].perLen;
+			squarePipe.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide - 0.150 + 0.030;
 			squarePipe.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
 			squarePipe.ang = placingZone->ang;
 			if (length_pipe > 6.000)
@@ -3537,10 +3537,754 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		}
 	}
 
+	// 유로폼 후크 - 비계파이프 1단 (측면 시작 부분 - 왼쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 왼쪽)까지
+	hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) + placingZone->cellsFromBeginAtLSide [0][0].dirLen;
+	hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+	hook.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+	if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		hook.leftBottomZ += (0.030 + 0.150);
+	else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.500) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+	else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.450) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+	else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.400) < EPS)	hook.leftBottomZ += (0.030 + 0.100);
+	else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.300) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+	else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.200) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+	hook.ang = placingZone->ang;
+	hook.angX = DegreeToRad (180.0);
+	hook.angY = DegreeToRad (270.0);
+	hook.iHookType = 2;
+	hook.iHookShape = 2;
+
+	axisPoint.x = placingZone->begC.x;
+	axisPoint.y = placingZone->begC.y;
+	axisPoint.z = placingZone->begC.z;
+
+	rotatedPoint.x = hook.leftBottomX;
+	rotatedPoint.y = hook.leftBottomY;
+	rotatedPoint.z = hook.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+	hook.leftBottomX = unrotatedPoint.x;
+	hook.leftBottomY = unrotatedPoint.y;
+	hook.leftBottomZ = unrotatedPoint.z;
+
+	placeLibPart (hook);
+
+	accumDist = 0.0;
+	if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		for (xx = 1 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)			accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+	} else {
+		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+	}
+	moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+	placeLibPart (hook);
+
+	if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
+		hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) + placingZone->cellsFromBeginAtLSide [0][0].dirLen;
+		hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+		if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		hook.leftBottomZ += 0.300;
+		else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.500) < EPS)	hook.leftBottomZ += 0.250;
+		else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.450) < EPS)	hook.leftBottomZ += 0.150;
+		else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.400) < EPS)	hook.leftBottomZ += 0.150;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = hook.leftBottomX;
+		rotatedPoint.y = hook.leftBottomY;
+		rotatedPoint.z = hook.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		hook.leftBottomX = unrotatedPoint.x;
+		hook.leftBottomY = unrotatedPoint.y;
+		hook.leftBottomZ = unrotatedPoint.z;
+
+		placeLibPart (hook);
+
+		accumDist = 0.0;
+		if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+			for (xx = 1 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)			accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+		} else {
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		}
+		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+		placeLibPart (hook);
+	}
+
+	// 유로폼 후크 - 비계파이프 2단 (측면 시작 부분 - 왼쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 왼쪽)까지
+	if ((placingZone->cellsFromBeginAtLSide [2][0].perLen > EPS) && (placingZone->nCellsFromBeginAtSide > 0)) {
+		hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) + placingZone->cellsFromBeginAtLSide [0][0].dirLen;
+		hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+		hook.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom + placingZone->cellsFromBeginAtLSide [0][0].perLen + placingZone->cellsFromBeginAtLSide [1][0].perLen;
+		if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.500) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.450) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.400) < EPS)	hook.leftBottomZ += (0.030 + 0.100);
+		else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.300) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.200) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		hook.ang = placingZone->ang;
+		hook.angX = DegreeToRad (180.0);
+		hook.angY = DegreeToRad (270.0);
+		hook.iHookType = 2;
+		hook.iHookShape = 2;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = hook.leftBottomX;
+		rotatedPoint.y = hook.leftBottomY;
+		rotatedPoint.z = hook.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		hook.leftBottomX = unrotatedPoint.x;
+		hook.leftBottomY = unrotatedPoint.y;
+		hook.leftBottomZ = unrotatedPoint.z;
+
+		placeLibPart (hook);
+
+		accumDist = 0.0;
+		if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+			for (xx = 1 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)			accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+		} else {
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		}
+		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+		placeLibPart (hook);
+
+		if (placingZone->cellsFromBeginAtLSide [2][0].perLen > 0.300) {
+			hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) + placingZone->cellsFromBeginAtLSide [0][0].dirLen;
+			hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+			if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		hook.leftBottomZ += 0.300;
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.500) < EPS)	hook.leftBottomZ += 0.250;
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.450) < EPS)	hook.leftBottomZ += 0.150;
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.400) < EPS)	hook.leftBottomZ += 0.150;
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = hook.leftBottomX;
+			rotatedPoint.y = hook.leftBottomY;
+			rotatedPoint.z = hook.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			hook.leftBottomX = unrotatedPoint.x;
+			hook.leftBottomY = unrotatedPoint.y;
+			hook.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (hook);
+
+			accumDist = 0.0;
+			if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+				for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+				for (xx = 1 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)			accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+			} else {
+				for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+			}
+			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+			placeLibPart (hook);
+		}
+	}
+
+	// 유로폼 후크 - 비계파이프 1단 (측면 시작 부분 - 오른쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 오른쪽)까지
+	hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) + placingZone->cellsFromBeginAtLSide [0][0].dirLen;
+	hook.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+	hook.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+	if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		hook.leftBottomZ += (0.030 + 0.150);
+	else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.500) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+	else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.450) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+	else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.400) < EPS)	hook.leftBottomZ += (0.030 + 0.100);
+	else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.300) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+	else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.200) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+	hook.angX = DegreeToRad (180.0);
+	hook.angY = DegreeToRad (270.0);
+	hook.iHookType = 2;
+	hook.iHookShape = 2;
+
+	axisPoint.x = placingZone->begC.x;
+	axisPoint.y = placingZone->begC.y;
+	axisPoint.z = placingZone->begC.z;
+
+	rotatedPoint.x = hook.leftBottomX;
+	rotatedPoint.y = hook.leftBottomY;
+	rotatedPoint.z = hook.leftBottomZ;
+	unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+	hook.leftBottomX = unrotatedPoint.x;
+	hook.leftBottomY = unrotatedPoint.y;
+	hook.leftBottomZ = unrotatedPoint.z;
+
+	hook.ang = placingZone->ang + DegreeToRad (180.0);
+	placeLibPart (hook);
+	hook.ang = placingZone->ang;
+
+	accumDist = 0.0;
+	if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		for (xx = 1 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)			accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+	} else {
+		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+	}
+	moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+	hook.ang = placingZone->ang + DegreeToRad (180.0);
+	placeLibPart (hook);
+	hook.ang = placingZone->ang;
+
+	if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
+		hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) + placingZone->cellsFromBeginAtLSide [0][0].dirLen;
+		hook.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+		if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.600) < EPS)		hook.leftBottomZ += 0.300;
+		else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.500) < EPS)	hook.leftBottomZ += 0.250;
+		else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.450) < EPS)	hook.leftBottomZ += 0.150;
+		else if (abs (placingZone->cellsFromBeginAtLSide [0][0].perLen - 0.400) < EPS)	hook.leftBottomZ += 0.150;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = hook.leftBottomX;
+		rotatedPoint.y = hook.leftBottomY;
+		rotatedPoint.z = hook.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		hook.leftBottomX = unrotatedPoint.x;
+		hook.leftBottomY = unrotatedPoint.y;
+		hook.leftBottomZ = unrotatedPoint.z;
+
+		hook.ang = placingZone->ang + DegreeToRad (180.0);
+		placeLibPart (hook);
+		hook.ang = placingZone->ang;
+
+		accumDist = 0.0;
+		if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+			for (xx = 1 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)			accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+		} else {
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		}
+		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+		hook.ang = placingZone->ang + DegreeToRad (180.0);
+		placeLibPart (hook);
+		hook.ang = placingZone->ang;
+	}
+
+	// 유로폼 후크 - 비계파이프 2단 (측면 시작 부분 - 오른쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 오른쪽)까지
+	if ((placingZone->cellsFromBeginAtLSide [2][0].perLen > EPS) && (placingZone->nCellsFromBeginAtSide > 0)) {
+		hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) + placingZone->cellsFromBeginAtLSide [0][0].dirLen;
+		hook.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+		hook.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom + placingZone->cellsFromBeginAtLSide [0][0].perLen + placingZone->cellsFromBeginAtLSide [1][0].perLen;
+		if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.500) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.450) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.400) < EPS)	hook.leftBottomZ += (0.030 + 0.100);
+		else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.300) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.200) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		hook.angX = DegreeToRad (180.0);
+		hook.angY = DegreeToRad (270.0);
+		hook.iHookType = 2;
+		hook.iHookShape = 2;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = hook.leftBottomX;
+		rotatedPoint.y = hook.leftBottomY;
+		rotatedPoint.z = hook.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		hook.leftBottomX = unrotatedPoint.x;
+		hook.leftBottomY = unrotatedPoint.y;
+		hook.leftBottomZ = unrotatedPoint.z;
+
+		hook.ang = placingZone->ang + DegreeToRad (180.0);
+		placeLibPart (hook);
+		hook.ang = placingZone->ang;
+
+		accumDist = 0.0;
+		if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+			for (xx = 1 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)			accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+		} else {
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		}
+		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+		hook.ang = placingZone->ang + DegreeToRad (180.0);
+		placeLibPart (hook);
+		hook.ang = placingZone->ang;
+
+		if (placingZone->cellsFromBeginAtLSide [2][0].perLen > 0.300) {
+			hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) + placingZone->cellsFromBeginAtLSide [0][0].dirLen;
+			hook.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+			if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.600) < EPS)		hook.leftBottomZ += 0.300;
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.500) < EPS)	hook.leftBottomZ += 0.250;
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.450) < EPS)	hook.leftBottomZ += 0.150;
+			else if (abs (placingZone->cellsFromBeginAtLSide [2][0].perLen - 0.400) < EPS)	hook.leftBottomZ += 0.150;
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = hook.leftBottomX;
+			rotatedPoint.y = hook.leftBottomY;
+			rotatedPoint.z = hook.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			hook.leftBottomX = unrotatedPoint.x;
+			hook.leftBottomY = unrotatedPoint.y;
+			hook.leftBottomZ = unrotatedPoint.z;
+
+			hook.ang = placingZone->ang + DegreeToRad (180.0);
+			placeLibPart (hook);
+			hook.ang = placingZone->ang;
+
+			accumDist = 0.0;
+			if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
+				for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+				for (xx = 1 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)			accumDist += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
+			} else {
+				for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+			}
+			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+			hook.ang = placingZone->ang + DegreeToRad (180.0);
+			placeLibPart (hook);
+			hook.ang = placingZone->ang;
+		}
+	}
+
+	// 유로폼 후크 - 비계파이프 1단 (측면 끝 부분 - 왼쪽), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	if ((placingZone->cellsFromEndAtLSide [0][0].perLen > EPS) && (placingZone->nCellsFromEndAtSide > 0) && (abs (placingZone->cellCenterAtLSide [0].dirLen) > EPS)) {
+		hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2) + placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide-1].dirLen;
+		hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+		hook.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+		if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.600) < EPS)			hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.500) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.450) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.400) < EPS)	hook.leftBottomZ += (0.030 + 0.100);
+		else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.300) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.200) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		hook.ang = placingZone->ang;
+		hook.angX = DegreeToRad (180.0);
+		hook.angY = DegreeToRad (270.0);
+		hook.iHookType = 2;
+		hook.iHookShape = 2;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = hook.leftBottomX;
+		rotatedPoint.y = hook.leftBottomY;
+		rotatedPoint.z = hook.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		hook.leftBottomX = unrotatedPoint.x;
+		hook.leftBottomY = unrotatedPoint.y;
+		hook.leftBottomZ = unrotatedPoint.z;
+
+		placeLibPart (hook);
+
+		accumDist = 0.0;
+		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+		placeLibPart (hook);
+
+		if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
+			hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2) + placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide-1].dirLen;
+			hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+			if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.600) < EPS)			hook.leftBottomZ += 0.300;
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.500) < EPS)	hook.leftBottomZ += 0.250;
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.450) < EPS)	hook.leftBottomZ += 0.150;
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.400) < EPS)	hook.leftBottomZ += 0.150;
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = hook.leftBottomX;
+			rotatedPoint.y = hook.leftBottomY;
+			rotatedPoint.z = hook.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			hook.leftBottomX = unrotatedPoint.x;
+			hook.leftBottomY = unrotatedPoint.y;
+			hook.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (hook);
+
+			accumDist = 0.0;
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+			placeLibPart (hook);
+		}
+	}
+
+	// 유로폼 후크 - 비계파이프 2단 (측면 끝 부분 - 왼쪽), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	if ((placingZone->cellsFromEndAtLSide [2][0].perLen > EPS) && (placingZone->nCellsFromEndAtSide > 0) && (abs (placingZone->cellCenterAtLSide [0].dirLen) > EPS)) {
+		hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2) + placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide-1].dirLen;
+		hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+		hook.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom + placingZone->cellsFromEndAtLSide [0][0].perLen + placingZone->cellsFromEndAtLSide [1][0].perLen;
+		if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.600) < EPS)			hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.500) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.450) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.400) < EPS)	hook.leftBottomZ += (0.030 + 0.100);
+		else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.300) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.200) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		hook.ang = placingZone->ang;
+		hook.angX = DegreeToRad (180.0);
+		hook.angY = DegreeToRad (270.0);
+		hook.iHookType = 2;
+		hook.iHookShape = 2;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = hook.leftBottomX;
+		rotatedPoint.y = hook.leftBottomY;
+		rotatedPoint.z = hook.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		hook.leftBottomX = unrotatedPoint.x;
+		hook.leftBottomY = unrotatedPoint.y;
+		hook.leftBottomZ = unrotatedPoint.z;
+
+		placeLibPart (hook);
+
+		accumDist = 0.0;
+		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+		placeLibPart (hook);
+
+		if (placingZone->cellsFromEndAtLSide [2][0].perLen > 0.300) {
+			hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2) + placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide-1].dirLen;
+			hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+			if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.600) < EPS)			hook.leftBottomZ += 0.300;
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.500) < EPS)	hook.leftBottomZ += 0.250;
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.450) < EPS)	hook.leftBottomZ += 0.150;
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.400) < EPS)	hook.leftBottomZ += 0.150;
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = hook.leftBottomX;
+			rotatedPoint.y = hook.leftBottomY;
+			rotatedPoint.z = hook.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			hook.leftBottomX = unrotatedPoint.x;
+			hook.leftBottomY = unrotatedPoint.y;
+			hook.leftBottomZ = unrotatedPoint.z;
+
+			placeLibPart (hook);
+
+			accumDist = 0.0;
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+			placeLibPart (hook);
+		}
+	}
+
+	// 유로폼 후크 - 비계파이프 1단 (측면 끝 부분 - 오른쪽), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	if ((placingZone->cellsFromEndAtLSide [0][0].perLen > EPS) && (placingZone->nCellsFromEndAtSide > 0) && (abs (placingZone->cellCenterAtLSide [0].dirLen) > EPS)) {
+		hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2) + placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide-1].dirLen;
+		hook.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+		hook.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom;
+		if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.600) < EPS)			hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.500) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.450) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.400) < EPS)	hook.leftBottomZ += (0.030 + 0.100);
+		else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.300) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.200) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		hook.angX = DegreeToRad (180.0);
+		hook.angY = DegreeToRad (270.0);
+		hook.iHookType = 2;
+		hook.iHookShape = 2;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = hook.leftBottomX;
+		rotatedPoint.y = hook.leftBottomY;
+		rotatedPoint.z = hook.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		hook.leftBottomX = unrotatedPoint.x;
+		hook.leftBottomY = unrotatedPoint.y;
+		hook.leftBottomZ = unrotatedPoint.z;
+
+		hook.ang = placingZone->ang + DegreeToRad (180.0);
+		placeLibPart (hook);
+		hook.ang = placingZone->ang;
+
+		accumDist = 0.0;
+		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+		hook.ang = placingZone->ang + DegreeToRad (180.0);
+		placeLibPart (hook);
+		hook.ang = placingZone->ang;
+
+		if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
+			hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2) + placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide-1].dirLen;
+			hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+			if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.600) < EPS)			hook.leftBottomZ += 0.300;
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.500) < EPS)	hook.leftBottomZ += 0.250;
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.450) < EPS)	hook.leftBottomZ += 0.150;
+			else if (abs (placingZone->cellsFromEndAtLSide [0][0].perLen - 0.400) < EPS)	hook.leftBottomZ += 0.150;
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = hook.leftBottomX;
+			rotatedPoint.y = hook.leftBottomY;
+			rotatedPoint.z = hook.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			hook.leftBottomX = unrotatedPoint.x;
+			hook.leftBottomY = unrotatedPoint.y;
+			hook.leftBottomZ = unrotatedPoint.z;
+
+			hook.ang = placingZone->ang + DegreeToRad (180.0);
+			placeLibPart (hook);
+			hook.ang = placingZone->ang;
+
+			accumDist = 0.0;
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+			hook.ang = placingZone->ang + DegreeToRad (180.0);
+			placeLibPart (hook);
+			hook.ang = placingZone->ang;
+		}
+	}
+
+	// 유로폼 후크 - 비계파이프 2단 (측면 끝 부분 - 오른쪽), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	if ((placingZone->cellsFromEndAtLSide [2][0].perLen > EPS) && (placingZone->nCellsFromEndAtSide > 0) && (abs (placingZone->cellCenterAtLSide [0].dirLen) > EPS)) {
+		hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2) + placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide-1].dirLen;
+		hook.leftBottomY = placingZone->begC.y - infoBeam.width/2 + infoBeam.offset - placingZone->gapSide - 0.0878;
+		hook.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom + placingZone->cellsFromEndAtLSide [0][0].perLen + placingZone->cellsFromEndAtLSide [1][0].perLen;
+		if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.600) < EPS)			hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.500) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.450) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.400) < EPS)	hook.leftBottomZ += (0.030 + 0.100);
+		else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.300) < EPS)	hook.leftBottomZ += (0.030 + 0.150);
+		else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.200) < EPS)	hook.leftBottomZ += (0.030 + 0.050);
+		hook.angX = DegreeToRad (180.0);
+		hook.angY = DegreeToRad (270.0);
+		hook.iHookType = 2;
+		hook.iHookShape = 2;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = hook.leftBottomX;
+		rotatedPoint.y = hook.leftBottomY;
+		rotatedPoint.z = hook.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		hook.leftBottomX = unrotatedPoint.x;
+		hook.leftBottomY = unrotatedPoint.y;
+		hook.leftBottomZ = unrotatedPoint.z;
+
+		hook.ang = placingZone->ang + DegreeToRad (180.0);
+		placeLibPart (hook);
+		hook.ang = placingZone->ang;
+
+		accumDist = 0.0;
+		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+		hook.ang = placingZone->ang + DegreeToRad (180.0);
+		placeLibPart (hook);
+		hook.ang = placingZone->ang;
+
+		if (placingZone->cellsFromEndAtLSide [2][0].perLen > 0.300) {
+			hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2) + placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide-1].dirLen;
+			hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide + 0.0878;
+			if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.600) < EPS)			hook.leftBottomZ += 0.300;
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.500) < EPS)	hook.leftBottomZ += 0.250;
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.450) < EPS)	hook.leftBottomZ += 0.150;
+			else if (abs (placingZone->cellsFromEndAtLSide [2][0].perLen - 0.400) < EPS)	hook.leftBottomZ += 0.150;
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = hook.leftBottomX;
+			rotatedPoint.y = hook.leftBottomY;
+			rotatedPoint.z = hook.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			hook.leftBottomX = unrotatedPoint.x;
+			hook.leftBottomY = unrotatedPoint.y;
+			hook.leftBottomZ = unrotatedPoint.z;
+
+			hook.ang = placingZone->ang + DegreeToRad (180.0);
+			placeLibPart (hook);
+			hook.ang = placingZone->ang;
+
+			accumDist = 0.0;
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
+			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+			hook.ang = placingZone->ang + DegreeToRad (180.0);
+			placeLibPart (hook);
+			hook.ang = placingZone->ang;
+		}
+	}
+
+	// 유로폼 후크 - 비계파이프 중앙 (하부 시작 부분), 만약 센터 여백이 없으면 (중앙 - 하부 끝 부분)까지
+	if (abs (placingZone->cellsFromBeginAtBottom [2][0].perLen) > EPS) {
+		hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtBottom * marginBeginAtBottom) + placingZone->cellsFromBeginAtBottom [0][0].dirLen;
+		hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide - 0.150 + 0.030;
+		hook.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
+		hook.ang = placingZone->ang;
+		hook.angX = DegreeToRad (270.0);
+		hook.angY = DegreeToRad (270.0);
+		hook.iHookType = 2;
+		hook.iHookShape = 2;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = hook.leftBottomX;
+		rotatedPoint.y = hook.leftBottomY;
+		rotatedPoint.z = hook.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		hook.leftBottomX = unrotatedPoint.x;
+		hook.leftBottomY = unrotatedPoint.y;
+		hook.leftBottomZ = unrotatedPoint.z;
+
+		placeLibPart (hook);
+
+		accumDist = 0.0;
+		if (abs (placingZone->cellCenterAtBottom [0].dirLen) < EPS) {
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtBottom ; ++xx)		accumDist += placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
+			for (xx = 1 ; xx < placingZone->nCellsFromEndAtBottom ; ++xx)		accumDist += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+		} else {
+			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtBottom-1 ; ++xx)	accumDist += placingZone->cellsFromBeginAtBottom [0][xx].dirLen;
+		}
+		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+		placeLibPart (hook);
+	}
+
+	// 유로폼 후크 - 비계파이프 중앙 (하부 끝 부분), 만약 센터 여백이 없으면 제외
+	xPos = centerPos;
+	if ((abs (placingZone->cellsFromBeginAtBottom [2][0].perLen) > EPS) && (abs (placingZone->cellCenterAtBottom [0].dirLen) > EPS)) {
+		hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtBottom [0].dirLen / 2) + placingZone->cellsFromEndAtBottom [0][placingZone->nCellsFromEndAtBottom-1].dirLen;
+		hook.leftBottomY = placingZone->begC.y + infoBeam.width/2 + infoBeam.offset + placingZone->gapSide - 0.150 + 0.030;
+		hook.leftBottomZ = placingZone->level - infoBeam.height - placingZone->gapBottom - 0.0885;
+		hook.ang = placingZone->ang;
+		hook.angX = DegreeToRad (270.0);
+		hook.angY = DegreeToRad (270.0);
+		hook.iHookType = 2;
+		hook.iHookShape = 2;
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = hook.leftBottomX;
+		rotatedPoint.y = hook.leftBottomY;
+		rotatedPoint.z = hook.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		hook.leftBottomX = unrotatedPoint.x;
+		hook.leftBottomY = unrotatedPoint.y;
+		hook.leftBottomZ = unrotatedPoint.z;
+
+		placeLibPart (hook);
+
+		accumDist = 0.0;
+		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtBottom-1 ; ++xx)	accumDist += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
+		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
+
+		placeLibPart (hook);
+	}
+
+
+
+
+
+	// 각파이프 행거 - 비계파이프 좌측 (하부 시작 부분), 만약 센터 여백이 없으면 (좌측 - 하부 끝 부분)까지
 	// ...
-	// 유로폼 후크
-	// 각파이프 행거
-	// 블루목심
+
+	// 각파이프 행거 - 비계파이프 우측 (하부 시작 부분), 만약 센터 여백이 없으면 (우측 - 하부 끝 부분)까지
+	// ...
+
+	// 각파이프 행거 - 비계파이프 좌측 (하부 끝 부분), 만약 센터 여백이 없으면 제외
+	// ...
+
+	// 각파이프 행거 - 비계파이프 우측 (하부 끝 부분), 만약 센터 여백이 없으면 제외
+	// ...
+
+
+
+
+
+	// 블루목심 - 유로폼 1단 (측면 시작 부분 - 왼쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 왼쪽)까지
+	// ...
+
+	// 블루목심 - 유로폼 2단 (측면 시작 부분 - 왼쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 왼쪽)까지
+	// ...
+
+	// 블루목심 - 유로폼 1단 (측면 시작 부분 - 오른쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 오른쪽)까지
+	// ...
+
+	// 블루목심 - 유로폼 2단 (측면 시작 부분 - 오른쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 오른쪽)까지
+	// ...
+
+	// 블루목심 - 유로폼 1단 (측면 끝 부분 - 왼쪽), 만약 센터 여백이 없으면 제외
+	// ...
+
+	// 블루목심 - 유로폼 2단 (측면 끝 부분 - 왼쪽), 만약 센터 여백이 없으면 제외
+	// ...
+
+	// 블루목심 - 유로폼 1단 (측면 끝 부분 - 오른쪽), 만약 센터 여백이 없으면 제외
+	// ...
+
+	// 블루목심 - 유로폼 2단 (측면 끝 부분 - 오른쪽), 만약 센터 여백이 없으면 제외
+	// ...
+
+	// 블루목심 - 유로폼 1단 (하부 시작 부분), 만약 센터 여백이 없으면 (좌측 - 하부 끝 부분)까지
+	// ...
+
+	// 블루목심 - 유로폼 2단 (하부 시작 부분), 만약 센터 여백이 없으면 (우측 - 하부 끝 부분)까지
+	// ...
+
+	// 블루목심 - 유로폼 1단 (하부 끝 부분), 만약 센터 여백이 없으면 제외
+	// ...
+
+	// 블루목심 - 유로폼 2단 (하부 끝 부분), 만약 센터 여백이 없으면 제외
+	// ...
+
 
 	return	err;
 }
