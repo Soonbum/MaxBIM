@@ -6,8 +6,23 @@
 namespace SupportingPostPlacerDG {
 	// 다이얼로그 항목 인덱스
 	enum	idxItems_1_forPERISupportingPostPlacer {
-		LABEL_VPOST = 3,
-		LABEL_HPOST,
+		LABEL_TYPE = 3,
+		POPUP_TYPE,
+
+		LABEL_SIDE_VIEW,
+		LABEL_PLAN_VIEW,
+
+		LABEL_UPWARD,
+		SEPARATOR_UPWARD_BORDER,
+		SEPARATOR_TIMBER,
+		LABEL_TIMBER,
+		SEPARATOR_CROSSHEAD,
+		SEPARATOR_VERTICAL_2ND,
+		LABEL_VERTICAL_2ND,
+		SEPARATOR_VERTICAL_1ST,
+		LABEL_VERTICAL_1ST,
+		SEPARATOR_DOWNWARD_BORDER,
+		LABEL_DOWNWARD,
 
 		LABEL_TOTAL_HEIGHT,
 		EDITCONTROL_TOTAL_HEIGHT,
@@ -28,36 +43,38 @@ namespace SupportingPostPlacerDG {
 		LABEL_VPOST2_HEIGHT,
 		EDITCONTROL_VPOST2_HEIGHT,
 
-		SEPARATOR_VPOST_L,
-		SEPARATOR_VPOST_R,
-		CHECKBOX_HPOST,
-		SEPARATOR_HPOST_UP,
-		SEPARATOR_HPOST_DOWN,
-
-		SEPARATOR_HPOST_PLAN,
-
-		LABEL_PLAN_WIDTH,
-		EDITCONTROL_PLAN_WIDTH,
-		LABEL_PLAN_DEPTH,
-		EDITCONTROL_PLAN_DEPTH,
-
-		LABEL_WIDTH_NORTH,
-		POPUP_WIDTH_NORTH,
-		LABEL_WIDTH_WEST,
-		POPUP_WIDTH_WEST,
-		LABEL_WIDTH_EAST,
-		POPUP_WIDTH_EAST,
-		LABEL_WIDTH_SOUTH,
-		POPUP_WIDTH_SOUTH,
+		LABEL_TIMBER_HEIGHT,
+		LABEL_CROSSHEAD_HEIGHT,
 
 		ICON_LAYER,
 		LABEL_LAYER_SETTINGS,
 		CHECKBOX_LAYER_COUPLING,
+		LABEL_LAYER_SUPPORT,
 		LABEL_LAYER_VPOST,
 		LABEL_LAYER_HPOST,
+		LABEL_LAYER_TIMBER,
+		LABEL_LAYER_GIRDER,
+		LABEL_LAYER_BEAM_BRACKET,
+		LABEL_LAYER_YOKE,
 
+		USERCONTROL_LAYER_SUPPORT,
 		USERCONTROL_LAYER_VPOST,
-		USERCONTROL_LAYER_HPOST
+		USERCONTROL_LAYER_HPOST,
+		USERCONTROL_LAYER_TIMBER,
+		USERCONTROL_LAYER_GIRDER,
+		USERCONTROL_LAYER_BEAM_BRACKET,
+		USERCONTROL_LAYER_YOKE,
+
+		SEPARATOR_CENTER,
+
+		LABEL_TOTAL_WIDTH,
+		EDITCONTROL_TOTAL_WIDTH,
+		LABEL_EXPLANATION,
+
+		LABEL_TOTAL_LENGTH,
+		EDITCONTROL_TOTAL_LENGTH,
+		LABEL_REMAIN_LENGTH,
+		EDITCONTROL_REMAIN_LENGTH
 	};
 }
 
@@ -88,7 +105,11 @@ struct InfoMorphForSupportingPost
 class PERISupportingPostPlacementInfo
 {
 public:
-	bool	bVPost1;				// 수직재 1단 유무
+	bool	bFlipped;				// 가로/세로 길이 방향이 뒤바뀌어 있는가?
+	double	width;					// 영역 가로 길이
+	double	depth;					// 영역 세로 길이
+
+	// ... 아래 검토할 것
 	char	nomVPost1 [16];			// 수직재 1단 규격 - GDL의 수직재 규격과 동일
 	double	heightVPost1;			// 수직재 1단 높이
 
@@ -97,6 +118,9 @@ public:
 	double	heightVPost2;			// 수직재 2단 높이
 
 	bool	bCrosshead;				// 크로스헤드 유무
+	double	heightCrosshead;		// 크로스헤드 높이
+
+	double	heightTimber;			// 산승각/토류판/GT24거더 또는 보 멍에제 높이
 
 	bool	bHPost;					// 수평재 유무
 	char	nomHPost_North [16];	// 수평재 너비(북) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
@@ -110,6 +134,6 @@ public:
 };
 
 GSErrCode	placePERIPost (void);		// 선택한 직육면체 모프를 기반으로 PERI 동바리를 배치함
-short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 수직재 단수 (1/2단, 높이가 6미터 초과되면 2단 권유할 것), 수직재의 규격/높이, 수평재 유무(단, 높이가 3500 이상이면 추가할 것을 권유할 것), 수평재 너비, 크로스헤드 유무, 수직재/수평재 레이어를 설정
+short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 동바리 설치 옵션을 설정함
 
 #endif

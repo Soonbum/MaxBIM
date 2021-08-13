@@ -493,61 +493,79 @@
 }
 
 /* ---------------------------------------------------------- place PERI Supporting Post */
-'GDLG'  32521  Modal | grow	  0		  0		700		600		"PERI Supporting Post Placer" {
-/* [  1] */	Button			270		560		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			360		560		 70		 25		LargePlain		"Cancel"
+'GDLG'  32521  Modal | grow	  0		  0		700		770		"PERI Supporting Post Placer" {
+/* [  1] */	Button			270		720		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			360		720		 70		 25		LargePlain		"Cancel"
 
-/* [  3] */	LeftText		200		 10		100		 23		LargePlain		"Vertical Post"
-/* [  4] */	LeftText		510		 10		100		 23		LargePlain		"Horizontal Post"
+/* [  3] */	LeftText		 20		 20		 50		 25		LargePlain		"Type"
+/* [  4] */	PopupControl	 70		 13		200		 25		200		10		/* 타입 */
 
-/* [  5] */	LeftText		 20		150		 60		 23		LargePlain		"Total Height"
-/* [  6] */	LengthEdit		 20		169		 60		 25		LargePlain		"-20.0"	"20.0"
-/* [  7] */	LeftText		 20		220		 60		 23		LargePlain		"Remain Height"
-/* [  8] */	LengthEdit		 20		239		 60		 25		LargePlain		"-20.0"	"20.0"
+/* [  5] */	CenterText		200		 70		100		 23		LargePlain		"Side View"
+/* [  6] */	CenterText		450		 70		100		 23		LargePlain		"Plan View"
 
-/* [  9] */	CheckBox		100		 50		 80		 23		LargePlain		"Crosshead"
+/* [  7] */	CenterText		210		100		 70		 23		LargePlain		"Upward"
+/* [  8] */	Separator		180		124		130		  1						/* Upward Border */
+/* [  9] */	Separator		205		126		 80		 40						/* Timber, Girder, or etc */
+/* [ 10] */	CenterText		215		140		 60		 23		LargePlain		"Timber"
+/* [ 11] */	Separator		205		167		 80		  5						/* Crosshead */
+/* [ 12] */	Separator		205		173		 80		100						/* Vertical 2nd */
+/* [ 13] */	CenterText		215		220		 60		 23		LargePlain		"V. 2nd"
+/* [ 14] */	Separator		205		274		 80		100						/* Vertical 1st */
+/* [ 15] */	CenterText		215		320		 60		 23		LargePlain		"V. 1st"
+/* [ 16] */	Separator		180		375		130		  1						/* Downward Border */
+/* [ 17] */	CenterText		210		380		 70		 23		LargePlain		"Downward"
 
-/* [ 10] */	CheckBox		100		250		 80		 23		LargePlain		"Step 1"
-/* [ 11] */	LeftText		100		275		 50		 23		LargePlain		"Nominal"
-/* [ 12] */	PopupControl	100		294		100		 25		100		10		/* 규격 */
-/* [ 13] */	LeftText		100		325		 80		 23		LargePlain		"Height"
-/* [ 14] */	LengthEdit		100		344		100		 25		LargePlain		"0"	"10.0"
+/* [ 18] */	LeftText		 20		200		 60		 23		LargePlain		"Total Height"
+/* [ 19] */	LengthEdit		 20		219		 60		 25		LargePlain		"-20.0"	"20.0"
+/* [ 20] */	LeftText		 20		270		 60		 23		LargePlain		"Remain Height"
+/* [ 21] */	LengthEdit		 20		289		 60		 25		LargePlain		"-20.0"	"20.0"
 
-/* [ 15] */	CheckBox		100		100		 80		 23		LargePlain		"Step 2"
-/* [ 16] */	LeftText		100		125		 50		 23		LargePlain		"Nominal"
-/* [ 17] */	PopupControl	100		144		100		 25		100		10		/* 규격 */
-/* [ 18] */	LeftText		100		175		 80		 23		LargePlain		"Height"
-/* [ 19] */	LengthEdit		100		194		100		 25		LargePlain		"0"	"10.0"
+/* [ 22] */	CheckBox		100		155		 80		 23		LargePlain		"Crosshead"
 
-/* [ 20] */	Separator		220		 50		  1		330
-/* [ 21] */	Separator		330		 50		  1		330
-/* [ 23] */	CheckBox		250		340		 60		 23		LargePlain		"H. Post"
-/* [ 24] */	Separator		222		125		108		 50
-/* [ 25] */	Separator		222		270		108		 50
+/* [ 23] */	LeftText		100		295		 80		 20		LargePlain		"Step 1"
+/* [ 24] */	LeftText		100		315		 50		 20		LargePlain		"Nominal"
+/* [ 25] */	PopupControl	100		334		100		 25		100		10		/* 규격 1 */
+/* [ 26] */	LeftText		290		315		 80		 20		LargePlain		"Height"
+/* [ 27] */	LengthEdit		290		334		 60		 25		LargePlain		"0"	"10.0"
 
-/* [ 26] */	Separator		480		150		100		120
+/* [ 28] */	CheckBox		100		185		 80		 20		LargePlain		"Step 2"
+/* [ 29] */	LeftText		100		215		 50		 20		LargePlain		"Nominal"
+/* [ 30] */	PopupControl	100		234		100		 25		100		10		/* 규격 2 */
+/* [ 31] */	LeftText		290		215		 80		 20		LargePlain		"Height"
+/* [ 32] */	LengthEdit		290		234		 60		 25		LargePlain		"0"	"10.0"
 
-/* [ 27] */	CenterText		500		155		 60		 23		LargePlain		"Width"
-/* [ 28] */	LengthEdit		505		175		 50		 25		LargePlain		"0"	"10.0"
-/* [ 29] */	LeftText		483		210		 60		 23		LargePlain		"Depth"
-/* [ 30] */	LengthEdit		483		230		 50		 25		LargePlain		"0"	"10.0"
+/* [ 33] */	LeftText		290		140		 60		 23		LargePlain		"0.0"
+/* [ 34] */	LeftText		290		163		 60		 23		LargePlain		"0.0"
 
-/* [ 31] */	CenterText		490		100		 80		 23		LargePlain		"Width (North)"
-/* [ 32] */	PopupControl	490		119		 80		 25		100		10		/* Width (North) */
-/* [ 33] */	RightText		390		180		 80		 23		LargePlain		"Width (West)"
-/* [ 34] */	PopupControl	390		199		 80		 25		100		10		/* Width (West) */
-/* [ 35] */	LeftText		590		180		 80		 23		LargePlain		"Width (East)"
-/* [ 36] */	PopupControl	590		199		 80		 25		100		10		/* Width (East) */
-/* [ 37] */	CenterText		490		280		 80		 23		LargePlain		"Width (South)"
-/* [ 38] */	PopupControl	490		299		 80		 25		100		10		/* Width (South) */
+/* [ 35] */	Icon			285		433		 29		 14  	32502
+/* [ 36] */	LeftText		320		435		200		 23		LargePlain		"Layer Settings"
+/* [ 37] */	CheckBox		320		465		100		 23		LargePlain		"Coupling"
+/* [ 38] */	RightText		210		495		100		 23		LargePlain		"Support"
+/* [ 39] */	RightText		210		525		100		 23		LargePlain		"Vertical Post"
+/* [ 40] */	RightText		210		555		100		 23		LargePlain		"Horizontal Post"
+/* [ 41] */	RightText		210		585		100		 23		LargePlain		"Timber"
+/* [ 42] */	RightText		210		615		100		 23		LargePlain		"Girder"
+/* [ 43] */	RightText		210		645		100		 23		LargePlain		"Beam Bracket"
+/* [ 44] */	RightText		210		675		100		 23		LargePlain		"Yoke"
 
-/* [ 39] */	Icon			285		413		 29		 14  	32502
-/* [ 40] */	LeftText		320		415		200		 23		LargePlain		"Layer Settings"
-/* [ 41] */	CheckBox		320		445		100		 23		LargePlain		"Coupling"
-/* [ 42] */	RightText		210		475		100		 23		LargePlain		"Vertical Post"
-/* [ 43] */	RightText		210		505		100		 23		LargePlain		"Horizontal Post"
-/* [ 44] */	UserControl		320		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - VERTICAL POST	*/
-/* [ 45] */	UserControl		320		499		160		 25		257	0x0006 0x0000 0		/* Layer Control - HORIZONTAL POST	*/
+/* [ 45] */	UserControl		320		489		160		 25		257	0x0006 0x0000 0		/* Layer Control - SUPPORT			*/
+/* [ 46] */	UserControl		320		519		160		 25		257	0x0006 0x0000 0		/* Layer Control - VERTICAL POST	*/
+/* [ 47] */	UserControl		320		549		160		 25		257	0x0006 0x0000 0		/* Layer Control - HORIZONTAL POST	*/
+/* [ 48] */	UserControl		320		579		160		 25		257	0x0006 0x0000 0		/* Layer Control - TIMBER			*/
+/* [ 49] */	UserControl		320		609		160		 25		257	0x0006 0x0000 0		/* Layer Control - GIRDER			*/
+/* [ 50] */	UserControl		320		639		160		 25		257	0x0006 0x0000 0		/* Layer Control - BEAM BRACKET		*/
+/* [ 51] */	UserControl		320		669		160		 25		257	0x0006 0x0000 0		/* Layer Control - YOKE				*/
+
+/* [ 52] */	Separator		370		90		  1		315
+
+/* [ 53] */	LeftText		400		215		 60		 20		LargePlain		"T. Width"
+/* [ 54] */	LengthEdit		400		235		 60		 25		LargePlain		"0"	"10.0"
+/* [ 55] */	LeftText		380		280		100		100		LargePlain		".................................................."
+
+/* [ 56] */	LeftText		500		100		 60		 20		LargePlain		"T. Length"
+/* [ 57] */	LengthEdit		500		120		 60		 25		LargePlain		"0"	"10.0"
+/* [ 58] */	LeftText		600		100		 60		 20		LargePlain		"R. Length"
+/* [ 59] */	LengthEdit		600		120		 60		 25		LargePlain		"0"	"10.0"
 }
 
 /* ---------------------------------------------------------- place Euroform on Beam */

@@ -43,6 +43,12 @@ GSErrCode	placePERIPost (void)
 	GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
 	long					nNodes;
 
+	// 점 입력
+	API_GetPointType		pointInfo;
+	API_Coord3D				point1, point2;
+	double					morphHorLen, morphVerLen;
+	bool					bPassed1, bPassed2;
+
 	// 작업 층 정보
 	//API_StoryInfo	storyInfo;
 	//double			workLevel_morph;	// 모프의 작업 층 높이
@@ -170,201 +176,259 @@ GSErrCode	placePERIPost (void)
 	infoMorph.depth = GetDistance (infoMorph.leftBottomX, infoMorph.leftBottomY, infoMorph.leftBottomX, infoMorph.rightTopY);
 	infoMorph.height = abs (info3D.bounds.zMax - info3D.bounds.zMin);
 
-	// [다이얼로그] 수직재 단수 (1/2단, 높이가 6미터 초과되면 2단 권유할 것?), 수직재의 규격/높이, 수평재 유무(단, 높이가 3500 이상이면 추가할 것을 권유할 것?), 수평재 너비, 크로스헤드 유무, 수직재/수평재 레이어
+	// 모프의 가로, 세로 길이를 구함
+	morphHorLen = infoMorph.width;
+	morphVerLen = infoMorph.depth;
+
+	// 사용자로부터 직육면체 모프의 두 점을 입력 받음 (보가 통과하는 방향과 일치하는 두 점을 클릭하십시오)
+	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
+	CHCopyC ("보가 통과하는 방향과 일치하는 두 점 중 왼쪽 점을 클릭하십시오.", pointInfo.prompt);
+	pointInfo.enableQuickSelection = true;
+	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
+	point1 = pointInfo.pos;
+
+	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
+	CHCopyC ("보가 통과하는 방향과 일치하는 두 점 중 오른쪽 점을 클릭하십시오.", pointInfo.prompt);
+	pointInfo.enableQuickSelection = true;
+	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
+	point2 = pointInfo.pos;
+
+	// 만약 point1, point2가 모프의 꼭지점이 아니면 오류 메시지 출력 후 종료
+	bPassed1 = false;
+	for (xx = 0 ; xx < 8 ; ++xx) {
+		if (GetDistance (point1, infoMorph.points [xx]) < EPS)
+			bPassed1 = true;
+	}
+
+	bPassed2 = false;
+	for (xx = 0 ; xx < 8 ; ++xx) {
+		if (GetDistance (point2, infoMorph.points [xx]) < EPS)
+			bPassed2 = true;
+	}
+
+	if ( !(bPassed1 && bPassed2) ) {
+		ACAPI_WriteReport ("모프의 꼭지점에 속하지 않은 점을 클릭했습니다.", true);
+		return err;
+	}
+
+	// 만약 point1과 point2 간의 거리가 가로 또는 세로 길이가 아니면 오류 메시지 출력 후 종료
+	if ( !((abs (GetDistance (point1, point2) - morphHorLen) < EPS) || (abs (GetDistance (point1, point2) - morphVerLen) < EPS)) ) {
+		ACAPI_WriteReport ("두 점 간의 거리가 모프의 가로 또는 세로 길이와 일치하지 않습니다.", true);
+		return err;
+	}
+
+	// 만약 point1과 point2 간의 거리가 가로 길이일 경우,
+	if (abs (GetDistance (point1, point2) - morphHorLen) < EPS) {
+		placementInfoForPERI.width = morphHorLen;
+		placementInfoForPERI.depth = morphVerLen;
+		placementInfoForPERI.bFlipped = false;
+
+	// 만약 point1과 point2 간의 거리가 세로 길이일 경우,
+	} else if (abs (GetDistance (point1, point2) - morphVerLen) < EPS) {
+		placementInfoForPERI.width = morphVerLen;
+		placementInfoForPERI.depth = morphHorLen;
+		placementInfoForPERI.bFlipped = true;
+	}
+
+	// 크로스헤드, 각재는 처음에 없다고 가정함
+	placementInfoForPERI.heightCrosshead = 0.0;
+	placementInfoForPERI.heightTimber = 0.0;
+
+	// [다이얼로그] 동바리 설치 옵션을 설정함
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32521, ACAPI_GetOwnResModule (), PERISupportingPostPlacerHandler1, 0);
 
 	// 영역 모프 제거
-	API_Elem_Head* headList = new API_Elem_Head [1];
-	headList [0] = elem.header;
-	err = ACAPI_Element_Delete (&headList, 1);
-	delete headList;
+	//API_Elem_Head* headList = new API_Elem_Head [1];
+	//headList [0] = elem.header;
+	//err = ACAPI_Element_Delete (&headList, 1);
+	//delete headList;
 
 	// 입력한 데이터를 기반으로 수직재, 수평재 배치
-	if (result == DG_OK) {
-		PERI_VPost vpost;
-		PERI_HPost hpost;
+	//if (result == DG_OK) {
+	//	PERI_VPost vpost;
+	//	PERI_HPost hpost;
 
-		// 수평재가 있을 경우, 수평재의 규격에 맞게 변경함
-		if (placementInfoForPERI.bHPost == true) {
-			// 남쪽/북쪽의 수평재 규격에 따라 모프 영역의 가로 길이가 달라짐
-			if (my_strcmp (placementInfoForPERI.nomHPost_South, "296 cm") == 0)			infoMorph.width = 2.960;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "266 cm") == 0)	infoMorph.width = 2.660;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "237 cm") == 0)	infoMorph.width = 2.370;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "230 cm") == 0)	infoMorph.width = 2.300;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "225 cm") == 0)	infoMorph.width = 2.250;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "201.5 cm") == 0)	infoMorph.width = 2.015;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "150 cm") == 0)	infoMorph.width = 1.500;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "137.5 cm") == 0)	infoMorph.width = 1.375;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "120 cm") == 0)	infoMorph.width = 1.200;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "90 cm") == 0)		infoMorph.width = 0.900;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "75 cm") == 0)		infoMorph.width = 0.750;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_South, "62.5 cm") == 0)	infoMorph.width = 0.625;
+	//	// 수평재가 있을 경우, 수평재의 규격에 맞게 변경함
+	//	if (placementInfoForPERI.bHPost == true) {
+	//		// 남쪽/북쪽의 수평재 규격에 따라 모프 영역의 가로 길이가 달라짐
+	//		if (my_strcmp (placementInfoForPERI.nomHPost_South, "296 cm") == 0)			infoMorph.width = 2.960;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "266 cm") == 0)	infoMorph.width = 2.660;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "237 cm") == 0)	infoMorph.width = 2.370;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "230 cm") == 0)	infoMorph.width = 2.300;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "225 cm") == 0)	infoMorph.width = 2.250;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "201.5 cm") == 0)	infoMorph.width = 2.015;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "150 cm") == 0)	infoMorph.width = 1.500;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "137.5 cm") == 0)	infoMorph.width = 1.375;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "120 cm") == 0)	infoMorph.width = 1.200;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "90 cm") == 0)		infoMorph.width = 0.900;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "75 cm") == 0)		infoMorph.width = 0.750;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_South, "62.5 cm") == 0)	infoMorph.width = 0.625;
 
-			// 서쪽/동쪽의 수평재 규격에 따라 모프 영역의 세로 길이가 달라짐
-			if (my_strcmp (placementInfoForPERI.nomHPost_West, "296 cm") == 0)			infoMorph.depth = 2.960;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "266 cm") == 0)		infoMorph.depth = 2.660;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "237 cm") == 0)		infoMorph.depth = 2.370;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "230 cm") == 0)		infoMorph.depth = 2.300;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "225 cm") == 0)		infoMorph.depth = 2.250;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "201.5 cm") == 0)	infoMorph.depth = 2.015;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "150 cm") == 0)		infoMorph.depth = 1.500;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "137.5 cm") == 0)	infoMorph.depth = 1.375;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "120 cm") == 0)		infoMorph.depth = 1.200;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "90 cm") == 0)		infoMorph.depth = 0.900;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "75 cm") == 0)		infoMorph.depth = 0.750;
-			else if (my_strcmp (placementInfoForPERI.nomHPost_West, "62.5 cm") == 0)	infoMorph.depth = 0.625;
-		}
+	//		// 서쪽/동쪽의 수평재 규격에 따라 모프 영역의 세로 길이가 달라짐
+	//		if (my_strcmp (placementInfoForPERI.nomHPost_West, "296 cm") == 0)			infoMorph.depth = 2.960;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "266 cm") == 0)		infoMorph.depth = 2.660;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "237 cm") == 0)		infoMorph.depth = 2.370;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "230 cm") == 0)		infoMorph.depth = 2.300;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "225 cm") == 0)		infoMorph.depth = 2.250;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "201.5 cm") == 0)	infoMorph.depth = 2.015;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "150 cm") == 0)		infoMorph.depth = 1.500;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "137.5 cm") == 0)	infoMorph.depth = 1.375;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "120 cm") == 0)		infoMorph.depth = 1.200;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "90 cm") == 0)		infoMorph.depth = 0.900;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "75 cm") == 0)		infoMorph.depth = 0.750;
+	//		else if (my_strcmp (placementInfoForPERI.nomHPost_West, "62.5 cm") == 0)	infoMorph.depth = 0.625;
+	//	}
 
-		// 수직재 1단 배치
-		// 회전Y(180), 크로스헤드 위치(하단), 위로 len_current만큼 이동해야 함
-		vpost.leftBottomX = infoMorph.leftBottomX;
-		vpost.leftBottomY = infoMorph.leftBottomY;
-		vpost.leftBottomZ = infoMorph.leftBottomZ + placementInfoForPERI.heightVPost1;
-		vpost.ang = infoMorph.ang;
-		if (placementInfoForPERI.bVPost2 == false)
-			vpost.bCrosshead = placementInfoForPERI.bCrosshead;
-		else
-			vpost.bCrosshead = false;
-		sprintf (vpost.stType, "%s", placementInfoForPERI.nomVPost1);
-		sprintf (vpost.crossheadType, "PERI");
-		sprintf (vpost.posCrosshead, "하단");
-		vpost.angCrosshead = 0.0;
-		vpost.angY = DegreeToRad (180.0);
-		vpost.len_current = placementInfoForPERI.heightVPost1;
-		vpost.text2_onoff = true;
-		vpost.text_onoff = true;
-		vpost.bShowCoords = true;
+	//	// 수직재 1단 배치
+	//	// 회전Y(180), 크로스헤드 위치(하단), 위로 len_current만큼 이동해야 함
+	//	vpost.leftBottomX = infoMorph.leftBottomX;
+	//	vpost.leftBottomY = infoMorph.leftBottomY;
+	//	vpost.leftBottomZ = infoMorph.leftBottomZ + placementInfoForPERI.heightVPost1;
+	//	vpost.ang = infoMorph.ang;
+	//	if (placementInfoForPERI.bVPost2 == false)
+	//		vpost.bCrosshead = placementInfoForPERI.bCrosshead;
+	//	else
+	//		vpost.bCrosshead = false;
+	//	sprintf (vpost.stType, "%s", placementInfoForPERI.nomVPost1);
+	//	sprintf (vpost.crossheadType, "PERI");
+	//	sprintf (vpost.posCrosshead, "하단");
+	//	vpost.angCrosshead = 0.0;
+	//	vpost.angY = DegreeToRad (180.0);
+	//	vpost.len_current = placementInfoForPERI.heightVPost1;
+	//	vpost.text2_onoff = true;
+	//	vpost.text_onoff = true;
+	//	vpost.bShowCoords = true;
 
-		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌하단
-		moveIn3D ('x', vpost.ang, infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
-		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우하단
-		moveIn3D ('y', vpost.ang, infoMorph.depth, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
-		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우상단
-		moveIn3D ('x', vpost.ang, -infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
-		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌상단
+	//	elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌하단
+	//	moveIn3D ('x', vpost.ang, infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+	//	elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우하단
+	//	moveIn3D ('y', vpost.ang, infoMorph.depth, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+	//	elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우상단
+	//	moveIn3D ('x', vpost.ang, -infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+	//	elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌상단
 
-		// 수직재 2단이 있을 경우
-		if (placementInfoForPERI.bVPost2 == true) {
-			// 회전Y(0), 크로스헤드 위치(상단)
-			vpost.leftBottomX = infoMorph.leftBottomX;
-			vpost.leftBottomY = infoMorph.leftBottomY;
-			vpost.leftBottomZ = infoMorph.leftBottomZ + placementInfoForPERI.heightVPost1;
-			vpost.ang = infoMorph.ang;
-			vpost.bCrosshead = placementInfoForPERI.bCrosshead;
-			sprintf (vpost.stType, "%s", placementInfoForPERI.nomVPost2);
-			sprintf (vpost.crossheadType, "PERI");
-			sprintf (vpost.posCrosshead, "상단");
-			vpost.angCrosshead = 0.0;
-			vpost.angY = 0.0;
-			vpost.len_current = placementInfoForPERI.heightVPost2;
-			vpost.text2_onoff = true;
-			vpost.text_onoff = true;
-			vpost.bShowCoords = true;
+	//	// 수직재 2단이 있을 경우
+	//	if (placementInfoForPERI.bVPost2 == true) {
+	//		// 회전Y(0), 크로스헤드 위치(상단)
+	//		vpost.leftBottomX = infoMorph.leftBottomX;
+	//		vpost.leftBottomY = infoMorph.leftBottomY;
+	//		vpost.leftBottomZ = infoMorph.leftBottomZ + placementInfoForPERI.heightVPost1;
+	//		vpost.ang = infoMorph.ang;
+	//		vpost.bCrosshead = placementInfoForPERI.bCrosshead;
+	//		sprintf (vpost.stType, "%s", placementInfoForPERI.nomVPost2);
+	//		sprintf (vpost.crossheadType, "PERI");
+	//		sprintf (vpost.posCrosshead, "상단");
+	//		vpost.angCrosshead = 0.0;
+	//		vpost.angY = 0.0;
+	//		vpost.len_current = placementInfoForPERI.heightVPost2;
+	//		vpost.text2_onoff = true;
+	//		vpost.text_onoff = true;
+	//		vpost.bShowCoords = true;
 
-			elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌하단
-			moveIn3D ('x', vpost.ang, infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
-			elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우하단
-			moveIn3D ('y', vpost.ang, infoMorph.depth, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
-			elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우상단
-			moveIn3D ('x', vpost.ang, -infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
-			elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌상단
-		}
+	//		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌하단
+	//		moveIn3D ('x', vpost.ang, infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+	//		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우하단
+	//		moveIn3D ('y', vpost.ang, infoMorph.depth, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+	//		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 우상단
+	//		moveIn3D ('x', vpost.ang, -infoMorph.width, &vpost.leftBottomX, &vpost.leftBottomY, &vpost.leftBottomZ);
+	//		elemList.Push (placementInfoForPERI.placeVPost (vpost));	// 좌상단
+	//	}
 
-		// 수평재가 있을 경우
-		if (placementInfoForPERI.bHPost == true) {
-			hpost.leftBottomX = infoMorph.leftBottomX;
-			hpost.leftBottomY = infoMorph.leftBottomY;
-			hpost.leftBottomZ = infoMorph.leftBottomZ;
-			hpost.ang = infoMorph.ang;
-			hpost.angX = 0.0;
-			hpost.angY = 0.0;
-			
-			// 1단 ----------------------------------------------------------------------------------------------------
-			// 남쪽
-			moveIn3D ('z', hpost.ang, 2.000, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-			moveIn3D ('x', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_South);	// 빈 문자열이면 배치하지 않음
-			if (my_strcmp (placementInfoForPERI.nomHPost_South, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+	//	// 수평재가 있을 경우
+	//	if (placementInfoForPERI.bHPost == true) {
+	//		hpost.leftBottomX = infoMorph.leftBottomX;
+	//		hpost.leftBottomY = infoMorph.leftBottomY;
+	//		hpost.leftBottomZ = infoMorph.leftBottomZ;
+	//		hpost.ang = infoMorph.ang;
+	//		hpost.angX = 0.0;
+	//		hpost.angY = 0.0;
+	//		
+	//		// 1단 ----------------------------------------------------------------------------------------------------
+	//		// 남쪽
+	//		moveIn3D ('z', hpost.ang, 2.000, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//		moveIn3D ('x', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//		sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_South);	// 빈 문자열이면 배치하지 않음
+	//		if (my_strcmp (placementInfoForPERI.nomHPost_South, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
 
-			// 동쪽
-			moveIn3D ('x', hpost.ang, infoMorph.width - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-			moveIn3D ('y', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-			hpost.ang = infoMorph.ang + DegreeToRad (90.0);
-			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_East);	// 빈 문자열이면 배치하지 않음
-			if (my_strcmp (placementInfoForPERI.nomHPost_East, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
-			hpost.ang = infoMorph.ang;
+	//		// 동쪽
+	//		moveIn3D ('x', hpost.ang, infoMorph.width - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//		moveIn3D ('y', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//		hpost.ang = infoMorph.ang + DegreeToRad (90.0);
+	//		sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_East);	// 빈 문자열이면 배치하지 않음
+	//		if (my_strcmp (placementInfoForPERI.nomHPost_East, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+	//		hpost.ang = infoMorph.ang;
 
-			// 북쪽
-			moveIn3D ('x', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-			moveIn3D ('y', hpost.ang, infoMorph.depth - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-			hpost.ang = infoMorph.ang + DegreeToRad (180.0);
-			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_North);	// 빈 문자열이면 배치하지 않음
-			if (my_strcmp (placementInfoForPERI.nomHPost_North, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
-			hpost.ang = infoMorph.ang;
+	//		// 북쪽
+	//		moveIn3D ('x', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//		moveIn3D ('y', hpost.ang, infoMorph.depth - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//		hpost.ang = infoMorph.ang + DegreeToRad (180.0);
+	//		sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_North);	// 빈 문자열이면 배치하지 않음
+	//		if (my_strcmp (placementInfoForPERI.nomHPost_North, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+	//		hpost.ang = infoMorph.ang;
 
-			// 서쪽
-			moveIn3D ('x', hpost.ang, 0.050 - infoMorph.width, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-			moveIn3D ('y', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-			hpost.ang = infoMorph.ang + DegreeToRad (270.0);
-			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_West);	// 빈 문자열이면 배치하지 않음
-			if (my_strcmp (placementInfoForPERI.nomHPost_West, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
-			hpost.ang = infoMorph.ang;
+	//		// 서쪽
+	//		moveIn3D ('x', hpost.ang, 0.050 - infoMorph.width, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//		moveIn3D ('y', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//		hpost.ang = infoMorph.ang + DegreeToRad (270.0);
+	//		sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_West);	// 빈 문자열이면 배치하지 않음
+	//		if (my_strcmp (placementInfoForPERI.nomHPost_West, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+	//		hpost.ang = infoMorph.ang;
 
-			// 2단 ----------------------------------------------------------------------------------------------------
-			hpost.leftBottomX = infoMorph.leftBottomX;
-			hpost.leftBottomY = infoMorph.leftBottomY;
-			hpost.leftBottomZ = infoMorph.leftBottomZ;
-			hpost.ang = infoMorph.ang;
+	//		// 2단 ----------------------------------------------------------------------------------------------------
+	//		hpost.leftBottomX = infoMorph.leftBottomX;
+	//		hpost.leftBottomY = infoMorph.leftBottomY;
+	//		hpost.leftBottomZ = infoMorph.leftBottomZ;
+	//		hpost.ang = infoMorph.ang;
 
-			// 수직재 1단/2단 높이의 합이 4000 이상일 경우
-			if (((placementInfoForPERI.bVPost1 * placementInfoForPERI.heightVPost1) + (placementInfoForPERI.bVPost2 * placementInfoForPERI.heightVPost2)) > 4.000) {
-				// 남쪽
-				moveIn3D ('z', hpost.ang, 4.000, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-				moveIn3D ('x', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-				sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_South);	// 빈 문자열이면 배치하지 않음
-				if (my_strcmp (placementInfoForPERI.nomHPost_South, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+	//		// 수직재 1단/2단 높이의 합이 4000 이상일 경우
+	//		if (((placementInfoForPERI.bVPost1 * placementInfoForPERI.heightVPost1) + (placementInfoForPERI.bVPost2 * placementInfoForPERI.heightVPost2)) > 4.000) {
+	//			// 남쪽
+	//			moveIn3D ('z', hpost.ang, 4.000, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//			moveIn3D ('x', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_South);	// 빈 문자열이면 배치하지 않음
+	//			if (my_strcmp (placementInfoForPERI.nomHPost_South, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
 
-				// 동쪽
-				moveIn3D ('x', hpost.ang, infoMorph.width - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-				moveIn3D ('y', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-				hpost.ang = infoMorph.ang + DegreeToRad (90.0);
-				sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_East);	// 빈 문자열이면 배치하지 않음
-				if (my_strcmp (placementInfoForPERI.nomHPost_East, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
-				hpost.ang = infoMorph.ang;
+	//			// 동쪽
+	//			moveIn3D ('x', hpost.ang, infoMorph.width - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//			moveIn3D ('y', hpost.ang, 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//			hpost.ang = infoMorph.ang + DegreeToRad (90.0);
+	//			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_East);	// 빈 문자열이면 배치하지 않음
+	//			if (my_strcmp (placementInfoForPERI.nomHPost_East, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+	//			hpost.ang = infoMorph.ang;
 
-				// 북쪽
-				moveIn3D ('x', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-				moveIn3D ('y', hpost.ang, infoMorph.depth - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-				hpost.ang = infoMorph.ang + DegreeToRad (180.0);
-				sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_North);	// 빈 문자열이면 배치하지 않음
-				if (my_strcmp (placementInfoForPERI.nomHPost_North, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
-				hpost.ang = infoMorph.ang;
+	//			// 북쪽
+	//			moveIn3D ('x', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//			moveIn3D ('y', hpost.ang, infoMorph.depth - 0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//			hpost.ang = infoMorph.ang + DegreeToRad (180.0);
+	//			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_North);	// 빈 문자열이면 배치하지 않음
+	//			if (my_strcmp (placementInfoForPERI.nomHPost_North, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+	//			hpost.ang = infoMorph.ang;
 
-				// 서쪽
-				moveIn3D ('x', hpost.ang, 0.050 - infoMorph.width, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-				moveIn3D ('y', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
-				hpost.ang = infoMorph.ang + DegreeToRad (270.0);
-				sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_West);	// 빈 문자열이면 배치하지 않음
-				if (my_strcmp (placementInfoForPERI.nomHPost_West, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
-				hpost.ang = infoMorph.ang;
-			}
-		}
+	//			// 서쪽
+	//			moveIn3D ('x', hpost.ang, 0.050 - infoMorph.width, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//			moveIn3D ('y', hpost.ang, -0.050, &hpost.leftBottomX, &hpost.leftBottomY, &hpost.leftBottomZ);
+	//			hpost.ang = infoMorph.ang + DegreeToRad (270.0);
+	//			sprintf (hpost.stType, "%s", placementInfoForPERI.nomHPost_West);	// 빈 문자열이면 배치하지 않음
+	//			if (my_strcmp (placementInfoForPERI.nomHPost_West, "") != 0)	elemList.Push (placementInfoForPERI.placeHPost (hpost));
+	//			hpost.ang = infoMorph.ang;
+	//		}
+	//	}
 
-		// 그룹화 하기
-		if (!elemList.IsEmpty ()) {
-			GSSize nElems = elemList.GetSize ();
-			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-			if (elemHead != NULL) {
-				for (GSIndex i = 0; i < nElems; i++)
-					(*elemHead)[i].guid = elemList[i];
+	//	// 그룹화 하기
+	//	if (!elemList.IsEmpty ()) {
+	//		GSSize nElems = elemList.GetSize ();
+	//		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+	//		if (elemHead != NULL) {
+	//			for (GSIndex i = 0; i < nElems; i++)
+	//				(*elemHead)[i].guid = elemList[i];
 
-				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+	//			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
 
-				BMKillHandle ((GSHandle *) &elemHead);
-			}
-		}
-		elemList.Clear (false);
-	}
+	//			BMKillHandle ((GSHandle *) &elemHead);
+	//		}
+	//	}
+	//	elemList.Clear (false);
+	//}
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -558,34 +622,38 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			DGSetItemText (dialogID, DG_CANCEL, "취 소");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (나머지)
-			DGSetItemText (dialogID, LABEL_VPOST, "수직재");				// 라벨: 수직재
-			DGSetItemText (dialogID, LABEL_HPOST, "수평재");				// 라벨: 수평재
+			DGSetItemText (dialogID, LABEL_TYPE, "타입");
 
-			DGSetItemText (dialogID, LABEL_TOTAL_HEIGHT, "총 높이");		// 라벨: 총 높이
-			DGSetItemText (dialogID, LABEL_REMAIN_HEIGHT, "남은 높이");		// 라벨: 남은 높이
+			DGSetItemText (dialogID, LABEL_SIDE_VIEW, "측면도");
+			DGSetItemText (dialogID, LABEL_PLAN_VIEW, "평면도");
 
-			DGSetItemText (dialogID, CHECKBOX_CROSSHEAD, "크로스헤드");		// 체크박스: 크로스헤드
+			DGSetItemText (dialogID, LABEL_UPWARD, "보/슬래브");
+			DGSetItemText (dialogID, LABEL_TIMBER, "없음");		// 타입에 따라 바뀜
+			DGSetItemText (dialogID, LABEL_VERTICAL_2ND, "수직재\n2단");
+			DGSetItemText (dialogID, LABEL_VERTICAL_1ST, "수직재\n1단");
+			DGSetItemText (dialogID, LABEL_DOWNWARD, "바닥");
 
-			DGSetItemText (dialogID, CHECKBOX_VPOST1, "1단");				// 체크박스: 1단
-			DGSetItemText (dialogID, LABEL_VPOST1_NOMINAL, "규격");			// 라벨: 규격
-			DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "높이");			// 라벨: 높이
-			DGSetItemText (dialogID, CHECKBOX_VPOST2, "2단");				// 체크박스: 2단
-			DGSetItemText (dialogID, LABEL_VPOST2_NOMINAL, "규격");			// 라벨: 규격
-			DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "높이");			// 라벨: 높이
+			DGSetItemText (dialogID, LABEL_TOTAL_HEIGHT, "총 높이");
+			DGSetItemText (dialogID, LABEL_REMAIN_HEIGHT, "남은 높이");
 
-			DGSetItemText (dialogID, CHECKBOX_HPOST, "수평재");				// 체크박스: 수평재
+			DGSetItemText (dialogID, CHECKBOX_CROSSHEAD, "크로스헤드");
 
-			DGSetItemText (dialogID, LABEL_PLAN_WIDTH, "가로");				// 라벨: 가로
-			DGSetItemText (dialogID, LABEL_PLAN_DEPTH, "세로");				// 라벨: 세로
+			DGSetItemText (dialogID, CHECKBOX_VPOST1, "1단");
+			DGSetItemText (dialogID, LABEL_VPOST1_NOMINAL, "규격");
+			DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "높이");
+			DGSetItemText (dialogID, CHECKBOX_VPOST2, "2단");
+			DGSetItemText (dialogID, LABEL_VPOST2_NOMINAL, "규격");
+			DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "높이");
 
-			DGSetItemText (dialogID, LABEL_WIDTH_NORTH, "너비(북)");		// 라벨: 너비(북)
-			DGSetItemText (dialogID, LABEL_WIDTH_WEST, "너비(서)");			// 라벨: 너비(서)
-			DGSetItemText (dialogID, LABEL_WIDTH_EAST, "너비(동)");			// 라벨: 너비(동)
-			DGSetItemText (dialogID, LABEL_WIDTH_SOUTH, "너비(남)");		// 라벨: 너비(남)
-
-			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
-			DGSetItemText (dialogID, LABEL_LAYER_VPOST, "수직재");
-			DGSetItemText (dialogID, LABEL_LAYER_HPOST, "수평재");
+			// 레이어 관련
+			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "레이어 설정");
+			DGSetItemText (dialogID, LABEL_LAYER_SUPPORT, "강관 동바리");
+			DGSetItemText (dialogID, LABEL_LAYER_VPOST, "PERI 수직재");
+			DGSetItemText (dialogID, LABEL_LAYER_HPOST, "PERI 수평재");
+			DGSetItemText (dialogID, LABEL_LAYER_TIMBER, "산승각/토류판");
+			DGSetItemText (dialogID, LABEL_LAYER_GIRDER, "GT24 거더");
+			DGSetItemText (dialogID, LABEL_LAYER_BEAM_BRACKET, "보 브라켓");
+			DGSetItemText (dialogID, LABEL_LAYER_YOKE, "보 멍에제");
 
 			// 체크박스: 레이어 묶음
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
@@ -595,6 +663,10 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			BNZeroMemory (&ucb, sizeof (ucb));
 			ucb.dialogID = dialogID;
 			ucb.type	 = APIUserControlType_Layer;
+			ucb.itemID	 = USERCONTROL_LAYER_SUPPORT;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_SUPPORT, 1);
+
 			ucb.itemID	 = USERCONTROL_LAYER_VPOST;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_VPOST, 1);
@@ -603,8 +675,43 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_HPOST, 1);
 
+			ucb.itemID	 = USERCONTROL_LAYER_TIMBER;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, 1);
+			
+			ucb.itemID	 = USERCONTROL_LAYER_GIRDER;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_GIRDER, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_BEAM_BRACKET;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_BEAM_BRACKET, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_YOKE;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_YOKE, 1);
+
+			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, "전체 너비");
+			DGSetItemText (dialogID, LABEL_EXPLANATION, "너비 방향\n수직재 간격은\n전체 너비보다\n작아야 함");
+			DGSetItemText (dialogID, LABEL_TOTAL_LENGTH, "전체 길이");
+			DGSetItemText (dialogID, LABEL_REMAIN_LENGTH, "남은 길이");
+
 			// 초기 설정
-			// 1. 수직재 규격 팝업 추가 - MP 120, MP 250, MP 350, MP 480, MP 625
+			// 1. 타입 추가
+			DGPopUpInsertItem (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM, "강관 동바리");
+			DGPopUpInsertItem (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM, "PERI 동바리");
+			DGPopUpInsertItem (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM, "강관 동바리 + 산승각");
+			DGPopUpInsertItem (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM, "PERI 동바리 + 토류판");
+			DGPopUpInsertItem (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM, "PERI 동바리 + GT24 거더");
+			DGPopUpInsertItem (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TYPE, DG_POPUP_BOTTOM, "PERI 동바리 + 보 멍에제");
+
+			// 2. 수직재 규격 팝업 추가 - MP 120, MP 250, MP 350, MP 480, MP 625
 			DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 120");
 			DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
@@ -627,243 +734,233 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			DGPopUpInsertItem (dialogID, POPUP_VPOST2_NOMINAL, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_VPOST2_NOMINAL, DG_POPUP_BOTTOM, "MP 625");
 			
-			// 2. 수직재 높이 라벨 옆에 범위 표시 - MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
+			// 3. 수직재 높이 라벨 옆에 범위 표시 - MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
 			DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 800~1200");
 			DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 800~1200");
 
-			// 3. 수직재 1단 On, 2단 Off
-			DGSetItemValLong (dialogID, CHECKBOX_VPOST1, TRUE);
-			DGDisableItem (dialogID, CHECKBOX_VPOST1);
+			// 4. 수직재 2단 Off
 			DGSetItemValLong (dialogID, CHECKBOX_VPOST2, FALSE);
 			DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
 			DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
 
-			// 4. 수평재의 너비 4개 비활성화
-			DGSetItemValLong (dialogID, CHECKBOX_HPOST, FALSE);
-			DGDisableItem (dialogID, LABEL_WIDTH_NORTH);
-			DGDisableItem (dialogID, LABEL_WIDTH_SOUTH);
-			DGDisableItem (dialogID, LABEL_WIDTH_WEST);
-			DGDisableItem (dialogID, LABEL_WIDTH_EAST);
-			DGDisableItem (dialogID, POPUP_WIDTH_NORTH);
-			DGDisableItem (dialogID, POPUP_WIDTH_SOUTH);
-			DGDisableItem (dialogID, POPUP_WIDTH_WEST);
-			DGDisableItem (dialogID, POPUP_WIDTH_EAST);
-
-			// 5. 수평재의 너비 팝업 추가 - 없음, 625, 750, 900, 1200, 1375, 1500, 2015, 2250, 2300, 2370, 2660, 2960
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "없음");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "625");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "750");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "900");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "1200");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "1375");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "1500");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2015");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2250");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2300");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2370");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2660");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2960");
-
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "없음");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "625");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "750");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "900");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "1200");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "1375");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "1500");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2015");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2250");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2300");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2370");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2660");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2960");
-
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "없음");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "625");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "750");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "900");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "1200");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "1375");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "1500");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2015");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2250");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2300");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2370");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2660");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2960");
-
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "없음");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "625");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "750");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "900");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "1200");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "1375");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "1500");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2015");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2250");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2300");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2370");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2660");
-			DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2960");
-
-			// 6. 수직재 높이 입력 범위 지정
+			// 5. 수직재 높이 입력 범위 지정
 			DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.800);
 			DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
 			DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 0.800);
 			DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.200);
 
+			// 6. 각재, 크로스헤드 높이 지정
+			DGSetItemText (dialogID, LABEL_TIMBER_HEIGHT, "0");
+			DGSetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT, "0");
+
 			// 7. 총 높이, 남은 높이 비활성화 및 값 출력
 			DGDisableItem (dialogID, EDITCONTROL_TOTAL_HEIGHT);
 			DGDisableItem (dialogID, EDITCONTROL_REMAIN_HEIGHT);
 			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_HEIGHT, infoMorph.height);
-			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST1) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - 0.003 * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD));
+			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - 0.003 * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD));
 
-			// 8. 수평재 가로, 세로 값 비활성화 및 값 출력
-			DGDisableItem (dialogID, EDITCONTROL_PLAN_WIDTH);
-			DGDisableItem (dialogID, EDITCONTROL_PLAN_DEPTH);
-			DGSetItemValDouble (dialogID, EDITCONTROL_PLAN_WIDTH, infoMorph.width);
-			DGSetItemValDouble (dialogID, EDITCONTROL_PLAN_DEPTH, infoMorph.depth);
+			// 8. 전체 너비, 전체 길이 및 남은 길이
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_WIDTH, placementInfoForPERI.depth);
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_LENGTH, placementInfoForPERI.width);
+			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_LENGTH, placementInfoForPERI.width);
+
+			//// 9. 수평재의 너비 팝업 추가 - 없음, 625, 750, 900, 1200, 1375, 1500, 2015, 2250, 2300, 2370, 2660, 2960
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "없음");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "625");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "750");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "900");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "1200");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "1375");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "1500");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2015");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2250");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2300");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2370");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2660");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_NORTH, DG_POPUP_BOTTOM, "2960");
+
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "없음");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "625");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "750");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "900");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "1200");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "1375");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "1500");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2015");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2250");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2300");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2370");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2660");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_SOUTH, DG_POPUP_BOTTOM, "2960");
+
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "없음");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "625");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "750");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "900");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "1200");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "1375");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "1500");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2015");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2250");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2300");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2370");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2660");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_WEST, DG_POPUP_BOTTOM, "2960");
+
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "없음");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "625");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "750");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "900");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "1200");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "1375");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "1500");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2015");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2250");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2300");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2370");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2660");
+			//DGPopUpInsertItem (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM);
+			//DGPopUpSetItemText (dialogID, POPUP_WIDTH_EAST, DG_POPUP_BOTTOM, "2960");
 
 			break;
 
 		case DG_MSG_CHANGE:
-			// 1. 레이어 묶음 체크박스 On/Off에 따른 이벤트 처리
-			if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
-				switch (item) {
-					case USERCONTROL_LAYER_VPOST:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HPOST, DGGetItemValLong (dialogID, USERCONTROL_LAYER_VPOST));
-						break;
-					case USERCONTROL_LAYER_HPOST:
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_VPOST, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HPOST));
-						break;
-				}
-			}
+			//// 1. 레이어 묶음 체크박스 On/Off에 따른 이벤트 처리
+			//if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+			//	switch (item) {
+			//		case USERCONTROL_LAYER_VPOST:
+			//			DGSetItemValLong (dialogID, USERCONTROL_LAYER_HPOST, DGGetItemValLong (dialogID, USERCONTROL_LAYER_VPOST));
+			//			break;
+			//		case USERCONTROL_LAYER_HPOST:
+			//			DGSetItemValLong (dialogID, USERCONTROL_LAYER_VPOST, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HPOST));
+			//			break;
+			//	}
+			//}
 
-			// 2. 수직재 2단을 켜고 끌 때마다 수직재 2단의 규격, 높이 입력 컨트롤을 활성화/비활성화
-			if (DGGetItemValLong (dialogID, CHECKBOX_VPOST2) == TRUE) {
-				DGEnableItem (dialogID, POPUP_VPOST2_NOMINAL);
-				DGEnableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
-			} else {
-				DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
-				DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
-			}
+			//// 2. 수직재 2단을 켜고 끌 때마다 수직재 2단의 규격, 높이 입력 컨트롤을 활성화/비활성화
+			//if (DGGetItemValLong (dialogID, CHECKBOX_VPOST2) == TRUE) {
+			//	DGEnableItem (dialogID, POPUP_VPOST2_NOMINAL);
+			//	DGEnableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+			//} else {
+			//	DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+			//	DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+			//}
 
-			// 3. 수직재 규격이 바뀔 때마다 높이 범위 문자열이 변경되고, 수직재 높이 값의 최소/최대값 변경됨 - MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
-			if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 1) {
-				DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 800~1200");
-				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.800);
-				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
-			} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 2) {
-				DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1450~2500");
-				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.450);
-				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.500);
-			} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 3) {
-				DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1950~3500");
-				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.950);
-				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.500);
-			} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 4) {
-				DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2600~4800");
-				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.600);
-				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 4.800);
-			} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 5) {
-				DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 4300~6250");
-				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 4.300);
-				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 6.250);
-			}
+			//// 3. 수직재 규격이 바뀔 때마다 높이 범위 문자열이 변경되고, 수직재 높이 값의 최소/최대값 변경됨 - MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
+			//if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 1) {
+			//	DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 800~1200");
+			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.800);
+			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
+			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 2) {
+			//	DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1450~2500");
+			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.450);
+			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.500);
+			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 3) {
+			//	DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1950~3500");
+			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.950);
+			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.500);
+			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 4) {
+			//	DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2600~4800");
+			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.600);
+			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 4.800);
+			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 5) {
+			//	DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 4300~6250");
+			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 4.300);
+			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 6.250);
+			//}
 
-			if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 1) {
-				DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 800~1200");
-				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 0.800);
-				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.200);
-			} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 2) {
-				DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 1450~2500");
-				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.450);
-				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 2.500);
-			} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 3) {
-				DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 1950~3500");
-				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.950);
-				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 3.500);
-			} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 4) {
-				DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 2600~4800");
-				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 2.600);
-				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 4.800);
-			} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 5) {
-				DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 4300~6250");
-				DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 4.300);
-				DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 6.250);
-			}
+			//if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 1) {
+			//	DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 800~1200");
+			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 0.800);
+			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.200);
+			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 2) {
+			//	DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 1450~2500");
+			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.450);
+			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 2.500);
+			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 3) {
+			//	DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 1950~3500");
+			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.950);
+			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 3.500);
+			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 4) {
+			//	DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 2600~4800");
+			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 2.600);
+			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 4.800);
+			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 5) {
+			//	DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 4300~6250");
+			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 4.300);
+			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 6.250);
+			//}
 
-			// 4. 수직재 규격이 바뀌거나, 수직재 1단/2단 체크박스 상태가 바뀌거나, 수직재 높이가 바뀌거나, 크로스헤드 체크 상태에 따라 남은 높이 변경됨
-			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST1) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - 0.003 * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD));
+			//// 4. 수직재 규격이 바뀌거나, 수직재 1단/2단 체크박스 상태가 바뀌거나, 수직재 높이가 바뀌거나, 크로스헤드 체크 상태에 따라 남은 높이 변경됨
+			//DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST1) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - 0.003 * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD));
 
-			// 5. 수평재 체크박스에 따라 수평재 UI의 너비 관련 내용 (서쪽, 남쪽) 활성화/비활성화
-			if (DGGetItemValLong (dialogID, CHECKBOX_HPOST) == TRUE) {
-				DGEnableItem (dialogID, LABEL_WIDTH_WEST);
-				DGEnableItem (dialogID, POPUP_WIDTH_WEST);
-				DGEnableItem (dialogID, LABEL_WIDTH_SOUTH);
-				DGEnableItem (dialogID, POPUP_WIDTH_SOUTH);
-			} else {
-				DGDisableItem (dialogID, LABEL_WIDTH_WEST);
-				DGDisableItem (dialogID, POPUP_WIDTH_WEST);
-				DGDisableItem (dialogID, LABEL_WIDTH_SOUTH);
-				DGDisableItem (dialogID, POPUP_WIDTH_SOUTH);
-			}
+			//// 5. 수평재 체크박스에 따라 수평재 UI의 너비 관련 내용 (서쪽, 남쪽) 활성화/비활성화
+			//if (DGGetItemValLong (dialogID, CHECKBOX_HPOST) == TRUE) {
+			//	DGEnableItem (dialogID, LABEL_WIDTH_WEST);
+			//	DGEnableItem (dialogID, POPUP_WIDTH_WEST);
+			//	DGEnableItem (dialogID, LABEL_WIDTH_SOUTH);
+			//	DGEnableItem (dialogID, POPUP_WIDTH_SOUTH);
+			//} else {
+			//	DGDisableItem (dialogID, LABEL_WIDTH_WEST);
+			//	DGDisableItem (dialogID, POPUP_WIDTH_WEST);
+			//	DGDisableItem (dialogID, LABEL_WIDTH_SOUTH);
+			//	DGDisableItem (dialogID, POPUP_WIDTH_SOUTH);
+			//}
 
-			// 6. 수평재 서쪽/남쪽 너비가 바뀌면 동쪽/북쪽 너비도 동일하게 변경됨
-			DGPopUpSelectItem (dialogID, POPUP_WIDTH_EAST, DGPopUpGetSelected (dialogID, POPUP_WIDTH_WEST));
-			DGPopUpSelectItem (dialogID, POPUP_WIDTH_NORTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH_SOUTH));
+			//// 6. 수평재 서쪽/남쪽 너비가 바뀌면 동쪽/북쪽 너비도 동일하게 변경됨
+			//DGPopUpSelectItem (dialogID, POPUP_WIDTH_EAST, DGPopUpGetSelected (dialogID, POPUP_WIDTH_WEST));
+			//DGPopUpSelectItem (dialogID, POPUP_WIDTH_NORTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH_SOUTH));
 
 			break;
 
@@ -871,94 +968,95 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			switch (item) {
 				case DG_OK:
 
-					if (DGGetItemValLong (dialogID, CHECKBOX_VPOST1) == TRUE)
-						placementInfoForPERI.bVPost1 = true;
-					else
-						placementInfoForPERI.bVPost1 = false;
-					sprintf (placementInfoForPERI.nomVPost1, "%s", DGPopUpGetItemText (dialogID, POPUP_VPOST1_NOMINAL, DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL)).ToCStr ().Get ());
-					placementInfoForPERI.heightVPost1 = DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT);
-					
-					if (DGGetItemValLong (dialogID, CHECKBOX_VPOST2) == TRUE)
-						placementInfoForPERI.bVPost2 = true;
-					else
-						placementInfoForPERI.bVPost2 = false;
-					sprintf (placementInfoForPERI.nomVPost2, "%s", DGPopUpGetItemText (dialogID, POPUP_VPOST2_NOMINAL, DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL)).ToCStr ().Get ());
-					placementInfoForPERI.heightVPost2 = DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+					//if (DGGetItemValLong (dialogID, CHECKBOX_VPOST1) == TRUE)
+					//	placementInfoForPERI.bVPost1 = true;
+					//else
+					//	placementInfoForPERI.bVPost1 = false;
+					//sprintf (placementInfoForPERI.nomVPost1, "%s", DGPopUpGetItemText (dialogID, POPUP_VPOST1_NOMINAL, DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL)).ToCStr ().Get ());
+					//placementInfoForPERI.heightVPost1 = DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT);
+					//
+					//if (DGGetItemValLong (dialogID, CHECKBOX_VPOST2) == TRUE)
+					//	placementInfoForPERI.bVPost2 = true;
+					//else
+					//	placementInfoForPERI.bVPost2 = false;
+					//sprintf (placementInfoForPERI.nomVPost2, "%s", DGPopUpGetItemText (dialogID, POPUP_VPOST2_NOMINAL, DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL)).ToCStr ().Get ());
+					//placementInfoForPERI.heightVPost2 = DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT);
 
-					if (DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD) == TRUE)
-						placementInfoForPERI.bCrosshead = true;
-					else
-						placementInfoForPERI.bCrosshead = false;
+					//if (DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD) == TRUE)
+					//	placementInfoForPERI.bCrosshead = true;
+					//else
+					//	placementInfoForPERI.bCrosshead = false;
 
-					if (DGGetItemValLong (dialogID, CHECKBOX_HPOST) == TRUE)
-						placementInfoForPERI.bHPost = true;
-					else
-						placementInfoForPERI.bHPost = false;
+					//if (DGGetItemValLong (dialogID, CHECKBOX_HPOST) == TRUE)
+					//	placementInfoForPERI.bHPost = true;
+					//else
+					//	placementInfoForPERI.bHPost = false;
 
-					sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_NORTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH_NORTH)).ToCStr ().Get ());
-					if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "");
-					if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "62.5 cm");
-					if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "75 cm");
-					if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "90 cm");
-					if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "120 cm");
-					if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "137.5 cm");
-					if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "150 cm");
-					if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "201.5 cm");
-					if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "225 cm");
-					if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "230 cm");
-					if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "237 cm");
-					if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "266 cm");
-					if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "296 cm");
+					//sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_NORTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH_NORTH)).ToCStr ().Get ());
+					//if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "");
+					//if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "62.5 cm");
+					//if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "75 cm");
+					//if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "90 cm");
+					//if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "120 cm");
+					//if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "137.5 cm");
+					//if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "150 cm");
+					//if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "201.5 cm");
+					//if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "225 cm");
+					//if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "230 cm");
+					//if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "237 cm");
+					//if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "266 cm");
+					//if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_North, "296 cm");
 
-					sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_WEST, DGPopUpGetSelected (dialogID, POPUP_WIDTH_WEST)).ToCStr ().Get ());
-					if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "");
-					if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "62.5 cm");
-					if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "75 cm");
-					if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "90 cm");
-					if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "120 cm");
-					if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "137.5 cm");
-					if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "150 cm");
-					if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "201.5 cm");
-					if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "225 cm");
-					if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "230 cm");
-					if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "237 cm");
-					if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "266 cm");
-					if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "296 cm");
+					//sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_WEST, DGPopUpGetSelected (dialogID, POPUP_WIDTH_WEST)).ToCStr ().Get ());
+					//if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "");
+					//if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "62.5 cm");
+					//if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "75 cm");
+					//if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "90 cm");
+					//if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "120 cm");
+					//if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "137.5 cm");
+					//if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "150 cm");
+					//if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "201.5 cm");
+					//if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "225 cm");
+					//if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "230 cm");
+					//if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "237 cm");
+					//if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "266 cm");
+					//if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_West, "296 cm");
 
-					sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_EAST, DGPopUpGetSelected (dialogID, POPUP_WIDTH_EAST)).ToCStr ().Get ());
-					if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "");
-					if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "62.5 cm");
-					if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "75 cm");
-					if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "90 cm");
-					if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "120 cm");
-					if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "137.5 cm");
-					if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "150 cm");
-					if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "201.5 cm");
-					if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "225 cm");
-					if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "230 cm");
-					if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "237 cm");
-					if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "266 cm");
-					if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "296 cm");
+					//sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_EAST, DGPopUpGetSelected (dialogID, POPUP_WIDTH_EAST)).ToCStr ().Get ());
+					//if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "");
+					//if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "62.5 cm");
+					//if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "75 cm");
+					//if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "90 cm");
+					//if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "120 cm");
+					//if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "137.5 cm");
+					//if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "150 cm");
+					//if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "201.5 cm");
+					//if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "225 cm");
+					//if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "230 cm");
+					//if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "237 cm");
+					//if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "266 cm");
+					//if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_East, "296 cm");
 
-					sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_SOUTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH_SOUTH)).ToCStr ().Get ());
-					if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "");
-					if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "62.5 cm");
-					if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "75 cm");
-					if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "90 cm");
-					if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "120 cm");
-					if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "137.5 cm");
-					if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "150 cm");
-					if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "201.5 cm");
-					if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "225 cm");
-					if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "230 cm");
-					if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "237 cm");
-					if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "266 cm");
-					if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "296 cm");
+					//sprintf (tempStr, "%s", DGPopUpGetItemText (dialogID, POPUP_WIDTH_SOUTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH_SOUTH)).ToCStr ().Get ());
+					//if (my_strcmp (tempStr, "없음") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "");
+					//if (my_strcmp (tempStr, "625") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "62.5 cm");
+					//if (my_strcmp (tempStr, "750") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "75 cm");
+					//if (my_strcmp (tempStr, "900") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "90 cm");
+					//if (my_strcmp (tempStr, "1200") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "120 cm");
+					//if (my_strcmp (tempStr, "1375") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "137.5 cm");
+					//if (my_strcmp (tempStr, "1500") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "150 cm");
+					//if (my_strcmp (tempStr, "2015") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "201.5 cm");
+					//if (my_strcmp (tempStr, "2250") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "225 cm");
+					//if (my_strcmp (tempStr, "2300") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "230 cm");
+					//if (my_strcmp (tempStr, "2370") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "237 cm");
+					//if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "266 cm");
+					//if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "296 cm");
 
-					layerInd_vPost	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_VPOST);
-					layerInd_hPost	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HPOST);
+					//layerInd_vPost	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_VPOST);
+					//layerInd_hPost	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HPOST);
 
 					break;
+
 				case DG_CANCEL:
 					break;
 			}
