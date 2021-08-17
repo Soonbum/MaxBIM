@@ -67,6 +67,9 @@ namespace SupportingPostPlacerDG {
 
 		SEPARATOR_CENTER,
 
+		BUTTON_ADD,
+		BUTTON_DEL,
+
 		LABEL_TOTAL_WIDTH,
 		EDITCONTROL_TOTAL_WIDTH,
 		LABEL_EXPLANATION,
@@ -74,7 +77,9 @@ namespace SupportingPostPlacerDG {
 		LABEL_TOTAL_LENGTH,
 		EDITCONTROL_TOTAL_LENGTH,
 		LABEL_REMAIN_LENGTH,
-		EDITCONTROL_REMAIN_LENGTH
+		EDITCONTROL_REMAIN_LENGTH,
+
+		AFTER_ALL
 	};
 }
 
@@ -109,24 +114,32 @@ public:
 	double	width;					// 영역 가로 길이
 	double	depth;					// 영역 세로 길이
 
-	// ... 아래 검토할 것
+	char	nameVPost1 [64];		// 수직재 1단 GDL 이름
 	char	nomVPost1 [16];			// 수직재 1단 규격 - GDL의 수직재 규격과 동일
 	double	heightVPost1;			// 수직재 1단 높이
 
 	bool	bVPost2;				// 수직재 2단 유무
+	char	nameVPost2 [64];		// 수직재 2단 GDL 이름
 	char	nomVPost2 [16];			// 수직재 2단 규격 - GDL의 수직재 규격과 동일
 	double	heightVPost2;			// 수직재 2단 높이
 
 	bool	bCrosshead;				// 크로스헤드 유무
 	double	heightCrosshead;		// 크로스헤드 높이
-
 	double	heightTimber;			// 산승각/토류판/GT24거더 또는 보 멍에제 높이
 
-	bool	bHPost;					// 수평재 유무
-	char	nomHPost_North [16];	// 수평재 너비(북) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
-	char	nomHPost_West [16];		// 수평재 너비(서) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
-	char	nomHPost_East [16];		// 수평재 너비(동) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
-	char	nomHPost_South [16];	// 수평재 너비(남) - GDL의 수평재 규격과 동일, 없음의 경우 빈 문자열
+	short	nColVPost;				// 너비 방향의 수직재 쌍의 개수 (최소 1개, 최대 5개까지 가능)
+
+	bool	bHPost_center [5];			// 수평재 유무 [가운데]
+	bool	bHPost_up [5];				// 수평재 유무 [위쪽], 단 [0]은 사용하지 않음
+	bool	bHPost_down [5];			// 수평재 유무 [아래쪽], 단 [0]은 사용하지 않음
+
+	char	sizeHPost_center [5][8];	// 수평재 규격 [가운데]
+	char	sizeHPost_up [5][8];		// 수평재 규격 [위쪽], 단 [0]은 사용하지 않음
+	char	sizeHPost_down [5][8];		// 수평재 규격 [아래쪽], 단 [0]은 사용하지 않음
+
+	double	lengthHPost_center [5];		// 수평 거리 [가운데]
+	double	lengthHPost_up [5];			// 수평 거리 [위쪽]
+	double	lengthHPost_down [5];		// 수평 거리 [아래쪽]
 
 public:
 	API_Guid	placeVPost (PERI_VPost params);		// 수직재 배치

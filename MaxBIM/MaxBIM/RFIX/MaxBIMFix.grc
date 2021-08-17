@@ -501,7 +501,7 @@
 /* [  4] */	PopupControl	 70		 13		200		 25		200		10		/* 타입 */
 
 /* [  5] */	CenterText		200		 70		100		 23		LargePlain		"Side View"
-/* [  6] */	CenterText		450		 70		100		 23		LargePlain		"Plan View"
+/* [  6] */	CenterText		500		 70		100		 23		LargePlain		"Plan View"
 
 /* [  7] */	CenterText		210		100		 70		 23		LargePlain		"Upward"
 /* [  8] */	Separator		180		124		130		  1						/* Upward Border */
@@ -516,9 +516,9 @@
 /* [ 17] */	CenterText		210		380		 70		 23		LargePlain		"Downward"
 
 /* [ 18] */	LeftText		 20		200		 60		 23		LargePlain		"Total Height"
-/* [ 19] */	LengthEdit		 20		219		 60		 25		LargePlain		"-20.0"	"20.0"
+/* [ 19] */	LengthEdit		 20		220		 60		 25		LargePlain		"-20.0"	"20.0"
 /* [ 20] */	LeftText		 20		270		 60		 23		LargePlain		"Remain Height"
-/* [ 21] */	LengthEdit		 20		289		 60		 25		LargePlain		"-20.0"	"20.0"
+/* [ 21] */	LengthEdit		 20		290		 60		 25		LargePlain		"-20.0"	"20.0"
 
 /* [ 22] */	CheckBox		100		155		 80		 23		LargePlain		"Crosshead"
 
@@ -558,14 +558,17 @@
 
 /* [ 52] */	Separator		370		90		  1		315
 
-/* [ 53] */	LeftText		400		215		 60		 20		LargePlain		"T. Width"
-/* [ 54] */	LengthEdit		400		235		 60		 25		LargePlain		"0"	"10.0"
-/* [ 55] */	LeftText		380		280		100		100		LargePlain		".................................................."
+/* [ 53] */	Button			390		340		 70		 25		LargePlain		"Add"
+/* [ 54] */	Button			390		370		 70		 25		LargePlain		"Del"
 
-/* [ 56] */	LeftText		500		100		 60		 20		LargePlain		"T. Length"
-/* [ 57] */	LengthEdit		500		120		 60		 25		LargePlain		"0"	"10.0"
-/* [ 58] */	LeftText		600		100		 60		 20		LargePlain		"R. Length"
-/* [ 59] */	LengthEdit		600		120		 60		 25		LargePlain		"0"	"10.0"
+/* [ 55] */	LeftText		400		215		 60		 20		LargePlain		"T. Width"
+/* [ 56] */	LengthEdit		400		235		 60		 25		LargePlain		"0"	"10.0"
+/* [ 57] */	LeftText		380		275		100		 55		LargePlain		".................................................."
+
+/* [ 58] */	LeftText		500		100		 60		 20		LargePlain		"T. Length"
+/* [ 59] */	LengthEdit		500		120		 60		 25		LargePlain		"0"	"10.0"
+/* [ 60] */	LeftText		600		100		 60		 20		LargePlain		"R. Length"
+/* [ 61] */	LengthEdit		600		120		 60		 25		LargePlain		"0"	"10.0"
 }
 
 /* ---------------------------------------------------------- place Euroform on Beam */
