@@ -614,18 +614,18 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 	short	xx;
 	short	itmIdx;
 	short	result;
-	//char	tempStr [16];
+	double	remainLength;
+	char	tempStr [64];
+	char	tempStr2 [64];
 	API_UCCallbackType	ucb;
-
-	// 수직재 개수 (최소 1개)
-	// 수평재 설정 배열 [위쪽]
-	// 수평재 설정 배열 [가운데]
-	// 수평재 설정 배열 [아래쪽]
 
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
 			DGSetDialogTitle (dialogID, "PERI 동바리 자동 배치");
+
+			// 다이얼로그 크기 초기화
+			DGSetDialogSize (dialogID, DG_CLIENT, 700, 770, DG_TOPLEFT, true);
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 적용 버튼
@@ -730,6 +730,9 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			// 2. 크로스헤드 및 수직재 2단 비활성화 (강관 동바리의 경우)
 			DGDisableItem (dialogID, CHECKBOX_CROSSHEAD);
 			DGDisableItem (dialogID, CHECKBOX_VPOST2);
+			DGSetItemValLong (dialogID, CHECKBOX_VPOST2, FALSE);
+			DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+			DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
 
 			// 3. 수직재 규격 팝업 추가
 			// 강관 동바리의 경우 V0 (2.0m), V1 (3.2m), V2 (3.4m), V3 (3.8m), V4 (4.0m), V5 (5.0m), V6 (5.9m), V7 (0.5~2.0m)
@@ -768,28 +771,23 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1200~2000");
 			DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 800~1200");
 
-			// 5. 수직재 2단 Off
-			DGSetItemValLong (dialogID, CHECKBOX_VPOST2, FALSE);
-			DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
-			DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
-
-			// 6. 수직재 높이 입력 범위 지정
+			// 5. 수직재 높이 입력 범위 지정
 			DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
 			DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.000);
 			DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 0.800);
 			DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.200);
 
-			// 7. 각재, 크로스헤드 높이 지정
+			// 6. 각재, 크로스헤드 높이 지정
 			DGSetItemText (dialogID, LABEL_TIMBER_HEIGHT, "0");
 			DGSetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT, "0");
 
-			// 8. 총 높이, 남은 높이 비활성화 및 값 출력
+			// 7. 총 높이, 남은 높이 비활성화 및 값 출력
 			DGDisableItem (dialogID, EDITCONTROL_TOTAL_HEIGHT);
 			DGDisableItem (dialogID, EDITCONTROL_REMAIN_HEIGHT);
 			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_HEIGHT, infoMorph.height);
-			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - 0.003 * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD));
+			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - (atof (DGGetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT).ToCStr ().Get ()) / 1000) * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD) - atof (DGGetItemText (dialogID, LABEL_TIMBER_HEIGHT).ToCStr ().Get ()) / 1000);
 
-			// 9. 전체 너비, 전체 길이 및 남은 길이
+			// 8. 전체 너비, 전체 길이 및 남은 길이
 			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_WIDTH, placementInfoForPERI.depth);
 			DGDisableItem (dialogID, EDITCONTROL_TOTAL_WIDTH);
 			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_LENGTH, placementInfoForPERI.width);
@@ -797,14 +795,14 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_LENGTH, placementInfoForPERI.width);
 			DGDisableItem (dialogID, EDITCONTROL_REMAIN_LENGTH);
 
-			// 10. 1열 수평재 선택 팝업컨트롤 추가
+			// 9. 1열 수평재 선택 팝업컨트롤 추가
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 490, 230, 30, 30);
 			DGShowItem (dialogID, itmIdx);
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 490, 400, 30, 30);
 			DGShowItem (dialogID, itmIdx);
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 505, 261, 1, 138);
 			DGShowItem (dialogID, itmIdx);
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 515, 290, 100, 25);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 515, 290, 70, 25);
 			HPOST_CENTER [0] = itmIdx;
 			DGShowItem (dialogID, itmIdx);
 			DGSetItemText (dialogID, itmIdx, "수평재");
@@ -841,101 +839,470 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 515, 340, 70, 25);
 			DGShowItem (dialogID, itmIdx);
 
-			// 11. 강관 동바리의 경우, 수평재는 비활성화됨
+			// 10. 강관 동바리의 경우, 수평재는 비활성화됨
 			DGDisableItem (dialogID, HPOST_CENTER [0]);
 			DGDisableItem (dialogID, HPOST_CENTER [0]+1);
 
 			break;
 
 		case DG_MSG_CHANGE:
-			// 1. 레이어 묶음 체크박스 On/Off에 따른 이벤트 처리
-			if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
-				switch (item) {
-					case USERCONTROL_LAYER_SUPPORT:
-						for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SUPPORT));
-						break;
-					case USERCONTROL_LAYER_VPOST:
-						for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_VPOST));
-						break;
-					case USERCONTROL_LAYER_HPOST:
-						for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HPOST));
-						break;
-					case USERCONTROL_LAYER_TIMBER:
-						for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
-						break;
-					case USERCONTROL_LAYER_GIRDER:
-						for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_GIRDER));
-						break;
-					case USERCONTROL_LAYER_BEAM_BRACKET:
-						for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BEAM_BRACKET));
-						break;
-					case USERCONTROL_LAYER_YOKE:
-						for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_YOKE));
-						break;
-				}
+			switch (item) {
+				case USERCONTROL_LAYER_SUPPORT:
+				case USERCONTROL_LAYER_VPOST:
+				case USERCONTROL_LAYER_HPOST:
+				case USERCONTROL_LAYER_TIMBER:
+				case USERCONTROL_LAYER_GIRDER:
+				case USERCONTROL_LAYER_BEAM_BRACKET:
+				case USERCONTROL_LAYER_YOKE:
+					// 레이어 묶음 체크박스 On/Off에 따른 이벤트 처리
+					if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+						switch (item) {
+							case USERCONTROL_LAYER_SUPPORT:
+								for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SUPPORT));
+								break;
+							case USERCONTROL_LAYER_VPOST:
+								for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_VPOST));
+								break;
+							case USERCONTROL_LAYER_HPOST:
+								for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HPOST));
+								break;
+							case USERCONTROL_LAYER_TIMBER:
+								for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+								break;
+							case USERCONTROL_LAYER_GIRDER:
+								for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_GIRDER));
+								break;
+							case USERCONTROL_LAYER_BEAM_BRACKET:
+								for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BEAM_BRACKET));
+								break;
+							case USERCONTROL_LAYER_YOKE:
+								for (xx = USERCONTROL_LAYER_SUPPORT ; xx <= USERCONTROL_LAYER_YOKE ; ++xx)	DGSetItemValLong (dialogID, xx, DGGetItemValLong (dialogID, USERCONTROL_LAYER_YOKE));
+								break;
+						}
+					}
+					break;
+
+				case POPUP_TYPE:
+					// 타입에 따라 수직재, 수평재 설정이 바뀜
+					strcpy (tempStr, DGPopUpGetItemText (dialogID, POPUP_TYPE, DGPopUpGetSelected (dialogID, POPUP_TYPE)).ToCStr ().Get ());
+					if (my_strcmp (tempStr, "강관 동바리") == 0) {
+						// 수직재 1단: 강관 타입
+						DGPopUpDeleteItem (dialogID, POPUP_VPOST1_NOMINAL, DG_ALL_ITEMS);
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (2.0m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V1 (3.2m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V2 (3.4m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V3 (3.8m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V4 (4.0m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V5 (5.0m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V6 (5.9m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V7 (0.5~2.0m)");
+
+						DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1200~2000");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.000);
+
+						// 비활성화: 수직재 2단, 크로스헤드, 수평재
+						DGDisableItem (dialogID, CHECKBOX_VPOST2);
+						DGSetItemValLong (dialogID, CHECKBOX_VPOST2, FALSE);
+						DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+						DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+
+						DGDisableItem (dialogID, CHECKBOX_CROSSHEAD);
+						DGSetItemValLong (dialogID, CHECKBOX_CROSSHEAD, FALSE);
+						DGSetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT, "0");
+
+						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGDisableItem (dialogID, HPOST_CENTER [xx]);
+							DGDisableItem (dialogID, HPOST_CENTER [xx]+1);
+						}
+						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGDisableItem (dialogID, HPOST_UP [xx]);
+							DGDisableItem (dialogID, HPOST_UP [xx]+1);
+							DGDisableItem (dialogID, HPOST_DOWN [xx]);
+							DGDisableItem (dialogID, HPOST_DOWN [xx]+1);
+						}
+
+						// 각재 텍스트: 없음
+						DGSetItemText (dialogID, LABEL_TIMBER, "없음");
+						DGSetItemText (dialogID, LABEL_TIMBER_HEIGHT, "0");
+
+					} else if (my_strcmp (tempStr, "PERI 동바리") == 0) {
+						// 수직재 1,2단: PERI 타입
+						DGPopUpDeleteItem (dialogID, POPUP_VPOST1_NOMINAL, DG_ALL_ITEMS);
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 120");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 250");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 350");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 480");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 625");
+
+						DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 800~1200");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.800);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
+
+						// 활성화: 수직재 2단, 크로스헤드, 수평재
+						DGEnableItem (dialogID, CHECKBOX_VPOST2);
+						DGSetItemValLong (dialogID, CHECKBOX_VPOST2, FALSE);
+						DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+						DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+						DGEnableItem (dialogID, CHECKBOX_CROSSHEAD);
+						DGSetItemValLong (dialogID, CHECKBOX_CROSSHEAD, FALSE);
+						DGSetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT, "0");
+
+						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGEnableItem (dialogID, HPOST_CENTER [xx]);
+							DGEnableItem (dialogID, HPOST_CENTER [xx]+1);
+						}
+						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGEnableItem (dialogID, HPOST_UP [xx]);
+							DGEnableItem (dialogID, HPOST_UP [xx]+1);
+							DGEnableItem (dialogID, HPOST_DOWN [xx]);
+							DGEnableItem (dialogID, HPOST_DOWN [xx]+1);
+						}
+
+						// 각재 텍스트: 없음
+						DGSetItemText (dialogID, LABEL_TIMBER, "없음");
+						DGSetItemText (dialogID, LABEL_TIMBER_HEIGHT, "0");
+
+					} else if (my_strcmp (tempStr, "강관 동바리 + 산승각") == 0) {
+						// 수직재 1단: 강관 타입
+						DGPopUpDeleteItem (dialogID, POPUP_VPOST1_NOMINAL, DG_ALL_ITEMS);
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (2.0m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V1 (3.2m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V2 (3.4m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V3 (3.8m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V4 (4.0m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V5 (5.0m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V6 (5.9m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V7 (0.5~2.0m)");
+
+						DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1200~2000");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.000);
+
+						// 비활성화: 수직재 2단, 크로스헤드, 수평재
+						DGDisableItem (dialogID, CHECKBOX_VPOST2);
+						DGSetItemValLong (dialogID, CHECKBOX_VPOST2, FALSE);
+						DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+						DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+
+						DGDisableItem (dialogID, CHECKBOX_CROSSHEAD);
+						DGSetItemValLong (dialogID, CHECKBOX_CROSSHEAD, FALSE);
+						DGSetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT, "0");
+
+						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGDisableItem (dialogID, HPOST_CENTER [xx]);
+							DGDisableItem (dialogID, HPOST_CENTER [xx]+1);
+						}
+						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGDisableItem (dialogID, HPOST_UP [xx]);
+							DGDisableItem (dialogID, HPOST_UP [xx]+1);
+							DGDisableItem (dialogID, HPOST_DOWN [xx]);
+							DGDisableItem (dialogID, HPOST_DOWN [xx]+1);
+						}
+
+						// 각재 텍스트: 산승각
+						DGSetItemText (dialogID, LABEL_TIMBER, "산승각");
+						DGSetItemText (dialogID, LABEL_TIMBER_HEIGHT, "80");
+
+					} else if (my_strcmp (tempStr, "PERI 동바리 + 토류판") == 0) {
+						// 수직재 1단: PERI 타입
+						DGPopUpDeleteItem (dialogID, POPUP_VPOST1_NOMINAL, DG_ALL_ITEMS);
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 120");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 250");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 350");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 480");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 625");
+
+						DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 800~1200");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.800);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
+
+						// 활성화: 수직재 2단, 크로스헤드, 수평재
+						DGEnableItem (dialogID, CHECKBOX_VPOST2);
+						DGSetItemValLong (dialogID, CHECKBOX_VPOST2, FALSE);
+						DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+						DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+						DGEnableItem (dialogID, CHECKBOX_CROSSHEAD);
+						DGSetItemValLong (dialogID, CHECKBOX_CROSSHEAD, TRUE);
+						DGSetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT, "3");
+
+						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGEnableItem (dialogID, HPOST_CENTER [xx]);
+							DGEnableItem (dialogID, HPOST_CENTER [xx]+1);
+						}
+						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGEnableItem (dialogID, HPOST_UP [xx]);
+							DGEnableItem (dialogID, HPOST_UP [xx]+1);
+							DGEnableItem (dialogID, HPOST_DOWN [xx]);
+							DGEnableItem (dialogID, HPOST_DOWN [xx]+1);
+						}
+
+						// 각재 텍스트: 토류판
+						DGSetItemText (dialogID, LABEL_TIMBER, "토류판");
+						DGSetItemText (dialogID, LABEL_TIMBER_HEIGHT, "240");
+
+					} else if (my_strcmp (tempStr, "PERI 동바리 + GT24 거더") == 0) {
+						// 수직재 1단: PERI 타입
+						DGPopUpDeleteItem (dialogID, POPUP_VPOST1_NOMINAL, DG_ALL_ITEMS);
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 120");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 250");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 350");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 480");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 625");
+
+						DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 800~1200");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.800);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
+
+						// 활성화: 수직재 2단, 크로스헤드, 수평재
+						DGEnableItem (dialogID, CHECKBOX_VPOST2);
+						DGSetItemValLong (dialogID, CHECKBOX_VPOST2, FALSE);
+						DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+						DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+						DGEnableItem (dialogID, CHECKBOX_CROSSHEAD);
+						DGSetItemValLong (dialogID, CHECKBOX_CROSSHEAD, TRUE);
+						DGSetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT, "3");
+
+						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGEnableItem (dialogID, HPOST_CENTER [xx]);
+							DGEnableItem (dialogID, HPOST_CENTER [xx]+1);
+						}
+						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGEnableItem (dialogID, HPOST_UP [xx]);
+							DGEnableItem (dialogID, HPOST_UP [xx]+1);
+							DGEnableItem (dialogID, HPOST_DOWN [xx]);
+							DGEnableItem (dialogID, HPOST_DOWN [xx]+1);
+						}
+
+						// 각재 텍스트: GT24 거더
+						DGSetItemText (dialogID, LABEL_TIMBER, "GT24 거더");
+						DGSetItemText (dialogID, LABEL_TIMBER_HEIGHT, "240");
+
+					} else if (my_strcmp (tempStr, "PERI 동바리 + 보 멍에제") == 0) {
+						// 수직재 1단: PERI 타입
+						DGPopUpDeleteItem (dialogID, POPUP_VPOST1_NOMINAL, DG_ALL_ITEMS);
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 120");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 250");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 350");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 480");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "MP 625");
+
+						DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 800~1200");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.800);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
+
+						// 활성화: 수직재 2단, 크로스헤드, 수평재
+						DGEnableItem (dialogID, CHECKBOX_VPOST2);
+						DGSetItemValLong (dialogID, CHECKBOX_VPOST2, FALSE);
+						DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+						DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+						DGEnableItem (dialogID, CHECKBOX_CROSSHEAD);
+						DGSetItemValLong (dialogID, CHECKBOX_CROSSHEAD, FALSE);
+						DGSetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT, "0");
+
+						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGEnableItem (dialogID, HPOST_CENTER [xx]);
+							DGEnableItem (dialogID, HPOST_CENTER [xx]+1);
+						}
+						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGEnableItem (dialogID, HPOST_UP [xx]);
+							DGEnableItem (dialogID, HPOST_UP [xx]+1);
+							DGEnableItem (dialogID, HPOST_DOWN [xx]);
+							DGEnableItem (dialogID, HPOST_DOWN [xx]+1);
+						}
+
+						// 각재 텍스트: 보 멍에제
+						DGSetItemText (dialogID, LABEL_TIMBER, "보 멍에제");
+						DGSetItemText (dialogID, LABEL_TIMBER_HEIGHT, "105");
+					}
+
+					// 남은 높이 계산
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - (atof (DGGetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT).ToCStr ().Get ()) / 1000) * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD) - atof (DGGetItemText (dialogID, LABEL_TIMBER_HEIGHT).ToCStr ().Get ()) / 1000);
+
+					// 남은 길이 계산
+					remainLength = placementInfoForPERI.width;
+					for (xx = 1 ; xx <= placementInfoForPERI.nColVPost ; ++xx) {
+						remainLength -= DGGetItemValDouble (dialogID, HPOST_UP [xx]+2);
+					}
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_LENGTH, remainLength);
+
+					break;
+
+				case CHECKBOX_CROSSHEAD:
+				case CHECKBOX_VPOST2:
+				case POPUP_VPOST1_NOMINAL:
+				case POPUP_VPOST2_NOMINAL:
+				case EDITCONTROL_VPOST2_HEIGHT:
+				case EDITCONTROL_VPOST1_HEIGHT:
+					// 수직재 2단 On/Off시 수직재 2단의 규격, 높이 입력 컨트롤을 활성화/비활성화 (PERI 타입에 한해)
+					if (DGGetItemValLong (dialogID, CHECKBOX_VPOST2) == TRUE) {
+						DGEnableItem (dialogID, POPUP_VPOST2_NOMINAL);
+						DGEnableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+					} else {
+						DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
+						DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
+					}
+
+					// 크로스헤드 체크박스 변경시
+					if (DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD) == TRUE)
+						DGSetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT, "3");
+					else
+						DGSetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT, "0");
+
+					// 수직재 1단 규격에 따라 높이 범위 변경됨
+					strcpy (tempStr, DGPopUpGetItemText (dialogID, POPUP_TYPE, DGPopUpGetSelected (dialogID, POPUP_TYPE)).ToCStr ().Get ());
+					if (strncmp (tempStr, "강관 동바리", strlen ("강관 동바리")) == 0) {
+						// 강관 동바리의 경우 V0 (2.0m) (1200~2000), V1 (3.2m) (1800~3200), V2 (3.4m) (2000~3400), V3 (3.8m) (2400~3800), V4 (4.0m) (2600~4000), V5 (5.0m) (3000~5000), V6 (5.9m) (3200~5900), V7 (0.5~2.0m) (500~2000)
+						strcpy (tempStr2, DGPopUpGetItemText (dialogID, POPUP_VPOST1_NOMINAL, DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL)).ToCStr ().Get ());
+						if (my_strcmp (tempStr2, "V0 (2.0m)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1200~2000");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.000);
+						} else if (my_strcmp (tempStr2, "V1 (3.2m)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1800~3200");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.800);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.200);
+						} else if (my_strcmp (tempStr2, "V2 (3.4m)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2000~3400");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.000);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.400);
+						} else if (my_strcmp (tempStr2, "V3 (3.8m)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2400~3800");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.400);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.800);
+						} else if (my_strcmp (tempStr2, "V4 (4.0m)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2600~4000");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.600);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 4.000);
+						} else if (my_strcmp (tempStr2, "V5 (5.0m)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 3000~5000");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.000);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 5.000);
+						} else if (my_strcmp (tempStr2, "V6 (5.9m)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 3200~5900");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.200);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 5.900);
+						} else if (my_strcmp (tempStr2, "V7 (0.5~2.0m)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 500~2000");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.500);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.000);
+						}
+					} else if (strncmp (tempStr, "PERI 동바리", strlen ("PERI 동바리")) == 0) {
+						// PERI 동바리의 경우 MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
+						strcpy (tempStr2, DGPopUpGetItemText (dialogID, POPUP_VPOST1_NOMINAL, DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL)).ToCStr ().Get ());
+						if (my_strcmp (tempStr2, "MP 120") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 800~1200");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.800);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
+						} else if (my_strcmp (tempStr2, "MP 250") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1450~2500");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.450);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.500);
+						} else if (my_strcmp (tempStr2, "MP 350") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1950~3500");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.950);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.500);
+						} else if (my_strcmp (tempStr2, "MP 480") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2600~4800");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.600);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 4.800);
+						} else if (my_strcmp (tempStr2, "MP 625") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 4300~6250");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 4.300);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 6.250);
+						}
+					}
+
+					// 수직재 2단 규격에 따라 높이 범위 변경됨
+					// PERI 동바리의 경우 MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
+					strcpy (tempStr2, DGPopUpGetItemText (dialogID, POPUP_VPOST2_NOMINAL, DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL)).ToCStr ().Get ());
+					if (my_strcmp (tempStr, "MP 120") == 0) {
+						DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 800~1200");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 0.800);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.200);
+					} else if (my_strcmp (tempStr, "MP 250") == 0) {
+						DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 1450~2500");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.450);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 2.500);
+					} else if (my_strcmp (tempStr, "MP 350") == 0) {
+						DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 1950~3500");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.950);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 3.500);
+					} else if (my_strcmp (tempStr, "MP 480") == 0) {
+						DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 2600~4800");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 2.600);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 4.800);
+					} else if (my_strcmp (tempStr, "MP 625") == 0) {
+						DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 4300~6250");
+						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 4.300);
+						DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 6.250);
+					}
+
+					// 남은 높이 계산
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - (atof (DGGetItemText (dialogID, LABEL_CROSSHEAD_HEIGHT).ToCStr ().Get ()) / 1000) * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD) - atof (DGGetItemText (dialogID, LABEL_TIMBER_HEIGHT).ToCStr ().Get ()) / 1000);
+
+					break;
+
+				default:
+					// 수평재 유무를 선택했을 때
+					for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx)
+						(DGGetItemValLong (dialogID, HPOST_CENTER [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_CENTER [xx]+1) : DGDisableItem (dialogID, HPOST_CENTER [xx]+1);
+					for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+						(DGGetItemValLong (dialogID, HPOST_UP [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_UP [xx]+1) : DGDisableItem (dialogID, HPOST_UP [xx]+1);
+						(DGGetItemValLong (dialogID, HPOST_DOWN [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_DOWN [xx]+1) : DGDisableItem (dialogID, HPOST_DOWN [xx]+1);
+					}
+					
+					// 수평재 팝업컨트롤을 변경했을 때 (선택한 곳에만 수평재가 들어감)
+					// ...
+
+					// 수평재 크기를 변경했을 때 (센터끼리, 위/아래끼리는 길이가 동일해야 함)
+					// ...
+					
+					// 남은 길이 계산
+					remainLength = placementInfoForPERI.width;
+					for (xx = 1 ; xx <= placementInfoForPERI.nColVPost ; ++xx) {
+						remainLength -= DGGetItemValDouble (dialogID, HPOST_UP [xx]+2);
+					}
+					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_LENGTH, remainLength);
+
+					break;
 			}
-
-			// 2. 타입에 따라 수직재, 수평재 설정이 바뀜
-
-			// 3. 수직재 2단을 켜고 끌 때마다 수직재 2단의 규격, 높이 입력 컨트롤을 활성화/비활성화
-			//if (DGGetItemValLong (dialogID, CHECKBOX_VPOST2) == TRUE) {
-			//	DGEnableItem (dialogID, POPUP_VPOST2_NOMINAL);
-			//	DGEnableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
-			//} else {
-			//	DGDisableItem (dialogID, POPUP_VPOST2_NOMINAL);
-			//	DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
-			//}
-
-			// 4. 수직재 규격이 바뀔 때마다 높이 범위 문자열이 변경되고, 수직재 높이 값의 최소/최대값 변경됨
-			//if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 1) {
-			//	DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 800~1200");
-			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.800);
-			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
-			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 2) {
-			//	DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1450~2500");
-			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.450);
-			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.500);
-			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 3) {
-			//	DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1950~3500");
-			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.950);
-			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.500);
-			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 4) {
-			//	DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2600~4800");
-			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.600);
-			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 4.800);
-			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL) == 5) {
-			//	DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 4300~6250");
-			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 4.300);
-			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 6.250);
-			//}
-
-			//if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 1) {
-			//	DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 800~1200");
-			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 0.800);
-			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.200);
-			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 2) {
-			//	DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 1450~2500");
-			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.450);
-			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 2.500);
-			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 3) {
-			//	DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 1950~3500");
-			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 1.950);
-			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 3.500);
-			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 4) {
-			//	DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 2600~4800");
-			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 2.600);
-			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 4.800);
-			//} else if (DGPopUpGetSelected (dialogID, POPUP_VPOST2_NOMINAL) == 5) {
-			//	DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 4300~6250");
-			//	DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 4.300);
-			//	DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT, 6.250);
-			//}
-
-			// 5. 수직재 규격이 바뀌거나, 수직재 1단/2단 체크박스 상태가 바뀌거나, 수직재 높이가 바뀌거나, 크로스헤드 체크 상태에 따라 남은 높이 변경됨
-			//DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT, infoMorph.height - (DGGetItemValDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST1) + DGGetItemValDouble (dialogID, EDITCONTROL_VPOST2_HEIGHT) * DGGetItemValLong (dialogID, CHECKBOX_VPOST2)) - 0.003 * DGGetItemValLong (dialogID, CHECKBOX_CROSSHEAD));
-
-			// 6. 수평재 유무를 선택하거나, 수평재 크기를 변경하거나, 수평 거리를 변경할 때 남은 길이 변경됨 (아울러 위/아래 설정이 같이 변경되어야 함)
-			// ...
 
 			break;
 
@@ -1032,98 +1399,184 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 
 					break;
 
+				default:
+					if (item == BUTTON_ADD) {
+						if (placementInfoForPERI.nColVPost < 5) {
+							placementInfoForPERI.nColVPost ++;
+							DGRemoveDialogItems (dialogID, AFTER_ALL + 6);
+							DGGrowDialog (dialogID, 130, 0);
+						}
+					} else if (item == BUTTON_DEL) {
+						if (placementInfoForPERI.nColVPost > 1) {
+							placementInfoForPERI.nColVPost --;
+							DGRemoveDialogItems (dialogID, AFTER_ALL + 6);
+							DGGrowDialog (dialogID, -130, 0);
+						}
+					}
+
+					item = 0;
+
+					if ((placementInfoForPERI.nColVPost >= 1) && (placementInfoForPERI.nColVPost <= 5)) {
+						for (xx = 2 ; xx <= placementInfoForPERI.nColVPost ; ++xx) {
+							// 구분자 선 그리기
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 521-260+(130*xx), 245, 100, 1);
+							DGShowItem (dialogID, itmIdx);
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 521-260+(130*xx), 415, 100, 1);
+							DGShowItem (dialogID, itmIdx);
+
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 490-130+(130*xx), 230, 30, 30);
+							DGShowItem (dialogID, itmIdx);
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 490-130+(130*xx), 400, 30, 30);
+							DGShowItem (dialogID, itmIdx);
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 505-130+(130*xx), 261, 1, 138);
+							DGShowItem (dialogID, itmIdx);
+
+							// 수평재 관련 옵션 [가운데]
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 515-130+(130*xx), 290, 70, 25);
+							HPOST_CENTER [xx-1] = itmIdx;
+							DGShowItem (dialogID, itmIdx);
+							DGSetItemText (dialogID, itmIdx, "수평재");
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 200, 10, 515-130+(130*xx), 315, 70, 25);
+							DGShowItem (dialogID, itmIdx);
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "없음");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "625");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "750");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "900");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1200");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1375");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1500");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2015");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2250");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2300");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2370");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2660");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2960");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "가변");
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 515-130+(130*xx), 340, 70, 25);
+							DGShowItem (dialogID, itmIdx);
+
+							// 수평재 관련 옵션 [위쪽]
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 515-260+(130*xx)+25, 290-125, 70, 25);
+							HPOST_UP [xx-1] = itmIdx;
+							DGShowItem (dialogID, itmIdx);
+							DGSetItemText (dialogID, itmIdx, "수평재");
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 200, 10, 515-260+(130*xx)+25, 315-125, 70, 25);
+							DGShowItem (dialogID, itmIdx);
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "없음");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "625");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "750");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "900");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1200");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1375");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1500");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2015");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2250");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2300");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2370");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2660");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2960");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "가변");
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 515-260+(130*xx)+25, 340-125, 70, 25);
+							DGShowItem (dialogID, itmIdx);
+
+							// 수평재 관련 옵션 [아래쪽]
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 515-260+(130*xx)+25, 290+125, 70, 25);
+							HPOST_DOWN [xx-1] = itmIdx;
+							DGShowItem (dialogID, itmIdx);
+							DGSetItemText (dialogID, itmIdx, "수평재");
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 200, 10, 515-260+(130*xx)+25, 315+125, 70, 25);
+							DGShowItem (dialogID, itmIdx);
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "없음");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "625");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "750");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "900");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1200");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1375");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1500");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2015");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2250");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2300");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2370");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2660");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2960");
+							DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "가변");
+							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 515-260+(130*xx)+25, 340+125, 70, 25);
+							DGShowItem (dialogID, itmIdx);
+						}
+					}
+
+					strcpy (tempStr, DGPopUpGetItemText (dialogID, POPUP_TYPE, DGPopUpGetSelected (dialogID, POPUP_TYPE)).ToCStr ().Get ());
+					if (strncmp (tempStr, "강관 동바리", strlen ("강관 동바리")) == 0) {
+						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGDisableItem (dialogID, HPOST_CENTER [xx]);
+							DGDisableItem (dialogID, HPOST_CENTER [xx]+1);
+						}
+						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGDisableItem (dialogID, HPOST_UP [xx]);
+							DGDisableItem (dialogID, HPOST_UP [xx]+1);
+							DGDisableItem (dialogID, HPOST_DOWN [xx]);
+							DGDisableItem (dialogID, HPOST_DOWN [xx]+1);
+						}
+					} else if (strncmp (tempStr, "PERI 동바리", strlen ("PERI 동바리")) == 0) {
+						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGEnableItem (dialogID, HPOST_CENTER [xx]);
+							DGEnableItem (dialogID, HPOST_CENTER [xx]+1);
+						}
+						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+							DGEnableItem (dialogID, HPOST_UP [xx]);
+							DGEnableItem (dialogID, HPOST_UP [xx]+1);
+							DGEnableItem (dialogID, HPOST_DOWN [xx]);
+							DGEnableItem (dialogID, HPOST_DOWN [xx]+1);
+						}
+					}
+					/*
+					*/
+
+					break;
+
 				case DG_CANCEL:
-					break;
-
-				case BUTTON_ADD:
-					item = 0;
-
-					if (placementInfoForPERI.nColVPost < 5) {
-						placementInfoForPERI.nColVPost ++;
-						DGRemoveDialogItems (dialogID, AFTER_ALL + 6);
-						DGGrowDialog (dialogID, 130, 0);
-
-						// ...
-						// 구분자/수평재 관련 컴포넌트 그리기
-						for (xx = 2 ; xx <= placementInfoForPERI.nColVPost ; ++xx) {
-							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 521-260+(130*xx), 245, 100, 1);
-							DGShowItem (dialogID, itmIdx);
-							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 521-260+(130*xx), 415, 100, 1);
-							DGShowItem (dialogID, itmIdx);
-
-							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 490-130+(130*xx), 230, 30, 30);
-							DGShowItem (dialogID, itmIdx);
-							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 490-130+(130*xx), 400, 30, 30);
-							DGShowItem (dialogID, itmIdx);
-							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 505-130+(130*xx), 261, 1, 138);
-							DGShowItem (dialogID, itmIdx);
-						}
-
-						//itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 515, 290, 100, 25);
-						//HPOST_CENTER [0] = itmIdx;
-						//DGShowItem (dialogID, itmIdx);
-						//DGSetItemText (dialogID, itmIdx, "수평재");
-						//itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 200, 10, 515, 315, 70, 25);
-						//DGShowItem (dialogID, itmIdx);
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "없음");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "625");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "750");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "900");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1200");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1375");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "1500");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2015");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2250");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2300");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2370");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2660");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "2960");
-						//DGPopUpInsertItem (dialogID, itmIdx, DG_POPUP_BOTTOM);
-						//DGPopUpSetItemText (dialogID, itmIdx, DG_POPUP_BOTTOM, "가변");
-						//itmIdx = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 515, 340, 70, 25);
-						//DGShowItem (dialogID, itmIdx);
-					}
-
-					break;
-
-				case BUTTON_DEL:
-					item = 0;
-
-					if (placementInfoForPERI.nColVPost > 1) {
-						placementInfoForPERI.nColVPost --;
-						DGRemoveDialogItems (dialogID, AFTER_ALL + 6);
-						DGGrowDialog (dialogID, -130, 0);
-
-						// ...
-						// 구분자/수평재 관련 컴포넌트 그리기
-						for (xx = 2 ; xx <= placementInfoForPERI.nColVPost ; ++xx) {
-							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 521-260+(130*xx), 245, 100, 1);
-							DGShowItem (dialogID, itmIdx);
-							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 521-260+(130*xx), 415, 100, 1);
-							DGShowItem (dialogID, itmIdx);
-
-							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 490-130+(130*xx), 230, 30, 30);
-							DGShowItem (dialogID, itmIdx);
-							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 490-130+(130*xx), 400, 30, 30);
-							DGShowItem (dialogID, itmIdx);
-							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, 505-130+(130*xx), 261, 1, 138);
-							DGShowItem (dialogID, itmIdx);
-						}
-					}
-
 					break;
 			}
 		case DG_MSG_CLOSE:
