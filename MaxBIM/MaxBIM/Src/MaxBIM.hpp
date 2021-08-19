@@ -505,6 +505,7 @@ struct PERI_HPost
 	char	stType [16];		// 규격
 	double	angX;				// 회전 X
 	double	angY;				// 회전 Y
+	double	customLength;		// 커스텀 길이
 };
 
 // 블루목심
@@ -519,6 +520,78 @@ struct BlueTimberRail
 	char	railType [16];		// 규격
 	double	angX;				// 회전 X
 	double	angY;				// 회전 Y
+};
+
+// 서포트(강관 동바리)
+struct SuppPost
+{
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
+
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	char	s_stan [20];		// 규격
+	double	s_leng;				// 길이
+	double	s_ang;				// 각도
+};
+
+// GT24 거더
+struct GT24Girder
+{
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
+
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	angX;				// 본체 회전 (X)
+	double	angY;				// 본체 회전 (Y)
+
+	char	type [8];			// 규격
+};
+
+// 블루 보 브라켓
+struct BlueBeamBracket
+{
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
+
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	char	type [8];			// 타입
+	double	verticalHeight;		// 높이
+};
+
+// 보 멍에제
+struct Yoke
+{
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
+
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	beamLength;			// 보 길이
+	double	verticalGap;		// 수직재 간격
+	double	innerVerticalLen;	// 안쪽 수직재 길이
+	bool	bScale;				// 눈금 및 숫자 표시
+	bool	bLrod;				// 좌측 환봉
+	bool	bLstrut;			// 좌측 받침대
+	bool	bRrod;				// 우측 환봉
+	bool	bRstrut;			// 우측 받침대
+
+	double	LsupVoffset;		// 좌측 서포트 오프셋
+	double	LsupVdist;			// 좌측 서포트 수직거리
+	double	LnutVdist;			// 좌측 너트 수직거리
+	double	RsupVoffset;		// 우측 서포트 오프셋
+	double	RsupVdist;			// 우측 서포트 수직거리
+	double	RnutVdist;			// 우측 너트 수직거리
+	double	LbarHdist;			// 좌측 각파이프 수평거리
+	double	LbarVdist;			// 좌측 각파이프 수직거리
+	double	RbarHdist;			// 우측 각파이프 수평거리
+	double	RbarVdist;			// 우측 각파이프 수직거리
 };
 
 #endif //__MAXBIM_HPP__

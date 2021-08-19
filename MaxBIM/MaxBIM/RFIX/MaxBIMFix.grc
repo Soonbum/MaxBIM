@@ -526,13 +526,13 @@
 /* [ 24] */	LeftText		100		315		 50		 20		LargePlain		"Nominal"
 /* [ 25] */	PopupControl	100		334		100		 25		100		10		/* 규격 1 */
 /* [ 26] */	LeftText		290		315		 80		 20		LargePlain		"Height"
-/* [ 27] */	LengthEdit		290		334		 60		 25		LargePlain		"0"	"10.0"
+/* [ 27] */	LengthEdit		290		334		 60		 25		LargePlain		"-20.0"	"20.0"
 
 /* [ 28] */	CheckBox		100		185		 80		 20		LargePlain		"Step 2"
 /* [ 29] */	LeftText		100		215		 50		 20		LargePlain		"Nominal"
 /* [ 30] */	PopupControl	100		234		100		 25		100		10		/* 규격 2 */
 /* [ 31] */	LeftText		290		215		 80		 20		LargePlain		"Height"
-/* [ 32] */	LengthEdit		290		234		 60		 25		LargePlain		"0"	"10.0"
+/* [ 32] */	LengthEdit		290		234		 60		 25		LargePlain		"-20.0"	"20.0"
 
 /* [ 33] */	LeftText		290		140		 60		 23		LargePlain		"0.0"
 /* [ 34] */	LeftText		290		163		 60		 23		LargePlain		"0.0"
@@ -562,13 +562,13 @@
 /* [ 54] */	Button			390		370		 70		 25		LargePlain		"Del"
 
 /* [ 55] */	LeftText		400		215		 60		 20		LargePlain		"T. Width"
-/* [ 56] */	LengthEdit		400		235		 60		 25		LargePlain		"0"	"10.0"
+/* [ 56] */	LengthEdit		400		235		 60		 25		LargePlain		"-20.0"	"20.0"
 /* [ 57] */	LeftText		380		275		100		 55		LargePlain		".................................................."
 
 /* [ 58] */	LeftText		500		100		 60		 20		LargePlain		"T. Length"
-/* [ 59] */	LengthEdit		500		120		 60		 25		LargePlain		"0"	"10.0"
+/* [ 59] */	LengthEdit		500		120		 60		 25		LargePlain		"-20.0"	"20.0"
 /* [ 60] */	LeftText		600		100		 60		 20		LargePlain		"R. Length"
-/* [ 61] */	LengthEdit		600		120		 60		 25		LargePlain		"0"	"10.0"
+/* [ 61] */	LengthEdit		600		120		 60		 25		LargePlain		"-20.0"	"20.0"
 }
 
 /* ---------------------------------------------------------- place Euroform on Beam */
@@ -580,9 +580,9 @@
 
 /* [  4] */	Separator		230		 50		200		200									/* Representation of Beam Section */
 /* [  5] */	LeftText		240		117		 70		 23		LargePlain		"B.Height"
-/* [  6] */	LengthEdit		235		140		 50		 25		LargePlain		"0"	"2.0"	/* Beam Height */
+/* [  6] */	LengthEdit		235		140		 50		 25		LargePlain		"-2.0"	"2.0"	/* Beam Height */
 /* [  7] */	LeftText		315		197		 70		 23		LargePlain		"B.Width"
-/* [  8] */	LengthEdit		310		220		 50		 25		LargePlain		"0"	"2.0"	/* Beam Width */
+/* [  8] */	LengthEdit		310		220		 50		 25		LargePlain		"-2.0"	"2.0"	/* Beam Width */
 
 /* [  9] */	Separator		190		 50		  1		200									/* Left Gap Line */
 /* [ 10] */	Separator		230		280		200		  1									/* Bottom Gap Line */
@@ -592,9 +592,9 @@
 /* [ 14] */	LengthEdit		435		140		 30		 25		LargePlain		"0"	"1.0"	/* Right Gap */
 
 /* [ 15] */	RightText		175		 20		 70		 23		LargePlain		"T.Height"
-/* [ 16] */	LengthEdit		250		 13		 50		 25		LargePlain		"0"	"5.0"	/* Total Height */
+/* [ 16] */	LengthEdit		250		 13		 50		 25		LargePlain		"-5.0"	"5.0"	/* Total Height */
 /* [ 17] */	RightText		305		 20		 70		 23		LargePlain		"T.Width"
-/* [ 18] */	LengthEdit		380		 13		 50		 25		LargePlain		"0"	"5.0"	/* Total Width */
+/* [ 18] */	LengthEdit		380		 13		 50		 25		LargePlain		"-5.0"	"5.0"	/* Total Width */
 
 /* [ 19] */	LeftText		 60		 70		 60		 25		LargePlain		"Rest"
 /* [ 20] */	CheckBox		 60		105		 60		 25		LargePlain		"Wood"
@@ -603,7 +603,7 @@
 /* [ 23] */	CheckBox		 60		210		 60		 25		LargePlain		"Form"
 
 /* [ 24] */	LengthEdit		125		 63		 60		 25		LargePlain		"-2.0"	"2.0"
-/* [ 25] */	LengthEdit		125		105		 60		 25		LargePlain		"0"	"1.0"
+/* [ 25] */	LengthEdit		125		105		 60		 25		LargePlain		"-1.0"	"1.0"
 /* [ 26] */	PopupControl	125		141		 60		 25		200		10
 							NoIcon	"200"
 							NoIcon	"300"
@@ -611,7 +611,7 @@
 							NoIcon	"450"
 							NoIcon	"500"
 							NoIcon	"600"
-/* [ 27] */	LengthEdit		125		175		 60		 25		LargePlain		"0"	"1.0"
+/* [ 27] */	LengthEdit		125		175		 60		 25		LargePlain		"-1.0"	"1.0"
 /* [ 28] */	PopupControl	125		208		 60		 25		200		10
 							NoIcon	"200"
 							NoIcon	"300"
@@ -631,7 +631,7 @@
 							NoIcon	"450"
 							NoIcon	"500"
 							NoIcon	"600"
-/* [ 33] */	LengthEdit		300		290		 60		 25		LargePlain		"0"	"1.0"
+/* [ 33] */	LengthEdit		300		290		 60		 25		LargePlain		"1.0"	"1.0"
 /* [ 34] */	PopupControl	370		290		 60		 25		200		10
 							NoIcon	"200"
 							NoIcon	"300"

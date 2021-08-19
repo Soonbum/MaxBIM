@@ -31,7 +31,7 @@ namespace SupportingPostPlacerDG {
 
 		CHECKBOX_CROSSHEAD,
 
-		CHECKBOX_VPOST1,
+		LABEL_VPOST1,
 		LABEL_VPOST1_NOMINAL,
 		POPUP_VPOST1_NOMINAL,
 		LABEL_VPOST1_HEIGHT,
@@ -125,7 +125,9 @@ public:
 
 	bool	bCrosshead;				// 크로스헤드 유무
 	double	heightCrosshead;		// 크로스헤드 높이
-	double	heightTimber;			// 산승각/토류판/GT24거더 또는 보 멍에제 높이
+
+	char	nameTimber [64];		// 산승각/토류판/GT24거더 또는 보 멍에제 - GDL 객체 이름
+	double	heightTimber;			// 산승각/토류판 높이
 
 	short	nColVPost;				// 너비 방향의 수직재 쌍의 개수 (최소 1개, 최대 5개까지 가능)
 
@@ -142,8 +144,13 @@ public:
 	double	lengthHPost_down [5];		// 수평 거리 [아래쪽]
 
 public:
-	API_Guid	placeVPost (PERI_VPost params);		// 수직재 배치
-	API_Guid	placeHPost (PERI_HPost params);		// 수평재 배치
+	API_Guid	placeVPost (PERI_VPost params);				// 수직재 배치
+	API_Guid	placeHPost (PERI_HPost params);				// 수평재 배치
+	API_Guid	placeSupport (SuppPost params);				// 서포트(동바리) 배치
+	API_Guid	placeTimber (Wood params);					// 목재(산승각/토류판) 배치
+	API_Guid	placeGT24Girder (GT24Girder params);		// GT24 거더 배치
+	API_Guid	placeBeamBracket (BlueBeamBracket params);	// 블루 보 브라켓 배치
+	API_Guid	placeYoke (Yoke params);					// 보 멍에제 배치
 };
 
 GSErrCode	placePERIPost (void);		// 선택한 직육면체 모프를 기반으로 PERI 동바리를 배치함

@@ -267,7 +267,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "배포일: 2021.08.06 - 10:07");
+			DGSetItemText (dialogID, itmIdx, "배포일: 2021.08.19 - 14:27");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
@@ -283,7 +283,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "1. 유로폼 배치\n - 벽에 유로폼 배치\n - 슬래브 하부에 유로폼 배치\n - 보에 유로폼 배치\n - 기둥에 유로폼 배치\n\n\
 											 2. 테이블폼 배치\n - 벽에 테이블폼 배치 - 세로 방향\n - 벽에 테이블폼 배치 - 가로 방향\n - 벽에 테이블폼 배치 - 커스텀\n - 슬래브 하부에 테이블폼 배치\n - 보에 테이블폼 배치\n\n\
-											 3. 동바리 배치\n - PERI 동바리 자동 배치\n\n\
+											 3. 동바리 배치\n - PERI 동바리 자동 배치 (개발중)\n\n\
 											 4. Library Converting\n - 가상 가설재 모두 변환\n\n\
 											 5. 레이어 유틸\n - 레이어 쉽게 선택하기\n - 레이어 쉽게 만들기\n - 레이어 쉽게 지정하기");
 			DGShowItem (dialogID, itmIdx);

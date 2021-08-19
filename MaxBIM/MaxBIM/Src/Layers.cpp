@@ -1979,6 +1979,7 @@ GSErrCode	makeLayersEasily (void)
 												BNZeroMemory (&defs, sizeof (API_AttributeDef));
 
 												attrib.header.typeID = API_LayerID;
+												attrib.layer.conClassId = 1;
 												CHCopyC (fullLayerName, attrib.header.name);
 												err = ACAPI_Attribute_Create (&attrib, &defs);
 
@@ -2042,6 +2043,7 @@ GSErrCode	makeLayersEasily (void)
 										BNZeroMemory (&defs, sizeof (API_AttributeDef));
 
 										attrib.header.typeID = API_LayerID;
+										attrib.layer.conClassId = 1;
 										CHCopyC (fullLayerName, attrib.header.name);
 										err = ACAPI_Attribute_Create (&attrib, &defs);
 
@@ -3273,6 +3275,7 @@ GSErrCode	assignLayerEasily (void)
 														BNZeroMemory (&defs, sizeof (API_AttributeDef));
 
 														attrib.header.typeID = API_LayerID;
+														attrib.layer.conClassId = 1;
 														CHCopyC (fullLayerName, attrib.header.name);
 														err = ACAPI_Attribute_Create (&attrib, &defs);
 
@@ -3380,6 +3383,7 @@ GSErrCode	assignLayerEasily (void)
 												BNZeroMemory (&defs, sizeof (API_AttributeDef));
 
 												attrib.header.typeID = API_LayerID;
+												attrib.layer.conClassId = 1;
 												CHCopyC (fullLayerName, attrib.header.name);
 												err = ACAPI_Attribute_Create (&attrib, &defs);
 

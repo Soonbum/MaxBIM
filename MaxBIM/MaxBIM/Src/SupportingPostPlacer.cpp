@@ -13,8 +13,13 @@ PERISupportingPostPlacementInfo		placementInfoForPERI;	// PERI 동바리 배치 정보
 short HPOST_CENTER [5];
 short HPOST_UP [5];
 short HPOST_DOWN [5];
-static short	layerInd_vPost;		// 레이어 번호: 수직재
-static short	layerInd_hPost;		// 레이어 번호: 수평재
+static short	layerInd_vPost;			// 레이어 번호: 수직재
+static short	layerInd_hPost;			// 레이어 번호: 수평재
+static short	layerInd_SuppPost;		// 레이어 번호: 서포트(동바리)
+static short	layerInd_Timber;		// 레이어 번호: 각재(산승각/토류판)
+static short	layerInd_GT24Girder;	// 레이어 번호: GT24 거더
+static short	layerInd_BeamBracket;	// 레이어 번호: 보 브라켓
+static short	layerInd_Yoke;			// 레이어 번호: 보 멍에제
 
 static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
@@ -232,11 +237,7 @@ GSErrCode	placePERIPost (void)
 		placementInfoForPERI.depth = morphHorLen;
 		placementInfoForPERI.bFlipped = true;
 	}
-
-	// 크로스헤드, 각재는 처음에 없다고 가정함
-	placementInfoForPERI.heightCrosshead = 0.0;
-	placementInfoForPERI.heightTimber = 0.0;
-
+	
 	// 너비 방향의 수직재 쌍은 초기 1개
 	placementInfoForPERI.nColVPost = 1;
 
@@ -578,6 +579,7 @@ API_Guid	PERISupportingPostPlacementInfo::placeHPost (PERI_HPost params)
 	else if (my_strcmp (params.stType, "90 cm") == 0)		{ setParameterByName (&memo, "A", 0.900);	aParam = 0.900;	}
 	else if (my_strcmp (params.stType, "75 cm") == 0)		{ setParameterByName (&memo, "A", 0.750);	aParam = 0.750;	}
 	else if (my_strcmp (params.stType, "62.5 cm") == 0)		{ setParameterByName (&memo, "A", 0.625);	aParam = 0.625;	}
+	else if (my_strcmp (params.stType, "Custom") == 0)		{ setParameterByName (&memo, "A", params.customLength);	aParam = params.customLength;	}
 	
 	setParameterByName (&memo, "lenFrame", aParam - 0.100);
 
@@ -597,6 +599,317 @@ API_Guid	PERISupportingPostPlacementInfo::placeHPost (PERI_HPost params)
 	setParameterByName (&memo, "stType", params.stType);	// 규격
 	setParameterByName (&memo, "angX", params.angX);		// 회전 X
 	setParameterByName (&memo, "angY", params.angY);		// 회전 Y
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// 파라미터 스크립트를 강제로 실행시킴
+	ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+
+	return	elem.header.guid;
+}
+
+// 서포트(동바리) 배치
+API_Guid	PERISupportingPostPlacementInfo::placeSupport (SuppPost params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("서포트v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoMorph.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_SuppPost;
+
+	setParameterByName (&memo, "s_stan", params.s_stan);	// 규격
+	setParameterByName (&memo, "s_leng", params.s_leng);	// 길이
+	setParameterByName (&memo, "s_ang", params.s_ang);		// 각도
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// 파라미터 스크립트를 강제로 실행시킴
+	ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+
+	return	elem.header.guid;
+}
+
+// 목재(산승각/토류판) 배치
+API_Guid	PERISupportingPostPlacementInfo::placeTimber (Wood params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("목재v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoMorph.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_Timber;
+
+	setParameterByName (&memo, "w_ins", "바닥눕히기");		// 설치방향
+	setParameterByName (&memo, "w_w", params.w_w);			// 두께 (산승각 80, 토류판 240)
+	setParameterByName (&memo, "w_h", params.w_h);			// 너비 (산승각/토류판 80)
+	setParameterByName (&memo, "w_leng", params.w_leng);	// 길이
+	setParameterByName (&memo, "w_ang", params.w_ang);		// 각도
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// 파라미터 스크립트를 강제로 실행시킴
+	ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+
+	return	elem.header.guid;
+}
+
+// GT24 거더 배치
+API_Guid	PERISupportingPostPlacementInfo::placeGT24Girder (GT24Girder params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("GT24 거더 v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoMorph.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_GT24Girder;
+
+	setParameterByName (&memo, "type", params.type);	// 규격
+	setParameterByName (&memo, "angX", params.angX);	// 회전X
+	setParameterByName (&memo, "angY", params.angY);	// 회전Y
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// 파라미터 스크립트를 강제로 실행시킴
+	ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+
+	return	elem.header.guid;
+}
+
+// 블루 보 브라켓 배치
+API_Guid	PERISupportingPostPlacementInfo::placeBeamBracket (BlueBeamBracket params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("블루 보 브라켓 v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoMorph.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_BeamBracket;
+
+	setParameterByName (&memo, "type", params.type);						// 타입
+	setParameterByName (&memo, "verticalHeight", params.verticalHeight);	// 높이
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// 파라미터 스크립트를 강제로 실행시킴
+	ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+
+	return	elem.header.guid;
+}
+
+// 보 멍에제 배치
+API_Guid	PERISupportingPostPlacementInfo::placeYoke (Yoke params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("보 멍에제v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoMorph.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_Yoke;
+
+	setParameterByName (&memo, "beamLength", params.beamLength);				// 보 길이
+	setParameterByName (&memo, "verticalGap", params.verticalGap);				// 수직재 간격
+	setParameterByName (&memo, "innerVerticalLen", params.innerVerticalLen);	// 안쪽 수직재 길이
+	setParameterByName (&memo, "bScale", params.bScale);						// 눈금 및 숫자 표시
+	setParameterByName (&memo, "bLrod", params.bLrod);							// 좌측 환봉
+	setParameterByName (&memo, "bLstrut", params.bLstrut);						// 좌측 받침대
+	setParameterByName (&memo, "bRrod", params.bRrod);							// 우측 환봉
+	setParameterByName (&memo, "bRstrut", params.bRstrut);						// 우측 받침대
+	setParameterByName (&memo, "LsupVoffset", params.LsupVoffset);				// 좌측 서포트 오프셋
+	setParameterByName (&memo, "LsupVdist", params.LsupVdist);					// 좌측 서포트 수직거리
+	setParameterByName (&memo, "LnutVdist", params.LnutVdist);					// 좌측 너트 수직거리
+	setParameterByName (&memo, "RsupVoffset", params.RsupVoffset);				// 우측 서포트 오프셋
+	setParameterByName (&memo, "RsupVdist", params.RsupVdist);					// 우측 서포트 수직거리
+	setParameterByName (&memo, "RnutVdist", params.RnutVdist);					// 우측 너트 수직거리
+	setParameterByName (&memo, "LbarHdist", params.LbarHdist);					// 좌측 각파이프 수평거리
+	setParameterByName (&memo, "LbarVdist", params.LbarVdist);					// 좌측 각파이프 수직거리
+	setParameterByName (&memo, "RbarHdist", params.RbarHdist);					// 우측 각파이프 수평거리
+	setParameterByName (&memo, "RbarVdist", params.RbarVdist);					// 우측 각파이프 수직거리
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);
@@ -651,7 +964,7 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 
 			DGSetItemText (dialogID, CHECKBOX_CROSSHEAD, "크로스헤드");
 
-			DGSetItemText (dialogID, CHECKBOX_VPOST1, "1단");
+			DGSetItemText (dialogID, LABEL_VPOST1, "1단");
 			DGSetItemText (dialogID, LABEL_VPOST1_NOMINAL, "규격");
 			DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "높이");
 			DGSetItemText (dialogID, CHECKBOX_VPOST2, "2단");
@@ -963,13 +1276,13 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 
 						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
 							DGEnableItem (dialogID, HPOST_CENTER [xx]);
-							DGEnableItem (dialogID, HPOST_CENTER [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_CENTER [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_CENTER [xx]+1) : DGDisableItem (dialogID, HPOST_CENTER [xx]+1);
 						}
 						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
 							DGEnableItem (dialogID, HPOST_UP [xx]);
-							DGEnableItem (dialogID, HPOST_UP [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_UP [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_UP [xx]+1) : DGDisableItem (dialogID, HPOST_UP [xx]+1);
 							DGEnableItem (dialogID, HPOST_DOWN [xx]);
-							DGEnableItem (dialogID, HPOST_DOWN [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_DOWN [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_DOWN [xx]+1) : DGDisableItem (dialogID, HPOST_DOWN [xx]+1);
 						}
 
 						// 각재 텍스트: 없음
@@ -1054,13 +1367,13 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 
 						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
 							DGEnableItem (dialogID, HPOST_CENTER [xx]);
-							DGEnableItem (dialogID, HPOST_CENTER [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_CENTER [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_CENTER [xx]+1) : DGDisableItem (dialogID, HPOST_CENTER [xx]+1);
 						}
 						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
 							DGEnableItem (dialogID, HPOST_UP [xx]);
-							DGEnableItem (dialogID, HPOST_UP [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_UP [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_UP [xx]+1) : DGDisableItem (dialogID, HPOST_UP [xx]+1);
 							DGEnableItem (dialogID, HPOST_DOWN [xx]);
-							DGEnableItem (dialogID, HPOST_DOWN [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_DOWN [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_DOWN [xx]+1) : DGDisableItem (dialogID, HPOST_DOWN [xx]+1);
 						}
 
 						// 각재 텍스트: 토류판
@@ -1096,13 +1409,13 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 
 						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
 							DGEnableItem (dialogID, HPOST_CENTER [xx]);
-							DGEnableItem (dialogID, HPOST_CENTER [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_CENTER [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_CENTER [xx]+1) : DGDisableItem (dialogID, HPOST_CENTER [xx]+1);
 						}
 						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
 							DGEnableItem (dialogID, HPOST_UP [xx]);
-							DGEnableItem (dialogID, HPOST_UP [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_UP [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_UP [xx]+1) : DGDisableItem (dialogID, HPOST_UP [xx]+1);
 							DGEnableItem (dialogID, HPOST_DOWN [xx]);
-							DGEnableItem (dialogID, HPOST_DOWN [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_DOWN [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_DOWN [xx]+1) : DGDisableItem (dialogID, HPOST_DOWN [xx]+1);
 						}
 
 						// 각재 텍스트: GT24 거더
@@ -1138,13 +1451,13 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 
 						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
 							DGEnableItem (dialogID, HPOST_CENTER [xx]);
-							DGEnableItem (dialogID, HPOST_CENTER [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_CENTER [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_CENTER [xx]+1) : DGDisableItem (dialogID, HPOST_CENTER [xx]+1);
 						}
 						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
 							DGEnableItem (dialogID, HPOST_UP [xx]);
-							DGEnableItem (dialogID, HPOST_UP [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_UP [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_UP [xx]+1) : DGDisableItem (dialogID, HPOST_UP [xx]+1);
 							DGEnableItem (dialogID, HPOST_DOWN [xx]);
-							DGEnableItem (dialogID, HPOST_DOWN [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_DOWN [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_DOWN [xx]+1) : DGDisableItem (dialogID, HPOST_DOWN [xx]+1);
 						}
 
 						// 각재 텍스트: 보 멍에제
@@ -1288,11 +1601,38 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 						(DGGetItemValLong (dialogID, HPOST_DOWN [xx]) == TRUE) ? DGEnableItem (dialogID, HPOST_DOWN [xx]+1) : DGDisableItem (dialogID, HPOST_DOWN [xx]+1);
 					}
 					
-					// 수평재 팝업컨트롤을 변경했을 때 (선택한 곳에만 수평재가 들어감)
-					// ...
+					// 수평재 팝업컨트롤을 변경했을 때 (숫자 값의 경우에만 적용됨)
+					for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+						if (item == HPOST_CENTER [xx]+1) {
+							DGSetItemValDouble (dialogID, HPOST_CENTER [xx]+2, atof (DGPopUpGetItemText (dialogID, HPOST_CENTER [xx]+1, DGPopUpGetSelected (dialogID, HPOST_CENTER [xx]+1)).ToCStr ().Get ()) / 1000);
+						}
+					}
+					for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+						if (item == HPOST_UP [xx]+1) {
+							// 위
+							DGSetItemValDouble (dialogID, HPOST_UP [xx]+2, atof (DGPopUpGetItemText (dialogID, HPOST_UP [xx]+1, DGPopUpGetSelected (dialogID, HPOST_UP [xx]+1)).ToCStr ().Get ()) / 1000);
 
-					// 수평재 크기를 변경했을 때 (센터끼리, 위/아래끼리는 길이가 동일해야 함)
-					// ...
+							// 아래
+							DGPopUpSelectItem (dialogID, HPOST_DOWN [xx]+1, DGPopUpGetSelected (dialogID, HPOST_UP [xx]+1));
+							DGSetItemValDouble (dialogID, HPOST_DOWN [xx]+2, atof (DGPopUpGetItemText (dialogID, HPOST_UP [xx]+1, DGPopUpGetSelected (dialogID, HPOST_UP [xx]+1)).ToCStr ().Get ()) / 1000);
+						}
+						if (item == HPOST_DOWN [xx]+1) {
+							// 아래
+							DGSetItemValDouble (dialogID, HPOST_DOWN [xx]+2, atof (DGPopUpGetItemText (dialogID, HPOST_DOWN [xx]+1, DGPopUpGetSelected (dialogID, HPOST_DOWN [xx]+1)).ToCStr ().Get ()) / 1000);
+
+							// 위
+							DGPopUpSelectItem (dialogID, HPOST_UP [xx]+1, DGPopUpGetSelected (dialogID, HPOST_DOWN [xx]+1));
+							DGSetItemValDouble (dialogID, HPOST_UP [xx]+2, atof (DGPopUpGetItemText (dialogID, HPOST_DOWN [xx]+1, DGPopUpGetSelected (dialogID, HPOST_DOWN [xx]+1)).ToCStr ().Get ()) / 1000);
+						}
+					}
+
+					// 수평재 크기를 변경했을 때
+					for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
+						if (item == HPOST_UP [xx]+2)
+							DGSetItemValDouble (dialogID, HPOST_DOWN [xx]+2, DGGetItemValDouble (dialogID, HPOST_UP [xx]+2));
+						if (item == HPOST_DOWN [xx]+2)
+							DGSetItemValDouble (dialogID, HPOST_UP [xx]+2, DGGetItemValDouble (dialogID, HPOST_DOWN [xx]+2));
+					}
 					
 					// 남은 길이 계산
 					remainLength = placementInfoForPERI.width;
@@ -1309,6 +1649,57 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
+					// 타입에 따른 분류
+					strcpy (tempStr, DGPopUpGetItemText (dialogID, POPUP_TYPE, DGPopUpGetSelected (dialogID, POPUP_TYPE)).ToCStr ().Get ());
+					if (my_strcmp (tempStr, "강관 동바리") == 0) {
+						// ... nameVPost1 배열에 "서포트v1.0.gsm" 저장
+
+					} else if (my_strcmp (tempStr, "PERI 동바리") == 0) {
+						// ... nameVPost1 배열에 "PERI동바리 수직재 v0.1" 저장
+
+					} else if (my_strcmp (tempStr, "강관 동바리 + 산승각") == 0) {
+						// ... nameVPost1 배열에 "서포트v1.0.gsm" 저장
+
+					} else if (my_strcmp (tempStr, "PERI 동바리 + 토류판") == 0) {
+						// ... nameVPost1 배열에 "PERI동바리 수직재 v0.1" 저장
+
+					} else if (my_strcmp (tempStr, "PERI 동바리 + GT24 거더") == 0) {
+						// ... nameVPost1 배열에 "PERI동바리 수직재 v0.1" 저장
+
+					} else if (my_strcmp (tempStr, "PERI 동바리 + 보 멍에제") == 0) {
+						// ... nameVPost1 배열에 "PERI동바리 수직재 v0.1" 저장
+					}
+
+					// 공통 정보 저장
+					// ... nameVPost2 배열에 "PERI동바리 수직재 v0.1.gsm" 저장
+
+					// ... nomVPost1 배열에 POPUP_VPOST1_NOMINAL 에서 선택한 텍스트 값을 저장
+					// ... heightVPost1 에 EDITCONTROL_VPOST1_HEIGHT 값 저장
+
+					// ... bVPost2 에 CHECKBOX_VPOST2 값 저장
+					// ... nomVPost2 배열에 POPUP_VPOST2_NOMINAL 에서 선택한 텍스트 값을 저장
+					// ... heightVPost2 에 EDITCONTROL_VPOST2_HEIGHT 값 저장
+
+					// ... bCrosshead 에 CHECKBOX_CROSSHEAD 값 저장
+					// ... heightCrosshead 에 LABEL_CROSSHEAD_HEIGHT 값을 숫자로 변환해서 저장
+
+					// ... nameTimber 배열에 LABEL_TIMBER 의 텍스트 값을 저장
+					// ... heightTimber 에 LABEL_TIMBER_HEIGHT 값을 숫자로 변환해서 저장
+
+					// ... (0 ~ nColVPost 까지)
+					// ... bHPost_center [xx] 에 HPOST_CENTER [xx] 의 값을 저장
+					// ... sizeHPost_center [xx] 배열에 HPOST_CENTER [xx]+1 에서 선택한 텍스트 값을 저장
+					// ... lengthHPost_center [xx] 에 HPOST_CENTER [xx]+2 값 저장
+
+					// ... (1 ~ nColVPost 까지)
+					// ... bHPost_up [xx] 에 HPOST_UP [xx] 의 값을 저장
+					// ... sizeHPost_up [xx] 배열에 HPOST_UP [xx]+1 에서 선택한 텍스트 값을 저장
+					// ... lengthHPost_up [xx] 에 HPOST_UP [xx]+2 값 저장
+					// ... bHPost_down [xx] 에 HPOST_DOWN [xx] 의 값을 저장
+					// ... sizeHPost_down [xx] 배열에 HPOST_DOWN [xx]+1 에서 선택한 텍스트 값을 저장
+					// ... lengthHPost_down [xx] 에 HPOST_DOWN [xx]+2 값 저장
+
+
 
 					//if (DGGetItemValLong (dialogID, CHECKBOX_VPOST1) == TRUE)
 					//	placementInfoForPERI.bVPost1 = true;
@@ -1394,8 +1785,13 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 					//if (my_strcmp (tempStr, "2660") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "266 cm");
 					//if (my_strcmp (tempStr, "2960") == 0)	strcpy (placementInfoForPERI.nomHPost_South, "296 cm");
 
-					//layerInd_vPost	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_VPOST);
-					//layerInd_hPost	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HPOST);
+					layerInd_vPost			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_VPOST);
+					layerInd_hPost			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HPOST);
+					layerInd_SuppPost		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_SUPPORT);
+					layerInd_Timber			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER);
+					layerInd_GT24Girder		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_GIRDER);
+					layerInd_BeamBracket	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BEAM_BRACKET);
+					layerInd_Yoke			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_YOKE);
 
 					break;
 
@@ -1562,17 +1958,15 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 					} else if (strncmp (tempStr, "PERI 동바리", strlen ("PERI 동바리")) == 0) {
 						for (xx = 0 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
 							DGEnableItem (dialogID, HPOST_CENTER [xx]);
-							DGEnableItem (dialogID, HPOST_CENTER [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_CENTER [xx])) ? DGEnableItem (dialogID, HPOST_CENTER [xx]+1) : DGDisableItem (dialogID, HPOST_CENTER [xx]+1);
 						}
 						for (xx = 1 ; xx < placementInfoForPERI.nColVPost ; ++xx) {
 							DGEnableItem (dialogID, HPOST_UP [xx]);
-							DGEnableItem (dialogID, HPOST_UP [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_UP [xx])) ? DGEnableItem (dialogID, HPOST_UP [xx]+1) : DGDisableItem (dialogID, HPOST_UP [xx]+1);
 							DGEnableItem (dialogID, HPOST_DOWN [xx]);
-							DGEnableItem (dialogID, HPOST_DOWN [xx]+1);
+							(DGGetItemValLong (dialogID, HPOST_DOWN [xx])) ? DGEnableItem (dialogID, HPOST_DOWN [xx]+1) : DGDisableItem (dialogID, HPOST_DOWN [xx]+1);
 						}
 					}
-					/*
-					*/
 
 					break;
 
