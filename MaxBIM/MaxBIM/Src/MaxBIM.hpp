@@ -549,6 +549,7 @@ struct GT24Girder
 	double	angY;				// 본체 회전 (Y)
 
 	char	type [8];			// 규격
+	double	length;				// 실제 길이
 };
 
 // 블루 보 브라켓

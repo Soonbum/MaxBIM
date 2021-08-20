@@ -110,6 +110,12 @@ struct InfoMorphForSupportingPost
 class PERISupportingPostPlacementInfo
 {
 public:
+	double	leftBottomX;			// 최하단 좌표 X
+	double	leftBottomY;			// 최하단 좌표 Y
+	double	leftBottomZ;			// 최하단 좌표 Z
+
+	double	ang;					// 회전 각도 (단위: Degree, 회전축: Z축)
+
 	bool	bFlipped;				// 가로/세로 길이 방향이 뒤바뀌어 있는가?
 	double	width;					// 영역 가로 길이
 	double	depth;					// 영역 세로 길이
@@ -126,8 +132,8 @@ public:
 	bool	bCrosshead;				// 크로스헤드 유무
 	double	heightCrosshead;		// 크로스헤드 높이
 
-	char	nameTimber [64];		// 산승각/토류판/GT24거더 또는 보 멍에제 - GDL 객체 이름
-	double	heightTimber;			// 산승각/토류판 높이
+	char	nameTimber [64];		// 산승각/토류판/GT24거더 또는 보 멍에제 - 객체 이름
+	double	heightTimber;			// 산승각/토류판/GT24거더 또는 보 멍에제 높이
 
 	short	nColVPost;				// 너비 방향의 수직재 쌍의 개수 (최소 1개, 최대 5개까지 가능)
 
