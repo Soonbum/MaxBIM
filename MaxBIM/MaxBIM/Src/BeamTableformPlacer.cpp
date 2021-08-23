@@ -2727,7 +2727,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);		// 1행
+			elemList.Push (placeLibPart (squarePipe));		// 1행
 
 			if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
 				squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
@@ -2750,7 +2750,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 				squarePipe.leftBottomY = unrotatedPoint.y;
 				squarePipe.leftBottomZ = unrotatedPoint.z;
 
-				placeLibPart (squarePipe);		// 2행
+				elemList.Push (placeLibPart (squarePipe));		// 2행
 			}
 
 			xPos += squarePipe.length;
@@ -2803,7 +2803,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);		// 1행
+			elemList.Push (placeLibPart (squarePipe));		// 1행
 
 			if (placingZone->cellsFromBeginAtLSide [2][0].perLen > 0.300) {
 				squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
@@ -2826,7 +2826,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 				squarePipe.leftBottomY = unrotatedPoint.y;
 				squarePipe.leftBottomZ = unrotatedPoint.z;
 
-				placeLibPart (squarePipe);		// 2행
+				elemList.Push (placeLibPart (squarePipe));		// 2행
 			}
 
 			xPos += squarePipe.length;
@@ -2879,7 +2879,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);		// 1행
+			elemList.Push (placeLibPart (squarePipe));		// 1행
 
 			if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
 				squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
@@ -2902,7 +2902,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 				squarePipe.leftBottomY = unrotatedPoint.y;
 				squarePipe.leftBottomZ = unrotatedPoint.z;
 
-				placeLibPart (squarePipe);		// 2행
+				elemList.Push (placeLibPart (squarePipe));		// 2행
 			}
 
 			xPos += squarePipe.length;
@@ -2955,7 +2955,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);		// 1행
+			elemList.Push (placeLibPart (squarePipe));		// 1행
 
 			if (placingZone->cellsFromBeginAtLSide [2][0].perLen > 0.300) {
 				squarePipe.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) - 0.050 + xPos;
@@ -2978,7 +2978,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 				squarePipe.leftBottomY = unrotatedPoint.y;
 				squarePipe.leftBottomZ = unrotatedPoint.z;
 
-				placeLibPart (squarePipe);		// 2행
+				elemList.Push (placeLibPart (squarePipe));		// 2행
 			}
 
 			xPos += squarePipe.length;
@@ -3027,7 +3027,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);		// 1행
+			elemList.Push (placeLibPart (squarePipe));		// 1행
 
 			if (placingZone->cellsFromEndAtLSide [0][0].perLen > 0.300) {
 				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
@@ -3050,7 +3050,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 				squarePipe.leftBottomY = unrotatedPoint.y;
 				squarePipe.leftBottomZ = unrotatedPoint.z;
 
-				placeLibPart (squarePipe);		// 2행
+				elemList.Push (placeLibPart (squarePipe));		// 2행
 			}
 
 			xPos += squarePipe.length;
@@ -3099,7 +3099,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);		// 1행
+			elemList.Push (placeLibPart (squarePipe));		// 1행
 
 			if (placingZone->cellsFromEndAtLSide [2][0].perLen > 0.300) {
 				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
@@ -3122,7 +3122,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 				squarePipe.leftBottomY = unrotatedPoint.y;
 				squarePipe.leftBottomZ = unrotatedPoint.z;
 
-				placeLibPart (squarePipe);		// 2행
+				elemList.Push (placeLibPart (squarePipe));		// 2행
 			}
 
 			xPos += squarePipe.length;
@@ -3171,7 +3171,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);		// 1행
+			elemList.Push (placeLibPart (squarePipe));		// 1행
 
 			if (placingZone->cellsFromEndAtLSide [0][0].perLen > 0.300) {
 				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
@@ -3194,7 +3194,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 				squarePipe.leftBottomY = unrotatedPoint.y;
 				squarePipe.leftBottomZ = unrotatedPoint.z;
 
-				placeLibPart (squarePipe);		// 2행
+				elemList.Push (placeLibPart (squarePipe));		// 2행
 			}
 
 			xPos += squarePipe.length;
@@ -3243,7 +3243,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);		// 1행
+			elemList.Push (placeLibPart (squarePipe));		// 1행
 
 			if (placingZone->cellsFromEndAtLSide [2][0].perLen > 0.300) {
 				squarePipe.leftBottomX = placingZone->begC.x - 0.050 + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2);
@@ -3266,7 +3266,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 				squarePipe.leftBottomY = unrotatedPoint.y;
 				squarePipe.leftBottomZ = unrotatedPoint.z;
 
-				placeLibPart (squarePipe);		// 2행
+				elemList.Push (placeLibPart (squarePipe));		// 2행
 			}
 
 			xPos += squarePipe.length;
@@ -3313,7 +3313,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);
+			elemList.Push (placeLibPart (squarePipe));
 
 			xPos += squarePipe.length;
 
@@ -3359,7 +3359,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);
+			elemList.Push (placeLibPart (squarePipe));
 
 			xPos += squarePipe.length;
 
@@ -3424,7 +3424,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 				squarePipe.leftBottomY = unrotatedPoint.y;
 				squarePipe.leftBottomZ = unrotatedPoint.z;
 
-				placeLibPart (squarePipe);
+				elemList.Push (placeLibPart (squarePipe));
 
 				xPos += squarePipe.length;
 
@@ -3467,7 +3467,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);
+			elemList.Push (placeLibPart (squarePipe));
 
 			xPos += squarePipe.length;
 
@@ -3509,7 +3509,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);
+			elemList.Push (placeLibPart (squarePipe));
 
 			xPos += squarePipe.length;
 
@@ -3569,7 +3569,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			squarePipe.leftBottomY = unrotatedPoint.y;
 			squarePipe.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (squarePipe);
+			elemList.Push (placeLibPart (squarePipe));
 
 			xPos += squarePipe.length;
 
@@ -3609,7 +3609,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 	hook.leftBottomY = unrotatedPoint.y;
 	hook.leftBottomZ = unrotatedPoint.z;
 
-	placeLibPart (hook);
+	elemList.Push (placeLibPart (hook));
 
 	accumDist = 0.0;
 	if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
@@ -3620,7 +3620,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 	}
 	moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
-	placeLibPart (hook);
+	elemList.Push (placeLibPart (hook));
 
 	if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
 		hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) + placingZone->cellsFromBeginAtLSide [0][0].dirLen;
@@ -3643,7 +3643,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hook.leftBottomY = unrotatedPoint.y;
 		hook.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 
 		accumDist = 0.0;
 		if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
@@ -3654,7 +3654,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		}
 		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 	}
 
 	// 유로폼 후크 - 비계파이프 2단 (측면 시작 부분 - 왼쪽), 만약 센터 여백이 없으면 (측면 끝 부분 - 왼쪽)까지
@@ -3687,7 +3687,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hook.leftBottomY = unrotatedPoint.y;
 		hook.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 
 		accumDist = 0.0;
 		if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
@@ -3698,7 +3698,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		}
 		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 
 		if (placingZone->cellsFromBeginAtLSide [2][0].perLen > 0.300) {
 			hook.leftBottomX = placingZone->begC.x + (bFillMarginBeginAtSide * marginBeginAtSide) + placingZone->cellsFromBeginAtLSide [0][0].dirLen;
@@ -3721,7 +3721,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			hook.leftBottomY = unrotatedPoint.y;
 			hook.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 
 			accumDist = 0.0;
 			if (abs (placingZone->cellCenterAtLSide [0].dirLen) < EPS) {
@@ -3732,7 +3732,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			}
 			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 		}
 	}
 
@@ -3765,7 +3765,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 	hook.leftBottomZ = unrotatedPoint.z;
 
 	hook.ang = placingZone->ang + DegreeToRad (180.0);
-	placeLibPart (hook);
+	elemList.Push (placeLibPart (hook));
 	hook.ang = placingZone->ang;
 
 	accumDist = 0.0;
@@ -3778,7 +3778,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 	moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
 	hook.ang = placingZone->ang + DegreeToRad (180.0);
-	placeLibPart (hook);
+	elemList.Push (placeLibPart (hook));
 	hook.ang = placingZone->ang;
 
 	if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
@@ -3803,7 +3803,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hook.leftBottomZ = unrotatedPoint.z;
 
 		hook.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 		hook.ang = placingZone->ang;
 
 		accumDist = 0.0;
@@ -3816,7 +3816,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
 		hook.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 		hook.ang = placingZone->ang;
 	}
 
@@ -3850,7 +3850,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hook.leftBottomZ = unrotatedPoint.z;
 
 		hook.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 		hook.ang = placingZone->ang;
 
 		accumDist = 0.0;
@@ -3863,7 +3863,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
 		hook.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 		hook.ang = placingZone->ang;
 
 		if (placingZone->cellsFromBeginAtLSide [2][0].perLen > 0.300) {
@@ -3888,7 +3888,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			hook.leftBottomZ = unrotatedPoint.z;
 
 			hook.ang = placingZone->ang + DegreeToRad (180.0);
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 			hook.ang = placingZone->ang;
 
 			accumDist = 0.0;
@@ -3901,7 +3901,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
 			hook.ang = placingZone->ang + DegreeToRad (180.0);
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 			hook.ang = placingZone->ang;
 		}
 	}
@@ -3937,13 +3937,13 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hook.leftBottomY = unrotatedPoint.y;
 		hook.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 
 		accumDist = 0.0;
 		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
 		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 
 		if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
 			hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2) + placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide-1].dirLen;
@@ -3966,13 +3966,13 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			hook.leftBottomY = unrotatedPoint.y;
 			hook.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 
 			accumDist = 0.0;
 			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
 			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 		}
 	}
 
@@ -4007,13 +4007,13 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hook.leftBottomY = unrotatedPoint.y;
 		hook.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 
 		accumDist = 0.0;
 		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
 		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 
 		if (placingZone->cellsFromEndAtLSide [2][0].perLen > 0.300) {
 			hook.leftBottomX = placingZone->begC.x + xPos + (placingZone->cellCenterAtLSide [0].dirLen / 2) + placingZone->cellsFromEndAtLSide [0][placingZone->nCellsFromEndAtSide-1].dirLen;
@@ -4036,13 +4036,13 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			hook.leftBottomY = unrotatedPoint.y;
 			hook.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 
 			accumDist = 0.0;
 			for (xx = 1 ; xx < placingZone->nCellsFromBeginAtSide-1 ; ++xx)		accumDist += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
 			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 		}
 	}
 
@@ -4077,7 +4077,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hook.leftBottomZ = unrotatedPoint.z;
 
 		hook.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 		hook.ang = placingZone->ang;
 
 		accumDist = 0.0;
@@ -4085,7 +4085,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
 		hook.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 		hook.ang = placingZone->ang;
 
 		if (placingZone->cellsFromBeginAtLSide [0][0].perLen > 0.300) {
@@ -4110,7 +4110,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			hook.leftBottomZ = unrotatedPoint.z;
 
 			hook.ang = placingZone->ang + DegreeToRad (180.0);
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 			hook.ang = placingZone->ang;
 
 			accumDist = 0.0;
@@ -4118,7 +4118,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
 			hook.ang = placingZone->ang + DegreeToRad (180.0);
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 			hook.ang = placingZone->ang;
 		}
 	}
@@ -4154,7 +4154,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hook.leftBottomZ = unrotatedPoint.z;
 
 		hook.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 		hook.ang = placingZone->ang;
 
 		accumDist = 0.0;
@@ -4162,7 +4162,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
 		hook.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 		hook.ang = placingZone->ang;
 
 		if (placingZone->cellsFromEndAtLSide [2][0].perLen > 0.300) {
@@ -4187,7 +4187,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			hook.leftBottomZ = unrotatedPoint.z;
 
 			hook.ang = placingZone->ang + DegreeToRad (180.0);
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 			hook.ang = placingZone->ang;
 
 			accumDist = 0.0;
@@ -4195,7 +4195,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
 			hook.ang = placingZone->ang + DegreeToRad (180.0);
-			placeLibPart (hook);
+			elemList.Push (placeLibPart (hook));
 			hook.ang = placingZone->ang;
 		}
 	}
@@ -4242,7 +4242,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hook.leftBottomY = unrotatedPoint.y;
 		hook.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 
 		accumDist = 0.0;
 		if (abs (placingZone->cellCenterAtBottom [0].dirLen) < EPS) {
@@ -4253,7 +4253,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		}
 		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 	}
 
 	// 유로폼 후크 - 비계파이프 중앙 (하부 끝 부분), 만약 센터 여백이 없으면 제외
@@ -4299,13 +4299,13 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hook.leftBottomY = unrotatedPoint.y;
 		hook.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 
 		accumDist = 0.0;
 		for (xx = 1 ; xx < placingZone->nCellsFromBeginAtBottom-1 ; ++xx)	accumDist += placingZone->cellsFromEndAtBottom [0][xx].dirLen;
 		moveIn3D ('x', hook.ang, accumDist, &hook.leftBottomX, &hook.leftBottomY, &hook.leftBottomZ);
 
-		placeLibPart (hook);
+		elemList.Push (placeLibPart (hook));
 	}
 
 	// 각파이프 행거 - 비계파이프 좌측 시작 부분, 만약 센터 여백이 없으면 (좌측 - 끝 부분)까지
@@ -4330,7 +4330,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hanger.leftBottomY = unrotatedPoint.y;
 		hanger.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 
 		length_outa = 0.0;
 		for (xx = 0 ; xx < placingZone->nCellsFromBeginAtSide ; ++xx)		length_outa += placingZone->cellsFromBeginAtLSide [0][xx].dirLen;
@@ -4339,11 +4339,11 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		}
 
 		moveIn3D ('x', hanger.ang, length_outa - 0.300, &hanger.leftBottomX, &hanger.leftBottomY, &hanger.leftBottomZ);
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 
 		accumDist = 0.150 - (round (length_outa / 0.300, 3) * 0.150);
 		moveIn3D ('x', hanger.ang, accumDist, &hanger.leftBottomX, &hanger.leftBottomY, &hanger.leftBottomZ);
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 	}
 
 	// 각파이프 행거 - 비계파이프 우측 시작 부분, 만약 센터 여백이 없으면 (우측 - 끝 부분)까지
@@ -4369,7 +4369,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hanger.leftBottomZ = unrotatedPoint.z;
 
 		hanger.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 		hanger.ang = placingZone->ang;
 
 		length_outa = 0.0;
@@ -4380,13 +4380,13 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 
 		moveIn3D ('x', hanger.ang, length_outa - 0.300, &hanger.leftBottomX, &hanger.leftBottomY, &hanger.leftBottomZ);
 		hanger.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 		hanger.ang = placingZone->ang;
 
 		accumDist = 0.150 - (round (length_outa / 0.300, 3) * 0.150);
 		moveIn3D ('x', hanger.ang, accumDist, &hanger.leftBottomX, &hanger.leftBottomY, &hanger.leftBottomZ);
 		hanger.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 		hanger.ang = placingZone->ang;
 	}
 
@@ -4413,17 +4413,17 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hanger.leftBottomY = unrotatedPoint.y;
 		hanger.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 
 		length_outa = 0.0;
 		for (xx = 0 ; xx < placingZone->nCellsFromEndAtSide ; ++xx)			length_outa += placingZone->cellsFromEndAtLSide [0][xx].dirLen;
 
 		moveIn3D ('x', hanger.ang, length_outa - 0.300, &hanger.leftBottomX, &hanger.leftBottomY, &hanger.leftBottomZ);
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 
 		accumDist = 0.150 - (round (length_outa / 0.300, 3) * 0.150);
 		moveIn3D ('x', hanger.ang, accumDist, &hanger.leftBottomX, &hanger.leftBottomY, &hanger.leftBottomZ);
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 	}
 
 	// 각파이프 행거 - 비계파이프 우측 끝 부분, 만약 센터 여백이 없으면 제외
@@ -4450,7 +4450,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		hanger.leftBottomZ = unrotatedPoint.z;
 
 		hanger.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 		hanger.ang = placingZone->ang;
 
 		length_outa = 0.0;
@@ -4458,13 +4458,13 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 
 		moveIn3D ('x', hanger.ang, length_outa - 0.300, &hanger.leftBottomX, &hanger.leftBottomY, &hanger.leftBottomZ);
 		hanger.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 		hanger.ang = placingZone->ang;
 
 		accumDist = 0.150 - (round (length_outa / 0.300, 3) * 0.150);
 		moveIn3D ('x', hanger.ang, accumDist, &hanger.leftBottomX, &hanger.leftBottomY, &hanger.leftBottomZ);
 		hanger.ang = placingZone->ang + DegreeToRad (180.0);
-		placeLibPart (hanger);
+		elemList.Push (placeLibPart (hanger));
 		hanger.ang = placingZone->ang;
 	}
 
@@ -4498,7 +4498,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 	if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
 		accumDist = 0.0;
@@ -4531,7 +4531,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 
 	// 블루목심 - 유로폼 2단 (측면 시작 부분 - 왼쪽)
@@ -4563,7 +4563,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 		if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
 			accumDist = 0.0;
@@ -4596,7 +4596,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 	}
 
@@ -4628,7 +4628,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 	if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
 		accumDist = 0.0;
@@ -4661,7 +4661,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 
 	// 블루목심 - 유로폼 2단 (측면 시작 부분 - 오른쪽)
@@ -4693,7 +4693,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 		if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
 			accumDist = 0.0;
@@ -4726,7 +4726,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 	}
 
@@ -4758,7 +4758,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 	if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
 		accumDist = 0.0;
@@ -4791,7 +4791,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 
 	// 블루목심 - 유로폼 2단 (측면 끝 부분 - 왼쪽)
@@ -4823,7 +4823,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 		if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
 			accumDist = 0.0;
@@ -4856,7 +4856,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 	}
 
@@ -4888,7 +4888,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 	if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
 		accumDist = 0.0;
@@ -4921,7 +4921,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 
 	// 블루목심 - 유로폼 2단 (측면 끝 부분 - 오른쪽)
@@ -4953,7 +4953,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 		if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
 			accumDist = 0.0;
@@ -4986,7 +4986,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 	}
 
@@ -5018,7 +5018,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 	if ((placingZone->cellCenterAtBottom [0].objType == PLYWOOD) && (placingZone->cellCenterAtBottom [0].dirLen > EPS)) {
 		accumDist = 0.0;
@@ -5051,7 +5051,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 
 	// 블루목심 - 유로폼 2단 (하부 시작 부분)
@@ -5083,7 +5083,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 		if ((placingZone->cellCenterAtBottom [0].objType == PLYWOOD) && (placingZone->cellCenterAtBottom [0].dirLen > EPS)) {
 			accumDist = 0.0;
@@ -5116,7 +5116,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 	}
 
@@ -5148,7 +5148,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 	if ((placingZone->cellCenterAtBottom [0].objType == PLYWOOD) && (placingZone->cellCenterAtBottom [0].dirLen > EPS)) {
 		accumDist = 0.0;
@@ -5181,7 +5181,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.leftBottomY = unrotatedPoint.y;
 		timberRail.leftBottomZ = unrotatedPoint.z;
 
-		placeLibPart (timberRail);
+		elemList.Push (placeLibPart (timberRail));
 	}
 
 	// 블루목심 - 유로폼 2단 (하부 끝 부분)
@@ -5213,7 +5213,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 		if ((placingZone->cellCenterAtBottom [0].objType == PLYWOOD) && (placingZone->cellCenterAtBottom [0].dirLen > EPS)) {
 			accumDist = 0.0;
@@ -5246,7 +5246,7 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.leftBottomY = unrotatedPoint.y;
 			timberRail.leftBottomZ = unrotatedPoint.z;
 
-			placeLibPart (timberRail);
+			elemList.Push (placeLibPart (timberRail));
 		}
 	}
 
