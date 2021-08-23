@@ -492,6 +492,12 @@ FIRST:
 		}
 	}
 	for (xx = 0 ; xx < 3 ; ++xx) {
+		// 센터여백 하부의 합판의 경우, 측면의 유로폼/합판을 떠받쳐 주기로 함
+		if (placingZone.cellCenterAtBottom [0].objType == PLYWOOD) {
+			placingZone.cellCenterAtBottom [0].perLen += 0.123;
+			placingZone.cellCenterAtBottom [0].libPart.plywood.p_wid += 0.123;
+			moveIn3D ('y', placingZone.cellCenterAtBottom [0].ang, 0.0615, &placingZone.cellCenterAtBottom [0].leftBottomX, &placingZone.cellCenterAtBottom [0].leftBottomY, &placingZone.cellCenterAtBottom [0].leftBottomZ);
+		}
 		placingZone.cellCenterAtBottom [xx].guid = placingZone.placeLibPart (placingZone.cellCenterAtBottom [xx]);
 		elemList.Push (placingZone.cellCenterAtBottom [xx].guid);
 	}
@@ -4315,14 +4321,14 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		axisPoint.y = placingZone->begC.y;
 		axisPoint.z = placingZone->begC.z;
 
-		rotatedPoint.x = hook.leftBottomX;
-		rotatedPoint.y = hook.leftBottomY;
-		rotatedPoint.z = hook.leftBottomZ;
+		rotatedPoint.x = hanger.leftBottomX;
+		rotatedPoint.y = hanger.leftBottomY;
+		rotatedPoint.z = hanger.leftBottomZ;
 		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-		hook.leftBottomX = unrotatedPoint.x;
-		hook.leftBottomY = unrotatedPoint.y;
-		hook.leftBottomZ = unrotatedPoint.z;
+		hanger.leftBottomX = unrotatedPoint.x;
+		hanger.leftBottomY = unrotatedPoint.y;
+		hanger.leftBottomZ = unrotatedPoint.z;
 
 		placeLibPart (hanger);
 
@@ -4353,14 +4359,14 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		axisPoint.y = placingZone->begC.y;
 		axisPoint.z = placingZone->begC.z;
 
-		rotatedPoint.x = hook.leftBottomX;
-		rotatedPoint.y = hook.leftBottomY;
-		rotatedPoint.z = hook.leftBottomZ;
+		rotatedPoint.x = hanger.leftBottomX;
+		rotatedPoint.y = hanger.leftBottomY;
+		rotatedPoint.z = hanger.leftBottomZ;
 		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-		hook.leftBottomX = unrotatedPoint.x;
-		hook.leftBottomY = unrotatedPoint.y;
-		hook.leftBottomZ = unrotatedPoint.z;
+		hanger.leftBottomX = unrotatedPoint.x;
+		hanger.leftBottomY = unrotatedPoint.y;
+		hanger.leftBottomZ = unrotatedPoint.z;
 
 		hanger.ang = placingZone->ang + DegreeToRad (180.0);
 		placeLibPart (hanger);
@@ -4398,14 +4404,14 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		axisPoint.y = placingZone->begC.y;
 		axisPoint.z = placingZone->begC.z;
 
-		rotatedPoint.x = hook.leftBottomX;
-		rotatedPoint.y = hook.leftBottomY;
-		rotatedPoint.z = hook.leftBottomZ;
+		rotatedPoint.x = hanger.leftBottomX;
+		rotatedPoint.y = hanger.leftBottomY;
+		rotatedPoint.z = hanger.leftBottomZ;
 		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-		hook.leftBottomX = unrotatedPoint.x;
-		hook.leftBottomY = unrotatedPoint.y;
-		hook.leftBottomZ = unrotatedPoint.z;
+		hanger.leftBottomX = unrotatedPoint.x;
+		hanger.leftBottomY = unrotatedPoint.y;
+		hanger.leftBottomZ = unrotatedPoint.z;
 
 		placeLibPart (hanger);
 
@@ -4434,14 +4440,14 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		axisPoint.y = placingZone->begC.y;
 		axisPoint.z = placingZone->begC.z;
 
-		rotatedPoint.x = hook.leftBottomX;
-		rotatedPoint.y = hook.leftBottomY;
-		rotatedPoint.z = hook.leftBottomZ;
+		rotatedPoint.x = hanger.leftBottomX;
+		rotatedPoint.y = hanger.leftBottomY;
+		rotatedPoint.z = hanger.leftBottomZ;
 		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
 
-		hook.leftBottomX = unrotatedPoint.x;
-		hook.leftBottomY = unrotatedPoint.y;
-		hook.leftBottomZ = unrotatedPoint.z;
+		hanger.leftBottomX = unrotatedPoint.x;
+		hanger.leftBottomY = unrotatedPoint.y;
+		hanger.leftBottomZ = unrotatedPoint.z;
 
 		hanger.ang = placingZone->ang + DegreeToRad (180.0);
 		placeLibPart (hanger);
@@ -4478,6 +4484,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (0.0);
 		timberRail.angY = DegreeToRad (90.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (180.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 	if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
@@ -4497,6 +4517,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (0.0);
 		timberRail.angY = DegreeToRad (270.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (180.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 
@@ -4515,6 +4549,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (0.0);
 			timberRail.angY = DegreeToRad (90.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (180.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 		if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
@@ -4534,6 +4582,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (0.0);
 			timberRail.angY = DegreeToRad (270.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (180.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 	}
@@ -4552,6 +4614,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (0.0);
 		timberRail.angY = DegreeToRad (270.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (0.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 	if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
@@ -4571,6 +4647,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (0.0);
 		timberRail.angY = DegreeToRad (90.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (0.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 
@@ -4589,6 +4679,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (0.0);
 			timberRail.angY = DegreeToRad (270.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 		if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
@@ -4608,6 +4712,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (0.0);
 			timberRail.angY = DegreeToRad (90.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 	}
@@ -4626,6 +4744,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (0.0);
 		timberRail.angY = DegreeToRad (270.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (180.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 	if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
@@ -4645,6 +4777,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (0.0);
 		timberRail.angY = DegreeToRad (90.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (180.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 
@@ -4663,6 +4809,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (0.0);
 			timberRail.angY = DegreeToRad (270.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (180.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 		if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
@@ -4682,6 +4842,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (0.0);
 			timberRail.angY = DegreeToRad (90.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (180.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 	}
@@ -4700,6 +4874,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (0.0);
 		timberRail.angY = DegreeToRad (90.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (0.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 	if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
@@ -4719,6 +4907,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (0.0);
 		timberRail.angY = DegreeToRad (270.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (0.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 
@@ -4737,6 +4939,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (0.0);
 			timberRail.angY = DegreeToRad (90.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 		if ((placingZone->cellCenterAtLSide [0].objType == PLYWOOD) && (placingZone->cellCenterAtLSide [0].dirLen > EPS)) {
@@ -4756,6 +4972,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (0.0);
 			timberRail.angY = DegreeToRad (270.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (0.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 	}
@@ -4774,6 +5004,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (90.0);
 		timberRail.angY = DegreeToRad (0.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (270.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 	if ((placingZone->cellCenterAtBottom [0].objType == PLYWOOD) && (placingZone->cellCenterAtBottom [0].dirLen > EPS)) {
@@ -4793,6 +5037,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (90.0);
 		timberRail.angY = DegreeToRad (180.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (270.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 
@@ -4811,6 +5069,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (90.0);
 			timberRail.angY = DegreeToRad (0.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (270.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 		if ((placingZone->cellCenterAtBottom [0].objType == PLYWOOD) && (placingZone->cellCenterAtBottom [0].dirLen > EPS)) {
@@ -4830,6 +5102,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (90.0);
 			timberRail.angY = DegreeToRad (180.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (270.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 	}
@@ -4848,6 +5134,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (90.0);
 		timberRail.angY = DegreeToRad (180.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (270.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 	if ((placingZone->cellCenterAtBottom [0].objType == PLYWOOD) && (placingZone->cellCenterAtBottom [0].dirLen > EPS)) {
@@ -4867,6 +5167,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 		timberRail.angX = DegreeToRad (90.0);
 		timberRail.angY = DegreeToRad (00.0);
 		timberRail.ang = placingZone->ang + DegreeToRad (270.0);
+
+		axisPoint.x = placingZone->begC.x;
+		axisPoint.y = placingZone->begC.y;
+		axisPoint.z = placingZone->begC.z;
+
+		rotatedPoint.x = timberRail.leftBottomX;
+		rotatedPoint.y = timberRail.leftBottomY;
+		rotatedPoint.z = timberRail.leftBottomZ;
+		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+		timberRail.leftBottomX = unrotatedPoint.x;
+		timberRail.leftBottomY = unrotatedPoint.y;
+		timberRail.leftBottomZ = unrotatedPoint.z;
+
 		placeLibPart (timberRail);
 	}
 
@@ -4885,6 +5199,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (90.0);
 			timberRail.angY = DegreeToRad (180.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (270.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 		if ((placingZone->cellCenterAtBottom [0].objType == PLYWOOD) && (placingZone->cellCenterAtBottom [0].dirLen > EPS)) {
@@ -4904,6 +5232,20 @@ GSErrCode	BeamTableformPlacingZone::fillRestAreas (BeamTableformPlacingZone* pla
 			timberRail.angX = DegreeToRad (90.0);
 			timberRail.angY = DegreeToRad (00.0);
 			timberRail.ang = placingZone->ang + DegreeToRad (270.0);
+
+			axisPoint.x = placingZone->begC.x;
+			axisPoint.y = placingZone->begC.y;
+			axisPoint.z = placingZone->begC.z;
+
+			rotatedPoint.x = timberRail.leftBottomX;
+			rotatedPoint.y = timberRail.leftBottomY;
+			rotatedPoint.z = timberRail.leftBottomZ;
+			unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (placingZone->ang));
+
+			timberRail.leftBottomX = unrotatedPoint.x;
+			timberRail.leftBottomY = unrotatedPoint.y;
+			timberRail.leftBottomZ = unrotatedPoint.z;
+
 			placeLibPart (timberRail);
 		}
 	}
