@@ -2913,7 +2913,7 @@ GSErrCode	assignLayerEasily (void)
 	API_SelectionInfo		selectionInfo;
 	API_Element				tElem;
 	API_Neig				**selNeigs;
-	GS::Array<API_Guid>&	objects = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		objects;
 	long					nObjects;
 	long					nSel;
 	API_Element				elem, mask;

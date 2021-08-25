@@ -82,8 +82,8 @@ GSErrCode	placeTableformOnWall_Vertical (void)
 	API_SelectionInfo		selectionInfo;
 	API_Element				tElem;
 	API_Neig				**selNeigs;
-	GS::Array<API_Guid>&	walls = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		walls;
+	GS::Array<API_Guid>		morphs;
 	long					nWalls = 0;
 	long					nMorphs = 0;
 
@@ -548,8 +548,8 @@ GSErrCode	placeTableformOnWall_Horizontal (void)
 	API_SelectionInfo		selectionInfo;
 	API_Element				tElem;
 	API_Neig				**selNeigs;
-	GS::Array<API_Guid>&	walls = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		walls;
+	GS::Array<API_Guid>		morphs;
 	long					nWalls = 0;
 	long					nMorphs = 0;
 
@@ -968,8 +968,8 @@ GSErrCode	placeTableformOnWall_Custom (void)
 	API_SelectionInfo		selectionInfo;
 	API_Element				tElem;
 	API_Neig				**selNeigs;
-	GS::Array<API_Guid>&	walls = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		walls;
+	GS::Array<API_Guid>		morphs;
 	long					nWalls = 0;
 	long					nMorphs = 0;
 

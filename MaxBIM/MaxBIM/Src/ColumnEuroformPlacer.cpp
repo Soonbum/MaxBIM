@@ -71,10 +71,10 @@ GSErrCode	placeEuroformOnColumn (void)
 	API_SelectionInfo		selectionInfo;
 	API_Element				tElem;
 	API_Neig				**selNeigs;
-	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	columns = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	walls = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	beams = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		morphs;
+	GS::Array<API_Guid>		columns;
+	GS::Array<API_Guid>		walls;
+	GS::Array<API_Guid>		beams;
 	long					nMorphs = 0;
 	long					nColumns = 0;
 	long					nWalls = 0;

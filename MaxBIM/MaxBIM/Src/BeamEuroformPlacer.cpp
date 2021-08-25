@@ -73,8 +73,8 @@ GSErrCode	placeEuroformOnBeam (void)
 	API_SelectionInfo		selectionInfo;
 	API_Element				tElem;
 	API_Neig				**selNeigs;
-	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	beams = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		morphs;
+	GS::Array<API_Guid>		beams;
 	long					nMorphs = 0;
 	long					nBeams = 0;
 
@@ -90,7 +90,7 @@ GSErrCode	placeEuroformOnBeam (void)
 	Int32					nVert, nEdge, nPgon;
 	Int32					elemIdx, bodyIdx;
 	API_Coord3D				trCoord;
-	GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
+	GS::Array<API_Coord3D>	coords;
 
 	// 폴리곤 점을 배열로 복사함
 	API_Coord3D		nodes_random [20];

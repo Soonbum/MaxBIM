@@ -88,8 +88,8 @@ GSErrCode	convertVirtualTCO (void)
 	API_SelectionInfo		selectionInfo;
 	API_Neig				**selNeigs;
 	API_Element				tElem;
-	GS::Array<API_Guid>&	objects = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	objectsRetry = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		objects;
+	GS::Array<API_Guid>		objectsRetry;
 
 
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);

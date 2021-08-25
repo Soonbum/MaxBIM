@@ -39,9 +39,9 @@ GSErrCode	placeEuroformOnWall (void)
 	API_SelectionInfo		selectionInfo;
 	API_Element				tElem;
 	API_Neig				**selNeigs;
-	GS::Array<API_Guid>&	walls = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	beams = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		walls;
+	GS::Array<API_Guid>		morphs;
+	GS::Array<API_Guid>		beams;
 	long					nWalls = 0;
 	long					nMorphs = 0;
 	long					nBeams = 0;

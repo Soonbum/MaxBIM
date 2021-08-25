@@ -41,8 +41,8 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	API_SelectionInfo		selectionInfo;
 	API_Element				tElem;
 	API_Neig				**selNeigs;
-	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	slabs = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		morphs;
+	GS::Array<API_Guid>		slabs;
 	long					nMorphs = 0;
 	long					nSlabs = 0;
 
@@ -57,7 +57,7 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	Int32					nVert, nEdge, nPgon;
 	Int32					elemIdx, bodyIdx;
 	API_Coord3D				trCoord;
-	GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
+	GS::Array<API_Coord3D>	coords;
 
 	// 모프 객체 정보
 	InfoMorphForSlabTableform	infoMorph;

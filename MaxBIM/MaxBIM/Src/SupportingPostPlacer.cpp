@@ -37,7 +37,7 @@ GSErrCode	placePERIPost (void)
 	API_SelectionInfo		selectionInfo;
 	API_Element				tElem;
 	API_Neig				**selNeigs;
-	GS::Array<API_Guid>&	morphs = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		morphs;
 	long					nMorphs = 0;
 
 	// 객체 정보 가져오기
@@ -50,7 +50,7 @@ GSErrCode	placePERIPost (void)
 	Int32					nVert, nEdge, nPgon;
 	Int32					elemIdx, bodyIdx;
 	API_Coord3D				trCoord;
-	GS::Array<API_Coord3D>&	coords = GS::Array<API_Coord3D> ();
+	GS::Array<API_Coord3D>	coords;
 	long					nNodes;
 
 	// 점 입력

@@ -468,10 +468,9 @@ int	SummaryOfObjectInfo::quantityPlus1 (GS::Array<string> record)
 
 			// 모든 필드가 일치하면
 			if (diff == 0) {
-				value = atoi (this->records [xx][(int)inVecLen1].c_str ());
+				value = atoi (this->records [xx].Pop ().c_str ());
 				value ++;
 				sprintf (tempStr, "%d", value);
-				this->records [xx].DeleteLast ();
 				this->records [xx].Push (tempStr);
 				return value;
 			}
@@ -507,8 +506,8 @@ GSErrCode	exportSelectedElementInfo (void)
 	API_SelectionInfo		selectionInfo;
 	API_Neig				**selNeigs;
 	API_Element				tElem;
-	GS::Array<API_Guid>&	objects = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	beams = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		objects;
+	GS::Array<API_Guid>		beams;
 	long					nObjects = 0;
 	long					nBeams = 0;
 
@@ -976,8 +975,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 	// 모든 객체, 보 저장
 	GS::Array<API_Guid>		elemList;
-	GS::Array<API_Guid>&	objects = GS::Array<API_Guid> ();
-	GS::Array<API_Guid>&	beams = GS::Array<API_Guid> ();
+	GS::Array<API_Guid>		objects;
+	GS::Array<API_Guid>		beams;
 	long					nObjects = 0;
 	long					nBeams = 0;
 
@@ -2246,19 +2245,19 @@ GSErrCode	filterSelection (void)
 	API_ElementMemo		memo;
 
 	// GUID 저장을 위한 변수
-	GS::Array<API_Guid>	objects	= GS::Array<API_Guid> ();	long nObjects	= 0;
-	GS::Array<API_Guid>	walls	= GS::Array<API_Guid> ();	long nWalls		= 0;
-	GS::Array<API_Guid>	columns	= GS::Array<API_Guid> ();	long nColumns	= 0;
-	GS::Array<API_Guid>	beams	= GS::Array<API_Guid> ();	long nBeams		= 0;
-	GS::Array<API_Guid>	slabs	= GS::Array<API_Guid> ();	long nSlabs		= 0;
-	GS::Array<API_Guid>	roofs	= GS::Array<API_Guid> ();	long nRoofs		= 0;
-	GS::Array<API_Guid>	meshes	= GS::Array<API_Guid> ();	long nMeshes	= 0;
-	GS::Array<API_Guid>	morphs	= GS::Array<API_Guid> ();	long nMorphs	= 0;
-	GS::Array<API_Guid>	shells	= GS::Array<API_Guid> ();	long nShells	= 0;
+	GS::Array<API_Guid>	objects;	long nObjects	= 0;
+	GS::Array<API_Guid>	walls;		long nWalls		= 0;
+	GS::Array<API_Guid>	columns;	long nColumns	= 0;
+	GS::Array<API_Guid>	beams;		long nBeams		= 0;
+	GS::Array<API_Guid>	slabs;		long nSlabs		= 0;
+	GS::Array<API_Guid>	roofs;		long nRoofs		= 0;
+	GS::Array<API_Guid>	meshes;		long nMeshes	= 0;
+	GS::Array<API_Guid>	morphs;		long nMorphs	= 0;
+	GS::Array<API_Guid>	shells;		long nShells	= 0;
 
 	// 조건에 맞는 객체들의 GUID 저장
-	GS::Array<API_Guid> selection_known = GS::Array<API_Guid> ();
-	GS::Array<API_Guid> selection_unknown = GS::Array<API_Guid> ();
+	GS::Array<API_Guid> selection_known;
+	GS::Array<API_Guid> selection_unknown;
 
 	
 	// 그룹화 일시정지 ON
