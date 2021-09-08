@@ -1254,7 +1254,7 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			DGDisableItem (dialogID, EDITCONTROL_VPOST2_HEIGHT);
 
 			// 3. 수직재 규격 팝업 추가
-			// 강관 동바리의 경우 V0 (2.0m), V1 (3.2m), V2 (3.4m), V3 (3.8m), V4 (4.0m), V5 (5.0m), V6 (5.9m), V7 (0.5~2.0m)
+			// 강관 동바리의 경우 V0 (2.0m), V1 (3.2m), V2 (3.4m), V3 (3.8m), V4 (4.0m), V5 (5.0m), V6 (5.9m), V7 (0.5~2.0m), V0 (SPS 20), V0 (SPS 30), V0 (SPS 40), V0 (SPS 50)
 			// PERI 동바리의 경우 MP 120, MP 250, MP 350, MP 480, MP 625
 			DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (2.0m)");
@@ -1272,6 +1272,14 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V6 (5.9m)");
 			DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V7 (0.5~2.0m)");
+			DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 20)");
+			DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 30)");
+			DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 40)");
+			DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 50)");
 
 			DGPopUpInsertItem (dialogID, POPUP_VPOST2_NOMINAL, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_VPOST2_NOMINAL, DG_POPUP_BOTTOM, "MP 120");
@@ -1285,7 +1293,8 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 			DGPopUpSetItemText (dialogID, POPUP_VPOST2_NOMINAL, DG_POPUP_BOTTOM, "MP 625");
 			
 			// 4. 수직재 높이 라벨 옆에 범위 표시
-			// 강관 동바리의 경우 V0 (2.0m) (1200~2000), V1 (3.2m) (1800~3200), V2 (3.4m) (2000~3400), V3 (3.8m) (2400~3800), V4 (4.0m) (2600~4000), V5 (5.0m) (3000~5000), V6 (5.9m) (3200~5900), V7 (0.5~2.0m) (500~2000)
+			// 강관 동바리의 경우 V0 (2.0m) (1200~2000), V1 (3.2m) (1850~3100), V2 (3.4m) (2150~3300), V3 (3.8m) (2450~3700), V4 (4.0m) (2650~4000), V5 (5.0m) (3600~5000), V6 (5.9m) (3200~5900), V7 (0.5~2.0m) (500~2000)
+			//						V0 (SPS 20) (600~1040), V0 (SPS 30) (1000~1400), V0 (SPS 40) (1200~2000), V0 (SPS 50) (1500~2600)
 			// PERI 동바리의 경우 MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
 			DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1200~2000");
 			DGSetItemText (dialogID, LABEL_VPOST2_HEIGHT, "H. 800~1200");
@@ -1423,6 +1432,14 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V6 (5.9m)");
 						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
 						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V7 (0.5~2.0m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 20)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 30)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 40)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 50)");
 
 						DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1200~2000");
 						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
@@ -1514,6 +1531,14 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V6 (5.9m)");
 						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
 						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V7 (0.5~2.0m)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 20)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 30)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 40)");
+						DGPopUpInsertItem (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM);
+						DGPopUpSetItemText (dialogID, POPUP_VPOST1_NOMINAL, DG_POPUP_BOTTOM, "V0 (SPS 50)");
 
 						DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1200~2000");
 						DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
@@ -1707,31 +1732,32 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 					// 수직재 1단 규격에 따라 높이 범위 변경됨
 					strcpy (tempStr, DGPopUpGetItemText (dialogID, POPUP_TYPE, DGPopUpGetSelected (dialogID, POPUP_TYPE)).ToCStr ().Get ());
 					if (strncmp (tempStr, "강관 동바리", strlen ("강관 동바리")) == 0) {
-						// 강관 동바리의 경우 V0 (2.0m) (1200~2000), V1 (3.2m) (1800~3200), V2 (3.4m) (2000~3400), V3 (3.8m) (2400~3800), V4 (4.0m) (2600~4000), V5 (5.0m) (3000~5000), V6 (5.9m) (3200~5900), V7 (0.5~2.0m) (500~2000)
+						// 강관 동바리의 경우 V0 (2.0m) (1200~2000), V1 (3.2m) (1850~3100), V2 (3.4m) (2150~3300), V3 (3.8m) (2450~3700), V4 (4.0m) (2650~4000), V5 (5.0m) (3600~5000), V6 (5.9m) (3200~5900), V7 (0.5~2.0m) (500~2000)
+						//						V0 (SPS 20) (600~1040), V0 (SPS 30) (1000~1400), V0 (SPS 40) (1200~2000), V0 (SPS 50) (1500~2600)
 						strcpy (tempStr2, DGPopUpGetItemText (dialogID, POPUP_VPOST1_NOMINAL, DGPopUpGetSelected (dialogID, POPUP_VPOST1_NOMINAL)).ToCStr ().Get ());
 						if (my_strcmp (tempStr2, "V0 (2.0m)") == 0) {
 							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1200~2000");
 							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
 							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.000);
 						} else if (my_strcmp (tempStr2, "V1 (3.2m)") == 0) {
-							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1800~3200");
-							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.800);
-							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.200);
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1850~3100");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.850);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.100);
 						} else if (my_strcmp (tempStr2, "V2 (3.4m)") == 0) {
-							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2000~3400");
-							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.000);
-							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.400);
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2150~3300");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.150);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.300);
 						} else if (my_strcmp (tempStr2, "V3 (3.8m)") == 0) {
-							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2400~3800");
-							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.400);
-							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.800);
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2450~3700");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.450);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.700);
 						} else if (my_strcmp (tempStr2, "V4 (4.0m)") == 0) {
-							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2600~4000");
-							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.600);
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 2650~4000");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.650);
 							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 4.000);
 						} else if (my_strcmp (tempStr2, "V5 (5.0m)") == 0) {
-							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 3000~5000");
-							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.000);
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 3600~5000");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 3.600);
 							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 5.000);
 						} else if (my_strcmp (tempStr2, "V6 (5.9m)") == 0) {
 							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 3200~5900");
@@ -1741,6 +1767,22 @@ short DGCALLBACK PERISupportingPostPlacerHandler1 (short message, short dialogID
 							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 500~2000");
 							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.500);
 							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.000);
+						} else if (my_strcmp (tempStr2, "V0 (SPS 20)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 600~1040");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 0.600);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.040);
+						} else if (my_strcmp (tempStr2, "V0 (SPS 30)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1000~1400");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.000);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.400);
+						} else if (my_strcmp (tempStr2, "V0 (SPS 40)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1200~2000");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.200);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.000);
+						} else if (my_strcmp (tempStr2, "V0 (SPS 50)") == 0) {
+							DGSetItemText (dialogID, LABEL_VPOST1_HEIGHT, "H. 1500~2600");
+							DGSetItemMinDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 1.500);
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_VPOST1_HEIGHT, 2.600);
 						}
 					} else if (strncmp (tempStr, "PERI 동바리", strlen ("PERI 동바리")) == 0) {
 						// PERI 동바리의 경우 MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
