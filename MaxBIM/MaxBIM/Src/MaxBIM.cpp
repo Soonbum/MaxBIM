@@ -202,6 +202,9 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						return err;
 					});
 					break;
+				case 4:		// 레이어 이름 검사하기
+					err = inspectLayerNames ();
+					break;
 			}
 			break;
 

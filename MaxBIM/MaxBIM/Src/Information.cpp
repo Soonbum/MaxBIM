@@ -285,7 +285,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 											 2. 테이블폼 배치\n - 벽에 테이블폼 배치 - 세로 방향\n - 벽에 테이블폼 배치 - 가로 방향\n - 벽에 테이블폼 배치 - 커스텀\n - 슬래브 하부에 테이블폼 배치\n - 보에 테이블폼 배치\n\n\
 											 3. 동바리 배치\n - PERI 동바리 자동 배치\n\n\
 											 4. Library Converting\n - 가상 가설재 모두 변환\n\n\
-											 5. 레이어 유틸\n - 레이어 쉽게 선택하기\n - 레이어 쉽게 만들기\n - 레이어 쉽게 지정하기");
+											 5. 레이어 유틸\n - 레이어 쉽게 선택하기\n - 레이어 쉽게 만들기\n - 레이어 쉽게 지정하기\n - 레이어 이름 검사하기 (진행중)");
 			DGShowItem (dialogID, itmIdx);
 
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX + 270, itmPosY, 250, 320);
