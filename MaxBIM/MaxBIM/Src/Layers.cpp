@@ -4248,16 +4248,38 @@ GSErrCode	inspectLayerNames (void)
 
 	FILE	*fp;			// 파일 포인터
 	char	line [10240];	// 파일에서 읽어온 라인 하나
+	char	buffer [256];	// 레이어 이름을 저장할 버퍼
 	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
+	string	insElem2;
 	char	*token;			// 읽어온 문자열의 토큰
 	short	lineCount;		// 읽어온 라인 수
 	short	tokCount;		// 읽어온 토큰 개수
 
 	API_Attribute	attrib;
 	API_AttributeDef  defs;
-	short	xx;
+	short	xx, yy, i;
+	short	nLayers;
 
+	short	nBaseFields;
+	short	nExtendFields;
+	bool	success;
+	bool	extSuccess;
 	char	tempStr [128];
+	char	tok1 [32];
+	char	tok2 [32];
+	char	tok3 [32];
+	char	tok4 [32];
+	char	tok5 [32];
+	char	tok6 [32];
+	char	tok7 [32];
+	char	tok8 [32];
+	char	tok9 [32];
+	char	tok10 [32];
+	char	constructionCode [8];
+
+	bool	bSkip;
+	bool	bValidLayerName;
+	short	nValidCount;
 
 	short	result;
 
@@ -4397,9 +4419,25 @@ GSErrCode	inspectLayerNames (void)
 	char	code9 [1000][5];	// 제작번호 코드
 	short	LenCode9;
 
+	vector<string>	exceptionLayerNames;	// 예외 처리된 레이어 이름 목록
+	vector<string>	invalidLayerNames;		// 유효하지 않은 레이어 이름 목록
+
+	char	curCode1 [5];
+	char	curCode2 [5];
+	char	curCode3 [5];
+	char	curCode4 [5];
+	char	curCode5 [5];
+	char	curCode6 [5];
+	char	curCode7 [5];
+	char	curCode8 [32];
+	char	curCode9 [5];
+
 	char	fullLayerName [128];
 	bool	bNormalLayer;
 	short	x1, x2, x3, x4, x5, x6, x7, x8, x9;
+
+	char msg [256];
+
 
 	// 1. 공사 코드 문자열 만들기
 	z = 0;
@@ -4473,241 +4511,268 @@ GSErrCode	inspectLayerNames (void)
 	}
 	LenCode9 = z;
 
+	// !!!
+	// 예외 이름 레이어 이름 추가
+	strcpy (line, "");
+	insElem = "";
+	insElem2 = "";
+	fp = fopen ("C:\\exceptionLayer.csv", "r");
+	if (fp != NULL) {
+		do {
+			fgets (line, 256, fp);
+			line [strlen (line)] = '\0';
+			insElem = line;
+			if (insElem.compare (insElem2) == 0)
+				break;
+			exceptionLayerNames.push_back (insElem);
+			insElem2 = insElem;
+		} while (strlen (line) > 2);
+	}
+	fclose (fp);
+
 	// 레이어 이름 조합하기
-	// ...
-	// 1. 레이어 이름 순회
-		// 숨김 여부에 관계없이 다 확인해야 함
-		// 필드 하나하나씩 다 체크해가면서 기본, 확장 유형에 속하는지 확인할 것
-		// 예외 이름 vector 객체 만들기
-		// 틀린 이름 vector 객체 안에 틀린 레이어 이름을 하나씩 push할 것 (단, 예외 이름에 해당하는 것은 넣지 말 것)
+	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	attrib.header.typeID = API_LayerID;
+	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
 
-	//if (layerInfo.extendedLayer == true) {
-	//	for (x1 = 0 ; x1 < LenCode1 ; ++x1) {
-	//		for (x2 = 0 ; x2 < LenCode2 ; ++x2) {
-	//			for (x3 = 0 ; x3 < LenCode3 ; ++x3) {
-	//				for (x4 = 0 ; x4 < LenCode4 ; ++x4) {
-	//					for (x5 = 0 ; x5 < LenCode5 ; ++x5) {
-	//						for (x6 = 0 ; x6 < LenCode6 ; ++x6) {
-	//							for (x7 = 0 ; x7 < LenCode7 ; ++x7) {
-	//								for (x8 = 0 ; x8 < LenCode8 ; ++x8) {
-	//									for (x9 = 0 ; x9 < LenCode9 ; ++x9) {
-	//										bNormalLayer = isFullLayer (&layerInfo);	// 레이어 이름이 정상적인 체계의 이름인가?
+	for (xx = 1 ; xx <= nLayers && err == NoError ; ++xx) {
+		attrib.header.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			strcpy (tok1, "");
+			strcpy (tok2, "");
+			strcpy (tok3, "");
+			strcpy (tok4, "");
+			strcpy (tok5, "");
+			strcpy (tok6, "");
+			strcpy (tok7, "");
+			strcpy (tok8, "");
+			strcpy (tok9, "");
+			i = 1;
+			success = false;
+			extSuccess = false;
+			nBaseFields = 0;
+			nExtendFields = 0;
+			// 예시(기본): 05-T-0000-F01-01-01-01-WALL
+			// 예시(확장): 05-T-0000-F01-01-01-01-WALL-현장제작-001
+			// 레이어 이름을 "-" 문자 기준으로 쪼개기
+			strcpy (buffer, attrib.layer.head.name);
+			token = strtok (buffer, "-");
+			while (token != NULL) {
+				// 내용 및 길이 확인
+				// 1차 (일련번호) - 필수 (2글자, 숫자)
+				if (i == 1) {
+					strcpy (tempStr, token);
+					if (strlen (tempStr) == 2) {
+						strcpy (tok1, tempStr);
+						success = true;
+						nBaseFields ++;
+					} else {
+						i = 100;
+						success = false;
+					}
+				}
+				// 2차 (공사 구분) - 필수 (1글자, 문자)
+				else if (i == 2) {
+					strcpy (tempStr, token);
+					if (strlen (tempStr) == 1) {
+						strcpy (tok2, tempStr);
+						success = true;
+						nBaseFields ++;
+					} else {
+						i = 100;
+						success = false;
+					}
+				}
+				// 3차 (동 구분) - 필수 (4글자)
+				else if (i == 3) {
+					strcpy (tempStr, token);
+					// 동 구분일 경우,
+					if (strlen (tempStr) == 4) {
+						strcpy (tok3, tempStr);
+						success = true;
+						nBaseFields ++;
+					} else {
+						i = 100;
+						success = false;
+					}
+				}
+				// 4차 (층 구분) - 필수 (3글자)
+				else if (i == 4) {
+					strcpy (tempStr, token);
+					if (strlen (tempStr) == 3) {
+						strcpy (tok4, tempStr);
+						success = true;
+						nBaseFields ++;
+					} else {
+						i = 100;
+						success = false;
+					}
+				}
+				// 5차 (타설번호) - 필수 (2글자, 숫자)
+				else if (i == 5) {
+					strcpy (tempStr, token);
+					if (strlen (tempStr) == 2) {
+						strcpy (tok5, tempStr);
+						success = true;
+						nBaseFields ++;
+					} else {
+						i = 100;
+						success = false;
+					}
+				}
+				// 6차 (CJ 구간) - 필수 (2글자, 숫자)
+				else if (i == 6) {
+					strcpy (tempStr, token);
+					if (strlen (tempStr) == 2) {
+						strcpy (tok6, tempStr);
+						success = true;
+						nBaseFields ++;
+					} else {
+						i = 100;
+						success = false;
+					}
+				}
+				// 7차 (CJ 속 시공순서) - 필수 (2글자, 숫자)
+				else if (i == 7) {
+					strcpy (tempStr, token);
+					if (strlen (tempStr) == 2) {
+						strcpy (tok7, tempStr);
+						success = true;
+						nBaseFields ++;
+					} else {
+						i = 100;
+						success = false;
+					}
+				}
+				// 8차 (부재 구분) - 필수 (3글자 이상)
+				else if (i == 8) {
+					strcpy (tempStr, token);
+					if (strlen (tempStr) >= 3) {
+						strcpy (tok8, tempStr);
+						success = true;
+						nBaseFields ++;
+					} else {
+						i = 100;
+						success = false;
+					}
+				}
+				// 9차 (제작처 구분) - 선택 (한글 4글자..)
+				else if (i == 9) {
+					strcpy (tempStr, token);
+					if (strlen (tempStr) >= 4) {
+						strcpy (tok9, tempStr);
+						extSuccess = true;
+						nExtendFields ++;
+					} else {
+						i = 100;
+						extSuccess = false;
+					}
+				}
+				// 10차 (제작 번호) - 필수 (3글자, 숫자)
+				else if (i == 10) {
+					strcpy (tempStr, token);
+					if (strlen (tempStr) == 3) {
+						strcpy (tok10, tempStr);
+						extSuccess = true;
+						nExtendFields ++;
+					} else {
+						i = 100;
+						extSuccess = false;
+					}
+				}
+				++i;
+				token = strtok (NULL, "-");
+			}
 
-	//										// 공사 구분
-	//										strcpy (fullLayerName, "");
-	//										strcpy (fullLayerName, code1 [x1]);
+			// !!!
+			bSkip = false;
+			for (yy = 0 ; yy < exceptionLayerNames.size () ; ++yy) {
+				insElem = attrib.layer.head.name;
+				if (exceptionLayerNames.at(yy).compare (insElem) == 0) {
+					bSkip = true;
+				}
+			}
+			if (bSkip == true)
+				break;
 
-	//										// 동 구분
-	//										strcat (fullLayerName, "-");
-	//										strcat (fullLayerName, code2 [x2]);
+			// 8단계 또는 10단계까지 성공적으로 완료되면
+			bValidLayerName = false;
+			nValidCount = 0;
+			if ((success == true) && (nBaseFields == 8)) {
+				// 일련 번호와 공사 구분 문자를 합침
+				sprintf (constructionCode, "%s-%s", tok1, tok2);
+				
+				// 기본형
+				for (yy = 0 ; yy < layerInfo.code_name.size () ; ++yy) {
+					if (my_strcmp (layerInfo.code_name.at (yy).c_str (), constructionCode) == 0)
+						++nValidCount;
+				}
+				for (yy = 0 ; yy < layerInfo.dong_name.size () ; ++yy) {
+					if (my_strcmp (layerInfo.dong_name.at (yy).c_str (), tok3) == 0)
+						++nValidCount;
+				}
+				for (yy = 0 ; yy < layerInfo.floor_name.size () ; ++yy) {
+					if (my_strcmp (layerInfo.floor_name.at (yy).c_str (), tok4) == 0)
+						++nValidCount;
+				}
+				for (yy = 0 ; yy < layerInfo.cast_name.size () ; ++yy) {
+					if (my_strcmp (layerInfo.cast_name.at (yy).c_str (), tok5) == 0)
+						++nValidCount;
+				}
+				for (yy = 0 ; yy < layerInfo.CJ_name.size () ; ++yy) {
+					if (my_strcmp (layerInfo.CJ_name.at (yy).c_str (), tok6) == 0)
+						++nValidCount;
+				}
+				for (yy = 0 ; yy < layerInfo.orderInCJ_name.size () ; ++yy) {
+					if (my_strcmp (layerInfo.orderInCJ_name.at (yy).c_str (), tok7) == 0)
+						++nValidCount;
+				}
+				for (yy = 0 ; yy < layerInfo.obj_name.size () ; ++yy) {
+					if (my_strcmp (layerInfo.obj_name.at (yy).c_str (), tok8) == 0)
+						++nValidCount;
+				}
 
-	//										// 층 구분
-	//										strcat (fullLayerName, "-");
-	//										strcat (fullLayerName, code3 [x3]);
+				// 확장형
+				if (nExtendFields == 2) {
+					for (yy = 0 ; yy < layerInfo.productSite_name.size () ; ++yy) {
+						if (my_strcmp (layerInfo.productSite_name.at (yy).c_str (), tok9) == 0)
+							++nValidCount;
+					}
+					for (yy = 0 ; yy < layerInfo.productNum_name.size () ; ++yy) {
+						if (my_strcmp (layerInfo.productNum_name.at (yy).c_str (), tok10) == 0)
+							++nValidCount;
+					}
+				}
 
-	//										// 타설번호
-	//										strcat (fullLayerName, "-");
-	//										strcat (fullLayerName, code4 [x4]);
+				// 유효한 레이어 이름인가?
+				if ((nValidCount == 7) || (nValidCount == 9))
+					bValidLayerName == true;
+			}
 
-	//										// CJ 구간
-	//										strcat (fullLayerName, "-");
-	//										strcat (fullLayerName, code5 [x5]);
+			// 유효하지 않은 레이어 이름은 따로 저장함
+			// !!!
+			if (bValidLayerName == false) {
+				//sprintf (msg, "%s\n", attrib.layer.head.name);
+				//ACAPI_WriteReport (msg, true);
+				insElem = attrib.layer.head.name;
+				invalidLayerNames.push_back (insElem);
+			}
+		}
+		if (err == APIERR_DELETED)
+			err = NoError;
+	}
 
-	//										// CJ 속 시공순서
-	//										strcat (fullLayerName, "-");
-	//										strcat (fullLayerName, code6 [x6]);
+	// !!!
+	sprintf (msg, "%d", invalidLayerNames.at (xx).size ());
+	ACAPI_WriteReport (msg, true);
 
-	//										// 부재 구분
-	//										strcat (fullLayerName, "-");
-	//										strcat (fullLayerName, code7 [x7]);
-
-	//										// 제작처 구분
-	//										strcat (fullLayerName, "-");
-	//										strcat (fullLayerName, code8 [x8]);
-
-	//										// 제작 번호
-	//										strcat (fullLayerName, "-");
-	//										strcat (fullLayerName, code9 [x9]);
-
-	//										// 정상적인 레이어 이름이면,
-	//										if (bNormalLayer == true) {
-	//											// 선택한 레이어가 존재하는지 확인
-	//											BNZeroMemory (&attrib, sizeof (API_Attribute));
-	//											attrib.header.typeID = API_LayerID;
-	//											CHCopyC (fullLayerName, attrib.header.name);
-	//											err = ACAPI_Attribute_Get (&attrib);
-
-	//											// 레이어가 존재하면,
-	//											if (err == NoError) {
-	//												// 객체들의 레이어 속성을 변경함
-	//												for (xx = 0 ; xx < nObjects ; ++xx) {
-	//													BNZeroMemory (&elem, sizeof (API_Element));
-	//													elem.header.guid = objects.Pop ();
-	//													err = ACAPI_Element_Get (&elem);
-
-	//													ACAPI_ELEMENT_MASK_CLEAR (mask);
-	//													ACAPI_ELEMENT_MASK_SET (mask, API_Elem_Head, layer);
-	//													elem.header.layer = attrib.layer.head.index;	// 가져온 레이어 속성의 인덱스를 부여함
-
-	//													err = ACAPI_Element_Change (&elem, &mask, NULL, 0, true);
-	//												}
-
-	//											// 레이어가 존재하지 않으면,
-	//											} else {
-
-	//												result = DGAlert (DG_INFORMATION, "레이어가 존재하지 않음", "지정한 레이어가 존재하지 않습니다.\n새로 만드시겠습니까?", "", "예", "아니오", "");
-
-	//												if (result == DG_OK) {
-	//													// 레이어를 새로 생성함
-	//													BNZeroMemory (&attrib, sizeof (API_Attribute));
-	//													BNZeroMemory (&defs, sizeof (API_AttributeDef));
-
-	//													attrib.header.typeID = API_LayerID;
-	//													attrib.layer.conClassId = 1;
-	//													CHCopyC (fullLayerName, attrib.header.name);
-	//													err = ACAPI_Attribute_Create (&attrib, &defs);
-
-	//													ACAPI_DisposeAttrDefsHdls (&defs);
-
-	//													// 객체들의 레이어 속성을 변경함
-	//													for (xx = 0 ; xx < nObjects ; ++xx) {
-	//														BNZeroMemory (&elem, sizeof (API_Element));
-	//														elem.header.guid = objects.Pop ();
-	//														err = ACAPI_Element_Get (&elem);
-
-	//														ACAPI_ELEMENT_MASK_CLEAR (mask);
-	//														ACAPI_ELEMENT_MASK_SET (mask, API_Elem_Head, layer);
-	//														elem.header.layer = attrib.layer.head.index;	// 가져온 레이어 속성의 인덱스를 부여함
-
-	//														err = ACAPI_Element_Change (&elem, &mask, NULL, 0, true);
-	//													}
-	//												} else {
-	//													ACAPI_WriteReport ("레이어가 없으므로 실행을 중지합니다.", true);
-	//													return	err;
-	//												}
-	//											}
-	//										} else {
-	//											// 정상적인 레이어가 아님
-	//											ACAPI_WriteReport ("레이어 지정을 잘못하셨습니다.", true);
-	//										}
-	//									}
-	//								}
-	//							}
-	//						}
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-	//} else {
-	//	for (x1 = 0 ; x1 < LenCode1 ; ++x1) {
-	//		for (x2 = 0 ; x2 < LenCode2 ; ++x2) {
-	//			for (x3 = 0 ; x3 < LenCode3 ; ++x3) {
-	//				for (x4 = 0 ; x4 < LenCode4 ; ++x4) {
-	//					for (x5 = 0 ; x5 < LenCode5 ; ++x5) {
-	//						for (x6 = 0 ; x6 < LenCode6 ; ++x6) {
-	//							for (x7 = 0 ; x7 < LenCode7 ; ++x7) {
-	//								bNormalLayer = isFullLayer (&layerInfo);	// 레이어 이름이 정상적인 체계의 이름인가?
-
-	//								// 공사 구분
-	//								strcpy (fullLayerName, "");
-	//								strcpy (fullLayerName, code1 [x1]);
-
-	//								// 동 구분
-	//								strcat (fullLayerName, "-");
-	//								strcat (fullLayerName, code2 [x2]);
-
-	//								// 층 구분
-	//								strcat (fullLayerName, "-");
-	//								strcat (fullLayerName, code3 [x3]);
-
-	//								// 타설번호
-	//								strcat (fullLayerName, "-");
-	//								strcat (fullLayerName, code4 [x4]);
-
-	//								// CJ 구간
-	//								strcat (fullLayerName, "-");
-	//								strcat (fullLayerName, code5 [x5]);
-
-	//								// CJ 속 시공순서
-	//								strcat (fullLayerName, "-");
-	//								strcat (fullLayerName, code6 [x6]);
-
-	//								// 부재 구분
-	//								strcat (fullLayerName, "-");
-	//								strcat (fullLayerName, code7 [x7]);
-
-	//								// 정상적인 레이어 이름이면,
-	//								if (bNormalLayer == true) {
-	//									// 선택한 레이어가 존재하는지 확인
-	//									BNZeroMemory (&attrib, sizeof (API_Attribute));
-	//									attrib.header.typeID = API_LayerID;
-	//									CHCopyC (fullLayerName, attrib.header.name);
-	//									err = ACAPI_Attribute_Get (&attrib);
-
-	//									// 레이어가 존재하면,
-	//									if (err == NoError) {
-	//										// 객체들의 레이어 속성을 변경함
-	//										for (xx = 0 ; xx < nObjects ; ++xx) {
-	//											BNZeroMemory (&elem, sizeof (API_Element));
-	//											elem.header.guid = objects.Pop ();
-	//											err = ACAPI_Element_Get (&elem);
-
-	//											ACAPI_ELEMENT_MASK_CLEAR (mask);
-	//											ACAPI_ELEMENT_MASK_SET (mask, API_Elem_Head, layer);
-	//											elem.header.layer = attrib.layer.head.index;	// 가져온 레이어 속성의 인덱스를 부여함
-
-	//											err = ACAPI_Element_Change (&elem, &mask, NULL, 0, true);
-	//										}
-
-	//									// 레이어가 존재하지 않으면,
-	//									} else {
-
-	//										result = DGAlert (DG_INFORMATION, "레이어가 존재하지 않음", "지정한 레이어가 존재하지 않습니다.\n새로 만드시겠습니까?", "", "예", "아니오", "");
-
-	//										if (result == DG_OK) {
-	//											// 레이어를 새로 생성함
-	//											BNZeroMemory (&attrib, sizeof (API_Attribute));
-	//											BNZeroMemory (&defs, sizeof (API_AttributeDef));
-
-	//											attrib.header.typeID = API_LayerID;
-	//											attrib.layer.conClassId = 1;
-	//											CHCopyC (fullLayerName, attrib.header.name);
-	//											err = ACAPI_Attribute_Create (&attrib, &defs);
-
-	//											ACAPI_DisposeAttrDefsHdls (&defs);
-
-	//											// 객체들의 레이어 속성을 변경함
-	//											for (xx = 0 ; xx < nObjects ; ++xx) {
-	//												BNZeroMemory (&elem, sizeof (API_Element));
-	//												elem.header.guid = objects.Pop ();
-	//												err = ACAPI_Element_Get (&elem);
-
-	//												ACAPI_ELEMENT_MASK_CLEAR (mask);
-	//												ACAPI_ELEMENT_MASK_SET (mask, API_Elem_Head, layer);
-	//												elem.header.layer = attrib.layer.head.index;	// 가져온 레이어 속성의 인덱스를 부여함
-
-	//												err = ACAPI_Element_Change (&elem, &mask, NULL, 0, true);
-	//											}
-	//										} else {
-	//											ACAPI_WriteReport ("레이어가 없으므로 실행을 중지합니다.", true);
-	//											return	err;
-	//										}
-	//									}
-	//								} else {
-	//									// 정상적인 레이어가 아님
-	//									ACAPI_WriteReport ("레이어 지정을 잘못하셨습니다.", true);
-	//								}
-	//							}
-	//						}
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
+	//for (xx = 0 ; xx < invalidLayerNames.size () ; ++xx) {
+	//	sprintf (msg, "%s", invalidLayerNames.at (xx).c_str ());
+	//	ACAPI_WriteReport (msg, true);
 	//}
 
-	// 2. 다이얼로그 창 만들기
+	// 1. 다이얼로그 창 만들기
 		// 안내 문구: 레이어 체계에 대한 설명과 예시
 		// 전체선택/전체해제 (체크박스 전체 제어)
 		// 1열: 틀린 이름 vector 객체에 있는 이름들을 라벨로 표현

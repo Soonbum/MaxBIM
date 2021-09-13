@@ -916,6 +916,13 @@ GSErrCode	exportSelectedElementInfo (void)
 						sprintf (buffer, "%.0f ", round (length*1000, 0));
 					}
 					fprintf (fp, buffer);
+
+				} else if (objectInfo.keyDesc [xx].compare ("단열재") == 0) {
+					sprintf (buffer, "원장크기: %.0f X %.0f / 실제크기: %.0f X %.0f (ㄱ형상으로 자름: %s)",
+						round (atof (objectInfo.records [yy][2].c_str ())*1000, 0), round (atof (objectInfo.records [yy][3].c_str ())*1000, 0),
+						round (atof (objectInfo.records [yy][4].c_str ())*1000, 0), round (atof (objectInfo.records [yy][5].c_str ())*1000, 0),
+						(atoi (objectInfo.records [yy][5].c_str ()) ? "자름" : "자르지 않음"));
+					fprintf (fp, buffer);
 						
 				} else {
 					for (zz = 0 ; zz < objectInfo.nInfo [xx] ; ++zz) {
@@ -1534,6 +1541,14 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							fprintf (fp, buffer);
 							fprintf (fp_unite, buffer);
 						
+						} else if (objectInfo.keyDesc [xx].compare ("단열재") == 0) {
+							sprintf (buffer, "원장크기: %.0f X %.0f / 실제크기: %.0f X %.0f (ㄱ형상으로 자름: %s)",
+								round (atof (objectInfo.records [yy][2].c_str ())*1000, 0), round (atof (objectInfo.records [yy][3].c_str ())*1000, 0),
+								round (atof (objectInfo.records [yy][4].c_str ())*1000, 0), round (atof (objectInfo.records [yy][5].c_str ())*1000, 0),
+								(atoi (objectInfo.records [yy][6].c_str ()) ? "자름" : "자르지 않음"));
+							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
+
 						} else {
 							for (zz = 0 ; zz < objectInfo.nInfo [xx] ; ++zz) {
 								// 변수별 값 출력
