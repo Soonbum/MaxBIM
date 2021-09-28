@@ -881,6 +881,25 @@ GSErrCode	exportSelectedElementInfo (void)
 						sprintf (buffer, "규격(하부): %s ", objectInfo.records [yy][3].c_str ());
 					}
 					fprintf (fp, buffer);
+				
+				} else if (objectInfo.keyDesc [xx].compare ("Push-Pull Props (기성품 및 당사제작품)") == 0) {
+					// 베이스 플레이트 유무
+					if (atoi (objectInfo.records [yy][1].c_str ()) == 1) {
+						sprintf (buffer, "베이스 플레이트(있음) ");
+					} else {
+						sprintf (buffer, "베이스 플레이트(없음) ");
+					}
+					fprintf (fp, buffer);
+
+					// 규격(상부)
+					sprintf (buffer, "규격(상부): %s ", objectInfo.records [yy][2].c_str ());
+					fprintf (fp, buffer);
+
+					// 규격(하부) - 선택사항
+					if (atoi (objectInfo.records [yy][4].c_str ()) == 1) {
+						sprintf (buffer, "규격(하부): %s ", objectInfo.records [yy][3].c_str ());
+					}
+					fprintf (fp, buffer);
 
 				} else if (objectInfo.keyDesc [xx].compare ("사각파이프") == 0) {
 					// 사각파이프
@@ -1481,6 +1500,28 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							}
 
 						} else if (objectInfo.keyDesc [xx].compare ("RS Push-Pull Props") == 0) {
+							// 베이스 플레이트 유무
+							if (atoi (objectInfo.records [yy][1].c_str ()) == 1) {
+								sprintf (buffer, "베이스 플레이트(있음) ");
+							} else {
+								sprintf (buffer, "베이스 플레이트(없음) ");
+							}
+							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
+
+							// 규격(상부)
+							sprintf (buffer, "규격(상부): %s ", objectInfo.records [yy][2].c_str ());
+							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
+
+							// 규격(하부) - 선택사항
+							if (atoi (objectInfo.records [yy][4].c_str ()) == 1) {
+								sprintf (buffer, "규격(하부): %s ", objectInfo.records [yy][3].c_str ());
+							}
+							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
+
+						} else if (objectInfo.keyDesc [xx].compare ("Push-Pull Props (기성품 및 당사제작품)") == 0) {
 							// 베이스 플레이트 유무
 							if (atoi (objectInfo.records [yy][1].c_str ()) == 1) {
 								sprintf (buffer, "베이스 플레이트(있음) ");
