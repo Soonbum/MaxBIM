@@ -900,7 +900,7 @@ bool	setParameterByName (API_ElementMemo* memo, char* pName, char* value)
 	return	false;
 }
 
-// pName 파라미터의 값을 가져옴 (실수형) - 성공하면 true, 실패하면 false
+// pName 파라미터의 값을 가져옴 (실수형)
 double	getParameterValueByName (API_ElementMemo* memo, char* pName)
 {
 	const char*	retStr = NULL;
@@ -919,7 +919,7 @@ double	getParameterValueByName (API_ElementMemo* memo, char* pName)
 	return 0.0;
 }
 
-// pName 파라미터의 값을 가져옴 (문자열) - 성공하면 true, 실패하면 false
+// pName 파라미터의 값을 가져옴 (문자열)
 const char*	getParameterStringByName (API_ElementMemo* memo, char* pName)
 {
 	const char*	retStr = NULL;
