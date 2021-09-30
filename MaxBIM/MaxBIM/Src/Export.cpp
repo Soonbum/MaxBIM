@@ -558,7 +558,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	nBeams = beams.GetSize ();
 
 	// 선택한 요소들을 3D로 보여줌
-	err = ACAPI_Automate (APIDo_ShowSelectionIn3DID);
+	//err = ACAPI_Automate (APIDo_ShowSelectionIn3DID);
 
 	// 선택한 요소들의 정보 요약하기
 	API_Element			elem;
@@ -1178,7 +1178,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			if (foundLayerName != NULL)	layerType = WLBM;
 
 			// 모든 요소들을 3D로 보여줌
-			err = ACAPI_Automate (APIDo_ShowAllIn3DID);
+			//err = ACAPI_Automate (APIDo_ShowAllIn3DID);
 
 			sprintf (filename, "%s - 선택한 부재 정보.csv", fullLayerName);
 			fp = fopen (filename, "w+");
