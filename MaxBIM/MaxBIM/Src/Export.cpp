@@ -1056,6 +1056,11 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	GS::Array<string>	record;
 
 
+	// [경고] 사용자가 숙지해야 할 내용을 공지
+	result = DGAlert (DG_WARNING, "물량 계산 전 주의사항", "1. 2D 도면창 외 나머지 창들을 모두 닫으십시오.\n2. 레이어 전환 후에 객체가 제대로 보이지 않는다면 3D 창을 닫으셨다가 다시 여십시오.\n", "", "진행", "중지", "");
+	if (result != DG_OK)
+		return err;
+
 	// 그룹화 일시정지 ON
 	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
 	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
@@ -1065,11 +1070,6 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-
-	// [경고] 사용자가 숙지해야 할 내용을 공지
-	result = DGAlert (DG_WARNING, "물량 계산 전 주의사항", "1. 2D 도면창 외 나머지 창들을 모두 닫으십시오.\n2. 레이어 전환 후에 객체가 제대로 보이지 않는다면 3D 창을 닫으셨다가 다시 여십시오.\n", "", "진행", "중지", "");
-	if (result != DG_OK)
-		return err;
 
 	// [경고] 다이얼로그에서 객체 이미지를 캡쳐할지 여부를 물어봄
 	//result = DGAlert (DG_INFORMATION, "캡쳐 여부 질문", "캡쳐 작업을 수행하시겠습니까?", "", "예", "아니오", "");
@@ -1094,16 +1094,16 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	}
 
 	// 일시적으로 모든 레이어 숨기기
-	for (xx = 1 ; xx <= nLayers ; ++xx) {
-		BNZeroMemory (&attrib, sizeof (API_Attribute));
-		attrib.layer.head.typeID = API_LayerID;
-		attrib.layer.head.index = xx;
-		err = ACAPI_Attribute_Get (&attrib);
-		if (err == NoError) {
-			attrib.layer.head.flags |= APILay_Hidden;
-			ACAPI_Attribute_Modify (&attrib, NULL);
-		}
-	}
+	//for (xx = 1 ; xx <= nLayers ; ++xx) {
+	//	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	//	attrib.layer.head.typeID = API_LayerID;
+	//	attrib.layer.head.index = xx;
+	//	err = ACAPI_Attribute_Get (&attrib);
+	//	if (err == NoError) {
+	//		attrib.layer.head.flags |= APILay_Hidden;
+	//		ACAPI_Attribute_Modify (&attrib, NULL);
+	//	}
+	//}
 
 	ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
 	sprintf (filename, "%s - 선택한 부재 정보 (통합).csv", miscAppInfo.caption);
