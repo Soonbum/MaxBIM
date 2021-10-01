@@ -557,9 +557,6 @@ GSErrCode	exportSelectedElementInfo (void)
 	nObjects = objects.GetSize ();
 	nBeams = beams.GetSize ();
 
-	// 선택한 요소들을 3D로 보여줌
-	//err = ACAPI_Automate (APIDo_ShowSelectionIn3DID);
-
 	// 선택한 요소들의 정보 요약하기
 	API_Element			elem;
 	API_ElementMemo		memo;
@@ -932,7 +929,7 @@ GSErrCode	exportSelectedElementInfo (void)
 						length = atof (objectInfo.records [yy][3].c_str ());
 						length2 = atof (objectInfo.records [yy][4].c_str ());
 						length3 = atof (objectInfo.records [yy][5].c_str ());
-						sprintf (buffer, "%.0f, 합판(%.0f X %.0f)", round (atof (objectInfo.records [yy][1].c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
+						sprintf (buffer, "%.0f / 합판(%.0f X %.0f)", round (atof (objectInfo.records [yy][1].c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
 					} else {
 						length = atof (objectInfo.records [yy][1].c_str ());
 						sprintf (buffer, "%.0f ", round (length*1000, 0));
@@ -1145,12 +1142,12 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			}
 
 			// 모든 요소 가져오기
-			ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer | APIFilt_In3D);		// 보이는 레이어에 있음, 객체 타입만
+			ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음, 객체 타입만
 			while (elemList.GetSize () > 0) {
 				objects.Push (elemList.Pop ());
 			}
 
-			ACAPI_Element_GetElemList (API_BeamID, &elemList, APIFilt_OnVisLayer | APIFilt_In3D);		// 보이는 레이어에 있음, 보 타입만
+			ACAPI_Element_GetElemList (API_BeamID, &elemList, APIFilt_OnVisLayer);		// 보이는 레이어에 있음, 보 타입만
 			while (elemList.GetSize () > 0) {
 				beams.Push (elemList.Pop ());
 			}
@@ -1176,9 +1173,6 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			if (foundLayerName != NULL)	layerType = BEAM;
 			foundLayerName = strstr (fullLayerName, "WLBM");
 			if (foundLayerName != NULL)	layerType = WLBM;
-
-			// 모든 요소들을 3D로 보여줌
-			//err = ACAPI_Automate (APIDo_ShowAllIn3DID);
 
 			sprintf (filename, "%s - 선택한 부재 정보.csv", fullLayerName);
 			fp = fopen (filename, "w+");
@@ -1590,7 +1584,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								length = atof (objectInfo.records [yy][3].c_str ());
 								length2 = atof (objectInfo.records [yy][4].c_str ());
 								length3 = atof (objectInfo.records [yy][5].c_str ());
-								sprintf (buffer, "%.0f, 합판(%.0f X %.0f)", round (atof (objectInfo.records [yy][1].c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
+								sprintf (buffer, "%.0f / 합판(%.0f X %.0f)", round (atof (objectInfo.records [yy][1].c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
 							} else {
 								length = atof (objectInfo.records [yy][1].c_str ());
 								sprintf (buffer, "%.0f ", round (length*1000, 0));
@@ -1642,612 +1636,614 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 			fclose (fp);
 
+			/*
 			// 3D 투영 정보 ==================================
-			//if (result == DG_OK) {
-			//	API_3DProjectionInfo  proj3DInfo_beforeCapture;
-
-			//	BNZeroMemory (&proj3DInfo_beforeCapture, sizeof (API_3DProjectionInfo));
-			//	err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo_beforeCapture, NULL);
-
-
-			//	API_3DProjectionInfo  proj3DInfo;
-
-			//	BNZeroMemory (&proj3DInfo, sizeof (API_3DProjectionInfo));
-			//	err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo, NULL);
-
-			//	double	lowestZ, highestZ, cameraZ, targetZ;	// 가장 낮은 높이, 가장 높은 높이, 카메라 및 대상 높이
-			//	API_Coord3D		p1, p2, p3, p4, p5;				// 점 좌표 저장
-			//	double	distanceOfPoints;						// 두 점 간의 거리
-			//	double	angleOfPoints;							// 두 점 간의 각도
-			//	API_Coord3D		camPos1, camPos2;				// 카메라가 있을 수 있는 점 2개
-
-			//	API_FileSavePars		fsp;			// 파일 저장을 위한 변수
-			//	API_SavePars_Picture	pars_pict;		// 그림 파일에 대한 설명
-
-			//	if (err == NoError && proj3DInfo.isPersp) {
-			//		// 벽 타입 레이어의 경우
-			//		if (layerType == WALL) {
-			//			// 높이 값의 범위를 구함
-			//			// 가장 작은 x값을 갖는 점 p1도 찾아냄
-			//			lowestZ = highestZ = vecPos [0].z;
-			//			p1 = vecPos [0];
-			//			for (xx = 1 ; xx < vecPos.size () ; ++xx) {
-			//				if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
-			//				if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
-
-			//				if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
-			//			}
-			//			cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
-
-			//			distanceOfPoints = 0.0;
-			//			for (xx = 0 ; xx < vecPos.size () ; ++xx) {
-			//				if (distanceOfPoints < GetDistance (p1, vecPos [xx])) {
-			//					distanceOfPoints = GetDistance (p1, vecPos [xx]);
-			//					p2 = vecPos [xx];
-			//				}
-			//			}
-
-			//			// 두 점(p1, p2) 간의 각도 구하기
-			//			angleOfPoints = RadToDegree (atan2 ((p2.y - p1.y), (p2.x - p1.x)));
-
-			//			// 카메라와 대상이 있을 수 있는 위치 2개를 찾음
-			//			camPos1 = p1;
-			//			moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos1.x, &camPos1.y, &camPos1.z);
-			//			if (distanceOfPoints > (highestZ - lowestZ))
-			//				moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
-			//			else
-			//				moveIn3D ('y', DegreeToRad (angleOfPoints), -(highestZ - lowestZ) * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
-			//			camPos2 = p1;
-			//			moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos2.x, &camPos2.y, &camPos2.z);
-			//			if (distanceOfPoints > (highestZ - lowestZ))
-			//				moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
-			//			else
-			//				moveIn3D ('y', DegreeToRad (angleOfPoints), (highestZ - lowestZ) * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
-
-			//			camPos1.z = cameraZ;
-			//			camPos2.z = cameraZ;
-
-			//			// ========== 1번째 캡쳐
-			//			// 카메라 및 대상 위치 설정
-			//			proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
-			//			proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
-			//			proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
-			//			proj3DInfo.u.persp.azimuth = angleOfPoints + 90.0;	// 카메라 방위각
-
-			//			proj3DInfo.u.persp.pos.x = camPos1.x;
-			//			proj3DInfo.u.persp.pos.y = camPos1.y;
-			//			proj3DInfo.u.persp.cameraZ = camPos1.z;
-
-			//			proj3DInfo.u.persp.target.x = camPos2.x;
-			//			proj3DInfo.u.persp.target.y = camPos2.y;
-			//			proj3DInfo.u.persp.targetZ = camPos2.z;
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-
-			//			// ========== 2번째 캡쳐
-			//			// 카메라 및 대상 위치 설정
-			//			proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
-			//			proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
-			//			proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
-			//			proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
-
-			//			proj3DInfo.u.persp.pos.x = camPos2.x;
-			//			proj3DInfo.u.persp.pos.y = camPos2.y;
-			//			proj3DInfo.u.persp.cameraZ = camPos2.z;
-
-			//			proj3DInfo.u.persp.target.x = camPos1.x;
-			//			proj3DInfo.u.persp.target.y = camPos1.y;
-			//			proj3DInfo.u.persp.targetZ = camPos1.z;
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-			//		}
-			//		// 슬래브 타입 레이어의 경우
-			//		else if (layerType == SLAB) {
-			//			// p1: 가장 작은 x을 찾음
-			//			// p2: 가장 작은 y를 찾음
-			//			// p3: 가장 큰 x를 찾음
-			//			// p4: 가장 큰 y를 찾음
-			//			// lowestZ: 가장 작은 z를 찾음
-			//			// highestZ: 가장 높은 z를 찾음
-			//			p1 = vecPos [0];
-			//			p2 = vecPos [0];
-			//			p3 = vecPos [0];
-			//			p4 = vecPos [0];
-			//			lowestZ = highestZ = vecPos [0].z;
-			//			for (xx = 1 ; xx < vecPos.size () ; ++xx) {
-			//				if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
-			//				if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
-			//				if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
-			//				if (vecPos [xx].y < p2.y)	p2 = vecPos [xx];
-			//				if (vecPos [xx].x > p3.x)	p3 = vecPos [xx];
-			//				if (vecPos [xx].y > p4.y)	p4 = vecPos [xx];
-			//			}
-
-			//			// p5: 면의 중심 찾기
-			//			p5.x = (p1.x + p3.x) / 2;
-			//			p5.y = (p2.y + p4.y) / 2;
-			//			p5.z = lowestZ;
-
-			//			// p1과 p3 간의 거리, p2와 p4 간의 거리 중 가장 먼 거리를 찾음
-			//			if (GetDistance (p1, p3) > GetDistance (p2, p4))
-			//				distanceOfPoints = GetDistance (p1, p3);
-			//			else
-			//				distanceOfPoints = GetDistance (p2, p4);
-
-			//			// 슬래브 회전 각도를 구함 (p1과 p3 간의 각도 - 45도)
-			//			angleOfPoints = RadToDegree (atan2 ((p3.y - p1.y), (p3.x - p1.x))) - 45.0;
-
-			//			// 카메라 높이, 대상 높이 지정
-			//			cameraZ = lowestZ - (distanceOfPoints * 10) + workLevel_object;		// 이 값에 의해 실질적으로 거리가 달라짐
-			//			targetZ = highestZ + (distanceOfPoints * 2) + workLevel_object;
-
-			//			// 카메라 및 대상 위치 설정
-			//			proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
-			//			proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
-			//			proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
-			//			proj3DInfo.u.persp.azimuth = angleOfPoints;		// 카메라 방위각
-			//			proj3DInfo.u.persp.distance = (targetZ - cameraZ) * 1000;	// 거리
-
-			//			proj3DInfo.u.persp.pos.x = p5.x;
-			//			proj3DInfo.u.persp.pos.y = p5.y;
-			//			proj3DInfo.u.persp.cameraZ = cameraZ;
-
-			//			proj3DInfo.u.persp.target.x = p5.x + 0.010;		// 카메라와 대상 간의 X, Y 좌표가 정확하게 일치한 채로 고도 차이만 있으면 캡쳐에 실패하므로 갭이 있어야 함
-			//			proj3DInfo.u.persp.target.y = p5.y;
-			//			proj3DInfo.u.persp.targetZ = targetZ;
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// ========== 1번째 캡쳐
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-
-			//			// ========== 2번째 캡쳐
-			//			proj3DInfo.u.persp.rollAngle = 90.0;			// 카메라 롤 각도
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-
-			//			// 롤 각도 초기화
-			//			proj3DInfo.u.persp.rollAngle = 0.0;			// 카메라 롤 각도
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-			//		}
-			//		// 기둥 타입 레이어의 경우
-			//		else if (layerType == COLU) {
-			//			// p1: 가장 작은 x을 찾음
-			//			// p2: 가장 작은 y를 찾음
-			//			// p3: 가장 큰 x를 찾음
-			//			// p4: 가장 큰 y를 찾음
-			//			// lowestZ: 가장 작은 z를 찾음
-			//			// highestZ: 가장 높은 z를 찾음
-			//			p1 = vecPos [0];
-			//			p2 = vecPos [0];
-			//			p3 = vecPos [0];
-			//			p4 = vecPos [0];
-			//			lowestZ = highestZ = vecPos [0].z;
-			//			for (xx = 1 ; xx < vecPos.size () ; ++xx) {
-			//				if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
-			//				if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
-			//				if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
-			//				if (vecPos [xx].y < p2.y)	p2 = vecPos [xx];
-			//				if (vecPos [xx].x > p3.x)	p3 = vecPos [xx];
-			//				if (vecPos [xx].y > p4.y)	p4 = vecPos [xx];
-			//			}
-
-			//			// p5: 면의 중심 찾기
-			//			p5.x = (p1.x + p3.x) / 2;
-			//			p5.y = (p2.y + p4.y) / 2;
-			//			p5.z = lowestZ;
-
-			//			// p1과 p3 간의 거리, p2와 p4 간의 거리 중 가장 먼 거리를 찾음
-			//			if (GetDistance (p1, p3) > GetDistance (p2, p4))
-			//				distanceOfPoints = GetDistance (p1, p3);
-			//			else
-			//				distanceOfPoints = GetDistance (p2, p4);
-
-			//			// 기둥 회전 각도를 구함 (p1과 p3 간의 각도 - 45도)
-			//			angleOfPoints = RadToDegree (atan2 ((p3.y - p1.y), (p3.x - p1.x))) - 45.0;
-
-			//			// 카메라 높이, 대상 높이 지정
-			//			targetZ = cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
-
-			//			// ========== 1번째 캡쳐 (북쪽에서)
-			//			// 카메라 및 대상 위치 설정
-			//			proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
-			//			proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
-			//			proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
-			//			proj3DInfo.u.persp.azimuth = 270.0;				// 카메라 방위각
-			//			proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
-
-			//			proj3DInfo.u.persp.pos.x = p5.x;
-			//			proj3DInfo.u.persp.pos.y = p5.y + distanceOfPoints;
-			//			proj3DInfo.u.persp.cameraZ = cameraZ;
-
-			//			proj3DInfo.u.persp.target.x = p5.x;
-			//			proj3DInfo.u.persp.target.y = p5.y - distanceOfPoints;
-			//			proj3DInfo.u.persp.targetZ = targetZ;
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-
-			//			// ========== 2번째 캡쳐 (남쪽에서)
-			//			// 카메라 및 대상 위치 설정
-			//			proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
-			//			proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
-			//			proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
-			//			proj3DInfo.u.persp.azimuth = 90.0;				// 카메라 방위각
-			//			proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
-
-			//			proj3DInfo.u.persp.pos.x = p5.x;
-			//			proj3DInfo.u.persp.pos.y = p5.y - distanceOfPoints;
-			//			proj3DInfo.u.persp.cameraZ = cameraZ;
-
-			//			proj3DInfo.u.persp.target.x = p5.x;
-			//			proj3DInfo.u.persp.target.y = p5.y + distanceOfPoints;
-			//			proj3DInfo.u.persp.targetZ = targetZ;
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-
-			//			// ========== 3번째 캡쳐 (동쪽에서)
-			//			// 카메라 및 대상 위치 설정
-			//			proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
-			//			proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
-			//			proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
-			//			proj3DInfo.u.persp.azimuth = 180.0;				// 카메라 방위각
-			//			proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
-
-			//			proj3DInfo.u.persp.pos.x = p5.x + distanceOfPoints;
-			//			proj3DInfo.u.persp.pos.y = p5.y;
-			//			proj3DInfo.u.persp.cameraZ = cameraZ;
-
-			//			proj3DInfo.u.persp.target.x = p5.x - distanceOfPoints;
-			//			proj3DInfo.u.persp.target.y = p5.y;
-			//			proj3DInfo.u.persp.targetZ = targetZ;
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (3).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-
-			//			// ========== 4번째 캡쳐 (서쪽에서)
-			//			// 카메라 및 대상 위치 설정
-			//			proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
-			//			proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
-			//			proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
-			//			proj3DInfo.u.persp.azimuth = 0.0;				// 카메라 방위각
-			//			proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
-
-			//			proj3DInfo.u.persp.pos.x = p5.x - distanceOfPoints;
-			//			proj3DInfo.u.persp.pos.y = p5.y;
-			//			proj3DInfo.u.persp.cameraZ = cameraZ;
-
-			//			proj3DInfo.u.persp.target.x = p5.x + distanceOfPoints;
-			//			proj3DInfo.u.persp.target.y = p5.y;
-			//			proj3DInfo.u.persp.targetZ = targetZ;
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (4).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-			//		}
-			//		// 보, 눈썹보 타입 레이어의 경우
-			//		else if ((layerType == BEAM) || (layerType == WLBM)) {
-			//			// 높이 값의 범위를 구함
-			//			// 가장 작은 x값을 갖는 점 p1도 찾아냄
-			//			lowestZ = highestZ = vecPos [0].z;
-			//			p1 = vecPos [0];
-			//			for (xx = 1 ; xx < vecPos.size () ; ++xx) {
-			//				if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
-			//				if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
-
-			//				if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
-			//			}
-			//			cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
-
-			//			distanceOfPoints = 0.0;
-			//			for (xx = 0 ; xx < vecPos.size () ; ++xx) {
-			//				if (distanceOfPoints < GetDistance (p1, vecPos [xx])) {
-			//					distanceOfPoints = GetDistance (p1, vecPos [xx]);
-			//					p2 = vecPos [xx];
-			//				}
-			//			}
-
-			//			// 두 점(p1, p2) 간의 각도 구하기
-			//			angleOfPoints = RadToDegree (atan2 ((p2.y - p1.y), (p2.x - p1.x)));
-
-			//			// 중심점 구하기
-			//			p3 = p1;
-			//			moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &p3.x, &p3.y, &p3.z);
-			//			p3.z += workLevel_object;
-
-			//			// 카메라와 대상이 있을 수 있는 위치 2개를 찾음
-			//			camPos1 = p1;
-			//			moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos1.x, &camPos1.y, &camPos1.z);
-			//			if (distanceOfPoints > (highestZ - lowestZ))
-			//				moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
-			//			else
-			//				moveIn3D ('y', DegreeToRad (angleOfPoints), -(highestZ - lowestZ) * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
-			//			camPos2 = p1;
-			//			moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos2.x, &camPos2.y, &camPos2.z);
-			//			if (distanceOfPoints > (highestZ - lowestZ))
-			//				moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
-			//			else
-			//				moveIn3D ('y', DegreeToRad (angleOfPoints), (highestZ - lowestZ) * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
-
-			//			camPos1.z = cameraZ;
-			//			camPos2.z = cameraZ;
-
-			//			// ========== 1번째 캡쳐
-			//			// 카메라 및 대상 위치 설정
-			//			proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
-			//			proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
-			//			proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
-			//			proj3DInfo.u.persp.azimuth = angleOfPoints + 90.0;	// 카메라 방위각
-
-			//			proj3DInfo.u.persp.pos.x = camPos1.x;
-			//			proj3DInfo.u.persp.pos.y = camPos1.y;
-			//			proj3DInfo.u.persp.cameraZ = camPos1.z;
-
-			//			proj3DInfo.u.persp.target.x = camPos2.x;
-			//			proj3DInfo.u.persp.target.y = camPos2.y;
-			//			proj3DInfo.u.persp.targetZ = camPos2.z;
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-
-			//			// ========== 2번째 캡쳐
-			//			// 카메라 및 대상 위치 설정
-			//			proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
-			//			proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
-			//			proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
-			//			proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
-
-			//			proj3DInfo.u.persp.pos.x = camPos2.x;
-			//			proj3DInfo.u.persp.pos.y = camPos2.y;
-			//			proj3DInfo.u.persp.cameraZ = camPos2.z;
-
-			//			proj3DInfo.u.persp.target.x = camPos1.x;
-			//			proj3DInfo.u.persp.target.y = camPos1.y;
-			//			proj3DInfo.u.persp.targetZ = camPos1.z;
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-
-			//			// ========== 3번째 캡쳐
-			//			// 카메라 및 대상 위치 설정
-			//			proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
-			//			proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
-			//			proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
-			//			proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
-
-			//			proj3DInfo.u.persp.pos.x = p3.x;
-			//			proj3DInfo.u.persp.pos.y = p3.y;
-			//			proj3DInfo.u.persp.cameraZ = p3.z - distanceOfPoints;
-
-			//			proj3DInfo.u.persp.target.x = p3.x - 0.001;
-			//			proj3DInfo.u.persp.target.y = p3.y;
-			//			proj3DInfo.u.persp.targetZ = p3.z;
-
-			//			err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
-
-			//			// 화면 새로고침
-			//			ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//			ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
-			//			// 화면 캡쳐
-			//			ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-			//			BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-			//			fsp.fileTypeID = APIFType_PNGFile;
-			//			sprintf (filename, "%s - 캡쳐 (3).png", fullLayerName);
-			//			fsp.file = new IO::Location (location, IO::Name (filename));
-
-			//			BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-			//			pars_pict.colorDepth	= APIColorDepth_TC24;
-			//			pars_pict.dithered		= false;
-			//			pars_pict.view2D		= false;
-			//			pars_pict.crop			= false;
-			//			err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
-			//		
-			//			delete fsp.file;
-			//		}
-			//	}
-
-			//	// 화면을 캡쳐 이전 상태로 돌려놓음
-			//	err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo_beforeCapture, NULL, NULL);
-
-			//	// 화면 새로고침
-			//	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-			//	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-			//	// 3D 투영 정보 ==================================
-			//}
+			if (result == DG_OK) {
+				API_3DProjectionInfo  proj3DInfo_beforeCapture;
+
+				BNZeroMemory (&proj3DInfo_beforeCapture, sizeof (API_3DProjectionInfo));
+				err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo_beforeCapture, NULL);
+
+
+				API_3DProjectionInfo  proj3DInfo;
+
+				BNZeroMemory (&proj3DInfo, sizeof (API_3DProjectionInfo));
+				err = ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &proj3DInfo, NULL);
+
+				double	lowestZ, highestZ, cameraZ, targetZ;	// 가장 낮은 높이, 가장 높은 높이, 카메라 및 대상 높이
+				API_Coord3D		p1, p2, p3, p4, p5;				// 점 좌표 저장
+				double	distanceOfPoints;						// 두 점 간의 거리
+				double	angleOfPoints;							// 두 점 간의 각도
+				API_Coord3D		camPos1, camPos2;				// 카메라가 있을 수 있는 점 2개
+
+				API_FileSavePars		fsp;			// 파일 저장을 위한 변수
+				API_SavePars_Picture	pars_pict;		// 그림 파일에 대한 설명
+
+				if (err == NoError && proj3DInfo.isPersp) {
+					// 벽 타입 레이어의 경우
+					if (layerType == WALL) {
+						// 높이 값의 범위를 구함
+						// 가장 작은 x값을 갖는 점 p1도 찾아냄
+						lowestZ = highestZ = vecPos [0].z;
+						p1 = vecPos [0];
+						for (xx = 1 ; xx < vecPos.size () ; ++xx) {
+							if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
+							if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
+
+							if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
+						}
+						cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
+
+						distanceOfPoints = 0.0;
+						for (xx = 0 ; xx < vecPos.size () ; ++xx) {
+							if (distanceOfPoints < GetDistance (p1, vecPos [xx])) {
+								distanceOfPoints = GetDistance (p1, vecPos [xx]);
+								p2 = vecPos [xx];
+							}
+						}
+
+						// 두 점(p1, p2) 간의 각도 구하기
+						angleOfPoints = RadToDegree (atan2 ((p2.y - p1.y), (p2.x - p1.x)));
+
+						// 카메라와 대상이 있을 수 있는 위치 2개를 찾음
+						camPos1 = p1;
+						moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos1.x, &camPos1.y, &camPos1.z);
+						if (distanceOfPoints > (highestZ - lowestZ))
+							moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
+						else
+							moveIn3D ('y', DegreeToRad (angleOfPoints), -(highestZ - lowestZ) * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
+						camPos2 = p1;
+						moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos2.x, &camPos2.y, &camPos2.z);
+						if (distanceOfPoints > (highestZ - lowestZ))
+							moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
+						else
+							moveIn3D ('y', DegreeToRad (angleOfPoints), (highestZ - lowestZ) * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
+
+						camPos1.z = cameraZ;
+						camPos2.z = cameraZ;
+
+						// ========== 1번째 캡쳐
+						// 카메라 및 대상 위치 설정
+						proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+						proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+						proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+						proj3DInfo.u.persp.azimuth = angleOfPoints + 90.0;	// 카메라 방위각
+
+						proj3DInfo.u.persp.pos.x = camPos1.x;
+						proj3DInfo.u.persp.pos.y = camPos1.y;
+						proj3DInfo.u.persp.cameraZ = camPos1.z;
+
+						proj3DInfo.u.persp.target.x = camPos2.x;
+						proj3DInfo.u.persp.target.y = camPos2.y;
+						proj3DInfo.u.persp.targetZ = camPos2.z;
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+
+						// ========== 2번째 캡쳐
+						// 카메라 및 대상 위치 설정
+						proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+						proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+						proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+						proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
+
+						proj3DInfo.u.persp.pos.x = camPos2.x;
+						proj3DInfo.u.persp.pos.y = camPos2.y;
+						proj3DInfo.u.persp.cameraZ = camPos2.z;
+
+						proj3DInfo.u.persp.target.x = camPos1.x;
+						proj3DInfo.u.persp.target.y = camPos1.y;
+						proj3DInfo.u.persp.targetZ = camPos1.z;
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+					}
+					// 슬래브 타입 레이어의 경우
+					else if (layerType == SLAB) {
+						// p1: 가장 작은 x을 찾음
+						// p2: 가장 작은 y를 찾음
+						// p3: 가장 큰 x를 찾음
+						// p4: 가장 큰 y를 찾음
+						// lowestZ: 가장 작은 z를 찾음
+						// highestZ: 가장 높은 z를 찾음
+						p1 = vecPos [0];
+						p2 = vecPos [0];
+						p3 = vecPos [0];
+						p4 = vecPos [0];
+						lowestZ = highestZ = vecPos [0].z;
+						for (xx = 1 ; xx < vecPos.size () ; ++xx) {
+							if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
+							if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
+							if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
+							if (vecPos [xx].y < p2.y)	p2 = vecPos [xx];
+							if (vecPos [xx].x > p3.x)	p3 = vecPos [xx];
+							if (vecPos [xx].y > p4.y)	p4 = vecPos [xx];
+						}
+
+						// p5: 면의 중심 찾기
+						p5.x = (p1.x + p3.x) / 2;
+						p5.y = (p2.y + p4.y) / 2;
+						p5.z = lowestZ;
+
+						// p1과 p3 간의 거리, p2와 p4 간의 거리 중 가장 먼 거리를 찾음
+						if (GetDistance (p1, p3) > GetDistance (p2, p4))
+							distanceOfPoints = GetDistance (p1, p3);
+						else
+							distanceOfPoints = GetDistance (p2, p4);
+
+						// 슬래브 회전 각도를 구함 (p1과 p3 간의 각도 - 45도)
+						angleOfPoints = RadToDegree (atan2 ((p3.y - p1.y), (p3.x - p1.x))) - 45.0;
+
+						// 카메라 높이, 대상 높이 지정
+						cameraZ = lowestZ - (distanceOfPoints * 10) + workLevel_object;		// 이 값에 의해 실질적으로 거리가 달라짐
+						targetZ = highestZ + (distanceOfPoints * 2) + workLevel_object;
+
+						// 카메라 및 대상 위치 설정
+						proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
+						proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
+						proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
+						proj3DInfo.u.persp.azimuth = angleOfPoints;		// 카메라 방위각
+						proj3DInfo.u.persp.distance = (targetZ - cameraZ) * 1000;	// 거리
+
+						proj3DInfo.u.persp.pos.x = p5.x;
+						proj3DInfo.u.persp.pos.y = p5.y;
+						proj3DInfo.u.persp.cameraZ = cameraZ;
+
+						proj3DInfo.u.persp.target.x = p5.x + 0.010;		// 카메라와 대상 간의 X, Y 좌표가 정확하게 일치한 채로 고도 차이만 있으면 캡쳐에 실패하므로 갭이 있어야 함
+						proj3DInfo.u.persp.target.y = p5.y;
+						proj3DInfo.u.persp.targetZ = targetZ;
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// ========== 1번째 캡쳐
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+
+						// ========== 2번째 캡쳐
+						proj3DInfo.u.persp.rollAngle = 90.0;			// 카메라 롤 각도
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+
+						// 롤 각도 초기화
+						proj3DInfo.u.persp.rollAngle = 0.0;			// 카메라 롤 각도
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+					}
+					// 기둥 타입 레이어의 경우
+					else if (layerType == COLU) {
+						// p1: 가장 작은 x을 찾음
+						// p2: 가장 작은 y를 찾음
+						// p3: 가장 큰 x를 찾음
+						// p4: 가장 큰 y를 찾음
+						// lowestZ: 가장 작은 z를 찾음
+						// highestZ: 가장 높은 z를 찾음
+						p1 = vecPos [0];
+						p2 = vecPos [0];
+						p3 = vecPos [0];
+						p4 = vecPos [0];
+						lowestZ = highestZ = vecPos [0].z;
+						for (xx = 1 ; xx < vecPos.size () ; ++xx) {
+							if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
+							if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
+							if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
+							if (vecPos [xx].y < p2.y)	p2 = vecPos [xx];
+							if (vecPos [xx].x > p3.x)	p3 = vecPos [xx];
+							if (vecPos [xx].y > p4.y)	p4 = vecPos [xx];
+						}
+
+						// p5: 면의 중심 찾기
+						p5.x = (p1.x + p3.x) / 2;
+						p5.y = (p2.y + p4.y) / 2;
+						p5.z = lowestZ;
+
+						// p1과 p3 간의 거리, p2와 p4 간의 거리 중 가장 먼 거리를 찾음
+						if (GetDistance (p1, p3) > GetDistance (p2, p4))
+							distanceOfPoints = GetDistance (p1, p3);
+						else
+							distanceOfPoints = GetDistance (p2, p4);
+
+						// 기둥 회전 각도를 구함 (p1과 p3 간의 각도 - 45도)
+						angleOfPoints = RadToDegree (atan2 ((p3.y - p1.y), (p3.x - p1.x))) - 45.0;
+
+						// 카메라 높이, 대상 높이 지정
+						targetZ = cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
+
+						// ========== 1번째 캡쳐 (북쪽에서)
+						// 카메라 및 대상 위치 설정
+						proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
+						proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
+						proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
+						proj3DInfo.u.persp.azimuth = 270.0;				// 카메라 방위각
+						proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
+
+						proj3DInfo.u.persp.pos.x = p5.x;
+						proj3DInfo.u.persp.pos.y = p5.y + distanceOfPoints;
+						proj3DInfo.u.persp.cameraZ = cameraZ;
+
+						proj3DInfo.u.persp.target.x = p5.x;
+						proj3DInfo.u.persp.target.y = p5.y - distanceOfPoints;
+						proj3DInfo.u.persp.targetZ = targetZ;
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+
+						// ========== 2번째 캡쳐 (남쪽에서)
+						// 카메라 및 대상 위치 설정
+						proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
+						proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
+						proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
+						proj3DInfo.u.persp.azimuth = 90.0;				// 카메라 방위각
+						proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
+
+						proj3DInfo.u.persp.pos.x = p5.x;
+						proj3DInfo.u.persp.pos.y = p5.y - distanceOfPoints;
+						proj3DInfo.u.persp.cameraZ = cameraZ;
+
+						proj3DInfo.u.persp.target.x = p5.x;
+						proj3DInfo.u.persp.target.y = p5.y + distanceOfPoints;
+						proj3DInfo.u.persp.targetZ = targetZ;
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+
+						// ========== 3번째 캡쳐 (동쪽에서)
+						// 카메라 및 대상 위치 설정
+						proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
+						proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
+						proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
+						proj3DInfo.u.persp.azimuth = 180.0;				// 카메라 방위각
+						proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
+
+						proj3DInfo.u.persp.pos.x = p5.x + distanceOfPoints;
+						proj3DInfo.u.persp.pos.y = p5.y;
+						proj3DInfo.u.persp.cameraZ = cameraZ;
+
+						proj3DInfo.u.persp.target.x = p5.x - distanceOfPoints;
+						proj3DInfo.u.persp.target.y = p5.y;
+						proj3DInfo.u.persp.targetZ = targetZ;
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (3).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+
+						// ========== 4번째 캡쳐 (서쪽에서)
+						// 카메라 및 대상 위치 설정
+						proj3DInfo.isPersp = true;						// 퍼스펙티브 뷰
+						proj3DInfo.u.persp.viewCone = 90.0;				// 카메라 시야각
+						proj3DInfo.u.persp.rollAngle = 0.0;				// 카메라 롤 각도
+						proj3DInfo.u.persp.azimuth = 0.0;				// 카메라 방위각
+						proj3DInfo.u.persp.distance = distanceOfPoints * 2;		// 거리
+
+						proj3DInfo.u.persp.pos.x = p5.x - distanceOfPoints;
+						proj3DInfo.u.persp.pos.y = p5.y;
+						proj3DInfo.u.persp.cameraZ = cameraZ;
+
+						proj3DInfo.u.persp.target.x = p5.x + distanceOfPoints;
+						proj3DInfo.u.persp.target.y = p5.y;
+						proj3DInfo.u.persp.targetZ = targetZ;
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (4).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+					}
+					// 보, 눈썹보 타입 레이어의 경우
+					else if ((layerType == BEAM) || (layerType == WLBM)) {
+						// 높이 값의 범위를 구함
+						// 가장 작은 x값을 갖는 점 p1도 찾아냄
+						lowestZ = highestZ = vecPos [0].z;
+						p1 = vecPos [0];
+						for (xx = 1 ; xx < vecPos.size () ; ++xx) {
+							if (lowestZ > vecPos [xx].z)	lowestZ = vecPos [xx].z;
+							if (highestZ < vecPos [xx].z)	highestZ = vecPos [xx].z;
+
+							if (vecPos [xx].x < p1.x)	p1 = vecPos [xx];
+						}
+						cameraZ = (highestZ - lowestZ)/2 + workLevel_object;
+
+						distanceOfPoints = 0.0;
+						for (xx = 0 ; xx < vecPos.size () ; ++xx) {
+							if (distanceOfPoints < GetDistance (p1, vecPos [xx])) {
+								distanceOfPoints = GetDistance (p1, vecPos [xx]);
+								p2 = vecPos [xx];
+							}
+						}
+
+						// 두 점(p1, p2) 간의 각도 구하기
+						angleOfPoints = RadToDegree (atan2 ((p2.y - p1.y), (p2.x - p1.x)));
+
+						// 중심점 구하기
+						p3 = p1;
+						moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &p3.x, &p3.y, &p3.z);
+						p3.z += workLevel_object;
+
+						// 카메라와 대상이 있을 수 있는 위치 2개를 찾음
+						camPos1 = p1;
+						moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos1.x, &camPos1.y, &camPos1.z);
+						if (distanceOfPoints > (highestZ - lowestZ))
+							moveIn3D ('y', DegreeToRad (angleOfPoints), -distanceOfPoints * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
+						else
+							moveIn3D ('y', DegreeToRad (angleOfPoints), -(highestZ - lowestZ) * 1.5, &camPos1.x, &camPos1.y, &camPos1.z);
+						camPos2 = p1;
+						moveIn3D ('x', DegreeToRad (angleOfPoints), distanceOfPoints/2, &camPos2.x, &camPos2.y, &camPos2.z);
+						if (distanceOfPoints > (highestZ - lowestZ))
+							moveIn3D ('y', DegreeToRad (angleOfPoints), distanceOfPoints * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
+						else
+							moveIn3D ('y', DegreeToRad (angleOfPoints), (highestZ - lowestZ) * 1.5, &camPos2.x, &camPos2.y, &camPos2.z);
+
+						camPos1.z = cameraZ;
+						camPos2.z = cameraZ;
+
+						// ========== 1번째 캡쳐
+						// 카메라 및 대상 위치 설정
+						proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+						proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+						proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+						proj3DInfo.u.persp.azimuth = angleOfPoints + 90.0;	// 카메라 방위각
+
+						proj3DInfo.u.persp.pos.x = camPos1.x;
+						proj3DInfo.u.persp.pos.y = camPos1.y;
+						proj3DInfo.u.persp.cameraZ = camPos1.z;
+
+						proj3DInfo.u.persp.target.x = camPos2.x;
+						proj3DInfo.u.persp.target.y = camPos2.y;
+						proj3DInfo.u.persp.targetZ = camPos2.z;
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (1).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+
+						// ========== 2번째 캡쳐
+						// 카메라 및 대상 위치 설정
+						proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+						proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+						proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+						proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
+
+						proj3DInfo.u.persp.pos.x = camPos2.x;
+						proj3DInfo.u.persp.pos.y = camPos2.y;
+						proj3DInfo.u.persp.cameraZ = camPos2.z;
+
+						proj3DInfo.u.persp.target.x = camPos1.x;
+						proj3DInfo.u.persp.target.y = camPos1.y;
+						proj3DInfo.u.persp.targetZ = camPos1.z;
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (2).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+
+						// ========== 3번째 캡쳐
+						// 카메라 및 대상 위치 설정
+						proj3DInfo.isPersp = true;				// 퍼스펙티브 뷰
+						proj3DInfo.u.persp.viewCone = 90.0;		// 카메라 시야각
+						proj3DInfo.u.persp.rollAngle = 0.0;		// 카메라 롤 각도
+						proj3DInfo.u.persp.azimuth = angleOfPoints - 90.0;	// 카메라 방위각
+
+						proj3DInfo.u.persp.pos.x = p3.x;
+						proj3DInfo.u.persp.pos.y = p3.y;
+						proj3DInfo.u.persp.cameraZ = p3.z - distanceOfPoints;
+
+						proj3DInfo.u.persp.target.x = p3.x - 0.001;
+						proj3DInfo.u.persp.target.y = p3.y;
+						proj3DInfo.u.persp.targetZ = p3.z;
+
+						err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo, NULL, NULL);
+
+						// 화면 새로고침
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 화면 캡쳐
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						fsp.fileTypeID = APIFType_PNGFile;
+						sprintf (filename, "%s - 캡쳐 (3).png", fullLayerName);
+						fsp.file = new IO::Location (location, IO::Name (filename));
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth	= APIColorDepth_TC24;
+						pars_pict.dithered		= false;
+						pars_pict.view2D		= false;
+						pars_pict.crop			= false;
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);	// 데모 버전에서는 작동하지 않음
+					
+						delete fsp.file;
+					}
+				}
+
+				// 화면을 캡쳐 이전 상태로 돌려놓음
+				err = ACAPI_Environment (APIEnv_Change3DProjectionSetsID, &proj3DInfo_beforeCapture, NULL, NULL);
+
+				// 화면 새로고침
+				ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+				ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+				// 3D 투영 정보 ==================================
+			}
+			*/
 
 
 			// 레이어 숨기기
@@ -2336,15 +2332,15 @@ GSErrCode	filterSelection (void)
 	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
 	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
 
-	ACAPI_Element_GetElemList (API_ObjectID, &objects, APIFilt_OnVisLayer | APIFilt_In3D);	nObjects = objects.GetSize ();	// 보이는 레이어 상의 객체 타입만 가져오기
-	ACAPI_Element_GetElemList (API_WallID, &walls, APIFilt_OnVisLayer | APIFilt_In3D);		nWalls = walls.GetSize ();		// 보이는 레이어 상의 벽 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ColumnID, &columns, APIFilt_OnVisLayer | APIFilt_In3D);	nColumns = columns.GetSize ();	// 보이는 레이어 상의 기둥 타입만 가져오기
-	ACAPI_Element_GetElemList (API_BeamID, &beams, APIFilt_OnVisLayer | APIFilt_In3D);		nBeams = beams.GetSize ();		// 보이는 레이어 상의 보 타입만 가져오기
-	ACAPI_Element_GetElemList (API_SlabID, &slabs, APIFilt_OnVisLayer | APIFilt_In3D);		nSlabs = slabs.GetSize ();		// 보이는 레이어 상의 슬래브 타입만 가져오기
-	ACAPI_Element_GetElemList (API_RoofID, &roofs, APIFilt_OnVisLayer | APIFilt_In3D);		nRoofs = roofs.GetSize ();		// 보이는 레이어 상의 루프 타입만 가져오기
-	ACAPI_Element_GetElemList (API_MeshID, &meshes, APIFilt_OnVisLayer | APIFilt_In3D);		nMeshes = meshes.GetSize ();	// 보이는 레이어 상의 메시 타입만 가져오기
-	ACAPI_Element_GetElemList (API_MorphID, &morphs, APIFilt_OnVisLayer | APIFilt_In3D);	nMorphs = morphs.GetSize ();	// 보이는 레이어 상의 모프 타입만 가져오기
-	ACAPI_Element_GetElemList (API_ShellID, &shells, APIFilt_OnVisLayer | APIFilt_In3D);	nShells = shells.GetSize ();	// 보이는 레이어 상의 셸 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ObjectID, &objects, APIFilt_OnVisLayer);	nObjects = objects.GetSize ();	// 보이는 레이어 상의 객체 타입만 가져오기
+	ACAPI_Element_GetElemList (API_WallID, &walls, APIFilt_OnVisLayer);		nWalls = walls.GetSize ();		// 보이는 레이어 상의 벽 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ColumnID, &columns, APIFilt_OnVisLayer);	nColumns = columns.GetSize ();	// 보이는 레이어 상의 기둥 타입만 가져오기
+	ACAPI_Element_GetElemList (API_BeamID, &beams, APIFilt_OnVisLayer);		nBeams = beams.GetSize ();		// 보이는 레이어 상의 보 타입만 가져오기
+	ACAPI_Element_GetElemList (API_SlabID, &slabs, APIFilt_OnVisLayer);		nSlabs = slabs.GetSize ();		// 보이는 레이어 상의 슬래브 타입만 가져오기
+	ACAPI_Element_GetElemList (API_RoofID, &roofs, APIFilt_OnVisLayer);		nRoofs = roofs.GetSize ();		// 보이는 레이어 상의 루프 타입만 가져오기
+	ACAPI_Element_GetElemList (API_MeshID, &meshes, APIFilt_OnVisLayer);	nMeshes = meshes.GetSize ();	// 보이는 레이어 상의 메시 타입만 가져오기
+	ACAPI_Element_GetElemList (API_MorphID, &morphs, APIFilt_OnVisLayer);	nMorphs = morphs.GetSize ();	// 보이는 레이어 상의 모프 타입만 가져오기
+	ACAPI_Element_GetElemList (API_ShellID, &shells, APIFilt_OnVisLayer);	nShells = shells.GetSize ();	// 보이는 레이어 상의 셸 타입만 가져오기
 
 	if (nObjects == 0 && nWalls == 0 && nColumns == 0 && nBeams == 0 && nSlabs == 0 && nRoofs == 0 && nMeshes == 0 && nMorphs == 0 && nShells == 0) {
 		result = DGAlert (DG_INFORMATION, "종료 알림", "아무 객체도 존재하지 않습니다.", "", "확인", "", "");
