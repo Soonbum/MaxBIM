@@ -227,7 +227,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			break;
 
 		case 32009:
-			// 물량 산출
+			// 반자동 배치
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:		// 물량합판 부착하기
 					extern qElem qElemInfo;
@@ -237,6 +237,20 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						if ((qElemInfo.dialogID != 0) || DGIsDialogOpen (qElemInfo.dialogID)) {
 							DGModelessClose (qElemInfo.dialogID);
 							qElemInfo.dialogID = 0;
+						}
+					}
+					return err;
+
+					break;
+
+				case 2:		// 단열재 부착하기
+					extern insulElem insulElemInfo;
+					if (insulElemInfo.dialogID == 0) {
+						err = placeInsulation ();
+					} else {
+						if ((insulElemInfo.dialogID != 0) || DGIsDialogOpen (insulElemInfo.dialogID)) {
+							DGModelessClose (insulElemInfo.dialogID);
+							insulElemInfo.dialogID = 0;
 						}
 					}
 					return err;

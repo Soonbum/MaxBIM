@@ -9,6 +9,7 @@
 using namespace quantitiesDG;
 
 qElem	qElemInfo;
+insulElem	insulElemInfo;
 
 // 물량합판을 부착할 수 있는 팔레트를 띄움
 GSErrCode	placeQuantityPlywood (void)
@@ -51,6 +52,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 	double				dx, dy, dz;
 
 	API_Coord3D		p1, p2, p3, p4, p5;
+	double			angle1, angle2;
 
 	API_StoryInfo	storyInfo;
 
@@ -59,47 +61,47 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 		switch (message) {
 			case DG_MSG_INIT:
 				// 라벨
-				DGSetItemText (dialID, LABEL_EXPLANATION, "3점 클릭: 직사각형, 5점 클릭: 창문형");
+				DGSetItemText (dialID, LABEL_EXPLANATION_QELEM, "3점 클릭: 직사각형, 5점 클릭: 창문형");
 
 				// 레이어
 				BNZeroMemory (&ucb, sizeof (ucb));
 				ucb.dialogID = dialID;
 				ucb.type	 = APIUserControlType_Layer;
-				ucb.itemID	 = USERCONTROL_PLYWOOD_TYPE;
+				ucb.itemID	 = USERCONTROL_QPLYWOOD_LAYER;
 				ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-				DGSetItemValLong (dialID, USERCONTROL_PLYWOOD_TYPE, 1);
+				DGSetItemValLong (dialID, USERCONTROL_QPLYWOOD_LAYER, 1);
 
 				// 팝업 컨트롤
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "보");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "기둥(독립)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "기둥(벽체)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(내벽)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(외벽)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(합벽)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(파라펫)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(방수턱)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(기초)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(RC)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(데크)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(램프)");
-				DGPopUpInsertItem (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_PLYWOOD_TYPE, DG_POPUP_BOTTOM, "계단");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "보");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "기둥(독립)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "기둥(벽체)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(내벽)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(외벽)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(합벽)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(파라펫)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(방수턱)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(기초)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(RC)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(데크)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(램프)");
+				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "계단");
 
 				// 버튼
-				DGSetItemText (dialID, BUTTON_DRAW_RECT, "물량합판 그리기\n(직사각형)");
-				DGSetItemText (dialID, BUTTON_DRAW_WINDOW, "물량합판 그리기\n(창문형)");
+				DGSetItemText (dialID, BUTTON_DRAW_RECT_QELEM, "물량합판 그리기\n(직사각형)");
+				DGSetItemText (dialID, BUTTON_DRAW_WINDOW_QELEM, "물량합판 그리기\n(창문형)");
 
 				// 층 정보 저장
 				BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
@@ -108,51 +110,52 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 				BMKillHandle ((GSHandle *) &storyInfo.data);
 
 				// 레이어 정보 저장
-				qElemInfo.layerInd = (short)DGGetItemValLong (dialID, USERCONTROL_PLYWOOD_TYPE);
+				qElemInfo.layerInd = (short)DGGetItemValLong (dialID, USERCONTROL_QPLYWOOD_LAYER);
 
 				// 분류 정보 저장
-				if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "보") == 0) {
+				if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "보") == 0) {
 					strcpy (qElemInfo.m_type, "보");
 					qElemInfo.panel_mat = 78;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "기둥(독립)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "기둥(독립)") == 0) {
 					strcpy (qElemInfo.m_type, "기둥(독립)");
 					qElemInfo.panel_mat = 20;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "기둥(벽체)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "기둥(벽체)") == 0) {
 					strcpy (qElemInfo.m_type, "기둥(벽체)");
 					qElemInfo.panel_mat = 77;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "벽체(내벽)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(내벽)") == 0) {
 					strcpy (qElemInfo.m_type, "벽체(내벽)");
 					qElemInfo.panel_mat = 75;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "벽체(외벽)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(외벽)") == 0) {
 					strcpy (qElemInfo.m_type, "벽체(외벽)");
 					qElemInfo.panel_mat = 76;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "벽체(합벽)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(합벽)") == 0) {
 					strcpy (qElemInfo.m_type, "벽체(합벽)");
 					qElemInfo.panel_mat = 72;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "벽체(파라펫)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(파라펫)") == 0) {
 					strcpy (qElemInfo.m_type, "벽체(파라펫)");
 					qElemInfo.panel_mat = 32;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "벽체(방수턱)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(방수턱)") == 0) {
 					strcpy (qElemInfo.m_type, "벽체(방수턱)");
 					qElemInfo.panel_mat = 12;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(기초)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(기초)") == 0) {
 					strcpy (qElemInfo.m_type, "스라브(기초)");
 					qElemInfo.panel_mat = 66;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(RC)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(RC)") == 0) {
 					strcpy (qElemInfo.m_type, "스라브(RC)");
 					qElemInfo.panel_mat = 100;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(데크)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(데크)") == 0) {
 					strcpy (qElemInfo.m_type, "스라브(데크)");
 					qElemInfo.panel_mat = 99;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(램프)") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(램프)") == 0) {
 					strcpy (qElemInfo.m_type, "스라브(램프)");
 					qElemInfo.panel_mat = 3;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "계단") == 0) {
+				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "계단") == 0) {
 					strcpy (qElemInfo.m_type, "계단");
 					qElemInfo.panel_mat = 73;
 				}
  
-				if (ACAPI_RegisterModelessWindow (dialID, PaletteAPIControlCallBack,
+				// 팔레트 창 등록
+				if (ACAPI_RegisterModelessWindow (dialID, qElemPaletteAPIControlCallBack,
 							API_PalEnabled_FloorPlan + API_PalEnabled_Section + API_PalEnabled_Elevation +
 							API_PalEnabled_InteriorElevation + API_PalEnabled_Detail + API_PalEnabled_Worksheet + API_PalEnabled_3D + API_PalEnabled_Layout) != NoError)
 					DBPrintf ("Test:: ACAPI_RegisterModelessWindow failed\n");
@@ -162,48 +165,48 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 			case DG_MSG_CHANGE:
 
 				switch (item) {
-					case USERCONTROL_PLYWOOD_TYPE:
-						qElemInfo.layerInd = (short)DGGetItemValLong (dialID, USERCONTROL_PLYWOOD_TYPE);
+					case USERCONTROL_QPLYWOOD_LAYER:
+						qElemInfo.layerInd = (short)DGGetItemValLong (dialID, USERCONTROL_QPLYWOOD_LAYER);
 						break;
 
-					case POPUP_PLYWOOD_TYPE:
-						if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "보") == 0) {
+					case POPUP_QPLYWOOD_TYPE:
+						if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "보") == 0) {
 							strcpy (qElemInfo.m_type, "보");
 							qElemInfo.panel_mat = 78;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "기둥(독립)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "기둥(독립)") == 0) {
 							strcpy (qElemInfo.m_type, "기둥(독립)");
 							qElemInfo.panel_mat = 20;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "기둥(벽체)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "기둥(벽체)") == 0) {
 							strcpy (qElemInfo.m_type, "기둥(벽체)");
 							qElemInfo.panel_mat = 77;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "벽체(내벽)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(내벽)") == 0) {
 							strcpy (qElemInfo.m_type, "벽체(내벽)");
 							qElemInfo.panel_mat = 75;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "벽체(외벽)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(외벽)") == 0) {
 							strcpy (qElemInfo.m_type, "벽체(외벽)");
 							qElemInfo.panel_mat = 76;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "벽체(합벽)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(합벽)") == 0) {
 							strcpy (qElemInfo.m_type, "벽체(합벽)");
 							qElemInfo.panel_mat = 72;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "벽체(파라펫)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(파라펫)") == 0) {
 							strcpy (qElemInfo.m_type, "벽체(파라펫)");
 							qElemInfo.panel_mat = 32;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "벽체(방수턱)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(방수턱)") == 0) {
 							strcpy (qElemInfo.m_type, "벽체(방수턱)");
 							qElemInfo.panel_mat = 12;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(기초)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(기초)") == 0) {
 							strcpy (qElemInfo.m_type, "스라브(기초)");
 							qElemInfo.panel_mat = 66;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(RC)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(RC)") == 0) {
 							strcpy (qElemInfo.m_type, "스라브(RC)");
 							qElemInfo.panel_mat = 100;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(데크)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(데크)") == 0) {
 							strcpy (qElemInfo.m_type, "스라브(데크)");
 							qElemInfo.panel_mat = 99;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(램프)") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(램프)") == 0) {
 							strcpy (qElemInfo.m_type, "스라브(램프)");
 							qElemInfo.panel_mat = 3;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_PLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_PLYWOOD_TYPE))).ToCStr ().Get (), "계단") == 0) {
+						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "계단") == 0) {
 							strcpy (qElemInfo.m_type, "계단");
 							qElemInfo.panel_mat = 73;
 						}
@@ -215,7 +218,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 
 			case DG_MSG_CLICK:
 				switch (item) {
-					case BUTTON_DRAW_RECT:
+					case BUTTON_DRAW_RECT_QELEM:
 						do {
 							BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
 
@@ -304,8 +307,6 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 
 							// p1, p2, p3 점의 고도가 모두 같을 때
 							if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
-								double angle1, angle2;
-
 								dx = p2.x - p1.x;
 								dy = p2.y - p1.y;
 								angle1 = RadToDegree (atan2 (dy, dx));
@@ -366,7 +367,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 
 						break;
 
-					case BUTTON_DRAW_WINDOW:
+					case BUTTON_DRAW_WINDOW_QELEM:
 						do {
 							BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
 
@@ -473,8 +474,6 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 								
 							// p1, p2, p3 점의 고도가 모두 같을 때
 							if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
-								double angle1, angle2;
-
 								dx = p2.x - p1.x;
 								dy = p2.y - p1.y;
 								angle1 = RadToDegree (atan2 (dy, dx));
@@ -583,11 +582,486 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 }
 
 // 팔레트에 대한 콜백 함수 2
-static GSErrCode __ACENV_CALL	PaletteAPIControlCallBack (Int32 referenceID, API_PaletteMessageID messageID, GS::IntPtr /*param*/)
+static GSErrCode __ACENV_CALL	qElemPaletteAPIControlCallBack (Int32 referenceID, API_PaletteMessageID messageID, GS::IntPtr /*param*/)
 {
 	if (referenceID == qElemInfo.dialogID) {
 		switch (messageID) {
 			case APIPalMsg_ClosePalette:		DGModelessClose (qElemInfo.dialogID);
+												break;
+
+			case APIPalMsg_HidePalette_Begin:	break;
+			case APIPalMsg_HidePalette_End:		break;
+
+			case APIPalMsg_DisableItems_Begin:	break;
+			case APIPalMsg_DisableItems_End:	break;
+			case APIPalMsg_OpenPalette:			break;
+			default:							break;
+		}
+	}
+
+	return NoError;
+}
+
+
+// 단열재를 부착할 수 있는 팔레트를 띄움
+GSErrCode	placeInsulation (void)
+{
+	GSErrCode	err = NoError;
+
+	insulElemInfo.dialogID = 0;
+
+	if ((insulElemInfo.dialogID == 0) || !DGIsDialogOpen (insulElemInfo.dialogID)) {
+		insulElemInfo.dialogID = DGModelessInit (ACAPI_GetOwnResModule (), 32523, ACAPI_GetOwnResModule (), insulElemDlgCallBack, (DGUserData) &insulElemInfo, 1);
+	}
+
+	return	err;
+}
+
+// 팔레트에 대한 콜백 함수 1
+static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short item, DGUserData userData, DGMessageData /*msgData*/)
+{
+	insulElem		*dlgData = (insulElem *) userData;
+	API_UCCallbackType	ucb;
+	GSErrCode	err = NoError;
+	GSErrCode	inputErr;
+	bool	regenerate = true;
+
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("단열재v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	double				horLen, verLen;
+	bool				bValid;
+
+	// 라인 입력 변수
+	API_GetPointType	pointInfo;
+	double				dx, dy, dz;
+
+	API_Coord3D		p1, p2, p3;
+	double			angle1, angle2;
+
+	API_StoryInfo	storyInfo;
+
+	
+	err = ACAPI_CallUndoableCommand ("단열재 부착하기", [&] () -> GSErrCode {
+		switch (message) {
+			case DG_MSG_INIT:
+				// 라벨
+				DGSetItemText (dialID, LABEL_EXPLANATION_INS, "3점 클릭: 직사각형");
+				DGSetItemText (dialID, LABEL_INSULATION_THK, "두께");
+				DGSetItemText (dialID, LABEL_INS_HORLEN, "가로");
+				DGSetItemText (dialID, LABEL_INS_VERLEN, "세로");
+
+				// 체크박스
+				DGSetItemText (dialID, CHECKBOX_INS_LIMIT_SIZE, "가로/세로 크기 제한");
+				DGSetItemValLong (dialID, CHECKBOX_INS_LIMIT_SIZE, TRUE);
+
+				// Edit 컨트롤
+				DGSetItemValDouble (dialID, EDITCONTROL_INSULATION_THK, 0.120);
+				DGSetItemValDouble (dialID, EDITCONTROL_INS_HORLEN, 0.900);
+				DGSetItemValDouble (dialID, EDITCONTROL_INS_VERLEN, 1.800);
+
+				// 레이어
+				BNZeroMemory (&ucb, sizeof (ucb));
+				ucb.dialogID = dialID;
+				ucb.type	 = APIUserControlType_Layer;
+				ucb.itemID	 = USERCONTROL_INSULATION_LAYER;
+				ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+				DGSetItemValLong (dialID, USERCONTROL_INSULATION_LAYER, 1);
+
+				// 버튼
+				DGSetItemText (dialID, BUTTON_DRAW_INSULATION, "단열재 그리기");
+
+				// 층 정보 저장
+				BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+				ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+				insulElemInfo.floorInd = storyInfo.actStory;
+				BMKillHandle ((GSHandle *) &storyInfo.data);
+
+				// 레이어 정보 저장
+				insulElemInfo.layerInd = (short)DGGetItemValLong (dialID, USERCONTROL_INSULATION_LAYER);
+
+				// 두께, 가로, 세로 저장
+				insulElemInfo.thk = DGGetItemValDouble (dialID, EDITCONTROL_INSULATION_THK);
+				insulElemInfo.maxHorLen = DGGetItemValDouble (dialID, EDITCONTROL_INS_HORLEN);
+				insulElemInfo.maxVerLen = DGGetItemValDouble (dialID, EDITCONTROL_INS_VERLEN);
+				if (DGGetItemValLong (dialID, CHECKBOX_INS_LIMIT_SIZE) == TRUE)
+					insulElemInfo.bLimitSize = true;
+				else
+					insulElemInfo.bLimitSize = false;
+ 
+				// 팔레트 창 등록
+				if (ACAPI_RegisterModelessWindow (dialID, insulElemPaletteAPIControlCallBack,
+							API_PalEnabled_FloorPlan + API_PalEnabled_Section + API_PalEnabled_Elevation +
+							API_PalEnabled_InteriorElevation + API_PalEnabled_Detail + API_PalEnabled_Worksheet + API_PalEnabled_3D + API_PalEnabled_Layout) != NoError)
+					DBPrintf ("Test:: ACAPI_RegisterModelessWindow failed\n");
+
+				break;
+
+			case DG_MSG_CHANGE:
+				switch (item) {
+					case CHECKBOX_INS_LIMIT_SIZE:
+						if (DGGetItemValLong (dialID, CHECKBOX_INS_LIMIT_SIZE) == TRUE) {
+							DGEnableItem (dialID, EDITCONTROL_INS_HORLEN);
+							DGEnableItem (dialID, EDITCONTROL_INS_VERLEN);
+						} else {
+							DGDisableItem (dialID, EDITCONTROL_INS_HORLEN);
+							DGDisableItem (dialID, EDITCONTROL_INS_VERLEN);
+						}
+						break;
+				}
+
+				// 레이어 정보 저장
+				insulElemInfo.layerInd = (short)DGGetItemValLong (dialID, USERCONTROL_INSULATION_LAYER);
+
+				// 두께, 가로, 세로 저장
+				insulElemInfo.thk = DGGetItemValDouble (dialID, EDITCONTROL_INSULATION_THK);
+				insulElemInfo.maxHorLen = DGGetItemValDouble (dialID, EDITCONTROL_INS_HORLEN);
+				insulElemInfo.maxVerLen = DGGetItemValDouble (dialID, EDITCONTROL_INS_VERLEN);
+				if (DGGetItemValLong (dialID, CHECKBOX_INS_LIMIT_SIZE) == TRUE)
+					insulElemInfo.bLimitSize = true;
+				else
+					insulElemInfo.bLimitSize = false;
+ 
+				break;
+
+			case DG_MSG_CLICK:
+				switch (item) {
+					case BUTTON_DRAW_INSULATION:
+						do {
+							BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
+
+							CHCopyC ("다각형의 1번째 노드(좌하단)를 클릭하십시오.", pointInfo.prompt);
+							inputErr = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
+							if (inputErr != NoError)	break;
+							p1.x = pointInfo.pos.x;
+							p1.y = pointInfo.pos.y;
+							p1.z = pointInfo.pos.z;
+
+							CHCopyC ("다각형의 2번째 노드(우하단)를 클릭하십시오.", pointInfo.prompt);
+							inputErr = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
+							if (inputErr != NoError)	break;
+							p2.x = pointInfo.pos.x;
+							p2.y = pointInfo.pos.y;
+							p2.z = pointInfo.pos.z;
+
+							CHCopyC ("다각형의 3번째 노드(우상단)를 클릭하십시오.", pointInfo.prompt);
+							inputErr = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
+							if (inputErr != NoError)	break;
+							p3.x = pointInfo.pos.x;
+							p3.y = pointInfo.pos.y;
+							p3.z = pointInfo.pos.z;
+
+							// 각도 계산
+							dx = p2.x - p1.x;
+							dy = p2.y - p1.y;
+							angle1 = RadToDegree (atan2 (dy, dx));
+
+							dx = p3.x - p2.x;
+							dy = p3.y - p2.y;
+							angle2 = RadToDegree (atan2 (dy, dx));
+
+							// 객체 로드
+							BNZeroMemory (&elem, sizeof (API_Element));
+							BNZeroMemory (&memo, sizeof (API_ElementMemo));
+							BNZeroMemory (&libPart, sizeof (libPart));
+							GS::ucscpy (libPart.file_UName, gsmName);
+							err = ACAPI_LibPart_Search (&libPart, false);
+							if (libPart.location != NULL)
+								delete libPart.location;
+							if (err != NoError)
+								break;
+
+							ACAPI_LibPart_Get (&libPart);
+
+							elem.header.typeID = API_ObjectID;
+							elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+							ACAPI_Element_GetDefaults (&elem, &memo);
+							ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+							// 라이브러리의 파라미터 값 입력 (공통)
+							elem.header.floorInd = insulElemInfo.floorInd;
+							elem.object.libInd = libPart.index;
+							elem.object.xRatio = aParam;
+							elem.object.yRatio = bParam;
+							elem.header.layer = insulElemInfo.layerInd;
+
+							setParameterByName (&memo, "bRestrictSize", insulElemInfo.bLimitSize);
+							setParameterByName (&memo, "maxHorLen", insulElemInfo.maxHorLen);
+							setParameterByName (&memo, "maxVerLen", insulElemInfo.maxVerLen);
+							setParameterByName (&memo, "ZZYZX", insulElemInfo.thk);
+
+							// 가로/세로 크기 제한이 true일 때
+							if (insulElemInfo.bLimitSize == true) {
+								// p1-p2가 p2-p3보다 길거나 같을 경우 (가로 방향)
+								if (GetDistance (p1, p2) >= GetDistance (p2, p3)) {
+									// 가로 크기 >= 세로 크기 (그대로 배치)
+									if (insulElemInfo.maxHorLen >= insulElemInfo.maxVerLen) {
+										// 객체의 위치, 각도
+										//dx = p2.x - p1.x;
+										//dy = p2.y - p1.y;
+
+										//elem.object.angle = atan2 (dy, dx);
+										//elem.object.pos.x = p1.x;
+										//elem.object.pos.y = p1.y;
+										//elem.object.level = p1.z;
+
+										// 객체의 가로 길이
+										//horLen = GetDistance (p1, p2);
+										//setParameterByName (&memo, "A", horLen);
+										//elem.object.xRatio = horLen;
+
+										// 객체의 세로 길이
+										//verLen = GetDistance (p2, p3);
+										//setParameterByName (&memo, "B", verLen);
+										//elem.object.yRatio = verLen;
+
+										//bValid = false;
+
+										// p1, p2, p3 점의 고도가 모두 같을 때
+										if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
+											dx = p2.x - p1.x;
+											dy = p2.y - p1.y;
+											angle1 = RadToDegree (atan2 (dy, dx));
+
+											dx = p3.x - p2.x;
+											dy = p3.y - p2.y;
+											angle2 = RadToDegree (atan2 (dy, dx));
+
+											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
+											if (abs (angle2 - angle1 - 90) < EPS) {
+											}
+											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
+											if (abs (angle1 - angle2 - 90) < EPS) {
+											}
+										
+										// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
+										} else {
+											// p2와 p3의 x, y 좌표는 같음 (수직)
+											if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+											
+											// p2와 p3의 x, y 좌표는 다름 (경사)
+											} else {
+											}
+										}
+									
+									// 가로 크기 < 세로 크기 (눕혀서 배치)
+									} else {
+										// p1, p2, p3 점의 고도가 모두 같을 때
+										if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
+											dx = p2.x - p1.x;
+											dy = p2.y - p1.y;
+											angle1 = RadToDegree (atan2 (dy, dx));
+
+											dx = p3.x - p2.x;
+											dy = p3.y - p2.y;
+											angle2 = RadToDegree (atan2 (dy, dx));
+
+											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
+											if (abs (angle2 - angle1 - 90) < EPS) {
+											}
+											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
+											if (abs (angle1 - angle2 - 90) < EPS) {
+											}
+										
+										// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
+										} else {
+											// p2와 p3의 x, y 좌표는 같음 (수직)
+											if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+											
+											// p2와 p3의 x, y 좌표는 다름 (경사)
+											} else {
+											}
+										}
+									}
+								
+								// p1-p2가 p2-p3보다 짧을 경우 (세로 방향)
+								} else {
+									// 가로 크기 >= 세로 크기 (눕혀서 배치)
+									if (insulElemInfo.maxHorLen >= insulElemInfo.maxVerLen) {
+										// p1, p2, p3 점의 고도가 모두 같을 때
+										if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
+											dx = p2.x - p1.x;
+											dy = p2.y - p1.y;
+											angle1 = RadToDegree (atan2 (dy, dx));
+
+											dx = p3.x - p2.x;
+											dy = p3.y - p2.y;
+											angle2 = RadToDegree (atan2 (dy, dx));
+
+											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
+											if (abs (angle2 - angle1 - 90) < EPS) {
+											}
+											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
+											if (abs (angle1 - angle2 - 90) < EPS) {
+											}
+										
+										// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
+										} else {
+											// p2와 p3의 x, y 좌표는 같음 (수직)
+											if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+											
+											// p2와 p3의 x, y 좌표는 다름 (경사)
+											} else {
+											}
+										}
+									
+									// 가로 크기 < 세로 크기 (그대로 배치)
+									} else {
+										// p1, p2, p3 점의 고도가 모두 같을 때
+										if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
+											dx = p2.x - p1.x;
+											dy = p2.y - p1.y;
+											angle1 = RadToDegree (atan2 (dy, dx));
+
+											dx = p3.x - p2.x;
+											dy = p3.y - p2.y;
+											angle2 = RadToDegree (atan2 (dy, dx));
+
+											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
+											if (abs (angle2 - angle1 - 90) < EPS) {
+											}
+											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
+											if (abs (angle1 - angle2 - 90) < EPS) {
+											}
+										
+										// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
+										} else {
+											// p2와 p3의 x, y 좌표는 같음 (수직)
+											if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+											
+											// p2와 p3의 x, y 좌표는 다름 (경사)
+											} else {
+											}
+										}
+									}
+								}
+							
+							// 가로/세로 크기 제한이 false일 때
+							} else {
+								// p1, p2, p3 점의 고도가 모두 같을 때
+								if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
+									dx = p2.x - p1.x;
+									dy = p2.y - p1.y;
+									angle1 = RadToDegree (atan2 (dy, dx));
+
+									dx = p3.x - p2.x;
+									dy = p3.y - p2.y;
+									angle2 = RadToDegree (atan2 (dy, dx));
+
+									// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
+									if (abs (angle2 - angle1 - 90) < EPS) {
+									}
+									// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
+									if (abs (angle1 - angle2 - 90) < EPS) {
+									}
+										
+								// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
+								} else {
+									// p2와 p3의 x, y 좌표는 같음 (수직)
+									if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+											
+									// p2와 p3의 x, y 좌표는 다름 (경사)
+									} else {
+									}
+								}
+							}
+
+
+
+							// p1, p2, p3 점의 고도가 모두 같을 때
+					//		if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
+					//			dx = p2.x - p1.x;
+					//			dy = p2.y - p1.y;
+					//			angle1 = RadToDegree (atan2 (dy, dx));
+
+					//			dx = p3.x - p2.x;
+					//			dy = p3.y - p2.y;
+					//			angle2 = RadToDegree (atan2 (dy, dx));
+
+					//			// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼
+					//			if (abs (angle2 - angle1 - 90) < EPS) {
+					//				strcpy (tempStr, "바닥덮기");
+					//				bValid = true;
+					//			}
+
+					//			// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음
+					//			if (abs (angle1 - angle2 - 90) < EPS) {
+					//				strcpy (tempStr, "바닥깔기");
+					//				moveIn3D ('y', elem.object.angle, -verLen, &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+					//				bValid = true;
+					//			}
+					//		// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
+					//		} else {
+					//			// p2와 p3의 x, y 좌표는 같음
+					//			if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+					//				// ???
+					//				strcpy (tempStr, "벽에 세우기");
+					//				setParameterByName (&memo, "ZZYZX", verLen);
+					//				bValid = true;
+					//			
+					//			// p2와 p3의 x, y 좌표는 다름
+					//			} else {
+					//				strcpy (tempStr, "경사설치");
+					//				bValid = true;
+
+					//				// 설치각도: asin ((p3.z - p2.z) / (p3와 p2 간의 거리))
+					//				// 설치각도: acos ((p3와 p2 간의 평면 상의 거리) / (p3와 p2 간의 거리))
+					//				// 설치각도: atan2 ((p3.z - p2.z) / (p3와 p2 간의 평면 상의 거리))
+					//				dx = GetDistance (p2.x, p2.y, p3.x, p3.y);
+					//				dy = abs (p3.z - p2.z);
+					//				dz = verLen;
+					//				setParameterByName (&memo, "cons_ang", DegreeToRad (180.0) - acos (dx/dz));
+					//			}
+					//		}
+
+							// 객체 배치
+							//if ((horLen > EPS) && (verLen > EPS) && (bValid == true)) {
+							//	ACAPI_Element_Create (&elem, &memo);
+							//}
+
+							//ACAPI_DisposeElemMemoHdls (&memo);
+
+							// 화면 새로고침
+							ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+							ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						} while (inputErr != APIERR_CANCEL);
+
+						break;
+
+					case DG_CLOSEBOX:
+						return item;	// 이것은 DG_MSG_CLOSE 메시지와 같음
+				}
+				break;
+
+			case DG_MSG_DOUBLECLICK:
+				break;
+
+			case DG_MSG_CLOSE:
+				ACAPI_UnregisterModelessWindow (dlgData->dialogID);
+				dlgData->dialogID = 0;
+				break;
+		}
+
+		return err;
+	});
+
+	return 0;
+}
+
+// 팔레트에 대한 콜백 함수 2
+static GSErrCode __ACENV_CALL	insulElemPaletteAPIControlCallBack (Int32 referenceID, API_PaletteMessageID messageID, GS::IntPtr /*param*/)
+{
+	if (referenceID == insulElemInfo.dialogID) {
+		switch (messageID) {
+			case APIPalMsg_ClosePalette:		DGModelessClose (insulElemInfo.dialogID);
 												break;
 
 			case APIPalMsg_HidePalette_Begin:	break;

@@ -484,6 +484,7 @@
 /* [ 39] */	UserControl		120		549		160		 25		257	0x0006 0x0000 0		/* Layer Control - HIDDEN			*/
 }
 
+/* ---------------------------------------------------------- place Quantity Playwood */
 'GDLG' 32520  Palette | leftCaption | close		0	0	201	101 "" {
 /* [  1] */	LeftText		  0		  1		200		 23		LargePlain	"Explanation for usage"
 /* [  2] */	UserControl		  0		 24		200		 25		257	0x0006 0x0000 0		/* Layer Control - Quantity Plywood	*/
@@ -663,4 +664,18 @@
 /* [ 53] */	UserControl		210		604		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE HANGER	*/
 /* [ 54] */	UserControl		210		634		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM HOOK	*/
 /* [ 55] */	UserControl		210		664		160		 25		257	0x0006 0x0000 0		/* Layer Control - TIMBER RAIL		*/
+}
+
+/* ---------------------------------------------------------- place Insulation */
+'GDLG' 32523  Palette | leftCaption | close		0	0	250	151 "" {
+/* [  1] */	LeftText		  0		  5		200		 20		LargePlain		"Explanation for usage"
+/* [  2] */	UserControl		  0		 24		249		 25		257	0x0006 0x0000 0		/* Layer Control - Insulation	*/
+/* [  3] */	LeftText		  0		 55		 50		 20		LargePlain		"Thk"
+/* [  4] */	LengthEdit		 51		 50		 70		 25		LargePlain		"0.001"	"1.0"
+/* [  5] */	CheckBox		  0		 75		200		 23		LargePlain		"Limit Size"
+/* [  6] */	CenterText		  0		105		 50		 20		LargePlain		"Hor. Length"
+/* [  7] */	LengthEdit		 50		100		 70		 25		LargePlain		"0.001" "10"
+/* [  8] */	CenterText		120		105		 50		 20		LargePlain		"Ver. Length"
+/* [  9] */	LengthEdit		170		100		 70		 25		LargePlain		"0.001" "10"
+/* [ 10] */	Button			  0		125		249		 25		LargePlain		"Draw Insulation"
 }
