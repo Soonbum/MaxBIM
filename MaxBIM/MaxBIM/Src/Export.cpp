@@ -500,7 +500,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	GSErrCode	err = NoError;
 	long		nSel;
 	unsigned short		xx, yy, zz;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 	bool		suspGrp;
 	short		result;
 	
@@ -524,8 +524,8 @@ GSErrCode	exportSelectedElementInfo (void)
 	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 선택한 요소 가져오기
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
@@ -598,7 +598,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		BNZeroMemory (&memo, sizeof (API_ElementMemo));
 		elem.header.guid = objects.Pop ();
 		err = ACAPI_Element_Get (&elem);
-		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+		err = ACAPI_Element_GetMemo (elem.header.guid, &memo, APIMemoMask_AddPars | APIMemoMask_FromFloorplan);
 
 		// 파라미터 스크립트를 강제로 실행시킴
 		ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
@@ -733,15 +733,15 @@ GSErrCode	exportSelectedElementInfo (void)
 					sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
 					fprintf (fp, buffer);
 
-				//} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "합판(다각형)") == 0) {
-				//		sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.records.at [yy][1].c_str ());
-				//		fprintf (fp, buffer);
+				} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "합판(다각형)") == 0) {
+						sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.records [yy][1].c_str ());
+						fprintf (fp, buffer);
 
-				//		if (atoi (objectInfo.records [yy][2].c_str ()) > 0) {
-				//			length = atof (objectInfo.records [yy][3].c_str ());
-				//			sprintf (buffer, "(각재 총길이: %s) ", length);
-				//			fprintf (fp, buffer);
-				//		}
+						if (atoi (objectInfo.records [yy][2].c_str ()) > 0) {
+							length = atof (objectInfo.records [yy][3].c_str ());
+							sprintf (buffer, "(각재 총길이: %s) ", length);
+							fprintf (fp, buffer);
+						}
 
 				} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "콘판넬") == 0) {
 					if (my_strcmp (objectInfo.records [yy][1].c_str (), "3x6 [910x1820]") == 0) {
@@ -976,8 +976,8 @@ GSErrCode	exportSelectedElementInfo (void)
 	fclose (fp);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);
@@ -993,7 +993,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	GSErrCode	err = NoError;
 	unsigned short		xx, yy, zz;
 	short		mm;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 	bool		suspGrp;
 	short		result;
 
@@ -1066,8 +1066,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -1094,16 +1094,16 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	}
 
 	// 일시적으로 모든 레이어 숨기기
-	//for (xx = 1 ; xx <= nLayers ; ++xx) {
-	//	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	//	attrib.layer.head.typeID = API_LayerID;
-	//	attrib.layer.head.index = xx;
-	//	err = ACAPI_Attribute_Get (&attrib);
-	//	if (err == NoError) {
-	//		attrib.layer.head.flags |= APILay_Hidden;
-	//		ACAPI_Attribute_Modify (&attrib, NULL);
-	//	}
-	//}
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			attrib.layer.head.flags |= APILay_Hidden;
+			ACAPI_Attribute_Modify (&attrib, NULL);
+		}
+	}
 
 	ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
 	sprintf (filename, "%s - 선택한 부재 정보 (통합).csv", miscAppInfo.caption);
@@ -1357,17 +1357,17 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							fprintf (fp, buffer);
 							fprintf (fp_unite, buffer);
 
-						//} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "합판(다각형)") == 0) {
-						//	sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.records [yy][1].c_str ());
-						//	fprintf (fp, buffer);
-						//	fprintf (fp_unite, buffer);
+						} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "합판(다각형)") == 0) {
+							sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.records [yy][1].c_str ());
+							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
 
-						//	if (atoi (objectInfo.records [yy][2].c_str ()) > 0) {
-						//		length = atof (objectInfo.records [yy][3].c_str ());
-						//		sprintf (buffer, "(각재 총길이: %s) ", length);
-						//		fprintf (fp, buffer);
-						//		fprintf (fp_unite, buffer);
-						//	}
+							if (atoi (objectInfo.records [yy][2].c_str ()) > 0) {
+								length = atof (objectInfo.records [yy][3].c_str ());
+								sprintf (buffer, "(각재 총길이: %s) ", length);
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+							}
 
 						} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "콘판넬") == 0) {
 							if (my_strcmp (objectInfo.records [yy][1].c_str (), "3x6 [910x1820]") == 0) {
@@ -2278,8 +2278,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	}
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);

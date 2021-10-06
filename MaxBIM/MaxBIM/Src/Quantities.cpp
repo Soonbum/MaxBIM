@@ -10,6 +10,7 @@ using namespace quantitiesDG;
 
 qElem	qElemInfo;
 insulElem	insulElemInfo;
+static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
 // 물량합판을 부착할 수 있는 팔레트를 띄움
 GSErrCode	placeQuantityPlywood (void)
@@ -523,7 +524,6 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 								
 							// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
 							} else {
-								// ???
 								if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
 									// p2와 p3의 x, y 좌표는 같음
 									strcpy (tempStr, "벽에 세우기");
@@ -635,16 +635,20 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 	double				bParam;
 	Int32				addParNum;
 
+	short				xx, yy;
+	short				totalXX, totalYY;
 	double				horLen, verLen;
-	bool				bValid;
+	double				remainHorLen, remainVerLen;
 
 	// 라인 입력 변수
 	API_GetPointType	pointInfo;
 	double				dx, dy, dz;
 
+	// 점 3개의 위치와 선분의 각도
 	API_Coord3D		p1, p2, p3;
 	double			angle1, angle2;
 
+	// 층 정보
 	API_StoryInfo	storyInfo;
 
 	
@@ -796,6 +800,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 							setParameterByName (&memo, "maxHorLen", insulElemInfo.maxHorLen);
 							setParameterByName (&memo, "maxVerLen", insulElemInfo.maxVerLen);
 							setParameterByName (&memo, "ZZYZX", insulElemInfo.thk);
+							setParameterByName (&memo, "bLShape", 0.0);
 
 							// 가로/세로 크기 제한이 true일 때
 							if (insulElemInfo.bLimitSize == true) {
@@ -803,51 +808,188 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 								if (GetDistance (p1, p2) >= GetDistance (p2, p3)) {
 									// 가로 크기 >= 세로 크기 (그대로 배치)
 									if (insulElemInfo.maxHorLen >= insulElemInfo.maxVerLen) {
-										// 객체의 위치, 각도
-										//dx = p2.x - p1.x;
-										//dy = p2.y - p1.y;
-
-										//elem.object.angle = atan2 (dy, dx);
-										//elem.object.pos.x = p1.x;
-										//elem.object.pos.y = p1.y;
-										//elem.object.level = p1.z;
-
-										// 객체의 가로 길이
-										//horLen = GetDistance (p1, p2);
-										//setParameterByName (&memo, "A", horLen);
-										//elem.object.xRatio = horLen;
-
-										// 객체의 세로 길이
-										//verLen = GetDistance (p2, p3);
-										//setParameterByName (&memo, "B", verLen);
-										//elem.object.yRatio = verLen;
-
-										//bValid = false;
-
 										// p1, p2, p3 점의 고도가 모두 같을 때
 										if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
-											dx = p2.x - p1.x;
-											dy = p2.y - p1.y;
-											angle1 = RadToDegree (atan2 (dy, dx));
-
-											dx = p3.x - p2.x;
-											dy = p3.y - p2.y;
-											angle2 = RadToDegree (atan2 (dy, dx));
-
 											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
 											if (abs (angle2 - angle1 - 90) < EPS) {
+												// 객체의 초기 위치 및 각도
+												elem.object.pos.x = p1.x;
+												elem.object.pos.y = p1.y;
+												elem.object.level = p1.z;
+												elem.object.angle = angle1;
+
+												remainHorLen = GetDistance (p1, p2);
+												remainVerLen = GetDistance (p2, p3);
+
+												totalXX = (short)floor (remainHorLen / insulElemInfo.maxHorLen);
+												totalYY = (short)floor (remainVerLen / insulElemInfo.maxVerLen);
+
+												for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+													for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+														(remainHorLen > insulElemInfo.maxHorLen) ? horLen = insulElemInfo.maxHorLen : horLen = remainHorLen;
+														(remainVerLen > insulElemInfo.maxVerLen) ? verLen = insulElemInfo.maxVerLen : verLen = remainVerLen;
+														
+														setParameterByName (&memo, "angX", DegreeToRad (0.0));
+														setParameterByName (&memo, "angY", DegreeToRad (0.0));
+														setParameterByName (&memo, "bVerticalCut", 0.0);
+														setParameterByName (&memo, "A", horLen);
+														setParameterByName (&memo, "B", verLen);
+														elem.object.xRatio = horLen;
+														elem.object.yRatio = verLen;
+
+														// 객체 배치
+														if ((horLen > EPS) && (verLen > EPS)) {
+															ACAPI_Element_Create (&elem, &memo);
+															elemList.Push (elem.header.guid);
+														}
+
+														remainVerLen -= insulElemInfo.maxVerLen;
+														moveIn3D ('y', elem.object.angle, verLen, &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+													}
+													remainHorLen -= insulElemInfo.maxHorLen;
+													remainVerLen = GetDistance (p2, p3);
+													moveIn3D ('y', elem.object.angle, -GetDistance (p2, p3), &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+													moveIn3D ('x', elem.object.angle, horLen, &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+												}
+												ACAPI_DisposeElemMemoHdls (&memo);
 											}
 											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
 											if (abs (angle1 - angle2 - 90) < EPS) {
+												// 객체의 초기 위치 및 각도
+												elem.object.pos.x = p1.x;
+												elem.object.pos.y = p1.y;
+												elem.object.level = p1.z;
+												elem.object.angle = angle1;
+
+												remainHorLen = GetDistance (p1, p2);
+												remainVerLen = GetDistance (p2, p3);
+
+												totalXX = (short)floor (remainHorLen / insulElemInfo.maxHorLen);
+												totalYY = (short)floor (remainVerLen / insulElemInfo.maxVerLen);
+
+												for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+													for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+														(remainHorLen > insulElemInfo.maxHorLen) ? horLen = insulElemInfo.maxHorLen : horLen = remainHorLen;
+														(remainVerLen > insulElemInfo.maxVerLen) ? verLen = insulElemInfo.maxVerLen : verLen = remainVerLen;
+
+														setParameterByName (&memo, "angX", DegreeToRad (180.0));
+														setParameterByName (&memo, "angY", DegreeToRad (0.0));
+														setParameterByName (&memo, "bVerticalCut", 0.0);
+														setParameterByName (&memo, "A", horLen);
+														setParameterByName (&memo, "B", verLen);
+														elem.object.xRatio = horLen;
+														elem.object.yRatio = verLen;
+
+														// 객체 배치
+														if ((horLen > EPS) && (verLen > EPS)) {
+															ACAPI_Element_Create (&elem, &memo);
+															elemList.Push (elem.header.guid);
+														}
+
+														remainVerLen -= insulElemInfo.maxVerLen;
+														moveIn3D ('y', elem.object.angle, -verLen, &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+													}
+													remainHorLen -= insulElemInfo.maxHorLen;
+													remainVerLen = GetDistance (p2, p3);
+													moveIn3D ('y', elem.object.angle, GetDistance (p2, p3), &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+													moveIn3D ('x', elem.object.angle, horLen, &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+												}
+												ACAPI_DisposeElemMemoHdls (&memo);
 											}
 										
 										// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
 										} else {
 											// p2와 p3의 x, y 좌표는 같음 (수직)
 											if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+												// 객체의 초기 위치 및 각도
+												elem.object.pos.x = p1.x;
+												elem.object.pos.y = p1.y;
+												elem.object.level = p1.z;
+												elem.object.angle = angle1;
+
+												remainHorLen = GetDistance (p1, p2);
+												remainVerLen = GetDistance (p2, p3);
+
+												totalXX = (short)floor (remainHorLen / insulElemInfo.maxHorLen);
+												totalYY = (short)floor (remainVerLen / insulElemInfo.maxVerLen);
+
+												for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+													for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+														(remainHorLen > insulElemInfo.maxHorLen) ? horLen = insulElemInfo.maxHorLen : horLen = remainHorLen;
+														(remainVerLen > insulElemInfo.maxVerLen) ? verLen = insulElemInfo.maxVerLen : verLen = remainVerLen;
+														
+														setParameterByName (&memo, "angX", DegreeToRad (90.0));
+														setParameterByName (&memo, "angY", DegreeToRad (0.0));
+														setParameterByName (&memo, "bVerticalCut", 0.0);
+														setParameterByName (&memo, "A", horLen);
+														setParameterByName (&memo, "B", verLen);
+														elem.object.xRatio = horLen;
+														elem.object.yRatio = verLen;
+
+														// 객체 배치
+														if ((horLen > EPS) && (verLen > EPS)) {
+															ACAPI_Element_Create (&elem, &memo);
+															elemList.Push (elem.header.guid);
+														}
+
+														remainVerLen -= insulElemInfo.maxVerLen;
+														moveIn3D ('z', elem.object.angle, verLen, &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+													}
+													remainHorLen -= insulElemInfo.maxHorLen;
+													remainVerLen = GetDistance (p2, p3);
+													moveIn3D ('z', elem.object.angle, -GetDistance (p2, p3), &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+													moveIn3D ('x', elem.object.angle, horLen, &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+												}
+												ACAPI_DisposeElemMemoHdls (&memo);
 											
 											// p2와 p3의 x, y 좌표는 다름 (경사)
 											} else {
+												// 객체의 초기 위치 및 각도
+												elem.object.pos.x = p1.x;
+												elem.object.pos.y = p1.y;
+												elem.object.level = p1.z - insulElemInfo.thk;
+												elem.object.angle = angle1;
+
+												remainHorLen = GetDistance (p1, p2);
+												remainVerLen = GetDistance (p2, p3);
+
+												totalXX = (short)floor (remainHorLen / insulElemInfo.maxHorLen);
+												totalYY = (short)floor (remainVerLen / insulElemInfo.maxVerLen);
+
+												dx = GetDistance (p2.x, p2.y, p3.x, p3.y);
+												dy = abs (p3.z - p2.z);
+												dz = GetDistance (p2, p3);
+
+												for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+													for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+														(remainHorLen > insulElemInfo.maxHorLen) ? horLen = insulElemInfo.maxHorLen : horLen = remainHorLen;
+														(remainVerLen > insulElemInfo.maxVerLen) ? verLen = insulElemInfo.maxVerLen : verLen = remainVerLen;
+														
+														setParameterByName (&memo, "angX", DegreeToRad (180.0) - acos (dx/dz));
+														setParameterByName (&memo, "angY", DegreeToRad (0.0));
+														setParameterByName (&memo, "bVerticalCut", 1.0);
+														setParameterByName (&memo, "A", horLen);
+														setParameterByName (&memo, "B", verLen);
+														elem.object.xRatio = horLen;
+														elem.object.yRatio = verLen;
+
+														// 객체 배치
+														if ((horLen > EPS) && (verLen > EPS)) {
+															ACAPI_Element_Create (&elem, &memo);
+															elemList.Push (elem.header.guid);
+														}
+
+														remainVerLen -= insulElemInfo.maxVerLen;
+														moveIn3D ('y', elem.object.angle, -verLen * cos (acos (dx/dz)), &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+														moveIn3D ('z', elem.object.angle, verLen * sin (acos (dx/dz)), &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+													}
+													remainHorLen -= insulElemInfo.maxHorLen;
+													remainVerLen = GetDistance (p2, p3);
+													moveIn3D ('y', elem.object.angle, GetDistance (p2, p3) * cos (acos (dx/dz)), &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+													moveIn3D ('z', elem.object.angle, -GetDistance (p2, p3) * sin (acos (dx/dz)), &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+													moveIn3D ('x', elem.object.angle, horLen, &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
+												}
+												ACAPI_DisposeElemMemoHdls (&memo);
 											}
 										}
 									
@@ -855,28 +997,24 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 									} else {
 										// p1, p2, p3 점의 고도가 모두 같을 때
 										if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
-											dx = p2.x - p1.x;
-											dy = p2.y - p1.y;
-											angle1 = RadToDegree (atan2 (dy, dx));
-
-											dx = p3.x - p2.x;
-											dy = p3.y - p2.y;
-											angle2 = RadToDegree (atan2 (dy, dx));
-
 											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
 											if (abs (angle2 - angle1 - 90) < EPS) {
+												// ... 1. 원점을 y방향으로 
 											}
 											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
 											if (abs (angle1 - angle2 - 90) < EPS) {
+												// ...
 											}
 										
 										// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
 										} else {
 											// p2와 p3의 x, y 좌표는 같음 (수직)
 											if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+												// ...
 											
 											// p2와 p3의 x, y 좌표는 다름 (경사)
 											} else {
+												// ...
 											}
 										}
 									}
@@ -887,28 +1025,24 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 									if (insulElemInfo.maxHorLen >= insulElemInfo.maxVerLen) {
 										// p1, p2, p3 점의 고도가 모두 같을 때
 										if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
-											dx = p2.x - p1.x;
-											dy = p2.y - p1.y;
-											angle1 = RadToDegree (atan2 (dy, dx));
-
-											dx = p3.x - p2.x;
-											dy = p3.y - p2.y;
-											angle2 = RadToDegree (atan2 (dy, dx));
-
 											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
 											if (abs (angle2 - angle1 - 90) < EPS) {
+												// ...
 											}
 											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
 											if (abs (angle1 - angle2 - 90) < EPS) {
+												// ...
 											}
 										
 										// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
 										} else {
 											// p2와 p3의 x, y 좌표는 같음 (수직)
 											if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+												// ...
 											
 											// p2와 p3의 x, y 좌표는 다름 (경사)
 											} else {
+												// ...
 											}
 										}
 									
@@ -916,28 +1050,24 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 									} else {
 										// p1, p2, p3 점의 고도가 모두 같을 때
 										if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
-											dx = p2.x - p1.x;
-											dy = p2.y - p1.y;
-											angle1 = RadToDegree (atan2 (dy, dx));
-
-											dx = p3.x - p2.x;
-											dy = p3.y - p2.y;
-											angle2 = RadToDegree (atan2 (dy, dx));
-
 											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
 											if (abs (angle2 - angle1 - 90) < EPS) {
+												// ...
 											}
 											// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
 											if (abs (angle1 - angle2 - 90) < EPS) {
+												// ...
 											}
 										
 										// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
 										} else {
 											// p2와 p3의 x, y 좌표는 같음 (수직)
 											if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+												// ...
 											
 											// p2와 p3의 x, y 좌표는 다름 (경사)
 											} else {
+												// ...
 											}
 										}
 									}
@@ -947,86 +1077,42 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 							} else {
 								// p1, p2, p3 점의 고도가 모두 같을 때
 								if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
-									dx = p2.x - p1.x;
-									dy = p2.y - p1.y;
-									angle1 = RadToDegree (atan2 (dy, dx));
-
-									dx = p3.x - p2.x;
-									dy = p3.y - p2.y;
-									angle2 = RadToDegree (atan2 (dy, dx));
-
 									// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
 									if (abs (angle2 - angle1 - 90) < EPS) {
+										// ...
 									}
 									// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
 									if (abs (angle1 - angle2 - 90) < EPS) {
+										// ...
 									}
 										
 								// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
 								} else {
 									// p2와 p3의 x, y 좌표는 같음 (수직)
 									if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
+										// ...
 											
 									// p2와 p3의 x, y 좌표는 다름 (경사)
 									} else {
+										// ...
 									}
 								}
 							}
 
+							// 그룹화하기
+							if (!elemList.IsEmpty ()) {
+								GSSize nElems = elemList.GetSize ();
+								API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+								if (elemHead != NULL) {
+									for (GSIndex i = 0; i < nElems; i++)
+										(*elemHead)[i].guid = elemList[i];
 
+									ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
 
-							// p1, p2, p3 점의 고도가 모두 같을 때
-					//		if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
-					//			dx = p2.x - p1.x;
-					//			dy = p2.y - p1.y;
-					//			angle1 = RadToDegree (atan2 (dy, dx));
-
-					//			dx = p3.x - p2.x;
-					//			dy = p3.y - p2.y;
-					//			angle2 = RadToDegree (atan2 (dy, dx));
-
-					//			// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼
-					//			if (abs (angle2 - angle1 - 90) < EPS) {
-					//				strcpy (tempStr, "바닥덮기");
-					//				bValid = true;
-					//			}
-
-					//			// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음
-					//			if (abs (angle1 - angle2 - 90) < EPS) {
-					//				strcpy (tempStr, "바닥깔기");
-					//				moveIn3D ('y', elem.object.angle, -verLen, &elem.object.pos.x, &elem.object.pos.y, &elem.object.level);
-					//				bValid = true;
-					//			}
-					//		// p1, p2 점의 고도가 같고 p3 점의 고도가 다를 때
-					//		} else {
-					//			// p2와 p3의 x, y 좌표는 같음
-					//			if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
-					//				// ???
-					//				strcpy (tempStr, "벽에 세우기");
-					//				setParameterByName (&memo, "ZZYZX", verLen);
-					//				bValid = true;
-					//			
-					//			// p2와 p3의 x, y 좌표는 다름
-					//			} else {
-					//				strcpy (tempStr, "경사설치");
-					//				bValid = true;
-
-					//				// 설치각도: asin ((p3.z - p2.z) / (p3와 p2 간의 거리))
-					//				// 설치각도: acos ((p3와 p2 간의 평면 상의 거리) / (p3와 p2 간의 거리))
-					//				// 설치각도: atan2 ((p3.z - p2.z) / (p3와 p2 간의 평면 상의 거리))
-					//				dx = GetDistance (p2.x, p2.y, p3.x, p3.y);
-					//				dy = abs (p3.z - p2.z);
-					//				dz = verLen;
-					//				setParameterByName (&memo, "cons_ang", DegreeToRad (180.0) - acos (dx/dz));
-					//			}
-					//		}
-
-							// 객체 배치
-							//if ((horLen > EPS) && (verLen > EPS) && (bValid == true)) {
-							//	ACAPI_Element_Create (&elem, &memo);
-							//}
-
-							//ACAPI_DisposeElemMemoHdls (&memo);
+									BMKillHandle ((GSHandle *) &elemHead);
+								}
+							}
+							elemList.Clear (false);
 
 							// 화면 새로고침
 							ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
