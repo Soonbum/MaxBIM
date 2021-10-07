@@ -65,26 +65,26 @@ class SummaryOfObjectInfo
 public:
 	SummaryOfObjectInfo ();		// 생성자
 	void clear ();				// 레코드 내용 지우기
-	int	quantityPlus1 (GS::Array<string> record);	// 객체의 레코드 수량 1 증가 (있으면 증가, 없으면 신규 추가)
+	int	quantityPlus1 (vector<string> record);	// 객체의 레코드 수량 1 증가 (있으면 증가, 없으면 신규 추가)
 
 public:
 	// objectInfo.csv 파일 정보
-	GS::Array<string>				keyName;	// 객체를 구분할 수 있는 값(문자열)이 들어 있는 변수 이름 (예: u_comp)
-	GS::Array<string>				keyDesc;	// 객체의 이름 (예: 유로폼)
-	GS::Array<int>					nInfo;		// 표시할 정보 필드 개수
-	GS::Array<GS::Array<string>>	varName;	// 변수의 이름 (예: eu_stan_onoff)		-- 내부에 또 다른 vector<string>가 삽입되며, 그것의 길이는 해당 객체의 nInfo와 같음
-	GS::Array<GS::Array<string>>	varDesc;	// 변수의 이름에 대한 설명 (예: 규격폼)	-- 내부에 또 다른 vector<string>가 삽입되며, 그것의 길이는 해당 객체의 nInfo와 같음
+	vector<string>				keyName;	// 객체를 구분할 수 있는 값(문자열)이 들어 있는 변수 이름 (예: u_comp)
+	vector<string>				keyDesc;	// 객체의 이름 (예: 유로폼)
+	vector<int>					nInfo;		// 표시할 정보 필드 개수
+	vector<vector<string>>		varName;	// 변수의 이름 (예: eu_stan_onoff)		-- 내부에 또 다른 vector<string>가 삽입되며, 그것의 길이는 해당 객체의 nInfo와 같음
+	vector<vector<string>>		varDesc;	// 변수의 이름에 대한 설명 (예: 규격폼)	-- 내부에 또 다른 vector<string>가 삽입되며, 그것의 길이는 해당 객체의 nInfo와 같음
 
 	// 객체의 변수 값들의 조합별 수량
-	GS::Array<GS::Array<string>>	records;	// 객체의 이름, 변수 값들의 조합, 조합에 해당하는 객체 개수를 담고 있음 (필드 1개의 예시: 인코너판넬 | 100 | 100 | 1200 | 3)
+	vector<vector<string>>		records;	// 객체의 이름, 변수 값들의 조합, 조합에 해당하는 객체 개수를 담고 있음 (필드 1개의 예시: 인코너판넬 | 100 | 100 | 1200 | 3)
 
 	// 기타
 	int nKnownObjects;						// 지정된 객체의 개수
 	int nUnknownObjects;					// 지정되지 않은 객체의 개수
 
 	// 객체별 정보 (Beam 타입)
-	GS::Array<int>	beamLength;				// 보 길이
-	GS::Array<int>	beamCount;				// 해당 보 길이에 대한 개수
+	vector<int>		beamLength;				// 보 길이
+	vector<int>		beamCount;				// 해당 보 길이에 대한 개수
 	int				nCountsBeam;			// 보 종류별 개수
 };
 

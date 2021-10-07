@@ -864,8 +864,9 @@ API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short lay
 bool	setParameterByName (API_ElementMemo* memo, char* pName, double value)
 {
 	const char*	retStr = NULL;
+	int totalParams = BMGetHandleSize ((GSConstHandle)memo->params) / sizeof (API_AddParType);		// 매개변수 수 = 핸들 크기 / 단일 핸들 크기
 
-	for (short xx = 0 ; xx < 500 ; ++xx) {
+	for (int xx = 0 ; xx < totalParams ; ++xx) {
 		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
 		if (retStr != NULL) {
 			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
@@ -884,8 +885,9 @@ bool	setParameterByName (API_ElementMemo* memo, char* pName, double value)
 bool	setParameterByName (API_ElementMemo* memo, char* pName, char* value)
 {
 	const char*	retStr = NULL;
+	int totalParams = BMGetHandleSize ((GSConstHandle)memo->params) / sizeof(API_AddParType);		// 매개변수 수 = 핸들 크기 / 단일 핸들 크기
 
-	for (short xx = 0 ; xx < 500 ; ++xx) {
+	for (int xx = 0 ; xx < totalParams ; ++xx) {
 		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
 		if (retStr != NULL) {
 			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
@@ -904,15 +906,12 @@ bool	setParameterByName (API_ElementMemo* memo, char* pName, char* value)
 double	getParameterValueByName (API_ElementMemo* memo, char* pName)
 {
 	const char*	retStr = NULL;
+	int totalParams = BMGetHandleSize ((GSConstHandle)memo->params) / sizeof(API_AddParType);		// 매개변수 수 = 핸들 크기 / 단일 핸들 크기
 
-	for (short xx = 0 ; xx < 100 ; ++xx) {
+	for (int xx = 0 ; xx < totalParams ; ++xx) {
 		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
-		if (retStr != NULL) {
-			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
-				return memo->params [0][xx].value.real;
-			}
-		} else {
-			return 0.0;
+		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+			return memo->params [0][xx].value.real;
 		}
 	}
 
@@ -923,19 +922,17 @@ double	getParameterValueByName (API_ElementMemo* memo, char* pName)
 const char*	getParameterStringByName (API_ElementMemo* memo, char* pName)
 {
 	const char*	retStr = NULL;
+	int totalParams = BMGetHandleSize ((GSConstHandle)memo->params) / sizeof(API_AddParType);		// 매개변수 수 = 핸들 크기 / 단일 핸들 크기
 
-	for (short xx = 0 ; xx < 100 ; ++xx) {
+	for (int xx = 0 ; xx < totalParams ; ++xx) {
 		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
-		if (retStr != NULL) {
-			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
-				retStr = GS::UniString (memo->params [0][xx].value.uStr).ToCStr ().Get ();
-				return retStr;
-			}
-		} else {
-			return	retStr;
+		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+			retStr = GS::UniString (memo->params [0][xx].value.uStr).ToCStr ().Get ();
+			return retStr;
 		}
 	}
 
+	retStr = "";
 	return	retStr;
 }
 
@@ -943,15 +940,12 @@ const char*	getParameterStringByName (API_ElementMemo* memo, char* pName)
 API_AddParID	getParameterTypeByName (API_ElementMemo* memo, char* pName)
 {
 	const char* retStr = NULL;
+	int totalParams = BMGetHandleSize ((GSConstHandle)memo->params) / sizeof(API_AddParType);		// 매개변수 수 = 핸들 크기 / 단일 핸들 크기
 
-	for (short xx = 0 ; xx < 100 ; ++xx) {
+	for (int xx = 0 ; xx < totalParams ; ++xx) {
 		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
-		if (retStr != NULL) {
-			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
-				return memo->params [0][xx].typeID;
-			}
-		} else {
-			return API_ZombieParT;
+		if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
+			return memo->params [0][xx].typeID;
 		}
 	}
 

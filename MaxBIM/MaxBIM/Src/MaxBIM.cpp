@@ -291,6 +291,64 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
+						API_SelectionInfo		selectionInfo;
+						API_Neig				**selNeigs;
+						API_Element				tElem;
+						long					nSel;
+						GS::Array<API_Guid>		objects;
+
+						// 선택한 요소 가져오기
+						err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
+						BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+						if (err != NoError) {
+							BMKillHandle ((GSHandle *) &selNeigs);
+							ACAPI_WriteReport ("요소들을 선택해야 합니다.", true);
+							return err;
+						}
+
+						// 객체 타입의 요소 GUID만 저장함
+						if (selectionInfo.typeID != API_SelEmpty) {
+							nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
+							for (short xx = 0 ; xx < nSel && err == NoError ; ++xx) {
+								tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
+								tElem.header.guid = (*selNeigs)[xx].guid;
+
+								if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
+									continue;
+
+								if (tElem.header.typeID == API_ObjectID)	// 객체 타입 요소인가?
+									objects.Push (tElem.header.guid);
+							}
+						}
+						BMKillHandle ((GSHandle *) &selNeigs);
+
+						API_Element			elem;
+						API_ElementMemo		memo;
+						const char*			outStr;
+						API_AddParID		type;
+						double				value;
+
+						BNZeroMemory (&elem, sizeof (API_Element));
+						BNZeroMemory (&memo, sizeof (API_ElementMemo));
+						elem.header.guid = objects.Pop ();
+						err = ACAPI_Element_Get (&elem);
+
+						if (err == NoError && elem.header.hasMemo) {
+							err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+							if (err == NoError) {
+								type = getParameterTypeByName (&memo, "A");		// 타입
+								WriteReport_Alert ("타입: %d", type);
+
+								outStr = getParameterStringByName (&memo, "A");	// 문자열
+								WriteReport_Alert ("이름: %s(%d)", outStr, strlen (outStr));
+
+								value = getParameterValueByName (&memo, "A");	// 값
+								WriteReport_Alert ("값: %.3f", value);
+							}
+						}
+
+						ACAPI_DisposeElemMemoHdls (&memo);
+
 						// *** 원하는 코드를 위에 넣으시오.
 						return err;
 					});

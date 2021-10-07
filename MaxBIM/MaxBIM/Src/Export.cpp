@@ -142,14 +142,19 @@ GSErrCode	exportGridElementInfo (void)
 			BNZeroMemory (&memo, sizeof (API_ElementMemo));
 			elem.header.guid = elemList.Pop ();
 			err = ACAPI_Element_Get (&elem);
-			err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-			if (storyInfo.data [0][xx].index == elem.header.floorInd) {
-				coords_hor [nCoords_hor++] = elem.column.origoPos.x;
-				coords_ver [nCoords_ver++] = elem.column.origoPos.y;
+			if (err == NoError && elem.header.hasMemo) {
+				err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+				if (err == NoError) {
+					if (storyInfo.data [0][xx].index == elem.header.floorInd) {
+						coords_hor [nCoords_hor++] = elem.column.origoPos.x;
+						coords_ver [nCoords_ver++] = elem.column.origoPos.y;
+					}
+				}
+
+				ACAPI_DisposeElemMemoHdls (&memo);
 			}
-
-			ACAPI_DisposeElemMemoHdls (&memo);
 		}
 
 		// 오름차순 정렬
@@ -195,37 +200,42 @@ GSErrCode	exportGridElementInfo (void)
 			BNZeroMemory (&memo, sizeof (API_ElementMemo));
 			elem.header.guid = elemList.Pop ();
 			err = ACAPI_Element_Get (&elem);
-			err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-			if (storyInfo.data [0][xx].index == elem.header.floorInd) {
-				iSel = 0;
-				jSel = 0;
+			if (err == NoError && elem.header.hasMemo) {
+				err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-				for (i = 0 ; i < columnPos.nNodes_hor [xx] ; ++i) {
-					if (abs (elem.column.origoPos.x - columnPos.node_hor [xx][i]) < DIST_BTW_COLUMN) {
-						iSel = i;
+				if (err == NoError) {
+					if (storyInfo.data [0][xx].index == elem.header.floorInd) {
+						iSel = 0;
+						jSel = 0;
+
+						for (i = 0 ; i < columnPos.nNodes_hor [xx] ; ++i) {
+							if (abs (elem.column.origoPos.x - columnPos.node_hor [xx][i]) < DIST_BTW_COLUMN) {
+								iSel = i;
+							}
+						}
+
+						for (j = 0; j < columnPos.nNodes_ver [xx] ; ++j) {
+							if (abs (elem.column.origoPos.y - columnPos.node_ver [xx][j]) < DIST_BTW_COLUMN) {
+								jSel = j;
+							}
+						}
+
+						columnPos.columns [columnPos.nColumns].floorInd		= elem.header.floorInd;
+						columnPos.columns [columnPos.nColumns].posX			= elem.column.origoPos.x;
+						columnPos.columns [columnPos.nColumns].posY			= elem.column.origoPos.y;
+						columnPos.columns [columnPos.nColumns].horLen		= elem.column.coreWidth + elem.column.venThick*2;
+						columnPos.columns [columnPos.nColumns].verLen		= elem.column.coreDepth + elem.column.venThick*2;
+						columnPos.columns [columnPos.nColumns].height		= elem.column.height;
+						columnPos.columns [columnPos.nColumns].iHor			= iSel;
+						columnPos.columns [columnPos.nColumns].iVer			= jSel;
+
+						columnPos.nColumns ++;
 					}
 				}
 
-				for (j = 0; j < columnPos.nNodes_ver [xx] ; ++j) {
-					if (abs (elem.column.origoPos.y - columnPos.node_ver [xx][j]) < DIST_BTW_COLUMN) {
-						jSel = j;
-					}
-				}
-
-				columnPos.columns [columnPos.nColumns].floorInd		= elem.header.floorInd;
-				columnPos.columns [columnPos.nColumns].posX			= elem.column.origoPos.x;
-				columnPos.columns [columnPos.nColumns].posY			= elem.column.origoPos.y;
-				columnPos.columns [columnPos.nColumns].horLen		= elem.column.coreWidth + elem.column.venThick*2;
-				columnPos.columns [columnPos.nColumns].verLen		= elem.column.coreDepth + elem.column.venThick*2;
-				columnPos.columns [columnPos.nColumns].height		= elem.column.height;
-				columnPos.columns [columnPos.nColumns].iHor			= iSel;
-				columnPos.columns [columnPos.nColumns].iVer			= jSel;
-
-				columnPos.nColumns ++;
+				ACAPI_DisposeElemMemoHdls (&memo);
 			}
-
-			ACAPI_DisposeElemMemoHdls (&memo);
 		}
 	}
 
@@ -414,21 +424,21 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 					tokCount --;
 				}
 
-				this->keyName.Push (nthToken [0]);		// 예: u_comp
-				this->keyDesc.Push (nthToken [1]);		// 예: 유로폼
+				this->keyName.push_back (nthToken [0]);		// 예: u_comp
+				this->keyDesc.push_back (nthToken [1]);		// 예: 유로폼
 				count = atoi (nthToken [2]);
-				this->nInfo.Push (count);				// 예: 5
+				this->nInfo.push_back (count);				// 예: 5
 
-				GS::Array<string>	varNames;	// 해당 객체의 변수 이름들
-				GS::Array<string>	varDescs;	// 해당 객체의 변수 이름에 대한 설명들
+				vector<string>	varNames;	// 해당 객체의 변수 이름들
+				vector<string>	varDescs;	// 해당 객체의 변수 이름에 대한 설명들
 
 				for (xx = 1 ; xx <= count ; ++xx) {
-					varNames.Push (nthToken [1 + xx*2]);
-					varDescs.Push (nthToken [1 + xx*2 + 1]);
+					varNames.push_back (nthToken [1 + xx*2]);
+					varDescs.push_back (nthToken [1 + xx*2 + 1]);
 				}
 
-				this->varName.Push (varNames);
-				this->varDesc.Push (varDescs);
+				this->varName.push_back (varNames);
+				this->varDesc.push_back (varDescs);
 			}
 		}
 
@@ -442,44 +452,49 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 }
 
 // 객체의 레코드 수량 1 증가 (있으면 증가, 없으면 신규 추가)
-int	SummaryOfObjectInfo::quantityPlus1 (GS::Array<string> record)
+int	SummaryOfObjectInfo::quantityPlus1 (vector<string> record)
 {
 	int		xx, yy;
 	size_t	vecLen;
 	size_t	inVecLen1, inVecLen2;
 	int		diff;
 	int		value;
-	char	tempStr [128];
+	char	tempStr [512];
 
-	vecLen = this->records.GetSize ();
+	vecLen = this->records.size ();
 
-	for (xx = 0 ; xx < vecLen ; ++xx) {
-		// 변수 값도 동일할 경우
-		inVecLen1 = this->records [xx].GetSize () - 1;		// 끝의 개수 필드를 제외한 길이
-		inVecLen2 = record.GetSize ();
+	try {
+		for (xx = 0 ; xx < vecLen ; ++xx) {
+			// 변수 값도 동일할 경우
+			inVecLen1 = this->records.at(xx).size () - 1;		// 끝의 개수 필드를 제외한 길이
+			inVecLen2 = record.size ();
 
-		if (inVecLen1 == inVecLen2) {
-			// 일치하지 않는 필드가 하나라도 있는지 찾아볼 것
-			diff = 0;
-			for (yy = 0 ; yy < inVecLen1 ; ++yy) {
-				if (my_strcmp (this->records [xx][yy].c_str (), record [yy].c_str ()) != 0)
-					diff++;
-			}
+			if (inVecLen1 == inVecLen2) {
+				// 일치하지 않는 필드가 하나라도 있는지 찾아볼 것
+				diff = 0;
+				for (yy = 0 ; yy < inVecLen1 ; ++yy) {
+					if (my_strcmp (this->records.at(xx).at(yy).c_str (), record.at(yy).c_str ()) != 0)
+						diff++;
+				}
 
-			// 모든 필드가 일치하면
-			if (diff == 0) {
-				value = atoi (this->records [xx].Pop ().c_str ());
-				value ++;
-				sprintf (tempStr, "%d", value);
-				this->records [xx].Push (tempStr);
-				return value;
+				// 모든 필드가 일치하면
+				if (diff == 0) {
+					value = atoi (this->records.at(xx).back ().c_str ());
+					value ++;
+					sprintf (tempStr, "%d", value);
+					this->records.at(xx).pop_back ();
+					this->records.at(xx).push_back (tempStr);
+					return value;
+				}
 			}
 		}
+	} catch (exception& ex) {
+		WriteReport ("quantityPlus1 함수에서 오류 발생: %s", ex.what ());
 	}
 
 	// 없으면 신규 레코드 추가하고 1 리턴
-	record.Push ("1");
-	this->records.Push (record);
+	record.push_back ("1");
+	this->records.push_back (record);
 
 	return 1;
 }
@@ -488,10 +503,15 @@ int	SummaryOfObjectInfo::quantityPlus1 (GS::Array<string> record)
 void SummaryOfObjectInfo::clear ()
 {
 	unsigned int xx;
-
-	for (xx = 0 ; xx < this->records.GetSize () ; ++xx)
-		this->records [xx].Clear ();
-	this->records.Clear ();
+	
+	try {
+		for (xx = 0 ; xx < this->records.size () ; ++xx) {
+			this->records.at(xx).clear ();
+		}
+	} catch (exception& ex) {
+		WriteReport ("clear 함수에서 오류 발생: %s", ex.what ());
+	}
+	this->records.clear ();
 }
 
 // 선택한 부재 정보 내보내기 (Single 모드)
@@ -500,7 +520,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	GSErrCode	err = NoError;
 	long		nSel;
 	unsigned short		xx, yy, zz;
-	//bool		regenerate = true;
+	bool		regenerate = true;
 	bool		suspGrp;
 	short		result;
 	
@@ -513,19 +533,34 @@ GSErrCode	exportSelectedElementInfo (void)
 	long					nObjects = 0;
 	long					nBeams = 0;
 
+	// 선택한 요소들의 정보 요약하기
+	API_Element			elem;
+	API_ElementMemo		memo;
+	SummaryOfObjectInfo	objectInfo;
 
-	// [경고] 사용자가 숙지해야 할 내용을 공지
-	result = DGAlert (DG_WARNING, "물량 계산 전 주의사항", "1. 2D 도면창 외 나머지 창들을 모두 닫으십시오.\n2. 레이어 전환 후에 객체가 제대로 보이지 않는다면 3D 창을 닫으셨다가 다시 여십시오.\n", "", "진행", "중지", "");
-	if (result != DG_OK)
-		return err;
+	char			buffer [512];
+	char			filename [512];
+	char			tempStr [512];
+	const char*		foundStr;
+	bool			foundObject;
+	bool			foundExistValue;
+	int				retVal;
+	int				nInfo;
+	API_AddParID	varType;
+	vector<string>	record;
+
+	// GS::Array 반복자
+	GS::Array<API_Guid>::Iterator	iterObj;
+	API_Guid	curGuid;
+
 
 	// 그룹화 일시정지 ON
 	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
 	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
 
 	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 선택한 요소 가져오기
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
@@ -541,8 +576,8 @@ GSErrCode	exportSelectedElementInfo (void)
 		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
 		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
 			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-
 			tElem.header.guid = (*selNeigs)[xx].guid;
+
 			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
 				continue;
 
@@ -556,22 +591,6 @@ GSErrCode	exportSelectedElementInfo (void)
 	BMKillHandle ((GSHandle *) &selNeigs);
 	nObjects = objects.GetSize ();
 	nBeams = beams.GetSize ();
-
-	// 선택한 요소들의 정보 요약하기
-	API_Element			elem;
-	API_ElementMemo		memo;
-	SummaryOfObjectInfo	objectInfo;
-
-	char			buffer [256];
-	char			filename [256];
-	char			tempStr [256];
-	const char*		foundStr;
-	bool			foundObject;
-	bool			foundExistValue;
-	int				retVal;
-	int				nInfo;
-	API_AddParID	varType;
-	GS::Array<string>	record;
 
 	// 엑셀 파일로 기둥 정보 내보내기
 	// 파일 저장을 위한 변수
@@ -591,58 +610,73 @@ GSErrCode	exportSelectedElementInfo (void)
 		return err;
 	}
 
-	for (xx = 0 ; xx < nObjects ; ++xx) {
+	iterObj = objects.Enumerate ();
+
+	while (iterObj != NULL) {
 		foundObject = false;
 
 		BNZeroMemory (&elem, sizeof (API_Element));
 		BNZeroMemory (&memo, sizeof (API_ElementMemo));
-		elem.header.guid = objects.Pop ();
+		curGuid = *iterObj;
+		elem.header.guid = curGuid;
 		err = ACAPI_Element_Get (&elem);
-		err = ACAPI_Element_GetMemo (elem.header.guid, &memo, APIMemoMask_AddPars | APIMemoMask_FromFloorplan);
 
-		// 파라미터 스크립트를 강제로 실행시킴
-		ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+		if (err == NoError && elem.header.hasMemo) {
+			err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-		for (yy = 0 ; yy < objectInfo.keyName.GetSize () ; ++yy) {
-			strcpy (tempStr, objectInfo.keyName [yy].c_str ());
-			foundStr = getParameterStringByName (&memo, tempStr);
+			if (err == NoError) {
+				// 파라미터 스크립트를 강제로 실행시킴
+				ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
 
-			// 객체 종류를 찾았다면,
-			if (foundStr != NULL) {
-				retVal = my_strcmp (objectInfo.keyDesc [yy].c_str (), foundStr);
+				try {
+					for (yy = 0 ; yy < objectInfo.keyName.size () ; ++yy) {
+						strcpy (tempStr, objectInfo.keyName.at(yy).c_str ());
+						foundStr = getParameterStringByName (&memo, tempStr);
 
-				if (retVal == 0) {
-					foundObject = true;
-					foundExistValue = false;
+						// 객체 종류를 찾았다면,
+						if (my_strcmp (foundStr, "") != 0) {
+							retVal = my_strcmp (objectInfo.keyDesc.at(yy).c_str (), foundStr);
 
-					// 발견한 객체의 데이터를 기반으로 레코드 추가
-					if (!record.IsEmpty ())
-						record.Clear ();
+							if (retVal == 0) {
+								foundObject = true;
+								foundExistValue = false;
 
-					record.Push (objectInfo.keyDesc [yy]);		// 객체 이름
-					nInfo = objectInfo.nInfo [yy];
-					for (zz = 0 ; zz < nInfo ; ++zz) {
-						sprintf (buffer, "%s", objectInfo.varName [yy][zz].c_str ());
-						varType = getParameterTypeByName (&memo, buffer);
+								// 발견한 객체의 데이터를 기반으로 레코드 추가
+								if (!record.empty ())
+									record.clear ();
 
-						if ((varType != APIParT_Separator) || (varType != APIParT_Title) || (varType != API_ZombieParT)) {
-							if (varType == APIParT_CString)
-								sprintf (tempStr, "%s", getParameterStringByName (&memo, buffer));	// 문자열
-							else
-								sprintf (tempStr, "%.3f", getParameterValueByName (&memo, buffer));	// 숫자
+								record.push_back (objectInfo.keyDesc.at(yy));		// 객체 이름
+								nInfo = objectInfo.nInfo.at(yy);
+								for (zz = 0 ; zz < nInfo ; ++zz) {
+									sprintf (buffer, "%s", objectInfo.varName.at(yy).at(zz).c_str ());
+									varType = getParameterTypeByName (&memo, buffer);
+
+									if ((varType != APIParT_Separator) || (varType != APIParT_Title) || (varType != API_ZombieParT)) {
+										if (varType == APIParT_CString)
+											sprintf (tempStr, "%s", getParameterStringByName (&memo, buffer));	// 문자열
+										else
+											sprintf (tempStr, "%.3f", getParameterValueByName (&memo, buffer));	// 숫자
+									}
+									record.push_back (tempStr);		// 변수값
+								}
+
+								objectInfo.quantityPlus1 (record);
+							}
 						}
-						record.Push (tempStr);		// 변수값
 					}
-					objectInfo.quantityPlus1 (record);
+				} catch (exception& ex) {
+					WriteReport ("객체 정보 수집에서 오류 발생: %s", ex.what ());
 				}
+
+				// 끝내 찾지 못하면 알 수 없는 객체로 취급함
+				if (foundObject == false)
+					objectInfo.nUnknownObjects ++;
 			}
+
+			ACAPI_DisposeElemMemoHdls (&memo);
 		}
 
-		// 끝내 찾지 못하면 알 수 없는 객체로 취급함
-		if (foundObject == false)
-			objectInfo.nUnknownObjects ++;
-
-		ACAPI_DisposeElemMemoHdls (&memo);
+		++iterObj;
 	}
 
 	// 보 개수 세기
@@ -685,277 +719,272 @@ GSErrCode	exportSelectedElementInfo (void)
 	bool	bTitleAppeared;
 
 	// 객체 종류별로 수량 출력
-	for (xx = 0 ; xx < objectInfo.keyDesc.GetSize () ; ++xx) {
-		bTitleAppeared = false;
+	try {
+		for (xx = 0 ; xx < objectInfo.keyDesc.size () ; ++xx) {
+			bTitleAppeared = false;
 
-		// 레코드를 전부 순회
-		for (yy = 0 ; yy < objectInfo.records.GetSize () ; ++yy) {
-			// 객체 종류 이름과 레코드의 1번 필드가 일치하는 경우만 찾아서 출력함
-			retVal = my_strcmp (objectInfo.keyDesc [xx].c_str (), objectInfo.records [yy][0].c_str ());
-			if (retVal == 0) {
-				// 제목 출력
-				if (bTitleAppeared == false) {
-					sprintf (buffer, "\n[%s]\n", objectInfo.keyDesc [xx].c_str ());
-					fprintf (fp, buffer);
-					bTitleAppeared = true;
-				}
+			// 레코드를 전부 순회
+			for (yy = 0 ; yy < objectInfo.records.size () ; ++yy) {
+				// 객체 종류 이름과 레코드의 1번 필드가 일치하는 경우만 찾아서 출력함
+				retVal = my_strcmp (objectInfo.keyDesc.at(xx).c_str (), objectInfo.records.at(yy).at(0).c_str ());
 
-				// 변수별 값 출력
-				if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "유로폼 후크") == 0) {
-					// 원형
-					if (objectInfo.records [yy][2].compare ("원형") == 0) {
-						sprintf (buffer, "원형 / %s", objectInfo.records [yy][1]);
+				if (retVal == 0) {
+					// 제목 출력
+					if (bTitleAppeared == false) {
+						sprintf (buffer, "\n[%s]\n", objectInfo.keyDesc.at(xx).c_str ());
+						fprintf (fp, buffer);
+						bTitleAppeared = true;
 					}
 
-					// 사각
-					if (objectInfo.records [yy][2].compare ("사각") == 0) {
-						sprintf (buffer, "사각 / %s", objectInfo.records [yy][1]);
-					}
-					fprintf (fp, buffer);
+					// 변수별 값 출력
+					if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "유로폼 후크") == 0) {
+						// 원형
+						if (objectInfo.records.at(yy).at(2).compare ("원형") == 0) {
+							sprintf (buffer, "원형 / %s", objectInfo.records.at(yy).at(1));
+						}
 
-				} else if ((my_strcmp (objectInfo.keyDesc [xx].c_str (), "유로폼") == 0) || (my_strcmp (objectInfo.keyDesc [xx].c_str (), "스틸폼") == 0)) {
-					// 규격폼
-					if (atoi (objectInfo.records [yy][1].c_str ()) > 0) {
-						sprintf (buffer, "%s X %s ", objectInfo.records [yy][2], objectInfo.records [yy][3]);
-
-					// 비규격품
-					} else {
-						length = atof (objectInfo.records [yy][4].c_str ());
-						length2 = atof (objectInfo.records [yy][5].c_str ());
-						sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
-					}
-					fprintf (fp, buffer);
-
-				} else if (objectInfo.keyDesc [xx].compare ("목재") == 0) {
-					length = atof (objectInfo.records [yy][1].c_str ());
-					length2 = atof (objectInfo.records [yy][2].c_str ());
-					length3 = atof (objectInfo.records [yy][3].c_str ());
-					sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
-					fprintf (fp, buffer);
-
-				} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "합판(다각형)") == 0) {
-						sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.records [yy][1].c_str ());
+						// 사각
+						if (objectInfo.records.at(yy).at(2).compare ("사각") == 0) {
+							sprintf (buffer, "사각 / %s", objectInfo.records.at(yy).at(1));
+						}
 						fprintf (fp, buffer);
 
-						if (atoi (objectInfo.records [yy][2].c_str ()) > 0) {
-							length = atof (objectInfo.records [yy][3].c_str ());
-							sprintf (buffer, "(각재 총길이: %s) ", length);
+					} else if ((my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "유로폼") == 0) || (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "스틸폼") == 0)) {
+						// 규격폼
+						if (atoi (objectInfo.records.at(yy).at(1).c_str ()) > 0) {
+							sprintf (buffer, "%s X %s ", objectInfo.records.at(yy).at(2), objectInfo.records.at(yy).at(3));
+
+						// 비규격품
+						} else {
+							length = atof (objectInfo.records.at(yy).at(4).c_str ());
+							length2 = atof (objectInfo.records.at(yy).at(5).c_str ());
+							sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
+						}
+						fprintf (fp, buffer);
+
+					} else if (objectInfo.keyDesc.at(xx).compare ("목재") == 0) {
+						length = atof (objectInfo.records.at(yy).at(1).c_str ());
+						length2 = atof (objectInfo.records.at(yy).at(2).c_str ());
+						length3 = atof (objectInfo.records.at(yy).at(3).c_str ());
+						sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
+						fprintf (fp, buffer);
+
+					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "콘판넬") == 0) {
+						if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x6 [910x1820]") == 0) {
+							sprintf (buffer, "910 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "4x8 [1220x2440]") == 0) {
+							sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x5 [606x1520]") == 0) {
+							sprintf (buffer, "606 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x6 [606x1820]") == 0) {
+							sprintf (buffer, "606 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x5 [910x1520]") == 0) {
+							sprintf (buffer, "910 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "비규격") == 0) {
+							// 가로 X 세로 X 두께
+							length = atof (objectInfo.records.at(yy).at(3).c_str ());
+							length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
+							sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records.at(yy).at(2).c_str ());
 							fprintf (fp, buffer);
 						}
 
-				} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "콘판넬") == 0) {
-					if (my_strcmp (objectInfo.records [yy][1].c_str (), "3x6 [910x1820]") == 0) {
-						sprintf (buffer, "910 X 1820 X %s ", objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
-
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "4x8 [1220x2440]") == 0) {
-						sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
-
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "2x5 [606x1520]") == 0) {
-						sprintf (buffer, "606 X 1520 X %s ", objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
-
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "2x6 [606x1820]") == 0) {
-						sprintf (buffer, "606 X 1820 X %s ", objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
-
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "3x5 [910x1520]") == 0) {
-						sprintf (buffer, "910 X 1520 X %s ", objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
-
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "비규격") == 0) {
-						// 가로 X 세로 X 두께
-						length = atof (objectInfo.records [yy][3].c_str ());
-						length2 = atof (objectInfo.records [yy][4].c_str ());
-						sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
-					}
-
-				} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "합판") == 0) {
-					if (my_strcmp (objectInfo.records [yy][1].c_str (), "3x6 [910x1820]") == 0) {
-						sprintf (buffer, "910 X 1820 X %s ", objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
-
-						// 제작틀 ON
-						if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-							sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
+					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "합판") == 0) {
+						if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x6 [910x1820]") == 0) {
+							sprintf (buffer, "910 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
 							fprintf (fp, buffer);
 
-							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
-							fprintf (fp, buffer);
-						}
+							// 제작틀 ON
+							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								fprintf (fp, buffer);
 
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "4x8 [1220x2440]") == 0) {
-						sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+								fprintf (fp, buffer);
+							}
 
-						// 제작틀 ON
-						if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-							sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
-							fprintf (fp, buffer);
-
-							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
-							fprintf (fp, buffer);
-						}
-
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "2x5 [606x1520]") == 0) {
-						sprintf (buffer, "606 X 1520 X %s ", objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
-
-						// 제작틀 ON
-						if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-							sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "4x8 [1220x2440]") == 0) {
+							sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records.at(yy).at(2).c_str ());
 							fprintf (fp, buffer);
 
-							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
-							fprintf (fp, buffer);
-						}
+							// 제작틀 ON
+							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								fprintf (fp, buffer);
 
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "2x6 [606x1820]") == 0) {
-						sprintf (buffer, "606 X 1820 X %s ", objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+								fprintf (fp, buffer);
+							}
 
-						// 제작틀 ON
-						if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-							sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
-							fprintf (fp, buffer);
-
-							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
-							fprintf (fp, buffer);
-						}
-
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "3x5 [910x1520]") == 0) {
-						sprintf (buffer, "910 X 1520 X %s ", objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
-
-						// 제작틀 ON
-						if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-							sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x5 [606x1520]") == 0) {
+							sprintf (buffer, "606 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
 							fprintf (fp, buffer);
 
-							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
+							// 제작틀 ON
+							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								fprintf (fp, buffer);
+
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+								fprintf (fp, buffer);
+							}
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x6 [606x1820]") == 0) {
+							sprintf (buffer, "606 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+							// 제작틀 ON
+							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								fprintf (fp, buffer);
+
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+								fprintf (fp, buffer);
+							}
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x5 [910x1520]") == 0) {
+							sprintf (buffer, "910 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+							// 제작틀 ON
+							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								fprintf (fp, buffer);
+
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+								fprintf (fp, buffer);
+							}
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "비규격") == 0) {
+							// 가로 X 세로 X 두께
+							length = atof (objectInfo.records.at(yy).at(3).c_str ());
+							length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
+							sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records.at(yy).at(2).c_str ());
+							fprintf (fp, buffer);
+
+							// 제작틀 ON
+							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								fprintf (fp, buffer);
+
+								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+								fprintf (fp, buffer);
+							}
+
+						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "비정형") == 0) {
+							sprintf (buffer, "비정형 ");
+							fprintf (fp, buffer);
+
+						} else {
+							sprintf (buffer, "다각형 ");
 							fprintf (fp, buffer);
 						}
 
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "비규격") == 0) {
-						// 가로 X 세로 X 두께
-						length = atof (objectInfo.records [yy][3].c_str ());
-						length2 = atof (objectInfo.records [yy][4].c_str ());
-						sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records [yy][2].c_str ());
-						fprintf (fp, buffer);
-
-						// 제작틀 ON
-						if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-							sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
-							fprintf (fp, buffer);
-
-							sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
-							fprintf (fp, buffer);
+					} else if (objectInfo.keyDesc.at(xx).compare ("RS Push-Pull Props") == 0) {
+						// 베이스 플레이트 유무
+						if (atoi (objectInfo.records.at(yy).at(1).c_str ()) == 1) {
+							sprintf (buffer, "베이스 플레이트(있음) ");
+						} else {
+							sprintf (buffer, "베이스 플레이트(없음) ");
 						}
-
-					} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "비정형") == 0) {
-						sprintf (buffer, "비정형 ");
 						fprintf (fp, buffer);
 
-					} else {
-						sprintf (buffer, "다각형 ");
+						// 규격(상부)
+						sprintf (buffer, "규격(상부): %s ", objectInfo.records.at(yy).at(2).c_str ());
 						fprintf (fp, buffer);
-					}
 
-				} else if (objectInfo.keyDesc [xx].compare ("RS Push-Pull Props") == 0) {
-					// 베이스 플레이트 유무
-					if (atoi (objectInfo.records [yy][1].c_str ()) == 1) {
-						sprintf (buffer, "베이스 플레이트(있음) ");
-					} else {
-						sprintf (buffer, "베이스 플레이트(없음) ");
-					}
-					fprintf (fp, buffer);
-
-					// 규격(상부)
-					sprintf (buffer, "규격(상부): %s ", objectInfo.records [yy][2].c_str ());
-					fprintf (fp, buffer);
-
-					// 규격(하부) - 선택사항
-					if (atoi (objectInfo.records [yy][4].c_str ()) == 1) {
-						sprintf (buffer, "규격(하부): %s ", objectInfo.records [yy][3].c_str ());
-					}
-					fprintf (fp, buffer);
+						// 규격(하부) - 선택사항
+						if (atoi (objectInfo.records.at(yy).at(4).c_str ()) == 1) {
+							sprintf (buffer, "규격(하부): %s ", objectInfo.records.at(yy).at(3).c_str ());
+						}
+						fprintf (fp, buffer);
 				
-				} else if (objectInfo.keyDesc [xx].compare ("Push-Pull Props (기성품 및 당사제작품)") == 0) {
-					// 베이스 플레이트 유무
-					if (atoi (objectInfo.records [yy][1].c_str ()) == 1) {
-						sprintf (buffer, "베이스 플레이트(있음) ");
-					} else {
-						sprintf (buffer, "베이스 플레이트(없음) ");
-					}
-					fprintf (fp, buffer);
-
-					// 규격(상부)
-					sprintf (buffer, "규격(상부): %s ", objectInfo.records [yy][2].c_str ());
-					fprintf (fp, buffer);
-
-					// 규격(하부) - 선택사항
-					if (atoi (objectInfo.records [yy][4].c_str ()) == 1) {
-						sprintf (buffer, "규격(하부): %s ", objectInfo.records [yy][3].c_str ());
-					}
-					fprintf (fp, buffer);
-
-				} else if (objectInfo.keyDesc [xx].compare ("사각파이프") == 0) {
-					// 사각파이프
-					if (atof (objectInfo.records [yy][1].c_str ()) < EPS) {
-						length = atof (objectInfo.records [yy][2].c_str ());
-						sprintf (buffer, "50 x 50 x %.0f ", round (length*1000, 0));
-
-					// 직사각파이프
-					} else {
-						length = atof (objectInfo.records [yy][2].c_str ());
-						sprintf (buffer, "%s x %.0f ", objectInfo.records [yy][1].c_str (), round (length*1000, 0));
-					}
-					fprintf (fp, buffer);
-
-				} else if (objectInfo.keyDesc [xx].compare ("원형파이프") == 0) {
-					length = atof (objectInfo.records [yy][1].c_str ());
-					sprintf (buffer, "%.0f ", round (length*1000, 0));
-					fprintf (fp, buffer);
-
-				} else if (objectInfo.keyDesc [xx].compare ("아웃코너앵글") == 0) {
-					length = atof (objectInfo.records [yy][1].c_str ());
-					sprintf (buffer, "%.0f ", round (length*1000, 0));
-					fprintf (fp, buffer);
-
-				} else if (objectInfo.keyDesc [xx].compare ("매직바") == 0) {
-					if (atoi (objectInfo.records [yy][2].c_str ()) > 0) {
-						length = atof (objectInfo.records [yy][3].c_str ());
-						length2 = atof (objectInfo.records [yy][4].c_str ());
-						length3 = atof (objectInfo.records [yy][5].c_str ());
-						sprintf (buffer, "%.0f / 합판(%.0f X %.0f)", round (atof (objectInfo.records [yy][1].c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
-					} else {
-						length = atof (objectInfo.records [yy][1].c_str ());
-						sprintf (buffer, "%.0f ", round (length*1000, 0));
-					}
-					fprintf (fp, buffer);
-
-				} else if (objectInfo.keyDesc [xx].compare ("단열재") == 0) {
-					sprintf (buffer, "원장크기: %.0f X %.0f / 실제크기: %.0f X %.0f (ㄱ형상으로 자름: %s)",
-						round (atof (objectInfo.records [yy][2].c_str ())*1000, 0), round (atof (objectInfo.records [yy][3].c_str ())*1000, 0),
-						round (atof (objectInfo.records [yy][4].c_str ())*1000, 0), round (atof (objectInfo.records [yy][5].c_str ())*1000, 0),
-						(atoi (objectInfo.records [yy][5].c_str ()) ? "자름" : "자르지 않음"));
-					fprintf (fp, buffer);
-						
-				} else {
-					for (zz = 0 ; zz < objectInfo.nInfo [xx] ; ++zz) {
-						// 변수별 값 출력
-						sprintf (buffer, "%s(%s) ", objectInfo.varDesc [xx][zz].c_str (), objectInfo.records [yy][zz+1].c_str ());
+					} else if (objectInfo.keyDesc.at(xx).compare ("Push-Pull Props (기성품 및 당사제작품)") == 0) {
+						// 베이스 플레이트 유무
+						if (atoi (objectInfo.records.at(yy).at(1).c_str ()) == 1) {
+							sprintf (buffer, "베이스 플레이트(있음) ");
+						} else {
+							sprintf (buffer, "베이스 플레이트(없음) ");
+						}
 						fprintf (fp, buffer);
-					}
-				}
 
-				// 수량 출력
-				sprintf (buffer, ": %s EA\n", objectInfo.records [yy][objectInfo.records [yy].GetSize ()-1].c_str ());
-				fprintf (fp, buffer);
+						// 규격(상부)
+						sprintf (buffer, "규격(상부): %s ", objectInfo.records.at(yy).at(2).c_str ());
+						fprintf (fp, buffer);
+
+						// 규격(하부) - 선택사항
+						if (atoi (objectInfo.records.at(yy).at(4).c_str ()) == 1) {
+							sprintf (buffer, "규격(하부): %s ", objectInfo.records.at(yy).at(3).c_str ());
+						}
+						fprintf (fp, buffer);
+
+					} else if (objectInfo.keyDesc.at(xx).compare ("사각파이프") == 0) {
+						// 사각파이프
+						if (atof (objectInfo.records.at(yy).at(1).c_str ()) < EPS) {
+							length = atof (objectInfo.records.at(yy).at(2).c_str ());
+							sprintf (buffer, "50 x 50 x %.0f ", round (length*1000, 0));
+
+						// 직사각파이프
+						} else {
+							length = atof (objectInfo.records.at(yy).at(2).c_str ());
+							sprintf (buffer, "%s x %.0f ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0));
+						}
+						fprintf (fp, buffer);
+
+					} else if (objectInfo.keyDesc.at(xx).compare ("원형파이프") == 0) {
+						length = atof (objectInfo.records.at(yy).at(1).c_str ());
+						sprintf (buffer, "%.0f ", round (length*1000, 0));
+						fprintf (fp, buffer);
+
+					} else if (objectInfo.keyDesc.at(xx).compare ("아웃코너앵글") == 0) {
+						length = atof (objectInfo.records.at(yy).at(1).c_str ());
+						sprintf (buffer, "%.0f ", round (length*1000, 0));
+						fprintf (fp, buffer);
+
+					} else if (objectInfo.keyDesc.at(xx).compare ("매직바") == 0) {
+						if (atoi (objectInfo.records.at(yy).at(2).c_str ()) > 0) {
+							length = atof (objectInfo.records.at(yy).at(3).c_str ());
+							length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
+							length3 = atof (objectInfo.records.at(yy).at(5).c_str ());
+							sprintf (buffer, "%.0f / 합판(%.0f X %.0f)", round (atof (objectInfo.records.at(yy).at(1).c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
+						} else {
+							length = atof (objectInfo.records.at(yy).at(1).c_str ());
+							sprintf (buffer, "%.0f ", round (length*1000, 0));
+						}
+						fprintf (fp, buffer);
+
+					} else if (objectInfo.keyDesc.at(xx).compare ("단열재") == 0) {
+						sprintf (buffer, "원장크기: %.0f X %.0f / 실제크기: %.0f X %.0f (ㄱ형상으로 자름: %s)",
+							round (atof (objectInfo.records.at(yy).at(2).c_str ())*1000, 0), round (atof (objectInfo.records.at(yy).at(3).c_str ())*1000, 0),
+							round (atof (objectInfo.records.at(yy).at(4).c_str ())*1000, 0), round (atof (objectInfo.records.at(yy).at(5).c_str ())*1000, 0),
+							(atoi (objectInfo.records.at(yy).at(5).c_str ()) ? "자름" : "자르지 않음"));
+						fprintf (fp, buffer);
+						
+					} else {
+						for (zz = 0 ; zz < objectInfo.nInfo.at(xx) ; ++zz) {
+							// 변수별 값 출력
+							sprintf (buffer, "%s(%s) ", objectInfo.varDesc.at(xx).at(zz).c_str (), objectInfo.records.at(yy).at(zz+1).c_str ());
+							fprintf (fp, buffer);
+						}
+					}
+
+					// 수량 출력
+					sprintf (buffer, ": %s EA\n", objectInfo.records.at(yy).at(objectInfo.records.at(yy).size ()-1).c_str ());
+					fprintf (fp, buffer);
+				}
 			}
 		}
+	} catch (exception& ex) {
+		WriteReport ("출력 함수에서 오류 발생: %s", ex.what ());
 	}
 
 	// 일반 요소 - 보
@@ -993,7 +1022,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	GSErrCode	err = NoError;
 	unsigned short		xx, yy, zz;
 	short		mm;
-	//bool		regenerate = true;
+	bool		regenerate = true;
 	bool		suspGrp;
 	short		result;
 
@@ -1007,24 +1036,43 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	long					nObjects = 0;
 	long					nBeams = 0;
 
+	// 선택한 요소들의 정보 요약하기
+	API_Element			elem;
+	API_ElementMemo		memo;
+	SummaryOfObjectInfo	objectInfo;
+
+	char			tempStr [512];
+	const char*		foundStr;
+	bool			foundObject;
+	bool			foundExistValue;
+	int				retVal;
+	int				nInfo;
+	API_AddParID	varType;
+	vector<string>	record;
+
+	// GS::Array 반복자
+	GS::Array<API_Guid>::Iterator	iterObj;
+	API_Guid	curGuid;
+
 	// 레이어 관련 변수
 	short			nLayers;
 	API_Attribute	attrib;
 	short			nVisibleLayers = 0;
 	short			visLayerList [1024];
-	char			fullLayerName [128];
+	char			fullLayerName [512];
 
 	// 레이어 타입에 따라 캡쳐 방향 지정
 	char*			foundLayerName;
 	short			layerType = UNDEFINED;
 
 	// 기타
-	char			buffer [256];
-	char			filename [256];
+	char			buffer [512];
+	char			filename [512];
 
 	// 작업 층 정보
 	API_StoryInfo	storyInfo;
 	double			workLevel_object;		// 벽의 작업 층 높이
+
 
 	// 진행바를 표현하기 위한 변수
 	GS::UniString       title ("내보내기 진행 상황");
@@ -1041,33 +1089,14 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	FILE				*fp;
 	FILE				*fp_unite;
 
-	// 선택한 요소들의 정보 요약하기
-	API_Element			elem;
-	API_ElementMemo		memo;
-	SummaryOfObjectInfo	objectInfo;
-
-	char			tempStr [256];
-	const char*		foundStr;
-	bool			foundObject;
-	bool			foundExistValue;
-	int				retVal;
-	int				nInfo;
-	API_AddParID	varType;
-	GS::Array<string>	record;
-
-
-	// [경고] 사용자가 숙지해야 할 내용을 공지
-	result = DGAlert (DG_WARNING, "물량 계산 전 주의사항", "1. 2D 도면창 외 나머지 창들을 모두 닫으십시오.\n2. 레이어 전환 후에 객체가 제대로 보이지 않는다면 3D 창을 닫으셨다가 다시 여십시오.\n", "", "진행", "중지", "");
-	if (result != DG_OK)
-		return err;
 
 	// 그룹화 일시정지 ON
 	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
 	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
 
 	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -1194,76 +1223,86 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 				BNZeroMemory (&memo, sizeof (API_ElementMemo));
 				elem.header.guid = objects.Pop ();
 				err = ACAPI_Element_Get (&elem);
-				err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-				// 객체의 원점 수집하기 ==================================
-				API_Coord3D	coord;
+				if (err == NoError && elem.header.hasMemo) {
+					err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-				coord.x = elem.object.pos.x;
-				coord.y = elem.object.pos.y;
-				coord.z = elem.object.level;
+					if (err == NoError) {
+						// 객체의 원점 수집하기 ==================================
+						API_Coord3D	coord;
+
+						coord.x = elem.object.pos.x;
+						coord.y = elem.object.pos.y;
+						coord.z = elem.object.level;
 					
-				vecPos.push_back (coord);
-				// 객체의 원점 수집하기 ==================================
+						vecPos.push_back (coord);
+						// 객체의 원점 수집하기 ==================================
 
-				// 작업 층 높이 반영 -- 객체
-				if (xx == 0) {
-					BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-					workLevel_object = 0.0;
-					ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-					for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
-						if (storyInfo.data [0][yy].index == elem.header.floorInd) {
-							workLevel_object = storyInfo.data [0][yy].level;
-							break;
-						}
-					}
-					BMKillHandle ((GSHandle *) &storyInfo.data);
-				}
-
-				// 파라미터 스크립트를 강제로 실행시킴
-				ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
-
-				for (yy = 0 ; yy < objectInfo.keyName.GetSize () ; ++yy) {
-					strcpy (tempStr, objectInfo.keyName [yy].c_str ());
-					foundStr = getParameterStringByName (&memo, tempStr);
-
-					// 객체 종류를 찾았다면,
-					if (foundStr != NULL) {
-						retVal = my_strcmp (objectInfo.keyDesc [yy].c_str (), foundStr);
-
-						if (retVal == 0) {
-							foundObject = true;
-							foundExistValue = false;
-
-							// 발견한 객체의 데이터를 기반으로 레코드 추가
-							if (!record.IsEmpty ())
-								record.Clear ();
-
-							record.Push (objectInfo.keyDesc [yy]);		// 객체 이름
-							nInfo = objectInfo.nInfo [yy];
-							for (zz = 0 ; zz < nInfo ; ++zz) {
-								sprintf (buffer, "%s", objectInfo.varName [yy][zz].c_str ());
-								varType = getParameterTypeByName (&memo, buffer);
-
-								if ((varType != APIParT_Separator) || (varType != APIParT_Title) || (varType != API_ZombieParT)) {
-									if (varType == APIParT_CString)
-										sprintf (tempStr, "%s", getParameterStringByName (&memo, buffer));	// 문자열
-									else
-										sprintf (tempStr, "%.3f", getParameterValueByName (&memo, buffer));	// 숫자
+						// 작업 층 높이 반영 -- 객체
+						if (xx == 0) {
+							BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+							workLevel_object = 0.0;
+							ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+							for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+								if (storyInfo.data [0][yy].index == elem.header.floorInd) {
+									workLevel_object = storyInfo.data [0][yy].level;
+									break;
 								}
-								record.Push (tempStr);		// 변수값
 							}
-							objectInfo.quantityPlus1 (record);
-
+							BMKillHandle ((GSHandle *) &storyInfo.data);
 						}
+
+						// 파라미터 스크립트를 강제로 실행시킴
+						ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+
+						try {
+							for (yy = 0 ; yy < objectInfo.keyName.size () ; ++yy) {
+								strcpy (tempStr, objectInfo.keyName.at(yy).c_str ());
+								foundStr = getParameterStringByName (&memo, tempStr);
+
+								// 객체 종류를 찾았다면,
+								if (my_strcmp (foundStr, "") != 0) {
+									retVal = my_strcmp (objectInfo.keyDesc.at(yy).c_str (), foundStr);
+
+									if (retVal == 0) {
+										foundObject = true;
+										foundExistValue = false;
+
+										// 발견한 객체의 데이터를 기반으로 레코드 추가
+										if (!record.empty ())
+											record.clear ();
+
+										record.push_back (objectInfo.keyDesc.at(yy));		// 객체 이름
+										nInfo = objectInfo.nInfo.at(yy);
+										for (zz = 0 ; zz < nInfo ; ++zz) {
+											sprintf (buffer, "%s", objectInfo.varName.at(yy).at(zz).c_str ());
+											varType = getParameterTypeByName (&memo, buffer);
+
+											if ((varType != APIParT_Separator) || (varType != APIParT_Title) || (varType != API_ZombieParT)) {
+												if (varType == APIParT_CString)
+													sprintf (tempStr, "%s", getParameterStringByName (&memo, buffer));	// 문자열
+												else
+													sprintf (tempStr, "%.3f", getParameterValueByName (&memo, buffer));	// 숫자
+											}
+											record.push_back (tempStr);		// 변수값
+										}
+
+										objectInfo.quantityPlus1 (record);
+
+									}
+								}
+							}
+						} catch (exception& ex) {
+							WriteReport ("객체 정보 수집에서 오류 발생: %s", ex.what ());
+						}
+
+						// 끝내 찾지 못하면 알 수 없는 객체로 취급함
+						if (foundObject == false)
+							objectInfo.nUnknownObjects ++;
 					}
+
+					ACAPI_DisposeElemMemoHdls (&memo);
 				}
-
-				// 끝내 찾지 못하면 알 수 없는 객체로 취급함
-				if (foundObject == false)
-					objectInfo.nUnknownObjects ++;
-
-				ACAPI_DisposeElemMemoHdls (&memo);
 			}
 
 			// 보 개수 세기
@@ -1305,316 +1344,314 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			bool	bTitleAppeared;
 
 			// 객체 종류별로 수량 출력
-			for (xx = 0 ; xx < objectInfo.keyDesc.GetSize () ; ++xx) {
-				bTitleAppeared = false;
+			try {
+				for (xx = 0 ; xx < objectInfo.keyDesc.size () ; ++xx) {
+					bTitleAppeared = false;
 
-				// 레코드를 전부 순회
-				for (yy = 0 ; yy < objectInfo.records.GetSize () ; ++yy) {
-					// 객체 종류 이름과 레코드의 1번 필드가 일치하는 경우만 찾아서 출력함
-					retVal = my_strcmp (objectInfo.keyDesc [xx].c_str (), objectInfo.records [yy][0].c_str ());
-					if (retVal == 0) {
-						// 제목 출력
-						if (bTitleAppeared == false) {
-							sprintf (buffer, "\n[%s]\n", objectInfo.keyDesc [xx].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-							bTitleAppeared = true;
-						}
+					// 레코드를 전부 순회
+					for (yy = 0 ; yy < objectInfo.records.size () ; ++yy) {
+						// 객체 종류 이름과 레코드의 1번 필드가 일치하는 경우만 찾아서 출력함
+						retVal = my_strcmp (objectInfo.keyDesc.at(xx).c_str (), objectInfo.records.at(yy).at(0).c_str ());
 
-						// 변수별 값 출력
-						if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "유로폼 후크") == 0) {
-							// 원형
-							if (objectInfo.records [yy][2].compare ("원형") == 0) {
-								sprintf (buffer, "원형 / %s", objectInfo.records [yy][1]);
-							}
-
-							// 사각
-							if (objectInfo.records [yy][2].compare ("사각") == 0) {
-								sprintf (buffer, "사각 / %s", objectInfo.records [yy][1]);
-							}
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-						} else if ((my_strcmp (objectInfo.keyDesc [xx].c_str (), "유로폼") == 0) || (my_strcmp (objectInfo.keyDesc [xx].c_str (), "스틸폼") == 0)) {
-							// 규격폼
-							if (atoi (objectInfo.records [yy][1].c_str ()) > 0) {
-								sprintf (buffer, "%s X %s ", objectInfo.records [yy][2], objectInfo.records [yy][3]);
-
-							// 비규격품
-							} else {
-								length = atof (objectInfo.records [yy][4].c_str ());
-								length2 = atof (objectInfo.records [yy][5].c_str ());
-								sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
-							}
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-						} else if (objectInfo.keyDesc [xx].compare ("목재") == 0) {
-							length = atof (objectInfo.records [yy][1].c_str ());
-							length2 = atof (objectInfo.records [yy][2].c_str ());
-							length3 = atof (objectInfo.records [yy][3].c_str ());
-							sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-						} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "합판(다각형)") == 0) {
-							sprintf (buffer, "합판(다각형) 넓이 %s ", objectInfo.records [yy][1].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							if (atoi (objectInfo.records [yy][2].c_str ()) > 0) {
-								length = atof (objectInfo.records [yy][3].c_str ());
-								sprintf (buffer, "(각재 총길이: %s) ", length);
+						if (retVal == 0) {
+							// 제목 출력
+							if (bTitleAppeared == false) {
+								sprintf (buffer, "\n[%s]\n", objectInfo.keyDesc.at(xx).c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
+								bTitleAppeared = true;
 							}
 
-						} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "콘판넬") == 0) {
-							if (my_strcmp (objectInfo.records [yy][1].c_str (), "3x6 [910x1820]") == 0) {
-								sprintf (buffer, "910 X 1820 X %s ", objectInfo.records [yy][2].c_str ());
-								fprintf (fp, buffer);
+							// 변수별 값 출력
+							if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "유로폼 후크") == 0) {
+								// 원형
+								if (objectInfo.records.at(yy).at(2).compare ("원형") == 0) {
+									sprintf (buffer, "원형 / %s", objectInfo.records.at(yy).at(1));
+								}
 
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "4x8 [1220x2440]") == 0) {
-								sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records [yy][2].c_str ());
-								fprintf (fp, buffer);
-
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "2x5 [606x1520]") == 0) {
-								sprintf (buffer, "606 X 1520 X %s ", objectInfo.records [yy][2].c_str ());
-								fprintf (fp, buffer);
-
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "2x6 [606x1820]") == 0) {
-								sprintf (buffer, "606 X 1820 X %s ", objectInfo.records [yy][2].c_str ());
-								fprintf (fp, buffer);
-
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "3x5 [910x1520]") == 0) {
-								sprintf (buffer, "910 X 1520 X %s ", objectInfo.records [yy][2].c_str ());
-								fprintf (fp, buffer);
-
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "비규격") == 0) {
-								// 가로 X 세로 X 두께
-								length = atof (objectInfo.records [yy][3].c_str ());
-								length2 = atof (objectInfo.records [yy][4].c_str ());
-								sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records [yy][2].c_str ());
-								fprintf (fp, buffer);
-							}
-
-						} else if (my_strcmp (objectInfo.keyDesc [xx].c_str (), "합판") == 0) {
-							if (my_strcmp (objectInfo.records [yy][1].c_str (), "3x6 [910x1820]") == 0) {
-								sprintf (buffer, "910 X 1820 X %s ", objectInfo.records [yy][2].c_str ());
+								// 사각
+								if (objectInfo.records.at(yy).at(2).compare ("사각") == 0) {
+									sprintf (buffer, "사각 / %s", objectInfo.records.at(yy).at(1));
+								}
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
 
-								// 제작틀 ON
-								if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-									sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
+							} else if ((my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "유로폼") == 0) || (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "스틸폼") == 0)) {
+								// 규격폼
+								if (atoi (objectInfo.records.at(yy).at(1).c_str ()) > 0) {
+									sprintf (buffer, "%s X %s ", objectInfo.records.at(yy).at(2), objectInfo.records.at(yy).at(3));
+
+								// 비규격품
+								} else {
+									length = atof (objectInfo.records.at(yy).at(4).c_str ());
+									length2 = atof (objectInfo.records.at(yy).at(5).c_str ());
+									sprintf (buffer, "%.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0));
+								}
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+
+							} else if (objectInfo.keyDesc.at(xx).compare ("목재") == 0) {
+								length = atof (objectInfo.records.at(yy).at(1).c_str ());
+								length2 = atof (objectInfo.records.at(yy).at(2).c_str ());
+								length3 = atof (objectInfo.records.at(yy).at(3).c_str ());
+								sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+
+							} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "콘판넬") == 0) {
+								if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x6 [910x1820]") == 0) {
+									sprintf (buffer, "910 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
 									fprintf (fp, buffer);
 									fprintf (fp_unite, buffer);
 
-									sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "4x8 [1220x2440]") == 0) {
+									sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x5 [606x1520]") == 0) {
+									sprintf (buffer, "606 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x6 [606x1820]") == 0) {
+									sprintf (buffer, "606 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x5 [910x1520]") == 0) {
+									sprintf (buffer, "910 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "비규격") == 0) {
+									// 가로 X 세로 X 두께
+									length = atof (objectInfo.records.at(yy).at(3).c_str ());
+									length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
+									sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records.at(yy).at(2).c_str ());
 									fprintf (fp, buffer);
 									fprintf (fp_unite, buffer);
 								}
 
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "4x8 [1220x2440]") == 0) {
-								sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records [yy][2].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-
-								// 제작틀 ON
-								if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-									sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
+							} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "합판") == 0) {
+								if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x6 [910x1820]") == 0) {
+									sprintf (buffer, "910 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
 									fprintf (fp, buffer);
 									fprintf (fp_unite, buffer);
 
-									sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
+									// 제작틀 ON
+									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+										sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+
+										sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+									}
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "4x8 [1220x2440]") == 0) {
+									sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+
+									// 제작틀 ON
+									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+										sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+
+										sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+									}
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x5 [606x1520]") == 0) {
+									sprintf (buffer, "606 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+
+									// 제작틀 ON
+									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+										sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+
+										sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+									}
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x6 [606x1820]") == 0) {
+									sprintf (buffer, "606 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+
+									// 제작틀 ON
+									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+										sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+
+										sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+									}
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x5 [910x1520]") == 0) {
+									sprintf (buffer, "910 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+
+									// 제작틀 ON
+									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+										sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+
+										sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+									}
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "비규격") == 0) {
+									// 가로 X 세로 X 두께
+									length = atof (objectInfo.records.at(yy).at(3).c_str ());
+									length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
+									sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records.at(yy).at(2).c_str ());
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+
+									// 제작틀 ON
+									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
+										sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+
+										sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
+										fprintf (fp, buffer);
+										fprintf (fp_unite, buffer);
+									}
+
+								} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "비정형") == 0) {
+									sprintf (buffer, "비정형 ");
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+
+								} else {
+									sprintf (buffer, "다각형 ");
 									fprintf (fp, buffer);
 									fprintf (fp_unite, buffer);
 								}
 
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "2x5 [606x1520]") == 0) {
-								sprintf (buffer, "606 X 1520 X %s ", objectInfo.records [yy][2].c_str ());
-								fprintf (fp, buffer);
-								fprintf (fp_unite, buffer);
-
-								// 제작틀 ON
-								if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-									sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
-									fprintf (fp, buffer);
-									fprintf (fp_unite, buffer);
-
-									sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
-									fprintf (fp, buffer);
-									fprintf (fp_unite, buffer);
+							} else if (objectInfo.keyDesc.at(xx).compare ("RS Push-Pull Props") == 0) {
+								// 베이스 플레이트 유무
+								if (atoi (objectInfo.records.at(yy).at(1).c_str ()) == 1) {
+									sprintf (buffer, "베이스 플레이트(있음) ");
+								} else {
+									sprintf (buffer, "베이스 플레이트(없음) ");
 								}
-
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "2x6 [606x1820]") == 0) {
-								sprintf (buffer, "606 X 1820 X %s ", objectInfo.records [yy][2].c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
 
-								// 제작틀 ON
-								if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-									sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
-									fprintf (fp, buffer);
-									fprintf (fp_unite, buffer);
+								// 규격(상부)
+								sprintf (buffer, "규격(상부): %s ", objectInfo.records.at(yy).at(2).c_str ());
+								fprintf (fp, buffer);
 
-									sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
-									fprintf (fp, buffer);
-									fprintf (fp_unite, buffer);
+								// 규격(하부) - 선택사항
+								if (atoi (objectInfo.records.at(yy).at(4).c_str ()) == 1) {
+									sprintf (buffer, "규격(하부): %s ", objectInfo.records.at(yy).at(3).c_str ());
 								}
-
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "3x5 [910x1520]") == 0) {
-								sprintf (buffer, "910 X 1520 X %s ", objectInfo.records [yy][2].c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
-
-								// 제작틀 ON
-								if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-									sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
-									fprintf (fp, buffer);
-									fprintf (fp_unite, buffer);
-
-									sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
-									fprintf (fp, buffer);
-									fprintf (fp_unite, buffer);
+				
+							} else if (objectInfo.keyDesc.at(xx).compare ("Push-Pull Props (기성품 및 당사제작품)") == 0) {
+								// 베이스 플레이트 유무
+								if (atoi (objectInfo.records.at(yy).at(1).c_str ()) == 1) {
+									sprintf (buffer, "베이스 플레이트(있음) ");
+								} else {
+									sprintf (buffer, "베이스 플레이트(없음) ");
 								}
-
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "비규격") == 0) {
-								// 가로 X 세로 X 두께
-								length = atof (objectInfo.records [yy][3].c_str ());
-								length2 = atof (objectInfo.records [yy][4].c_str ());
-								sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records [yy][2].c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
 
-								// 제작틀 ON
-								if (atoi (objectInfo.records [yy][5].c_str ()) > 0) {
-									sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records [yy][6].c_str ());
-									fprintf (fp, buffer);
-									fprintf (fp_unite, buffer);
+								// 규격(상부)
+								sprintf (buffer, "규격(상부): %s ", objectInfo.records.at(yy).at(2).c_str ());
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
 
-									sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records [yy][7].c_str ());
-									fprintf (fp, buffer);
-									fprintf (fp_unite, buffer);
+								// 규격(하부) - 선택사항
+								if (atoi (objectInfo.records.at(yy).at(4).c_str ()) == 1) {
+									sprintf (buffer, "규격(하부): %s ", objectInfo.records.at(yy).at(3).c_str ());
 								}
-
-							} else if (my_strcmp (objectInfo.records [yy][1].c_str (), "비정형") == 0) {
-								sprintf (buffer, "비정형 ");
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
 
-							} else {
-								sprintf (buffer, "다각형 ");
+							} else if (objectInfo.keyDesc.at(xx).compare ("사각파이프") == 0) {
+								// 사각파이프
+								if (atof (objectInfo.records.at(yy).at(1).c_str ()) < EPS) {
+									length = atof (objectInfo.records.at(yy).at(2).c_str ());
+									sprintf (buffer, "50 x 50 x %.0f ", round (length*1000, 0));
+
+								// 직사각파이프
+								} else {
+									length = atof (objectInfo.records.at(yy).at(2).c_str ());
+									sprintf (buffer, "%s x %.0f ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0));
+								}
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
-							}
 
-						} else if (objectInfo.keyDesc [xx].compare ("RS Push-Pull Props") == 0) {
-							// 베이스 플레이트 유무
-							if (atoi (objectInfo.records [yy][1].c_str ()) == 1) {
-								sprintf (buffer, "베이스 플레이트(있음) ");
-							} else {
-								sprintf (buffer, "베이스 플레이트(없음) ");
-							}
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 규격(상부)
-							sprintf (buffer, "규격(상부): %s ", objectInfo.records [yy][2].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 규격(하부) - 선택사항
-							if (atoi (objectInfo.records [yy][4].c_str ()) == 1) {
-								sprintf (buffer, "규격(하부): %s ", objectInfo.records [yy][3].c_str ());
-							}
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-						} else if (objectInfo.keyDesc [xx].compare ("Push-Pull Props (기성품 및 당사제작품)") == 0) {
-							// 베이스 플레이트 유무
-							if (atoi (objectInfo.records [yy][1].c_str ()) == 1) {
-								sprintf (buffer, "베이스 플레이트(있음) ");
-							} else {
-								sprintf (buffer, "베이스 플레이트(없음) ");
-							}
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 규격(상부)
-							sprintf (buffer, "규격(상부): %s ", objectInfo.records [yy][2].c_str ());
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-							// 규격(하부) - 선택사항
-							if (atoi (objectInfo.records [yy][4].c_str ()) == 1) {
-								sprintf (buffer, "규격(하부): %s ", objectInfo.records [yy][3].c_str ());
-							}
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-						} else if (objectInfo.keyDesc [xx].compare ("사각파이프") == 0) {
-							// 사각파이프
-							if (atof (objectInfo.records [yy][1].c_str ()) < EPS) {
-								length = atof (objectInfo.records [yy][2].c_str ());
-								sprintf (buffer, "50 x 50 x %.0f ", round (length*1000, 0));
-
-							// 직사각파이프
-							} else {
-								length = atof (objectInfo.records [yy][2].c_str ());
-								sprintf (buffer, "%s x %.0f ", objectInfo.records [yy][1].c_str (), round (length*1000, 0));
-							}
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-						} else if (objectInfo.keyDesc [xx].compare ("원형파이프") == 0) {
-							length = atof (objectInfo.records [yy][1].c_str ());
-							sprintf (buffer, "%.0f ", round (length*1000, 0));
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-						} else if (objectInfo.keyDesc [xx].compare ("아웃코너앵글") == 0) {
-							length = atof (objectInfo.records [yy][1].c_str ());
-							sprintf (buffer, "%.0f ", round (length*1000, 0));
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-						} else if (objectInfo.keyDesc [xx].compare ("매직바") == 0) {
-							if (atoi (objectInfo.records [yy][2].c_str ()) > 0) {
-								length = atof (objectInfo.records [yy][3].c_str ());
-								length2 = atof (objectInfo.records [yy][4].c_str ());
-								length3 = atof (objectInfo.records [yy][5].c_str ());
-								sprintf (buffer, "%.0f / 합판(%.0f X %.0f)", round (atof (objectInfo.records [yy][1].c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
-							} else {
-								length = atof (objectInfo.records [yy][1].c_str ());
+							} else if (objectInfo.keyDesc.at(xx).compare ("원형파이프") == 0) {
+								length = atof (objectInfo.records.at(yy).at(1).c_str ());
 								sprintf (buffer, "%.0f ", round (length*1000, 0));
-							}
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-						
-						} else if (objectInfo.keyDesc [xx].compare ("단열재") == 0) {
-							sprintf (buffer, "원장크기: %.0f X %.0f / 실제크기: %.0f X %.0f (ㄱ형상으로 자름: %s)",
-								round (atof (objectInfo.records [yy][2].c_str ())*1000, 0), round (atof (objectInfo.records [yy][3].c_str ())*1000, 0),
-								round (atof (objectInfo.records [yy][4].c_str ())*1000, 0), round (atof (objectInfo.records [yy][5].c_str ())*1000, 0),
-								(atoi (objectInfo.records [yy][6].c_str ()) ? "자름" : "자르지 않음"));
-							fprintf (fp, buffer);
-							fprintf (fp_unite, buffer);
-
-						} else {
-							for (zz = 0 ; zz < objectInfo.nInfo [xx] ; ++zz) {
-								// 변수별 값 출력
-								sprintf (buffer, "%s(%s) ", objectInfo.varDesc [xx][zz].c_str (), objectInfo.records [yy][zz+1].c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
-							}
-						}
 
-						// 수량 출력
-						sprintf (buffer, ": %s EA\n", objectInfo.records [yy][objectInfo.records [yy].GetSize ()-1].c_str ());
-						fprintf (fp, buffer);
-						fprintf (fp_unite, buffer);
+							} else if (objectInfo.keyDesc.at(xx).compare ("아웃코너앵글") == 0) {
+								length = atof (objectInfo.records.at(yy).at(1).c_str ());
+								sprintf (buffer, "%.0f ", round (length*1000, 0));
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+
+							} else if (objectInfo.keyDesc.at(xx).compare ("매직바") == 0) {
+								if (atoi (objectInfo.records.at(yy).at(2).c_str ()) > 0) {
+									length = atof (objectInfo.records.at(yy).at(3).c_str ());
+									length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
+									length3 = atof (objectInfo.records.at(yy).at(5).c_str ());
+									sprintf (buffer, "%.0f / 합판(%.0f X %.0f)", round (atof (objectInfo.records.at(yy).at(1).c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
+								} else {
+									length = atof (objectInfo.records.at(yy).at(1).c_str ());
+									sprintf (buffer, "%.0f ", round (length*1000, 0));
+								}
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+
+							} else if (objectInfo.keyDesc.at(xx).compare ("단열재") == 0) {
+								sprintf (buffer, "원장크기: %.0f X %.0f / 실제크기: %.0f X %.0f (ㄱ형상으로 자름: %s)",
+									round (atof (objectInfo.records.at(yy).at(2).c_str ())*1000, 0), round (atof (objectInfo.records.at(yy).at(3).c_str ())*1000, 0),
+									round (atof (objectInfo.records.at(yy).at(4).c_str ())*1000, 0), round (atof (objectInfo.records.at(yy).at(5).c_str ())*1000, 0),
+									(atoi (objectInfo.records.at(yy).at(5).c_str ()) ? "자름" : "자르지 않음"));
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+						
+							} else {
+								for (zz = 0 ; zz < objectInfo.nInfo.at(xx) ; ++zz) {
+									// 변수별 값 출력
+									sprintf (buffer, "%s(%s) ", objectInfo.varDesc.at(xx).at(zz).c_str (), objectInfo.records.at(yy).at(zz+1).c_str ());
+									fprintf (fp, buffer);
+									fprintf (fp_unite, buffer);
+								}
+							}
+
+							// 수량 출력
+							sprintf (buffer, ": %s EA\n", objectInfo.records.at(yy).at(objectInfo.records.at(yy).size ()-1).c_str ());
+							fprintf (fp, buffer);
+							fprintf (fp_unite, buffer);
+						}
 					}
 				}
+			} catch (exception& ex) {
+				WriteReport ("출력 함수에서 오류 발생: %s", ex.what ());
 			}
 
 			// 일반 요소 - 보
@@ -2418,25 +2455,30 @@ GSErrCode	filterSelection (void)
 		BNZeroMemory (&memo, sizeof (API_ElementMemo));
 		elem.header.guid = objects [xx];
 		err = ACAPI_Element_Get (&elem);
-		err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-		foundObj = false;
+		if (err == NoError && elem.header.hasMemo) {
+			err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
-		for (yy = 0 ; yy < visibleObjInfo.nKinds ; ++yy) {
-			tempStr = getParameterStringByName (&memo, visibleObjInfo.varName [yy]);
-			if (tempStr != NULL) {
-				if (my_strcmp (tempStr, visibleObjInfo.objName [yy]) == 0) {
-					visibleObjInfo.bExist [yy] = true;
-					foundObj = true;
+			if (err == NoError) {
+				foundObj = false;
+
+				for (yy = 0 ; yy < visibleObjInfo.nKinds ; ++yy) {
+					tempStr = getParameterStringByName (&memo, visibleObjInfo.varName [yy]);
+					if (tempStr != NULL) {
+						if (my_strcmp (tempStr, visibleObjInfo.objName [yy]) == 0) {
+							visibleObjInfo.bExist [yy] = true;
+							foundObj = true;
+						}
+					}
 				}
+
+				// 끝내 찾지 못하면 알려지지 않은 Object 타입 리스트에 추가
+				if (foundObj == false)
+					selection_unknown.Push (objects [xx]);
 			}
+
+			ACAPI_DisposeElemMemoHdls (&memo);
 		}
-
-		// 끝내 찾지 못하면 알려지지 않은 Object 타입 리스트에 추가
-		if (foundObj == false)
-			selection_unknown.Push (objects [xx]);
-
-		ACAPI_DisposeElemMemoHdls (&memo);
 	}
 	
 	visibleObjInfo.nUnknownObjects = selection_unknown.GetSize ();
