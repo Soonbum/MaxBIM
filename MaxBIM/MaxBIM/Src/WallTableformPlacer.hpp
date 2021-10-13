@@ -292,18 +292,21 @@ public:
 public:
 	void		initCells (WallTableformPlacingZone* placingZone);													// Cell 배열을 초기화함
 	double		getCellPositionLeftBottomX (WallTableformPlacingZone *placingZone, short idx);						// 해당 셀의 좌하단 좌표X 위치를 리턴
-	GSErrCode	placeTableformOnWall_Vertical_Type1 (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입1)
-	GSErrCode	placeTableformOnWall_Vertical_Type2 (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입2)
-	GSErrCode	placeTableformOnWall_Horizontal_Type1 (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입1)
-	GSErrCode	placeTableformOnWall_Horizontal_Type2 (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입2)
-	GSErrCode	placeTableformOnWall_Custom_Type1 ();																// 테이블폼 배치하기 - 커스텀 (타입1)
-	GSErrCode	placeTableformOnWall_Custom_Type2 ();																// 테이블폼 배치하기 - 커스텀 (타입2)
+	GSErrCode	placeTableformOnWall_Vertical_TypeA (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입A)
+	GSErrCode	placeTableformOnWall_Vertical_TypeB (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입B)
+	GSErrCode	placeTableformOnWall_Vertical_TypeC (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입C)
+	GSErrCode	placeTableformOnWall_Horizontal_TypeA (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입A)
+	GSErrCode	placeTableformOnWall_Horizontal_TypeB (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입B)
+	GSErrCode	placeTableformOnWall_Custom_TypeA ();																// 테이블폼 배치하기 - 커스텀 (타입A)
+	GSErrCode	placeTableformOnWall_Custom_TypeB ();																// 테이블폼 배치하기 - 커스텀 (타입B)
 	GSErrCode	placeTableformOnWall_Vertical (CellForWallTableform cell, UpperCellForWallTableform upperCell);		// 테이블폼 상단 배치하기 - 세로 방향
 	GSErrCode	placeTableformOnWall_Horizontal (CellForWallTableform cell, UpperCellForWallTableform upperCell);	// 테이블폼 상단 배치하기 - 가로 방향
 
 	API_Guid	placeUFOM (Euroform params);						// 배치: 유로폼
 	API_Guid	placeUFOM_up (Euroform params);						// 배치: 유로폼 (상부)
 	API_Guid	placeSPIP (SquarePipe params);						// 배치: 비계 파이프
+	API_Guid	placeSPIP_sideHole (SquarePipe params);				// 배치: 비계 파이프 (측면 홀타공)
+	API_Guid	placeSPIP_frontHole (SquarePipe params);			// 배치: 비계 파이프 (정면 홀타공)
 	API_Guid	placePINB (PinBoltSet params);						// 배치: 핀볼트 세트
 	API_Guid	placeTIE  (WallTie params);							// 배치: 벽체 타이
 	API_Guid	placeCLAM (CrossClamp params);						// 배치: 직교 클램프
