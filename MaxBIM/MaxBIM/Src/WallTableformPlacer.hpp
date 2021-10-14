@@ -297,6 +297,7 @@ public:
 	GSErrCode	placeTableformOnWall_Vertical_TypeC (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입C)
 	GSErrCode	placeTableformOnWall_Horizontal_TypeA (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입A)
 	GSErrCode	placeTableformOnWall_Horizontal_TypeB (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입B)
+	GSErrCode	placeTableformOnWall_Horizontal_TypeC (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입C)
 	GSErrCode	placeTableformOnWall_Custom_TypeA ();																// 테이블폼 배치하기 - 커스텀 (타입A)
 	GSErrCode	placeTableformOnWall_Custom_TypeB ();																// 테이블폼 배치하기 - 커스텀 (타입B)
 	GSErrCode	placeTableformOnWall_Vertical (CellForWallTableform cell, UpperCellForWallTableform upperCell);		// 테이블폼 상단 배치하기 - 세로 방향
@@ -320,7 +321,7 @@ public:
 	API_Guid	placePUSH2_hor (HeadpieceOfPushPullProps params);	// 배치: 빔조인트용 Push-Pull Props (가로 방향: 타입 B)
 	API_Guid	placeHOOK (EuroformHook params);					// 배치: 유로폼 후크
 	API_Guid	placeHANG (RectPipeHanger params);					// 배치: 각파이프 행거
-	API_Guid	placeHOLE (API_Guid guid_Target, Cylinder operator_Object);				// 타공을 위한 기둥 객체를 배치하고 숨김, "원통 19" 객체를 이용함
+	API_Guid	placeHOLE (API_Guid guid_Target, Cylinder operator_Object);		// 타공을 위한 기둥 객체를 배치하고 숨김, "원통 19" 객체를 이용함
 };
 
 GSErrCode	placeTableformOnWall_Vertical (void);		// 벽에 테이블폼을 배치하는 통합 루틴 - 세로 방향
