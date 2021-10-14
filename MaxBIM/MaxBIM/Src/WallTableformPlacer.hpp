@@ -300,6 +300,7 @@ public:
 	GSErrCode	placeTableformOnWall_Horizontal_TypeC (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입C)
 	GSErrCode	placeTableformOnWall_Custom_TypeA ();																// 테이블폼 배치하기 - 커스텀 (타입A)
 	GSErrCode	placeTableformOnWall_Custom_TypeB ();																// 테이블폼 배치하기 - 커스텀 (타입B)
+	GSErrCode	placeTableformOnWall_Custom_TypeC ();																// 테이블폼 배치하기 - 커스텀 (타입C)
 	GSErrCode	placeTableformOnWall_Vertical (CellForWallTableform cell, UpperCellForWallTableform upperCell);		// 테이블폼 상단 배치하기 - 세로 방향
 	GSErrCode	placeTableformOnWall_Horizontal (CellForWallTableform cell, UpperCellForWallTableform upperCell);	// 테이블폼 상단 배치하기 - 가로 방향
 
