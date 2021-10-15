@@ -4536,8 +4536,36 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 
 			// 목재의 경우
 			} else if (remainWidth + EPS > 0) {
-				if (xx == 0)
-					elemList.Push (placeTIMB (params_TIMB [xx]));
+				if (xx == 0) {
+					//elemList.Push (placeTIMB (params_TIMB [xx]));
+
+					// 상단 여백이 10mm 이상 20mm 이하이면, 유로폼 상단 앞쪽에 투바이(50*80) 부착 (여백에 배치하지 않음)
+					if ((remainWidth >= 0.010 - EPS) && (remainWidth <= 0.020 + EPS)) {
+						params_TIMB [xx].w_w = 0.050;
+						params_TIMB [xx].w_h = 0.080;
+						moveIn3D ('y', params_TIMB [xx].ang, -0.0635, &params_TIMB [xx].leftBottomX, &params_TIMB [xx].leftBottomY, &params_TIMB [xx].leftBottomZ);
+						moveIn3D ('z', params_TIMB [xx].ang, -params_TIMB [xx].w_h, &params_TIMB [xx].leftBottomX, &params_TIMB [xx].leftBottomY, &params_TIMB [xx].leftBottomZ);
+						elemList.Push (placeTIMB (params_TIMB [xx]));
+
+					// 상단 여백이 40mm이면, 여백에 다루끼(50*40) 배치
+					} else if (abs (remainWidth - 0.040) < EPS) {
+						params_TIMB [xx].w_w = 0.050;
+						params_TIMB [xx].w_h = 0.040;
+						elemList.Push (placeTIMB (params_TIMB [xx]));
+
+					// 상단 여백이 50mm 이상 70mm 이하이면, 여백에 투바이(80*50) 배치
+					} else if ((remainWidth >= 0.050 - EPS) && (remainWidth <= 0.070 + EPS)) {
+						params_TIMB [xx].w_w = 0.080;
+						params_TIMB [xx].w_h = 0.050;
+						elemList.Push (placeTIMB (params_TIMB [xx]));
+
+					// 상단 여백이 80mm 이상이면, 여백에 투바이(50*80) 배치
+					} else if (remainWidth >= 0.080 - EPS) {
+						params_TIMB [xx].w_w = 0.050;
+						params_TIMB [xx].w_h = 0.080;
+						elemList.Push (placeTIMB (params_TIMB [xx]));
+					}
+				}
 			}
 		}
 
@@ -4661,8 +4689,36 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 
 				// 목재의 경우
 				} else if (remainWidth + EPS > 0) {
-					if (xx == (placementInfo.nHorEuroform - 1))
-						elemList.Push (placeTIMB (params_TIMB [xx]));
+					if (xx == (placementInfo.nHorEuroform - 1)) {
+						//elemList.Push (placeTIMB (params_TIMB [xx]));
+
+						// 상단 여백이 10mm 이상 20mm 이하이면, 유로폼 상단 앞쪽에 투바이(50*80) 부착 (여백에 배치하지 않음)
+						if ((remainWidth >= 0.010 - EPS) && (remainWidth <= 0.020 + EPS)) {
+							params_TIMB [xx].w_w = 0.050;
+							params_TIMB [xx].w_h = 0.080;
+							moveIn3D ('y', params_TIMB [xx].ang, -0.0635, &params_TIMB [xx].leftBottomX, &params_TIMB [xx].leftBottomY, &params_TIMB [xx].leftBottomZ);
+							moveIn3D ('z', params_TIMB [xx].ang, -params_TIMB [xx].w_h, &params_TIMB [xx].leftBottomX, &params_TIMB [xx].leftBottomY, &params_TIMB [xx].leftBottomZ);
+							elemList.Push (placeTIMB (params_TIMB [xx]));
+
+						// 상단 여백이 40mm이면, 여백에 다루끼(50*40) 배치
+						} else if (abs (remainWidth - 0.040) < EPS) {
+							params_TIMB [xx].w_w = 0.050;
+							params_TIMB [xx].w_h = 0.040;
+							elemList.Push (placeTIMB (params_TIMB [xx]));
+
+						// 상단 여백이 50mm 이상 70mm 이하이면, 여백에 투바이(80*50) 배치
+						} else if ((remainWidth >= 0.050 - EPS) && (remainWidth <= 0.070 + EPS)) {
+							params_TIMB [xx].w_w = 0.080;
+							params_TIMB [xx].w_h = 0.050;
+							elemList.Push (placeTIMB (params_TIMB [xx]));
+
+						// 상단 여백이 80mm 이상이면, 여백에 투바이(50*80) 배치
+						} else if (remainWidth >= 0.080 - EPS) {
+							params_TIMB [xx].w_w = 0.050;
+							params_TIMB [xx].w_h = 0.080;
+							elemList.Push (placeTIMB (params_TIMB [xx]));
+						}
+					}
 				}
 			}
 
@@ -9798,6 +9854,29 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 
 		// 목재의 경우
 		} else if (remainWidth > EPS) {
+			// 상단 여백이 10mm 이상 20mm 이하이면, 유로폼 상단 앞쪽에 투바이(50*80) 부착 (여백에 배치하지 않음)
+			if ((remainWidth >= 0.010 - EPS) && (remainWidth <= 0.020 + EPS)) {
+				params_TIMB [0].w_w = 0.050;
+				params_TIMB [0].w_h = 0.080;
+				moveIn3D ('y', params_TIMB [0].ang, -0.0635, &params_TIMB [0].leftBottomX, &params_TIMB [0].leftBottomY, &params_TIMB [0].leftBottomZ);
+				moveIn3D ('z', params_TIMB [0].ang, -params_TIMB [0].w_h, &params_TIMB [0].leftBottomX, &params_TIMB [0].leftBottomY, &params_TIMB [0].leftBottomZ);
+
+			// 상단 여백이 40mm이면, 여백에 다루끼(50*40) 배치
+			} else if (abs (remainWidth - 0.040) < EPS) {
+				params_TIMB [0].w_w = 0.050;
+				params_TIMB [0].w_h = 0.040;
+
+			// 상단 여백이 50mm 이상 70mm 이하이면, 여백에 투바이(80*50) 배치
+			} else if ((remainWidth >= 0.050 - EPS) && (remainWidth <= 0.070 + EPS)) {
+				params_TIMB [0].w_w = 0.080;
+				params_TIMB [0].w_h = 0.050;
+
+			// 상단 여백이 80mm 이상이면, 여백에 투바이(50*80) 배치
+			} else if (remainWidth >= 0.080 - EPS) {
+				params_TIMB [0].w_w = 0.050;
+				params_TIMB [0].w_h = 0.080;
+			}
+
 			remainObjLen = params_TIMB [0].w_leng;
 			while (remainObjLen > 0) {
 				if (remainObjLen > 3.600) {
@@ -9945,6 +10024,29 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 
 				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_TIMB [0].leftBottomX, &params_TIMB [0].leftBottomY, &params_TIMB [0].leftBottomZ);
 				params_TIMB [0].ang += DegreeToRad (180.0);
+
+				// 상단 여백이 10mm 이상 20mm 이하이면, 유로폼 상단 앞쪽에 투바이(50*80) 부착 (여백에 배치하지 않음)
+				if ((remainWidth >= 0.010 - EPS) && (remainWidth <= 0.020 + EPS)) {
+					params_TIMB [0].w_w = 0.050;
+					params_TIMB [0].w_h = 0.080;
+					moveIn3D ('y', params_TIMB [0].ang, -0.0635, &params_TIMB [0].leftBottomX, &params_TIMB [0].leftBottomY, &params_TIMB [0].leftBottomZ);
+					moveIn3D ('z', params_TIMB [0].ang, -params_TIMB [0].w_h, &params_TIMB [0].leftBottomX, &params_TIMB [0].leftBottomY, &params_TIMB [0].leftBottomZ);
+
+				// 상단 여백이 40mm이면, 여백에 다루끼(50*40) 배치
+				} else if (abs (remainWidth - 0.040) < EPS) {
+					params_TIMB [0].w_w = 0.050;
+					params_TIMB [0].w_h = 0.040;
+
+				// 상단 여백이 50mm 이상 70mm 이하이면, 여백에 투바이(80*50) 배치
+				} else if ((remainWidth >= 0.050 - EPS) && (remainWidth <= 0.070 + EPS)) {
+					params_TIMB [0].w_w = 0.080;
+					params_TIMB [0].w_h = 0.050;
+
+				// 상단 여백이 80mm 이상이면, 여백에 투바이(50*80) 배치
+				} else if (remainWidth >= 0.080 - EPS) {
+					params_TIMB [0].w_w = 0.050;
+					params_TIMB [0].w_h = 0.080;
+				}
 
 				remainObjLen = params_TIMB [0].w_leng;
 				while (remainObjLen > 0) {
