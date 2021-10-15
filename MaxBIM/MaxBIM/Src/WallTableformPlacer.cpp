@@ -3952,7 +3952,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_TypeC (CellFor
 			if (xx == 0) {
 				// 1행
 				elemList.Push (placeSPIP_frontHole (params_SPIP));
-				moveIn3D ('z', params_SPIP.ang, - 0.150 + placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+				moveIn3D ('z', params_SPIP.ang, -0.150 + placementInfo.height [xx], &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 			} else if (xx == placementInfo.nVerEuroform) {
 				// 마지막 행
 				moveIn3D ('z', params_SPIP.ang, -0.150, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);

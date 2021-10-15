@@ -49,10 +49,12 @@ namespace libraryConvertDG {
 }
 
 GSErrCode	convertVirtualTCO (void);		// 모든 가상 가설재(TCO: Temporary Construction Object)를 실제 가설재로 변환함
-GSErrCode	placeTableformOnWall_portrait_Type1 (WallTableform params);		// 테이블폼(벽) 배치 (벽세우기) 타입1
-GSErrCode	placeTableformOnWall_landscape_Type1 (WallTableform params);	// 테이블폼(벽) 배치 (벽눕히기) 타입1
-GSErrCode	placeTableformOnWall_portrait_Type2 (WallTableform params);		// 테이블폼(벽) 배치 (벽세우기) 타입2
-GSErrCode	placeTableformOnWall_landscape_Type2 (WallTableform params);	// 테이블폼(벽) 배치 (벽눕히기) 타입2
+GSErrCode	placeTableformOnWall_portrait_TypeA (WallTableform params);		// 테이블폼(벽) 배치 (벽세우기) 타입A
+GSErrCode	placeTableformOnWall_landscape_TypeA (WallTableform params);	// 테이블폼(벽) 배치 (벽눕히기) 타입A
+GSErrCode	placeTableformOnWall_portrait_TypeB (WallTableform params);		// 테이블폼(벽) 배치 (벽세우기) 타입B
+GSErrCode	placeTableformOnWall_landscape_TypeB (WallTableform params);	// 테이블폼(벽) 배치 (벽눕히기) 타입B
+GSErrCode	placeTableformOnWall_portrait_TypeC (WallTableform params);		// 테이블폼(벽) 배치 (벽세우기) 타입C
+GSErrCode	placeTableformOnWall_landscape_TypeC (WallTableform params);	// 테이블폼(벽) 배치 (벽눕히기) 타입C
 API_Guid	placeTableformOnSlabBottom (SlabTableform params);		// 테이블폼(슬래브) 배치
 API_Guid	placeEuroform (Euroform params);						// 유로폼 배치
 API_Guid	placeSteelform (Euroform params);						// 스틸폼 배치
@@ -66,6 +68,8 @@ API_Guid	placeProfile (KSProfile params);						// KS프로파일 배치
 API_Guid	placeFittings (MetalFittingsWithRectWasher params);		// 결합철물 (사각와셔활용) 배치
 
 API_Guid	placeSqrPipe (SquarePipe params);						// 비계 파이프 배치
+API_Guid	placeSqrPipe_sideHole (SquarePipe params);				// 비계 파이프 배치 (측면 홀타공)
+API_Guid	placeSqrPipe_frontHole (SquarePipe params);				// 비계 파이프 배치 (정면 홀타공)
 API_Guid	placePinbolt (PinBoltSet params);						// 핀볼트 세트 배치
 API_Guid	placeWalltie (WallTie params);							// 벽체 타이 배치
 API_Guid	placeHeadpiece_ver (HeadpieceOfPushPullProps params);	// 헤드피스 배치 (세로 방향: 타입 A)
