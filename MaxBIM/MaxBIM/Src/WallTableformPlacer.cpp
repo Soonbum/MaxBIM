@@ -11256,6 +11256,27 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 			}
 			DGSetItemValDouble (dialogID, EDITCONTROL_PLYWOOD_TOPREST, placingZone.marginTop);
 
+			// 체크박스 값에 따른 항목 활성화/비활성화
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST) == TRUE) {
+				DGEnableItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
+				DGEnableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+				DGEnableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			} else {
+				DGDisableItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
+				DGDisableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+				DGDisableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			}
+
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST) == TRUE) {
+				DGEnableItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
+				DGEnableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+				DGEnableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			} else {
+				DGDisableItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
+				DGDisableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+				DGDisableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			}
+
 			break;
 
 		case DG_MSG_CHANGE:
@@ -11329,6 +11350,27 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
 			}
 			DGSetItemValDouble (dialogID, EDITCONTROL_PLYWOOD_TOPREST, changedPlywoodHeight);
+
+			// 체크박스 값에 따른 항목 활성화/비활성화
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST) == TRUE) {
+				DGEnableItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
+				DGEnableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+				DGEnableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			} else {
+				DGDisableItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
+				DGDisableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+				DGDisableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			}
+
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST) == TRUE) {
+				DGEnableItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
+				DGEnableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+				DGEnableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			} else {
+				DGDisableItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
+				DGDisableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+				DGDisableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			}
 
 			break;
 
@@ -12552,6 +12594,27 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 			}
 			DGSetItemValDouble (dialogID, EDITCONTROL_PLYWOOD_TOPREST, placingZone.marginTop);
 
+			// 체크박스 값에 따른 항목 활성화/비활성화
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST) == TRUE) {
+				DGEnableItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
+				DGEnableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+				DGEnableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			} else {
+				DGDisableItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
+				DGDisableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+				DGDisableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			}
+
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST) == TRUE) {
+				DGEnableItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
+				DGEnableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+				DGEnableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			} else {
+				DGDisableItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
+				DGDisableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+				DGDisableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			}
+
 			break;
 
 		case DG_MSG_CHANGE:
@@ -12625,6 +12688,27 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
 			}
 			DGSetItemValDouble (dialogID, EDITCONTROL_PLYWOOD_TOPREST, changedPlywoodHeight);
+
+			// 체크박스 값에 따른 항목 활성화/비활성화
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_1_TOPREST) == TRUE) {
+				DGEnableItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
+				DGEnableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+				DGEnableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			} else {
+				DGDisableItem (dialogID, CHECKBOX_SET_STANDARD_1_TOPREST);
+				DGDisableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+				DGDisableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST);
+			}
+
+			if (DGGetItemValLong (dialogID, CHECKBOX_FORM_ONOFF_2_TOPREST) == TRUE) {
+				DGEnableItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
+				DGEnableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+				DGEnableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			} else {
+				DGDisableItem (dialogID, CHECKBOX_SET_STANDARD_2_TOPREST);
+				DGDisableItem (dialogID, POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+				DGDisableItem (dialogID, EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST);
+			}
 
 			break;
 
