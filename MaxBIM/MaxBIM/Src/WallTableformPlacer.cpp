@@ -10,6 +10,7 @@ using namespace wallTableformPlacerDG;
 
 static WallTableformPlacingZone		placingZone;	// 기본 벽면 영역 정보
 static InfoWall						infoWall;		// 벽 객체 정보
+API_Guid		structuralObject;					// 구조 객체의 GUID
 
 static short	layerInd_Euroform;			// 레이어 번호: 유로폼 (공통)
 static short	layerInd_RectPipe;			// 레이어 번호: 비계 파이프 (공통)
@@ -153,6 +154,7 @@ GSErrCode	placeTableformOnWall_Vertical (void)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	elem.header.guid = walls.Pop ();
+	structuralObject = elem.header.guid;
 	err = ACAPI_Element_Get (&elem);						// elem.wall.poly.nCoords : 폴리곤 수를 가져올 수 있음
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);	// memo.coords : 폴리곤 좌표를 가져올 수 있음
 	
@@ -621,6 +623,7 @@ GSErrCode	placeTableformOnWall_Horizontal (void)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	elem.header.guid = walls.Pop ();
+	structuralObject = elem.header.guid;
 	err = ACAPI_Element_Get (&elem);						// elem.wall.poly.nCoords : 폴리곤 수를 가져올 수 있음
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);	// memo.coords : 폴리곤 좌표를 가져올 수 있음
 	
@@ -1043,6 +1046,7 @@ GSErrCode	placeTableformOnWall_Custom (void)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	elem.header.guid = walls.Pop ();
+	structuralObject = elem.header.guid;
 	err = ACAPI_Element_Get (&elem);						// elem.wall.poly.nCoords : 폴리곤 수를 가져올 수 있음
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);	// memo.coords : 폴리곤 좌표를 가져올 수 있음
 	
@@ -10432,6 +10436,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
 			DGSetItemText (dialogID, LABEL_LAYER_HIDDEN, "숨김");
 
+			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
+
 			// 체크박스: 레이어 묶음
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
@@ -11174,6 +11180,68 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 					}
 	
 					break;
+
+				case BUTTON_AUTOSET:
+					item = 0;
+
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, FALSE);
+
+					if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 1) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject, "SPIP", NULL);
+						layerInd_PinBolt	= makeTemporaryLayer (structuralObject, "PINB", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject, "PLYW", NULL);
+						layerInd_Wood		= makeTemporaryLayer (structuralObject, "TIMB", NULL);
+
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject, "SPIP", NULL);
+						layerInd_RectpipeHanger	= makeTemporaryLayer (structuralObject, "JOIB", NULL);
+						layerInd_EuroformHook	= makeTemporaryLayer (structuralObject, "HOOK", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject, "PLYW", NULL);
+						layerInd_Wood		= makeTemporaryLayer (structuralObject, "TIMB", NULL);
+
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, layerInd_RectpipeHanger);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, layerInd_EuroformHook);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 3) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject, "SPIP", NULL);
+						layerInd_PinBolt	= makeTemporaryLayer (structuralObject, "PINB", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject, "PLYW", NULL);
+						layerInd_Wood		= makeTemporaryLayer (structuralObject, "TIMB", NULL);
+
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+					}
+
+					break;
+
 				case DG_CANCEL:
 					break;
 
@@ -11852,6 +11920,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
 			DGSetItemText (dialogID, LABEL_LAYER_HIDDEN, "숨김");
 
+			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
+
 			// 체크박스: 레이어 묶음
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
@@ -12512,6 +12582,68 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 					}
 	
 					break;
+
+				case BUTTON_AUTOSET:
+					item = 0;
+
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, FALSE);
+
+					if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 1) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject, "SPIP", NULL);
+						layerInd_PinBolt	= makeTemporaryLayer (structuralObject, "PINB", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject, "PLYW", NULL);
+						layerInd_Wood		= makeTemporaryLayer (structuralObject, "TIMB", NULL);
+
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject, "SPIP", NULL);
+						layerInd_RectpipeHanger	= makeTemporaryLayer (structuralObject, "JOIB", NULL);
+						layerInd_EuroformHook	= makeTemporaryLayer (structuralObject, "HOOK", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject, "PLYW", NULL);
+						layerInd_Wood		= makeTemporaryLayer (structuralObject, "TIMB", NULL);
+
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, layerInd_RectpipeHanger);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, layerInd_EuroformHook);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+
+					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 3) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject, "SPIP", NULL);
+						layerInd_PinBolt	= makeTemporaryLayer (structuralObject, "PINB", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject, "PLYW", NULL);
+						layerInd_Wood		= makeTemporaryLayer (structuralObject, "TIMB", NULL);
+
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+					}
+
+					break;
+
 				case DG_CANCEL:
 					break;
 
@@ -13559,6 +13691,11 @@ short DGCALLBACK wallTableformPlacerHandler2_Custom (short message, short dialog
 			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM_HOOK_CUSTOM, "유로폼 후크");
 			DGSetItemText (dialogID, LABEL_LAYER_HIDDEN_CUSTOM, "숨김");
 
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 580, 160, 25);
+			DGSetItemFont (dialogID, BUTTON_AUTOSET_CUSTOM, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_AUTOSET_CUSTOM, "레이어 자동 설정");
+			DGShowItem (dialogID, BUTTON_AUTOSET_CUSTOM);
+
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
 			ucb.dialogID = dialogID;
@@ -14071,6 +14208,62 @@ short DGCALLBACK wallTableformPlacerHandler2_Custom (short message, short dialog
 					if (bLayerInd_Hidden == true)			layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN_CUSTOM);
 
 					break;
+
+				case BUTTON_AUTOSET_CUSTOM:
+					item = 0;
+
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING_CUSTOM, FALSE);
+
+					if (placingZone.type == 1) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject, "SPIP", NULL);
+						layerInd_PinBolt	= makeTemporaryLayer (structuralObject, "PINB", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject, "PLYW", NULL);
+
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, layerInd_PinBolt);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, layerInd_Plywood);
+
+					} else if (placingZone.type == 2) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject, "SPIP", NULL);
+						layerInd_RectpipeHanger	= makeTemporaryLayer (structuralObject, "JOIB", NULL);
+						layerInd_EuroformHook	= makeTemporaryLayer (structuralObject, "HOOK", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject, "PLYW", NULL);
+
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, layerInd_RectpipeHanger);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, layerInd_EuroformHook);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, layerInd_Plywood);
+
+					} else if (placingZone.type == 3) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject, "SPIP", NULL);
+						layerInd_PinBolt	= makeTemporaryLayer (structuralObject, "PINB", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject, "PLYW", NULL);
+
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, layerInd_PinBolt);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, layerInd_Plywood);
+					}
+
+					break;
+
 				case DG_CANCEL:
 					break;
 			}

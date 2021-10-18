@@ -1046,3 +1046,74 @@ short findLayerIndex (const char* layerName)
 
 	return 0;
 }
+
+// 객체의 레이어 이름이 01-S로 시작하는 경우 접두사를 05-T로 바꾸고, 하이픈 + 접미사 문자열을 붙인 레이어 이름을 생성한 후 레이어 인덱스와 이름을 리턴함
+short	makeTemporaryLayer (API_Guid structurualObject, const char* suffix, char* returnedLayerName)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+
+	API_Attribute		attrib;
+	API_AttributeDef	defs;
+
+	char*				layerName;
+	char				createdLayerName [128];
+
+	BNZeroMemory (&elem, sizeof (API_Element));
+	elem.header.guid = structurualObject;
+
+	if (ACAPI_Element_Get (&elem) == NoError) {
+		// 구조 객체의 레이어 이름을 구함
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.header.typeID = API_LayerID;
+		attrib.header.index = elem.header.layer;
+		
+		if (ACAPI_Attribute_Get (&attrib) == NoError) {
+			// 맨 앞의 레이어 이름이 01-S로 시작하는가?
+			layerName = strstr (attrib.layer.head.name, "01-S");
+
+			if (layerName == NULL)
+				return 0;
+
+			strncpy (layerName, "05-T", 4);		// 접두사를 01-S에서 05-T로 변경
+			strcat (layerName, "-");			// 하이픈 뒤에 붙임
+			strcat (layerName, suffix);			// 접미사 뒤에 붙임
+			strcpy (createdLayerName, layerName);
+			createdLayerName [strlen (createdLayerName)] = '\0';
+
+			// 변경된 레이어 이름을 생성함
+			BNZeroMemory (&attrib, sizeof (API_Attribute));
+			BNZeroMemory (&defs, sizeof (API_AttributeDef));
+			
+			attrib.header.typeID = API_LayerID;
+			attrib.layer.conClassId = 1;
+			CHCopyC (createdLayerName, attrib.header.name);
+			err = ACAPI_Attribute_Create (&attrib, &defs);
+			ACAPI_DisposeAttrDefsHdls (&defs);
+
+			// 생성된 레이어의 인덱스를 리턴함
+			if (err == NoError) {
+				// 레이어 이름 리턴
+				if (returnedLayerName != NULL)
+					strcpy (returnedLayerName, createdLayerName);
+
+				return	attrib.layer.head.index;
+
+			} else {
+				// 이미 생성되어 있을 수 있으므로 레이어 이름을 찾아볼 것
+				BNZeroMemory (&attrib, sizeof (API_Attribute));
+				attrib.header.typeID = API_LayerID;
+				CHCopyC (createdLayerName, attrib.header.name);
+				err = ACAPI_Attribute_Get (&attrib);
+
+				// 레이어 이름 리턴
+				if (returnedLayerName != NULL)
+					strcpy (returnedLayerName, createdLayerName);
+
+				return	attrib.layer.head.index;
+			}
+		}
+	}
+
+	return 0;
+}

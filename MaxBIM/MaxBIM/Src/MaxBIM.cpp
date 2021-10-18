@@ -293,9 +293,14 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						// *** 원하는 코드를 아래 넣으시오.
 						API_SelectionInfo		selectionInfo;
 						API_Neig				**selNeigs;
-						API_Element				tElem;
+						API_Element				tElem, mask;
 						long					nSel;
-						GS::Array<API_Guid>		objects;
+						GS::Array<API_Guid>		walls;
+
+						API_Attribute			attrib;
+						API_AttributeDef		defs;
+						char*					layerName;
+						char					createdLayerName [128];
 
 						// 선택한 요소 가져오기
 						err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
@@ -306,7 +311,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 							return err;
 						}
 
-						// 객체 타입의 요소 GUID만 저장함
+						// 벽, 슬래브, 보, 기둥 타입의 요소 GUID만 저장함
 						if (selectionInfo.typeID != API_SelEmpty) {
 							nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
 							for (short xx = 0 ; xx < nSel && err == NoError ; ++xx) {
@@ -316,40 +321,85 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 								if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
 									continue;
 
-								if (tElem.header.typeID == API_ObjectID)	// 객체 타입 요소인가?
-									objects.Push (tElem.header.guid);
+								if (tElem.header.typeID == API_WallID) {	// 벽 타입 요소인가?
+									walls.Push (tElem.header.guid);
+
+									BNZeroMemory (&attrib, sizeof (API_Attribute));
+									attrib.header.typeID = API_LayerID;
+									attrib.header.index = tElem.header.layer;
+									attrib.layer.conClassId = 1;
+									err = ACAPI_Attribute_Get (&attrib);
+
+									// 맨 앞의 레이어 이름이 01-S로 시작하는가?
+									layerName = strstr (attrib.layer.head.name, "01-S");
+
+									if (layerName != NULL) {
+										WriteReport_Alert ("01-S로 시작함: %s", layerName);
+										strncpy (layerName, "05-T", 4);
+										strcat (layerName, "-$$$$");
+										WriteReport_Alert ("변경된 레이어: %s", layerName);
+										strcpy (createdLayerName, layerName);
+										createdLayerName [strlen (createdLayerName)] = '\0';
+
+										// 변경된 레이어 이름을 생성함
+										BNZeroMemory (&attrib, sizeof (API_Attribute));
+										BNZeroMemory (&defs, sizeof (API_AttributeDef));
+
+										attrib.header.typeID = API_LayerID;
+										attrib.layer.conClassId = 1;
+										CHCopyC (createdLayerName, attrib.header.name);
+										err = ACAPI_Attribute_Create (&attrib, &defs);
+										ACAPI_DisposeAttrDefsHdls (&defs);
+
+										// 테스트 삼아 선택했던 벽의 레이어를 새로 생성한 레이어로 교체할 것
+										ACAPI_ELEMENT_MASK_CLEAR (mask);
+										ACAPI_ELEMENT_MASK_SET (mask, API_Elem_Head, layer);
+										tElem.header.layer = attrib.layer.head.index;
+										err = ACAPI_Element_Change (&tElem, &mask, NULL, 0, true);
+
+									} else
+										WriteReport_Alert ("레이어 이름: %s", attrib.layer.head.name);
+								}
 							}
 						}
 						BMKillHandle ((GSHandle *) &selNeigs);
-
-						API_Element			elem;
-						API_ElementMemo		memo;
-						const char*			outStr;
-						API_AddParID		type;
-						double				value;
-
-						BNZeroMemory (&elem, sizeof (API_Element));
-						BNZeroMemory (&memo, sizeof (API_ElementMemo));
-						elem.header.guid = objects.Pop ();
-						err = ACAPI_Element_Get (&elem);
-
-						if (err == NoError && elem.header.hasMemo) {
-							err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
-							if (err == NoError) {
-								type = getParameterTypeByName (&memo, "A");		// 타입
-								WriteReport_Alert ("타입: %d", type);
-
-								outStr = getParameterStringByName (&memo, "A");	// 문자열
-								WriteReport_Alert ("이름: %s(%d)", outStr, strlen (outStr));
-
-								value = getParameterValueByName (&memo, "A");	// 값
-								WriteReport_Alert ("값: %.3f", value);
-							}
-						}
-
-						ACAPI_DisposeElemMemoHdls (&memo);
-
 						// *** 원하는 코드를 위에 넣으시오.
+
+						// 참조 코드
+						/*
+								// 레이어가 존재하지 않으면,
+								} else {
+
+									result = DGAlert (DG_INFORMATION, "레이어가 존재하지 않음", "지정한 레이어가 존재하지 않습니다.\n새로 만드시겠습니까?", "", "예", "아니오", "");
+
+									if (result == DG_OK) {
+										// 레이어를 새로 생성함
+										BNZeroMemory (&attrib, sizeof (API_Attribute));
+										BNZeroMemory (&defs, sizeof (API_AttributeDef));
+
+										CHCopyC (fullLayerName, attrib.header.name);
+										err = ACAPI_Attribute_Create (&attrib, &defs);
+
+										ACAPI_DisposeAttrDefsHdls (&defs);
+
+										// 객체들의 레이어 속성을 변경함
+										for (xx = 0 ; xx < nObjects ; ++xx) {
+											BNZeroMemory (&elem, sizeof (API_Element));
+											elem.header.guid = objects.Pop ();
+											err = ACAPI_Element_Get (&elem);
+
+											ACAPI_ELEMENT_MASK_CLEAR (mask);
+											ACAPI_ELEMENT_MASK_SET (mask, API_Elem_Head, layer);
+											elem.header.layer = attrib.layer.head.index;	// 가져온 레이어 속성의 인덱스를 부여함
+
+											err = ACAPI_Element_Change (&elem, &mask, NULL, 0, true);
+										}
+									} else {
+										ACAPI_WriteReport ("레이어가 없으므로 실행을 중지합니다.", true);
+										return	err;
+									}
+								}
+						*/
 						return err;
 					});
 

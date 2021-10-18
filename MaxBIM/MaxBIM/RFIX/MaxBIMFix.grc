@@ -361,7 +361,7 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Wall */
-'GDLG'  32517  Modal | grow	  0		  0		350		650		"벽에 배치" {
+'GDLG'  32517  Modal | grow	  0		  0		350		700		"벽에 배치" {
 /* [  1] */	Button			 15		 15		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			 15		 50		 70		 25		LargePlain		"Cancel"
 /* [  3] */	Button			 15		 85		 70		 25		LargePlain		"Prev"
@@ -402,6 +402,8 @@
 /* [ 33] */	UserControl		120		529		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
 /* [ 34] */	UserControl		120		559		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
 /* [ 35] */	UserControl		120		589		160		 25		257	0x0006 0x0000 0		/* Layer Control - HIDDEN		*/
+
+/* [ 36] */	Button			120		640		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- place Tableform on Slab Bottom */
