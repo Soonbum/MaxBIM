@@ -1076,8 +1076,10 @@ short	makeTemporaryLayer (API_Guid structurualObject, const char* suffix, char* 
 				return 0;
 
 			strncpy (layerName, "05-T", 4);		// 접두사를 01-S에서 05-T로 변경
-			strcat (layerName, "-");			// 하이픈 뒤에 붙임
-			strcat (layerName, suffix);			// 접미사 뒤에 붙임
+			if (suffix != NULL) {
+				strcat (layerName, "-");			// 하이픈 뒤에 붙임
+				strcat (layerName, suffix);			// 접미사 뒤에 붙임
+			}
 			strcpy (createdLayerName, layerName);
 			createdLayerName [strlen (createdLayerName)] = '\0';
 
