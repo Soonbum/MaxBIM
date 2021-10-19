@@ -36,7 +36,9 @@ namespace slabBottomPlacerDG {
 
 		USERCONTROL_LAYER_EUROFORM,
 		USERCONTROL_LAYER_PLYWOOD,
-		USERCONTROL_LAYER_WOOD
+		USERCONTROL_LAYER_WOOD,
+
+		BUTTON_AUTOSET
 	};
 
 	enum	idxItems_2_forSlabBottomPlacer {

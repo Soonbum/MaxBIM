@@ -1160,6 +1160,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 		beams.Clear ();
 		vecPos.clear ();
 		objectInfo.clear ();
+		objectInfo.nUnknownObjects = 0;
 
 		if (err == NoError) {
 			// 레이어 보이기

@@ -11,6 +11,9 @@ using namespace columnPlacerDG;
 static ColumnPlacingZone	placingZone;			// 기본 기둥 영역 정보
 static InfoColumn			infoColumn;				// 기둥 객체 정보
 static InfoWallForColumn	infoWall;				// 간섭 벽 정보
+
+API_Guid	structuralObject_forEuroformColumn;		// 구조 객체의 GUID
+
 static short				nInterfereBeams;		// 간섭 보 개수
 static InfoBeamForColumn	infoOtherBeams [10];	// 간섭 보 정보
 static short			layerInd_Euroform;			// 레이어 번호: 유로폼
@@ -164,6 +167,7 @@ GSErrCode	placeEuroformOnColumn (void)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	elem.header.guid = infoColumn.guid;
+	structuralObject_forEuroformColumn = elem.header.guid;
 	err = ACAPI_Element_Get (&elem);
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 	
@@ -2239,6 +2243,8 @@ short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
 
+			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
+
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
 			ucb.dialogID = dialogID;
@@ -2653,6 +2659,22 @@ short DGCALLBACK columnPlacerHandler_soleColumn_1 (short message, short dialogID
 					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 
 					break;
+
+				case BUTTON_AUTOSET:
+					item = 0;
+
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, FALSE);
+
+					layerInd_Euroform	= makeTemporaryLayer (structuralObject_forEuroformColumn, "UFOM", NULL);
+					layerInd_Outcorner	= makeTemporaryLayer (structuralObject_forEuroformColumn, "OUTP", NULL);
+					layerInd_Plywood	= makeTemporaryLayer (structuralObject_forEuroformColumn, "PLYW", NULL);
+
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER, layerInd_Outcorner);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+
+					break;
+
 				case DG_CANCEL:
 					break;
 			}
@@ -4004,6 +4026,8 @@ short DGCALLBACK columnPlacerHandler_wallColumn_1 (short message, short dialogID
 			// 체크박스: 레이어 묶음
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING_WC, "레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING_WC, TRUE);
+
+			DGSetItemText (dialogID, BUTTON_AUTOSET_WC, "레이어 자동 설정");
 
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
@@ -6906,6 +6930,24 @@ short DGCALLBACK columnPlacerHandler_wallColumn_1 (short message, short dialogID
 					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_WC);
 
 					break;
+
+				case BUTTON_AUTOSET_WC:
+					item = 0;
+
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, FALSE);
+
+					layerInd_Euroform	= makeTemporaryLayer (structuralObject_forEuroformColumn, "UFOM", NULL);
+					layerInd_Incorner	= makeTemporaryLayer (structuralObject_forEuroformColumn, "INCO", NULL);
+					layerInd_Outcorner	= makeTemporaryLayer (structuralObject_forEuroformColumn, "OUTP", NULL);
+					layerInd_Plywood	= makeTemporaryLayer (structuralObject_forEuroformColumn, "PLYW", NULL);
+
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_WC, layerInd_Euroform);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_WC, layerInd_Incorner);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_WC, layerInd_Outcorner);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_WC, layerInd_Plywood);
+
+					break;
+
 				case DG_CANCEL:
 					break;
 			}

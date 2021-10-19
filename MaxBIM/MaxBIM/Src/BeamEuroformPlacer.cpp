@@ -10,6 +10,9 @@ using namespace beamPlacerDG;
 
 static BeamPlacingZone	placingZone;				// 기본 보 영역 정보
 static InfoBeam			infoBeam;					// 보 객체 정보
+
+API_Guid		structuralObject_forEuroformBeam;	// 구조 객체의 GUID
+
 static short			nInterfereBeams;			// 간섭 보 개수
 static InfoBeam			infoOtherBeams [10];		// 간섭 보 정보
 static short			layerInd_Euroform;			// 레이어 번호: 유로폼
@@ -174,6 +177,7 @@ GSErrCode	placeEuroformOnBeam (void)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	elem.header.guid = infoBeam.guid;
+	structuralObject_forEuroformBeam = elem.header.guid;
 	err = ACAPI_Element_Get (&elem);
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 	
@@ -2610,6 +2614,8 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
 
+			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
+
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
 			ucb.dialogID = dialogID;
@@ -3086,6 +3092,26 @@ short DGCALLBACK beamPlacerHandler1 (short message, short dialogID, short item, 
 					layerInd_Fillerspacer	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER);
 
 					break;
+
+				case BUTTON_AUTOSET:
+					item = 0;
+
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, FALSE);
+
+					layerInd_Euroform		= makeTemporaryLayer (structuralObject_forEuroformBeam, "UFOM", NULL);
+					layerInd_Plywood		= makeTemporaryLayer (structuralObject_forEuroformBeam, "PLYW", NULL);
+					layerInd_Wood			= makeTemporaryLayer (structuralObject_forEuroformBeam, "TIMB", NULL);
+					layerInd_OutcornerAngle	= makeTemporaryLayer (structuralObject_forEuroformBeam, "OUTA", NULL);
+					layerInd_Fillerspacer	= makeTemporaryLayer (structuralObject_forEuroformBeam, "FISP", NULL);
+
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, layerInd_OutcornerAngle);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, layerInd_Fillerspacer);
+
+					break;
+
 				case DG_CANCEL:
 					break;
 			}

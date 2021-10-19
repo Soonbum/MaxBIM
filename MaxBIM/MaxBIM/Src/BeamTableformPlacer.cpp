@@ -8,8 +8,10 @@
 
 using namespace beamTableformPlacerDG;
 
-static BeamTableformPlacingZone		placingZone;	// 기본 보 영역 정보
-static InfoBeam			infoBeam;					// 보 객체 정보
+static BeamTableformPlacingZone		placingZone;			// 기본 보 영역 정보
+static InfoBeam			infoBeam;							// 보 객체 정보
+API_Guid				structuralObject_forTableformBeam;	// 구조 객체의 GUID
+
 static short			nInterfereBeams;			// 간섭 보 개수
 static InfoBeam			infoOtherBeams [10];		// 간섭 보 정보
 static short			layerInd_Euroform;			// 레이어 번호: 유로폼
@@ -178,6 +180,7 @@ GSErrCode	placeTableformOnBeam (void)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	elem.header.guid = infoBeam.guid;
+	structuralObject_forTableformBeam = elem.header.guid;
 	err = ACAPI_Element_Get (&elem);
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 	
@@ -5307,6 +5310,8 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
 
+			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
+
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
 			ucb.dialogID = dialogID;
@@ -5867,6 +5872,34 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					layerInd_TimberRail		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER_RAIL);
 
 					break;
+
+				case BUTTON_AUTOSET:
+					item = 0;
+
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, FALSE);
+
+					layerInd_Euroform			= makeTemporaryLayer (structuralObject_forTableformBeam, "UFOM", NULL);
+					layerInd_Plywood			= makeTemporaryLayer (structuralObject_forTableformBeam, "PLYW", NULL);
+					layerInd_Wood				= makeTemporaryLayer (structuralObject_forTableformBeam, "TIMB", NULL);
+					layerInd_OutcornerAngle		= makeTemporaryLayer (structuralObject_forTableformBeam, "OUTA", NULL);
+					layerInd_Fillerspacer		= makeTemporaryLayer (structuralObject_forTableformBeam, "FISP", NULL);
+					layerInd_Rectpipe			= makeTemporaryLayer (structuralObject_forTableformBeam, "SPIP", NULL);
+					layerInd_RectpipeHanger		= makeTemporaryLayer (structuralObject_forTableformBeam, "JOIB", NULL);
+					layerInd_EuroformHook		= makeTemporaryLayer (structuralObject_forTableformBeam, "HOOK", NULL);
+					layerInd_TimberRail			= makeTemporaryLayer (structuralObject_forTableformBeam, "RAIL", NULL);
+
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, layerInd_OutcornerAngle);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, layerInd_Fillerspacer);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_Rectpipe);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, layerInd_RectpipeHanger);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, layerInd_EuroformHook);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER_RAIL, layerInd_TimberRail);
+
+					break;
+
 				case DG_CANCEL:
 					break;
 			}

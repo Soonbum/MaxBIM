@@ -10,6 +10,9 @@ using namespace slabBottomPlacerDG;
 
 static SlabPlacingZone	placingZone;			// 기본 슬래브 하부 영역 정보
 static InfoSlab			infoSlab;				// 슬래브 객체 정보
+
+API_Guid		structuralObject_forEuroformSlab;	// 구조 객체의 GUID
+
 static short			clickedBtnItemIdx;		// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool				clickedOKButton;		// OK 버튼을 눌렀습니까?
 static bool				clickedExcludeRestButton;	// 자투리 제외 버튼을 눌렀습니까?
@@ -148,6 +151,7 @@ GSErrCode	placeEuroformOnSlabBottom (void)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	elem.header.guid = slabs.Pop ();
+	structuralObject_forEuroformSlab = elem.header.guid;
 	err = ACAPI_Element_Get (&elem);
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 	
@@ -1844,14 +1848,11 @@ short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short 
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
 
-			// 라벨: 레이어 - 유로폼
-			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
+			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");	// 라벨: 레이어 - 유로폼
+			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");		// 라벨: 레이어 - 합판
+			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");			// 라벨: 레이어 - 목재
 
-			// 라벨: 레이어 - 합판
-			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
-
-			// 라벨: 레이어 - 목재
-			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
+			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
 
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
@@ -1912,6 +1913,22 @@ short DGCALLBACK slabBottomPlacerHandler1 (short message, short dialogID, short 
 					layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
 
 					break;
+
+				case BUTTON_AUTOSET:
+					item = 0;
+
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, FALSE);
+
+					layerInd_Euroform	= makeTemporaryLayer (structuralObject_forEuroformSlab, "UFOM", NULL);
+					layerInd_Plywood	= makeTemporaryLayer (structuralObject_forEuroformSlab, "PLYW", NULL);
+					layerInd_Wood		= makeTemporaryLayer (structuralObject_forEuroformSlab, "TIMB", NULL);
+
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+
+					break;
+
 				case DG_CANCEL:
 					break;
 			}

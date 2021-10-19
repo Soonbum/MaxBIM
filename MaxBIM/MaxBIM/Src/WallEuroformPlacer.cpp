@@ -11,6 +11,9 @@ using namespace wallPlacerDG;
 static WallPlacingZone	placingZone;			// 기본 벽면 영역 정보
 static WallPlacingZone	placingZoneBackside;	// 반대쪽 벽면에도 벽면 영역 정보 부여, 벽 기준으로 대칭됨 (placingZone과 달리 오른쪽부터 객체를 설치함)
 static InfoWall			infoWall;				// 벽 객체 정보
+
+API_Guid		structuralObject_forEuroformWall;		// 구조 객체의 GUID
+
 static short			clickedBtnItemIdx;		// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool				clickedOKButton;		// OK 버튼을 눌렀습니까?
 static bool				clickedPrevButton;		// 이전 버튼을 눌렀습니까?
@@ -116,6 +119,7 @@ GSErrCode	placeEuroformOnWall (void)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	elem.header.guid = walls.Pop ();
+	structuralObject_forEuroformWall = elem.header.guid;
 	err = ACAPI_Element_Get (&elem);						// elem.wall.poly.nCoords : 폴리곤 수를 가져올 수 있음
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);	// memo.coords : 폴리곤 좌표를 가져올 수 있음
 	
@@ -1606,21 +1610,14 @@ short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, 
 			// 체크박스: 레이어 묶음
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
+			
+			DGSetItemText (dialogID, LABEL_LAYER_INCORNER, "인코너");				// 라벨: 레이어 - 인코너
+			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");				// 라벨: 레이어 - 유로폼
+			DGSetItemText (dialogID, LABEL_LAYER_FILLERSPACER, "휠러스페이서");		// 라벨: 레이어 - 휠러스페이서
+			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");					// 라벨: 레이어 - 목재
+			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");						// 라벨: 레이어 - 합판
 
-			// 라벨: 레이어 - 인코너
-			DGSetItemText (dialogID, LABEL_LAYER_INCORNER, "인코너");
-
-			// 라벨: 레이어 - 유로폼
-			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
-
-			// 라벨: 레이어 - 휠러스페이서
-			DGSetItemText (dialogID, LABEL_LAYER_FILLERSPACER, "휠러스페이서");
-
-			// 라벨: 레이어 - 목재
-			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
-
-			// 라벨: 레이어 - 합판
-			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
+			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
 
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
@@ -1735,6 +1732,26 @@ short DGCALLBACK wallPlacerHandler1 (short message, short dialogID, short item, 
 					layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
 
 					break;
+
+				case BUTTON_AUTOSET:
+					item = 0;
+
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, FALSE);
+
+					layerInd_Incorner		= makeTemporaryLayer (structuralObject_forEuroformWall, "INCO", NULL);
+					layerInd_Euroform		= makeTemporaryLayer (structuralObject_forEuroformWall, "UFOM", NULL);
+					layerInd_Fillerspacer	= makeTemporaryLayer (structuralObject_forEuroformWall, "FISP", NULL);
+					layerInd_Plywood		= makeTemporaryLayer (structuralObject_forEuroformWall, "PLYW", NULL);
+					layerInd_Wood			= makeTemporaryLayer (structuralObject_forEuroformWall, "TIMB", NULL);
+
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER, layerInd_Incorner);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSPACER, layerInd_Fillerspacer);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+
+					break;
+
 				case DG_CANCEL:
 					break;
 			}

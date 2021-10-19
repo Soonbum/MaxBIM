@@ -43,6 +43,8 @@ namespace slabTableformPlacerDG {
 		USERCONTROL_LAYER_WOOD,
 		USERCONTROL_LAYER_CPROFILE,
 		USERCONTROL_LAYER_FITTINGS,
+
+		BUTTON_AUTOSET
 	};
 
 	enum	idxItems_2_forSlabBottomTableformPlacer {

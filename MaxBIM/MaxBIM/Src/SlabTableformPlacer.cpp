@@ -9,7 +9,10 @@
 using namespace slabTableformPlacerDG;
 
 static SlabTableformPlacingZone		placingZone;	// 기본 슬래브 하부 영역 정보
-static InfoSlab		infoSlab;					// 슬래브 객체 정보
+static InfoSlab		infoSlab;						// 슬래브 객체 정보
+
+API_Guid		structuralObject_forTableformSlab;					// 구조 객체의 GUID
+
 static short		clickedBtnItemIdx;			// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool			clickedOKButton;			// OK 버튼을 눌렀습니까?
 static bool			clickedExcludeRestButton;	// 자투리 제외 버튼을 눌렀습니까?
@@ -150,6 +153,7 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	elem.header.guid = slabs.Pop ();
+	structuralObject_forTableformSlab = elem.header.guid;
 	err = ACAPI_Element_Get (&elem);
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 	
@@ -1725,20 +1729,13 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
 
-			// 라벨: 레이어 - 슬래브 테이블폼
-			DGSetItemText (dialogID, LABEL_LAYER_SLABTABLEFORM, "테이블폼");
+			DGSetItemText (dialogID, LABEL_LAYER_SLABTABLEFORM, "테이블폼");	// 라벨: 레이어 - 슬래브 테이블폼
+			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");				// 라벨: 레이어 - 합판
+			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");					// 라벨: 레이어 - 목재
+			DGSetItemText (dialogID, LABEL_LAYER_CPROFILE, "C형강");			// 라벨: 레이어 - 프로파일 (C형강)
+			DGSetItemText (dialogID, LABEL_LAYER_FITTINGS, "결합철물");			// 라벨: 레이어 - 결합철물
 
-			// 라벨: 레이어 - 합판
-			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
-
-			// 라벨: 레이어 - 목재
-			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
-
-			// 라벨: 레이어 - 프로파일 (C형강)
-			DGSetItemText (dialogID, LABEL_LAYER_CPROFILE, "C형강");
-
-			// 라벨: 레이어 - 결합철물
-			DGSetItemText (dialogID, LABEL_LAYER_FITTINGS, "결합철물");
+			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
 
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
@@ -1850,6 +1847,26 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 					layerInd_Fittings		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS);
 
 					break;
+
+				case BUTTON_AUTOSET:
+					item = 0;
+
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, FALSE);
+
+					layerInd_SlabTableform	= makeTemporaryLayer (structuralObject_forTableformSlab, "CONP", NULL);
+					layerInd_Plywood		= makeTemporaryLayer (structuralObject_forTableformSlab, "PLYW", NULL);
+					layerInd_Wood			= makeTemporaryLayer (structuralObject_forTableformSlab, "TIMB", NULL);
+					layerInd_CProfile		= makeTemporaryLayer (structuralObject_forTableformSlab, "CPRO", NULL);
+					layerInd_Fittings		= makeTemporaryLayer (structuralObject_forTableformSlab, "CLAM", NULL);
+
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, layerInd_SlabTableform);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_CPROFILE, layerInd_CProfile);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FITTINGS, layerInd_Fittings);
+
+					break;
+
 				case DG_CANCEL:
 					break;
 			}

@@ -90,9 +90,9 @@
 }
 
 /* ---------------------------------------------------------- place Euroform on Wall */
-'GDLG'  32511  Modal | grow	  0		  0		300		530		"유로폼 벽에 배치" {
-/* [  1] */	Button			 70		490		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		490		 70		 25		LargePlain		"Cancel"
+'GDLG'  32511  Modal | grow	  0		  0		300		580		"유로폼 벽에 배치" {
+/* [  1] */	Button			 70		540		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		540		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Incorner Settings"
 /* [  4] */	CheckBox		 10		 33		 70		 25		LargePlain		"Left"
@@ -138,12 +138,14 @@
 /* [ 30] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER	*/
 /* [ 31] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
 /* [ 32] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+
+/* [ 33] */	Button			120		490		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- place Euroform on Slab Bottom */
-'GDLG'  32512  Modal | grow	  0		  0		300		385		"슬래브 하부에 배치" {
-/* [  1] */	Button			 70		345		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		345		 70		 25		LargePlain		"Cancel"
+'GDLG'  32512  Modal | grow	  0		  0		300		435		"슬래브 하부에 배치" {
+/* [  1] */	Button			 70		395		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		395		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Euroform Settings"
 /* [  4] */	RightText		 50		 40		 70		 23		LargePlain		"Width"
@@ -178,12 +180,14 @@
 /* [ 20] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
 /* [ 21] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
 /* [ 22] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+
+/* [ 23] */	Button			120		350		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- place Euroform on Beam */
-'GDLG'  32513  Modal | grow	  0		  0		500		640		"보에 배치" {
-/* [  1] */	Button			170		590		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			270		590		 70		 25		LargePlain		"Cancel"
+'GDLG'  32513  Modal | grow	  0		  0		500		690		"보에 배치" {
+/* [  1] */	Button			170		640		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		640		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Beam Section"
 
@@ -262,12 +266,14 @@
 /* [ 45] */	UserControl		210		484		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
 /* [ 46] */	UserControl		210		514		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
 /* [ 47] */	UserControl		210		544		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
+
+/* [ 48] */	Button			210		595		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- place Euroform on Column */
-'GDLG'  32514  Modal | grow	  0		  0		500		550		"기둥에 배치" {
-/* [  1] */	Button			170		500		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			270		500		 70		 25		LargePlain		"Cancel"
+'GDLG'  32514  Modal | grow	  0		  0		500		600		"기둥에 배치" {
+/* [  1] */	Button			170		550		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		550		 70		 25		LargePlain		"Cancel"
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
 /* [  4] */	Icon    		140		 50		230		230  	32503
 
@@ -307,12 +313,14 @@
 /* [ 35] */	UserControl		210		384		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
 /* [ 36] */	UserControl		210		414		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER		*/
 /* [ 37] */	UserControl		210		444		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+
+/* [ 38] */	Button			210		495		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- place Euroform on Column */
-'GDLG'  32515  Modal | grow	  0		  0		500		630		"기둥에 배치" {
-/* [  1] */	Button			170		580		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			270		580		 70		 25		LargePlain		"Cancel"
+'GDLG'  32515  Modal | grow	  0		  0		500		680		"기둥에 배치" {
+/* [  1] */	Button			170		630		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		630		 70		 25		LargePlain		"Cancel"
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
 
 /* [  4] */	Icon    		115		 50		280		260  	32508
@@ -342,6 +350,8 @@
 /* [ 26] */	UserControl		210		464		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER			*/
 /* [ 27] */	UserControl		210		494		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER		*/
 /* [ 28] */	UserControl		210		524		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+
+/* [ 29] */	Button			210		575		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- Manual Palette */
@@ -407,9 +417,9 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Slab Bottom */
-'GDLG'  32518  Modal | grow	  0		  0		300		445		"슬래브 하부에 배치" {
-/* [  1] */	Button			 70		405		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		405		 70		 25		LargePlain		"Cancel"
+'GDLG'  32518  Modal | grow	  0		  0		300		495		"슬래브 하부에 배치" {
+/* [  1] */	Button			 70		455		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		455		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 10		 10		300		 23		LargePlain		"Tableform Settings"
 /* [  4] */	RightText		 50		 40		 70		 23		LargePlain		"Width"
@@ -438,6 +448,8 @@
 /* [ 24] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
 /* [ 25] */	UserControl		120		329		160		 25		257	0x0006 0x0000 0		/* Layer Control - C PROFILE	*/
 /* [ 26] */	UserControl		120		359		160		 25		257	0x0006 0x0000 0		/* Layer Control - FITTINGS		*/
+
+/* [ 27] */	Button			120		410		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- Library Converting - Temporary Construction Object */
@@ -575,9 +587,9 @@
 }
 
 /* ---------------------------------------------------------- place Euroform on Beam */
-'GDLG'  32522  Modal | grow	  0		  0		500		760		"보에 테이블폼 배치" {
-/* [  1] */	Button			170		710		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			270		710		 70		 25		LargePlain		"Cancel"
+'GDLG'  32522  Modal | grow	  0		  0		500		810		"보에 테이블폼 배치" {
+/* [  1] */	Button			170		760		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		760		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Beam Section"
 
@@ -666,6 +678,8 @@
 /* [ 53] */	UserControl		210		604		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE HANGER	*/
 /* [ 54] */	UserControl		210		634		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM HOOK	*/
 /* [ 55] */	UserControl		210		664		160		 25		257	0x0006 0x0000 0		/* Layer Control - TIMBER RAIL		*/
+
+/* [ 56] */	Button			210		715		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- place Insulation */
