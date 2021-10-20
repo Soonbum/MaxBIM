@@ -463,6 +463,7 @@ GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bCom
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = xPos;
 	element.object.pos.y = yPos;
 	element.object.level = zPos;
@@ -583,6 +584,7 @@ API_Guid	EasyObjectPlacement::placeObject (double posX, double posY, double posZ
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.xRatio = aParam;
 	elem.object.yRatio = bParam;
 	elem.object.pos.x = posX;
@@ -660,6 +662,7 @@ API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short nPa
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.xRatio = aParam;
 	elem.object.yRatio = bParam;
 	elem.object.pos.x = posX;
@@ -735,6 +738,7 @@ API_Guid	EasyObjectPlacement::placeObject (short nParams, ...)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.xRatio = aParam;
 	elem.object.yRatio = bParam;
 	elem.object.pos.x = this->posX;
@@ -818,6 +822,7 @@ API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short lay
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.xRatio = aParam;
 	elem.object.yRatio = bParam;
 	elem.object.pos.x = this->posX;

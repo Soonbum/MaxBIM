@@ -7287,6 +7287,7 @@ API_Guid	placeTableformOnSlabBottom (SlabTableform params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -7425,6 +7426,7 @@ API_Guid	placeEuroform (Euroform params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -7523,6 +7525,7 @@ API_Guid	placeSteelform (Euroform params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -7618,6 +7621,7 @@ API_Guid	placePlywood (Plywood params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -7711,6 +7715,7 @@ API_Guid	placeFillersp (FillerSpacer params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -7787,6 +7792,7 @@ API_Guid	placeOutcornerAngle (OutcornerAngle params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -7857,6 +7863,7 @@ API_Guid	placeOutcornerPanel (OutcornerPanel params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -7926,6 +7933,7 @@ API_Guid	placeIncornerPanel (IncornerPanel params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -7995,6 +8003,7 @@ API_Guid	placeProfile (KSProfile params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8069,6 +8078,7 @@ API_Guid	placeFittings (MetalFittingsWithRectWasher params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8145,6 +8155,7 @@ API_Guid	placeSqrPipe (SquarePipe params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8213,6 +8224,7 @@ API_Guid	placeSqrPipe_sideHole (SquarePipe params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8285,6 +8297,7 @@ API_Guid	placeSqrPipe_frontHole (SquarePipe params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8357,6 +8370,7 @@ API_Guid	placePinbolt (PinBoltSet params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8434,6 +8448,7 @@ API_Guid	placeWalltie (WallTie params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8517,6 +8532,7 @@ API_Guid	placeHeadpiece_ver (HeadpieceOfPushPullProps params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8586,6 +8602,7 @@ API_Guid	placeHeadpiece_hor (HeadpieceOfPushPullProps params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8656,6 +8673,7 @@ API_Guid	placeFittings (MetalFittings params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8723,6 +8741,7 @@ API_Guid	placeJointHeadpeace_ver (HeadpieceOfPushPullProps params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8790,6 +8809,7 @@ API_Guid	placeJointHeadpeace_hor (HeadpieceOfPushPullProps params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8857,6 +8877,7 @@ API_Guid	placeEuroformHook (EuroformHook params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8926,6 +8947,7 @@ API_Guid	placeRectpipeHanger (RectPipeHanger params)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = params.leftBottomX;
 	element.object.pos.y = params.leftBottomY;
 	element.object.level = params.leftBottomZ;
@@ -8994,6 +9016,7 @@ API_Guid	placeHole (API_Guid guid_Target, Cylinder operator_Object)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = operator_Object.leftBottomX;
 	element.object.pos.y = operator_Object.leftBottomY;
 	element.object.level = operator_Object.leftBottomZ;

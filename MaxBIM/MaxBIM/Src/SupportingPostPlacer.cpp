@@ -683,6 +683,7 @@ API_Guid	PERISupportingPostPlacementInfo::placeVPost (PERI_VPost params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -789,6 +790,7 @@ API_Guid	PERISupportingPostPlacementInfo::placeHPost (PERI_HPost params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -848,6 +850,7 @@ API_Guid	PERISupportingPostPlacementInfo::placeSupport (SuppPost params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -907,6 +910,7 @@ API_Guid	PERISupportingPostPlacementInfo::placeTimber (Wood params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -968,6 +972,7 @@ API_Guid	PERISupportingPostPlacementInfo::placeGT24Girder (GT24Girder params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -1029,6 +1034,7 @@ API_Guid	PERISupportingPostPlacementInfo::placeBeamBracket (BlueBeamBracket para
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -1087,6 +1093,7 @@ API_Guid	PERISupportingPostPlacementInfo::placeYoke (Yoke params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;

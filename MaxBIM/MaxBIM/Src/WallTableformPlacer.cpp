@@ -14315,6 +14315,7 @@ API_Guid	WallTableformPlacingZone::placeUFOM (Euroform params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -14388,6 +14389,7 @@ API_Guid	WallTableformPlacingZone::placeUFOM_up (Euroform params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -14478,6 +14480,7 @@ API_Guid	WallTableformPlacingZone::placeSPIP (SquarePipe params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -14535,6 +14538,7 @@ API_Guid	WallTableformPlacingZone::placeSPIP_sideHole (SquarePipe params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -14595,6 +14599,7 @@ API_Guid	WallTableformPlacingZone::placeSPIP_frontHole (SquarePipe params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -14655,6 +14660,7 @@ API_Guid	WallTableformPlacingZone::placePINB (PinBoltSet params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -14720,6 +14726,7 @@ API_Guid	WallTableformPlacingZone::placeTIE (WallTie params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -14791,6 +14798,7 @@ API_Guid	WallTableformPlacingZone::placeCLAM (CrossClamp params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -14847,6 +14855,7 @@ API_Guid	WallTableformPlacingZone::placePUSH_ver (HeadpieceOfPushPullProps param
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -14904,6 +14913,7 @@ API_Guid	WallTableformPlacingZone::placePUSH_hor (HeadpieceOfPushPullProps param
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -14962,6 +14972,7 @@ API_Guid	WallTableformPlacingZone::placeJOIN (MetalFittings params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -15018,6 +15029,7 @@ API_Guid	WallTableformPlacingZone::placePLYW (Plywood params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -15080,6 +15092,7 @@ API_Guid	WallTableformPlacingZone::placeTIMB (Wood params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -15144,6 +15157,7 @@ API_Guid	WallTableformPlacingZone::placeJOIN2 (MetalFittings params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -15199,6 +15213,7 @@ API_Guid	WallTableformPlacingZone::placePUSH2_ver (HeadpieceOfPushPullProps para
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -15254,6 +15269,7 @@ API_Guid	WallTableformPlacingZone::placePUSH2_hor (HeadpieceOfPushPullProps para
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -15309,6 +15325,7 @@ API_Guid	WallTableformPlacingZone::placeHOOK (EuroformHook params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -15366,6 +15383,7 @@ API_Guid	WallTableformPlacingZone::placeHANG (RectPipeHanger params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -15422,6 +15440,7 @@ API_Guid	WallTableformPlacingZone::placeHOLE (API_Guid guid_Target, Cylinder ope
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = operator_Object.leftBottomX;
 	elem.object.pos.y = operator_Object.leftBottomY;
 	elem.object.level = operator_Object.leftBottomZ;

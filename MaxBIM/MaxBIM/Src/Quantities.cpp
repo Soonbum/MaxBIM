@@ -265,6 +265,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 
 							// 라이브러리의 파라미터 값 입력 (공통)
 							elem.header.floorInd = qElemInfo.floorInd;
+							elem.object.reflected = false;
 							elem.object.libInd = libPart.index;
 							elem.object.xRatio = aParam;
 							elem.object.yRatio = bParam;
@@ -428,6 +429,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 
 							// 라이브러리의 파라미터 값 입력 (공통)
 							elem.header.floorInd = qElemInfo.floorInd;
+							elem.object.reflected = false;
 							elem.object.libInd = libPart.index;
 							elem.object.xRatio = aParam;
 							elem.object.yRatio = bParam;
@@ -792,6 +794,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 							// 라이브러리의 파라미터 값 입력 (공통)
 							elem.header.floorInd = insulElemInfo.floorInd;
 							elem.object.libInd = libPart.index;
+							elem.object.reflected = false;
 							elem.object.xRatio = aParam;
 							elem.object.yRatio = bParam;
 							elem.header.layer = insulElemInfo.layerInd;
@@ -1601,7 +1604,6 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 								if ((abs (p1.z - p2.z) < EPS) && (abs (p2.z - p3.z) < EPS)) {
 									// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 큼 (바닥면 부착)
 									if (abs (angle2 - angle1 - 90) < EPS) {
-										// ...
 										// 객체의 초기 위치 및 각도
 										elem.object.pos.x = p1.x;
 										elem.object.pos.y = p1.y;
@@ -1629,7 +1631,6 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 									}
 									// p2-p3 간의 각도가 p2-p1 간의 각도보다 90도 작음 (천장면 부착)
 									if (abs (angle1 - angle2 - 90) < EPS) {
-										// ...
 										// 객체의 초기 위치 및 각도
 										elem.object.pos.x = p1.x;
 										elem.object.pos.y = p1.y;
@@ -1660,7 +1661,6 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 								} else {
 									// p2와 p3의 x, y 좌표는 같음 (수직)
 									if ((abs (p2.x - p3.x) < EPS) && (abs (p2.y - p3.y) < EPS)) {
-										// ...
 										// 객체의 초기 위치 및 각도
 										elem.object.pos.x = p1.x;
 										elem.object.pos.y = p1.y;
@@ -1688,7 +1688,6 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 											
 									// p2와 p3의 x, y 좌표는 다름 (경사)
 									} else {
-										// ...
 										// 객체의 초기 위치 및 각도
 										elem.object.pos.x = p1.x;
 										elem.object.pos.y = p1.y;

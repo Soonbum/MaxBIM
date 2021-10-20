@@ -988,6 +988,7 @@ API_Guid	SlabPlacingZone::placeLibPart (CellForSlab objInfo)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = objInfo.leftBottomX;
 	element.object.pos.y = objInfo.leftBottomY;
 	element.object.level = objInfo.leftBottomZ;

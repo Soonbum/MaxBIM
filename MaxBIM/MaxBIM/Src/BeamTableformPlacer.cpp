@@ -1642,6 +1642,7 @@ API_Guid	BeamTableformPlacingZone::placeLibPart (CellForBeamTableform objInfo)
 
 	// 라이브러리의 파라미터 값 입력
 	element.object.libInd = libPart.index;
+	element.object.reflected = false;
 	element.object.pos.x = objInfo.leftBottomX;
 	element.object.pos.y = objInfo.leftBottomY;
 	element.object.level = objInfo.leftBottomZ;
@@ -1835,6 +1836,7 @@ API_Guid	BeamTableformPlacingZone::placeLibPart (EuroformHook params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -1892,6 +1894,7 @@ API_Guid	BeamTableformPlacingZone::placeLibPart (RectPipeHanger params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -1948,6 +1951,7 @@ API_Guid	BeamTableformPlacingZone::placeLibPart (SquarePipe params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
@@ -2004,6 +2008,7 @@ API_Guid	BeamTableformPlacingZone::placeLibPart (BlueTimberRail params)
 
 	// 라이브러리의 파라미터 값 입력
 	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
 	elem.object.pos.x = params.leftBottomX;
 	elem.object.pos.y = params.leftBottomY;
 	elem.object.level = params.leftBottomZ;
