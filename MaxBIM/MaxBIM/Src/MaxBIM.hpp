@@ -195,6 +195,7 @@ struct Plywood
 	bool			sogak;			// 제작틀 *On/Off
 	std::string		prof;			// 목재종류 : *소각, 중각, 대각
 	*/
+	bool	bInverseSogak;	// 목재조립방향 반전
 };
 
 // 목재 정보
@@ -508,7 +509,7 @@ struct PERI_HPost
 	double	customLength;		// 커스텀 길이
 };
 
-// 블루목심
+// 블루목심 (목재용)
 struct BlueTimberRail
 {
 	double	leftBottomX;		// 좌하단 좌표 X
@@ -520,6 +521,21 @@ struct BlueTimberRail
 	char	railType [16];		// 규격
 	double	angX;				// 회전 X
 	double	angY;				// 회전 Y
+};
+
+// 블루클램프 (합판용)
+struct BlueClamp
+{
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
+
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	char	type [64];			// 타입
+	double	angX;				// 회전 X
+	double	angY;				// 회전 Y
+	double	openingWidth;		// 열림 너비
 };
 
 // 서포트(강관 동바리)

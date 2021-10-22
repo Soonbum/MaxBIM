@@ -22,6 +22,8 @@ static short	layerInd_Join;				// 레이어 번호: 결합철물 (A,B,C타입, B,C타입에서�
 static short	layerInd_Plywood;			// 레이어 번호: 합판 (공통)
 static short	layerInd_Wood;				// 레이어 번호: 목재 (공통)
 static short	layerInd_EuroformHook;		// 레이어 번호: 유로폼 후크 (B타입)
+static short	layerInd_BlueClamp;			// 레이어 번호: 블루 클램프
+static short	layerInd_BlueTimberRail;	// 레이어 번호: 블루 목심
 static short	layerInd_Hidden;			// 레이어 번호: 숨김 (B,C타입, 비계파이프 타공을 위한 솔리드 빼기 연산용 객체)
 
 // 커스텀 전용
@@ -4210,7 +4212,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical_TypeC (CellFor
 GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTableform cell, UpperCellForWallTableform upperCell)
 {
 	GSErrCode	err = NoError;
-	short	xx;
+	short	xx, yy;
 	double	remainWidth = abs (placingZone.marginTop - upperCell.formWidth1 - upperCell.formWidth2);
 	double	width;
 	placementInfoForWallTableform	placementInfo;
@@ -4219,6 +4221,9 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 	Euroform	params_UFOM2 [4];
 	Plywood		params_PLYW [4];
 	Wood		params_TIMB [4];
+
+	BlueClamp		blueClamp;
+	BlueTimberRail	blueTimberRail;
 
 	placementInfo.nHorEuroform = 0;
 	placementInfo.nVerEuroform = 0;
@@ -4385,6 +4390,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 			params_PLYW [0].p_wid = remainWidth;
 			params_PLYW [0].p_leng = width;	//placementInfo.width [0];
 			params_PLYW [0].w_dir_wall = false;
+			params_PLYW [0].bInverseSogak = true;
 
 			params_TIMB [0].leftBottomX = cell.leftBottomX;
 			params_TIMB [0].leftBottomY = cell.leftBottomY;
@@ -4426,6 +4432,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 			params_PLYW [1].p_wid = remainWidth;
 			params_PLYW [1].p_leng = width;	//placementInfo.width [1];
 			params_PLYW [1].w_dir_wall = false;
+			params_PLYW [1].bInverseSogak = true;
 			moveIn3D ('x', params_PLYW [1].ang, placementInfo.width [0], &params_PLYW [1].leftBottomX, &params_PLYW [1].leftBottomY, &params_PLYW [1].leftBottomZ);
 
 			params_TIMB [1].leftBottomX = params_TIMB [0].leftBottomX;
@@ -4469,6 +4476,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 			params_PLYW [2].p_wid = remainWidth;
 			params_PLYW [2].p_leng = width;	//placementInfo.width [2];
 			params_PLYW [2].w_dir_wall = false;
+			params_PLYW [2].bInverseSogak = true;
 			moveIn3D ('x', params_PLYW [2].ang, placementInfo.width [1], &params_PLYW [2].leftBottomX, &params_PLYW [2].leftBottomY, &params_PLYW [2].leftBottomZ);
 
 			params_TIMB [2].leftBottomX = params_TIMB [1].leftBottomX;
@@ -4512,6 +4520,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 			params_PLYW [3].p_wid = remainWidth;
 			params_PLYW [3].p_leng = width;	//placementInfo.width [3];
 			params_PLYW [3].w_dir_wall = false;
+			params_PLYW [3].bInverseSogak = true;
 			moveIn3D ('x', params_PLYW [3].ang, placementInfo.width [2], &params_PLYW [3].leftBottomX, &params_PLYW [3].leftBottomY, &params_PLYW [3].leftBottomZ);
 
 			params_TIMB [3].leftBottomX = params_TIMB [2].leftBottomX;
@@ -4535,8 +4544,61 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 
 			// 합판의 경우
 			if (remainWidth > 0.110 - EPS) {
-				if (xx == 0)
+				if (xx == 0) {
 					elemList.Push (placePLYW (params_PLYW [xx]));
+
+					blueClamp.leftBottomX = cell.leftBottomX;
+					blueClamp.leftBottomY = cell.leftBottomY;
+					blueClamp.leftBottomZ = cell.leftBottomZ + cell.verLen;
+					blueClamp.ang = upperCell.ang + DegreeToRad (270.0);
+					blueClamp.angX = DegreeToRad (0.0);
+					blueClamp.angY = DegreeToRad (90.0);
+					strcpy (blueClamp.type, "유로목재클램프(제작품v1)");
+					blueClamp.openingWidth = 0.048;
+
+					moveIn3D ('y', blueClamp.ang - DegreeToRad (270.0), -0.0659, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					moveIn3D ('z', blueClamp.ang - DegreeToRad (270.0), 0.040, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					for (yy = 0 ; yy < 4 ; ++yy) {
+						if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.200, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.100, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.300) < EPS) {
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.200) < EPS) {
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.050, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.100, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							elemList.Push (placeBLUE_CLAMP (blueClamp));
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.050, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						} else {
+							// 비규격 폼의 경우 설치하지 않음
+							moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), placementInfo.width [yy], &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						}
+					}
+				}
 
 			// 목재의 경우
 			} else if (remainWidth + EPS > 0) {
@@ -4557,17 +4619,119 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 						params_TIMB [xx].w_h = 0.040;
 						elemList.Push (placeTIMB (params_TIMB [xx]));
 
+						blueTimberRail.leftBottomX = cell.leftBottomX;
+						blueTimberRail.leftBottomY = cell.leftBottomY;
+						blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+						blueTimberRail.ang = upperCell.ang;
+						blueTimberRail.angX = DegreeToRad (0.0);
+						blueTimberRail.angY = DegreeToRad (0.0);
+						strcpy (blueTimberRail.railType, "블루목심 1");
+
+						moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						moveIn3D ('y', blueTimberRail.ang, -0.053, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						for (yy = 0 ; yy < 4 ; ++yy) {
+							if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.350, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.250, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else {
+								// 200, 300 너비 또는 비규격 폼의 경우 설치하지 않음
+								moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							}
+						}
+
 					// 상단 여백이 50mm 이상 70mm 이하이면, 여백에 투바이(80*50) 배치
 					} else if ((remainWidth >= 0.050 - EPS) && (remainWidth <= 0.070 + EPS)) {
 						params_TIMB [xx].w_w = 0.080;
 						params_TIMB [xx].w_h = 0.050;
 						elemList.Push (placeTIMB (params_TIMB [xx]));
 
+						blueTimberRail.leftBottomX = cell.leftBottomX;
+						blueTimberRail.leftBottomY = cell.leftBottomY;
+						blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+						blueTimberRail.ang = upperCell.ang;
+						blueTimberRail.angX = DegreeToRad (0.0);
+						blueTimberRail.angY = DegreeToRad (0.0);
+						strcpy (blueTimberRail.railType, "블루목심 3");
+
+						moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						moveIn3D ('y', blueTimberRail.ang, -0.0525, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						for (yy = 0 ; yy < 4 ; ++yy) {
+							if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.350, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.250, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else {
+								// 200, 300 너비 또는 비규격 폼의 경우 설치하지 않음
+								moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							}
+						}
+
 					// 상단 여백이 80mm 이상이면, 여백에 투바이(50*80) 배치
 					} else if (remainWidth >= 0.080 - EPS) {
 						params_TIMB [xx].w_w = 0.050;
 						params_TIMB [xx].w_h = 0.080;
 						elemList.Push (placeTIMB (params_TIMB [xx]));
+
+						blueTimberRail.leftBottomX = cell.leftBottomX;
+						blueTimberRail.leftBottomY = cell.leftBottomY;
+						blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+						blueTimberRail.ang = upperCell.ang;
+						blueTimberRail.angX = DegreeToRad (0.0);
+						blueTimberRail.angY = DegreeToRad (0.0);
+						strcpy (blueTimberRail.railType, "블루목심 1");
+
+						moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						moveIn3D ('y', blueTimberRail.ang, -0.053, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						for (yy = 0 ; yy < 4 ; ++yy) {
+							if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.350, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+								moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								elemList.Push (placeBLUE_RAIL (blueTimberRail));
+								moveIn3D ('x', blueTimberRail.ang, 0.250, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							} else {
+								// 200, 300 너비 또는 비규격 폼의 경우 설치하지 않음
+								moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							}
+						}
 					}
 				}
 			}
@@ -4688,8 +4852,66 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 
 				// 합판의 경우
 				if (remainWidth > 0.110 - EPS) {
-					if (xx == (placementInfo.nHorEuroform - 1))
+					if (xx == (placementInfo.nHorEuroform - 1)) {
 						elemList.Push (placePLYW (params_PLYW [xx]));
+
+						blueClamp.leftBottomX = cell.leftBottomX;
+						blueClamp.leftBottomY = cell.leftBottomY;
+						blueClamp.leftBottomZ = cell.leftBottomZ + cell.verLen;
+						blueClamp.ang = upperCell.ang + DegreeToRad (270.0);
+						blueClamp.angX = DegreeToRad (0.0);
+						blueClamp.angY = DegreeToRad (90.0);
+						strcpy (blueClamp.type, "유로목재클램프(제작품v1)");
+						blueClamp.openingWidth = 0.048;
+
+						// 반대면으로 이동
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), cell.horLen, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						moveIn3D ('y', blueClamp.ang - DegreeToRad (270.0), infoWall.wallThk, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						blueClamp.ang += DegreeToRad (180.0);
+
+						moveIn3D ('y', blueClamp.ang - DegreeToRad (270.0), -0.0659, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						moveIn3D ('z', blueClamp.ang - DegreeToRad (270.0), 0.040, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						for (yy = 3 ; yy >= 0 ; --yy) {
+							if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.200, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.100, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.300) < EPS) {
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							} else if (abs (placementInfo.width [yy] - 0.200) < EPS) {
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.050, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.100, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+								elemList.Push (placeBLUE_CLAMP (blueClamp));
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.050, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							} else {
+								// 비규격 폼의 경우 설치하지 않음
+								moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), placementInfo.width [yy], &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+							}
+						}
+					}
 
 				// 목재의 경우
 				} else if (remainWidth + EPS > 0) {
@@ -4710,17 +4932,134 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Vertical (CellForWallTa
 							params_TIMB [xx].w_h = 0.040;
 							elemList.Push (placeTIMB (params_TIMB [xx]));
 
+							blueTimberRail.leftBottomX = cell.leftBottomX;
+							blueTimberRail.leftBottomY = cell.leftBottomY;
+							blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+							blueTimberRail.ang = upperCell.ang;
+							blueTimberRail.angX = DegreeToRad (0.0);
+							blueTimberRail.angY = DegreeToRad (0.0);
+							strcpy (blueTimberRail.railType, "블루목심 1");
+
+							// 반대면으로 이동
+							moveIn3D ('x', blueTimberRail.ang, cell.horLen, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							moveIn3D ('y', blueTimberRail.ang, infoWall.wallThk, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							blueTimberRail.ang += DegreeToRad (180.0);
+
+							moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							moveIn3D ('y', blueTimberRail.ang, -0.053, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							for (yy = 3 ; yy >= 0 ; --yy) {
+								if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.350, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.250, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else {
+									// 200, 300 너비 또는 비규격 폼의 경우 설치하지 않음
+									moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								}
+							}
+
 						// 상단 여백이 50mm 이상 70mm 이하이면, 여백에 투바이(80*50) 배치
 						} else if ((remainWidth >= 0.050 - EPS) && (remainWidth <= 0.070 + EPS)) {
 							params_TIMB [xx].w_w = 0.080;
 							params_TIMB [xx].w_h = 0.050;
 							elemList.Push (placeTIMB (params_TIMB [xx]));
 
+							blueTimberRail.leftBottomX = cell.leftBottomX;
+							blueTimberRail.leftBottomY = cell.leftBottomY;
+							blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+							blueTimberRail.ang = upperCell.ang;
+							blueTimberRail.angX = DegreeToRad (0.0);
+							blueTimberRail.angY = DegreeToRad (0.0);
+							strcpy (blueTimberRail.railType, "블루목심 3");
+
+							// 반대면으로 이동
+							moveIn3D ('x', blueTimberRail.ang, cell.horLen, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							moveIn3D ('y', blueTimberRail.ang, infoWall.wallThk, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							blueTimberRail.ang += DegreeToRad (180.0);
+
+							moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							moveIn3D ('y', blueTimberRail.ang, -0.0525, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							for (yy = 3 ; yy >= 0 ; --yy) {
+								if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.350, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.250, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else {
+									// 200, 300 너비 또는 비규격 폼의 경우 설치하지 않음
+									moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								}
+							}
+
 						// 상단 여백이 80mm 이상이면, 여백에 투바이(50*80) 배치
 						} else if (remainWidth >= 0.080 - EPS) {
 							params_TIMB [xx].w_w = 0.050;
 							params_TIMB [xx].w_h = 0.080;
 							elemList.Push (placeTIMB (params_TIMB [xx]));
+
+							blueTimberRail.leftBottomX = cell.leftBottomX;
+							blueTimberRail.leftBottomY = cell.leftBottomY;
+							blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+							blueTimberRail.ang = upperCell.ang;
+							blueTimberRail.angX = DegreeToRad (0.0);
+							blueTimberRail.angY = DegreeToRad (0.0);
+							strcpy (blueTimberRail.railType, "블루목심 1");
+
+							// 반대면으로 이동
+							moveIn3D ('x', blueTimberRail.ang, cell.horLen, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							moveIn3D ('y', blueTimberRail.ang, infoWall.wallThk, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							blueTimberRail.ang += DegreeToRad (180.0);
+
+							moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							moveIn3D ('y', blueTimberRail.ang, -0.053, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							for (yy = 3 ; yy >= 0 ; --yy) {
+								if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else if (abs (placementInfo.width [yy] - 0.500) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.350, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else if (abs (placementInfo.width [yy] - 0.450) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else if (abs (placementInfo.width [yy] - 0.400) < EPS) {
+									moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+									elemList.Push (placeBLUE_RAIL (blueTimberRail));
+									moveIn3D ('x', blueTimberRail.ang, 0.250, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								} else {
+									// 200, 300 너비 또는 비규격 폼의 경우 설치하지 않음
+									moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+								}
+							}
 						}
 					}
 				}
@@ -9472,7 +9811,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeC ()
 GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWallTableform cell, UpperCellForWallTableform upperCell)
 {
 	GSErrCode	err = NoError;
-	short	xx;
+	short	xx, yy;
 	double	remainWidth = abs (placingZone.marginTop - upperCell.formWidth1 - upperCell.formWidth2);
 	double	width;
 	double	remainObjLen;
@@ -9482,6 +9821,9 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 	Euroform	params_UFOM2 [5];
 	Plywood		params_PLYW [5];
 	Wood		params_TIMB [5];
+
+	BlueClamp		blueClamp;
+	BlueTimberRail	blueTimberRail;
 
 	placementInfo.nHorEuroform = 0;
 	placementInfo.nVerEuroform = 0;
@@ -9648,6 +9990,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 			params_PLYW [0].p_wid = remainWidth;
 			params_PLYW [0].p_leng = width;	//placementInfo.width [0];
 			params_PLYW [0].w_dir_wall = false;
+			params_PLYW [0].bInverseSogak = true;
 
 			params_TIMB [0].leftBottomX = cell.leftBottomX;
 			params_TIMB [0].leftBottomY = cell.leftBottomY;
@@ -9689,6 +10032,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 			params_PLYW [1].p_wid = remainWidth;
 			params_PLYW [1].p_leng = width;	//placementInfo.width [1];
 			params_PLYW [1].w_dir_wall = false;
+			params_PLYW [1].bInverseSogak = true;
 			moveIn3D ('x', params_PLYW [1].ang, placementInfo.width [0], &params_PLYW [1].leftBottomX, &params_PLYW [1].leftBottomY, &params_PLYW [1].leftBottomZ);
 
 			params_TIMB [1].leftBottomX = params_TIMB [0].leftBottomX;
@@ -9732,6 +10076,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 			params_PLYW [2].p_wid = remainWidth;
 			params_PLYW [2].p_leng = width;	//placementInfo.width [2];
 			params_PLYW [2].w_dir_wall = false;
+			params_PLYW [2].bInverseSogak = true;
 			moveIn3D ('x', params_PLYW [2].ang, placementInfo.width [1], &params_PLYW [2].leftBottomX, &params_PLYW [2].leftBottomY, &params_PLYW [2].leftBottomZ);
 
 			params_TIMB [2].leftBottomX = params_TIMB [1].leftBottomX;
@@ -9775,6 +10120,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 			params_PLYW [3].p_wid = remainWidth;
 			params_PLYW [3].p_leng = width;	//placementInfo.width [3];
 			params_PLYW [3].w_dir_wall = false;
+			params_PLYW [3].bInverseSogak = true;
 			moveIn3D ('x', params_PLYW [3].ang, placementInfo.width [2], &params_PLYW [3].leftBottomX, &params_PLYW [3].leftBottomY, &params_PLYW [3].leftBottomZ);
 
 			params_TIMB [3].leftBottomX = params_TIMB [2].leftBottomX;
@@ -9818,6 +10164,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 			params_PLYW [4].p_wid = remainWidth;
 			params_PLYW [4].p_leng = width;	//placementInfo.width [4];
 			params_PLYW [4].w_dir_wall = false;
+			params_PLYW [4].bInverseSogak = true;
 			moveIn3D ('x', params_PLYW [4].ang, placementInfo.width [4], &params_PLYW [4].leftBottomX, &params_PLYW [4].leftBottomY, &params_PLYW [4].leftBottomZ);
 
 			params_TIMB [4].leftBottomX = params_TIMB [3].leftBottomX;
@@ -9856,6 +10203,53 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 				}
 			}
 
+			blueClamp.leftBottomX = cell.leftBottomX;
+			blueClamp.leftBottomY = cell.leftBottomY;
+			blueClamp.leftBottomZ = cell.leftBottomZ + cell.verLen;
+			blueClamp.ang = upperCell.ang + DegreeToRad (270.0);
+			blueClamp.angX = DegreeToRad (0.0);
+			blueClamp.angY = DegreeToRad (90.0);
+			strcpy (blueClamp.type, "유로목재클램프(제작품v1)");
+			blueClamp.openingWidth = 0.048;
+
+			// 반대면으로 이동
+			moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), cell.horLen, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+			moveIn3D ('y', blueClamp.ang - DegreeToRad (270.0), infoWall.wallThk, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+			blueClamp.ang += DegreeToRad (180.0);
+
+			moveIn3D ('y', blueClamp.ang - DegreeToRad (270.0), -0.0659, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+			moveIn3D ('z', blueClamp.ang - DegreeToRad (270.0), 0.040, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+			for (yy = 0 ; yy < 5 ; ++yy) {
+				if (abs (placementInfo.width [yy] - 1.200) < EPS) {
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					elemList.Push (placeBLUE_CLAMP (blueClamp));
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					elemList.Push (placeBLUE_CLAMP (blueClamp));
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					elemList.Push (placeBLUE_CLAMP (blueClamp));
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					elemList.Push (placeBLUE_CLAMP (blueClamp));
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+				} else if (abs (placementInfo.width [yy] - 0.900) < EPS) {
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					elemList.Push (placeBLUE_CLAMP (blueClamp));
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					elemList.Push (placeBLUE_CLAMP (blueClamp));
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					elemList.Push (placeBLUE_CLAMP (blueClamp));
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+				} else if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					elemList.Push (placeBLUE_CLAMP (blueClamp));
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					elemList.Push (placeBLUE_CLAMP (blueClamp));
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+				} else {
+					// 비규격 폼의 경우 설치하지 않음
+					moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), placementInfo.width [yy], &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+				}
+			}
+
 		// 목재의 경우
 		} else if (remainWidth > EPS) {
 			// 상단 여백이 10mm 이상 20mm 이하이면, 유로폼 상단 앞쪽에 투바이(50*80) 부착 (여백에 배치하지 않음)
@@ -9870,15 +10264,111 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 				params_TIMB [0].w_w = 0.050;
 				params_TIMB [0].w_h = 0.040;
 
+				blueTimberRail.leftBottomX = cell.leftBottomX;
+				blueTimberRail.leftBottomY = cell.leftBottomY;
+				blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+				blueTimberRail.ang = upperCell.ang;
+				blueTimberRail.angX = DegreeToRad (0.0);
+				blueTimberRail.angY = DegreeToRad (0.0);
+				strcpy (blueTimberRail.railType, "블루목심 1");
+
+				moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+				moveIn3D ('y', blueTimberRail.ang, -0.053, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+				moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+				for (yy = 0 ; yy < 5 ; ++yy) {
+					if (abs (placementInfo.width [yy] - 1.200) < EPS) {
+						moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.750, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.900) < EPS) {
+						moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.600, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+						moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					} else {
+						// 비규격 폼의 경우 설치하지 않음
+						moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					}
+				}
+
 			// 상단 여백이 50mm 이상 70mm 이하이면, 여백에 투바이(80*50) 배치
 			} else if ((remainWidth >= 0.050 - EPS) && (remainWidth <= 0.070 + EPS)) {
 				params_TIMB [0].w_w = 0.080;
 				params_TIMB [0].w_h = 0.050;
 
+				blueTimberRail.leftBottomX = cell.leftBottomX;
+				blueTimberRail.leftBottomY = cell.leftBottomY;
+				blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+				blueTimberRail.ang = upperCell.ang;
+				blueTimberRail.angX = DegreeToRad (0.0);
+				blueTimberRail.angY = DegreeToRad (0.0);
+				strcpy (blueTimberRail.railType, "블루목심 3");
+
+				moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+				moveIn3D ('y', blueTimberRail.ang, -0.0525, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+				moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+				for (yy = 0 ; yy < 5 ; ++yy) {
+					if (abs (placementInfo.width [yy] - 1.200) < EPS) {
+						moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.750, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.900) < EPS) {
+						moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.600, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+						moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					} else {
+						// 비규격 폼의 경우 설치하지 않음
+						moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					}
+				}
+
 			// 상단 여백이 80mm 이상이면, 여백에 투바이(50*80) 배치
 			} else if (remainWidth >= 0.080 - EPS) {
 				params_TIMB [0].w_w = 0.050;
 				params_TIMB [0].w_h = 0.080;
+
+				blueTimberRail.leftBottomX = cell.leftBottomX;
+				blueTimberRail.leftBottomY = cell.leftBottomY;
+				blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+				blueTimberRail.ang = upperCell.ang;
+				blueTimberRail.angX = DegreeToRad (0.0);
+				blueTimberRail.angY = DegreeToRad (0.0);
+				strcpy (blueTimberRail.railType, "블루목심 1");
+
+				moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+				moveIn3D ('y', blueTimberRail.ang, -0.053, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+				moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+				for (yy = 0 ; yy < 5 ; ++yy) {
+					if (abs (placementInfo.width [yy] - 1.200) < EPS) {
+						moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.750, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.900) < EPS) {
+						moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.600, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+						moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						elemList.Push (placeBLUE_RAIL (blueTimberRail));
+						moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					} else {
+						// 비규격 폼의 경우 설치하지 않음
+						moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					}
+				}
 			}
 
 			remainObjLen = params_TIMB [0].w_leng;
@@ -9996,6 +10486,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 				params_PLYW [0].p_wid = remainWidth;
 				params_PLYW [0].p_leng = width;
 				params_PLYW [0].w_dir_wall = false;
+				params_PLYW [0].bInverseSogak = true;
 
 				moveIn3D ('y', cell.ang, infoWall.wallThk, &params_PLYW [0].leftBottomX, &params_PLYW [0].leftBottomY, &params_PLYW [0].leftBottomZ);
 				params_PLYW [0].ang += DegreeToRad (180.0);
@@ -10012,6 +10503,48 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 						remainObjLen = 0;
 						moveIn3D ('x', params_PLYW [0].ang, -params_PLYW [0].p_leng, &params_PLYW [0].leftBottomX, &params_PLYW [0].leftBottomY, &params_PLYW [0].leftBottomZ);
 						elemList.Push (placePLYW (params_PLYW [0]));
+					}
+				}
+
+				blueClamp.leftBottomX = cell.leftBottomX;
+				blueClamp.leftBottomY = cell.leftBottomY;
+				blueClamp.leftBottomZ = cell.leftBottomZ + cell.verLen;
+				blueClamp.ang = upperCell.ang + DegreeToRad (270.0);
+				blueClamp.angX = DegreeToRad (0.0);
+				blueClamp.angY = DegreeToRad (90.0);
+				strcpy (blueClamp.type, "유로목재클램프(제작품v1)");
+				blueClamp.openingWidth = 0.048;
+
+				moveIn3D ('y', blueClamp.ang - DegreeToRad (270.0), -0.0659, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+				moveIn3D ('z', blueClamp.ang - DegreeToRad (270.0), 0.040, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+				for (yy = 5 ; yy >= 0 ; --yy) {
+					if (abs (placementInfo.width [yy] - 1.200) < EPS) {
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						elemList.Push (placeBLUE_CLAMP (blueClamp));
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						elemList.Push (placeBLUE_CLAMP (blueClamp));
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						elemList.Push (placeBLUE_CLAMP (blueClamp));
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						elemList.Push (placeBLUE_CLAMP (blueClamp));
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.900) < EPS) {
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						elemList.Push (placeBLUE_CLAMP (blueClamp));
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						elemList.Push (placeBLUE_CLAMP (blueClamp));
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						elemList.Push (placeBLUE_CLAMP (blueClamp));
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					} else if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						elemList.Push (placeBLUE_CLAMP (blueClamp));
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.300, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+						elemList.Push (placeBLUE_CLAMP (blueClamp));
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), 0.150, &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
+					} else {
+						// 비규격 폼의 경우 설치하지 않음
+						moveIn3D ('x', blueClamp.ang - DegreeToRad (270.0), placementInfo.width [yy], &blueClamp.leftBottomX, &blueClamp.leftBottomY, &blueClamp.leftBottomZ);
 					}
 				}
 
@@ -10041,15 +10574,126 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Horizontal (CellForWall
 					params_TIMB [0].w_w = 0.050;
 					params_TIMB [0].w_h = 0.040;
 
+					blueTimberRail.leftBottomX = cell.leftBottomX;
+					blueTimberRail.leftBottomY = cell.leftBottomY;
+					blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+					blueTimberRail.ang = upperCell.ang;
+					blueTimberRail.angX = DegreeToRad (0.0);
+					blueTimberRail.angY = DegreeToRad (0.0);
+					strcpy (blueTimberRail.railType, "블루목심 1");
+
+					// 반대면으로 이동
+					moveIn3D ('x', blueTimberRail.ang, cell.horLen, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					moveIn3D ('y', blueTimberRail.ang, infoWall.wallThk, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					blueTimberRail.ang += DegreeToRad (180.0);
+
+					moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					moveIn3D ('y', blueTimberRail.ang, -0.053, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					for (yy = 4 ; yy >= 0 ; --yy) {
+						if (abs (placementInfo.width [yy] - 1.200) < EPS) {
+							moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.750, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.900) < EPS) {
+							moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.600, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+							moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						} else {
+							// 비규격 폼의 경우 설치하지 않음
+							moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						}
+					}
+
 				// 상단 여백이 50mm 이상 70mm 이하이면, 여백에 투바이(80*50) 배치
 				} else if ((remainWidth >= 0.050 - EPS) && (remainWidth <= 0.070 + EPS)) {
 					params_TIMB [0].w_w = 0.080;
 					params_TIMB [0].w_h = 0.050;
 
+					blueTimberRail.leftBottomX = cell.leftBottomX;
+					blueTimberRail.leftBottomY = cell.leftBottomY;
+					blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+					blueTimberRail.ang = upperCell.ang;
+					blueTimberRail.angX = DegreeToRad (0.0);
+					blueTimberRail.angY = DegreeToRad (0.0);
+					strcpy (blueTimberRail.railType, "블루목심 3");
+
+					// 반대면으로 이동
+					moveIn3D ('x', blueTimberRail.ang, cell.horLen, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					moveIn3D ('y', blueTimberRail.ang, infoWall.wallThk, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					blueTimberRail.ang += DegreeToRad (180.0);
+
+					moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					moveIn3D ('y', blueTimberRail.ang, -0.0525, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					for (yy = 4 ; yy >= 0 ; --yy) {
+						if (abs (placementInfo.width [yy] - 1.200) < EPS) {
+							moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.750, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.900) < EPS) {
+							moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.600, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+							moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						} else {
+							// 비규격 폼의 경우 설치하지 않음
+							moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						}
+					}
+
 				// 상단 여백이 80mm 이상이면, 여백에 투바이(50*80) 배치
 				} else if (remainWidth >= 0.080 - EPS) {
 					params_TIMB [0].w_w = 0.050;
 					params_TIMB [0].w_h = 0.080;
+
+					blueTimberRail.leftBottomX = cell.leftBottomX;
+					blueTimberRail.leftBottomY = cell.leftBottomY;
+					blueTimberRail.leftBottomZ = cell.leftBottomZ + cell.verLen;
+					blueTimberRail.ang = upperCell.ang;
+					blueTimberRail.angX = DegreeToRad (0.0);
+					blueTimberRail.angY = DegreeToRad (0.0);
+					strcpy (blueTimberRail.railType, "블루목심 1");
+
+					// 반대면으로 이동
+					moveIn3D ('x', blueTimberRail.ang, cell.horLen, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					moveIn3D ('y', blueTimberRail.ang, infoWall.wallThk, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					blueTimberRail.ang += DegreeToRad (180.0);
+
+					moveIn3D ('x', blueTimberRail.ang, -0.023, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					moveIn3D ('y', blueTimberRail.ang, -0.053, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					moveIn3D ('z', blueTimberRail.ang, -0.003, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+					for (yy = 4 ; yy >= 0 ; --yy) {
+						if (abs (placementInfo.width [yy] - 1.200) < EPS) {
+							moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.750, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.900) < EPS) {
+							moveIn3D ('x', blueTimberRail.ang, 0.300, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.600, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						} else if (abs (placementInfo.width [yy] - 0.600) < EPS) {
+							moveIn3D ('x', blueTimberRail.ang, 0.150, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+							elemList.Push (placeBLUE_RAIL (blueTimberRail));
+							moveIn3D ('x', blueTimberRail.ang, 0.450, &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						} else {
+							// 비규격 폼의 경우 설치하지 않음
+							moveIn3D ('x', blueTimberRail.ang, placementInfo.width [yy], &blueTimberRail.leftBottomX, &blueTimberRail.leftBottomY, &blueTimberRail.leftBottomZ);
+						}
+					}
 				}
 
 				remainObjLen = params_TIMB [0].w_leng;
@@ -10434,6 +11078,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
 			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
+			DGSetItemText (dialogID, LABEL_LAYER_BLUE_CLAMP, "블루 클램프");
+			DGSetItemText (dialogID, LABEL_LAYER_BLUE_TIMBER_RAIL, "블루 목심");
 			DGSetItemText (dialogID, LABEL_LAYER_HIDDEN, "숨김");
 
 			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
@@ -10478,6 +11124,14 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 			ucb.itemID	 = USERCONTROL_LAYER_WOOD;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_BLUE_CLAMP;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_BLUE_TIMBER_RAIL;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, 1);
 
 			ucb.itemID	 = USERCONTROL_LAYER_HIDDEN;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
@@ -10811,6 +11465,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							break;
 						case USERCONTROL_LAYER_RECTPIPE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
@@ -10821,6 +11477,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							break;
 						case USERCONTROL_LAYER_PINBOLT:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
@@ -10831,6 +11489,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							break;
 						case USERCONTROL_LAYER_WALLTIE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
@@ -10841,6 +11501,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 							break;
 						case USERCONTROL_LAYER_JOIN:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
@@ -10851,6 +11513,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							break;
 						case USERCONTROL_LAYER_HEADPIECE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
@@ -10861,6 +11525,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							break;
 						case USERCONTROL_LAYER_PLYWOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
@@ -10871,6 +11537,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							break;
 						case USERCONTROL_LAYER_WOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
@@ -10881,6 +11549,32 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							break;
+						case USERCONTROL_LAYER_BLUE_CLAMP:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							break;
+						case USERCONTROL_LAYER_BLUE_TIMBER_RAIL:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
 							break;
 					}
 				}
@@ -10900,82 +11594,122 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						case USERCONTROL_LAYER_EUROFORM:
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							break;
 						case USERCONTROL_LAYER_RECTPIPE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							break;
-						case USERCONTROL_LAYER_RECTPIPE_HANGER:
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						case USERCONTROL_LAYER_PINBOLT:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							break;
-						case USERCONTROL_LAYER_EUROFORM_HOOK:
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						case USERCONTROL_LAYER_WALLTIE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 							break;
 						case USERCONTROL_LAYER_JOIN:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							break;
 						case USERCONTROL_LAYER_HEADPIECE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							break;
 						case USERCONTROL_LAYER_PLYWOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							break;
 						case USERCONTROL_LAYER_WOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							break;
+						case USERCONTROL_LAYER_BLUE_CLAMP:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							break;
+						case USERCONTROL_LAYER_BLUE_TIMBER_RAIL:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
 							break;
 					}
 				}
@@ -11000,81 +11734,121 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							break;
 						case USERCONTROL_LAYER_RECTPIPE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							break;
 						case USERCONTROL_LAYER_PINBOLT:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							break;
-						case USERCONTROL_LAYER_EUROFORM_HOOK:
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						case USERCONTROL_LAYER_WALLTIE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 							break;
 						case USERCONTROL_LAYER_JOIN:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							break;
 						case USERCONTROL_LAYER_HEADPIECE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							break;
 						case USERCONTROL_LAYER_PLYWOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							break;
 						case USERCONTROL_LAYER_WOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							break;
+						case USERCONTROL_LAYER_BLUE_CLAMP:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							break;
+						case USERCONTROL_LAYER_BLUE_TIMBER_RAIL:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
 							break;
 					}
 				}
@@ -11147,6 +11921,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+						layerInd_BlueClamp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP);
+						layerInd_BlueTimberRail	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL);
 						layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
@@ -11162,6 +11938,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+						layerInd_BlueClamp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP);
+						layerInd_BlueTimberRail	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL);
 						layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 3) {
@@ -11176,6 +11954,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+						layerInd_BlueClamp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP);
+						layerInd_BlueTimberRail	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL);
 						layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 					}
 	
@@ -11194,6 +11974,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
 						layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 						layerInd_Wood		= makeTemporaryLayer (structuralObject_forTableformWall, "TIMB", NULL);
+						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformWall, "UFCL", NULL);
+						layerInd_BlueTimberRail	= makeTemporaryLayer (structuralObject_forTableformWall, "RAIL", NULL);
 
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
@@ -11202,6 +11984,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, layerInd_BlueTimberRail);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
 						layerInd_Euroform	= makeTemporaryLayer (structuralObject_forTableformWall, "UFOM", NULL);
@@ -11212,6 +11996,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
 						layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 						layerInd_Wood		= makeTemporaryLayer (structuralObject_forTableformWall, "TIMB", NULL);
+						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformWall, "UFCL", NULL);
+						layerInd_BlueTimberRail	= makeTemporaryLayer (structuralObject_forTableformWall, "RAIL", NULL);
 
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
@@ -11221,6 +12007,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, layerInd_BlueTimberRail);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 3) {
 						layerInd_Euroform	= makeTemporaryLayer (structuralObject_forTableformWall, "UFOM", NULL);
@@ -11230,6 +12018,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
 						layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 						layerInd_Wood		= makeTemporaryLayer (structuralObject_forTableformWall, "TIMB", NULL);
+						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformWall, "UFCL", NULL);
+						layerInd_BlueTimberRail	= makeTemporaryLayer (structuralObject_forTableformWall, "RAIL", NULL);
 
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
@@ -11238,6 +12028,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Vertical (short message, short dial
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, layerInd_BlueTimberRail);
 					}
 
 					break;
@@ -11918,6 +12710,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
 			DGSetItemText (dialogID, LABEL_LAYER_WOOD, "목재");
+			DGSetItemText (dialogID, LABEL_LAYER_BLUE_CLAMP, "블루 클램프");
+			DGSetItemText (dialogID, LABEL_LAYER_BLUE_TIMBER_RAIL, "블루 목심");
 			DGSetItemText (dialogID, LABEL_LAYER_HIDDEN, "숨김");
 
 			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
@@ -11962,6 +12756,14 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 			ucb.itemID	 = USERCONTROL_LAYER_WOOD;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_BLUE_CLAMP;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_BLUE_TIMBER_RAIL;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, 1);
 
 			ucb.itemID	 = USERCONTROL_LAYER_HIDDEN;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
@@ -12169,6 +12971,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							break;
 						case USERCONTROL_LAYER_RECTPIPE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
@@ -12179,6 +12983,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							break;
 						case USERCONTROL_LAYER_PINBOLT:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
@@ -12189,6 +12995,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							break;
 						case USERCONTROL_LAYER_WALLTIE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
@@ -12199,6 +13007,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 							break;
 						case USERCONTROL_LAYER_JOIN:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
@@ -12209,6 +13019,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							break;
 						case USERCONTROL_LAYER_HEADPIECE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
@@ -12219,6 +13031,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							break;
 						case USERCONTROL_LAYER_PLYWOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
@@ -12229,6 +13043,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							break;
 						case USERCONTROL_LAYER_WOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
@@ -12239,6 +13055,32 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							break;
+						case USERCONTROL_LAYER_BLUE_CLAMP:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							break;
+						case USERCONTROL_LAYER_BLUE_TIMBER_RAIL:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
 							break;
 					}
 				}
@@ -12258,82 +13100,122 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						case USERCONTROL_LAYER_EUROFORM:
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							break;
 						case USERCONTROL_LAYER_RECTPIPE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							break;
-						case USERCONTROL_LAYER_RECTPIPE_HANGER:
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						case USERCONTROL_LAYER_PINBOLT:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							break;
-						case USERCONTROL_LAYER_EUROFORM_HOOK:
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						case USERCONTROL_LAYER_WALLTIE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 							break;
 						case USERCONTROL_LAYER_JOIN:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							break;
 						case USERCONTROL_LAYER_HEADPIECE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							break;
 						case USERCONTROL_LAYER_PLYWOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							break;
 						case USERCONTROL_LAYER_WOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							break;
+						case USERCONTROL_LAYER_BLUE_CLAMP:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							break;
+						case USERCONTROL_LAYER_BLUE_TIMBER_RAIL:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
 							break;
 					}
 				}
@@ -12358,81 +13240,121 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 							break;
 						case USERCONTROL_LAYER_RECTPIPE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 							break;
 						case USERCONTROL_LAYER_PINBOLT:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 							break;
-						case USERCONTROL_LAYER_EUROFORM_HOOK:
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						case USERCONTROL_LAYER_WALLTIE:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 							break;
 						case USERCONTROL_LAYER_JOIN:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 							break;
 						case USERCONTROL_LAYER_HEADPIECE:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 							break;
 						case USERCONTROL_LAYER_PLYWOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 							break;
 						case USERCONTROL_LAYER_WOOD:
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
-							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
 							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD));
+							break;
+						case USERCONTROL_LAYER_BLUE_CLAMP:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP));
+							break;
+						case USERCONTROL_LAYER_BLUE_TIMBER_RAIL:
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
+							//DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL));
 							break;
 					}
 				}
@@ -12549,6 +13471,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+						layerInd_BlueClamp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP);
+						layerInd_BlueTimberRail	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL);
 						layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
@@ -12564,6 +13488,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+						layerInd_BlueClamp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP);
+						layerInd_BlueTimberRail	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL);
 						layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 3) {
@@ -12578,6 +13504,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 						layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 						layerInd_Wood			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WOOD);
+						layerInd_BlueClamp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP);
+						layerInd_BlueTimberRail	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL);
 						layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 					}
 	
@@ -12596,6 +13524,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
 						layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 						layerInd_Wood		= makeTemporaryLayer (structuralObject_forTableformWall, "TIMB", NULL);
+						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformWall, "UFCL", NULL);
+						layerInd_BlueTimberRail	= makeTemporaryLayer (structuralObject_forTableformWall, "RAIL", NULL);
 
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
@@ -12604,6 +13534,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, layerInd_BlueTimberRail);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 2) {
 						layerInd_Euroform	= makeTemporaryLayer (structuralObject_forTableformWall, "UFOM", NULL);
@@ -12614,6 +13546,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
 						layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 						layerInd_Wood		= makeTemporaryLayer (structuralObject_forTableformWall, "TIMB", NULL);
+						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformWall, "UFCL", NULL);
+						layerInd_BlueTimberRail	= makeTemporaryLayer (structuralObject_forTableformWall, "RAIL", NULL);
 
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
@@ -12623,6 +13557,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, layerInd_BlueTimberRail);
 
 					} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR) == 3) {
 						layerInd_Euroform	= makeTemporaryLayer (structuralObject_forTableformWall, "UFOM", NULL);
@@ -12632,6 +13568,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
 						layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 						layerInd_Wood		= makeTemporaryLayer (structuralObject_forTableformWall, "TIMB", NULL);
+						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformWall, "UFCL", NULL);
+						layerInd_BlueTimberRail	= makeTemporaryLayer (structuralObject_forTableformWall, "RAIL", NULL);
 
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
@@ -12640,6 +13578,8 @@ short DGCALLBACK wallTableformPlacerHandler2_Horizontal (short message, short di
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WOOD, layerInd_Wood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, layerInd_BlueTimberRail);
 					}
 
 					break;
@@ -15044,6 +15984,11 @@ API_Guid	WallTableformPlacingZone::placePLYW (Plywood params)
 	setParameterByName (&memo, "p_stan", "비규격");			// 규격
 	setParameterByName (&memo, "p_wid", params.p_wid);		// 가로
 	setParameterByName (&memo, "p_leng", params.p_leng);	// 세로
+	setParameterByName (&memo, "sogak", 1.0);				// 제작틀
+	if (params.bInverseSogak == true)						// 목재조립방향 반전
+		setParameterByName (&memo, "bInverseSogak", 1.0);
+	else
+		setParameterByName (&memo, "bInverseSogak", 0.0);
 		
 	// 설치방향
 	if (params.w_dir_wall == true)
@@ -15398,6 +16343,121 @@ API_Guid	WallTableformPlacingZone::placeHANG (RectPipeHanger params)
 	setParameterByName (&memo, "m_type", "각파이프행거");	// 품명
 	setParameterByName (&memo, "angX", params.angX);		// 회전X
 	setParameterByName (&memo, "angY", params.angY);		// 회전Y
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 배치: 블루 클램프
+API_Guid	WallTableformPlacingZone::placeBLUE_CLAMP (BlueClamp params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("블루클램프v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_BlueClamp;
+
+	setParameterByName (&memo, "type", params.type);					// 타입
+	setParameterByName (&memo, "angX", params.angX);					// 회전X
+	setParameterByName (&memo, "angY", params.angY);					// 회전Y
+	setParameterByName (&memo, "openingWidth", params.openingWidth);	// 열림 너비
+
+	// 객체 배치
+	ACAPI_Element_Create (&elem, &memo);
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	return	elem.header.guid;
+}
+
+// 배치: 블루 목심
+API_Guid	WallTableformPlacingZone::placeBLUE_RAIL (BlueTimberRail params)
+{
+	GSErrCode	err = NoError;
+	API_Element			elem;
+	API_ElementMemo		memo;
+	API_LibPart			libPart;
+
+	const GS::uchar_t*	gsmName = L("블루목심v1.0.gsm");
+	double				aParam;
+	double				bParam;
+	Int32				addParNum;
+
+	// 객체 로드
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	BNZeroMemory (&libPart, sizeof (libPart));
+	GS::ucscpy (libPart.file_UName, gsmName);
+	err = ACAPI_LibPart_Search (&libPart, false);
+	if (err != NoError)
+		return elem.header.guid;
+	if (libPart.location != NULL)
+		delete libPart.location;
+
+	ACAPI_LibPart_Get (&libPart);
+
+	elem.header.typeID = API_ObjectID;
+	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
+
+	ACAPI_Element_GetDefaults (&elem, &memo);
+	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
+
+	// 라이브러리의 파라미터 값 입력
+	elem.object.libInd = libPart.index;
+	elem.object.reflected = false;
+	elem.object.pos.x = params.leftBottomX;
+	elem.object.pos.y = params.leftBottomY;
+	elem.object.level = params.leftBottomZ;
+	elem.object.xRatio = aParam;
+	elem.object.yRatio = bParam;
+	elem.object.angle = params.ang;
+	elem.header.floorInd = infoWall.floorInd;
+
+	// 레이어
+	elem.header.layer = layerInd_BlueTimberRail;
+
+	setParameterByName (&memo, "railType", params.railType);	// 규격
+	setParameterByName (&memo, "angX", params.angX);			// 회전X
+	setParameterByName (&memo, "angY", params.angY);			// 회전Y
 
 	// 객체 배치
 	ACAPI_Element_Create (&elem, &memo);

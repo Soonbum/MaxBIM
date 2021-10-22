@@ -31,6 +31,8 @@ namespace wallTableformPlacerDG {
 		LABEL_LAYER_HEADPIECE,
 		LABEL_LAYER_PLYWOOD,
 		LABEL_LAYER_WOOD,
+		LABEL_LAYER_BLUE_CLAMP,
+		LABEL_LAYER_BLUE_TIMBER_RAIL,
 		LABEL_LAYER_HIDDEN,
 
 		USERCONTROL_LAYER_EUROFORM,
@@ -41,6 +43,8 @@ namespace wallTableformPlacerDG {
 		USERCONTROL_LAYER_HEADPIECE,
 		USERCONTROL_LAYER_PLYWOOD,
 		USERCONTROL_LAYER_WOOD,
+		USERCONTROL_LAYER_BLUE_CLAMP,
+		USERCONTROL_LAYER_BLUE_TIMBER_RAIL,
 		USERCONTROL_LAYER_HIDDEN,
 
 		BUTTON_AUTOSET
@@ -326,6 +330,8 @@ public:
 	API_Guid	placePUSH2_hor (HeadpieceOfPushPullProps params);	// 배치: 빔조인트용 Push-Pull Props (가로 방향: 타입 B)
 	API_Guid	placeHOOK (EuroformHook params);					// 배치: 유로폼 후크
 	API_Guid	placeHANG (RectPipeHanger params);					// 배치: 각파이프 행거
+	API_Guid	placeBLUE_CLAMP (BlueClamp params);					// 배치: 블루 클램프
+	API_Guid	placeBLUE_RAIL (BlueTimberRail params);				// 배치: 블루 목심
 	API_Guid	placeHOLE (API_Guid guid_Target, Cylinder operator_Object);		// 타공을 위한 기둥 객체를 배치하고 숨김, "원통 19" 객체를 이용함
 };
 

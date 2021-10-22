@@ -371,7 +371,7 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Wall */
-'GDLG'  32517  Modal | grow	  0		  0		350		700		"벽에 배치" {
+'GDLG'  32517  Modal | grow	  0		  0		350		750		"벽에 배치" {
 /* [  1] */	Button			 15		 15		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			 15		 50		 70		 25		LargePlain		"Cancel"
 /* [  3] */	Button			 15		 85		 70		 25		LargePlain		"Prev"
@@ -401,19 +401,23 @@
 /* [ 23] */	RightText		 10		505		100		 23		LargePlain		"Headpiece"
 /* [ 24] */	RightText		 10		535		100		 23		LargePlain		"Plywood"
 /* [ 25] */	RightText		 10		565		100		 23		LargePlain		"Wood"
-/* [ 26] */	RightText		 10		595		100		 23		LargePlain		"Hidden"
+/* [ 26] */	RightText		 10		595		100		 23		LargePlain		"Wood"
+/* [ 27] */	RightText		 10		625		100		 23		LargePlain		"Wood"
+/* [ 28] */	RightText		 10		655		100		 23		LargePlain		"Hidden"
 
-/* [ 27] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
-/* [ 28] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE	*/
-/* [ 29] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT		*/
-/* [ 30] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE		*/
-/* [ 31] */	UserControl		120		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN			*/
-/* [ 32] */	UserControl		120		499		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
-/* [ 33] */	UserControl		120		529		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
-/* [ 34] */	UserControl		120		559		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
-/* [ 35] */	UserControl		120		589		160		 25		257	0x0006 0x0000 0		/* Layer Control - HIDDEN		*/
+/* [ 29] */	UserControl		120		349		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM		*/
+/* [ 30] */	UserControl		120		379		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE	*/
+/* [ 31] */	UserControl		120		409		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT		*/
+/* [ 32] */	UserControl		120		439		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE		*/
+/* [ 33] */	UserControl		120		469		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN			*/
+/* [ 34] */	UserControl		120		499		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE	*/
+/* [ 35] */	UserControl		120		529		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
+/* [ 36] */	UserControl		120		559		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
+/* [ 37] */	UserControl		120		589		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE CLAMP	*/
+/* [ 38] */	UserControl		120		619		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE TIMBER RAIL	*/
+/* [ 39] */	UserControl		120		649		160		 25		257	0x0006 0x0000 0		/* Layer Control - HIDDEN		*/
 
-/* [ 36] */	Button			120		640		160		 25		LargePlain		"Autoset"
+/* [ 40] */	Button			120		700		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- place Tableform on Slab Bottom */
