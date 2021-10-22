@@ -303,12 +303,15 @@ public:
 	GSErrCode	placeTableformOnWall_Vertical_TypeA (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입A)
 	GSErrCode	placeTableformOnWall_Vertical_TypeB (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입B)
 	GSErrCode	placeTableformOnWall_Vertical_TypeC (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입C)
+	GSErrCode	placeTableformOnWall_Vertical_TypeD (CellForWallTableform cell);									// 테이블폼 배치하기 - 세로 방향 (타입D)
 	GSErrCode	placeTableformOnWall_Horizontal_TypeA (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입A)
 	GSErrCode	placeTableformOnWall_Horizontal_TypeB (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입B)
 	GSErrCode	placeTableformOnWall_Horizontal_TypeC (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입C)
+	GSErrCode	placeTableformOnWall_Horizontal_TypeD (CellForWallTableform cell);									// 테이블폼 배치하기 - 가로 방향 (타입D)
 	GSErrCode	placeTableformOnWall_Custom_TypeA ();																// 테이블폼 배치하기 - 커스텀 (타입A)
 	GSErrCode	placeTableformOnWall_Custom_TypeB ();																// 테이블폼 배치하기 - 커스텀 (타입B)
 	GSErrCode	placeTableformOnWall_Custom_TypeC ();																// 테이블폼 배치하기 - 커스텀 (타입C)
+	GSErrCode	placeTableformOnWall_Custom_TypeD ();																// 테이블폼 배치하기 - 커스텀 (타입D)
 	GSErrCode	placeTableformOnWall_Vertical (CellForWallTableform cell, UpperCellForWallTableform upperCell);		// 테이블폼 상단 배치하기 - 세로 방향
 	GSErrCode	placeTableformOnWall_Horizontal (CellForWallTableform cell, UpperCellForWallTableform upperCell);	// 테이블폼 상단 배치하기 - 가로 방향
 
@@ -321,13 +324,13 @@ public:
 	API_Guid	placeTIE  (WallTie params);							// 배치: 벽체 타이
 	API_Guid	placeCLAM (CrossClamp params);						// 배치: 직교 클램프
 	API_Guid	placePUSH_ver (HeadpieceOfPushPullProps params);	// 배치: 헤드피스 (세로 방향: 타입 A)
-	API_Guid	placePUSH_hor (HeadpieceOfPushPullProps params);	// 배치: 헤드피스 (가로 방향: 타입 B)
+	API_Guid	placePUSH_hor (HeadpieceOfPushPullProps params);	// 배치: 헤드피스 (가로 방향: 타입 B,C,D)
 	API_Guid	placeJOIN (MetalFittings params);					// 배치: 결합철물
 	API_Guid	placePLYW (Plywood params);							// 배치: 합판
 	API_Guid	placeTIMB (Wood params);							// 배치: 목재
 	API_Guid	placeJOIN2 (MetalFittings params);					// 배치: 사각파이프 연결철물
 	API_Guid	placePUSH2_ver (HeadpieceOfPushPullProps params);	// 배치: 빔조인트용 Push-Pull Props (세로 방향: 타입 A)
-	API_Guid	placePUSH2_hor (HeadpieceOfPushPullProps params);	// 배치: 빔조인트용 Push-Pull Props (가로 방향: 타입 B)
+	API_Guid	placePUSH2_hor (HeadpieceOfPushPullProps params);	// 배치: 빔조인트용 Push-Pull Props (가로 방향: 타입 B,C,D)
 	API_Guid	placeHOOK (EuroformHook params);					// 배치: 유로폼 후크
 	API_Guid	placeHANG (RectPipeHanger params);					// 배치: 각파이프 행거
 	API_Guid	placeBLUE_CLAMP (BlueClamp params);					// 배치: 블루 클램프
