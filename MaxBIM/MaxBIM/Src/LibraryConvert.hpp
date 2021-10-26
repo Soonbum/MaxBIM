@@ -55,6 +55,8 @@ GSErrCode	placeTableformOnWall_portrait_TypeB (WallTableform params);		// 테이블
 GSErrCode	placeTableformOnWall_landscape_TypeB (WallTableform params);	// 테이블폼(벽) 배치 (벽눕히기) 타입B
 GSErrCode	placeTableformOnWall_portrait_TypeC (WallTableform params);		// 테이블폼(벽) 배치 (벽세우기) 타입C
 GSErrCode	placeTableformOnWall_landscape_TypeC (WallTableform params);	// 테이블폼(벽) 배치 (벽눕히기) 타입C
+GSErrCode	placeTableformOnWall_portrait_TypeD (WallTableform params);		// 테이블폼(벽) 배치 (벽세우기) 타입D
+GSErrCode	placeTableformOnWall_landscape_TypeD (WallTableform params);	// 테이블폼(벽) 배치 (벽눕히기) 타입D
 API_Guid	placeTableformOnSlabBottom (SlabTableform params);		// 테이블폼(슬래브) 배치
 API_Guid	placeEuroform (Euroform params);						// 유로폼 배치
 API_Guid	placeSteelform (Euroform params);						// 스틸폼 배치
