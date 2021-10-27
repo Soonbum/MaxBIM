@@ -20,7 +20,7 @@
 	0  128  128
 }
 
-'GICN' 32503 "soleColumnSection" {
+'GICN' 32503 "soleColumnSection_OutcornerPanel" {
 	0  128  128
 }
 
@@ -86,6 +86,10 @@
 	0  128  128
 }
 'GICN' 32524 "Hole Rectangle" {
+	0  128  128
+}
+
+'GICN' 32525 "soleColumnSection_OutcornerAngle" {
 	0  128  128
 }
 
@@ -590,7 +594,7 @@
 /* [ 61] */	LengthEdit		600		120		 60		 25		LargePlain		"-20.0"	"20.0"
 }
 
-/* ---------------------------------------------------------- place Euroform on Beam */
+/* ---------------------------------------------------------- place Tableform on Beam */
 'GDLG'  32522  Modal | grow	  0		  0		500		810		"보에 테이블폼 배치" {
 /* [  1] */	Button			170		760		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			270		760		 70		 25		LargePlain		"Cancel"
@@ -698,4 +702,64 @@
 /* [  8] */	CenterText		120		105		 50		 20		LargePlain		"Ver. Length"
 /* [  9] */	LengthEdit		170		100		 70		 25		LargePlain		"0.001" "10"
 /* [ 10] */	Button			  0		125		249		 25		LargePlain		"Draw Insulation"
+}
+
+/* ---------------------------------------------------------- place Tableform on Column */
+'GDLG'  32524  Modal | grow	  0		  0		500		720		"기둥에 배치" {
+/* [  1] */	Button			170		670		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		670		 70		 25		LargePlain		"Cancel"
+/* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
+
+/* [  4] */	Icon    		140		 50		230		230  	32503			/* if use Outcorner Panel */
+/* [  5] */	Icon			140		 50		230		230  	32525			/* if use Outcorner Angle */
+
+/* [  6] */	PushRadio		 10		 50		 70		 40		LargePlain		101		"Outcorner Panel"
+/* [  7] */	PushRadio		 10		100		 70		 40		LargePlain		101		"Outcorner Angle"
+
+/* [  8] */	LengthEdit		170		 25		 30		 25		LargePlain		"0"	"0.5"	/* TOP Outcorner Panel Width */
+/* [  9] */	LengthEdit		215		 25		 30		 25		LargePlain		"0"	"0.6"	/* TOP Euroform Width */
+/* [ 10] */	LengthEdit		265		 25		 30		 25		LargePlain		"0"	"0.6"	/* TOP Euroform Width */
+/* [ 11] */	LengthEdit		310		 25		 30		 25		LargePlain		"0"	"0.5"	/* TOP Outcorner Panel Width */
+/* [ 12] */	LengthEdit		108		 85		 30		 25		LargePlain		"0"	"0.5"	/* LEFT Outcorner Panel Width */
+/* [ 13] */	LengthEdit		108		122		 30		 25		LargePlain		"0"	"0.6"	/* LEFT Euroform Width */
+/* [ 14] */	LengthEdit		108		170		 30		 25		LargePlain		"0"	"0.6"	/* LEFT Euroform Width */
+/* [ 15] */	LengthEdit		108		215		 30		 25		LargePlain		"0"	"0.5"	/* LEFT Outcorner Panel Width */
+/* [ 16] */	LengthEdit		372		 85		 30		 25		LargePlain		"0"	"0.5"	/* RIGHT Outcorner Panel Width */
+/* [ 17] */	LengthEdit		372		122		 30		 25		LargePlain		"0"	"0.6"	/* RIGHT Euroform Width */
+/* [ 18] */	LengthEdit		372		170		 30		 25		LargePlain		"0"	"0.6"	/* RIGHT Euroform Width */
+/* [ 19] */	LengthEdit		372		215		 30		 25		LargePlain		"0"	"0.5"	/* RIGHT Outcorner Panel Width */
+/* [ 20] */	LengthEdit		170		282		 30		 25		LargePlain		"0"	"0.5"	/* BOTTOM Outcorner Panel Width */
+/* [ 21] */	LengthEdit		215		282		 30		 25		LargePlain		"0"	"0.6"	/* BOTTOM Euroform Width */
+/* [ 22] */	LengthEdit		265		282		 30		 25		LargePlain		"0"	"0.6"	/* BOTTOM Euroform Width */
+/* [ 23] */	LengthEdit		310		282		 30		 25		LargePlain		"0"	"0.5"	/* BOTTOM Outcorner Panel Width */
+
+/* [ 24] */	CheckBox		250		 25		 15		 25		LargePlain		""			/* TOP Additional Euroform */
+/* [ 25] */	CheckBox		 93		170		 15		 25		LargePlain		""			/* LEFT Additional Euroform */
+/* [ 26] */	CheckBox		405		170		 15		 25		LargePlain		""			/* RIGHT Additional Euroform */
+/* [ 27] */	CheckBox		250		282		 15		 25		LargePlain		""			/* BOTTOM Additional Euroform */
+
+/* [ 28] */	LeftText		195		133		 50		 23		LargePlain		"Depth"
+/* [ 29] */	LeftText		240		190		 50		 23		LargePlain		"Width"
+/* [ 30] */	LengthEdit		230		212		 40		 25		LargePlain		"0"	"5"		/* Column Width */
+/* [ 31] */	LengthEdit		185		155		 40		 25		LargePlain		"0"	"5"		/* Column Depth */
+
+/* [ 32] */	Icon			175		328		 29		 14  	32502
+/* [ 33] */	LeftText		210		330		200		 23		LargePlain		"Layer Settings"
+/* [ 34] */	CheckBox		210		355		100		 23		LargePlain		"Coupling"
+/* [ 35] */	RightText		100		390		100		 23		LargePlain		"Euroform"
+/* [ 36] */	RightText		100		420		100		 23		LargePlain		"Outcorner Panel"
+/* [ 37] */	RightText		100		450		100		 23		LargePlain		"Outcorner Angle"
+/* [ 38] */	RightText		100		480		100		 23		LargePlain		"Square Pipe"
+/* [ 39] */	RightText		100		510		100		 23		LargePlain		"Pinbolt"
+/* [ 40] */	RightText		100		540		100		 23		LargePlain		"Headpiece"
+/* [ 41] */	RightText		100		570		100		 23		LargePlain		"Plywood"
+/* [ 42] */	UserControl		210		384		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 43] */	UserControl		210		414		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
+/* [ 44] */	UserControl		210		444		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
+/* [ 45] */	UserControl		210		474		160		 25		257	0x0006 0x0000 0		/* Layer Control - SQUARE PIPE		*/
+/* [ 46] */	UserControl		210		504		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
+/* [ 47] */	UserControl		210		534		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
+/* [ 48] */	UserControl		210		564		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+
+/* [ 49] */	Button			210		615		160		 25		LargePlain		"Autoset"
 }

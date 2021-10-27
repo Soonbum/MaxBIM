@@ -12,6 +12,7 @@
 #include "WallTableformPlacer.hpp"
 #include "SlabTableformPlacer.hpp"
 #include "BeamTableformPlacer.hpp"
+#include "ColumnTableformPlacer.hpp"
 
 #include "SupportingPostPlacer.hpp"
 
@@ -155,6 +156,13 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					// 보에 테이블폼 배치하기
 					err = ACAPI_CallUndoableCommand ("보에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnBeam ();
+						return err;
+					});
+					break;
+				case 6:
+					// 기둥에 테이블폼 배치하기
+					err = ACAPI_CallUndoableCommand ("기둥에 테이블폼 배치", [&] () -> GSErrCode {
+						err = placeTableformOnColumn ();
 						return err;
 					});
 					break;

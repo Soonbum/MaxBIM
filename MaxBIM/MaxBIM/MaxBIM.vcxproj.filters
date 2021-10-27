@@ -72,6 +72,9 @@
     <ClInclude Include="Src\BeamTableformPlacer.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Src\ColumnTableformPlacer.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\MaxBIM.cpp">
@@ -120,6 +123,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Src\BeamTableformPlacer.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\ColumnTableformPlacer.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

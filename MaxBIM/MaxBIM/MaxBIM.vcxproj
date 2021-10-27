@@ -139,6 +139,7 @@
     <ClInclude Include="Src\BeamEuroformPlacer.hpp" />
     <ClInclude Include="Src\BeamTableformPlacer.hpp" />
     <ClInclude Include="Src\ColumnEuroformPlacer.hpp" />
+    <ClInclude Include="Src\ColumnTableformPlacer.hpp" />
     <ClInclude Include="Src\Export.hpp" />
     <ClInclude Include="Src\Information.hpp" />
     <ClInclude Include="Src\Layers.hpp" />
@@ -157,6 +158,7 @@
     <ClCompile Include="Src\BeamEuroformPlacer.cpp" />
     <ClCompile Include="Src\BeamTableformPlacer.cpp" />
     <ClCompile Include="Src\ColumnEuroformPlacer.cpp" />
+    <ClCompile Include="Src\ColumnTableformPlacer.cpp" />
     <ClCompile Include="Src\Export.cpp" />
     <ClCompile Include="Src\Information.cpp" />
     <ClCompile Include="Src\Layers.cpp" />
