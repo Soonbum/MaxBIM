@@ -278,7 +278,7 @@
 'GDLG'  32514  Modal | grow	  0		  0		500		600		"기둥에 배치" {
 /* [  1] */	Button			170		550		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			270		550		 70		 25		LargePlain		"Cancel"
-/* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
+/* [  3] */	LeftText		 10		 10		100		 23		LargePlain		"Column Section"
 /* [  4] */	Icon    		140		 50		230		230  	32503
 
 /* [  5] */	LengthEdit		170		 25		 30		 25		LargePlain		"0"	"0.5"	/* TOP Outcorner Panel Width */
@@ -325,7 +325,7 @@
 'GDLG'  32515  Modal | grow	  0		  0		500		680		"기둥에 배치" {
 /* [  1] */	Button			170		630		 70		 25		LargePlain		"OK"
 /* [  2] */	Button			270		630		 70		 25		LargePlain		"Cancel"
-/* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
+/* [  3] */	LeftText		 10		 10		100		 23		LargePlain		"Column Section"
 
 /* [  4] */	Icon    		115		 50		280		260  	32508
 /* [  5] */	Icon    		115		 50		280		260  	32509
@@ -705,10 +705,10 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Column */
-'GDLG'  32524  Modal | grow	  0		  0		500		720		"기둥에 배치" {
-/* [  1] */	Button			170		670		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			270		670		 70		 25		LargePlain		"Cancel"
-/* [  3] */	LeftText		 10		 10		200		 23		LargePlain		"Column Section"
+'GDLG'  32524  Modal | grow	  0		  0		500		750		"기둥에 배치" {
+/* [  1] */	Button			170		700		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		700		 70		 25		LargePlain		"Cancel"
+/* [  3] */	LeftText		 10		 10		100		 23		LargePlain		"Column Section"
 
 /* [  4] */	Icon    		140		 50		230		230  	32503			/* if use Outcorner Panel */
 /* [  5] */	Icon			140		 50		230		230  	32525			/* if use Outcorner Angle */
@@ -751,15 +751,17 @@
 /* [ 37] */	RightText		100		450		100		 23		LargePlain		"Outcorner Angle"
 /* [ 38] */	RightText		100		480		100		 23		LargePlain		"Square Pipe"
 /* [ 39] */	RightText		100		510		100		 23		LargePlain		"Pinbolt"
-/* [ 40] */	RightText		100		540		100		 23		LargePlain		"Headpiece"
-/* [ 41] */	RightText		100		570		100		 23		LargePlain		"Plywood"
-/* [ 42] */	UserControl		210		384		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 43] */	UserControl		210		414		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
-/* [ 44] */	UserControl		210		444		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
-/* [ 45] */	UserControl		210		474		160		 25		257	0x0006 0x0000 0		/* Layer Control - SQUARE PIPE		*/
-/* [ 46] */	UserControl		210		504		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
-/* [ 47] */	UserControl		210		534		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
-/* [ 48] */	UserControl		210		564		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 40] */	RightText		100		540		100		 23		LargePlain		"Pipe Hanger"
+/* [ 41] */	RightText		100		570		100		 23		LargePlain		"Headpiece"
+/* [ 42] */	RightText		100		600		100		 23		LargePlain		"Plywood"
+/* [ 43] */	UserControl		210		384		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 44] */	UserControl		210		414		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
+/* [ 45] */	UserControl		210		444		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
+/* [ 46] */	UserControl		210		474		160		 25		257	0x0006 0x0000 0		/* Layer Control - SQUARE PIPE		*/
+/* [ 47] */	UserControl		210		504		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
+/* [ 48] */	UserControl		210		534		160		 25		257	0x0006 0x0000 0		/* Layer Control - PIPE HANGER		*/
+/* [ 49] */	UserControl		210		564		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
+/* [ 50] */	UserControl		210		594		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
 
-/* [ 49] */	Button			210		615		160		 25		LargePlain		"Autoset"
+/* [ 51] */	Button			210		645		160		 25		LargePlain		"Autoset"
 }

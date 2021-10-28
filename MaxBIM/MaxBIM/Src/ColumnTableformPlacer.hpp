@@ -8,10 +8,11 @@ namespace columnTableformPlacerDG {
 	enum	libPartObjType {
 		NONE,			// 없음
 		EUROFORM,		// 유로폼v2.0
-		OUTCORNER,		// 아웃코너판넬v1.0
+		OUTPANEL,		// 아웃코너판넬v1.0
 		OUTANGLE,		// 아웃코너앵글v1.0
 		SQUARE_PIPE,	// 비계파이프v1.0
 		PINBOLT,		// 핀볼트세트v1.0
+		HANGER,			// 각파이프행거
 		HEAD,			// 빔조인트용 Push-Pull Props 헤드피스 v1.0
 		PLYWOOD			// 합판v1.0
 	};
@@ -77,11 +78,21 @@ namespace columnTableformPlacerDG {
 		LABEL_LAYER_SETTINGS,
 		CHECKBOX_LAYER_COUPLING,
 		LABEL_LAYER_EUROFORM,
-		LABEL_LAYER_OUTCORNER,
+		LABEL_LAYER_OUTCORNER_PANEL,
+		LABEL_LAYER_OUTCORNER_ANGLE,
+		LABEL_LAYER_SQUARE_PIPE,
+		LABEL_LAYER_PINBOLT,
+		LABEL_LAYER_HANGER,
+		LABEL_LAYER_HEADPIECE,
 		LABEL_LAYER_PLYWOOD,
 
 		USERCONTROL_LAYER_EUROFORM,
-		USERCONTROL_LAYER_OUTCORNER,
+		USERCONTROL_LAYER_OUTCORNER_PANEL,
+		USERCONTROL_LAYER_OUTCORNER_ANGLE,
+		USERCONTROL_LAYER_SQUARE_PIPE,
+		USERCONTROL_LAYER_PINBOLT,
+		USERCONTROL_LAYER_HANGER,
+		USERCONTROL_LAYER_HEADPIECE,
 		USERCONTROL_LAYER_PLYWOOD,
 
 		BUTTON_AUTOSET
@@ -207,16 +218,6 @@ public:
 	CellForColumnTableform	cellsR2 [20];		// 우측2 셀 (아래)
 	CellForColumnTableform	cellsB1 [20];		// 하단1 셀 (왼쪽)
 	CellForColumnTableform	cellsB2 [20];		// 하단2 셀 (오른쪽)
-
-	//CellForColumnTableform	cellsLin1 [20];		// 왼쪽 인코너 셀 1 (위)
-	//CellForColumnTableform	cellsLin2 [20];		// 왼쪽 인코너 셀 2 (아래)
-	//CellForColumnTableform	cellsRin1 [20];		// 오른쪽 인코너 셀 1 (위)
-	//CellForColumnTableform	cellsRin2 [20];		// 오른쪽 인코너 셀 2 (아래)
-
-	//CellForColumnTableform	cellsW1 [20];		// 벽 반대쪽 셀 1
-	//CellForColumnTableform	cellsW2 [20];		// 벽 반대쪽 셀 2
-	//CellForColumnTableform	cellsW3 [20];		// 벽 반대쪽 셀 3
-	//CellForColumnTableform	cellsW4 [20];		// 벽 반대쪽 셀 4
 
 	// 수직 방향으로의 셀 개수
 	short	nCells;
