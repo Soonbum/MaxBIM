@@ -316,6 +316,8 @@ struct SquarePipe
 
 	double	length;			// 파이프 길이
 	double	pipeAng;		// 각도 (수평: 0, 수직: 90)
+	bool	bPunching;		// 타공
+	bool	bHoleDir;		// 홀 방향 (정면이면 true, 측면이면 false);
 };
 
 // 핀볼트 세트 정보
@@ -329,6 +331,7 @@ struct PinBoltSet
 
 	bool	bPinBoltRot90;	// 핀볼트 90도 회전
 	double	boltLen;		// 볼트 길이
+	double	washerPos;		// 와셔 위치
 	double	angX;			// X축 회전
 	double	angY;			// Y축 회전
 };
@@ -609,6 +612,41 @@ struct Yoke
 	double	LbarVdist;			// 좌측 각파이프 수직거리
 	double	RbarHdist;			// 우측 각파이프 수평거리
 	double	RbarVdist;			// 우측 각파이프 수직거리
+};
+
+// 기둥밴드
+struct ColumnBand
+{
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
+
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	angX;				// 회전 X
+	double	angY;				// 회전 Y
+
+	short	band_size;			// (1) 80x40x1270, (2) 80x40x1620, (3) 80x40x2020, (4) 80x40x2420
+	double	c_w;				// 가로 (내경)
+	double	c_h;				// 세로 (내경)
+	double	addOffset;			// 두께 추가 (각파이프 등) - 단, 유로폼 두께는 자동으로 포함되므로 여기에서는 제외
+};
+
+// 웰라
+struct Wella
+{
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
+
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	angX;				// 회전 X
+	double	angY;				// 회전 Y
+
+	double	c_w;				// 가로 (내경)
+	double	c_h;				// 세로 (내경)
+	double	addOffset;			// 두께 추가 (각파이프 등) - 단, 유로폼 두께는 자동으로 포함되므로 여기에서는 제외
 };
 
 #endif //__MAXBIM_HPP__

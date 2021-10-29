@@ -14,6 +14,8 @@ namespace columnTableformPlacerDG {
 		PINBOLT,		// 핀볼트세트v1.0
 		HANGER,			// 각파이프행거
 		HEAD,			// 빔조인트용 Push-Pull Props 헤드피스 v1.0
+		COLUMN_BAND1,	// 기둥밴드v2.0
+		COLUMN_BAND2,	// 웰라v1.0
 		PLYWOOD			// 합판v1.0
 	};
 
@@ -44,8 +46,13 @@ namespace columnTableformPlacerDG {
 		ICON_COLUMN_SECTION_OUTCORNER_PANEL,
 		ICON_COLUMN_SECTION_OUTCORNER_ANGLE,
 
+		LABEL_OUTCORNER,
 		RADIO_OUTCORNER_PANEL,
 		RADIO_OUTCORNER_ANGLE,
+
+		LABEL_COLUMN_BAND_TYPE,
+		RADIO_COLUMN_BAND_1,
+		RADIO_COLUMN_BAND_2,
 		
 		EDITCONTROL_TOP_1,
 		EDITCONTROL_TOP_2,
@@ -84,6 +91,7 @@ namespace columnTableformPlacerDG {
 		LABEL_LAYER_PINBOLT,
 		LABEL_LAYER_HANGER,
 		LABEL_LAYER_HEADPIECE,
+		LABEL_LAYER_COLUMN_BAND,
 		LABEL_LAYER_PLYWOOD,
 
 		USERCONTROL_LAYER_EUROFORM,
@@ -93,6 +101,7 @@ namespace columnTableformPlacerDG {
 		USERCONTROL_LAYER_PINBOLT,
 		USERCONTROL_LAYER_HANGER,
 		USERCONTROL_LAYER_HEADPIECE,
+		USERCONTROL_LAYER_COLUMN_BAND,
 		USERCONTROL_LAYER_PLYWOOD,
 
 		BUTTON_AUTOSET
@@ -158,13 +167,15 @@ struct CellForColumnTableform
 
 	union {
 		Euroform		form;
-		IncornerPanel	incorner;
-		OutcornerPanel	outcorner;
-		Plywood			plywood;
+		OutcornerPanel	outpanel;
 		OutcornerAngle	outangle;
 		SquarePipe		sqrPipe;
 		PinBoltSet		pinbolt;
+		RectPipeHanger	hanger;
 		HeadpieceOfPushPullProps	head;
+		ColumnBand		columnBand;
+		Wella			wella;
+		Plywood			plywood;
 	} libPart;
 };
 
@@ -219,6 +230,12 @@ public:
 	CellForColumnTableform	cellsB1 [20];		// 하단1 셀 (왼쪽)
 	CellForColumnTableform	cellsB2 [20];		// 하단2 셀 (오른쪽)
 
+	// 아웃코너판넬/아웃코너앵글
+	bool	bUseOutcornerPanel;		// true이면 아웃코너판넬, false이면 아웃코너앵글
+
+	// 기둥밴드, 웰라
+	short	typeOfColumnBand;
+
 	// 수직 방향으로의 셀 개수
 	short	nCells;
 
@@ -228,6 +245,7 @@ public:
 	void		delTopCell (ColumnTableformPlacingZone* target_zone);					// 꼭대기의 셀 삭제
 	void		alignPlacingZone_soleColumn (ColumnTableformPlacingZone* placingZone);	// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 	API_Guid	placeLibPart (CellForColumnTableform objInfo);							// 해당 셀 정보를 기반으로 라이브러리 배치
+	GSErrCode	placeRestObjects_soleColumn (ColumnTableformPlacingZone* placingZone);	// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스 배치
 	GSErrCode	fillRestAreas_soleColumn (ColumnTableformPlacingZone* placingZone);		// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
 };
 
