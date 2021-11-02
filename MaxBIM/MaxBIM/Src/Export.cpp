@@ -804,7 +804,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-								sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -817,7 +817,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-								sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -830,7 +830,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-								sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -843,7 +843,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-								sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -856,7 +856,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-								sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -872,7 +872,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-								sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+								sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -1440,7 +1440,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 									// 제작틀 ON
 									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-										sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 										fprintf (fp, buffer);
 										fprintf (fp_unite, buffer);
 
@@ -1456,7 +1456,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 									// 제작틀 ON
 									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-										sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 										fprintf (fp, buffer);
 										fprintf (fp_unite, buffer);
 
@@ -1472,7 +1472,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 									// 제작틀 ON
 									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-										sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 										fprintf (fp, buffer);
 										fprintf (fp_unite, buffer);
 
@@ -1488,7 +1488,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 									// 제작틀 ON
 									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-										sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 										fprintf (fp, buffer);
 										fprintf (fp_unite, buffer);
 
@@ -1504,7 +1504,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 									// 제작틀 ON
 									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-										sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 										fprintf (fp, buffer);
 										fprintf (fp_unite, buffer);
 
@@ -1523,7 +1523,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 									// 제작틀 ON
 									if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
-										sprintf (buffer, "\n(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
+										sprintf (buffer, "(각재 총길이: %s) \n", objectInfo.records.at(yy).at(6).c_str ());
 										fprintf (fp, buffer);
 										fprintf (fp_unite, buffer);
 
