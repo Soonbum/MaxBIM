@@ -605,7 +605,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	sprintf (filename, "%s - 선택한 부재 정보.csv", miscAppInfo.caption);
 	fp = fopen (filename, "w+");
 	sprintf (filename, "%s - 선택한 부재 정보 (중간보고서).txt", miscAppInfo.caption);
-	fp = fopen (filename, "w+");
+	fp_interReport = fopen (filename, "w+");
 
 	if (fp == NULL) {
 		ACAPI_WriteReport ("파일을 열 수 없습니다.", true);
@@ -1209,44 +1209,163 @@ GSErrCode	exportSelectedElementInfo (void)
 						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "RS Push-Pull Props 헤드피스 (인양고리 포함)") == 0) {
-						// ...
+						// 규격
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						sprintf (buffer, "- | ");
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "RS Push-Pull Props") == 0) {
-						// ...
+						// 규격
+						if (atoi (objectInfo.records.at(yy).at(4).c_str ()) == 1) {
+							// 하부 지지대 있을 경우
+							sprintf (buffer, "%s, %s | ", objectInfo.records.at(yy).at(2).c_str (), objectInfo.records.at(yy).at(3).c_str ());
+						} else {
+							// 하부 지지대 없을 경우
+							sprintf (buffer, "%s, - | ", objectInfo.records.at(yy).at(2).c_str ());
+						}
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						sprintf (buffer, "- | ");
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "핀볼트세트") == 0) {
-						// ...
+						// 규격
+						length = atof (objectInfo.records.at(yy).at(2).c_str ());
+						sprintf (buffer, "%.0f X %.0f | ", round (length*1000, 0), round (length*1000, 0));
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						length = atof (objectInfo.records.at(yy).at(1).c_str ());
+						sprintf (buffer, "%.0f | ", round (length*1000, 0));
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
+
+					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "결합철물 (사각와셔활용)") == 0) {
+						// 규격
+						length = atof (objectInfo.records.at(yy).at(2).c_str ());
+						sprintf (buffer, "%.0f X %.0f | ", round (length*1000, 0), round (length*1000, 0));
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						length = atof (objectInfo.records.at(yy).at(1).c_str ());
+						sprintf (buffer, "%.0f | ", round (length*1000, 0));
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "보 멍에제") == 0) {
-						// ...
+						// 규격
+						sprintf (buffer, "- | ");
+						fprintf (fp_interReport, buffer);
 
-					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "KS 프로파일") == 0) {
-						// ...
+						// 길이
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "PERI동바리 수직재") == 0) {
-						// ...
+						// 규격
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(2).c_str ());
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "PERI동바리 수평재") == 0) {
-						// ...
+						// 규격
+						sprintf (buffer, "- | ");
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "GT24 거더") == 0) {
-						// ...
+						// 규격
+						sprintf (buffer, "- | ");
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "매직바") == 0) {
-						// ...
+						// 규격 (매직바 전체 길이)
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
 
-					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "매직아웃코너") == 0) {
-						// ...
+						// 길이 (합판 너비 X 길이)
+						length = atof (objectInfo.records.at(yy).at(3).c_str ());
+						length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
+						if (atoi (objectInfo.records.at(yy).at(2).c_str ()) == 1) {
+							sprintf (buffer, "%s X %.0f | ", objectInfo.records.at(yy).at(5).c_str (), abs (round (length*1000, 0) - round (length2*1000, 0)));
+						} else {
+							sprintf (buffer, "- | ");
+						}
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "매직인코너") == 0) {
-						// ...
+						// 규격 (매직바 너비 X 길이)
+						sprintf (buffer, "%s X %s | ", objectInfo.records.at(yy).at(1).c_str (), objectInfo.records.at(yy).at(2).c_str ());
+						fprintf (fp_interReport, buffer);
+
+						// 길이 (합판 너비 X 길이)
+						length = atof (objectInfo.records.at(yy).at(4).c_str ());
+						length2 = atof (objectInfo.records.at(yy).at(5).c_str ());
+						if (atoi (objectInfo.records.at(yy).at(3).c_str ()) == 1) {
+							sprintf (buffer, "%s X %.0f | ", objectInfo.records.at(yy).at(6).c_str (), abs (round (length*1000, 0) - round (length2*1000, 0)));
+						} else {
+							sprintf (buffer, "- | ");
+						}
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "유로폼 후크") == 0) {
 						// 규격
 						if (objectInfo.records.at(yy).at(2).compare ("원형") == 0) {
-							sprintf (buffer, "%s, 원형 | ", objectInfo.records.at(yy).at(1));
+							sprintf (buffer, "%s, 원형 | ", objectInfo.records.at(yy).at(1).c_str ());
 						} else if (objectInfo.records.at(yy).at(2).compare ("사각") == 0) {
-							sprintf (buffer, "%s, 사각 | ", objectInfo.records.at(yy).at(1));
+							sprintf (buffer, "%s, 사각 | ", objectInfo.records.at(yy).at(1).c_str ());
 						}
 						fprintf (fp_interReport, buffer);
 
@@ -1260,7 +1379,8 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "블루목심") == 0) {
 						// 규격
-						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1));
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
 
 						// 길이
 						sprintf (buffer, "- | ");
@@ -1272,7 +1392,8 @@ GSErrCode	exportSelectedElementInfo (void)
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "서포트") == 0) {
 						// 규격
-						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1));
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
 
 						// 길이
 						sprintf (buffer, "- | ");
@@ -1283,11 +1404,22 @@ GSErrCode	exportSelectedElementInfo (void)
 						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "슬래브 테이블폼 (콘판넬)") == 0) {
-						// ...
+						// 규격
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						sprintf (buffer, "- | ");
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "블루클램프") == 0) {
 						// 규격
-						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1));
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
 
 						// 길이
 						sprintf (buffer, "- | ");
@@ -1297,20 +1429,69 @@ GSErrCode	exportSelectedElementInfo (void)
 						sprintf (buffer, "개수(EA) | ");
 						fprintf (fp_interReport, buffer);
 
-					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "눈썹보 브라켓 v2") == 0) {
-						// ...
-
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "빔조인트용 Push-Pull Props 헤드피스") == 0) {
-						// ...
+						// 규격
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
+
+						// 길이 
+						sprintf (buffer, "- | ");
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "블루 보 브라켓") == 0) {
-						// ...
+						// 규격
+						sprintf (buffer, "%s | ", objectInfo.records.at(yy).at(1).c_str ());
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						sprintf (buffer, "- | ");
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "단열재") == 0) {
-						// ...
+						// 규격
+						if (atoi (objectInfo.records.at(yy).at(1).c_str ()) == 1) {
+							// 원장 가로 X 세로
+							sprintf (buffer, "%s X %s | ", objectInfo.records.at(yy).at(2).c_str (), objectInfo.records.at(yy).at(3).c_str ());
+						} else {
+							// 실제 가로 X 세로
+							sprintf (buffer, "%s X %s | ", objectInfo.records.at(yy).at(4).c_str (), objectInfo.records.at(yy).at(5).c_str ());
+						}
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						sprintf (buffer, "- | ");
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "장 | ");
+						fprintf (fp_interReport, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "Push-Pull Props (기성품 및 당사제작품)") == 0) {
-						// ...
+						// 규격
+						if (atoi (objectInfo.records.at(yy).at(4).c_str ()) == 1) {
+							// 하부 지지대 있을 경우
+							sprintf (buffer, "%s, %s | ", objectInfo.records.at(yy).at(2).c_str (), objectInfo.records.at(yy).at(3).c_str ());
+						} else {
+							// 하부 지지대 없을 경우
+							sprintf (buffer, "%s, - | ", objectInfo.records.at(yy).at(2).c_str ());
+						}
+						fprintf (fp_interReport, buffer);
+
+						// 길이
+						sprintf (buffer, "- | ");
+						fprintf (fp_interReport, buffer);
+
+						// 단위
+						sprintf (buffer, "개수(EA) | ");
+						fprintf (fp_interReport, buffer);
 
 					} else {
 						// 규격, 길이 없고 수량만 표현할 경우
@@ -1331,59 +1512,6 @@ GSErrCode	exportSelectedElementInfo (void)
 					// 수량 출력
 					sprintf (buffer, "%s\n", objectInfo.records.at(yy).at(objectInfo.records.at(yy).size ()-1).c_str ());
 					fprintf (fp_interReport, buffer);
-
-					// !!!
-					/*
-					} else if (objectInfo.keyDesc.at(xx).compare ("RS Push-Pull Props") == 0) {
-						// 베이스 플레이트 유무
-						if (atoi (objectInfo.records.at(yy).at(1).c_str ()) == 1) {
-							sprintf (buffer, "베이스 플레이트(있음) ");
-						} else {
-							sprintf (buffer, "베이스 플레이트(없음) ");
-						}
-						fprintf (fp, buffer);
-
-						// 규격(상부)
-						sprintf (buffer, "규격(상부): %s ", objectInfo.records.at(yy).at(2).c_str ());
-						fprintf (fp, buffer);
-
-						// 규격(하부) - 선택사항
-						if (atoi (objectInfo.records.at(yy).at(4).c_str ()) == 1) {
-							sprintf (buffer, "규격(하부): %s ", objectInfo.records.at(yy).at(3).c_str ());
-						}
-						fprintf (fp, buffer);
-				
-					} else if (objectInfo.keyDesc.at(xx).compare ("Push-Pull Props (기성품 및 당사제작품)") == 0) {
-						// 베이스 플레이트 유무
-						if (atoi (objectInfo.records.at(yy).at(1).c_str ()) == 1) {
-							sprintf (buffer, "베이스 플레이트(있음) ");
-						} else {
-							sprintf (buffer, "베이스 플레이트(없음) ");
-						}
-						fprintf (fp, buffer);
-
-						// 규격(상부)
-						sprintf (buffer, "규격(상부): %s ", objectInfo.records.at(yy).at(2).c_str ());
-						fprintf (fp, buffer);
-
-						// 규격(하부) - 선택사항
-						if (atoi (objectInfo.records.at(yy).at(4).c_str ()) == 1) {
-							sprintf (buffer, "규격(하부): %s ", objectInfo.records.at(yy).at(3).c_str ());
-						}
-						fprintf (fp, buffer);
-
-					} else if (objectInfo.keyDesc.at(xx).compare ("매직바") == 0) {
-						if (atoi (objectInfo.records.at(yy).at(2).c_str ()) > 0) {
-							length = atof (objectInfo.records.at(yy).at(3).c_str ());
-							length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
-							length3 = atof (objectInfo.records.at(yy).at(5).c_str ());
-							sprintf (buffer, "%.0f / 합판(%.0f X %.0f)", round (atof (objectInfo.records.at(yy).at(1).c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
-						} else {
-							length = atof (objectInfo.records.at(yy).at(1).c_str ());
-							sprintf (buffer, "%.0f ", round (length*1000, 0));
-						}
-						fprintf (fp, buffer);
-					*/
 				}
 			}
 		}
@@ -1392,11 +1520,10 @@ GSErrCode	exportSelectedElementInfo (void)
 	}
 
 	// 알 수 없는 객체
-	//if (objectInfo.nUnknownObjects > 0) {
-	//	sprintf (buffer, "\n알 수 없는 객체 : %d EA\n", objectInfo.nUnknownObjects);
-	//	fprintf (fp, buffer);
-	//}
-	// !!!
+	if (objectInfo.nUnknownObjects > 0) {
+		sprintf (buffer, "알 수 없는 객체 | - | - | - | %d\n", objectInfo.nUnknownObjects);
+		fprintf (fp_interReport, buffer);
+	}
 
 	fclose (fp_interReport);
 
