@@ -970,6 +970,15 @@ GSErrCode	exportSelectedElementInfo (void)
 							round (atof (objectInfo.records.at(yy).at(4).c_str ())*1000, 0), round (atof (objectInfo.records.at(yy).at(5).c_str ())*1000, 0),
 							(atoi (objectInfo.records.at(yy).at(5).c_str ()) ? "자름" : "자르지 않음"));
 						fprintf (fp, buffer);
+
+					} else if (objectInfo.keyDesc.at(xx).compare ("PERI동바리 수직재") == 0) {
+						length = atof (objectInfo.records.at(yy).at(2).c_str ());
+						if (atoi (objectInfo.records.at(yy).at(3).c_str ()) == 1) {
+							sprintf (buffer, "규격(%s) 길이(%.0f) 크로스헤드(%s) ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0), objectInfo.records.at(yy).at(4).c_str ());
+						} else {
+							sprintf (buffer, "규격(%s) 길이(%.0f) ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0));
+						}
+						fprintf (fp, buffer);
 						
 					} else {
 						for (zz = 0 ; zz < objectInfo.nInfo.at(xx) ; ++zz) {
@@ -2157,6 +2166,16 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
 						
+							} else if (objectInfo.keyDesc.at(xx).compare ("PERI동바리 수직재") == 0) {
+								length = atof (objectInfo.records.at(yy).at(2).c_str ());
+								if (atoi (objectInfo.records.at(yy).at(3).c_str ()) == 1) {
+									sprintf (buffer, "규격(%s) 길이(%.0f) 크로스헤드(%s) ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0), objectInfo.records.at(yy).at(4).c_str ());
+								} else {
+									sprintf (buffer, "규격(%s) 길이(%.0f) ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0));
+								}
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+
 							} else {
 								for (zz = 0 ; zz < objectInfo.nInfo.at(xx) ; ++zz) {
 									// 변수별 값 출력
