@@ -10491,6 +10491,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeA ()
 	double	elev_headpiece;
 	double	totalWidth = 0.0;
 	double	totalHeight = 0.0;
+	double	horizontalGap;
 
 	for (xx = 0 ; xx < placingZone.nCells ; ++xx)
 		totalWidth += placingZone.customCells [0][xx].horLen;
@@ -10505,6 +10506,12 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeA ()
 
 	// 세로 방향
 	if (placingZone.orientation == VERTICAL_DIRECTION) {
+		// 테이블폼 너비가 100 단위로 끊어지면 50, 그렇지 않으면 25
+		if (int(round (totalWidth*1000, 0)) % 100 == 0)
+			horizontalGap = 0.050;
+		else
+			horizontalGap = 0.025;
+
 		// 유로폼 설치
 		params_UFOM.ang_x = DegreeToRad (90.0);
 		params_UFOM.eu_stan_onoff = true;
@@ -10527,10 +10534,10 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeA ()
 		params_SPIP.leftBottomY = placingZone.customCells [0][0].leftBottomY;
 		params_SPIP.leftBottomZ = placingZone.customCells [0][0].leftBottomZ;
 		params_SPIP.ang = placingZone.customCells [0][0].ang;
-		params_SPIP.length = totalWidth - 0.100;
+		params_SPIP.length = totalWidth - horizontalGap * 2;
 		params_SPIP.pipeAng = DegreeToRad (0);
 
-		moveIn3D ('x', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('x', params_SPIP.ang, horizontalGap, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		moveIn3D ('z', params_SPIP.ang, 0.150 - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 
@@ -10771,6 +10778,12 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeA ()
 	
 	// 가로 방향
 	} else {
+		// 테이블폼 너비가 100 단위로 끊어지면 50, 그렇지 않으면 25
+		if (int(round (totalHeight*1000, 0)) % 100 == 0)
+			horizontalGap = 0.050;
+		else
+			horizontalGap = 0.025;
+
 		// 유로폼 설치
 		params_UFOM.ang_x = DegreeToRad (90.0);
 		params_UFOM.eu_stan_onoff = true;
@@ -10793,10 +10806,10 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeA ()
 		params_SPIP.leftBottomY = placingZone.customCells [0][0].leftBottomY;
 		params_SPIP.leftBottomZ = placingZone.customCells [0][0].leftBottomZ;
 		params_SPIP.ang = placingZone.customCells [0][0].ang;
-		params_SPIP.length = totalHeight - 0.100;
+		params_SPIP.length = totalHeight - horizontalGap * 2;
 		params_SPIP.pipeAng = DegreeToRad (90.0);
 
-		moveIn3D ('z', params_SPIP.ang, 0.050, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
+		moveIn3D ('z', params_SPIP.ang, horizontalGap, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		moveIn3D ('y', params_SPIP.ang, -(0.0635 + 0.025), &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 		moveIn3D ('x', params_SPIP.ang, 0.150 - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 
@@ -10807,7 +10820,7 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeA ()
 				moveIn3D ('x', params_SPIP.ang, 0.062, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 				elemList.Push (placeSPIP (params_SPIP));
 				moveIn3D ('x', params_SPIP.ang, -0.031 - 0.150 + placingZone.customCells [0][xx].horLen - 0.031, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
-			} else if (xx == placingZone.nCells_vertical) {
+			} else if (xx == placingZone.nCells_vertical-1) {
 				// 마지막 행
 				moveIn3D ('x', params_SPIP.ang, -0.150, &params_SPIP.leftBottomX, &params_SPIP.leftBottomY, &params_SPIP.leftBottomZ);
 				elemList.Push (placeSPIP (params_SPIP));
@@ -11103,7 +11116,6 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeB ()
 	EuroformHook	params_HOOK;
 	RectPipeHanger	params_HANG;
 
-	horizontalGap = 0.050;
 	placingZone.nVerticalBar = 2;
 	placingZone.verticalBarLeftOffset = 0.250;
 	placingZone.verticalBarRightOffset = 0.250;
@@ -11147,6 +11159,12 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeB ()
 
 	// 세로 방향
 	if (placingZone.orientation == VERTICAL_DIRECTION) {
+		// 테이블폼 너비가 100 단위로 끊어지면 50, 그렇지 않으면 25
+		if (int(round (totalWidth*1000, 0)) % 100 == 0)
+			horizontalGap = 0.050;
+		else
+			horizontalGap = 0.025;
+
 		// 유로폼 설치
 		params_UFOM.ang_x = DegreeToRad (90.0);
 		params_UFOM.eu_stan_onoff = true;
@@ -11410,6 +11428,12 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeB ()
 
 	// 가로 방향
 	} else {
+		// 테이블폼 너비가 100 단위로 끊어지면 50, 그렇지 않으면 25
+		if (int(round (totalHeight*1000, 0)) % 100 == 0)
+			horizontalGap = 0.050;
+		else
+			horizontalGap = 0.025;
+
 		// 유로폼 설치
 		params_UFOM.ang_x = DegreeToRad (90.0);
 		params_UFOM.eu_stan_onoff = true;
@@ -11713,7 +11737,6 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeC ()
 	MetalFittings	params_JOIN;
 	PinBoltSet		params_PINB;
 
-	horizontalGap = 0.050;
 	placingZone.nVerticalBar = 2;
 	placingZone.verticalBarLeftOffset = 0.250;
 	placingZone.verticalBarRightOffset = 0.250;
@@ -11757,6 +11780,12 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeC ()
 
 	// 세로 방향
 	if (placingZone.orientation == VERTICAL_DIRECTION) {
+		// 테이블폼 너비가 100 단위로 끊어지면 50, 그렇지 않으면 25
+		if (int(round (totalWidth*1000, 0)) % 100 == 0)
+			horizontalGap = 0.050;
+		else
+			horizontalGap = 0.025;
+
 		// 유로폼 설치
 		params_UFOM.ang_x = DegreeToRad (90.0);
 		params_UFOM.eu_stan_onoff = true;
@@ -12022,6 +12051,12 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeC ()
 
 	// 가로 방향
 	} else {
+		// 테이블폼 너비가 100 단위로 끊어지면 50, 그렇지 않으면 25
+		if (int(round (totalHeight*1000, 0)) % 100 == 0)
+			horizontalGap = 0.050;
+		else
+			horizontalGap = 0.025;
+
 		// 유로폼 설치
 		params_UFOM.ang_x = DegreeToRad (90.0);
 		params_UFOM.eu_stan_onoff = true;
@@ -12327,7 +12362,6 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeD ()
 	MetalFittings	params_JOIN;
 	PinBoltSet		params_PINB;
 
-	horizontalGap = 0.050;
 	placingZone.nVerticalBar = 2;
 	placingZone.verticalBarLeftOffset = 0.250;
 	placingZone.verticalBarRightOffset = 0.250;
@@ -12371,6 +12405,12 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeD ()
 
 	// 세로 방향
 	if (placingZone.orientation == VERTICAL_DIRECTION) {
+		// 테이블폼 너비가 100 단위로 끊어지면 50, 그렇지 않으면 25
+		if (int(round (totalWidth*1000, 0)) % 100 == 0)
+			horizontalGap = 0.050;
+		else
+			horizontalGap = 0.025;
+
 		// 수직 파이프 위치 수정
 		if (totalWidth >= 2.000 - EPS) {
 			placingZone.verticalBarLeftOffset = placingZone.customCells [0][0].horLen - horizontalGap;
@@ -12725,6 +12765,12 @@ GSErrCode	WallTableformPlacingZone::placeTableformOnWall_Custom_TypeD ()
 
 	// 가로 방향
 	} else {
+		// 테이블폼 너비가 100 단위로 끊어지면 50, 그렇지 않으면 25
+		if (int(round (totalHeight*1000, 0)) % 100 == 0)
+			horizontalGap = 0.050;
+		else
+			horizontalGap = 0.025;
+
 		// 수직 파이프 위치 수정
 		if (totalHeight >= 2.000 - EPS) {
 			placingZone.verticalBarLeftOffset = placingZone.customCells [placingZone.nCells_vertical-1][0].verLen - horizontalGap;
