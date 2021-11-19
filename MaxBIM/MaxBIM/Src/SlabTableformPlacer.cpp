@@ -329,7 +329,7 @@ FIRST:
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	workLevel_slab = 0.0;
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
 		if (storyInfo.data [0][xx].index == infoSlab.floorInd) {
 			workLevel_slab = storyInfo.data [0][xx].level;
 			break;

@@ -219,7 +219,7 @@ GSErrCode	placeEuroformOnWall (void)
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	workLevel_wall = 0.0;
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
 		if (storyInfo.data [0][xx].index == infoWall.floorInd) {
 			workLevel_wall = storyInfo.data [0][xx].level;
 			break;
@@ -286,7 +286,7 @@ GSErrCode	placeEuroformOnWall (void)
 		BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 		workLevel_beam = 0.0;
 		ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-		for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+		for (yy = 0 ; yy <= (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
 			if (storyInfo.data [0][yy].index == elem.header.floorInd) {
 				workLevel_beam = storyInfo.data [0][yy].level;
 				break;

@@ -1880,7 +1880,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 							BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 							workLevel_object = 0.0;
 							ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-							for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+							for (yy = 0 ; yy <= (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
 								if (storyInfo.data [0][yy].index == elem.header.floorInd) {
 									workLevel_object = storyInfo.data [0][yy].level;
 									break;

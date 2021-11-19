@@ -189,7 +189,7 @@ GSErrCode	placeEuroformOnColumn (void)
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	workLevel_column = 0.0;
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+	for (yy = 0 ; yy <= (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
 		if (storyInfo.data [0][yy].index == infoColumn.floorInd) {
 			workLevel_column = storyInfo.data [0][yy].level;
 			break;
@@ -291,7 +291,7 @@ GSErrCode	placeEuroformOnColumn (void)
 		BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 		workLevel_beam = 0.0;
 		ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-		for (yy = 0 ; yy < (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
+		for (yy = 0 ; yy <= (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
 			if (storyInfo.data [0][yy].index == infoOtherBeams [xx].floorInd) {
 				workLevel_beam = storyInfo.data [0][yy].level;
 				break;
@@ -1296,7 +1296,7 @@ API_Guid	ColumnPlacingZone::placeLibPart (CellForColumn objInfo)
 	// 작업 층 높이 반영
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
 		if (storyInfo.data [0][xx].index == infoColumn.floorInd) {
 			element.object.level -= storyInfo.data [0][xx].level;
 			break;

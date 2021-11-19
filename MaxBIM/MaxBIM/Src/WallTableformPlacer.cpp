@@ -255,7 +255,7 @@ GSErrCode	placeTableformOnWall_Vertical (void)
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	workLevel_wall = 0.0;
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
 		if (storyInfo.data [0][xx].index == infoWall.floorInd) {
 			workLevel_wall = storyInfo.data [0][xx].level;
 			break;
@@ -726,7 +726,7 @@ GSErrCode	placeTableformOnWall_Horizontal (void)
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	workLevel_wall = 0.0;
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
 		if (storyInfo.data [0][xx].index == infoWall.floorInd) {
 			workLevel_wall = storyInfo.data [0][xx].level;
 			break;
@@ -1151,7 +1151,7 @@ GSErrCode	placeTableformOnWall_Custom (void)
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 	workLevel_wall = 0.0;
 	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx < (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
 		if (storyInfo.data [0][xx].index == infoWall.floorInd) {
 			workLevel_wall = storyInfo.data [0][xx].level;
 			break;

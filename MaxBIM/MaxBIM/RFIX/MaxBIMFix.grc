@@ -507,12 +507,13 @@
 }
 
 /* ---------------------------------------------------------- place Quantity Playwood */
-'GDLG' 32520  Palette | leftCaption | close		0	0	201	101 "" {
+'GDLG' 32520  Palette | leftCaption | close		0	0	201	126 "" {
 /* [  1] */	LeftText		  0		  1		200		 23		LargePlain	"Explanation for usage"
 /* [  2] */	UserControl		  0		 24		200		 25		257	0x0006 0x0000 0		/* Layer Control - Quantity Plywood	*/
-/* [  3] */	PopupControl	  0		 49		200		 24		200		10
-/* [  4] */	Button			  0		 75		100		 25		LargePlain	"Draw Rect"
-/* [  5] */	Button			101		 75		100		 25		LargePlain	"Draw Window"
+/* [  3] */	PopupControl	  0		 49		200		 24		200		10		/* Q. Plywood Type */
+/* [  4] */	PopupControl	  0		 75		200		 25		200		10		/* Floor Settings */
+/* [  5] */	Button			  0		101		100		 25		LargePlain	"Draw Rect"
+/* [  6] */	Button			101		101		100		 25		LargePlain	"Draw Window"
 }
 
 /* ---------------------------------------------------------- place PERI Supporting Post */
@@ -691,7 +692,7 @@
 }
 
 /* ---------------------------------------------------------- place Insulation */
-'GDLG' 32523  Palette | leftCaption | close		0	0	250	151 "" {
+'GDLG' 32523  Palette | leftCaption | close		0	0	250	180 "" {
 /* [  1] */	LeftText		  0		  5		200		 20		LargePlain		"Explanation for usage"
 /* [  2] */	UserControl		  0		 24		249		 25		257	0x0006 0x0000 0		/* Layer Control - Insulation	*/
 /* [  3] */	LeftText		  0		 55		 50		 20		LargePlain		"Thk"
@@ -701,7 +702,9 @@
 /* [  7] */	LengthEdit		 50		100		 70		 25		LargePlain		"0.001" "10"
 /* [  8] */	CenterText		120		105		 50		 20		LargePlain		"Ver. Length"
 /* [  9] */	LengthEdit		170		100		 70		 25		LargePlain		"0.001" "10"
-/* [ 10] */	Button			  0		125		249		 25		LargePlain		"Draw Insulation"
+/* [ 10] */	LeftText		  0		130		 50		 25		LargePlain		"Floor"
+/* [ 11] */	PopupControl	 51		125		197		 25		200		10
+/* [ 12] */	Button			  0		153		249		 25		LargePlain		"Draw Insulation"
 }
 
 /* ---------------------------------------------------------- place Tableform on Column */

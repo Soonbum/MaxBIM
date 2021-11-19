@@ -34,6 +34,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 	GSErrCode	err = NoError;
 	GSErrCode	inputErr;
 	bool	regenerate = true;
+	short	xx;
 
 	API_Element			elem;
 	API_ElementMemo		memo;
@@ -56,6 +57,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 	double			angle1, angle2;
 
 	API_StoryInfo	storyInfo;
+	char			floorName [256];
 
 	
 	err = ACAPI_CallUndoableCommand ("물량합판 부착하기", [&] () -> GSErrCode {
@@ -72,7 +74,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 				ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 				DGSetItemValLong (dialID, USERCONTROL_QPLYWOOD_LAYER, 1);
 
-				// 팝업 컨트롤
+				// 팝업 컨트롤 (물량합판 타입)
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
 				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "보");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
@@ -100,15 +102,25 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
 				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "계단");
 
+				// 층 정보 저장 !!!
+				BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+				ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+				for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+					sprintf (floorName, "%d. %s", storyInfo.data [0][xx].index, storyInfo.data [0][xx].name);
+					DGPopUpInsertItem (dialID, POPUP_FLOOR_QELEM, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialID, POPUP_FLOOR_QELEM, DG_POPUP_BOTTOM, floorName);
+				}
+				for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+					if (storyInfo.data [0][xx].index == 0) {
+						DGPopUpSelectItem (dialID, POPUP_FLOOR_QELEM, xx+1);
+					}
+				}
+				qElemInfo.floorInd = storyInfo.data [0][DGPopUpGetSelected (dialID, POPUP_FLOOR_QELEM) - 1].index;
+				BMKillHandle ((GSHandle *) &storyInfo.data);
+
 				// 버튼
 				DGSetItemText (dialID, BUTTON_DRAW_RECT_QELEM, "물량합판 그리기\n(직사각형)");
 				DGSetItemText (dialID, BUTTON_DRAW_WINDOW_QELEM, "물량합판 그리기\n(창문형)");
-
-				// 층 정보 저장
-				BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-				ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-				qElemInfo.floorInd = storyInfo.actStory;
-				BMKillHandle ((GSHandle *) &storyInfo.data);
 
 				// 레이어 정보 저장
 				qElemInfo.layerInd = (short)DGGetItemValLong (dialID, USERCONTROL_QPLYWOOD_LAYER);
@@ -211,6 +223,15 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 							strcpy (qElemInfo.m_type, "계단");
 							qElemInfo.panel_mat = 73;
 						}
+
+						break;
+
+					case POPUP_FLOOR_QELEM:
+						// 층 정보 저장
+						BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+						ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+						qElemInfo.floorInd = storyInfo.data [0][DGPopUpGetSelected (dialID, POPUP_FLOOR_QELEM) - 1].index;
+						BMKillHandle ((GSHandle *) &storyInfo.data);
 
 						break;
 				}
@@ -652,6 +673,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 
 	// 층 정보
 	API_StoryInfo	storyInfo;
+	char			floorName [256];
 
 	
 	err = ACAPI_CallUndoableCommand ("단열재 부착하기", [&] () -> GSErrCode {
@@ -662,6 +684,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 				DGSetItemText (dialID, LABEL_INSULATION_THK, "두께");
 				DGSetItemText (dialID, LABEL_INS_HORLEN, "가로");
 				DGSetItemText (dialID, LABEL_INS_VERLEN, "세로");
+				DGSetItemText (dialID, LABEL_FLOOR_INS, "층 선택");
 
 				// 체크박스
 				DGSetItemText (dialID, CHECKBOX_INS_LIMIT_SIZE, "가로/세로 크기 제한");
@@ -686,7 +709,17 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 				// 층 정보 저장
 				BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 				ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-				insulElemInfo.floorInd = storyInfo.actStory;
+				for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+					sprintf (floorName, "%d. %s", storyInfo.data [0][xx].index, storyInfo.data [0][xx].name);
+					DGPopUpInsertItem (dialID, POPUP_FLOOR_INS, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialID, POPUP_FLOOR_INS, DG_POPUP_BOTTOM, floorName);
+				}
+				for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+					if (storyInfo.data [0][xx].index == 0) {
+						DGPopUpSelectItem (dialID, POPUP_FLOOR_INS, xx+1);
+					}
+				}
+				insulElemInfo.floorInd = storyInfo.data [0][DGPopUpGetSelected (dialID, POPUP_FLOOR_INS) - 1].index;
 				BMKillHandle ((GSHandle *) &storyInfo.data);
 
 				// 레이어 정보 저장
@@ -721,6 +754,12 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 						}
 						break;
 				}
+
+				// 층 정보 저장
+				BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+				ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+				insulElemInfo.floorInd = storyInfo.data [0][DGPopUpGetSelected (dialID, POPUP_FLOOR_INS) - 1].index;
+				BMKillHandle ((GSHandle *) &storyInfo.data);
 
 				// 레이어 정보 저장
 				insulElemInfo.layerInd = (short)DGGetItemValLong (dialID, USERCONTROL_INSULATION_LAYER);
