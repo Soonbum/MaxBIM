@@ -1200,6 +1200,257 @@ GSErrCode	placeTableformOnWall_Custom (void)
 	return	err;
 }
 
+// 벽에 테이블폼을 배치하는 통합 루틴
+GSErrCode	placeTableformOnWall (void)
+{
+	GSErrCode	err = NoError;
+	short		result;
+	long		nSel;
+	short		xx;
+	double		dx, dy;
+
+	// Selection Manager 관련 변수
+	API_SelectionInfo		selectionInfo;
+	API_Element				tElem;
+	API_Neig				**selNeigs;
+	GS::Array<API_Guid>		walls;
+	GS::Array<API_Guid>		morphs;
+	long					nWalls = 0;
+	long					nMorphs = 0;
+
+	// 객체 정보 가져오기
+	API_Element				elem;
+	API_ElementMemo			memo;
+	API_ElemInfo3D			info3D;
+
+	// 모프 객체 정보
+	InfoMorphForWallTableform	infoMorph [2];
+	InfoMorphForWallTableform	infoMorph_Basic;
+	InfoMorphForWallTableform	infoMorph_Extra;
+
+	// 작업 층 정보
+	API_StoryInfo	storyInfo;
+	double			workLevel_wall;		// 벽의 작업 층 높이
+
+
+	// 선택한 요소 가져오기
+	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
+	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	if (err == APIERR_NOPLAN) {
+		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
+	}
+	if (err == APIERR_NOSEL) {
+		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 벽 (1개), 벽을 덮는 모프 (1개)\n옵션 선택: 벽을 덮는 모프(뒷면 - 1차 모프와 높이가 다름) (1개)", true);
+	}
+	if (err != NoError) {
+		BMKillHandle ((GSHandle *) &selNeigs);
+		return err;
+	}
+
+	// 벽 1개, 모프 1~2개 선택해야 함
+	if (selectionInfo.typeID != API_SelEmpty) {
+		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
+		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
+			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
+
+			tElem.header.guid = (*selNeigs)[xx].guid;
+			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
+				continue;
+
+			if (tElem.header.typeID == API_WallID)		// 벽인가?
+				walls.Push (tElem.header.guid);
+
+			if (tElem.header.typeID == API_MorphID)		// 모프인가?
+				morphs.Push (tElem.header.guid);
+		}
+	}
+	BMKillHandle ((GSHandle *) &selNeigs);
+	nWalls = walls.GetSize ();
+	nMorphs = morphs.GetSize ();
+
+	// 벽이 1개인가?
+	if (nWalls != 1) {
+		ACAPI_WriteReport ("벽을 1개 선택해야 합니다.", true);
+		err = APIERR_GENERAL;
+		return err;
+	}
+
+	// 모프가 1개 또는 2개인가?
+	if ((nMorphs < 1) || (nMorphs > 2)) {
+		ACAPI_WriteReport ("벽을 덮는 모프를 1개 또는 2개를 선택하셔야 합니다.", true);
+		err = APIERR_GENERAL;
+		return err;
+	}
+
+	// (1) 벽 정보를 가져옴
+	BNZeroMemory (&elem, sizeof (API_Element));
+	BNZeroMemory (&memo, sizeof (API_ElementMemo));
+	elem.header.guid = walls.Pop ();
+	structuralObject_forTableformWall = elem.header.guid;
+	err = ACAPI_Element_Get (&elem);						// elem.wall.poly.nCoords : 폴리곤 수를 가져올 수 있음
+	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);	// memo.coords : 폴리곤 좌표를 가져올 수 있음
+	
+	if (elem.wall.thickness != elem.wall.thickness1) {
+		ACAPI_WriteReport ("벽의 두께는 균일해야 합니다.", true);
+		err = APIERR_GENERAL;
+		return err;
+	}
+	infoWall.wallThk		= elem.wall.thickness;
+	infoWall.floorInd		= elem.header.floorInd;
+	infoWall.bottomOffset	= elem.wall.bottomOffset;
+	infoWall.begX			= elem.wall.begC.x;
+	infoWall.begY			= elem.wall.begC.y;
+	infoWall.endX			= elem.wall.endC.x;
+	infoWall.endY			= elem.wall.endC.y;
+
+	ACAPI_DisposeElemMemoHdls (&memo);
+
+	// (2) 모프 정보를 가져옴
+	for (xx = 0 ; xx < nMorphs ; ++xx) {
+		BNZeroMemory (&elem, sizeof (API_Element));
+		elem.header.guid = morphs.Pop ();
+		err = ACAPI_Element_Get (&elem);
+		err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
+
+		// 만약 모프가 누워 있으면(세워져 있지 않으면) 중단
+		if (abs (info3D.bounds.zMax - info3D.bounds.zMin) < EPS) {
+			ACAPI_WriteReport ("모프가 세워져 있지 않습니다.", true);
+			err = APIERR_GENERAL;
+			return err;
+		}
+
+		// 모프의 GUID 저장
+		infoMorph [xx].guid = elem.header.guid;
+
+		// 모프의 좌하단, 우상단 점 지정
+		if (abs (elem.morph.tranmat.tmx [11] - info3D.bounds.zMin) < EPS) {
+			// 좌하단 좌표 결정
+			infoMorph [xx].leftBottomX = elem.morph.tranmat.tmx [3];
+			infoMorph [xx].leftBottomY = elem.morph.tranmat.tmx [7];
+			infoMorph [xx].leftBottomZ = elem.morph.tranmat.tmx [11];
+
+			// 우상단 좌표는?
+			if (abs (infoMorph [xx].leftBottomX - info3D.bounds.xMin) < EPS)
+				infoMorph [xx].rightTopX = info3D.bounds.xMax;
+			else
+				infoMorph [xx].rightTopX = info3D.bounds.xMin;
+			if (abs (infoMorph [xx].leftBottomY - info3D.bounds.yMin) < EPS)
+				infoMorph [xx].rightTopY = info3D.bounds.yMax;
+			else
+				infoMorph [xx].rightTopY = info3D.bounds.yMin;
+			if (abs (infoMorph [xx].leftBottomZ - info3D.bounds.zMin) < EPS)
+				infoMorph [xx].rightTopZ = info3D.bounds.zMax;
+			else
+				infoMorph [xx].rightTopZ = info3D.bounds.zMin;
+		} else {
+			// 우상단 좌표 결정
+			infoMorph [xx].rightTopX = elem.morph.tranmat.tmx [3];
+			infoMorph [xx].rightTopY = elem.morph.tranmat.tmx [7];
+			infoMorph [xx].rightTopZ = elem.morph.tranmat.tmx [11];
+
+			// 좌하단 좌표는?
+			if (abs (infoMorph [xx].rightTopX - info3D.bounds.xMin) < EPS)
+				infoMorph [xx].leftBottomX = info3D.bounds.xMax;
+			else
+				infoMorph [xx].leftBottomX = info3D.bounds.xMin;
+			if (abs (infoMorph [xx].rightTopY - info3D.bounds.yMin) < EPS)
+				infoMorph [xx].leftBottomY = info3D.bounds.yMax;
+			else
+				infoMorph [xx].leftBottomY = info3D.bounds.yMin;
+			if (abs (infoMorph [xx].rightTopZ - info3D.bounds.zMin) < EPS)
+				infoMorph [xx].leftBottomZ = info3D.bounds.zMax;
+			else
+				infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
+		}
+
+		// 모프의 Z축 회전 각도 (벽의 설치 각도)
+		dx = infoMorph [xx].rightTopX - infoMorph [xx].leftBottomX;
+		dy = infoMorph [xx].rightTopY - infoMorph [xx].leftBottomY;
+		infoMorph [xx].ang = RadToDegree (atan2 (dy, dx));
+
+		// 모프의 가로 길이
+		infoMorph [xx].horLen = GetDistance (info3D.bounds.xMin, info3D.bounds.yMin, info3D.bounds.xMax, info3D.bounds.yMax);
+
+		// 모프의 세로 길이
+		infoMorph [xx].verLen = abs (info3D.bounds.zMax - info3D.bounds.zMin);
+
+		// 영역 모프 제거
+		API_Elem_Head* headList = new API_Elem_Head [1];
+		headList [0] = elem.header;
+		err = ACAPI_Element_Delete (&headList, 1);
+		delete headList;
+	}
+
+	if (nMorphs == 1) {
+		// 모프가 1개일 경우, 기본 모프만 설정
+		infoMorph_Basic = infoMorph [0];
+		infoMorph_Extra = infoMorph [0];
+	} else {
+		// 모프가 2개일 경우, 세로 길이가 낮은 것이 기본 모프임
+		if (infoMorph [0].verLen > infoMorph [1].verLen) {
+			infoMorph_Basic = infoMorph [1];
+			infoMorph_Extra = infoMorph [0];
+		} else {
+			infoMorph_Basic = infoMorph [0];
+			infoMorph_Extra = infoMorph [1];
+		}
+	}
+
+	// 벽면 모프를 통해 영역 정보 업데이트
+	placingZone.leftBottomX		= infoMorph_Basic.leftBottomX;
+	placingZone.leftBottomY		= infoMorph_Basic.leftBottomY;
+	placingZone.leftBottomZ		= infoMorph_Basic.leftBottomZ;
+	placingZone.horLen			= infoMorph_Basic.horLen;
+	placingZone.verLen			= infoMorph_Basic.verLen;
+	placingZone.ang				= DegreeToRad (infoMorph_Basic.ang);
+	
+	// 작업 층 높이 반영 -- 모프
+	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+	workLevel_wall = 0.0;
+	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+		if (storyInfo.data [0][xx].index == infoWall.floorInd) {
+			workLevel_wall = storyInfo.data [0][xx].level;
+			break;
+		}
+	}
+	BMKillHandle ((GSHandle *) &storyInfo.data);
+
+	// 영역 정보의 고도 정보를 수정
+	placingZone.leftBottomZ = infoWall.bottomOffset;
+
+	clickedPrevButton = false;
+
+	//// [DIALOG] 1번째 다이얼로그에서 테이블폼의 방향과 가로/세로 방향 유로폼의 개수와 각각의 길이를 선택함
+	//result = DGBlankModalDialog (550, 450, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler1_Custom, 0);
+
+	//if (result != DG_OK)
+	//	return err;
+
+	//// [DIALOG] 2번째 다이얼로그에서 부재별 레이어를 지정함
+	//result = DGModalDialog (ACAPI_GetOwnResModule (), 32519, ACAPI_GetOwnResModule (), wallTableformPlacerHandler2_Custom, 0);
+
+	//if (result != DG_OK)
+	//	return err;
+
+	//// 테이블폼 배치하기
+	//if (placingZone.type == 1)
+	//	err = placingZone.placeTableformOnWall_Custom_TypeA ();
+	//else if (placingZone.type == 2)
+	//	err = placingZone.placeTableformOnWall_Custom_TypeB ();
+	//else if (placingZone.type == 3)
+	//	err = placingZone.placeTableformOnWall_Custom_TypeC ();
+	//else if (placingZone.type == 4)
+	//	err = placingZone.placeTableformOnWall_Custom_TypeD ();
+
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	bool	regenerate = true;
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	return	err;
+}
+
 // Cell 배열을 초기화함
 void	WallTableformPlacingZone::initCells (WallTableformPlacingZone* placingZone)
 {

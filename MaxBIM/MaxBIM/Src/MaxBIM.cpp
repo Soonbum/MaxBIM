@@ -146,20 +146,27 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					});
 					break;
 				case 4:
+					// 벽에 테이블폼 배치하기
+					err = ACAPI_CallUndoableCommand ("벽에 테이블폼 배치", [&] () -> GSErrCode {
+						err = placeTableformOnWall ();
+						return err;
+					});
+					break;
+				case 5:
 					// 슬래브 하부에 테이블폼 배치하기
 					err = ACAPI_CallUndoableCommand ("슬래브 하부에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnSlabBottom ();
 						return err;
 					});
 					break;
-				case 5:
+				case 6:
 					// 보에 테이블폼 배치하기
 					err = ACAPI_CallUndoableCommand ("보에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnBeam ();
 						return err;
 					});
 					break;
-				case 6:
+				case 7:
 					// 기둥에 테이블폼 배치하기
 					err = ACAPI_CallUndoableCommand ("기둥에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnColumn ();

@@ -352,4 +352,6 @@ GSErrCode	placeTableformOnWall_Custom (void);			// 벽에 테이블폼을 배치하는 통합
 short DGCALLBACK wallTableformPlacerHandler1_Custom (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 맞춤 제작을 위한 다이얼로그 (테이블폼 방향, 유로폼 가로/세로 개수 및 길이) - 커스텀
 short DGCALLBACK wallTableformPlacerHandler2_Custom (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 객체의 레이어를 선택하기 위한 다이얼로그
 
+GSErrCode	placeTableformOnWall (void);				// 벽에 테이블폼을 배치하는 통합 루틴 - 전체 통합
+
 #endif
