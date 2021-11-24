@@ -33,18 +33,6 @@
     <ClInclude Include="Src\UtilityFunctions.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Src\WallEuroformPlacer.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\SlabEuroformPlacer.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\BeamEuroformPlacer.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\ColumnEuroformPlacer.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Information.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -61,9 +49,6 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Src\SlabTableformPlacer.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\LibraryConvert.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Src\SupportingPostPlacer.hpp">
@@ -86,18 +71,6 @@
     <ClCompile Include="Src\UtilityFunctions.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Src\WallEuroformPlacer.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\SlabEuroformPlacer.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\BeamEuroformPlacer.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\ColumnEuroformPlacer.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Information.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
@@ -114,9 +87,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Src\SlabTableformPlacer.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\LibraryConvert.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Src\SupportingPostPlacer.cpp">
