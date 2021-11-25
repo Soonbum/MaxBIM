@@ -50,7 +50,7 @@ namespace wallTableformPlacerDG {
 	};
 
 	enum	objType_forWallTableformPlacer {
-		NONE,		// 없음
+		NONE = 1,	// 없음
 		TABLEFORM,	// 테이블폼
 		EUROFORM,	// 유로폼
 		FILLERSP,	// 휠러스페이서
@@ -89,12 +89,10 @@ struct CellForWallTableform
 	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
 
 	short	objType;		// 객체 타입: 없음, 테이블폼, 유로폼, 휠러스페이서, 합판, 각재
-	short	tableformType;	// 테이블폼 타입: 타입A (1), 타입B (2), 타입C (3), 타입D (4)
-	bool	bVertical;		// 방향: 수직(true), 수평(false)
 	
 	// 테이블폼 내 유로폼 길이
-	double	tableInHor [8];		// 가로 방향
-	double	tableInVer [8];		// 세로 방향
+	double	tableInHor [10];	// 가로 방향
+	double	tableInVer [10];	// 세로 방향
 };
 
 // 그리드 각 상단 셀 정보
@@ -125,12 +123,15 @@ public:
 	double	leftBottomZ;	// 좌하단 좌표 Z
 
 	double	horLen;			// 가로 길이
-	double	verLen;			// 세로 길이
+	double	verLenBasic;	// 세로 길이 (낮은쪽)
+	double	verLenExtra;	// 세로 길이 (높은쪽)
 	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
 
-	bool	bDoubleSide;	// 양면이면 true, 단면이면 false
+	bool	bVertical;		// 방향: 수직(true), 수평(false)
 
 	double	gap;			// 벽과의 간격
+
+	bool	bExtra;			// 높은쪽 모프가 있는가?
 
 	double	remainWidth;		// 남은 너비
 	double	remainHeightBasic;	// 남은 높이 (낮은쪽)
@@ -141,12 +142,14 @@ public:
 	double	lenLincorner;		// 왼쪽 인코너 길이
 	double	lenRincorner;		// 오른쪽 인코너 길이
 
+	short	tableformType;		// 테이블폼 타입: 타입A (1), 타입B (2), 타입C (3), 타입D (4)
+
 	short	nCellsInHor;		// 수평 방향 셀(유로폼) 개수
 	short	nCellsInVerBasic;	// 수직 방향 셀(유로폼) 개수 (낮은쪽)
 	short	nCellsInVerExtra;	// 수직 방향 셀(유로폼) 개수 (높은쪽)
 
-	CellForWallTableform		cells [10];			// 셀 배열 (인코너 제외)
-	UpperCellForWallTableform	upperCells [10];	// 상단 여백 셀 배열
+	CellForWallTableform		cells [50];			// 셀 배열 (인코너 제외)
+	UpperCellForWallTableform	upperCells [50];	// 상단 여백 셀 배열
 
 	double	marginTopBasic;		// 상단 여백 (낮은쪽)
 	double	marginTopExtra;		// 상단 여백 (높은쪽)
