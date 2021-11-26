@@ -91,8 +91,8 @@ struct CellForWallTableform
 	short	objType;		// 객체 타입: 없음, 테이블폼, 유로폼, 휠러스페이서, 합판, 각재
 	
 	// 테이블폼 내 유로폼 길이
-	double	tableInHor [10];	// 가로 방향
-	double	tableInVer [10];	// 세로 방향
+	int		tableInHor [10];	// 가로 방향
+	int		tableInVer [10];	// 세로 방향
 };
 
 // 그리드 각 상단 셀 정보
@@ -154,7 +154,19 @@ public:
 	double	marginTopBasic;		// 상단 여백 (낮은쪽)
 	double	marginTopExtra;		// 상단 여백 (높은쪽)
 
+	int	presetWidth_tableform [38];		// 세로 방향 테이블폼의 너비 모음 (2300 ... 400)
+	int	presetHeight_tableform [16];	// 세로 방향 테이블폼의 높이 모음 (6000 ... 1500)
+
+	int	presetWidth_euroform [6];		// 세로 방향 유로폼의 너비 모음 (600 ... 200)
+	int	presetHeight_euroform [3];		// 세로 방향 유로폼의 높이 모음 (1200 ... 600)
+
+	int	presetWidth_config_vertical [38][5];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
+	int	presetHeight_config_vertical [16][6];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
+	int	presetWidth_config_horizontal [16][7];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
+	int	presetHeight_config_horizontal [38][5];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
+
 public:
+	WallTableformPlacingZone ();									// 기본 생성자
 	void	initCells (WallTableformPlacingZone* placingZone);		// 셀 정보 초기화
 };
 

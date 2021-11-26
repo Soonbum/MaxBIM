@@ -81,6 +81,7 @@ static short	BUTTON_OBJ [50];
 static short	POPUP_OBJ_TYPE [50];
 static short	POPUP_WIDTH [50];
 static short	EDITCONTROL_WIDTH [50];
+static short	POPUP_HEIGHT_PRESET;
 static short	POPUP_HEIGHT_BASIC [10];
 static short	POPUP_HEIGHT_EXTRA [10];
 
@@ -349,6 +350,138 @@ GSErrCode	placeTableformOnWall (void)
 	return	err;
 }
 
+// 기본 생성자
+WallTableformPlacingZone::WallTableformPlacingZone ()
+{
+	this->presetWidth_tableform [0]		= 2300;
+	this->presetWidth_tableform [1]		= 2250;
+	this->presetWidth_tableform [2]		= 2200;
+	this->presetWidth_tableform [3]		= 2150;
+	this->presetWidth_tableform [4]		= 2100;
+	this->presetWidth_tableform [5]		= 2050;
+	this->presetWidth_tableform [6]		= 2000;
+	this->presetWidth_tableform [7]		= 1950;
+	this->presetWidth_tableform [8]		= 1900;
+	this->presetWidth_tableform [9]		= 1850;
+	this->presetWidth_tableform [10]	= 1800;
+	this->presetWidth_tableform [11]	= 1750;
+	this->presetWidth_tableform [12]	= 1700;
+	this->presetWidth_tableform [13]	= 1650;
+	this->presetWidth_tableform [14]	= 1600;
+	this->presetWidth_tableform [15]	= 1550;
+	this->presetWidth_tableform [16]	= 1500;
+	this->presetWidth_tableform [17]	= 1450;
+	this->presetWidth_tableform [18]	= 1400;
+	this->presetWidth_tableform [19]	= 1350;
+	this->presetWidth_tableform [20]	= 1300;
+	this->presetWidth_tableform [21]	= 1250;
+	this->presetWidth_tableform [22]	= 1200;
+	this->presetWidth_tableform [23]	= 1150;
+	this->presetWidth_tableform [24]	= 1100;
+	this->presetWidth_tableform [25]	= 1050;
+	this->presetWidth_tableform [26]	= 1000;
+	this->presetWidth_tableform [27]	= 950;
+	this->presetWidth_tableform [28]	= 900;
+	this->presetWidth_tableform [29]	= 850;
+	this->presetWidth_tableform [30]	= 800;
+	this->presetWidth_tableform [31]	= 750;
+	this->presetWidth_tableform [32]	= 700;
+	this->presetWidth_tableform [33]	= 650;
+	this->presetWidth_tableform [34]	= 600;
+	this->presetWidth_tableform [35]	= 500;
+	this->presetWidth_tableform [36]	= 450;
+	this->presetWidth_tableform [37]	= 400;
+
+	this->presetHeight_tableform [0]	= 6000;
+	this->presetHeight_tableform [1]	= 5700;
+	this->presetHeight_tableform [2]	= 5400;
+	this->presetHeight_tableform [3]	= 5100;
+	this->presetHeight_tableform [4]	= 4800;
+	this->presetHeight_tableform [5]	= 4500;
+	this->presetHeight_tableform [6]	= 4200;
+	this->presetHeight_tableform [7]	= 3900;
+	this->presetHeight_tableform [8]	= 3600;
+	this->presetHeight_tableform [9]	= 3300;
+	this->presetHeight_tableform [10]	= 3000;
+	this->presetHeight_tableform [11]	= 2700;
+	this->presetHeight_tableform [12]	= 2400;
+	this->presetHeight_tableform [13]	= 2100;
+	this->presetHeight_tableform [14]	= 1800;
+	this->presetHeight_tableform [15]	= 1500;
+
+	this->presetWidth_euroform [0]		= 600;
+	this->presetWidth_euroform [1]		= 500;
+	this->presetWidth_euroform [2]		= 450;
+	this->presetWidth_euroform [3]		= 400;
+	this->presetWidth_euroform [4]		= 300;
+	this->presetWidth_euroform [5]		= 200;
+
+	this->presetHeight_euroform [0]		= 1200;
+	this->presetHeight_euroform [1]		= 900;
+	this->presetHeight_euroform [2]		= 600;
+
+	this->presetWidth_config_vertical [0][0] = 4;	this->presetWidth_config_vertical [0][1] = 600;		this->presetWidth_config_vertical [0][2] = 600;		this->presetWidth_config_vertical [0][3] = 500;		this->presetWidth_config_vertical [0][4] = 600;		// 2300
+	this->presetWidth_config_vertical [1][0] = 4;	this->presetWidth_config_vertical [1][1] = 600;		this->presetWidth_config_vertical [1][2] = 600;		this->presetWidth_config_vertical [1][3] = 450;		this->presetWidth_config_vertical [1][4] = 600;		// 2250
+	this->presetWidth_config_vertical [2][0] = 4;	this->presetWidth_config_vertical [2][1] = 600;		this->presetWidth_config_vertical [2][2] = 600;		this->presetWidth_config_vertical [2][3] = 400;		this->presetWidth_config_vertical [2][4] = 600;		// 2200
+	this->presetWidth_config_vertical [3][0] = 4;	this->presetWidth_config_vertical [3][1] = 600;		this->presetWidth_config_vertical [3][2] = 500;		this->presetWidth_config_vertical [3][3] = 450;		this->presetWidth_config_vertical [3][4] = 600;		// 2150
+	this->presetWidth_config_vertical [4][0] = 4;	this->presetWidth_config_vertical [4][1] = 600;		this->presetWidth_config_vertical [4][2] = 600;		this->presetWidth_config_vertical [4][3] = 300;		this->presetWidth_config_vertical [4][4] = 600;		// 2100
+	this->presetWidth_config_vertical [5][0] = 4;	this->presetWidth_config_vertical [5][1] = 600;		this->presetWidth_config_vertical [5][2] = 450;		this->presetWidth_config_vertical [5][3] = 400;		this->presetWidth_config_vertical [5][4] = 600;		// 2050
+	this->presetWidth_config_vertical [6][0] = 4;	this->presetWidth_config_vertical [6][1] = 600;		this->presetWidth_config_vertical [6][2] = 600;		this->presetWidth_config_vertical [6][3] = 200;		this->presetWidth_config_vertical [6][4] = 600;		// 2000
+	this->presetWidth_config_vertical [7][0] = 4;	this->presetWidth_config_vertical [7][1] = 600;		this->presetWidth_config_vertical [7][2] = 450;		this->presetWidth_config_vertical [7][3] = 300;		this->presetWidth_config_vertical [7][4] = 600;		// 1950
+	this->presetWidth_config_vertical [8][0] = 4;	this->presetWidth_config_vertical [8][1] = 600;		this->presetWidth_config_vertical [8][2] = 500;		this->presetWidth_config_vertical [8][3] = 200;		this->presetWidth_config_vertical [8][4] = 600;		// 1900
+	this->presetWidth_config_vertical [9][0] = 4;	this->presetWidth_config_vertical [9][1] = 600;		this->presetWidth_config_vertical [9][2] = 450;		this->presetWidth_config_vertical [9][3] = 200;		this->presetWidth_config_vertical [9][4] = 600;		// 1850
+	this->presetWidth_config_vertical [10][0] = 3;	this->presetWidth_config_vertical [10][1] = 600;	this->presetWidth_config_vertical [10][2] = 600;	this->presetWidth_config_vertical [10][3] = 600;	this->presetWidth_config_vertical [10][4] = 0;		// 1800
+	this->presetWidth_config_vertical [11][0] = 4;	this->presetWidth_config_vertical [11][1] = 600;	this->presetWidth_config_vertical [11][2] = 200;	this->presetWidth_config_vertical [11][3] = 450;	this->presetWidth_config_vertical [11][4] = 500;	// 1750
+	this->presetWidth_config_vertical [12][0] = 3;	this->presetWidth_config_vertical [12][1] = 600;	this->presetWidth_config_vertical [12][2] = 500;	this->presetWidth_config_vertical [12][3] = 600;	this->presetWidth_config_vertical [12][4] = 0;		// 1700
+	this->presetWidth_config_vertical [13][0] = 3;	this->presetWidth_config_vertical [13][1] = 600;	this->presetWidth_config_vertical [13][2] = 450;	this->presetWidth_config_vertical [13][3] = 600;	this->presetWidth_config_vertical [13][4] = 0;		// 1650
+	this->presetWidth_config_vertical [14][0] = 3;	this->presetWidth_config_vertical [14][1] = 600;	this->presetWidth_config_vertical [14][2] = 400;	this->presetWidth_config_vertical [14][3] = 600;	this->presetWidth_config_vertical [14][4] = 0;		// 1600
+	this->presetWidth_config_vertical [15][0] = 3;	this->presetWidth_config_vertical [15][1] = 600;	this->presetWidth_config_vertical [15][2] = 450;	this->presetWidth_config_vertical [15][3] = 500;	this->presetWidth_config_vertical [15][4] = 0;		// 1550
+	this->presetWidth_config_vertical [16][0] = 3;	this->presetWidth_config_vertical [16][1] = 600;	this->presetWidth_config_vertical [16][2] = 300;	this->presetWidth_config_vertical [16][3] = 600;	this->presetWidth_config_vertical [16][4] = 0;		// 1500
+	this->presetWidth_config_vertical [17][0] = 3;	this->presetWidth_config_vertical [17][1] = 500;	this->presetWidth_config_vertical [17][2] = 450;	this->presetWidth_config_vertical [17][3] = 500;	this->presetWidth_config_vertical [17][4] = 0;		// 1450
+	this->presetWidth_config_vertical [18][0] = 3;	this->presetWidth_config_vertical [18][1] = 500;	this->presetWidth_config_vertical [18][2] = 400;	this->presetWidth_config_vertical [18][3] = 500;	this->presetWidth_config_vertical [18][4] = 0;		// 1400
+	this->presetWidth_config_vertical [19][0] = 3;	this->presetWidth_config_vertical [19][1] = 600;	this->presetWidth_config_vertical [19][2] = 300;	this->presetWidth_config_vertical [19][3] = 450;	this->presetWidth_config_vertical [19][4] = 0;		// 1350
+	this->presetWidth_config_vertical [20][0] = 3;	this->presetWidth_config_vertical [20][1] = 600;	this->presetWidth_config_vertical [20][2] = 200;	this->presetWidth_config_vertical [20][3] = 500;	this->presetWidth_config_vertical [20][4] = 0;		// 1300
+	this->presetWidth_config_vertical [21][0] = 3;	this->presetWidth_config_vertical [21][1] = 600;	this->presetWidth_config_vertical [21][2] = 200;	this->presetWidth_config_vertical [21][3] = 450;	this->presetWidth_config_vertical [21][4] = 0;		// 1250
+	this->presetWidth_config_vertical [22][0] = 2;	this->presetWidth_config_vertical [22][1] = 600;	this->presetWidth_config_vertical [22][2] = 600;	this->presetWidth_config_vertical [22][3] = 0;		this->presetWidth_config_vertical [22][4] = 0;		// 1200
+	this->presetWidth_config_vertical [23][0] = 3;	this->presetWidth_config_vertical [23][1] = 450;	this->presetWidth_config_vertical [23][2] = 300;	this->presetWidth_config_vertical [23][3] = 400;	this->presetWidth_config_vertical [23][4] = 0;		// 1150
+	this->presetWidth_config_vertical [24][0] = 3;	this->presetWidth_config_vertical [24][1] = 400;	this->presetWidth_config_vertical [24][2] = 300;	this->presetWidth_config_vertical [24][3] = 400;	this->presetWidth_config_vertical [24][4] = 0;		// 1100
+	this->presetWidth_config_vertical [25][0] = 3;	this->presetWidth_config_vertical [25][1] = 450;	this->presetWidth_config_vertical [25][2] = 300;	this->presetWidth_config_vertical [25][3] = 300;	this->presetWidth_config_vertical [25][4] = 0;		// 1050
+	this->presetWidth_config_vertical [26][0] = 2;	this->presetWidth_config_vertical [26][1] = 600;	this->presetWidth_config_vertical [26][2] = 400;	this->presetWidth_config_vertical [26][3] = 0;		this->presetWidth_config_vertical [26][4] = 0;		// 1000
+	this->presetWidth_config_vertical [27][0] = 2;	this->presetWidth_config_vertical [27][1] = 450;	this->presetWidth_config_vertical [27][2] = 500;	this->presetWidth_config_vertical [27][3] = 0;		this->presetWidth_config_vertical [27][4] = 0;		// 950
+	this->presetWidth_config_vertical [28][0] = 2;	this->presetWidth_config_vertical [28][1] = 600;	this->presetWidth_config_vertical [28][2] = 300;	this->presetWidth_config_vertical [28][3] = 0;		this->presetWidth_config_vertical [28][4] = 0;		// 900
+	this->presetWidth_config_vertical [29][0] = 2;	this->presetWidth_config_vertical [29][1] = 400;	this->presetWidth_config_vertical [29][2] = 450;	this->presetWidth_config_vertical [29][3] = 0;		this->presetWidth_config_vertical [29][4] = 0;		// 850
+	this->presetWidth_config_vertical [30][0] = 2;	this->presetWidth_config_vertical [30][1] = 400;	this->presetWidth_config_vertical [30][2] = 400;	this->presetWidth_config_vertical [30][3] = 0;		this->presetWidth_config_vertical [30][4] = 0;		// 800
+	this->presetWidth_config_vertical [31][0] = 2;	this->presetWidth_config_vertical [31][1] = 450;	this->presetWidth_config_vertical [31][2] = 300;	this->presetWidth_config_vertical [31][3] = 0;		this->presetWidth_config_vertical [31][4] = 0;		// 750
+	this->presetWidth_config_vertical [32][0] = 2;	this->presetWidth_config_vertical [32][1] = 400;	this->presetWidth_config_vertical [32][2] = 300;	this->presetWidth_config_vertical [32][3] = 0;		this->presetWidth_config_vertical [32][4] = 0;		// 700
+	this->presetWidth_config_vertical [33][0] = 2;	this->presetWidth_config_vertical [33][1] = 450;	this->presetWidth_config_vertical [33][2] = 200;	this->presetWidth_config_vertical [33][3] = 0;		this->presetWidth_config_vertical [33][4] = 0;		// 650
+	this->presetWidth_config_vertical [34][0] = 1;	this->presetWidth_config_vertical [34][1] = 600;	this->presetWidth_config_vertical [34][2] = 0;		this->presetWidth_config_vertical [34][3] = 0;		this->presetWidth_config_vertical [34][4] = 0;		// 600
+	this->presetWidth_config_vertical [35][0] = 1;	this->presetWidth_config_vertical [35][1] = 500;	this->presetWidth_config_vertical [35][2] = 0;		this->presetWidth_config_vertical [35][3] = 0;		this->presetWidth_config_vertical [35][4] = 0;		// 500
+	this->presetWidth_config_vertical [36][0] = 1;	this->presetWidth_config_vertical [36][1] = 450;	this->presetWidth_config_vertical [36][2] = 0;		this->presetWidth_config_vertical [36][3] = 0;		this->presetWidth_config_vertical [36][4] = 0;		// 450
+	this->presetWidth_config_vertical [37][0] = 1;	this->presetWidth_config_vertical [37][1] = 400;	this->presetWidth_config_vertical [37][2] = 0;		this->presetWidth_config_vertical [37][3] = 0;		this->presetWidth_config_vertical [37][4] = 0;		// 400
+
+	this->presetHeight_config_vertical [0][0] = 5;	this->presetHeight_config_vertical [0][1] = 1200;	this->presetHeight_config_vertical [0][2] = 1200;	this->presetHeight_config_vertical [0][3] = 1200;	this->presetHeight_config_vertical [0][4] = 1200;	this->presetHeight_config_vertical [0][5] = 1200;	// 6000
+	this->presetHeight_config_vertical [1][0] = 5;	this->presetHeight_config_vertical [1][1] = 1200;	this->presetHeight_config_vertical [1][2] = 1200;	this->presetHeight_config_vertical [1][3] = 1200;	this->presetHeight_config_vertical [1][4] = 1200;	this->presetHeight_config_vertical [1][5] = 900;	// 5700
+	this->presetHeight_config_vertical [2][0] = 5;	this->presetHeight_config_vertical [2][1] = 1200;	this->presetHeight_config_vertical [2][2] = 1200;	this->presetHeight_config_vertical [2][3] = 1200;	this->presetHeight_config_vertical [2][4] = 900;	this->presetHeight_config_vertical [2][5] = 900;	// 5400
+	this->presetHeight_config_vertical [3][0] = 5;	this->presetHeight_config_vertical [3][1] = 1200;	this->presetHeight_config_vertical [3][2] = 1200;	this->presetHeight_config_vertical [3][3] = 1200;	this->presetHeight_config_vertical [3][4] = 900;	this->presetHeight_config_vertical [3][5] = 600;	// 5100
+	this->presetHeight_config_vertical [4][0] = 4;	this->presetHeight_config_vertical [4][1] = 1200;	this->presetHeight_config_vertical [4][2] = 1200;	this->presetHeight_config_vertical [4][3] = 1200;	this->presetHeight_config_vertical [4][4] = 1200;	this->presetHeight_config_vertical [4][5] = 0;		// 4800
+	this->presetHeight_config_vertical [5][0] = 4;	this->presetHeight_config_vertical [5][1] = 1200;	this->presetHeight_config_vertical [5][2] = 1200;	this->presetHeight_config_vertical [5][3] = 1200;	this->presetHeight_config_vertical [5][4] = 900;	this->presetHeight_config_vertical [5][5] = 0;		// 4500
+	this->presetHeight_config_vertical [6][0] = 4;	this->presetHeight_config_vertical [6][1] = 1200;	this->presetHeight_config_vertical [6][2] = 1200;	this->presetHeight_config_vertical [6][3] = 900;	this->presetHeight_config_vertical [6][4] = 900;	this->presetHeight_config_vertical [6][5] = 0;		// 4200
+	this->presetHeight_config_vertical [7][0] = 4;	this->presetHeight_config_vertical [7][1] = 1200;	this->presetHeight_config_vertical [7][2] = 1200;	this->presetHeight_config_vertical [7][3] = 900;	this->presetHeight_config_vertical [7][4] = 600;	this->presetHeight_config_vertical [7][5] = 0;		// 3900
+	this->presetHeight_config_vertical [8][0] = 3;	this->presetHeight_config_vertical [8][1] = 1200;	this->presetHeight_config_vertical [8][2] = 1200;	this->presetHeight_config_vertical [8][3] = 1200;	this->presetHeight_config_vertical [8][4] = 0;		this->presetHeight_config_vertical [8][5] = 0;		// 3600
+	this->presetHeight_config_vertical [9][0] = 3;	this->presetHeight_config_vertical [9][1] = 1200;	this->presetHeight_config_vertical [9][2] = 1200;	this->presetHeight_config_vertical [9][3] = 900;	this->presetHeight_config_vertical [9][4] = 0;		this->presetHeight_config_vertical [9][5] = 0;		// 3300
+	this->presetHeight_config_vertical [10][0] = 3;	this->presetHeight_config_vertical [10][1] = 1200;	this->presetHeight_config_vertical [10][2] = 1200;	this->presetHeight_config_vertical [10][3] = 600;	this->presetHeight_config_vertical [10][4] = 0;		this->presetHeight_config_vertical [10][5] = 0;		// 3000
+	this->presetHeight_config_vertical [11][0] = 3;	this->presetHeight_config_vertical [11][1] = 1200;	this->presetHeight_config_vertical [11][2] = 900;	this->presetHeight_config_vertical [11][3] = 600;	this->presetHeight_config_vertical [11][4] = 0;		this->presetHeight_config_vertical [11][5] = 0;		// 2700
+	this->presetHeight_config_vertical [12][0] = 2;	this->presetHeight_config_vertical [12][1] = 1200;	this->presetHeight_config_vertical [12][2] = 1200;	this->presetHeight_config_vertical [12][3] = 0;		this->presetHeight_config_vertical [12][4] = 0;		this->presetHeight_config_vertical [12][5] = 0;		// 2400
+	this->presetHeight_config_vertical [13][0] = 2;	this->presetHeight_config_vertical [13][1] = 1200;	this->presetHeight_config_vertical [13][2] = 900;	this->presetHeight_config_vertical [13][3] = 0;		this->presetHeight_config_vertical [13][4] = 0;		this->presetHeight_config_vertical [13][5] = 0;		// 2100
+	this->presetHeight_config_vertical [14][0] = 2;	this->presetHeight_config_vertical [14][1] = 900;	this->presetHeight_config_vertical [14][2] = 900;	this->presetHeight_config_vertical [14][3] = 0;		this->presetHeight_config_vertical [14][4] = 0;		this->presetHeight_config_vertical [14][5] = 0;		// 1800
+	this->presetHeight_config_vertical [15][0] = 2;	this->presetHeight_config_vertical [15][1] = 900;	this->presetHeight_config_vertical [15][2] = 600;	this->presetHeight_config_vertical [15][3] = 0;		this->presetHeight_config_vertical [15][4] = 0;		this->presetHeight_config_vertical [15][5] = 0;		// 1500
+
+	//int	presetWidth_config_vertical [38][5];	// 세로 방향 테이블폼 내 유로폼의 배열 순서 --> 처리됨
+	//int	presetHeight_config_vertical [16][6];	// 세로 방향 테이블폼 내 유로폼의 배열 순서 --> 처리됨
+	//int	presetWidth_config_horizontal [16][6];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
+	//int	presetHeight_config_horizontal [38][5];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
+}
+
 // 셀 정보 초기화
 void	WallTableformPlacingZone::initCells (WallTableformPlacingZone* placingZone)
 {
@@ -381,12 +514,10 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 	short	result;
 	short	itmIdx;
 	short	itmPosX, itmPosY;
-	short	xx;
-	//char	buffer [256];
+	short	xx, yy;
+	char	buffer [256];
+	char	numbuf [32];
 	//bool	bChanged;					// 화면이 변경되는가?
-	static short	currentCol;			// 열 현재 개수
-	static short	currentRowBasic;	// 행 현재 개수 (낮은쪽)
-	static short	currentRowExtra;	// 행 현재 개수 (높은쪽)
 	const short		maxCol = 50;		// 열 최대 개수
 	const short		maxRow = 10;		// 행 최대 개수
 	double			totalWidth, totalHeight;
@@ -463,9 +594,9 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			POPUP_DIRECTION = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 105, 75, 70, 23);
 			DGSetItemFont (dialogID, POPUP_DIRECTION, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, POPUP_DIRECTION, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_DIRECTION, DG_POPUP_BOTTOM, "가로");
-			DGPopUpInsertItem (dialogID, POPUP_DIRECTION, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_DIRECTION, DG_POPUP_BOTTOM, "세로");
+			DGPopUpInsertItem (dialogID, POPUP_DIRECTION, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_DIRECTION, DG_POPUP_BOTTOM, "가로");
 			DGPopUpSelectItem (dialogID, POPUP_DIRECTION, DG_POPUP_TOP);
 			DGShowItem (dialogID, POPUP_DIRECTION);
 
@@ -504,8 +635,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			// 일반 셀: 기본값은 테이블폼
 			itmPosX = 90;
 			itmPosY = 137;
-			currentCol = placingZone.nCellsInHor;
-			for (xx = 0 ; xx < currentCol ; ++xx) {
+			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 				// 버튼
 				BUTTON_OBJ [xx] = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 71, 66);
 				DGSetItemFont (dialogID, BUTTON_OBJ [xx], DG_IS_LARGE | DG_IS_PLAIN);
@@ -533,82 +663,11 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				// 너비 (팝업컨트롤)
 				POPUP_WIDTH [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY + 68, 70, 23);
 				DGSetItemFont (dialogID, POPUP_WIDTH [xx], DG_IS_LARGE | DG_IS_PLAIN);
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "2300");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "2250");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "2200");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "2150");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "2100");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "2050");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "2000");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1950");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1900");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1850");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1800");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1750");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1700");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1650");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1600");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1550");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1500");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1450");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1400");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1350");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1300");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1250");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1200");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1150");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1100");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1050");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "1000");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "950");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "900");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "850");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "800");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "750");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "700");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "650");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "600");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "500");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "450");
-				DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, "400");
+				for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+					_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+				}
 				DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
 				DGShowItem (dialogID, POPUP_WIDTH [xx]);
 
@@ -676,23 +735,33 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGDisableItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA);
 			DGShowItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA);
 
+			// 팝업컨트롤: 테이블폼 세로방향 프리셋
+			POPUP_HEIGHT_PRESET = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 20, 835, 70, 23);
+			DGSetItemFont (dialogID, POPUP_HEIGHT_PRESET, DG_IS_LARGE | DG_IS_PLAIN);
+			for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
+				DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+				_itoa (placingZone.presetHeight_tableform [yy], numbuf, 10);
+				DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, numbuf);
+			}
+			DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, "Free");
+			DGPopUpSelectItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+			DGShowItem (dialogID, POPUP_HEIGHT_PRESET);
+
 			// 왼쪽에 낮은쪽
 			itmPosX = 105;
 			itmPosY = 820;
-			currentRowBasic = placingZone.nCellsInVerBasic;
-			currentRowExtra = placingZone.nCellsInVerExtra;
-			for (xx = 0 ; xx < currentRowBasic ; ++xx) {
+			for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 50);
 				DGShowItem (dialogID, itmIdx);
 
 				POPUP_HEIGHT_BASIC [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
 				DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [xx], DG_IS_LARGE | DG_IS_PLAIN);
-				DGPopUpInsertItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, "1200");
-				DGPopUpInsertItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, "900");
-				DGPopUpInsertItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, "600");
+				for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
+					_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, numbuf);
+				}
 				DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_TOP);
 				DGShowItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
 
@@ -703,18 +772,17 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			itmPosX = 185;
 			itmPosY = 820;
 			if (placingZone.bExtra == true) {
-				for (xx = 0 ; xx < currentRowExtra ; ++xx) {
+				for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 50);
 					DGShowItem (dialogID, itmIdx);
 
 					POPUP_HEIGHT_EXTRA [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
 					DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_IS_LARGE | DG_IS_PLAIN);
-					DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
-					DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, "1200");
-					DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
-					DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, "900");
-					DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
-					DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, "600");
+					for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+						DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
+						_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+						DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+					}
 					DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
 					DGShowItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
 
@@ -726,15 +794,15 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			// 다이얼로그 크기 설정
 			dialogSizeX = 550;
 			dialogSizeY = 950;
-			if (currentCol >= 5) {
-				DGSetDialogSize (dialogID, DG_CLIENT, dialogSizeX + 70 * (currentCol - 5), dialogSizeY, DG_TOPLEFT, true);
+			if (placingZone.nCellsInHor >= 5) {
+				DGSetDialogSize (dialogID, DG_CLIENT, dialogSizeX + 70 * (placingZone.nCellsInHor - 5), dialogSizeY, DG_TOPLEFT, true);
 			}
 
 			// 남은 너비 계산
 			totalWidth = 0.0;
 			if (DGGetItemValLong (dialogID, CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_LINCORNER);
 			if (DGGetItemValLong (dialogID, CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_RINCORNER);
-			for (xx = 0 ; xx < currentCol ; ++xx) {
+			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 				if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM))
 					totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ()) / 1000;
 				else
@@ -744,14 +812,14 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 			// 남은 높이 계산 (낮은쪽)
 			totalHeight = 0.0;
-			for (xx = 0 ; xx < currentRowBasic ; ++xx) {
+			for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
 				totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_BASIC [xx]))).ToCStr ().Get ()) / 1000;
 			}
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
 
 			// 남은 높이 계산 (높은쪽)
 			totalHeight = 0.0;
-			for (xx = 0 ; xx < currentRowExtra ; ++xx) {
+			for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
 				totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_EXTRA [xx]))).ToCStr ().Get ()) / 1000;
 			}
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
@@ -761,52 +829,357 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 		case DG_MSG_CHANGE:
 			// 가로/세로 변경할 때
 			if (item == POPUP_DIRECTION) {
+				strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, static_cast<short>(DGGetItemValLong (dialogID, POPUP_DIRECTION))).ToCStr ().Get ());
+
+				// 가로일 경우
+				if (my_strcmp (buffer, "가로") == 0) {
+					// 정면
+					for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
+						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
+							// 그리기 비활성화
+							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
+							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
+
+							// 팝업 전부 비우고
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+
+							// 팝업 내용 다시 채우고
+							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
+								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								_itoa (placingZone.presetHeight_tableform [yy], numbuf, 10);
+								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+							}
+							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
+
+							// 팝업 보이고, Edit컨트롤 숨김
+							DGShowItem (dialogID, POPUP_WIDTH [xx]);
+							DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
+
+							// 그리기 활성화
+							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
+							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM) {
+							// 그리기 비활성화
+							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
+							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
+
+							// 팝업 전부 비우고
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+
+							// 팝업 내용 다시 채우고
+							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+							}
+							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
+
+							// 팝업 보이고, Edit컨트롤 숨김
+							DGShowItem (dialogID, POPUP_WIDTH [xx]);
+							DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
+
+							// 그리기 활성화
+							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
+							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+						}
+					}
+
+					// 측면
+					for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
+						// 그리기 비활성화
+						DGInvalidateItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
+						DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_BASIC [xx]);
+
+						// 팝업 전부 비우고
+						DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_ALL_ITEMS);
+
+						// 팝업 내용 다시 채우고
+						for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
+							_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, numbuf);
+						}
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_TOP);
+
+						// 그리기 활성화
+						DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_BASIC [xx]);
+						DGRedrawItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
+					}
+
+					for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
+						// 그리기 비활성화
+						DGInvalidateItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+						DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+
+						// 팝업 전부 비우고
+						DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_ALL_ITEMS);
+
+						// 팝업 내용 다시 채우고
+						for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
+							_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+						}
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
+
+						// 그리기 활성화
+						DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+						DGRedrawItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+					}
+
+					// 프리셋
+					DGInvalidateItem (dialogID, POPUP_HEIGHT_PRESET);
+					DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_PRESET);
+					DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_PRESET, DG_ALL_ITEMS);
+
+					for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
+						DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+						_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
+						DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, numbuf);
+					}
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, "Free");
+					DGPopUpSelectItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+
+					DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_PRESET);
+					DGRedrawItem (dialogID, POPUP_HEIGHT_PRESET);
+
+				// 세로일 경우
+				} else {
+					// 정면
+					for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
+						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
+							// 그리기 비활성화
+							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
+							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
+
+							// 팝업 전부 비우고
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+
+							// 팝업 내용 다시 채우고
+							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
+								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
+								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+							}
+							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
+
+							// 그리기 활성화
+							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
+							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM) {
+							// 그리기 비활성화
+							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
+							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
+
+							// 팝업 전부 비우고
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+
+							// 팝업 내용 다시 채우고
+							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
+								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
+								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+							}
+							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
+
+							// 그리기 활성화
+							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
+							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+						}
+					}
+
+					// 측면
+					for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
+						// 그리기 비활성화
+						DGInvalidateItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
+						DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_BASIC [xx]);
+
+						// 팝업 전부 비우고
+						DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_ALL_ITEMS);
+
+						// 팝업 내용 다시 채우고
+						for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
+							_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, numbuf);
+						}
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_TOP);
+
+						// 그리기 활성화
+						DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_BASIC [xx]);
+						DGRedrawItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
+					}
+
+					for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
+						// 그리기 비활성화
+						DGInvalidateItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+						DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+
+						// 팝업 전부 비우고
+						DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_ALL_ITEMS);
+
+						// 팝업 내용 다시 채우고
+						for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
+							_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+						}
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
+
+						// 그리기 활성화
+						DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+						DGRedrawItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+					}
+
+					// 프리셋
+					DGInvalidateItem (dialogID, POPUP_HEIGHT_PRESET);
+					DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_PRESET);
+					DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_PRESET, DG_ALL_ITEMS);
+
+					for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
+						DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+						_itoa (placingZone.presetHeight_tableform [yy], numbuf, 10);
+						DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, numbuf);
+					}
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, "Free");
+					DGPopUpSelectItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+
+					DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_PRESET);
+					DGRedrawItem (dialogID, POPUP_HEIGHT_PRESET);
+				}
+			}
+
+			// 객체 타입 변경할 때
+			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
+				if (item == POPUP_OBJ_TYPE [xx]) {
+					// 해당 버튼의 이름 변경
+					DGSetItemText (dialogID, BUTTON_OBJ [xx], DGPopUpGetItemText (dialogID, POPUP_OBJ_TYPE [xx], DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx])));
+					
+					// 가로/세로 방향 여부에 따라 팝업컨트롤의 내용물이 바뀜
+					strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, static_cast<short>(DGGetItemValLong (dialogID, POPUP_DIRECTION))).ToCStr ().Get ());
+					if (my_strcmp (buffer, "가로") == 0) {
+						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
+							// 그리기 비활성화
+							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
+							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
+
+							// 팝업 전부 비우고
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+
+							// 팝업 내용 다시 채우고
+							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
+								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								_itoa (placingZone.presetHeight_tableform [yy], numbuf, 10);
+								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+							}
+							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
+
+							// 팝업 보이고, Edit컨트롤 숨김
+							DGShowItem (dialogID, POPUP_WIDTH [xx]);
+							DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
+
+							// 그리기 활성화
+							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
+							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM) {
+							// 그리기 비활성화
+							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
+							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
+
+							// 팝업 전부 비우고
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+
+							// 팝업 내용 다시 채우고
+							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+							}
+							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
+
+							// 팝업 보이고, Edit컨트롤 숨김
+							DGShowItem (dialogID, POPUP_WIDTH [xx]);
+							DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
+
+							// 그리기 활성화
+							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
+							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+						}
+					} else {
+						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
+							// 그리기 비활성화
+							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
+							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
+
+							// 팝업 전부 비우고
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+
+							// 팝업 내용 다시 채우고
+							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
+								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
+								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+							}
+							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
+
+							// 그리기 활성화
+							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
+							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM) {
+							// 그리기 비활성화
+							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
+							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
+
+							// 팝업 전부 비우고
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+
+							// 팝업 내용 다시 채우고
+							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
+								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
+								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+							}
+							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
+
+							// 그리기 활성화
+							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
+							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+						}
+					}
+
+					// 테이블폼/유로폼이면 너비가 팝업컨트롤, 그 외에는 Edit컨트롤, 없으면 모두 숨김
+					if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM)) {
+						DGShowItem (dialogID, POPUP_WIDTH [xx]);
+						DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
+					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == NONE) {
+						DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
+						DGHideItem (dialogID, POPUP_WIDTH [xx]);
+					} else {
+						DGShowItem (dialogID, EDITCONTROL_WIDTH [xx]);
+						DGHideItem (dialogID, POPUP_WIDTH [xx]);
+					}
+				}
+			}
+
+			// 프리셋 변경시
+			if (item == POPUP_HEIGHT_PRESET) {
+				// 가로일 때
+				// ...
+
+				// 세로일 때
 				// ...
 			}
 
-			// 인코너 버튼 클릭할 때
-			else if (item == CHECKBOX_LINCORNER) {
-				// ...
-			}
-			else if (item == CHECKBOX_RINCORNER) {
-				// ...
-			}
-
-			// 인코너 너비 변경될 때
-			else if (item == EDITCONTROL_LINCORNER) {
-				// ...
-			}
-			else if (item == EDITCONTROL_RINCORNER) {
-				// ...
-			}
+			// 남은 너비 계산
+			// ...
 			
-			else {
-				for (xx = 0 ; xx < currentCol ; ++xx) {
-					// 객체 타입 변경할 때
-					if (item == POPUP_OBJ_TYPE [xx]) {
-						// ...
-					}
-					// 셀 너비 변경될 때 (테이블폼, 유로폼)
-					else if (item == POPUP_WIDTH [xx]) {
-						// ...
-					}
-					// 셀 너비 변경될 때 (휠러스페이서, 합판, 각재)
-					else if (item == EDITCONTROL_WIDTH [xx]) {
-						// ...
-					}
-				}
+			// 남은 높이 계산 (낮은쪽)
+			// ...
 
-				for (xx = 0 ; xx < currentRowBasic ; ++xx) {
-					// 셀 높이 변경될 때 (낮은쪽)
-					if (item == POPUP_HEIGHT_BASIC [xx]) {
-						// ...
-					}
-					// 셀 높이 변경될 때 (높은쪽)
-					else if (item == POPUP_HEIGHT_EXTRA [xx]) {
-						// ...
-					}
-				}
-			}
+			// 남은 높이 계산 (높은쪽)
+			// ...
 
 		case DG_MSG_CLICK:
 			// 확인 버튼
@@ -906,49 +1279,72 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 //				}
 
 //				placingZone.marginTop = placingZone.verLen - accZ;
+
 			} else if (item == DG_CANCEL) {
 				// 처리할 내용 없음
+
 			} else {
 
+				if ((item == BUTTON_ADD_HOR) || (item == BUTTON_DEL_HOR)) {
+					// 정면 - 추가 버튼 클릭
+					if (item == BUTTON_ADD_HOR) {
+						// ... placingZone.nCellsInHor 1 증가
+					}
 
-				// 정면 - 추가 버튼 클릭
-				if (item == BUTTON_ADD_HOR) {
-					// ...
-				}
+					// 정면 - 삭제 버튼 클릭
+					else if (item == BUTTON_DEL_HOR) {
+						// ...
+						// ... placingZone.nCellsInHor 1 감소
+					}
 
-				// 정면 - 삭제 버튼 클릭
-				else if (item == BUTTON_DEL_HOR) {
-					// ...
-				}
+					// ... 정면 버튼 다시 그리기
 
-				// 측면 - 추가(L) 버튼 클릭
-				else if (item == BUTTON_ADD_VER_BASIC) {
-					// ...
-				}
+				} else if ((item == BUTTON_ADD_VER_BASIC) || (item == BUTTON_DEL_VER_BASIC)) {
+					// 측면 - 추가(L) 버튼 클릭
+					if (item == BUTTON_ADD_VER_BASIC) {
+						// ... placingZone.nCellsInVerBasic 1 증가
+					}
 
-				// 측면 - 추가(H) 버튼 클릭
-				else if (item == BUTTON_ADD_VER_EXTRA) {
-					// ...
-				}
+					// 측면 - 삭제(L) 버튼 클릭
+					else if (item == BUTTON_DEL_VER_BASIC) {
+						// ... placingZone.nCellsInVerBasic 1 감소
+					}
 
-				// 측면 - 삭제(L) 버튼 클릭
-				else if (item == BUTTON_DEL_VER_BASIC) {
-					// ...
-				}
+					// ... 측면 버튼 (낮은쪽) 다시 그리기
 
-				// 측면 - 삭제(H) 버튼 클릭
-				else if (item == BUTTON_DEL_VER_EXTRA) {
-					// ...
-				}
+				} else if ((item == BUTTON_ADD_VER_EXTRA) || (item == BUTTON_DEL_VER_EXTRA)) {
+					// 측면 - 추가(H) 버튼 클릭
+					if (item == BUTTON_ADD_VER_EXTRA) {
+						// ... placingZone.nCellsInVerExtra 1 증가
+					}
 
-				else {
+					// 측면 - 삭제(H) 버튼 클릭
+					else if (item == BUTTON_DEL_VER_EXTRA) {
+						// ... placingZone.nCellsInVerExtra 1 감소
+					}
+
+					// ... 측면 버튼 (높은쪽) 다시 그리기
+
+				} else {
 					// 객체 버튼 클릭
-					for (xx = 0 ; xx < currentCol ; ++xx) {
+					for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 						if (item == BUTTON_OBJ [xx]) {
-							// ...
+							// ... 테이블폼 타입, 가로 방향일 경우에만 3번째 다이얼로그 열기 (가로이면 버튼이 가로방향으로 배치됨, 버튼 아래에는 가로 방향 길이를 팝업컨트롤로 선택 가능함)
 						}
 					}
 				}
+
+				// 다이얼로그 크기 설정
+				// ...
+
+				// 남은 너비 계산
+				// ...
+			
+				// 남은 높이 계산 (낮은쪽)
+				// ...
+
+				// 남은 높이 계산 (높은쪽)
+				// ...
 			}
 
 		case DG_MSG_CLOSE:
