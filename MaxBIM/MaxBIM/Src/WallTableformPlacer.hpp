@@ -162,7 +162,7 @@ public:
 
 	int	presetWidth_config_vertical [38][5];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
 	int	presetHeight_config_vertical [16][6];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
-	int	presetWidth_config_horizontal [16][7];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
+	int	presetWidth_config_horizontal [16][6];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
 	int	presetHeight_config_horizontal [38][5];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
 
 public:

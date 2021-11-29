@@ -342,6 +342,9 @@ GSErrCode	placeTableformOnWall (void)
 	// 테이블폼 상단 여백 채우기
 	// ...
 
+	// 테이블폼 하단 여백 채우기
+	// ???
+
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
 	bool	regenerate = true;
@@ -476,10 +479,61 @@ WallTableformPlacingZone::WallTableformPlacingZone ()
 	this->presetHeight_config_vertical [14][0] = 2;	this->presetHeight_config_vertical [14][1] = 900;	this->presetHeight_config_vertical [14][2] = 900;	this->presetHeight_config_vertical [14][3] = 0;		this->presetHeight_config_vertical [14][4] = 0;		this->presetHeight_config_vertical [14][5] = 0;		// 1800
 	this->presetHeight_config_vertical [15][0] = 2;	this->presetHeight_config_vertical [15][1] = 900;	this->presetHeight_config_vertical [15][2] = 600;	this->presetHeight_config_vertical [15][3] = 0;		this->presetHeight_config_vertical [15][4] = 0;		this->presetHeight_config_vertical [15][5] = 0;		// 1500
 
-	//int	presetWidth_config_vertical [38][5];	// 세로 방향 테이블폼 내 유로폼의 배열 순서 --> 처리됨
-	//int	presetHeight_config_vertical [16][6];	// 세로 방향 테이블폼 내 유로폼의 배열 순서 --> 처리됨
-	//int	presetWidth_config_horizontal [16][6];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
-	//int	presetHeight_config_horizontal [38][5];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
+	this->presetWidth_config_horizontal [0][0] = 5;	this->presetWidth_config_horizontal [0][1] = 1200;	this->presetWidth_config_horizontal [0][2] = 1200;	this->presetWidth_config_horizontal [0][3] = 1200;	this->presetWidth_config_horizontal [0][4] = 1200;	this->presetWidth_config_horizontal [0][5] = 1200;	// 6000
+	this->presetWidth_config_horizontal [1][0] = 5;	this->presetWidth_config_horizontal [1][1] = 1200;	this->presetWidth_config_horizontal [1][2] = 1200;	this->presetWidth_config_horizontal [1][3] = 1200;	this->presetWidth_config_horizontal [1][4] = 1200;	this->presetWidth_config_horizontal [1][5] = 900;	// 5700
+	this->presetWidth_config_horizontal [2][0] = 5;	this->presetWidth_config_horizontal [2][1] = 1200;	this->presetWidth_config_horizontal [2][2] = 1200;	this->presetWidth_config_horizontal [2][3] = 1200;	this->presetWidth_config_horizontal [2][4] = 900;	this->presetWidth_config_horizontal [2][5] = 900;	// 5400
+	this->presetWidth_config_horizontal [3][0] = 5;	this->presetWidth_config_horizontal [3][1] = 1200;	this->presetWidth_config_horizontal [3][2] = 1200;	this->presetWidth_config_horizontal [3][3] = 1200;	this->presetWidth_config_horizontal [3][4] = 900;	this->presetWidth_config_horizontal [3][5] = 600;	// 5100
+	this->presetWidth_config_horizontal [4][0] = 4;	this->presetWidth_config_horizontal [4][1] = 1200;	this->presetWidth_config_horizontal [4][2] = 1200;	this->presetWidth_config_horizontal [4][3] = 1200;	this->presetWidth_config_horizontal [4][4] = 1200;	this->presetWidth_config_horizontal [4][5] = 0;		// 4800
+	this->presetWidth_config_horizontal [5][0] = 4;	this->presetWidth_config_horizontal [5][1] = 1200;	this->presetWidth_config_horizontal [5][2] = 1200;	this->presetWidth_config_horizontal [5][3] = 1200;	this->presetWidth_config_horizontal [5][4] = 900;	this->presetWidth_config_horizontal [5][5] = 0;		// 4500
+	this->presetWidth_config_horizontal [6][0] = 4;	this->presetWidth_config_horizontal [6][1] = 1200;	this->presetWidth_config_horizontal [6][2] = 1200;	this->presetWidth_config_horizontal [6][3] = 900;	this->presetWidth_config_horizontal [6][4] = 900;	this->presetWidth_config_horizontal [6][5] = 0;		// 4200
+	this->presetWidth_config_horizontal [7][0] = 4;	this->presetWidth_config_horizontal [7][1] = 1200;	this->presetWidth_config_horizontal [7][2] = 1200;	this->presetWidth_config_horizontal [7][3] = 900;	this->presetWidth_config_horizontal [7][4] = 600;	this->presetWidth_config_horizontal [7][5] = 0;		// 3900
+	this->presetWidth_config_horizontal [8][0] = 3;	this->presetWidth_config_horizontal [8][1] = 1200;	this->presetWidth_config_horizontal [8][2] = 1200;	this->presetWidth_config_horizontal [8][3] = 1200;	this->presetWidth_config_horizontal [8][4] = 0;		this->presetWidth_config_horizontal [8][5] = 0;		// 3600
+	this->presetWidth_config_horizontal [9][0] = 3;	this->presetWidth_config_horizontal [9][1] = 1200;	this->presetWidth_config_horizontal [9][2] = 1200;	this->presetWidth_config_horizontal [9][3] = 900;	this->presetWidth_config_horizontal [9][4] = 0;		this->presetWidth_config_horizontal [9][5] = 0;		// 3300
+	this->presetWidth_config_horizontal [10][0] = 3;this->presetWidth_config_horizontal [10][1] = 1200;	this->presetWidth_config_horizontal [10][2] = 1200;	this->presetWidth_config_horizontal [10][3] = 600;	this->presetWidth_config_horizontal [10][4] = 0;	this->presetWidth_config_horizontal [10][5] = 0;	// 3000
+	this->presetWidth_config_horizontal [11][0] = 3;this->presetWidth_config_horizontal [11][1] = 1200;	this->presetWidth_config_horizontal [11][2] = 900;	this->presetWidth_config_horizontal [11][3] = 600;	this->presetWidth_config_horizontal [11][4] = 0;	this->presetWidth_config_horizontal [11][5] = 0;	// 2700
+	this->presetWidth_config_horizontal [12][0] = 2;this->presetWidth_config_horizontal [12][1] = 1200;	this->presetWidth_config_horizontal [12][2] = 1200;	this->presetWidth_config_horizontal [12][3] = 0;	this->presetWidth_config_horizontal [12][4] = 0;	this->presetWidth_config_horizontal [12][5] = 0;	// 2400
+	this->presetWidth_config_horizontal [13][0] = 2;this->presetWidth_config_horizontal [13][1] = 1200;	this->presetWidth_config_horizontal [13][2] = 900;	this->presetWidth_config_horizontal [13][3] = 0;	this->presetWidth_config_horizontal [13][4] = 0;	this->presetWidth_config_horizontal [13][5] = 0;	// 2100
+	this->presetWidth_config_horizontal [14][0] = 2;this->presetWidth_config_horizontal [14][1] = 900;	this->presetWidth_config_horizontal [14][2] = 900;	this->presetWidth_config_horizontal [14][3] = 0;	this->presetWidth_config_horizontal [14][4] = 0;	this->presetWidth_config_horizontal [14][5] = 0;	// 1800
+	this->presetWidth_config_horizontal [15][0] = 2;this->presetWidth_config_horizontal [15][1] = 900;	this->presetWidth_config_horizontal [15][2] = 600;	this->presetWidth_config_horizontal [15][3] = 0;	this->presetWidth_config_horizontal [15][4] = 0;	this->presetWidth_config_horizontal [15][5] = 0;	// 1500
+
+	this->presetHeight_config_horizontal [0][0] = 4;	this->presetHeight_config_horizontal [0][1] = 600;	this->presetHeight_config_horizontal [0][2] = 600;	this->presetHeight_config_horizontal [0][3] = 600;	this->presetHeight_config_horizontal [0][4] = 500;		// 2300
+	this->presetHeight_config_horizontal [1][0] = 4;	this->presetHeight_config_horizontal [1][1] = 600;	this->presetHeight_config_horizontal [1][2] = 600;	this->presetHeight_config_horizontal [1][3] = 450;	this->presetHeight_config_horizontal [1][4] = 600;		// 2250
+	this->presetHeight_config_horizontal [2][0] = 4;	this->presetHeight_config_horizontal [2][1] = 600;	this->presetHeight_config_horizontal [2][2] = 600;	this->presetHeight_config_horizontal [2][3] = 600;	this->presetHeight_config_horizontal [2][4] = 400;		// 2200
+	this->presetHeight_config_horizontal [3][0] = 4;	this->presetHeight_config_horizontal [3][1] = 600;	this->presetHeight_config_horizontal [3][2] = 450;	this->presetHeight_config_horizontal [3][3] = 600;	this->presetHeight_config_horizontal [3][4] = 500;		// 2150
+	this->presetHeight_config_horizontal [4][0] = 4;	this->presetHeight_config_horizontal [4][1] = 600;	this->presetHeight_config_horizontal [4][2] = 300;	this->presetHeight_config_horizontal [4][3] = 600;	this->presetHeight_config_horizontal [4][4] = 600;		// 2100
+	this->presetHeight_config_horizontal [5][0] = 4;	this->presetHeight_config_horizontal [5][1] = 600;	this->presetHeight_config_horizontal [5][2] = 600;	this->presetHeight_config_horizontal [5][3] = 450;	this->presetHeight_config_horizontal [5][4] = 400;		// 2050
+	this->presetHeight_config_horizontal [6][0] = 4;	this->presetHeight_config_horizontal [6][1] = 600;	this->presetHeight_config_horizontal [6][2] = 600;	this->presetHeight_config_horizontal [6][3] = 600;	this->presetHeight_config_horizontal [6][4] = 200;		// 2000
+	this->presetHeight_config_horizontal [7][0] = 4;	this->presetHeight_config_horizontal [7][1] = 600;	this->presetHeight_config_horizontal [7][2] = 300;	this->presetHeight_config_horizontal [7][3] = 450;	this->presetHeight_config_horizontal [7][4] = 600;		// 1950
+	this->presetHeight_config_horizontal [8][0] = 4;	this->presetHeight_config_horizontal [8][1] = 600;	this->presetHeight_config_horizontal [8][2] = 600;	this->presetHeight_config_horizontal [8][3] = 200;	this->presetHeight_config_horizontal [8][4] = 500;		// 1900
+	this->presetHeight_config_horizontal [9][0] = 4;	this->presetHeight_config_horizontal [9][1] = 600;	this->presetHeight_config_horizontal [9][2] = 600;	this->presetHeight_config_horizontal [9][3] = 450;	this->presetHeight_config_horizontal [9][4] = 200;		// 1850
+	this->presetHeight_config_horizontal [10][0] = 3;	this->presetHeight_config_horizontal [10][1] = 600;	this->presetHeight_config_horizontal [10][2] = 600;	this->presetHeight_config_horizontal [10][3] = 600;	this->presetHeight_config_horizontal [10][4] = 0;		// 1800
+	this->presetHeight_config_horizontal [11][0] = 4;	this->presetHeight_config_horizontal [11][1] = 600;	this->presetHeight_config_horizontal [11][2] = 450;	this->presetHeight_config_horizontal [11][3] = 200;	this->presetHeight_config_horizontal [11][4] = 500;		// 1750
+	this->presetHeight_config_horizontal [12][0] = 3;	this->presetHeight_config_horizontal [12][1] = 600;	this->presetHeight_config_horizontal [12][2] = 600;	this->presetHeight_config_horizontal [12][3] = 500;	this->presetHeight_config_horizontal [12][4] = 0;		// 1700
+	this->presetHeight_config_horizontal [13][0] = 3;	this->presetHeight_config_horizontal [13][1] = 600;	this->presetHeight_config_horizontal [13][2] = 450;	this->presetHeight_config_horizontal [13][3] = 600;	this->presetHeight_config_horizontal [13][4] = 0;		// 1650
+	this->presetHeight_config_horizontal [14][0] = 3;	this->presetHeight_config_horizontal [14][1] = 600;	this->presetHeight_config_horizontal [14][2] = 600;	this->presetHeight_config_horizontal [14][3] = 400;	this->presetHeight_config_horizontal [14][4] = 0;		// 1600
+	this->presetHeight_config_horizontal [15][0] = 3;	this->presetHeight_config_horizontal [15][1] = 600;	this->presetHeight_config_horizontal [15][2] = 450;	this->presetHeight_config_horizontal [15][3] = 500;	this->presetHeight_config_horizontal [15][4] = 0;		// 1550
+	this->presetHeight_config_horizontal [16][0] = 3;	this->presetHeight_config_horizontal [16][1] = 600;	this->presetHeight_config_horizontal [16][2] = 300;	this->presetHeight_config_horizontal [16][3] = 600;	this->presetHeight_config_horizontal [16][4] = 0;		// 1500
+	this->presetHeight_config_horizontal [17][0] = 3;	this->presetHeight_config_horizontal [17][1] = 600;	this->presetHeight_config_horizontal [17][2] = 450;	this->presetHeight_config_horizontal [17][3] = 400;	this->presetHeight_config_horizontal [17][4] = 0;		// 1450
+	this->presetHeight_config_horizontal [18][0] = 3;	this->presetHeight_config_horizontal [18][1] = 600;	this->presetHeight_config_horizontal [18][2] = 300;	this->presetHeight_config_horizontal [18][3] = 500;	this->presetHeight_config_horizontal [18][4] = 0;		// 1400
+	this->presetHeight_config_horizontal [19][0] = 3;	this->presetHeight_config_horizontal [19][1] = 450;	this->presetHeight_config_horizontal [19][2] = 300;	this->presetHeight_config_horizontal [19][3] = 600;	this->presetHeight_config_horizontal [19][4] = 0;		// 1350
+	this->presetHeight_config_horizontal [20][0] = 3;	this->presetHeight_config_horizontal [20][1] = 600;	this->presetHeight_config_horizontal [20][2] = 200;	this->presetHeight_config_horizontal [20][3] = 500;	this->presetHeight_config_horizontal [20][4] = 0;		// 1300
+	this->presetHeight_config_horizontal [21][0] = 3;	this->presetHeight_config_horizontal [21][1] = 450;	this->presetHeight_config_horizontal [21][2] = 600;	this->presetHeight_config_horizontal [21][3] = 200;	this->presetHeight_config_horizontal [21][4] = 0;		// 1250
+	this->presetHeight_config_horizontal [22][0] = 2;	this->presetHeight_config_horizontal [22][1] = 600;	this->presetHeight_config_horizontal [22][2] = 600;	this->presetHeight_config_horizontal [22][3] = 0;	this->presetHeight_config_horizontal [22][4] = 0;		// 1200
+	this->presetHeight_config_horizontal [23][0] = 3;	this->presetHeight_config_horizontal [23][1] = 450;	this->presetHeight_config_horizontal [23][2] = 300;	this->presetHeight_config_horizontal [23][3] = 400;	this->presetHeight_config_horizontal [23][4] = 0;		// 1150
+	this->presetHeight_config_horizontal [24][0] = 2;	this->presetHeight_config_horizontal [24][1] = 600;	this->presetHeight_config_horizontal [24][2] = 500;	this->presetHeight_config_horizontal [24][3] = 0;	this->presetHeight_config_horizontal [24][4] = 0;		// 1100
+	this->presetHeight_config_horizontal [25][0] = 3;	this->presetHeight_config_horizontal [25][1] = 300;	this->presetHeight_config_horizontal [25][2] = 300;	this->presetHeight_config_horizontal [25][3] = 450;	this->presetHeight_config_horizontal [25][4] = 0;		// 1050
+	this->presetHeight_config_horizontal [26][0] = 2;	this->presetHeight_config_horizontal [26][1] = 600;	this->presetHeight_config_horizontal [26][2] = 400;	this->presetHeight_config_horizontal [26][3] = 0;	this->presetHeight_config_horizontal [26][4] = 0;		// 1000
+	this->presetHeight_config_horizontal [27][0] = 2;	this->presetHeight_config_horizontal [27][1] = 450;	this->presetHeight_config_horizontal [27][2] = 500;	this->presetHeight_config_horizontal [27][3] = 0;	this->presetHeight_config_horizontal [27][4] = 0;		// 950
+	this->presetHeight_config_horizontal [28][0] = 2;	this->presetHeight_config_horizontal [28][1] = 600;	this->presetHeight_config_horizontal [28][2] = 300;	this->presetHeight_config_horizontal [28][3] = 0;	this->presetHeight_config_horizontal [28][4] = 0;		// 900
+	this->presetHeight_config_horizontal [29][0] = 2;	this->presetHeight_config_horizontal [29][1] = 450;	this->presetHeight_config_horizontal [29][2] = 400;	this->presetHeight_config_horizontal [29][3] = 0;	this->presetHeight_config_horizontal [29][4] = 0;		// 850
+	this->presetHeight_config_horizontal [30][0] = 2;	this->presetHeight_config_horizontal [30][1] = 400;	this->presetHeight_config_horizontal [30][2] = 400;	this->presetHeight_config_horizontal [30][3] = 0;	this->presetHeight_config_horizontal [30][4] = 0;		// 800
+	this->presetHeight_config_horizontal [31][0] = 2;	this->presetHeight_config_horizontal [31][1] = 300;	this->presetHeight_config_horizontal [31][2] = 450;	this->presetHeight_config_horizontal [31][3] = 0;	this->presetHeight_config_horizontal [31][4] = 0;		// 750
+	this->presetHeight_config_horizontal [32][0] = 2;	this->presetHeight_config_horizontal [32][1] = 300;	this->presetHeight_config_horizontal [32][2] = 400;	this->presetHeight_config_horizontal [32][3] = 0;	this->presetHeight_config_horizontal [32][4] = 0;		// 700
+	this->presetHeight_config_horizontal [33][0] = 2;	this->presetHeight_config_horizontal [33][1] = 450;	this->presetHeight_config_horizontal [33][2] = 200;	this->presetHeight_config_horizontal [33][3] = 0;	this->presetHeight_config_horizontal [33][4] = 0;		// 650
+	this->presetHeight_config_horizontal [34][0] = 1;	this->presetHeight_config_horizontal [34][1] = 600;	this->presetHeight_config_horizontal [34][2] = 0;	this->presetHeight_config_horizontal [34][3] = 0;	this->presetHeight_config_horizontal [34][4] = 0;		// 600
+	this->presetHeight_config_horizontal [35][0] = 1;	this->presetHeight_config_horizontal [35][1] = 500;	this->presetHeight_config_horizontal [35][2] = 0;	this->presetHeight_config_horizontal [35][3] = 0;	this->presetHeight_config_horizontal [35][4] = 0;		// 500
+	this->presetHeight_config_horizontal [36][0] = 1;	this->presetHeight_config_horizontal [36][1] = 450;	this->presetHeight_config_horizontal [36][2] = 0;	this->presetHeight_config_horizontal [36][3] = 0;	this->presetHeight_config_horizontal [36][4] = 0;		// 450
+	this->presetHeight_config_horizontal [37][0] = 1;	this->presetHeight_config_horizontal [37][1] = 400;	this->presetHeight_config_horizontal [37][2] = 0;	this->presetHeight_config_horizontal [37][3] = 0;	this->presetHeight_config_horizontal [37][4] = 0;		// 400
 }
 
 // 셀 정보 초기화
@@ -514,15 +568,13 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 	short	result;
 	short	itmIdx;
 	short	itmPosX, itmPosY;
-	short	xx, yy;
+	short	xx, yy, zz;
 	char	buffer [256];
 	char	numbuf [32];
-	//bool	bChanged;					// 화면이 변경되는가?
+	int		presetValue, cellHeightValue;
 	const short		maxCol = 50;		// 열 최대 개수
 	const short		maxRow = 10;		// 행 최대 개수
 	double			totalWidth, totalHeight;
-	//short			widthInd, heightInd;	// 너비, 높이를 가리키는 팝업컨트롤 인덱스
-	//double			accX, accZ;				// 유로폼을 설치하기 위한 거리를 계산하기 위한 변수
 	static short	dialogSizeX = 550;			// 현재 다이얼로그 크기 X
 	static short	dialogSizeY = 950;			// 현재 다이얼로그 크기 Y
 
@@ -701,25 +753,13 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGSetItemText (dialogID, BUTTON_ADD_VER_BASIC, "추가(L)");
 			DGShowItem (dialogID, BUTTON_ADD_VER_BASIC);
 
-			// 버튼: 추가 (높은쪽)
-			BUTTON_ADD_VER_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 185, 250, 70, 25);
-			DGSetItemFont (dialogID, BUTTON_ADD_VER_EXTRA, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, BUTTON_ADD_VER_EXTRA, "추가(H)");
-			DGShowItem (dialogID, BUTTON_ADD_VER_EXTRA);
-
 			// 버튼: 삭제 (낮은쪽)
 			BUTTON_DEL_VER_BASIC = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 250 + 30, 70, 25);
 			DGSetItemFont (dialogID, BUTTON_DEL_VER_BASIC, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, BUTTON_DEL_VER_BASIC, "삭제(L)");
 			DGShowItem (dialogID, BUTTON_DEL_VER_BASIC);
 
-			// 버튼: 삭제 (높은쪽)
-			BUTTON_DEL_VER_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 185, 250 + 30, 70, 25);
-			DGSetItemFont (dialogID, BUTTON_DEL_VER_EXTRA, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, BUTTON_DEL_VER_EXTRA, "삭제(H)");
-			DGShowItem (dialogID, BUTTON_DEL_VER_EXTRA);
-
-			// 라벨: 남은 높이 (낮은쪽)
+			// 라벨: 남은 높이
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 317, 70, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, "남은 높이");
@@ -730,10 +770,24 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGDisableItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC);
 			DGShowItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC);
 
-			// Edit컨트롤: 남은 높이 (높은쪽)
-			EDITCONTROL_REMAIN_HEIGHT_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 185, 310, 70, 25);
-			DGDisableItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA);
-			DGShowItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA);
+			if (placingZone.bExtra == true) {
+				// 버튼: 추가 (높은쪽)
+				BUTTON_ADD_VER_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 185, 250, 70, 25);
+				DGSetItemFont (dialogID, BUTTON_ADD_VER_EXTRA, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, BUTTON_ADD_VER_EXTRA, "추가(H)");
+				DGShowItem (dialogID, BUTTON_ADD_VER_EXTRA);
+
+				// 버튼: 삭제 (높은쪽)
+				BUTTON_DEL_VER_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 185, 250 + 30, 70, 25);
+				DGSetItemFont (dialogID, BUTTON_DEL_VER_EXTRA, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, BUTTON_DEL_VER_EXTRA, "삭제(H)");
+				DGShowItem (dialogID, BUTTON_DEL_VER_EXTRA);
+
+				// Edit컨트롤: 남은 높이 (높은쪽)
+				EDITCONTROL_REMAIN_HEIGHT_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 185, 310, 70, 25);
+				DGDisableItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA);
+				DGShowItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA);
+			}
 
 			// 팝업컨트롤: 테이블폼 세로방향 프리셋
 			POPUP_HEIGHT_PRESET = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 20, 835, 70, 23);
@@ -768,25 +822,27 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				itmPosY -= 50;
 			}
 
-			// 오른쪽에 높은쪽
-			itmPosX = 185;
-			itmPosY = 820;
 			if (placingZone.bExtra == true) {
-				for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 50);
-					DGShowItem (dialogID, itmIdx);
+				// 오른쪽에 높은쪽
+				itmPosX = 185;
+				itmPosY = 820;
+				if (placingZone.bExtra == true) {
+					for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
+						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 50);
+						DGShowItem (dialogID, itmIdx);
 
-					POPUP_HEIGHT_EXTRA [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
-					DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_IS_LARGE | DG_IS_PLAIN);
-					for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-						DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
-						_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-						DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+						POPUP_HEIGHT_EXTRA [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
+						DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_IS_LARGE | DG_IS_PLAIN);
+						for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
+							_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+						}
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
+						DGShowItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+
+						itmPosY -= 50;
 					}
-					DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
-					DGShowItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-
-					itmPosY -= 50;
 				}
 			}
 
@@ -805,6 +861,8 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 				if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM))
 					totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ()) / 1000;
+				else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == NONE)
+					totalWidth += 0.0;
 				else
 					totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH [xx]);
 			}
@@ -817,12 +875,14 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			}
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
 
-			// 남은 높이 계산 (높은쪽)
-			totalHeight = 0.0;
-			for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-				totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_EXTRA [xx]))).ToCStr ().Get ()) / 1000;
+			if (placingZone.bExtra == true) {
+				// 남은 높이 계산 (높은쪽)
+				totalHeight = 0.0;
+				for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
+					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_EXTRA [xx]))).ToCStr ().Get ()) / 1000;
+				}
+				DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
 			}
-			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
 
 			break;
 
@@ -906,25 +966,27 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 						DGRedrawItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
 					}
 
-					for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-						// 그리기 비활성화
-						DGInvalidateItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-						DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+					if (placingZone.bExtra == true) {
+						for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
+							// 그리기 비활성화
+							DGInvalidateItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+							DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
 
-						// 팝업 전부 비우고
-						DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_ALL_ITEMS);
+							// 팝업 전부 비우고
+							DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_ALL_ITEMS);
 
-						// 팝업 내용 다시 채우고
-						for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
-							DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
-							_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
-							DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+							// 팝업 내용 다시 채우고
+							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
+								DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
+								_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
+								DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+							}
+							DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
+
+							// 그리기 활성화
+							DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+							DGRedrawItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
 						}
-						DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
-
-						// 그리기 활성화
-						DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-						DGRedrawItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
 					}
 
 					// 프리셋
@@ -1011,25 +1073,27 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 						DGRedrawItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
 					}
 
-					for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-						// 그리기 비활성화
-						DGInvalidateItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-						DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+					if (placingZone.bExtra == true) {
+						for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
+							// 그리기 비활성화
+							DGInvalidateItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+							DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
 
-						// 팝업 전부 비우고
-						DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_ALL_ITEMS);
+							// 팝업 전부 비우고
+							DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_ALL_ITEMS);
 
-						// 팝업 내용 다시 채우고
-						for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-							DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
-							_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-							DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+							// 팝업 내용 다시 채우고
+							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+								DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
+								_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+								DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+							}
+							DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
+
+							// 그리기 활성화
+							DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+							DGRedrawItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
 						}
-						DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
-
-						// 그리기 활성화
-						DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-						DGRedrawItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
 					}
 
 					// 프리셋
@@ -1166,20 +1230,107 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			// 프리셋 변경시
 			if (item == POPUP_HEIGHT_PRESET) {
 				// 가로일 때
-				// ...
+				strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, static_cast<short>(DGGetItemValLong (dialogID, POPUP_DIRECTION))).ToCStr ().Get ());
+				if (my_strcmp (buffer, "가로") == 0) {
+					presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_PRESET))).ToCStr ().Get ());
+					for (xx = 0 ; xx < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++xx) {
+						if (presetValue == placingZone.presetWidth_tableform [xx]) {
+							for (yy = 0 ; yy < placingZone.nCellsInVerBasic ; ++yy) {
+								DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_PLAIN);
+								for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, POPUP_HEIGHT_BASIC [yy]) ; ++zz) {
+									cellHeightValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [yy], zz).ToCStr ().Get ());
+									if (cellHeightValue == placingZone.presetHeight_config_horizontal [xx][yy+1]) {
+										DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [yy], zz);
+										DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_BOLD);
+									}
+								}
+							}
+						}
+					}
+					if (placingZone.bExtra == true) {
+						presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_PRESET))).ToCStr ().Get ());
+						for (xx = 0 ; xx < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++xx) {
+							if (presetValue == placingZone.presetWidth_tableform [xx]) {
+								for (yy = 0 ; yy < placingZone.nCellsInVerExtra ; ++yy) {
+									DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_PLAIN);
+									for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, POPUP_HEIGHT_EXTRA [yy]) ; ++zz) {
+										cellHeightValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [yy], zz).ToCStr ().Get ());
+										if (cellHeightValue == placingZone.presetHeight_config_horizontal [xx][yy+1]) {
+											DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [yy], zz);
+											DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_BOLD);
+										}
+									}
+								}
+							}
+						}
+					}
 
 				// 세로일 때
-				// ...
+				} else {
+					presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_PRESET))).ToCStr ().Get ());
+					for (xx = 0 ; xx < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++xx) {
+						if (presetValue == placingZone.presetHeight_tableform [xx]) {
+							for (yy = 0 ; yy < placingZone.nCellsInVerBasic ; ++yy) {
+								DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_PLAIN);
+								for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, POPUP_HEIGHT_BASIC [yy]) ; ++zz) {
+									cellHeightValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [yy], zz).ToCStr ().Get ());
+									if (cellHeightValue == placingZone.presetHeight_config_vertical [xx][yy+1]) {
+										DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [yy], zz);
+										DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_BOLD);
+									}
+								}
+							}
+						}
+					}
+					if (placingZone.bExtra == true) {
+						presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_PRESET))).ToCStr ().Get ());
+						for (xx = 0 ; xx < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++xx) {
+							if (presetValue == placingZone.presetHeight_tableform [xx]) {
+								for (yy = 0 ; yy < placingZone.nCellsInVerExtra ; ++yy) {
+									DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_PLAIN);
+									for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, POPUP_HEIGHT_EXTRA [yy]) ; ++zz) {
+										cellHeightValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [yy], zz).ToCStr ().Get ());
+										if (cellHeightValue == placingZone.presetHeight_config_vertical [xx][yy+1]) {
+											DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [yy], zz);
+											DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_BOLD);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 
 			// 남은 너비 계산
-			// ...
-			
-			// 남은 높이 계산 (낮은쪽)
-			// ...
+			totalWidth = 0.0;
+			if (DGGetItemValLong (dialogID, CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_LINCORNER);
+			if (DGGetItemValLong (dialogID, CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_RINCORNER);
+			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
+				if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM))
+					totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ()) / 1000;
+				else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == NONE)
+					totalWidth += 0.0;
+				else
+					totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH [xx]);
+			}
+			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH, placingZone.horLen - totalWidth);
 
-			// 남은 높이 계산 (높은쪽)
-			// ...
+			// 남은 높이 계산 (낮은쪽)
+			totalHeight = 0.0;
+			for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
+				totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_BASIC [xx]))).ToCStr ().Get ()) / 1000;
+			}
+			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
+
+			if (placingZone.bExtra == true) {
+				// 남은 높이 계산 (높은쪽)
+				totalHeight = 0.0;
+				for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
+					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_EXTRA [xx]))).ToCStr ().Get ()) / 1000;
+				}
+				DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
+			}
 
 		case DG_MSG_CLICK:
 			// 확인 버튼
