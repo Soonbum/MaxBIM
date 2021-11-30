@@ -83,20 +83,20 @@ struct CellForWallTableform
 	double	leftBottomX;	// 좌하단 좌표 X
 	double	leftBottomY;	// 좌하단 좌표 Y
 	double	leftBottomZ;	// 좌하단 좌표 Z
-
-	double	horLen;			// 가로 길이
-	double	verLen;			// 세로 길이
 	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
 
 	short	objType;		// 객체 타입: 없음, 테이블폼, 유로폼, 휠러스페이서, 합판, 각재
 	
+	int		horLen;			// 가로 길이
+	int		verLen;			// 세로 길이
+
 	// 테이블폼 내 유로폼 길이
 	int		tableInHor [10];	// 가로 방향
 	int		tableInVer [10];	// 세로 방향
 };
 
-// 그리드 각 상단 셀 정보
-struct UpperCellForWallTableform
+// 그리드 각 상/하단 셀 정보
+struct MarginCellForWallTableform
 {
 	double	leftBottomX;	// 좌하단 좌표 X
 	double	leftBottomY;	// 좌하단 좌표 Y
@@ -127,7 +127,7 @@ public:
 	double	verLenExtra;	// 세로 길이 (높은쪽)
 	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
 
-	bool	bVertical;		// 방향: 수직(true), 수평(false)
+	bool	bVertical;		// 방향: 세로방향(true), 가로방향(false)
 
 	double	gap;			// 벽과의 간격
 
@@ -149,7 +149,8 @@ public:
 	short	nCellsInVerExtra;	// 수직 방향 셀(유로폼) 개수 (높은쪽)
 
 	CellForWallTableform		cells [50];			// 셀 배열 (인코너 제외)
-	UpperCellForWallTableform	upperCells [50];	// 상단 여백 셀 배열
+	MarginCellForWallTableform	upperCells [50];	// 상단 여백 셀 배열
+	MarginCellForWallTableform	lowerCells [50];	// 하단 여백 셀 배열
 
 	double	marginTopBasic;		// 상단 여백 (낮은쪽)
 	double	marginTopExtra;		// 상단 여백 (높은쪽)
@@ -166,12 +167,13 @@ public:
 	int	presetHeight_config_horizontal [38][5];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
 
 public:
-	WallTableformPlacingZone ();									// 기본 생성자
-	void	initCells (WallTableformPlacingZone* placingZone);		// 셀 정보 초기화
+	WallTableformPlacingZone ();													// 기본 생성자
+	void	initCells (WallTableformPlacingZone* placingZone, bool bVertical);		// 셀 정보 초기화
 };
 
 GSErrCode	placeTableformOnWall (void);				// 벽에 테이블폼을 배치하는 통합 루틴 - 전체 통합
-short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// 테이블폼/유로폼/휠러스페이서/합판/목재 배치를 위한 다이얼로그 (테이블폼 구성, 요소 방향, 개수 및 길이)
-short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// 객체의 레이어를 선택하기 위한 다이얼로그
+short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼/유로폼/휠러스페이서/합판/목재 배치를 위한 다이얼로그 (테이블폼 구성, 요소 방향, 개수 및 길이)
+short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 객체의 레이어를 선택하기 위한 다이얼로그
+short DGCALLBACK wallTableformPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼 세로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
 
 #endif
