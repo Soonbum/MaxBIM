@@ -158,8 +158,8 @@ public:
 	int	presetWidth_tableform [38];		// 세로 방향 테이블폼의 너비 모음 (2300 ... 400)
 	int	presetHeight_tableform [16];	// 세로 방향 테이블폼의 높이 모음 (6000 ... 1500)
 
-	int	presetWidth_euroform [6];		// 세로 방향 유로폼의 너비 모음 (600 ... 200)
-	int	presetHeight_euroform [3];		// 세로 방향 유로폼의 높이 모음 (1200 ... 600)
+	int	presetWidth_euroform [7];		// 세로 방향 유로폼의 너비 모음 (600 ... 200, 0)
+	int	presetHeight_euroform [4];		// 세로 방향 유로폼의 높이 모음 (1200 ... 600, 0)
 
 	int	presetWidth_config_vertical [38][5];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
 	int	presetHeight_config_vertical [16][6];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
@@ -172,8 +172,9 @@ public:
 };
 
 GSErrCode	placeTableformOnWall (void);				// 벽에 테이블폼을 배치하는 통합 루틴 - 전체 통합
-short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼/유로폼/휠러스페이서/합판/목재 배치를 위한 다이얼로그 (테이블폼 구성, 요소 방향, 개수 및 길이)
-short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 객체의 레이어를 선택하기 위한 다이얼로그
-short DGCALLBACK wallTableformPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼 세로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
+short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// 테이블폼/유로폼/휠러스페이서/합판/목재 배치를 위한 다이얼로그 (테이블폼 구성, 요소 방향, 개수 및 길이)
+short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// 객체의 레이어를 선택하기 위한 다이얼로그
+short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 세로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
+short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼 가로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
 
 #endif

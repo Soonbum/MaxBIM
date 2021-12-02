@@ -422,10 +422,12 @@ WallTableformPlacingZone::WallTableformPlacingZone ()
 	this->presetWidth_euroform [3]		= 400;
 	this->presetWidth_euroform [4]		= 300;
 	this->presetWidth_euroform [5]		= 200;
+	this->presetWidth_euroform [6]		= 0;
 
 	this->presetHeight_euroform [0]		= 1200;
 	this->presetHeight_euroform [1]		= 900;
 	this->presetHeight_euroform [2]		= 600;
+	this->presetHeight_euroform [3]		= 0;
 
 	this->presetWidth_config_vertical [0][0] = 4;	this->presetWidth_config_vertical [0][1] = 600;		this->presetWidth_config_vertical [0][2] = 600;		this->presetWidth_config_vertical [0][3] = 500;		this->presetWidth_config_vertical [0][4] = 600;		// 2300
 	this->presetWidth_config_vertical [1][0] = 4;	this->presetWidth_config_vertical [1][1] = 600;		this->presetWidth_config_vertical [1][2] = 600;		this->presetWidth_config_vertical [1][3] = 450;		this->presetWidth_config_vertical [1][4] = 600;		// 2250
@@ -884,7 +886,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			if (DGGetItemValLong (dialogID, CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_RINCORNER);
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 				if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM))
-					totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ()) / 1000;
+					totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
 				else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == NONE)
 					totalWidth += 0.0;
 				else
@@ -895,7 +897,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			// 남은 높이 계산 (낮은쪽)
 			totalHeight = 0.0;
 			for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
-				totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_BASIC [xx]))).ToCStr ().Get ()) / 1000;
+				totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_BASIC [xx])).ToCStr ().Get ()) / 1000;
 			}
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
 
@@ -903,7 +905,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				// 남은 높이 계산 (높은쪽)
 				totalHeight = 0.0;
 				for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_EXTRA [xx]))).ToCStr ().Get ()) / 1000;
+					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_EXTRA [xx])).ToCStr ().Get ()) / 1000;
 				}
 				DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
 			}
@@ -913,7 +915,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 		case DG_MSG_CHANGE:
 			// 가로/세로 변경할 때
 			if (item == POPUP_DIRECTION) {
-				strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, static_cast<short>(DGGetItemValLong (dialogID, POPUP_DIRECTION))).ToCStr ().Get ());
+				strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, DGPopUpGetSelected (dialogID, POPUP_DIRECTION)).ToCStr ().Get ());
 
 				// 가로일 경우
 				if (my_strcmp (buffer, "가로") == 0) {
@@ -1152,7 +1154,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					DGSetItemText (dialogID, BUTTON_OBJ [xx], DGPopUpGetItemText (dialogID, POPUP_OBJ_TYPE [xx], DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx])));
 					
 					// 가로/세로 방향 여부에 따라 팝업컨트롤의 내용물이 바뀜
-					strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, static_cast<short>(DGGetItemValLong (dialogID, POPUP_DIRECTION))).ToCStr ().Get ());
+					strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, DGPopUpGetSelected (dialogID, POPUP_DIRECTION)).ToCStr ().Get ());
 					if (my_strcmp (buffer, "가로") == 0) {
 						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
 							// 그리기 비활성화
@@ -1260,9 +1262,9 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			// 프리셋 변경시
 			if (item == POPUP_HEIGHT_PRESET) {
 				// 가로일 때
-				strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, static_cast<short>(DGGetItemValLong (dialogID, POPUP_DIRECTION))).ToCStr ().Get ());
+				strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, DGPopUpGetSelected (dialogID, POPUP_DIRECTION)).ToCStr ().Get ());
 				if (my_strcmp (buffer, "가로") == 0) {
-					presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_PRESET))).ToCStr ().Get ());
+					presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
 					for (xx = 0 ; xx < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++xx) {
 						if (presetValue == placingZone.presetWidth_tableform [xx]) {
 							for (yy = 0 ; yy < placingZone.nCellsInVerBasic ; ++yy) {
@@ -1278,7 +1280,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 						}
 					}
 					if (placingZone.bExtra == true) {
-						presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_PRESET))).ToCStr ().Get ());
+						presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
 						for (xx = 0 ; xx < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++xx) {
 							if (presetValue == placingZone.presetWidth_tableform [xx]) {
 								for (yy = 0 ; yy < placingZone.nCellsInVerExtra ; ++yy) {
@@ -1297,7 +1299,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 				// 세로일 때
 				} else {
-					presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_PRESET))).ToCStr ().Get ());
+					presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
 					for (xx = 0 ; xx < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++xx) {
 						if (presetValue == placingZone.presetHeight_tableform [xx]) {
 							for (yy = 0 ; yy < placingZone.nCellsInVerBasic ; ++yy) {
@@ -1313,7 +1315,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 						}
 					}
 					if (placingZone.bExtra == true) {
-						presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_PRESET))).ToCStr ().Get ());
+						presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
 						for (xx = 0 ; xx < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++xx) {
 							if (presetValue == placingZone.presetHeight_tableform [xx]) {
 								for (yy = 0 ; yy < placingZone.nCellsInVerExtra ; ++yy) {
@@ -1332,26 +1334,38 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				}
 			}
 
-			// 테이블폼 너비를 변경할 때 !!!
+			// 테이블폼 너비를 변경할 때
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
-				// 테이블폼 너비를 변경할 때
-				if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
-					strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, static_cast<short>(DGGetItemValLong (dialogID, POPUP_DIRECTION))).ToCStr ().Get ());
-					// 세로방향일 경우에만 각 셀의 너비를 설정함
-					if (my_strcmp (buffer, "세로") == 0) {
-						if (item == POPUP_WIDTH [xx]) {
-							cellWidthValue = atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ());
+				if (item == POPUP_WIDTH [xx]) {
+					if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
+						strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, DGPopUpGetSelected (dialogID, POPUP_DIRECTION)).ToCStr ().Get ());
+						if (my_strcmp (buffer, "세로") == 0) {
+							cellWidthValue = atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], (DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ());
 							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
 								if (cellWidthValue == placingZone.presetWidth_tableform [yy]) {
-									for (zz = 0 ; zz < placingZone.presetWidth_config_vertical [yy][0] ; ++zz) {
-										if ((zz >= 0) || (zz < placingZone.presetWidth_config_vertical [yy][0]))
+									for (zz = 0 ; zz < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++zz) {
+										if ((zz >= 0) && (zz < placingZone.presetWidth_config_vertical [yy][0]))
 											placingZone.cells [xx].tableInHor [zz] = placingZone.presetWidth_config_vertical [yy][zz+1];
 										else
 											placingZone.cells [xx].tableInHor [zz] = 0;
 									}
 								}
 							}
+						} else {
+							// !!!
+							cellWidthValue = atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], (DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ());
+							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
+								if (cellWidthValue == placingZone.presetHeight_tableform [yy]) {
+									for (zz = 0 ; zz < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++zz) {
+										if ((zz >= 0) && (zz < placingZone.presetWidth_config_horizontal [yy][0]))
+											placingZone.cells [xx].tableInHor [zz] = placingZone.presetWidth_config_horizontal [yy][zz+1];
+										else
+											placingZone.cells [xx].tableInHor [zz] = 0;
+									}
+								}
+							}
 						}
+						placingZone.cells [xx].horLen = cellWidthValue;
 					}
 				}
 			}
@@ -1362,7 +1376,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			if (DGGetItemValLong (dialogID, CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_RINCORNER);
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 				if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM))
-					totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ()) / 1000;
+					totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
 				else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == NONE)
 					totalWidth += 0.0;
 				else
@@ -1373,7 +1387,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			// 남은 높이 계산 (낮은쪽)
 			totalHeight = 0.0;
 			for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
-				totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_BASIC [xx]))).ToCStr ().Get ()) / 1000;
+				totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_BASIC [xx])).ToCStr ().Get ()) / 1000;
 			}
 			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
 
@@ -1381,7 +1395,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				// 남은 높이 계산 (높은쪽)
 				totalHeight = 0.0;
 				for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_EXTRA [xx]))).ToCStr ().Get ()) / 1000;
+					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_EXTRA [xx])).ToCStr ().Get ()) / 1000;
 				}
 				DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
 			}
@@ -1663,18 +1677,27 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					// 객체 버튼 클릭
 					for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 						if (item == BUTTON_OBJ [xx]) {
-							// 테이블폼 타입 (세로 방향)일 경우에만 3번째 다이얼로그 열기
 							clickedIndex = xx;
-							result = DGBlankModalDialog (350, 180, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler3, (short) 0);
+							strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, DGPopUpGetSelected (dialogID, POPUP_DIRECTION)).ToCStr ().Get ());
+							if (my_strcmp (buffer, "세로") == 0) {
+								// 테이블폼 타입 (세로 방향)일 경우, 3번째 다이얼로그(세로방향) 열기
+								result = DGBlankModalDialog (350, 180, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler3_Vertical, (short) 0);
+							} else {
+								// 테이블폼 타입 (가로 방향)일 경우, 3번째 다이얼로그(가로방향) 열기
+								result = DGBlankModalDialog (420, 180, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler3_Horizontal, (short) 0);
+							}
 
-							accumLength = 0;
-							for (yy = 0 ; yy < 4 ; ++yy) {
+							// !!!
+							// 콤보박스의 전체 너비 값 변경
+							//accumLength = 0;
+
+							for (yy = 0 ; yy < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++yy)
 								accumLength += placingZone.cells [xx].tableInHor [yy];
-								// !!! 안 바뀌나?
-								for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, POPUP_WIDTH [xx]) ; ++zz) {
-									if (accumLength == atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ().Get ())) {
-										DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], zz);
-									}
+
+							for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, POPUP_WIDTH [xx]) ; ++yy) {
+								if (accumLength == atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], yy).ToCStr ().Get ())) {
+									DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], yy);
+									break;
 								}
 							}
 						}
@@ -1694,7 +1717,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				if (DGGetItemValLong (dialogID, CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_RINCORNER);
 				for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 					if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM))
-						totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ()) / 1000;
+						totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
 					else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == NONE)
 						totalWidth += 0.0;
 					else
@@ -1705,7 +1728,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				// 남은 높이 계산 (낮은쪽)
 				totalHeight = 0.0;
 				for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
-					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_BASIC [xx]))).ToCStr ().Get ()) / 1000;
+					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_BASIC [xx])).ToCStr ().Get ()) / 1000;
 				}
 				DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
 
@@ -1713,7 +1736,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					// 남은 높이 계산 (높은쪽)
 					totalHeight = 0.0;
 					for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-						totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], static_cast<short>(DGGetItemValLong (dialogID, POPUP_HEIGHT_EXTRA [xx]))).ToCStr ().Get ()) / 1000;
+						totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_EXTRA [xx])).ToCStr ().Get ()) / 1000;
 					}
 					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
 				}
@@ -2364,9 +2387,9 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 }
 
 // 테이블폼 세로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
-short DGCALLBACK wallTableformPlacerHandler3 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
-	// clickedIndex: 이전 다이얼로그에서 눌린 버튼의 인덱스 번호 (BUTTON_OBJ [xx])
+	// clickedIndex: 이전 다이얼로그에서 눌린 버튼의 0-기반 인덱스 번호 (BUTTON_OBJ [xx])
 
 	short	result;
 	short	itmIdx;
@@ -2433,7 +2456,7 @@ short DGCALLBACK wallTableformPlacerHandler3 (short message, short dialogID, sho
 					_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
 					DGPopUpSetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM, numbuf);
 				}
-				for (yy = 0 ; yy < DGPopUpGetItemCount (dialogID, POPUP_WIDTH_IN_TABLE [xx]) ; ++yy) {
+				for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, POPUP_WIDTH_IN_TABLE [xx]) ; ++yy) {
 					if (placingZone.cells [clickedIndex].tableInHor [xx] == atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], yy).ToCStr ().Get ())) {
 						DGPopUpSelectItem (dialogID, POPUP_WIDTH_IN_TABLE [xx], yy);
 						break;
@@ -2473,6 +2496,154 @@ short DGCALLBACK wallTableformPlacerHandler3 (short message, short dialogID, sho
 					for (xx = 0 ; xx < 4 ; ++xx) {
 						placingZone.cells [clickedIndex].tableInHor [xx] = atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 					}
+					for (xx = 4 ; xx < 10 ; ++xx) {
+						placingZone.cells [clickedIndex].tableInHor [xx] = 0;
+					}
+
+					accumLength = 0;
+					for (xx = 0 ; xx < 5 ; ++xx) {
+						accumLength += atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+					}
+					placingZone.cells [clickedIndex].horLen = accumLength;
+					break;
+
+				case DG_CANCEL:
+					break;
+			}
+
+			break;
+
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
+}
+
+// 테이블폼 가로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
+short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData)
+{
+	// clickedIndex: 이전 다이얼로그에서 눌린 버튼의 0-기반 인덱스 번호 (BUTTON_OBJ [xx])
+
+	short	result;
+	short	itmIdx;
+	short	itmPosX, itmPosY;
+	short	xx, yy;
+	int		accumLength;
+	char	buffer [256];
+	char	numbuf [32];
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "테이블폼 (가로방향) 배열 설정");
+
+			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
+			// 적용 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 140, 70, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "확 인");
+			DGShowItem (dialogID, DG_OK);
+
+			// 종료 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 200, 140, 70, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "취 소");
+			DGShowItem (dialogID, DG_CANCEL);
+
+			// 기존 너비 (라벨)
+			accumLength = 0;
+			for (xx = 0 ; xx < sizeof (placingZone.cells [clickedIndex].tableInHor) / sizeof (int) ; ++xx)
+				accumLength += placingZone.cells [clickedIndex].tableInHor [xx];
+			sprintf (buffer, "기존 너비: %d", accumLength);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 20, 100, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, buffer);
+			DGShowItem (dialogID, itmIdx);
+
+			// 변경된 너비 (라벨)
+			sprintf (buffer, "변경된 너비: %d", 0);
+			LABEL_TOTAL_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 20, 100, 23);
+			DGSetItemFont (dialogID, LABEL_TOTAL_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, buffer);
+			DGShowItem (dialogID, LABEL_TOTAL_WIDTH);
+
+			itmPosX = 35;
+			itmPosY = 55;
+
+			for (xx = 0 ; xx < 5 ; ++xx) {
+				// 구분자
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 70);
+				DGShowItem (dialogID, itmIdx);
+
+				// 텍스트(유로폼)
+				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX + 10, itmPosY + 10, 50, 23);
+				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, itmIdx, "유로폼");
+				DGShowItem (dialogID, itmIdx);
+
+				// 콤보박스
+				POPUP_WIDTH_IN_TABLE [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 5, itmPosY + 40, 60, 25);
+				DGSetItemFont (dialogID, POPUP_WIDTH_IN_TABLE [xx], DG_IS_LARGE | DG_IS_PLAIN);
+				for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM);
+					_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM, numbuf);
+				}
+				for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, POPUP_WIDTH_IN_TABLE [xx]) ; ++yy) {
+					if (placingZone.cells [clickedIndex].tableInHor [xx] == atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], yy).ToCStr ().Get ())) {
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH_IN_TABLE [xx], yy);
+						break;
+					}
+				}
+				DGShowItem (dialogID, POPUP_WIDTH_IN_TABLE [xx]);
+
+				itmPosX += 70;
+			}
+
+			// 변경된 너비 (라벨) 업데이트
+			accumLength = 0;
+			for (xx = 0 ; xx < 5 ; ++xx) {
+				accumLength += atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+			}
+			sprintf (buffer, "변경된 너비: %d", accumLength);
+			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, buffer);
+
+			break;
+
+		case DG_MSG_CHANGE:
+
+			// 변경된 너비 (라벨) 업데이트
+			accumLength = 0;
+			for (xx = 0 ; xx < 5 ; ++xx) {
+				accumLength += atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+			}
+			sprintf (buffer, "변경된 너비: %d", accumLength);
+			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, buffer);
+
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					// 선택한 콤보박스들의 값을 기반으로 구조체 값을 갱신함
+					for (xx = 0 ; xx < 5 ; ++xx) {
+						placingZone.cells [clickedIndex].tableInHor [xx] = atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+					}
+					for (xx = 5 ; xx < 10 ; ++xx) {
+						placingZone.cells [clickedIndex].tableInHor [xx] = 0;
+					}
+
+					accumLength = 0;
+					for (xx = 0 ; xx < 5 ; ++xx) {
+						accumLength += atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+					}
+					placingZone.cells [clickedIndex].horLen = accumLength;
 					break;
 
 				case DG_CANCEL:
