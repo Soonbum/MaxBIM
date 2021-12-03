@@ -7,46 +7,46 @@ namespace wallTableformPlacerDG {
 	// 다이얼로그 항목 인덱스
 	enum	idxItems_1_forLayerSelection {
 		ICON_LAYER_CUSTOM = 3,
-		LABEL_LAYER_SETTINGS_CUSTOM,
-		CHECKBOX_LAYER_COUPLING_CUSTOM,
+		LABEL_LAYER_SETTINGS,
+		CHECKBOX_LAYER_COUPLING,
 
-		LABEL_LAYER_SLABTABLEFORM_CUSTOM,
-		LABEL_LAYER_PROFILE_CUSTOM,
-		LABEL_LAYER_EUROFORM_CUSTOM,
-		LABEL_LAYER_RECTPIPE_CUSTOM,
-		LABEL_LAYER_PINBOLT_CUSTOM,
-		LABEL_LAYER_WALLTIE_CUSTOM,
-		LABEL_LAYER_JOIN_CUSTOM,
-		LABEL_LAYER_HEADPIECE_CUSTOM,
-		LABEL_LAYER_STEELFORM_CUSTOM,
-		LABEL_LAYER_PLYWOOD_CUSTOM,
-		LABEL_LAYER_FILLERSP_CUSTOM,
-		LABEL_LAYER_OUTCORNER_ANGLE_CUSTOM,
-		LABEL_LAYER_OUTCORNER_PANEL_CUSTOM,
-		LABEL_LAYER_INCORNER_PANEL_CUSTOM,
-		LABEL_LAYER_RECTPIPE_HANGER_CUSTOM,
-		LABEL_LAYER_EUROFORM_HOOK_CUSTOM,
-		LABEL_LAYER_HIDDEN_CUSTOM,
+		LABEL_LAYER_SLABTABLEFORM,
+		LABEL_LAYER_PROFILE,
+		LABEL_LAYER_EUROFORM,
+		LABEL_LAYER_RECTPIPE,
+		LABEL_LAYER_PINBOLT,
+		LABEL_LAYER_WALLTIE,
+		LABEL_LAYER_JOIN,
+		LABEL_LAYER_HEADPIECE,
+		LABEL_LAYER_STEELFORM,
+		LABEL_LAYER_PLYWOOD,
+		LABEL_LAYER_FILLERSP,
+		LABEL_LAYER_OUTCORNER_ANGLE,
+		LABEL_LAYER_OUTCORNER_PANEL,
+		LABEL_LAYER_INCORNER_PANEL,
+		LABEL_LAYER_RECTPIPE_HANGER,
+		LABEL_LAYER_EUROFORM_HOOK,
+		LABEL_LAYER_HIDDEN,
 
-		USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM,
-		USERCONTROL_LAYER_PROFILE_CUSTOM,
-		USERCONTROL_LAYER_EUROFORM_CUSTOM,
-		USERCONTROL_LAYER_RECTPIPE_CUSTOM,
-		USERCONTROL_LAYER_PINBOLT_CUSTOM,
-		USERCONTROL_LAYER_WALLTIE_CUSTOM,
-		USERCONTROL_LAYER_JOIN_CUSTOM,
-		USERCONTROL_LAYER_HEADPIECE_CUSTOM,
-		USERCONTROL_LAYER_STEELFORM_CUSTOM,
-		USERCONTROL_LAYER_PLYWOOD_CUSTOM,
-		USERCONTROL_LAYER_FILLERSP_CUSTOM,
-		USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM,
-		USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM,
-		USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM,
-		USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM,
-		USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM,
-		USERCONTROL_LAYER_HIDDEN_CUSTOM,
+		USERCONTROL_LAYER_SLABTABLEFORM,
+		USERCONTROL_LAYER_PROFILE,
+		USERCONTROL_LAYER_EUROFORM,
+		USERCONTROL_LAYER_RECTPIPE,
+		USERCONTROL_LAYER_PINBOLT,
+		USERCONTROL_LAYER_WALLTIE,
+		USERCONTROL_LAYER_JOIN,
+		USERCONTROL_LAYER_HEADPIECE,
+		USERCONTROL_LAYER_STEELFORM,
+		USERCONTROL_LAYER_PLYWOOD,
+		USERCONTROL_LAYER_FILLERSP,
+		USERCONTROL_LAYER_OUTCORNER_ANGLE,
+		USERCONTROL_LAYER_OUTCORNER_PANEL,
+		USERCONTROL_LAYER_INCORNER_PANEL,
+		USERCONTROL_LAYER_RECTPIPE_HANGER,
+		USERCONTROL_LAYER_EUROFORM_HOOK,
+		USERCONTROL_LAYER_HIDDEN,
 
-		BUTTON_AUTOSET_CUSTOM
+		BUTTON_AUTOSET
 	};
 
 	enum	objType_forWallTableformPlacer {
@@ -88,11 +88,13 @@ struct CellForWallTableform
 	short	objType;		// 객체 타입: 없음, 테이블폼, 유로폼, 휠러스페이서, 합판, 각재
 	
 	int		horLen;			// 가로 길이
-	int		verLen;			// 세로 길이
+	int		verLenBasic;	// 세로 길이 (낮은쪽)
+	int		verLenExtra;	// 세로 길이 (높은쪽)
 
 	// 테이블폼 내 유로폼 길이
-	int		tableInHor [10];	// 가로 방향
-	int		tableInVer [10];	// 세로 방향
+	int		tableInHor [10];		// 가로 방향
+	int		tableInVerBasic [10];	// 세로 방향 (낮은쪽)
+	int		tableInVerExtra [10];	// 세로 방향 (높은쪽)
 };
 
 // 그리드 각 상/하단 셀 정보
@@ -133,10 +135,6 @@ public:
 
 	bool	bExtra;			// 높은쪽 모프가 있는가?
 
-	double	remainWidth;		// 남은 너비
-	double	remainHeightBasic;	// 남은 높이 (낮은쪽)
-	double	remainHeightExtra;	// 남은 높이 (높은쪽)
-
 	bool	bLincorner;			// 왼쪽 인코너 유무
 	bool	bRincorner;			// 오른쪽 인코너 유무
 	double	lenLincorner;		// 왼쪽 인코너 길이
@@ -149,26 +147,56 @@ public:
 	short	nCellsInVerExtra;	// 수직 방향 셀(유로폼) 개수 (높은쪽)
 
 	CellForWallTableform		cells [50];			// 셀 배열 (인코너 제외)
-	MarginCellForWallTableform	upperCells [50];	// 상단 여백 셀 배열
-	MarginCellForWallTableform	lowerCells [50];	// 하단 여백 셀 배열
 
 	double	marginTopBasic;		// 상단 여백 (낮은쪽)
 	double	marginTopExtra;		// 상단 여백 (높은쪽)
 
-	int	presetWidth_tableform [38];		// 세로 방향 테이블폼의 너비 모음 (2300 ... 400)
+	int	presetWidth_tableform [40];		// 세로 방향 테이블폼의 너비 모음 (2300 ... 200)
 	int	presetHeight_tableform [16];	// 세로 방향 테이블폼의 높이 모음 (6000 ... 1500)
 
 	int	presetWidth_euroform [7];		// 세로 방향 유로폼의 너비 모음 (600 ... 200, 0)
 	int	presetHeight_euroform [4];		// 세로 방향 유로폼의 높이 모음 (1200 ... 600, 0)
 
-	int	presetWidth_config_vertical [38][5];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
+	int	presetWidth_config_vertical [40][5];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
 	int	presetHeight_config_vertical [16][6];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
 	int	presetWidth_config_horizontal [16][6];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
-	int	presetHeight_config_horizontal [38][5];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
+	int	presetHeight_config_horizontal [40][5];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
 
 public:
-	WallTableformPlacingZone ();													// 기본 생성자
-	void	initCells (WallTableformPlacingZone* placingZone, bool bVertical);		// 셀 정보 초기화
+	WallTableformPlacingZone ();	// 기본 생성자
+	void	initCells (WallTableformPlacingZone* placingZone, bool bVertical);				// 셀 정보 초기화
+	double	getCellPositionLeftBottomX (WallTableformPlacingZone* placingZone, short idx);	// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
+	void	adjustCellsPosition (WallTableformPlacingZone* placingZone);					// 셀 위치를 바르게 교정함
+
+public:
+	// 다이얼로그 동적 요소 인덱스 번호 저장
+	short	EDITCONTROL_GAP;
+	short	POPUP_DIRECTION;
+	short	POPUP_TABLEFORM_TYPE;
+	short	EDITCONTROL_REMAIN_WIDTH;
+	short	EDITCONTROL_REMAIN_HEIGHT_BASIC;
+	short	EDITCONTROL_REMAIN_HEIGHT_EXTRA;
+	short	BUTTON_ADD_HOR;
+	short	BUTTON_DEL_HOR;
+	short	CHECKBOX_LINCORNER;
+	short	EDITCONTROL_LINCORNER;
+	short	CHECKBOX_RINCORNER;
+	short	EDITCONTROL_RINCORNER;
+	short	BUTTON_ADD_VER_BASIC;
+	short	BUTTON_DEL_VER_BASIC;
+	short	BUTTON_ADD_VER_EXTRA;
+	short	BUTTON_DEL_VER_EXTRA;
+
+	short	BUTTON_OBJ [50];
+	short	POPUP_OBJ_TYPE [50];
+	short	POPUP_WIDTH [50];
+	short	EDITCONTROL_WIDTH [50];
+	short	POPUP_HEIGHT_PRESET;
+	short	POPUP_HEIGHT_BASIC [10];
+	short	POPUP_HEIGHT_EXTRA [10];
+
+	short	LABEL_TOTAL_WIDTH;
+	short	POPUP_WIDTH_IN_TABLE [4];
 };
 
 GSErrCode	placeTableformOnWall (void);				// 벽에 테이블폼을 배치하는 통합 루틴 - 전체 통합

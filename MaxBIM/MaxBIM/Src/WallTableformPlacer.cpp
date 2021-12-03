@@ -19,6 +19,7 @@ static short	layerInd_WallTie;			// ·¹ÀÌ¾î ¹øÈ£: ºòÃ¼ Å¸ÀÌ (AÅ¸ÀÔ, ´õ ÀÌ»ó »ç¿ëÇ
 static short	layerInd_Clamp;				// ·¹ÀÌ¾î ¹øÈ£: Á÷±³ Å¬·¥ÇÁ (´õ ÀÌ»ó »ç¿ëÇÏÁö ¾ÊÀ½)
 static short	layerInd_HeadPiece;			// ·¹ÀÌ¾î ¹øÈ£: ÇìµåÇÇ½º (A,B,CÅ¸ÀÔ, B,CÅ¸ÀÔ¿¡¼­´Â ºöÁ¶ÀÎÆ®¿ë Push-Pull Props ÇìµåÇÇ½º)
 static short	layerInd_Join;				// ·¹ÀÌ¾î ¹øÈ£: °áÇÕÃ¶¹° (A,B,CÅ¸ÀÔ, B,CÅ¸ÀÔ¿¡¼­´Â »ç°¢ÆÄÀÌÇÁ ¿¬°áÃ¶¹°)
+
 static short	layerInd_Plywood;			// ·¹ÀÌ¾î ¹øÈ£: ÇÕÆÇ (°øÅë)
 static short	layerInd_Wood;				// ·¹ÀÌ¾î ¹øÈ£: ¸ñÀç (°øÅë)
 static short	layerInd_EuroformHook;		// ·¹ÀÌ¾î ¹øÈ£: À¯·ÎÆû ÈÄÅ© (BÅ¸ÀÔ)
@@ -59,38 +60,9 @@ static short	layerInd_RectpipeHanger;	// ·¹ÀÌ¾î ¹øÈ£: °¢ÆÄÀÌÇÁ Çà°Å
 
 static GS::Array<API_Guid>	elemList;	// ±×·ìÈ­¸¦ À§ÇØ »ý¼ºµÈ °á°ú¹°µéÀÇ GUID¸¦ ÀüºÎ ÀúÀåÇÔ
 
-// ´ÙÀÌ¾ó·Î±× µ¿Àû ¿ä¼Ò ÀÎµ¦½º ¹øÈ£ ÀúÀå
-static short	EDITCONTROL_GAP;
-static short	POPUP_DIRECTION;
-static short	POPUP_TABLEFORM_TYPE;
-static short	EDITCONTROL_REMAIN_WIDTH;
-static short	EDITCONTROL_REMAIN_HEIGHT_BASIC;
-static short	EDITCONTROL_REMAIN_HEIGHT_EXTRA;
-static short	BUTTON_ADD_HOR;
-static short	BUTTON_DEL_HOR;
-static short	CHECKBOX_LINCORNER;
-static short	EDITCONTROL_LINCORNER;
-static short	CHECKBOX_RINCORNER;
-static short	EDITCONTROL_RINCORNER;
-static short	BUTTON_ADD_VER_BASIC;
-static short	BUTTON_DEL_VER_BASIC;
-static short	BUTTON_ADD_VER_EXTRA;
-static short	BUTTON_DEL_VER_EXTRA;
-
-static short	BUTTON_OBJ [50];
-static short	POPUP_OBJ_TYPE [50];
-static short	POPUP_WIDTH [50];
-static short	EDITCONTROL_WIDTH [50];
-static short	POPUP_HEIGHT_PRESET;
-static short	POPUP_HEIGHT_BASIC [10];
-static short	POPUP_HEIGHT_EXTRA [10];
-
-static short	LABEL_TOTAL_WIDTH;
-static short	POPUP_WIDTH_IN_TABLE [4];
-
 //static double	preferWidth;
-static bool		clickedPrevButton;		// ÀÌÀü ¹öÆ°À» ´­·¶½À´Ï±î?
-static short	clickedIndex;			// Å¬¸¯ÇÑ ¹öÆ°ÀÇ ÀÎµ¦½º
+static bool	clickedPrevButton;		// ÀÌÀü ¹öÆ°À» ´­·¶½À´Ï±î?
+static int	clickedIndex;			// Å¬¸¯ÇÑ ¹öÆ°ÀÇ ÀÎµ¦½º
 
 
 // º®¿¡ Å×ÀÌºíÆûÀ» ¹èÄ¡ÇÏ´Â ÅëÇÕ ·çÆ¾
@@ -332,22 +304,16 @@ GSErrCode	placeTableformOnWall (void)
 		return err;
 
 	// [DIALOG] 2¹øÂ° ´ÙÀÌ¾ó·Î±×¿¡¼­ ºÎÀçº° ·¹ÀÌ¾î¸¦ ÁöÁ¤ÇÔ
-	//result = DGModalDialog (ACAPI_GetOwnResModule (), 32519, ACAPI_GetOwnResModule (), wallTableformPlacerHandler2, 0);
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32519, ACAPI_GetOwnResModule (), wallTableformPlacerHandler2, 0);
 
 	if (result != DG_OK)
 		return err;
 
-	// ¼¿ Á¤º¸ ÃÊ±âÈ­
-	// ...
-
 	// Å×ÀÌºíÆû ¹èÄ¡ÇÏ±â
-	// ...
+	// ... --> ÇÏ³ªÀÇ ·çÆ¾À¸·Î?
 
 	// Å×ÀÌºíÆû »ó´Ü ¿©¹é Ã¤¿ì±â
-	// ...
-
-	// Å×ÀÌºíÆû ÇÏ´Ü ¿©¹é Ã¤¿ì±â
-	// ???
+	// ... --> ÇÏ³ªÀÇ ·çÆ¾À¸·Î?
 
 	// È­¸é »õ·Î°íÄ§
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -398,6 +364,8 @@ WallTableformPlacingZone::WallTableformPlacingZone ()
 	this->presetWidth_tableform [35]	= 500;
 	this->presetWidth_tableform [36]	= 450;
 	this->presetWidth_tableform [37]	= 400;
+	this->presetWidth_tableform [38]	= 300;
+	this->presetWidth_tableform [39]	= 200;
 
 	this->presetHeight_tableform [0]	= 6000;
 	this->presetHeight_tableform [1]	= 5700;
@@ -467,6 +435,8 @@ WallTableformPlacingZone::WallTableformPlacingZone ()
 	this->presetWidth_config_vertical [35][0] = 1;	this->presetWidth_config_vertical [35][1] = 500;	this->presetWidth_config_vertical [35][2] = 0;		this->presetWidth_config_vertical [35][3] = 0;		this->presetWidth_config_vertical [35][4] = 0;		// 500
 	this->presetWidth_config_vertical [36][0] = 1;	this->presetWidth_config_vertical [36][1] = 450;	this->presetWidth_config_vertical [36][2] = 0;		this->presetWidth_config_vertical [36][3] = 0;		this->presetWidth_config_vertical [36][4] = 0;		// 450
 	this->presetWidth_config_vertical [37][0] = 1;	this->presetWidth_config_vertical [37][1] = 400;	this->presetWidth_config_vertical [37][2] = 0;		this->presetWidth_config_vertical [37][3] = 0;		this->presetWidth_config_vertical [37][4] = 0;		// 400
+	this->presetWidth_config_vertical [38][0] = 1;	this->presetWidth_config_vertical [38][1] = 300;	this->presetWidth_config_vertical [38][2] = 0;		this->presetWidth_config_vertical [38][3] = 0;		this->presetWidth_config_vertical [38][4] = 0;		// 300
+	this->presetWidth_config_vertical [39][0] = 1;	this->presetWidth_config_vertical [39][1] = 200;	this->presetWidth_config_vertical [39][2] = 0;		this->presetWidth_config_vertical [39][3] = 0;		this->presetWidth_config_vertical [39][4] = 0;		// 200
 
 	this->presetHeight_config_vertical [0][0] = 5;	this->presetHeight_config_vertical [0][1] = 1200;	this->presetHeight_config_vertical [0][2] = 1200;	this->presetHeight_config_vertical [0][3] = 1200;	this->presetHeight_config_vertical [0][4] = 1200;	this->presetHeight_config_vertical [0][5] = 1200;	// 6000
 	this->presetHeight_config_vertical [1][0] = 5;	this->presetHeight_config_vertical [1][1] = 1200;	this->presetHeight_config_vertical [1][2] = 1200;	this->presetHeight_config_vertical [1][3] = 1200;	this->presetHeight_config_vertical [1][4] = 1200;	this->presetHeight_config_vertical [1][5] = 900;	// 5700
@@ -540,6 +510,8 @@ WallTableformPlacingZone::WallTableformPlacingZone ()
 	this->presetHeight_config_horizontal [35][0] = 1;	this->presetHeight_config_horizontal [35][1] = 500;	this->presetHeight_config_horizontal [35][2] = 0;	this->presetHeight_config_horizontal [35][3] = 0;	this->presetHeight_config_horizontal [35][4] = 0;		// 500
 	this->presetHeight_config_horizontal [36][0] = 1;	this->presetHeight_config_horizontal [36][1] = 450;	this->presetHeight_config_horizontal [36][2] = 0;	this->presetHeight_config_horizontal [36][3] = 0;	this->presetHeight_config_horizontal [36][4] = 0;		// 450
 	this->presetHeight_config_horizontal [37][0] = 1;	this->presetHeight_config_horizontal [37][1] = 400;	this->presetHeight_config_horizontal [37][2] = 0;	this->presetHeight_config_horizontal [37][3] = 0;	this->presetHeight_config_horizontal [37][4] = 0;		// 400
+	this->presetHeight_config_horizontal [38][0] = 1;	this->presetHeight_config_horizontal [38][1] = 300;	this->presetHeight_config_horizontal [38][2] = 0;	this->presetHeight_config_horizontal [38][3] = 0;	this->presetHeight_config_horizontal [38][4] = 0;		// 300
+	this->presetHeight_config_horizontal [39][0] = 1;	this->presetHeight_config_horizontal [39][1] = 200;	this->presetHeight_config_horizontal [39][2] = 0;	this->presetHeight_config_horizontal [39][3] = 0;	this->presetHeight_config_horizontal [39][4] = 0;		// 200
 }
 
 // ¼¿ Á¤º¸ ÃÊ±âÈ­
@@ -571,18 +543,28 @@ void	WallTableformPlacingZone::initCells (WallTableformPlacingZone* placingZone,
 			placingZone->cells [xx].tableInHor [4] = 1200;
 		}
 	}
+}
 
-//	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-//		placingZone->cells [xx].ang = placingZone->ang;
-//		placingZone->cells [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
-//		placingZone->cells [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
-//		placingZone->cells [xx].leftBottomZ = placingZone->leftBottomZ;
-//
-//		placingZone->upperCells [xx].ang = placingZone->ang;
-//		placingZone->upperCells [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
-//		placingZone->upperCells [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
-//		placingZone->upperCells [xx].leftBottomZ = placingZone->leftBottomZ;
-//	}
+// ¼¿(0-±â¹Ý ÀÎµ¦½º ¹øÈ£)ÀÇ ÁÂÇÏ´Ü Á¡ À§Ä¡ X ÁÂÇ¥¸¦ ±¸ÇÔ
+double	WallTableformPlacingZone::getCellPositionLeftBottomX (WallTableformPlacingZone* placingZone, short idx)
+{
+	double	distance = (placingZone->bLincorner == true) ? placingZone->lenLincorner : 0;
+
+	for (short xx = 0 ; xx < idx ; ++xx)
+		distance += (double)placingZone->cells [xx].horLen / 1000.0;
+
+	return distance;
+}
+
+// ¼¿ À§Ä¡¸¦ ¹Ù¸£°Ô ±³Á¤ÇÔ
+void	WallTableformPlacingZone::adjustCellsPosition (WallTableformPlacingZone* placingZone)
+{
+	for (short xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		placingZone->cells [xx].ang = placingZone->ang;
+		placingZone->cells [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cells [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cells [xx].leftBottomZ = placingZone->leftBottomZ;
+	}
 }
 
 // Å×ÀÌºíÆû/À¯·ÎÆû/ÈÙ·¯½ºÆäÀÌ¼­/ÇÕÆÇ/¸ñÀç ¹èÄ¡¸¦ À§ÇÑ ´ÙÀÌ¾ó·Î±× (Å×ÀÌºíÆû ±¸¼º, ¿ä¼Ò ¹æÇâ, °³¼ö ¹× ±æÀÌ)
@@ -627,16 +609,16 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGShowItem (dialogID, itmIdx);
 
 			// ¹öÆ°: Ãß°¡
-			BUTTON_ADD_HOR = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 10, 70, 25);
-			DGSetItemFont (dialogID, BUTTON_ADD_HOR, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, BUTTON_ADD_HOR, "Ãß°¡");
-			DGShowItem (dialogID, BUTTON_ADD_HOR);
+			placingZone.BUTTON_ADD_HOR = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 10, 70, 25);
+			DGSetItemFont (dialogID, placingZone.BUTTON_ADD_HOR, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, placingZone.BUTTON_ADD_HOR, "Ãß°¡");
+			DGShowItem (dialogID, placingZone.BUTTON_ADD_HOR);
 
 			// ¹öÆ°: »èÁ¦
-			BUTTON_DEL_HOR = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 185, 10, 70, 25);
-			DGSetItemFont (dialogID, BUTTON_DEL_HOR, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, BUTTON_DEL_HOR, "»èÁ¦");
-			DGShowItem (dialogID, BUTTON_DEL_HOR);
+			placingZone.BUTTON_DEL_HOR = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 185, 10, 70, 25);
+			DGSetItemFont (dialogID, placingZone.BUTTON_DEL_HOR, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, placingZone.BUTTON_DEL_HOR, "»èÁ¦");
+			DGShowItem (dialogID, placingZone.BUTTON_DEL_HOR);
 
 			// ¶óº§: ³²Àº ³Êºñ
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 290, 17, 70, 23);
@@ -645,9 +627,9 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGShowItem (dialogID, itmIdx);
 
 			// EditÄÁÆ®·Ñ: ³²Àº ³Êºñ
-			EDITCONTROL_REMAIN_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 375, 10, 80, 25);
-			DGDisableItem (dialogID, EDITCONTROL_REMAIN_WIDTH);
-			DGShowItem (dialogID, EDITCONTROL_REMAIN_WIDTH);
+			placingZone.EDITCONTROL_REMAIN_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 375, 10, 80, 25);
+			DGDisableItem (dialogID, placingZone.EDITCONTROL_REMAIN_WIDTH);
+			DGShowItem (dialogID, placingZone.EDITCONTROL_REMAIN_WIDTH);
 
 			// ¶óº§: º®°úÀÇ °£°Ý
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 50, 80, 23);
@@ -656,8 +638,8 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGShowItem (dialogID, itmIdx);
 
 			// EditÄÁÆ®·Ñ: º®°úÀÇ °£°Ý
-			EDITCONTROL_GAP = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 105, 45, 70, 23);
-			DGShowItem (dialogID, EDITCONTROL_GAP);
+			placingZone.EDITCONTROL_GAP = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 105, 45, 70, 23);
+			DGShowItem (dialogID, placingZone.EDITCONTROL_GAP);
 
 			// ¶óº§: Å×ÀÌºíÆû ¹æÇâ
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 80, 80, 23);
@@ -666,14 +648,14 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGShowItem (dialogID, itmIdx);
 
 			// ÆË¾÷ÄÁÆ®·Ñ: Å×ÀÌºíÆû ¹æÇâ
-			POPUP_DIRECTION = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 105, 75, 70, 23);
-			DGSetItemFont (dialogID, POPUP_DIRECTION, DG_IS_LARGE | DG_IS_PLAIN);
-			DGPopUpInsertItem (dialogID, POPUP_DIRECTION, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_DIRECTION, DG_POPUP_BOTTOM, "¼¼·Î");
-			DGPopUpInsertItem (dialogID, POPUP_DIRECTION, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_DIRECTION, DG_POPUP_BOTTOM, "°¡·Î");
-			DGPopUpSelectItem (dialogID, POPUP_DIRECTION, DG_POPUP_TOP);
-			DGShowItem (dialogID, POPUP_DIRECTION);
+			placingZone.POPUP_DIRECTION = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 105, 75, 70, 23);
+			DGSetItemFont (dialogID, placingZone.POPUP_DIRECTION, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_DIRECTION, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_DIRECTION, DG_POPUP_BOTTOM, "¼¼·Î");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_DIRECTION, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_DIRECTION, DG_POPUP_BOTTOM, "°¡·Î");
+			DGPopUpSelectItem (dialogID, placingZone.POPUP_DIRECTION, DG_POPUP_TOP);
+			DGShowItem (dialogID, placingZone.POPUP_DIRECTION);
 
 			// ¶óº§: Å×ÀÌºíÆû Å¸ÀÔ
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 220, 80, 80, 23);
@@ -682,89 +664,90 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGShowItem (dialogID, itmIdx);
 
 			// ÆË¾÷ÄÁÆ®·Ñ: Å×ÀÌºíÆû Å¸ÀÔ
-			POPUP_TABLEFORM_TYPE = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 305, 75, 70, 23);
-			DGSetItemFont (dialogID, POPUP_TABLEFORM_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
-			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "Å¸ÀÔA");
-			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "Å¸ÀÔB");
-			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "Å¸ÀÔC");
-			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "Å¸ÀÔD");
-			DGPopUpSelectItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_TOP);
-			DGShowItem (dialogID, POPUP_TABLEFORM_TYPE);
+			placingZone.POPUP_TABLEFORM_TYPE = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 305, 75, 70, 23);
+			DGSetItemFont (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "Å¸ÀÔA");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "Å¸ÀÔB");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "Å¸ÀÔC");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "Å¸ÀÔD");
+			DGPopUpSelectItem (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_POPUP_TOP);
+			DGShowItem (dialogID, placingZone.POPUP_TABLEFORM_TYPE);
 
 			//////////////////////////////////////////////////////////// ¼¿ Á¤º¸ ÃÊ±âÈ­
 			placingZone.initCells (&placingZone, true);
 
 			//////////////////////////////////////////////////////////// ¾ÆÀÌÅÛ ¹èÄ¡ (Á¤¸é °ü·Ã ¹öÆ°)
 			// ÁÂÃø ÀÎÄÚ³Ê À¯¹« (Ã¼Å©¹öÆ°)
-			CHECKBOX_LINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, 20, 135, 70, 70);
-			DGSetItemFont (dialogID, CHECKBOX_LINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, CHECKBOX_LINCORNER, "ÀÎÄÚ³Ê");
-			DGShowItem (dialogID, CHECKBOX_LINCORNER);
-			DGSetItemValLong (dialogID, CHECKBOX_LINCORNER, TRUE);
+			placingZone.CHECKBOX_LINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, 20, 135, 70, 70);
+			DGSetItemFont (dialogID, placingZone.CHECKBOX_LINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, placingZone.CHECKBOX_LINCORNER, "ÀÎÄÚ³Ê");
+			DGShowItem (dialogID, placingZone.CHECKBOX_LINCORNER);
+			DGSetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER, TRUE);
 			// ÁÂÃø ÀÎÄÚ³Ê ±æÀÌ (EditÄÁÆ®·Ñ)
-			EDITCONTROL_LINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 20, 205, 70, 25);
-			DGShowItem (dialogID, EDITCONTROL_LINCORNER);
-			DGSetItemValDouble (dialogID, EDITCONTROL_LINCORNER, 0.100);
+			placingZone.EDITCONTROL_LINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 20, 205, 70, 25);
+			DGShowItem (dialogID, placingZone.EDITCONTROL_LINCORNER);
+			DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER, 0.100);
 
 			// ÀÏ¹Ý ¼¿: ±âº»°ªÀº Å×ÀÌºíÆû
 			itmPosX = 90;
 			itmPosY = 137;
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 				// ¹öÆ°
-				BUTTON_OBJ [xx] = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 71, 66);
-				DGSetItemFont (dialogID, BUTTON_OBJ [xx], DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, BUTTON_OBJ [xx], "Å×ÀÌºíÆû");
-				DGShowItem (dialogID, BUTTON_OBJ [xx]);
+				placingZone.BUTTON_OBJ [xx] = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 71, 66);
+				DGSetItemFont (dialogID, placingZone.BUTTON_OBJ [xx], DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, placingZone.BUTTON_OBJ [xx], "Å×ÀÌºíÆû");
+				DGShowItem (dialogID, placingZone.BUTTON_OBJ [xx]);
 
 				// °´Ã¼ Å¸ÀÔ (ÆË¾÷ÄÁÆ®·Ñ)
-				POPUP_OBJ_TYPE [xx] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY - 25, 70, 23);
-				DGSetItemFont (dialogID, POPUP_OBJ_TYPE [xx], DG_IS_EXTRASMALL | DG_IS_PLAIN);
-				DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "¾øÀ½");
-				DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "Å×ÀÌºíÆû");
-				DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "À¯·ÎÆû");
-				DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "ÈÙ·¯½ºÆäÀÌ¼­");
-				DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "ÇÕÆÇ");
-				DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "°¢Àç");
-				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE [xx], DG_POPUP_TOP+1);
-				DGShowItem (dialogID, POPUP_OBJ_TYPE [xx]);
+				placingZone.POPUP_OBJ_TYPE [xx] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY - 25, 70, 23);
+				DGSetItemFont (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_IS_EXTRASMALL | DG_IS_PLAIN);
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "¾øÀ½");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "Å×ÀÌºíÆû");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "À¯·ÎÆû");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "ÈÙ·¯½ºÆäÀÌ¼­");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "ÇÕÆÇ");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "°¢Àç");
+				DGPopUpSelectItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_TOP+1);
+				DGShowItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx]);
 
 				// ³Êºñ (ÆË¾÷ÄÁÆ®·Ñ)
-				POPUP_WIDTH [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY + 68, 70, 23);
-				DGSetItemFont (dialogID, POPUP_WIDTH [xx], DG_IS_LARGE | DG_IS_PLAIN);
+				placingZone.POPUP_WIDTH [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY + 68, 70, 23);
+				DGSetItemFont (dialogID, placingZone.POPUP_WIDTH [xx], DG_IS_LARGE | DG_IS_PLAIN);
 				for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
-					DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 					_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
-					DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
 				}
-				DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
-				DGShowItem (dialogID, POPUP_WIDTH [xx]);
+				DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP);
+				DGShowItem (dialogID, placingZone.POPUP_WIDTH [xx]);
 
 				// ³Êºñ (ÆË¾÷ÄÁÆ®·Ñ) - Ã³À½¿¡´Â ¼û±è
-				EDITCONTROL_WIDTH [xx] = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, itmPosY + 68, 70, 23);
+				placingZone.EDITCONTROL_WIDTH [xx] = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, itmPosY + 68, 70, 23);
+				DGHideItem (dialogID, placingZone.EDITCONTROL_WIDTH [xx]);
 
 				itmPosX += 70;
 			}
 
 			// ¿ìÃø ÀÎÄÚ³Ê À¯¹« (Ã¼Å©¹öÆ°)
-			CHECKBOX_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 135, 70, 70);
-			DGSetItemFont (dialogID, CHECKBOX_RINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, CHECKBOX_RINCORNER, "ÀÎÄÚ³Ê");
-			DGShowItem (dialogID, CHECKBOX_RINCORNER);
-			DGSetItemValLong (dialogID, CHECKBOX_RINCORNER, TRUE);
+			placingZone.CHECKBOX_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 135, 70, 70);
+			DGSetItemFont (dialogID, placingZone.CHECKBOX_RINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, placingZone.CHECKBOX_RINCORNER, "ÀÎÄÚ³Ê");
+			DGShowItem (dialogID, placingZone.CHECKBOX_RINCORNER);
+			DGSetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER, TRUE);
 			// ¿ìÃø ÀÎÄÚ³Ê ±æÀÌ (EditÄÁÆ®·Ñ)
-			EDITCONTROL_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 205, 70, 25);
-			DGShowItem (dialogID, EDITCONTROL_RINCORNER);
-			DGSetItemValDouble (dialogID, EDITCONTROL_RINCORNER, 0.100);
+			placingZone.EDITCONTROL_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 205, 70, 25);
+			DGShowItem (dialogID, placingZone.EDITCONTROL_RINCORNER);
+			DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER, 0.100);
 
 			//////////////////////////////////////////////////////////// ¾ÆÀÌÅÛ ¹èÄ¡ (Ãø¸é °ü·Ã ¹öÆ°)
 			// ¶óº§: Ãø¸é
@@ -774,16 +757,16 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGShowItem (dialogID, itmIdx);
 
 			// ¹öÆ°: Ãß°¡ (³·ÀºÂÊ)
-			BUTTON_ADD_VER_BASIC = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 250, 70, 25);
-			DGSetItemFont (dialogID, BUTTON_ADD_VER_BASIC, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, BUTTON_ADD_VER_BASIC, "Ãß°¡(L)");
-			DGShowItem (dialogID, BUTTON_ADD_VER_BASIC);
+			placingZone.BUTTON_ADD_VER_BASIC = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 250, 70, 25);
+			DGSetItemFont (dialogID, placingZone.BUTTON_ADD_VER_BASIC, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, placingZone.BUTTON_ADD_VER_BASIC, "Ãß°¡(L)");
+			DGShowItem (dialogID, placingZone.BUTTON_ADD_VER_BASIC);
 
 			// ¹öÆ°: »èÁ¦ (³·ÀºÂÊ)
-			BUTTON_DEL_VER_BASIC = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 250 + 30, 70, 25);
-			DGSetItemFont (dialogID, BUTTON_DEL_VER_BASIC, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, BUTTON_DEL_VER_BASIC, "»èÁ¦(L)");
-			DGShowItem (dialogID, BUTTON_DEL_VER_BASIC);
+			placingZone.BUTTON_DEL_VER_BASIC = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 250 + 30, 70, 25);
+			DGSetItemFont (dialogID, placingZone.BUTTON_DEL_VER_BASIC, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, placingZone.BUTTON_DEL_VER_BASIC, "»èÁ¦(L)");
+			DGShowItem (dialogID, placingZone.BUTTON_DEL_VER_BASIC);
 
 			// ¶óº§: ³²Àº ³ôÀÌ
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 317, 70, 23);
@@ -792,41 +775,41 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			DGShowItem (dialogID, itmIdx);
 
 			// EditÄÁÆ®·Ñ: ³²Àº ³ôÀÌ (³·ÀºÂÊ)
-			EDITCONTROL_REMAIN_HEIGHT_BASIC = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 105, 310, 70, 25);
-			DGDisableItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC);
-			DGShowItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC);
+			placingZone.EDITCONTROL_REMAIN_HEIGHT_BASIC = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 105, 310, 70, 25);
+			DGDisableItem (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_BASIC);
+			DGShowItem (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_BASIC);
 
 			if (placingZone.bExtra == true) {
 				// ¹öÆ°: Ãß°¡ (³ôÀºÂÊ)
-				BUTTON_ADD_VER_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 185, 250, 70, 25);
-				DGSetItemFont (dialogID, BUTTON_ADD_VER_EXTRA, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, BUTTON_ADD_VER_EXTRA, "Ãß°¡(H)");
-				DGShowItem (dialogID, BUTTON_ADD_VER_EXTRA);
+				placingZone.BUTTON_ADD_VER_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 185, 250, 70, 25);
+				DGSetItemFont (dialogID, placingZone.BUTTON_ADD_VER_EXTRA, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, placingZone.BUTTON_ADD_VER_EXTRA, "Ãß°¡(H)");
+				DGShowItem (dialogID, placingZone.BUTTON_ADD_VER_EXTRA);
 
 				// ¹öÆ°: »èÁ¦ (³ôÀºÂÊ)
-				BUTTON_DEL_VER_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 185, 250 + 30, 70, 25);
-				DGSetItemFont (dialogID, BUTTON_DEL_VER_EXTRA, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, BUTTON_DEL_VER_EXTRA, "»èÁ¦(H)");
-				DGShowItem (dialogID, BUTTON_DEL_VER_EXTRA);
+				placingZone.BUTTON_DEL_VER_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 185, 250 + 30, 70, 25);
+				DGSetItemFont (dialogID, placingZone.BUTTON_DEL_VER_EXTRA, DG_IS_LARGE | DG_IS_PLAIN);
+				DGSetItemText (dialogID, placingZone.BUTTON_DEL_VER_EXTRA, "»èÁ¦(H)");
+				DGShowItem (dialogID, placingZone.BUTTON_DEL_VER_EXTRA);
 
 				// EditÄÁÆ®·Ñ: ³²Àº ³ôÀÌ (³ôÀºÂÊ)
-				EDITCONTROL_REMAIN_HEIGHT_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 185, 310, 70, 25);
-				DGDisableItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA);
-				DGShowItem (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA);
+				placingZone.EDITCONTROL_REMAIN_HEIGHT_EXTRA = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 185, 310, 70, 25);
+				DGDisableItem (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_EXTRA);
+				DGShowItem (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_EXTRA);
 			}
 
 			// ÆË¾÷ÄÁÆ®·Ñ: Å×ÀÌºíÆû ¼¼·Î¹æÇâ ÇÁ¸®¼Â
-			POPUP_HEIGHT_PRESET = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 20, 835, 70, 23);
-			DGSetItemFont (dialogID, POPUP_HEIGHT_PRESET, DG_IS_LARGE | DG_IS_PLAIN);
+			placingZone.POPUP_HEIGHT_PRESET = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 20, 835, 70, 23);
+			DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_IS_LARGE | DG_IS_PLAIN);
 			for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
-				DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
 				_itoa (placingZone.presetHeight_tableform [yy], numbuf, 10);
-				DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, numbuf);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, numbuf);
 			}
-			DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, "Free");
-			DGPopUpSelectItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
-			DGShowItem (dialogID, POPUP_HEIGHT_PRESET);
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, "Free");
+			DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+			DGShowItem (dialogID, placingZone.POPUP_HEIGHT_PRESET);
 
 			// ¿ÞÂÊ¿¡ ³·ÀºÂÊ
 			itmPosX = 105;
@@ -835,15 +818,15 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 50);
 				DGShowItem (dialogID, itmIdx);
 
-				POPUP_HEIGHT_BASIC [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
-				DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [xx], DG_IS_LARGE | DG_IS_PLAIN);
+				placingZone.POPUP_HEIGHT_BASIC [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
+				DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_IS_LARGE | DG_IS_PLAIN);
 				for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-					DGPopUpInsertItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
 					_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-					DGPopUpSetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, numbuf);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, numbuf);
 				}
-				DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_TOP);
-				DGShowItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
+				DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_POPUP_TOP);
+				DGShowItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx]);
 
 				itmPosY -= 50;
 			}
@@ -857,15 +840,15 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 50);
 						DGShowItem (dialogID, itmIdx);
 
-						POPUP_HEIGHT_EXTRA [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
-						DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_IS_LARGE | DG_IS_PLAIN);
+						placingZone.POPUP_HEIGHT_EXTRA [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
+						DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_IS_LARGE | DG_IS_PLAIN);
 						for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-							DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
 							_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-							DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
 						}
-						DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
-						DGShowItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+						DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
+						DGShowItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx]);
 
 						itmPosY -= 50;
 					}
@@ -882,414 +865,295 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 			// ³²Àº ³Êºñ °è»ê
 			totalWidth = 0.0;
-			if (DGGetItemValLong (dialogID, CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_LINCORNER);
-			if (DGGetItemValLong (dialogID, CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_RINCORNER);
+			if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER);
+			if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER);
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
-				if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM))
-					totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
-				else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == NONE)
+				if ((DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM))
+					totalWidth += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
+				else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == NONE)
 					totalWidth += 0.0;
 				else
-					totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH [xx]);
+					totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx]);
 			}
-			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH, placingZone.horLen - totalWidth);
+			DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_WIDTH, placingZone.horLen - totalWidth);
 
 			// ³²Àº ³ôÀÌ °è»ê (³·ÀºÂÊ)
 			totalHeight = 0.0;
 			for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
-				totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_BASIC [xx])).ToCStr ().Get ()) / 1000;
+				totalHeight += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx])).ToCStr ().Get ()) / 1000;
 			}
-			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
+			DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
 
 			if (placingZone.bExtra == true) {
 				// ³²Àº ³ôÀÌ °è»ê (³ôÀºÂÊ)
 				totalHeight = 0.0;
 				for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_EXTRA [xx])).ToCStr ().Get ()) / 1000;
+					totalHeight += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx])).ToCStr ().Get ()) / 1000;
 				}
-				DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
+				DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
 			}
+
+			// ÃÊ±â°ªÀº ¼¼·Î¹æÇâ
+			placingZone.bVertical = true;
 
 			break;
 
 		case DG_MSG_CHANGE:
 			// °¡·Î/¼¼·Î º¯°æÇÒ ¶§
-			if (item == POPUP_DIRECTION) {
-				strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, DGPopUpGetSelected (dialogID, POPUP_DIRECTION)).ToCStr ().Get ());
+			if (item == placingZone.POPUP_DIRECTION) {
+				strcpy (buffer, DGPopUpGetItemText (dialogID, placingZone.POPUP_DIRECTION, DGPopUpGetSelected (dialogID, placingZone.POPUP_DIRECTION)).ToCStr ().Get ());
 
 				// °¡·ÎÀÏ °æ¿ì
 				if (my_strcmp (buffer, "°¡·Î") == 0) {
 					// ¼¿ Á¤º¸ ÃÊ±âÈ­
 					placingZone.initCells (&placingZone, false);
+					placingZone.bVertical = false;
 
 					// Á¤¸é
 					for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
-						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
-							// ±×¸®±â ºñÈ°¼ºÈ­
-							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
-							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
-
+						if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
 							// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+							DGPopUpDeleteItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_ALL_ITEMS);
 
 							// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 								_itoa (placingZone.presetHeight_tableform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
 							}
-							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
-
-							// ÆË¾÷ º¸ÀÌ°í, EditÄÁÆ®·Ñ ¼û±è
-							DGShowItem (dialogID, POPUP_WIDTH [xx]);
-							DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
-
-							// ±×¸®±â È°¼ºÈ­
-							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
-							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
-						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM) {
-							// ±×¸®±â ºñÈ°¼ºÈ­
-							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
-							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
-
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP);
+						} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM) {
 							// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+							DGPopUpDeleteItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_ALL_ITEMS);
 
 							// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 								_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
 							}
-							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
-
-							// ÆË¾÷ º¸ÀÌ°í, EditÄÁÆ®·Ñ ¼û±è
-							DGShowItem (dialogID, POPUP_WIDTH [xx]);
-							DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
-
-							// ±×¸®±â È°¼ºÈ­
-							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
-							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP);
 						}
 					}
 
 					// Ãø¸é
 					for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
-						// ±×¸®±â ºñÈ°¼ºÈ­
-						DGInvalidateItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
-						DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_BASIC [xx]);
-
 						// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-						DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_ALL_ITEMS);
+						DGPopUpDeleteItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_ALL_ITEMS);
 
 						// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 						for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
-							DGPopUpInsertItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
 							_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
-							DGPopUpSetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, numbuf);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, numbuf);
 						}
-						DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_TOP);
-
-						// ±×¸®±â È°¼ºÈ­
-						DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_BASIC [xx]);
-						DGRedrawItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
+						DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_POPUP_TOP);
 					}
 
 					if (placingZone.bExtra == true) {
 						for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-							// ±×¸®±â ºñÈ°¼ºÈ­
-							DGInvalidateItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-							DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-
 							// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-							DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_ALL_ITEMS);
+							DGPopUpDeleteItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_ALL_ITEMS);
 
 							// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
 								_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
 							}
-							DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
-
-							// ±×¸®±â È°¼ºÈ­
-							DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-							DGRedrawItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
 						}
 					}
 
 					// ÇÁ¸®¼Â
-					DGInvalidateItem (dialogID, POPUP_HEIGHT_PRESET);
-					DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_PRESET);
-					DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_PRESET, DG_ALL_ITEMS);
+					DGPopUpDeleteItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_ALL_ITEMS);
 
 					for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
-						DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+						DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
 						_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
-						DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, numbuf);
+						DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, numbuf);
 					}
-					DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
-					DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, "Free");
-					DGPopUpSelectItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
-
-					DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_PRESET);
-					DGRedrawItem (dialogID, POPUP_HEIGHT_PRESET);
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, "Free");
+					DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
 
 				// ¼¼·ÎÀÏ °æ¿ì
 				} else {
 					// ¼¿ Á¤º¸ ÃÊ±âÈ­
 					placingZone.initCells (&placingZone, true);
+					placingZone.bVertical = true;
 
 					// Á¤¸é
 					for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
-						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
-							// ±×¸®±â ºñÈ°¼ºÈ­
-							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
-							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
-
+						if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
 							// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+							DGPopUpDeleteItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_ALL_ITEMS);
 
 							// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 								_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
 							}
-							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
-
-							// ±×¸®±â È°¼ºÈ­
-							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
-							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
-						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM) {
-							// ±×¸®±â ºñÈ°¼ºÈ­
-							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
-							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
-
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP);
+						} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM) {
 							// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+							DGPopUpDeleteItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_ALL_ITEMS);
 
 							// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 								_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
 							}
-							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
-
-							// ±×¸®±â È°¼ºÈ­
-							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
-							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP);
 						}
 					}
 
 					// Ãø¸é
 					for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
-						// ±×¸®±â ºñÈ°¼ºÈ­
-						DGInvalidateItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
-						DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_BASIC [xx]);
-
 						// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-						DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_ALL_ITEMS);
+						DGPopUpDeleteItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_ALL_ITEMS);
 
 						// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 						for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-							DGPopUpInsertItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM);
 							_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-							DGPopUpSetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, numbuf);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_POPUP_BOTTOM, numbuf);
 						}
-						DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [xx], DG_POPUP_TOP);
-
-						// ±×¸®±â È°¼ºÈ­
-						DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_BASIC [xx]);
-						DGRedrawItem (dialogID, POPUP_HEIGHT_BASIC [xx]);
+						DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DG_POPUP_TOP);
 					}
 
 					if (placingZone.bExtra == true) {
 						for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-							// ±×¸®±â ºñÈ°¼ºÈ­
-							DGInvalidateItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-							DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-
 							// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-							DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_ALL_ITEMS);
+							DGPopUpDeleteItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_ALL_ITEMS);
 
 							// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM);
 								_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_POPUP_BOTTOM, numbuf);
 							}
-							DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
-
-							// ±×¸®±â È°¼ºÈ­
-							DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_EXTRA [xx]);
-							DGRedrawItem (dialogID, POPUP_HEIGHT_EXTRA [xx]);
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DG_POPUP_TOP);
 						}
 					}
 
 					// ÇÁ¸®¼Â
-					DGInvalidateItem (dialogID, POPUP_HEIGHT_PRESET);
-					DGPopUpDisableDraw (dialogID, POPUP_HEIGHT_PRESET);
-					DGPopUpDeleteItem (dialogID, POPUP_HEIGHT_PRESET, DG_ALL_ITEMS);
+					DGInvalidateItem (dialogID, placingZone.POPUP_HEIGHT_PRESET);
 
 					for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
-						DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+						DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
 						_itoa (placingZone.presetHeight_tableform [yy], numbuf, 10);
-						DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, numbuf);
+						DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, numbuf);
 					}
-					DGPopUpInsertItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
-					DGPopUpSetItemText (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, "Free");
-					DGPopUpSelectItem (dialogID, POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
-
-					DGPopUpEnableDraw (dialogID, POPUP_HEIGHT_PRESET);
-					DGRedrawItem (dialogID, POPUP_HEIGHT_PRESET);
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, "Free");
+					DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
 				}
 			}
 
 			// °´Ã¼ Å¸ÀÔ º¯°æÇÒ ¶§
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
-				if (item == POPUP_OBJ_TYPE [xx]) {
+				if (item == placingZone.POPUP_OBJ_TYPE [xx]) {
 					// ÇØ´ç ¹öÆ°ÀÇ ÀÌ¸§ º¯°æ
-					DGSetItemText (dialogID, BUTTON_OBJ [xx], DGPopUpGetItemText (dialogID, POPUP_OBJ_TYPE [xx], DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx])));
+					DGSetItemText (dialogID, placingZone.BUTTON_OBJ [xx], DGPopUpGetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx])));
 					
 					// °¡·Î/¼¼·Î ¹æÇâ ¿©ºÎ¿¡ µû¶ó ÆË¾÷ÄÁÆ®·ÑÀÇ ³»¿ë¹°ÀÌ ¹Ù²ñ
-					strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, DGPopUpGetSelected (dialogID, POPUP_DIRECTION)).ToCStr ().Get ());
-					if (my_strcmp (buffer, "°¡·Î") == 0) {
-						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
-							// ±×¸®±â ºñÈ°¼ºÈ­
-							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
-							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
-
+					if (placingZone.bVertical == false) {
+						if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
 							// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+							DGPopUpDeleteItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_ALL_ITEMS);
 
 							// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 								_itoa (placingZone.presetHeight_tableform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
 							}
-							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
-
-							// ÆË¾÷ º¸ÀÌ°í, EditÄÁÆ®·Ñ ¼û±è
-							DGShowItem (dialogID, POPUP_WIDTH [xx]);
-							DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
-
-							// ±×¸®±â È°¼ºÈ­
-							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
-							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
-						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM) {
-							// ±×¸®±â ºñÈ°¼ºÈ­
-							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
-							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
-
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP);
+						} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM) {
 							// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+							DGPopUpDeleteItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_ALL_ITEMS);
 
 							// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 								_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
 							}
-							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
-
-							// ÆË¾÷ º¸ÀÌ°í, EditÄÁÆ®·Ñ ¼û±è
-							DGShowItem (dialogID, POPUP_WIDTH [xx]);
-							DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
-
-							// ±×¸®±â È°¼ºÈ­
-							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
-							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP);
 						}
 					} else {
-						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
-							// ±×¸®±â ºñÈ°¼ºÈ­
-							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
-							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
-
+						if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
 							// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+							DGPopUpDeleteItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_ALL_ITEMS);
 
 							// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 								_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
 							}
-							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
-
-							// ±×¸®±â È°¼ºÈ­
-							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
-							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
-						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM) {
-							// ±×¸®±â ºñÈ°¼ºÈ­
-							DGInvalidateItem (dialogID, POPUP_WIDTH [xx]);
-							DGPopUpDisableDraw (dialogID, POPUP_WIDTH [xx]);
-
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP);
+						} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM) {
 							// ÆË¾÷ ÀüºÎ ºñ¿ì°í
-							DGPopUpDeleteItem (dialogID, POPUP_WIDTH [xx], DG_ALL_ITEMS);
+							DGPopUpDeleteItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_ALL_ITEMS);
 
 							// ÆË¾÷ ³»¿ë ´Ù½Ã Ã¤¿ì°í
 							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 								_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
 							}
-							DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], DG_POPUP_TOP);
-
-							// ±×¸®±â È°¼ºÈ­
-							DGPopUpEnableDraw (dialogID, POPUP_WIDTH [xx]);
-							DGRedrawItem (dialogID, POPUP_OBJ_TYPE [xx]);
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP);
 						}
 					}
 
 					// Å×ÀÌºíÆû/À¯·ÎÆûÀÌ¸é ³Êºñ°¡ ÆË¾÷ÄÁÆ®·Ñ, ±× ¿Ü¿¡´Â EditÄÁÆ®·Ñ, ¾øÀ¸¸é ¸ðµÎ ¼û±è
-					if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM)) {
-						DGShowItem (dialogID, POPUP_WIDTH [xx]);
-						DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
-					} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == NONE) {
-						DGHideItem (dialogID, EDITCONTROL_WIDTH [xx]);
-						DGHideItem (dialogID, POPUP_WIDTH [xx]);
+					if ((DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM)) {
+						if (!DGIsItemVisible (dialogID, placingZone.POPUP_WIDTH [xx]))			DGShowItem (dialogID, placingZone.POPUP_WIDTH [xx]);
+						if (DGIsItemVisible (dialogID, placingZone.EDITCONTROL_WIDTH [xx]))		DGHideItem (dialogID, placingZone.EDITCONTROL_WIDTH [xx]);
+					} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == NONE) {
+						if (DGIsItemVisible (dialogID, placingZone.EDITCONTROL_WIDTH [xx]))		DGHideItem (dialogID, placingZone.EDITCONTROL_WIDTH [xx]);
+						if (DGIsItemVisible (dialogID, placingZone.POPUP_WIDTH [xx]))			DGHideItem (dialogID, placingZone.POPUP_WIDTH [xx]);
 					} else {
-						DGShowItem (dialogID, EDITCONTROL_WIDTH [xx]);
-						DGHideItem (dialogID, POPUP_WIDTH [xx]);
+						if (!DGIsItemVisible (dialogID, placingZone.EDITCONTROL_WIDTH [xx]))	DGShowItem (dialogID, placingZone.EDITCONTROL_WIDTH [xx]);
+						if (DGIsItemVisible (dialogID, placingZone.POPUP_WIDTH [xx]))			DGHideItem (dialogID, placingZone.POPUP_WIDTH [xx]);
 					}
 				}
 			}
 
 			// ÇÁ¸®¼Â º¯°æ½Ã
-			if (item == POPUP_HEIGHT_PRESET) {
+			if (item == placingZone.POPUP_HEIGHT_PRESET) {
 				// °¡·ÎÀÏ ¶§
-				strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, DGPopUpGetSelected (dialogID, POPUP_DIRECTION)).ToCStr ().Get ());
-				if (my_strcmp (buffer, "°¡·Î") == 0) {
-					presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
+				if (placingZone.bVertical == false) {
+					presetValue = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
 					for (xx = 0 ; xx < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++xx) {
 						if (presetValue == placingZone.presetWidth_tableform [xx]) {
 							for (yy = 0 ; yy < placingZone.nCellsInVerBasic ; ++yy) {
-								DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_PLAIN);
-								for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, POPUP_HEIGHT_BASIC [yy]) ; ++zz) {
-									cellHeightValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [yy], zz).ToCStr ().Get ());
+								DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_PLAIN);
+								for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy]) ; ++zz) {
+									cellHeightValue = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], zz).ToCStr ().Get ());
 									if (cellHeightValue == placingZone.presetHeight_config_horizontal [xx][yy+1]) {
-										DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [yy], zz);
-										DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_BOLD);
+										DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], zz);
+										DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_BOLD);
 									}
 								}
 							}
 						}
 					}
 					if (placingZone.bExtra == true) {
-						presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
+						presetValue = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
 						for (xx = 0 ; xx < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++xx) {
 							if (presetValue == placingZone.presetWidth_tableform [xx]) {
 								for (yy = 0 ; yy < placingZone.nCellsInVerExtra ; ++yy) {
-									DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_PLAIN);
-									for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, POPUP_HEIGHT_EXTRA [yy]) ; ++zz) {
-										cellHeightValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [yy], zz).ToCStr ().Get ());
+									DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_PLAIN);
+									for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy]) ; ++zz) {
+										cellHeightValue = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], zz).ToCStr ().Get ());
 										if (cellHeightValue == placingZone.presetHeight_config_horizontal [xx][yy+1]) {
-											DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [yy], zz);
-											DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_BOLD);
+											DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], zz);
+											DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_BOLD);
 										}
 									}
 								}
@@ -1299,32 +1163,32 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 				// ¼¼·ÎÀÏ ¶§
 				} else {
-					presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
+					presetValue = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
 					for (xx = 0 ; xx < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++xx) {
 						if (presetValue == placingZone.presetHeight_tableform [xx]) {
 							for (yy = 0 ; yy < placingZone.nCellsInVerBasic ; ++yy) {
-								DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_PLAIN);
-								for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, POPUP_HEIGHT_BASIC [yy]) ; ++zz) {
-									cellHeightValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [yy], zz).ToCStr ().Get ());
+								DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_PLAIN);
+								for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy]) ; ++zz) {
+									cellHeightValue = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], zz).ToCStr ().Get ());
 									if (cellHeightValue == placingZone.presetHeight_config_vertical [xx][yy+1]) {
-										DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [yy], zz);
-										DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_BOLD);
+										DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], zz);
+										DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], DG_IS_LARGE | DG_IS_BOLD);
 									}
 								}
 							}
 						}
 					}
 					if (placingZone.bExtra == true) {
-						presetValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
+						presetValue = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_PRESET)).ToCStr ().Get ());
 						for (xx = 0 ; xx < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++xx) {
 							if (presetValue == placingZone.presetHeight_tableform [xx]) {
 								for (yy = 0 ; yy < placingZone.nCellsInVerExtra ; ++yy) {
-									DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_PLAIN);
-									for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, POPUP_HEIGHT_EXTRA [yy]) ; ++zz) {
-										cellHeightValue = atoi (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [yy], zz).ToCStr ().Get ());
+									DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_PLAIN);
+									for (zz = 1 ; zz <= DGPopUpGetItemCount (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy]) ; ++zz) {
+										cellHeightValue = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], zz).ToCStr ().Get ());
 										if (cellHeightValue == placingZone.presetHeight_config_vertical [xx][yy+1]) {
-											DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [yy], zz);
-											DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_BOLD);
+											DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], zz);
+											DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], DG_IS_LARGE | DG_IS_BOLD);
 										}
 									}
 								}
@@ -1336,11 +1200,10 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 			// Å×ÀÌºíÆû ³Êºñ¸¦ º¯°æÇÒ ¶§
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
-				if (item == POPUP_WIDTH [xx]) {
-					if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
-						strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, DGPopUpGetSelected (dialogID, POPUP_DIRECTION)).ToCStr ().Get ());
-						if (my_strcmp (buffer, "¼¼·Î") == 0) {
-							cellWidthValue = atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], (DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ());
+				if (item == placingZone.POPUP_WIDTH [xx]) {
+					if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) {
+						cellWidthValue = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], (DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH [xx]))).ToCStr ().Get ());
+						if (placingZone.bVertical == true) {
 							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
 								if (cellWidthValue == placingZone.presetWidth_tableform [yy]) {
 									for (zz = 0 ; zz < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++zz) {
@@ -1352,8 +1215,6 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 								}
 							}
 						} else {
-							// !!!
-							cellWidthValue = atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], (DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx]))).ToCStr ().Get ());
 							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
 								if (cellWidthValue == placingZone.presetHeight_tableform [yy]) {
 									for (zz = 0 ; zz < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++zz) {
@@ -1372,238 +1233,293 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 			// ³²Àº ³Êºñ °è»ê
 			totalWidth = 0.0;
-			if (DGGetItemValLong (dialogID, CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_LINCORNER);
-			if (DGGetItemValLong (dialogID, CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_RINCORNER);
+			if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER);
+			if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER);
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
-				if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM))
-					totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
-				else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == NONE)
+				if ((DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM))
+					totalWidth += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
+				else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == NONE)
 					totalWidth += 0.0;
 				else
-					totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH [xx]);
+					totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx]);
 			}
-			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH, placingZone.horLen - totalWidth);
+			DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_WIDTH, placingZone.horLen - totalWidth);
 
 			// ³²Àº ³ôÀÌ °è»ê (³·ÀºÂÊ)
 			totalHeight = 0.0;
 			for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
-				totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_BASIC [xx])).ToCStr ().Get ()) / 1000;
+				totalHeight += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx])).ToCStr ().Get ()) / 1000;
 			}
-			DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
+			DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
 
 			if (placingZone.bExtra == true) {
 				// ³²Àº ³ôÀÌ °è»ê (³ôÀºÂÊ)
 				totalHeight = 0.0;
 				for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_EXTRA [xx])).ToCStr ().Get ()) / 1000;
+					totalHeight += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx])).ToCStr ().Get ()) / 1000;
 				}
-				DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
+				DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
 			}
 
 		case DG_MSG_CLICK:
 			// È®ÀÎ ¹öÆ°
 			if (item == DG_OK) {
-				// ...
-//				placingZone.gap = 0.0;				// º®°úÀÇ °£°ÝÀº 0.0
-//				
-//				if (DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_ORIENTATION_CUSTOM) == VERTICAL_DIRECTION)
-//					placingZone.orientation = VERTICAL_DIRECTION;
-//				else
-//					placingZone.orientation = HORIZONTAL_DIRECTION;
 
-//				// Å¸ÀÔ ÁöÁ¤ (Å¸ÀÔA, Å¸ÀÔB)
-//				bLayerInd_Euroform = false;
-//				bLayerInd_RectPipe = false;
-//				bLayerInd_PinBolt = false;
-//				bLayerInd_WallTie = false;
-//				bLayerInd_HeadPiece = false;
-//				bLayerInd_Join = false;
+				// º®°úÀÇ °£°Ý
+				placingZone.gap = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_GAP);
 
-//				bLayerInd_SlabTableform = false;
-//				bLayerInd_Profile = false;
+				// Å×ÀÌºíÆû ¹æÇâ
+				strcpy (buffer, DGPopUpGetItemText (dialogID, placingZone.POPUP_DIRECTION, DGPopUpGetSelected (dialogID, placingZone.POPUP_DIRECTION)).ToCStr ().Get ());
+				if (my_strcmp (buffer, "¼¼·Î") == 0)
+					placingZone.bVertical = true;
+				else
+					placingZone.bVertical = false;
 
-//				bLayerInd_Steelform = false;
-//				bLayerInd_Plywood = false;
-//				bLayerInd_Fillersp = false;
-//				bLayerInd_OutcornerAngle = false;
-//				bLayerInd_OutcornerPanel = false;
-//				bLayerInd_IncornerPanel = false;
-//				bLayerInd_RectpipeHanger = false;
-//				bLayerInd_EuroformHook = false;
-//				bLayerInd_Hidden = false;
+				// Å×ÀÌºíÆû Å¸ÀÔ
+				strcpy (buffer, DGPopUpGetItemText (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DGPopUpGetSelected (dialogID, placingZone.POPUP_TABLEFORM_TYPE)).ToCStr ().Get ());
+				if (my_strcmp (buffer, "Å¸ÀÔA") == 0)
+					placingZone.tableformType = 1;
+				else if (my_strcmp (buffer, "Å¸ÀÔB") == 0)
+					placingZone.tableformType = 2;
+				else if (my_strcmp (buffer, "Å¸ÀÔC") == 0)
+					placingZone.tableformType = 3;
+				else if (my_strcmp (buffer, "Å¸ÀÔD") == 0)
+					placingZone.tableformType = 4;
 
-//				if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 1) {
-//					placingZone.type = 1;
+				// ÀÎÄÚ³Ê À¯¹« ¹× ±æÀÌ
+				placingZone.bLincorner = (DGGetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER) == TRUE) ? true : false;
+				placingZone.bRincorner = (DGGetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER) == TRUE) ? true : false;
+				placingZone.lenLincorner = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER);
+				placingZone.lenRincorner = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER);
 
-//					bLayerInd_Euroform = true;
-//					bLayerInd_RectPipe = true;
-//					bLayerInd_PinBolt = true;
-//					bLayerInd_HeadPiece = true;
-//					bLayerInd_Join = true;
-//				} else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 2) {
-//					placingZone.type = 2;
+				// ¼¼·Î ±æÀÌ, Å×ÀÌºí ³» ¼¼·Î ±æÀÌ ¸ðµÎ 0À¸·Î ÃÊ±âÈ­
+				for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
+					placingZone.cells [xx].verLenBasic = 0;
+					placingZone.cells [xx].verLenExtra = 0;
 
-//					bLayerInd_Euroform = true;
-//					bLayerInd_RectPipe = true;
-//					bLayerInd_RectpipeHanger = true;
-//					bLayerInd_EuroformHook = true;
-//					bLayerInd_HeadPiece = true;
-//					bLayerInd_Join = true;
-//					bLayerInd_Hidden = false;
+					for (yy = 0 ; yy < sizeof (placingZone.cells [xx].tableInVerBasic) / sizeof (int) ; ++yy)
+						placingZone.cells [xx].tableInVerBasic [yy] = 0;
+					for (yy = 0 ; yy < sizeof (placingZone.cells [xx].tableInVerExtra) / sizeof (int) ; ++yy)
+						placingZone.cells [xx].tableInVerExtra [yy] = 0;
+				}
 
-//				} else if ((DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 3) || (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 4)) {
-//					if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 3)
-//						placingZone.type = 3;
-//					else if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SELECTOR_CUSTOM) == 4)
-//						placingZone.type = 4;
+				// ¼¿ Á¤º¸ ¾÷µ¥ÀÌÆ®
+				for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
+					// °´Ã¼ Å¸ÀÔ
+					placingZone.cells [xx].objType = DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]);
 
-//					bLayerInd_Euroform = true;
-//					bLayerInd_RectPipe = true;
-//					bLayerInd_PinBolt = true;
-//					bLayerInd_HeadPiece = true;
-//					bLayerInd_Join = true;
-//					bLayerInd_Hidden = false;
-//				}
+					// °¡·Î ¹æÇâ ±æÀÌ ÁöÁ¤
+					if (placingZone.cells [xx].objType == NONE) {
+						// °¡·Î, ¼¼·Î ±æÀÌ ¸ðµÎ 0
+						placingZone.cells [xx].horLen = 0;
 
-//				placingZone.nCells = customTableCol;
-//				placingZone.nCells_vertical = customTableRow;
+						// Å×ÀÌºí ³» °¡·Î ±æÀÌ ¸ðµÎ 0
+						for (yy = 0 ; yy < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++yy)
+							placingZone.cells [xx].tableInHor [yy] = 0;
 
-//				accX = 0.0;
-//				accZ = 0.0;
+					} else if (placingZone.cells [xx].objType == EUROFORM) {
+						// À¯·ÎÆû ³Êºñ
+						placingZone.cells [xx].horLen = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH [xx])).ToCStr ().Get ());
 
-//				// À¯·ÎÆû ³Êºñ, ³ôÀÌ °ª ÀúÀå
-//				for (xx = 1 ; xx <= customTableRow ; ++xx) {
-//					for (yy = 1 ; yy <= customTableCol ; ++yy) {
-//						widthInd = REST_ITEM_START_CUSTOM + (xx-1)*3*customTableCol + 3*(yy-1) + 1;
-//						heightInd = REST_ITEM_START_CUSTOM + (xx-1)*3*customTableCol + 3*(yy-1) + 2;
+						// Å×ÀÌºí ³» °¡·Î ±æÀÌ ¸ðµÎ 0
+						for (yy = 0 ; yy < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++yy)
+							placingZone.cells [xx].tableInHor [yy] = 0;
 
-//						placingZone.customCells [xx-1][yy-1].ang = placingZone.ang;
-//						placingZone.customCells [xx-1][yy-1].horLen = atof (DGPopUpGetItemText (dialogID, widthInd, static_cast<short>(DGGetItemValLong (dialogID, widthInd))).ToCStr ().Get ()) / 1000;
-//						placingZone.customCells [xx-1][yy-1].verLen = atof (DGPopUpGetItemText (dialogID, heightInd, static_cast<short>(DGGetItemValLong (dialogID, heightInd))).ToCStr ().Get ()) / 1000;
-//						placingZone.customCells [xx-1][yy-1].leftBottomX = placingZone.leftBottomX;
-//						placingZone.customCells [xx-1][yy-1].leftBottomY = placingZone.leftBottomY;
-//						placingZone.customCells [xx-1][yy-1].leftBottomZ = placingZone.leftBottomZ;
+					} else if ((placingZone.cells [xx].objType == FILLERSP) || (placingZone.cells [xx].objType == PLYWOOD) || (placingZone.cells [xx].objType == TIMBER)) {
+						// ÈÙ·¯½ºÆäÀÌ¼­, ÇÕÆÇ, ¸ñÀçÀÇ ³Êºñ
+						placingZone.cells [xx].horLen = (int)DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx]) * 1000;
 
-//						moveIn3D ('x', placingZone.customCells [xx-1][yy-1].ang, accX, &placingZone.customCells [xx-1][yy-1].leftBottomX, &placingZone.customCells [xx-1][yy-1].leftBottomY, &placingZone.customCells [xx-1][yy-1].leftBottomZ);
-//						moveIn3D ('z', placingZone.customCells [xx-1][yy-1].ang, accZ, &placingZone.customCells [xx-1][yy-1].leftBottomX, &placingZone.customCells [xx-1][yy-1].leftBottomY, &placingZone.customCells [xx-1][yy-1].leftBottomZ);
+						// Å×ÀÌºí ³» °¡·Î ±æÀÌ ¸ðµÎ 0
+						for (yy = 0 ; yy < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++yy)
+							placingZone.cells [xx].tableInHor [yy] = 0;
+					}
 
-//						if (yy < customTableCol)
-//							accX += placingZone.customCells [xx-1][yy-1].horLen;
-//						else
-//							accX = 0.0;
-//							
-//						if (yy == customTableCol)
-//							accZ += placingZone.customCells [xx-1][yy-1].verLen;
-//					}
-//				}
+					// ¼¼·Î ¹æÇâ ±æÀÌ ¼³Á¤ (³·ÀºÂÊ)
+					accumLength = 0;
+					for (yy = 0 ; yy < placingZone.nCellsInVerBasic ; ++yy) {
+						if (placingZone.cells [xx].objType != NONE) {
+							// Å×ÀÌºí ³» ¼¼·Î ±æÀÌ ¼³Á¤
+							placingZone.cells [xx].tableInVerBasic [yy] = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy])).ToCStr ().Get ());
+							accumLength += placingZone.cells [xx].tableInVerBasic [yy];
+						}
+					}
+					placingZone.cells [xx].verLenBasic = accumLength;
+				
+					// ¼¼·Î ¹æÇâ ±æÀÌ ¼³Á¤ (³ôÀºÂÊ)
+					accumLength = 0;
+					for (yy = 0 ; yy < placingZone.nCellsInVerExtra ; ++yy) {
+						if (placingZone.cells [xx].objType != NONE) {
+							// Å×ÀÌºí ³» ¼¼·Î ±æÀÌ ¼³Á¤
+							placingZone.cells [xx].tableInVerExtra [yy] = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy])).ToCStr ().Get ());
+							accumLength += placingZone.cells [xx].tableInVerExtra [yy];
+						}
+					}
+					placingZone.cells [xx].verLenExtra = accumLength;
+				}
 
-//				placingZone.marginTop = placingZone.verLen - accZ;
+				// ·¹ÀÌ¾î ¼³Á¤
+				bLayerInd_Euroform = false;
+				bLayerInd_RectPipe = false;
+				bLayerInd_PinBolt = false;
+				bLayerInd_WallTie = false;
+				bLayerInd_HeadPiece = false;
+				bLayerInd_Join = false;
+
+				bLayerInd_SlabTableform = false;
+				bLayerInd_Profile = false;
+
+				bLayerInd_Steelform = false;
+				bLayerInd_Plywood = false;
+				bLayerInd_Fillersp = false;
+				bLayerInd_OutcornerAngle = false;
+				bLayerInd_OutcornerPanel = false;
+				bLayerInd_IncornerPanel = false;
+				bLayerInd_RectpipeHanger = false;
+				bLayerInd_EuroformHook = false;
+				bLayerInd_Hidden = false;
+
+				if (placingZone.tableformType == 1) {
+					bLayerInd_Euroform = true;
+					bLayerInd_RectPipe = true;
+					bLayerInd_PinBolt = true;
+					bLayerInd_HeadPiece = true;
+					bLayerInd_Join = true;
+
+				} else if (placingZone.tableformType == 2) {
+					bLayerInd_Euroform = true;
+					bLayerInd_RectPipe = true;
+					bLayerInd_RectpipeHanger = true;
+					bLayerInd_EuroformHook = true;
+					bLayerInd_HeadPiece = true;
+					bLayerInd_Join = true;
+					bLayerInd_Hidden = false;
+
+				} else if ((placingZone.tableformType == 3) || (placingZone.tableformType == 4)) {
+					bLayerInd_Euroform = true;
+					bLayerInd_RectPipe = true;
+					bLayerInd_PinBolt = true;
+					bLayerInd_HeadPiece = true;
+					bLayerInd_Join = true;
+					bLayerInd_Hidden = false;
+				}
+
+				placingZone.marginTopBasic = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_BASIC);		// »ó´Ü ¿©¹é (³·ÀºÂÊ)
+				placingZone.marginTopExtra = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_EXTRA);		// »ó´Ü ¿©¹é (³ôÀºÂÊ)
+
+				placingZone.adjustCellsPosition (&placingZone);		// ¼¿ÀÇ À§Ä¡ ±³Á¤
 
 			} else if (item == DG_CANCEL) {
-				// Ã³¸®ÇÒ ³»¿ë ¾øÀ½
-
+				// ¾Æ¹« ÀÛ¾÷µµ ÇÏÁö ¾ÊÀ½
 			} else {
-				if ((item == BUTTON_ADD_HOR) || (item == BUTTON_DEL_HOR)) {
+				if ((item == placingZone.BUTTON_ADD_HOR) || (item == placingZone.BUTTON_DEL_HOR)) {
 					// Á¤¸é - Ãß°¡ ¹öÆ° Å¬¸¯
-					if (item == BUTTON_ADD_HOR) {
+					if (item == placingZone.BUTTON_ADD_HOR) {
 						if (placingZone.nCellsInHor < maxCol) {
 							// ¿ìÃø ÀÎÄÚ³Ê ¹öÆ°À» Áö¿ì°í
-							DGRemoveDialogItem (dialogID, CHECKBOX_RINCORNER);
-							DGRemoveDialogItem (dialogID, EDITCONTROL_RINCORNER);
+							DGRemoveDialogItem (dialogID, placingZone.CHECKBOX_RINCORNER);
+							DGRemoveDialogItem (dialogID, placingZone.EDITCONTROL_RINCORNER);
 
 							// ¸¶Áö¸· ¼¿ ¹öÆ° ¿À¸¥ÂÊ¿¡ »õ·Î¿î ¼¿ ¹öÆ°À» Ãß°¡ÇÏ°í
 							itmPosX = 90 + (70 * placingZone.nCellsInHor);
 							itmPosY = 137;
 							// ¹öÆ°
-							BUTTON_OBJ [placingZone.nCellsInHor] = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 71, 66);
-							DGSetItemFont (dialogID, BUTTON_OBJ [placingZone.nCellsInHor], DG_IS_LARGE | DG_IS_PLAIN);
-							DGSetItemText (dialogID, BUTTON_OBJ [placingZone.nCellsInHor], "Å×ÀÌºíÆû");
-							DGShowItem (dialogID, BUTTON_OBJ [placingZone.nCellsInHor]);
+							placingZone.BUTTON_OBJ [placingZone.nCellsInHor] = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 71, 66);
+							DGSetItemFont (dialogID, placingZone.BUTTON_OBJ [placingZone.nCellsInHor], DG_IS_LARGE | DG_IS_PLAIN);
+							DGSetItemText (dialogID, placingZone.BUTTON_OBJ [placingZone.nCellsInHor], "Å×ÀÌºíÆû");
+							DGShowItem (dialogID, placingZone.BUTTON_OBJ [placingZone.nCellsInHor]);
 
 							// °´Ã¼ Å¸ÀÔ (ÆË¾÷ÄÁÆ®·Ñ)
-							POPUP_OBJ_TYPE [placingZone.nCellsInHor] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY - 25, 70, 23);
-							DGSetItemFont (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_IS_EXTRASMALL | DG_IS_PLAIN);
-							DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
-							DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "¾øÀ½");
-							DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
-							DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "Å×ÀÌºíÆû");
-							DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
-							DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "À¯·ÎÆû");
-							DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
-							DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "ÈÙ·¯½ºÆäÀÌ¼­");
-							DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
-							DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "ÇÕÆÇ");
-							DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
-							DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "°¢Àç");
-							DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_TOP+1);
-							DGShowItem (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor]);
+							placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY - 25, 70, 23);
+							DGSetItemFont (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_IS_EXTRASMALL | DG_IS_PLAIN);
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "¾øÀ½");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "Å×ÀÌºíÆû");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "À¯·ÎÆû");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "ÈÙ·¯½ºÆäÀÌ¼­");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "ÇÕÆÇ");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_BOTTOM, "°¢Àç");
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor], DG_POPUP_TOP+1);
+							DGShowItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor]);
 
 							// ³Êºñ (ÆË¾÷ÄÁÆ®·Ñ)
-							POPUP_WIDTH [placingZone.nCellsInHor] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY + 68, 70, 23);
-							DGSetItemFont (dialogID, POPUP_WIDTH [placingZone.nCellsInHor], DG_IS_LARGE | DG_IS_PLAIN);
-							for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_WIDTH [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
-								_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_WIDTH [placingZone.nCellsInHor], DG_POPUP_BOTTOM, numbuf);
+							placingZone.POPUP_WIDTH [placingZone.nCellsInHor] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY + 68, 70, 23);
+							DGSetItemFont (dialogID, placingZone.POPUP_WIDTH [placingZone.nCellsInHor], DG_IS_LARGE | DG_IS_PLAIN);
+							if (placingZone.bVertical == true) {
+								for (yy = 0 ; yy < sizeof (placingZone.presetWidth_tableform) / sizeof (int) ; ++yy) {
+									DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
+									_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
+									DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [placingZone.nCellsInHor], DG_POPUP_BOTTOM, numbuf);
+								}
+							} else {
+								for (yy = 0 ; yy < sizeof (placingZone.presetHeight_tableform) / sizeof (int) ; ++yy) {
+									DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [placingZone.nCellsInHor], DG_POPUP_BOTTOM);
+									_itoa (placingZone.presetHeight_tableform [yy], numbuf, 10);
+									DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [placingZone.nCellsInHor], DG_POPUP_BOTTOM, numbuf);
+								}
 							}
-							DGPopUpSelectItem (dialogID, POPUP_WIDTH [placingZone.nCellsInHor], DG_POPUP_TOP);
-							DGShowItem (dialogID, POPUP_WIDTH [placingZone.nCellsInHor]);
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [placingZone.nCellsInHor], DG_POPUP_TOP);
+							DGShowItem (dialogID, placingZone.POPUP_WIDTH [placingZone.nCellsInHor]);
 
 							// ³Êºñ (ÆË¾÷ÄÁÆ®·Ñ) - Ã³À½¿¡´Â ¼û±è
-							EDITCONTROL_WIDTH [placingZone.nCellsInHor] = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, itmPosY + 68, 70, 23);
+							placingZone.EDITCONTROL_WIDTH [placingZone.nCellsInHor] = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, itmPosY + 68, 70, 23);
 
 							itmPosX += 70;
 
 							// ¿ìÃø ÀÎÄÚ³Ê ¹öÆ°À» ¿À¸¥ÂÊ ³¡¿¡ ºÙÀÓ
 							// ¿ìÃø ÀÎÄÚ³Ê À¯¹« (Ã¼Å©¹öÆ°)
-							CHECKBOX_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 135, 70, 70);
-							DGSetItemFont (dialogID, CHECKBOX_RINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
-							DGSetItemText (dialogID, CHECKBOX_RINCORNER, "ÀÎÄÚ³Ê");
-							DGShowItem (dialogID, CHECKBOX_RINCORNER);
-							DGSetItemValLong (dialogID, CHECKBOX_RINCORNER, TRUE);
+							placingZone.CHECKBOX_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 135, 70, 70);
+							DGSetItemFont (dialogID, placingZone.CHECKBOX_RINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
+							DGSetItemText (dialogID, placingZone.CHECKBOX_RINCORNER, "ÀÎÄÚ³Ê");
+							DGShowItem (dialogID, placingZone.CHECKBOX_RINCORNER);
+							DGSetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER, TRUE);
 							// ¿ìÃø ÀÎÄÚ³Ê ±æÀÌ (EditÄÁÆ®·Ñ)
-							EDITCONTROL_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 205, 70, 25);
-							DGShowItem (dialogID, EDITCONTROL_RINCORNER);
-							DGSetItemValDouble (dialogID, EDITCONTROL_RINCORNER, 0.100);
+							placingZone.EDITCONTROL_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 205, 70, 25);
+							DGShowItem (dialogID, placingZone.EDITCONTROL_RINCORNER);
+							DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER, 0.100);
 
 							++placingZone.nCellsInHor;
 						}
 					}
 
 					// Á¤¸é - »èÁ¦ ¹öÆ° Å¬¸¯
-					else if (item == BUTTON_DEL_HOR) {
+					else if (item == placingZone.BUTTON_DEL_HOR) {
 						if (placingZone.nCellsInHor > 1) {
 							// ¿ìÃø ÀÎÄÚ³Ê ¹öÆ°À» Áö¿ì°í
-							DGRemoveDialogItem (dialogID, CHECKBOX_RINCORNER);
-							DGRemoveDialogItem (dialogID, EDITCONTROL_RINCORNER);
+							DGRemoveDialogItem (dialogID, placingZone.CHECKBOX_RINCORNER);
+							DGRemoveDialogItem (dialogID, placingZone.EDITCONTROL_RINCORNER);
 
 							// ¸¶Áö¸· ¼¿ ¹öÆ°À» Áö¿ì°í
-							DGRemoveDialogItem (dialogID, BUTTON_OBJ [placingZone.nCellsInHor - 1]);
-							DGRemoveDialogItem (dialogID, POPUP_OBJ_TYPE [placingZone.nCellsInHor - 1]);
-							DGRemoveDialogItem (dialogID, POPUP_WIDTH [placingZone.nCellsInHor - 1]);
-							DGRemoveDialogItem (dialogID, EDITCONTROL_WIDTH [placingZone.nCellsInHor - 1]);
+							DGRemoveDialogItem (dialogID, placingZone.BUTTON_OBJ [placingZone.nCellsInHor - 1]);
+							DGRemoveDialogItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCellsInHor - 1]);
+							DGRemoveDialogItem (dialogID, placingZone.POPUP_WIDTH [placingZone.nCellsInHor - 1]);
+							DGRemoveDialogItem (dialogID, placingZone.EDITCONTROL_WIDTH [placingZone.nCellsInHor - 1]);
 
 							// 3. ¿ìÃø ÀÎÄÚ³Ê ¹öÆ°À» ¿À¸¥ÂÊ ³¡¿¡ ºÙÀÓ
 							itmPosX = 90 + (70 * (placingZone.nCellsInHor - 1));
 							itmPosY = 137;
 							// ¿ìÃø ÀÎÄÚ³Ê À¯¹« (Ã¼Å©¹öÆ°)
-							CHECKBOX_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 135, 70, 70);
-							DGSetItemFont (dialogID, CHECKBOX_RINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
-							DGSetItemText (dialogID, CHECKBOX_RINCORNER, "ÀÎÄÚ³Ê");
-							DGShowItem (dialogID, CHECKBOX_RINCORNER);
-							DGSetItemValLong (dialogID, CHECKBOX_RINCORNER, TRUE);
+							placingZone.CHECKBOX_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 135, 70, 70);
+							DGSetItemFont (dialogID, placingZone.CHECKBOX_RINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
+							DGSetItemText (dialogID, placingZone.CHECKBOX_RINCORNER, "ÀÎÄÚ³Ê");
+							DGShowItem (dialogID, placingZone.CHECKBOX_RINCORNER);
+							DGSetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER, TRUE);
 							// ¿ìÃø ÀÎÄÚ³Ê ±æÀÌ (EditÄÁÆ®·Ñ)
-							EDITCONTROL_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 205, 70, 25);
-							DGShowItem (dialogID, EDITCONTROL_RINCORNER);
-							DGSetItemValDouble (dialogID, EDITCONTROL_RINCORNER, 0.100);
+							placingZone.EDITCONTROL_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 205, 70, 25);
+							DGShowItem (dialogID, placingZone.EDITCONTROL_RINCORNER);
+							DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER, 0.100);
 
 							--placingZone.nCellsInHor;
 						}
 					}
 
-				} else if ((item == BUTTON_ADD_VER_BASIC) || (item == BUTTON_DEL_VER_BASIC)) {
+				} else if ((item == placingZone.BUTTON_ADD_VER_BASIC) || (item == placingZone.BUTTON_DEL_VER_BASIC)) {
 					// Ãø¸é - Ãß°¡(L) ¹öÆ° Å¬¸¯
-					if (item == BUTTON_ADD_VER_BASIC) {
+					if (item == placingZone.BUTTON_ADD_VER_BASIC) {
 						if (placingZone.nCellsInVerBasic < maxRow) {
 							// ¸Ç À§¿¡ ¼¿ ÇÏ³ª Ãß°¡
 							itmPosX = 105;
@@ -1612,34 +1528,42 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 50);
 							DGShowItem (dialogID, itmIdx);
 
-							POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
-							DGSetItemFont (dialogID, POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic], DG_IS_LARGE | DG_IS_PLAIN);
-							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic], DG_POPUP_BOTTOM);
-								_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic], DG_POPUP_BOTTOM, numbuf);
+							placingZone.POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
+							DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic], DG_IS_LARGE | DG_IS_PLAIN);
+							if (placingZone.bVertical == true) {
+								for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+									DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic], DG_POPUP_BOTTOM);
+									_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+									DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic], DG_POPUP_BOTTOM, numbuf);
+								}
+							} else {
+								for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
+									DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic], DG_POPUP_BOTTOM);
+									_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
+									DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic], DG_POPUP_BOTTOM, numbuf);
+								}
 							}
-							DGPopUpSelectItem (dialogID, POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic], DG_POPUP_TOP);
-							DGShowItem (dialogID, POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic]);
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic], DG_POPUP_TOP);
+							DGShowItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic]);
 
 							++placingZone.nCellsInVerBasic;
 						}						
 					}
 
 					// Ãø¸é - »èÁ¦(L) ¹öÆ° Å¬¸¯
-					else if (item == BUTTON_DEL_VER_BASIC) {
+					else if (item == placingZone.BUTTON_DEL_VER_BASIC) {
 						if (placingZone.nCellsInVerBasic > 1) {
 							// ¸Ç À§¿¡ ÀÖ´ø ¼¿ ÇÏ³ª Á¦°Å
-							DGRemoveDialogItem (dialogID, POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic - 1]);
-							DGRemoveDialogItem (dialogID, POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic - 1] - 1);
+							DGRemoveDialogItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic - 1]);
+							DGRemoveDialogItem (dialogID, placingZone.POPUP_HEIGHT_BASIC [placingZone.nCellsInVerBasic - 1] - 1);
 
 							--placingZone.nCellsInVerBasic;
 						}
 					}
 
-				} else if ((item == BUTTON_ADD_VER_EXTRA) || (item == BUTTON_DEL_VER_EXTRA)) {
+				} else if ((item == placingZone.BUTTON_ADD_VER_EXTRA) || (item == placingZone.BUTTON_DEL_VER_EXTRA)) {
 					// Ãø¸é - Ãß°¡(H) ¹öÆ° Å¬¸¯
-					if (item == BUTTON_ADD_VER_EXTRA) {
+					if (item == placingZone.BUTTON_ADD_VER_EXTRA) {
 						if (placingZone.nCellsInVerExtra < maxRow) {
 							// ¸Ç À§¿¡ ¼¿ ÇÏ³ª Ãß°¡
 							itmPosX = 185;
@@ -1648,38 +1572,45 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 50);
 							DGShowItem (dialogID, itmIdx);
 
-							POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
-							DGSetItemFont (dialogID, POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra], DG_IS_LARGE | DG_IS_PLAIN);
-							for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-								DGPopUpInsertItem (dialogID, POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra], DG_POPUP_BOTTOM);
-								_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-								DGPopUpSetItemText (dialogID, POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra], DG_POPUP_BOTTOM, numbuf);
+							placingZone.POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 2, itmPosY + 15, 65, 23);
+							DGSetItemFont (dialogID, placingZone.POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra], DG_IS_LARGE | DG_IS_PLAIN);
+							if (placingZone.bVertical == true) {
+								for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
+									DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra], DG_POPUP_BOTTOM);
+									_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
+									DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra], DG_POPUP_BOTTOM, numbuf);
+								}
+							} else {
+								for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
+									DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra], DG_POPUP_BOTTOM);
+									_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
+									DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra], DG_POPUP_BOTTOM, numbuf);
+								}
 							}
-							DGPopUpSelectItem (dialogID, POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra], DG_POPUP_TOP);
-							DGShowItem (dialogID, POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra]);
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra], DG_POPUP_TOP);
+							DGShowItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra]);
 
 							++placingZone.nCellsInVerExtra;
 						}
 					}
 
 					// Ãø¸é - »èÁ¦(H) ¹öÆ° Å¬¸¯
-					else if (item == BUTTON_DEL_VER_EXTRA) {
+					else if (item == placingZone.BUTTON_DEL_VER_EXTRA) {
 						if (placingZone.nCellsInVerExtra > 1) {
 							// ¸Ç À§¿¡ ÀÖ´ø ¼¿ ÇÏ³ª Á¦°Å
-							DGRemoveDialogItem (dialogID, POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra - 1]);
-							DGRemoveDialogItem (dialogID, POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra - 1] - 1);
+							DGRemoveDialogItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra - 1]);
+							DGRemoveDialogItem (dialogID, placingZone.POPUP_HEIGHT_EXTRA [placingZone.nCellsInVerExtra - 1] - 1);
 
 							--placingZone.nCellsInVerExtra;
 						}
 					}
 
 				} else {
-					// °´Ã¼ ¹öÆ° Å¬¸¯
+					// °´Ã¼ ¹öÆ° Å¬¸¯ (Å×ÀÌºíÆûÀÎ °æ¿ì¿¡¸¸ À¯È¿ÇÔ)
 					for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
-						if (item == BUTTON_OBJ [xx]) {
+						if ((item == placingZone.BUTTON_OBJ [xx]) && (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM)) {
 							clickedIndex = xx;
-							strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_DIRECTION, DGPopUpGetSelected (dialogID, POPUP_DIRECTION)).ToCStr ().Get ());
-							if (my_strcmp (buffer, "¼¼·Î") == 0) {
+							if (placingZone.bVertical == true) {
 								// Å×ÀÌºíÆû Å¸ÀÔ (¼¼·Î ¹æÇâ)ÀÏ °æ¿ì, 3¹øÂ° ´ÙÀÌ¾ó·Î±×(¼¼·Î¹æÇâ) ¿­±â
 								result = DGBlankModalDialog (350, 180, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler3_Vertical, (short) 0);
 							} else {
@@ -1687,16 +1618,15 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 								result = DGBlankModalDialog (420, 180, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler3_Horizontal, (short) 0);
 							}
 
-							// !!!
 							// ÄÞº¸¹Ú½ºÀÇ ÀüÃ¼ ³Êºñ °ª º¯°æ
-							//accumLength = 0;
+							accumLength = 0;
 
 							for (yy = 0 ; yy < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++yy)
 								accumLength += placingZone.cells [xx].tableInHor [yy];
 
-							for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, POPUP_WIDTH [xx]) ; ++yy) {
-								if (accumLength == atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], yy).ToCStr ().Get ())) {
-									DGPopUpSelectItem (dialogID, POPUP_WIDTH [xx], yy);
+							for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, placingZone.POPUP_WIDTH [xx]) ; ++yy) {
+								if (accumLength == atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], yy).ToCStr ().Get ())) {
+									DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], yy);
 									break;
 								}
 							}
@@ -1713,32 +1643,32 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 				// ³²Àº ³Êºñ °è»ê
 				totalWidth = 0.0;
-				if (DGGetItemValLong (dialogID, CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_LINCORNER);
-				if (DGGetItemValLong (dialogID, CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_RINCORNER);
+				if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER);
+				if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER);
 				for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
-					if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == EUROFORM))
-						totalWidth += atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
-					else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE [xx]) == NONE)
+					if ((DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM))
+						totalWidth += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
+					else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == NONE)
 						totalWidth += 0.0;
 					else
-						totalWidth += DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH [xx]);
+						totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx]);
 				}
-				DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_WIDTH, placingZone.horLen - totalWidth);
+				DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_WIDTH, placingZone.horLen - totalWidth);
 
 				// ³²Àº ³ôÀÌ °è»ê (³·ÀºÂÊ)
 				totalHeight = 0.0;
 				for (xx = 0 ; xx < placingZone.nCellsInVerBasic ; ++xx) {
-					totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_BASIC [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_BASIC [xx])).ToCStr ().Get ()) / 1000;
+					totalHeight += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_BASIC [xx])).ToCStr ().Get ()) / 1000;
 				}
-				DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
+				DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_BASIC, placingZone.verLenBasic - totalHeight);
 
 				if (placingZone.bExtra == true) {
 					// ³²Àº ³ôÀÌ °è»ê (³ôÀºÂÊ)
 					totalHeight = 0.0;
 					for (xx = 0 ; xx < placingZone.nCellsInVerExtra ; ++xx) {
-						totalHeight += atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT_EXTRA [xx], DGPopUpGetSelected (dialogID, POPUP_HEIGHT_EXTRA [xx])).ToCStr ().Get ()) / 1000;
+						totalHeight += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_EXTRA [xx])).ToCStr ().Get ()) / 1000;
 					}
-					DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
+					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
 				}
 
 				item = 0;
@@ -1760,628 +1690,628 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short	result;
-	//API_UCCallbackType	ucb;
+	API_UCCallbackType	ucb;
 
-	//switch (message) {
-	//	case DG_MSG_INIT:
-	//		// ´ÙÀÌ¾ó·Î±× Å¸ÀÌÆ²
-	//		DGSetDialogTitle (dialogID, "°¡¼³Àç ·¹ÀÌ¾î ¼±ÅÃÇÏ±â");
+	switch (message) {
+		case DG_MSG_INIT:
+			// ´ÙÀÌ¾ó·Î±× Å¸ÀÌÆ²
+			DGSetDialogTitle (dialogID, "°¡¼³Àç ·¹ÀÌ¾î ¼±ÅÃÇÏ±â");
 
-	//		//////////////////////////////////////////////////////////// ¾ÆÀÌÅÛ ¹èÄ¡ (±âº» ¹öÆ°)
-	//		// Àû¿ë ¹öÆ°
-	//		DGSetItemText (dialogID, DG_OK, "È® ÀÎ");
+			//////////////////////////////////////////////////////////// ¾ÆÀÌÅÛ ¹èÄ¡ (±âº» ¹öÆ°)
+			// Àû¿ë ¹öÆ°
+			DGSetItemText (dialogID, DG_OK, "È® ÀÎ");
 
-	//		// Á¾·á ¹öÆ°
-	//		DGSetItemText (dialogID, DG_CANCEL, "Ãë ¼Ò");
+			// Á¾·á ¹öÆ°
+			DGSetItemText (dialogID, DG_CANCEL, "Ãë ¼Ò");
 
-	//		// Ã¼Å©¹Ú½º: ·¹ÀÌ¾î ¹­À½
-	//		DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING_CUSTOM, "·¹ÀÌ¾î ¹­À½");
-	//		DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING_CUSTOM, TRUE);
+			// Ã¼Å©¹Ú½º: ·¹ÀÌ¾î ¹­À½
+			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "·¹ÀÌ¾î ¹­À½");
+			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
 
-	//		// ·¹ÀÌ¾î °ü·Ã ¶óº§
-	//		DGSetItemText (dialogID, LABEL_LAYER_SETTINGS_CUSTOM, "ºÎÀçº° ·¹ÀÌ¾î ¼³Á¤");
-	//		DGSetItemText (dialogID, LABEL_LAYER_SLABTABLEFORM_CUSTOM, "½½·¡ºê Å×ÀÌºíÆû");
-	//		DGSetItemText (dialogID, LABEL_LAYER_PROFILE_CUSTOM, "CÇü°­");
-	//		DGSetItemText (dialogID, LABEL_LAYER_EUROFORM_CUSTOM, "À¯·ÎÆû");
-	//		DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE_CUSTOM, "ºñ°è ÆÄÀÌÇÁ");
-	//		DGSetItemText (dialogID, LABEL_LAYER_PINBOLT_CUSTOM, "ÇÉº¼Æ® ¼¼Æ®");
-	//		DGSetItemText (dialogID, LABEL_LAYER_WALLTIE_CUSTOM, "º®Ã¼ Å¸ÀÌ");
-	//		DGSetItemText (dialogID, LABEL_LAYER_JOIN_CUSTOM, "°áÇÕÃ¶¹°");
-	//		DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE_CUSTOM, "ÇìµåÇÇ½º");
-	//		DGSetItemText (dialogID, LABEL_LAYER_STEELFORM_CUSTOM, "½ºÆ¿Æû");
-	//		DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD_CUSTOM, "ÇÕÆÇ");
-	//		DGSetItemText (dialogID, LABEL_LAYER_FILLERSP_CUSTOM, "ÈÙ·¯½ºÆäÀÌ¼­");
-	//		DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_ANGLE_CUSTOM, "¾Æ¿ôÄÚ³Ê¾Þ±Û");
-	//		DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_PANEL_CUSTOM, "¾Æ¿ôÄÚ³ÊÆÇ³Ú");
-	//		DGSetItemText (dialogID, LABEL_LAYER_INCORNER_PANEL_CUSTOM, "ÀÎÄÚ³ÊÆÇ³Ú");
-	//		DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE_HANGER_CUSTOM, "°¢ÆÄÀÌÇÁÇà°Å");
-	//		DGSetItemText (dialogID, LABEL_LAYER_EUROFORM_HOOK_CUSTOM, "À¯·ÎÆû ÈÄÅ©");
-	//		DGSetItemText (dialogID, LABEL_LAYER_HIDDEN_CUSTOM, "¼û±è");
+			// ·¹ÀÌ¾î °ü·Ã ¶óº§
+			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "ºÎÀçº° ·¹ÀÌ¾î ¼³Á¤");
+			DGSetItemText (dialogID, LABEL_LAYER_SLABTABLEFORM, "½½·¡ºê Å×ÀÌºíÆû");
+			DGSetItemText (dialogID, LABEL_LAYER_PROFILE, "CÇü°­");
+			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "À¯·ÎÆû");
+			DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE, "ºñ°è ÆÄÀÌÇÁ");
+			DGSetItemText (dialogID, LABEL_LAYER_PINBOLT, "ÇÉº¼Æ® ¼¼Æ®");
+			DGSetItemText (dialogID, LABEL_LAYER_WALLTIE, "º®Ã¼ Å¸ÀÌ");
+			DGSetItemText (dialogID, LABEL_LAYER_JOIN, "°áÇÕÃ¶¹°");
+			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "ÇìµåÇÇ½º");
+			DGSetItemText (dialogID, LABEL_LAYER_STEELFORM, "½ºÆ¿Æû");
+			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "ÇÕÆÇ");
+			DGSetItemText (dialogID, LABEL_LAYER_FILLERSP, "ÈÙ·¯½ºÆäÀÌ¼­");
+			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_ANGLE, "¾Æ¿ôÄÚ³Ê¾Þ±Û");
+			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_PANEL, "¾Æ¿ôÄÚ³ÊÆÇ³Ú");
+			DGSetItemText (dialogID, LABEL_LAYER_INCORNER_PANEL, "ÀÎÄÚ³ÊÆÇ³Ú");
+			DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE_HANGER, "°¢ÆÄÀÌÇÁÇà°Å");
+			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM_HOOK, "À¯·ÎÆû ÈÄÅ©");
+			DGSetItemText (dialogID, LABEL_LAYER_HIDDEN, "¼û±è");
 
-	//		DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 580, 160, 25);
-	//		DGSetItemFont (dialogID, BUTTON_AUTOSET_CUSTOM, DG_IS_LARGE | DG_IS_PLAIN);
-	//		DGSetItemText (dialogID, BUTTON_AUTOSET_CUSTOM, "·¹ÀÌ¾î ÀÚµ¿ ¼³Á¤");
-	//		DGShowItem (dialogID, BUTTON_AUTOSET_CUSTOM);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 580, 160, 25);
+			DGSetItemFont (dialogID, BUTTON_AUTOSET, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_AUTOSET, "·¹ÀÌ¾î ÀÚµ¿ ¼³Á¤");
+			DGShowItem (dialogID, BUTTON_AUTOSET);
 
-	//		// À¯Àú ÄÁÆ®·Ñ ÃÊ±âÈ­
-	//		BNZeroMemory (&ucb, sizeof (ucb));
-	//		ucb.dialogID = dialogID;
-	//		ucb.type	 = APIUserControlType_Layer;
-	//		ucb.itemID	 = USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, 1);
-	//		if (bLayerInd_SlabTableform == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_SLABTABLEFORM_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_SLABTABLEFORM_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM);
-	//		}
+			// À¯Àú ÄÁÆ®·Ñ ÃÊ±âÈ­
+			BNZeroMemory (&ucb, sizeof (ucb));
+			ucb.dialogID = dialogID;
+			ucb.type	 = APIUserControlType_Layer;
+			ucb.itemID	 = USERCONTROL_LAYER_SLABTABLEFORM;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, 1);
+			if (bLayerInd_SlabTableform == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_SLABTABLEFORM);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_SLABTABLEFORM);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_SLABTABLEFORM);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_SLABTABLEFORM);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_PROFILE_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, 1);
-	//		if (bLayerInd_Profile == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_PROFILE_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_PROFILE_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_PROFILE;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, 1);
+			if (bLayerInd_Profile == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_PROFILE);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_PROFILE);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_PROFILE);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_PROFILE);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_EUROFORM_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, 1);
-	//		if (bLayerInd_Euroform == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_EUROFORM_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_EUROFORM_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_EUROFORM;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, 1);
+			if (bLayerInd_Euroform == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_EUROFORM);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_EUROFORM);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_EUROFORM);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_EUROFORM);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_RECTPIPE_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, 1);
-	//		if (bLayerInd_RectPipe == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_RECTPIPE_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_RECTPIPE_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_RECTPIPE;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, 1);
+			if (bLayerInd_RectPipe == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_RECTPIPE);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_RECTPIPE);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_RECTPIPE);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_RECTPIPE);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_PINBOLT_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, 1);
-	//		if (bLayerInd_PinBolt == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_PINBOLT_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_PINBOLT_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_PINBOLT;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, 1);
+			if (bLayerInd_PinBolt == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_PINBOLT);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_PINBOLT);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_PINBOLT);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_PINBOLT);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_WALLTIE_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, 1);
-	//		if (bLayerInd_WallTie == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_WALLTIE_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_WALLTIE_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_WALLTIE;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, 1);
+			if (bLayerInd_WallTie == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_WALLTIE);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_WALLTIE);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_WALLTIE);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_WALLTIE);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_JOIN_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, 1);
-	//		if (bLayerInd_Join == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_JOIN_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_JOIN_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_JOIN;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, 1);
+			if (bLayerInd_Join == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_JOIN);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_JOIN);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_JOIN);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_JOIN);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_HEADPIECE_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, 1);
-	//		if (bLayerInd_HeadPiece == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_HEADPIECE_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_HEADPIECE_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_HEADPIECE;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, 1);
+			if (bLayerInd_HeadPiece == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_HEADPIECE);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_HEADPIECE);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_HEADPIECE);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_HEADPIECE);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_STEELFORM_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, 1);
-	//		if (bLayerInd_Steelform == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_STEELFORM_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_STEELFORM_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_STEELFORM;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, 1);
+			if (bLayerInd_Steelform == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_STEELFORM);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_STEELFORM);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_STEELFORM);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_STEELFORM);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_PLYWOOD_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, 1);
-	//		if (bLayerInd_Plywood == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_PLYWOOD_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_PLYWOOD_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_PLYWOOD;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, 1);
+			if (bLayerInd_Plywood == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_PLYWOOD);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_PLYWOOD);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_PLYWOOD);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_PLYWOOD);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_FILLERSP_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, 1);
-	//		if (bLayerInd_Fillersp == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_FILLERSP_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_FILLERSP_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_FILLERSP;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, 1);
+			if (bLayerInd_Fillersp == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_FILLERSP);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_FILLERSP);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_FILLERSP);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_FILLERSP);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, 1);
-	//		if (bLayerInd_OutcornerAngle == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_OUTCORNER_ANGLE_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_OUTCORNER_ANGLE_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_OUTCORNER_ANGLE;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, 1);
+			if (bLayerInd_OutcornerAngle == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_OUTCORNER_ANGLE);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_OUTCORNER_ANGLE);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, 1);
-	//		if (bLayerInd_OutcornerPanel == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_OUTCORNER_PANEL_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_OUTCORNER_PANEL_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_OUTCORNER_PANEL;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, 1);
+			if (bLayerInd_OutcornerPanel == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_OUTCORNER_PANEL);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_OUTCORNER_PANEL);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, 1);
-	//		if (bLayerInd_IncornerPanel == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_INCORNER_PANEL_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_INCORNER_PANEL_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_INCORNER_PANEL;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, 1);
+			if (bLayerInd_IncornerPanel == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_INCORNER_PANEL);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_INCORNER_PANEL);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_INCORNER_PANEL);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_INCORNER_PANEL);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, 1);
-	//		if (bLayerInd_RectpipeHanger == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_RECTPIPE_HANGER_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_RECTPIPE_HANGER_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_RECTPIPE_HANGER;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, 1);
+			if (bLayerInd_RectpipeHanger == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_RECTPIPE_HANGER);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_RECTPIPE_HANGER);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, 1);
-	//		if (bLayerInd_EuroformHook == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_EUROFORM_HOOK_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_EUROFORM_HOOK_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM);
-	//		}
+			ucb.itemID	 = USERCONTROL_LAYER_EUROFORM_HOOK;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, 1);
+			if (bLayerInd_EuroformHook == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_EUROFORM_HOOK);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_EUROFORM_HOOK);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK);
+			}
 
-	//		ucb.itemID	 = USERCONTROL_LAYER_HIDDEN_CUSTOM;
-	//		ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
-	//		DGSetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN_CUSTOM, 1);
-	//		if (bLayerInd_Hidden == true) {
-	//			DGEnableItem (dialogID, LABEL_LAYER_HIDDEN_CUSTOM);
-	//			DGEnableItem (dialogID, USERCONTROL_LAYER_HIDDEN_CUSTOM);
-	//		} else {
-	//			DGDisableItem (dialogID, LABEL_LAYER_HIDDEN_CUSTOM);
-	//			DGDisableItem (dialogID, USERCONTROL_LAYER_HIDDEN_CUSTOM);
-	//		}
-	//		break;
+			ucb.itemID	 = USERCONTROL_LAYER_HIDDEN;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN, 1);
+			if (bLayerInd_Hidden == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_HIDDEN);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_HIDDEN);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_HIDDEN);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_HIDDEN);
+			}
+			break;
 
-	//	case DG_MSG_CHANGE:
-	//		// ·¹ÀÌ¾î °°ÀÌ ¹Ù²ñ
-	//		if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING_CUSTOM) == 1) {
-	//			switch (item) {
-	//				case USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM:
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_PROFILE_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_EUROFORM_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_RECTPIPE_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_PINBOLT_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_WALLTIE_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_JOIN_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_HEADPIECE_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_STEELFORM_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_PLYWOOD_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_FILLERSP_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM));
-	//					break;
-	//				case USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM:
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM));
-	//					break;
-	//			}
-	//		}
+		case DG_MSG_CHANGE:
+			// ·¹ÀÌ¾î °°ÀÌ ¹Ù²ñ
+			if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+				switch (item) {
+					case USERCONTROL_LAYER_SLABTABLEFORM:
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						break;
+					case USERCONTROL_LAYER_PROFILE:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						break;
+					case USERCONTROL_LAYER_EUROFORM:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						break;
+					case USERCONTROL_LAYER_RECTPIPE:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						break;
+					case USERCONTROL_LAYER_PINBOLT:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						break;
+					case USERCONTROL_LAYER_WALLTIE:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						break;
+					case USERCONTROL_LAYER_JOIN:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						break;
+					case USERCONTROL_LAYER_HEADPIECE:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						break;
+					case USERCONTROL_LAYER_STEELFORM:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						break;
+					case USERCONTROL_LAYER_PLYWOOD:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						break;
+					case USERCONTROL_LAYER_FILLERSP:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						break;
+					case USERCONTROL_LAYER_OUTCORNER_ANGLE:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						break;
+					case USERCONTROL_LAYER_OUTCORNER_PANEL:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						break;
+					case USERCONTROL_LAYER_INCORNER_PANEL:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						break;
+					case USERCONTROL_LAYER_RECTPIPE_HANGER:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						break;
+					case USERCONTROL_LAYER_EUROFORM_HOOK:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						break;
+				}
+			}
 
-	//		break;
+			break;
 
-	//	case DG_MSG_CLICK:
-	//		switch (item) {
-	//			case DG_OK:
-	//				// ·¹ÀÌ¾î ¹øÈ£ ÀúÀå
-	//				if (bLayerInd_SlabTableform == true)	layerInd_SlabTableform	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM_CUSTOM);
-	//				if (bLayerInd_Profile == true)			layerInd_Profile		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE_CUSTOM);
-	//				if (bLayerInd_Euroform == true)			layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM);
-	//				if (bLayerInd_RectPipe == true)			layerInd_RectPipe		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM);
-	//				if (bLayerInd_PinBolt == true)			layerInd_PinBolt		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM);
-	//				if (bLayerInd_WallTie == true)			layerInd_WallTie		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE_CUSTOM);
-	//				if (bLayerInd_Join == true)				layerInd_Join			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM);
-	//				if (bLayerInd_HeadPiece == true)		layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM);
-	//				if (bLayerInd_Steelform == true)		layerInd_Steelform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM_CUSTOM);
-	//				if (bLayerInd_Plywood == true)			layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM);
-	//				if (bLayerInd_Fillersp == true)			layerInd_Fillersp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP_CUSTOM);
-	//				if (bLayerInd_OutcornerAngle == true)	layerInd_OutcornerAngle	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE_CUSTOM);
-	//				if (bLayerInd_OutcornerPanel == true)	layerInd_OutcornerPanel	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL_CUSTOM);
-	//				if (bLayerInd_IncornerPanel == true)	layerInd_IncornerPanel	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL_CUSTOM);
-	//				if (bLayerInd_RectpipeHanger == true)	layerInd_RectpipeHanger	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM);
-	//				if (bLayerInd_EuroformHook == true)		layerInd_EuroformHook	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM);
-	//				if (bLayerInd_Hidden == true)			layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN_CUSTOM);
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					// ·¹ÀÌ¾î ¹øÈ£ ÀúÀå
+					if (bLayerInd_SlabTableform == true)	layerInd_SlabTableform	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM);
+					if (bLayerInd_Profile == true)			layerInd_Profile		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE);
+					if (bLayerInd_Euroform == true)			layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
+					if (bLayerInd_RectPipe == true)			layerInd_RectPipe		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE);
+					if (bLayerInd_PinBolt == true)			layerInd_PinBolt		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT);
+					if (bLayerInd_WallTie == true)			layerInd_WallTie		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE);
+					if (bLayerInd_Join == true)				layerInd_Join			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN);
+					if (bLayerInd_HeadPiece == true)		layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
+					if (bLayerInd_Steelform == true)		layerInd_Steelform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM);
+					if (bLayerInd_Plywood == true)			layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
+					if (bLayerInd_Fillersp == true)			layerInd_Fillersp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP);
+					if (bLayerInd_OutcornerAngle == true)	layerInd_OutcornerAngle	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE);
+					if (bLayerInd_OutcornerPanel == true)	layerInd_OutcornerPanel	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL);
+					if (bLayerInd_IncornerPanel == true)	layerInd_IncornerPanel	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL);
+					if (bLayerInd_RectpipeHanger == true)	layerInd_RectpipeHanger	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER);
+					if (bLayerInd_EuroformHook == true)		layerInd_EuroformHook	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK);
+					if (bLayerInd_Hidden == true)			layerInd_Hidden			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HIDDEN);
 
-	//				break;
+					break;
 
-	//			case BUTTON_AUTOSET_CUSTOM:
-	//				item = 0;
+				case BUTTON_AUTOSET:
+					item = 0;
 
-	//				DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING_CUSTOM, FALSE);
+					DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, FALSE);
 
-	//				if (placingZone.type == 1) {
-	//					layerInd_Euroform	= makeTemporaryLayer (structuralObject_forTableformWall, "UFOM", NULL);
-	//					layerInd_RectPipe	= makeTemporaryLayer (structuralObject_forTableformWall, "SPIP", NULL);
-	//					layerInd_PinBolt	= makeTemporaryLayer (structuralObject_forTableformWall, "PINB", NULL);
-	//					layerInd_Join		= makeTemporaryLayer (structuralObject_forTableformWall, "CLAM", NULL);
-	//					layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
-	//					layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
+					if (placingZone.tableformType == 1) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject_forTableformWall, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject_forTableformWall, "SPIP", NULL);
+						layerInd_PinBolt	= makeTemporaryLayer (structuralObject_forTableformWall, "PINB", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject_forTableformWall, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, layerInd_Euroform);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, layerInd_RectPipe);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, layerInd_PinBolt);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, layerInd_Join);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, layerInd_HeadPiece);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, layerInd_Plywood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 
-	//				} else if (placingZone.type == 2) {
-	//					layerInd_Euroform	= makeTemporaryLayer (structuralObject_forTableformWall, "UFOM", NULL);
-	//					layerInd_RectPipe	= makeTemporaryLayer (structuralObject_forTableformWall, "SPIP", NULL);
-	//					layerInd_RectpipeHanger	= makeTemporaryLayer (structuralObject_forTableformWall, "JOIB", NULL);
-	//					layerInd_EuroformHook	= makeTemporaryLayer (structuralObject_forTableformWall, "HOOK", NULL);
-	//					layerInd_Join		= makeTemporaryLayer (structuralObject_forTableformWall, "CLAM", NULL);
-	//					layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
-	//					layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
+					} else if (placingZone.tableformType == 2) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject_forTableformWall, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject_forTableformWall, "SPIP", NULL);
+						layerInd_RectpipeHanger	= makeTemporaryLayer (structuralObject_forTableformWall, "JOIB", NULL);
+						layerInd_EuroformHook	= makeTemporaryLayer (structuralObject_forTableformWall, "HOOK", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject_forTableformWall, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, layerInd_Euroform);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, layerInd_RectPipe);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER_CUSTOM, layerInd_RectpipeHanger);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK_CUSTOM, layerInd_EuroformHook);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, layerInd_Join);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, layerInd_HeadPiece);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, layerInd_Plywood);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, layerInd_RectpipeHanger);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, layerInd_EuroformHook);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 
-	//				} else if ((placingZone.type == 3) || (placingZone.type == 4)) {
-	//					layerInd_Euroform	= makeTemporaryLayer (structuralObject_forTableformWall, "UFOM", NULL);
-	//					layerInd_RectPipe	= makeTemporaryLayer (structuralObject_forTableformWall, "SPIP", NULL);
-	//					layerInd_PinBolt	= makeTemporaryLayer (structuralObject_forTableformWall, "PINB", NULL);
-	//					layerInd_Join		= makeTemporaryLayer (structuralObject_forTableformWall, "CLAM", NULL);
-	//					layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
-	//					layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
+					} else if ((placingZone.tableformType == 3) || (placingZone.tableformType == 4)) {
+						layerInd_Euroform	= makeTemporaryLayer (structuralObject_forTableformWall, "UFOM", NULL);
+						layerInd_RectPipe	= makeTemporaryLayer (structuralObject_forTableformWall, "SPIP", NULL);
+						layerInd_PinBolt	= makeTemporaryLayer (structuralObject_forTableformWall, "PINB", NULL);
+						layerInd_Join		= makeTemporaryLayer (structuralObject_forTableformWall, "CLAM", NULL);
+						layerInd_HeadPiece	= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
+						layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_CUSTOM, layerInd_Euroform);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_CUSTOM, layerInd_RectPipe);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT_CUSTOM, layerInd_PinBolt);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN_CUSTOM, layerInd_Join);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE_CUSTOM, layerInd_HeadPiece);
-	//					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD_CUSTOM, layerInd_Plywood);
-	//				}
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+					}
 
-	//				break;
+					break;
 
-	//			case DG_CANCEL:
-	//				break;
-	//		}
-	//	case DG_MSG_CLOSE:
-	//		switch (item) {
-	//			case DG_CLOSEBOX:
-	//				break;
-	//		}
-	//}
+				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
 
-	//result = item;
+	result = item;
 
 	return	result;
 }
@@ -2429,10 +2359,10 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 
 			// º¯°æµÈ ³Êºñ (¶óº§)
 			sprintf (buffer, "º¯°æµÈ ³Êºñ: %d", 0);
-			LABEL_TOTAL_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 20, 100, 23);
-			DGSetItemFont (dialogID, LABEL_TOTAL_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, buffer);
-			DGShowItem (dialogID, LABEL_TOTAL_WIDTH);
+			placingZone.LABEL_TOTAL_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 20, 100, 23);
+			DGSetItemFont (dialogID, placingZone.LABEL_TOTAL_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, placingZone.LABEL_TOTAL_WIDTH, buffer);
+			DGShowItem (dialogID, placingZone.LABEL_TOTAL_WIDTH);
 
 			itmPosX = 35;
 			itmPosY = 55;
@@ -2449,20 +2379,20 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 				DGShowItem (dialogID, itmIdx);
 
 				// ÄÞº¸¹Ú½º
-				POPUP_WIDTH_IN_TABLE [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 5, itmPosY + 40, 60, 25);
-				DGSetItemFont (dialogID, POPUP_WIDTH_IN_TABLE [xx], DG_IS_LARGE | DG_IS_PLAIN);
+				placingZone.POPUP_WIDTH_IN_TABLE [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 5, itmPosY + 40, 60, 25);
+				DGSetItemFont (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DG_IS_LARGE | DG_IS_PLAIN);
 				for (yy = 0 ; yy < sizeof (placingZone.presetWidth_euroform) / sizeof (int) ; ++yy) {
-					DGPopUpInsertItem (dialogID, POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM);
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM);
 					_itoa (placingZone.presetWidth_euroform [yy], numbuf, 10);
-					DGPopUpSetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM, numbuf);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM, numbuf);
 				}
-				for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, POPUP_WIDTH_IN_TABLE [xx]) ; ++yy) {
-					if (placingZone.cells [clickedIndex].tableInHor [xx] == atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], yy).ToCStr ().Get ())) {
-						DGPopUpSelectItem (dialogID, POPUP_WIDTH_IN_TABLE [xx], yy);
+				for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx]) ; ++yy) {
+					if (placingZone.cells [clickedIndex].tableInHor [xx] == atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], yy).ToCStr ().Get ())) {
+						DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], yy);
 						break;
 					}
 				}
-				DGShowItem (dialogID, POPUP_WIDTH_IN_TABLE [xx]);
+				DGShowItem (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx]);
 
 				itmPosX += 70;
 			}
@@ -2470,10 +2400,10 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 			// º¯°æµÈ ³Êºñ (¶óº§) ¾÷µ¥ÀÌÆ®
 			accumLength = 0;
 			for (xx = 0 ; xx < 4 ; ++xx) {
-				accumLength += atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+				accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 			}
 			sprintf (buffer, "º¯°æµÈ ³Êºñ: %d", accumLength);
-			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, buffer);
+			DGSetItemText (dialogID, placingZone.LABEL_TOTAL_WIDTH, buffer);
 
 			break;
 
@@ -2482,10 +2412,10 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 			// º¯°æµÈ ³Êºñ (¶óº§) ¾÷µ¥ÀÌÆ®
 			accumLength = 0;
 			for (xx = 0 ; xx < 4 ; ++xx) {
-				accumLength += atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+				accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 			}
 			sprintf (buffer, "º¯°æµÈ ³Êºñ: %d", accumLength);
-			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, buffer);
+			DGSetItemText (dialogID, placingZone.LABEL_TOTAL_WIDTH, buffer);
 
 			break;
 
@@ -2494,7 +2424,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 				case DG_OK:
 					// ¼±ÅÃÇÑ ÄÞº¸¹Ú½ºµéÀÇ °ªÀ» ±â¹ÝÀ¸·Î ±¸Á¶Ã¼ °ªÀ» °»½ÅÇÔ
 					for (xx = 0 ; xx < 4 ; ++xx) {
-						placingZone.cells [clickedIndex].tableInHor [xx] = atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+						placingZone.cells [clickedIndex].tableInHor [xx] = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 					}
 					for (xx = 4 ; xx < 10 ; ++xx) {
 						placingZone.cells [clickedIndex].tableInHor [xx] = 0;
@@ -2502,7 +2432,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 
 					accumLength = 0;
 					for (xx = 0 ; xx < 5 ; ++xx) {
-						accumLength += atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+						accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 					}
 					placingZone.cells [clickedIndex].horLen = accumLength;
 					break;
@@ -2526,7 +2456,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 }
 
 // Å×ÀÌºíÆû °¡·Î¹æÇâ¿¡ ´ëÇÏ¿© À¯·ÎÆûÀÇ ¼öÆò ¹è¿­À» º¯°æÇÏ±â À§ÇÑ ´ÙÀÌ¾ó·Î±×
-short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData)
+short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	// clickedIndex: ÀÌÀü ´ÙÀÌ¾ó·Î±×¿¡¼­ ´­¸° ¹öÆ°ÀÇ 0-±â¹Ý ÀÎµ¦½º ¹øÈ£ (BUTTON_OBJ [xx])
 
@@ -2568,10 +2498,10 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 
 			// º¯°æµÈ ³Êºñ (¶óº§)
 			sprintf (buffer, "º¯°æµÈ ³Êºñ: %d", 0);
-			LABEL_TOTAL_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 20, 100, 23);
-			DGSetItemFont (dialogID, LABEL_TOTAL_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, buffer);
-			DGShowItem (dialogID, LABEL_TOTAL_WIDTH);
+			placingZone.LABEL_TOTAL_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 20, 100, 23);
+			DGSetItemFont (dialogID, placingZone.LABEL_TOTAL_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, placingZone.LABEL_TOTAL_WIDTH, buffer);
+			DGShowItem (dialogID, placingZone.LABEL_TOTAL_WIDTH);
 
 			itmPosX = 35;
 			itmPosY = 55;
@@ -2588,20 +2518,20 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 				DGShowItem (dialogID, itmIdx);
 
 				// ÄÞº¸¹Ú½º
-				POPUP_WIDTH_IN_TABLE [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 5, itmPosY + 40, 60, 25);
-				DGSetItemFont (dialogID, POPUP_WIDTH_IN_TABLE [xx], DG_IS_LARGE | DG_IS_PLAIN);
+				placingZone.POPUP_WIDTH_IN_TABLE [xx] = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX + 5, itmPosY + 40, 60, 25);
+				DGSetItemFont (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DG_IS_LARGE | DG_IS_PLAIN);
 				for (yy = 0 ; yy < sizeof (placingZone.presetHeight_euroform) / sizeof (int) ; ++yy) {
-					DGPopUpInsertItem (dialogID, POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM);
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM);
 					_itoa (placingZone.presetHeight_euroform [yy], numbuf, 10);
-					DGPopUpSetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM, numbuf);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DG_POPUP_BOTTOM, numbuf);
 				}
-				for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, POPUP_WIDTH_IN_TABLE [xx]) ; ++yy) {
-					if (placingZone.cells [clickedIndex].tableInHor [xx] == atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], yy).ToCStr ().Get ())) {
-						DGPopUpSelectItem (dialogID, POPUP_WIDTH_IN_TABLE [xx], yy);
+				for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx]) ; ++yy) {
+					if (placingZone.cells [clickedIndex].tableInHor [xx] == atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], yy).ToCStr ().Get ())) {
+						DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], yy);
 						break;
 					}
 				}
-				DGShowItem (dialogID, POPUP_WIDTH_IN_TABLE [xx]);
+				DGShowItem (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx]);
 
 				itmPosX += 70;
 			}
@@ -2609,10 +2539,10 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 			// º¯°æµÈ ³Êºñ (¶óº§) ¾÷µ¥ÀÌÆ®
 			accumLength = 0;
 			for (xx = 0 ; xx < 5 ; ++xx) {
-				accumLength += atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+				accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 			}
 			sprintf (buffer, "º¯°æµÈ ³Êºñ: %d", accumLength);
-			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, buffer);
+			DGSetItemText (dialogID, placingZone.LABEL_TOTAL_WIDTH, buffer);
 
 			break;
 
@@ -2621,10 +2551,10 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 			// º¯°æµÈ ³Êºñ (¶óº§) ¾÷µ¥ÀÌÆ®
 			accumLength = 0;
 			for (xx = 0 ; xx < 5 ; ++xx) {
-				accumLength += atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+				accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 			}
 			sprintf (buffer, "º¯°æµÈ ³Êºñ: %d", accumLength);
-			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, buffer);
+			DGSetItemText (dialogID, placingZone.LABEL_TOTAL_WIDTH, buffer);
 
 			break;
 
@@ -2633,7 +2563,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 				case DG_OK:
 					// ¼±ÅÃÇÑ ÄÞº¸¹Ú½ºµéÀÇ °ªÀ» ±â¹ÝÀ¸·Î ±¸Á¶Ã¼ °ªÀ» °»½ÅÇÔ
 					for (xx = 0 ; xx < 5 ; ++xx) {
-						placingZone.cells [clickedIndex].tableInHor [xx] = atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+						placingZone.cells [clickedIndex].tableInHor [xx] = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 					}
 					for (xx = 5 ; xx < 10 ; ++xx) {
 						placingZone.cells [clickedIndex].tableInHor [xx] = 0;
@@ -2641,7 +2571,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 
 					accumLength = 0;
 					for (xx = 0 ; xx < 5 ; ++xx) {
-						accumLength += atoi (DGPopUpGetItemText (dialogID, POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
+						accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 					}
 					placingZone.cells [clickedIndex].horLen = accumLength;
 					break;
