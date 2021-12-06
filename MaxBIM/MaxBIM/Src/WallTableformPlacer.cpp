@@ -21,7 +21,7 @@ static short	layerInd_HeadPiece;			// 레이어 번호: 헤드피스 (A,B,C타입, B,C타입�
 static short	layerInd_Join;				// 레이어 번호: 결합철물 (A,B,C타입, B,C타입에서는 사각파이프 연결철물)
 
 static short	layerInd_Plywood;			// 레이어 번호: 합판 (공통)
-static short	layerInd_Wood;				// 레이어 번호: 목재 (공통)
+static short	layerInd_Timber;			// 레이어 번호: 각재 (공통)
 static short	layerInd_EuroformHook;		// 레이어 번호: 유로폼 후크 (B타입)
 static short	layerInd_BlueClamp;			// 레이어 번호: 블루 클램프
 static short	layerInd_BlueTimberRail;	// 레이어 번호: 블루 목심
@@ -40,10 +40,11 @@ static bool		bLayerInd_Profile;			// 레이어 번호: KS프로파일
 
 static bool		bLayerInd_Steelform;		// 레이어 번호: 스틸폼
 static bool		bLayerInd_Plywood;			// 레이어 번호: 합판
+static bool		bLayerInd_Timber;			// 레이어 번호: 각재
 static bool		bLayerInd_Fillersp;			// 레이어 번호: 휠러스페이서
 static bool		bLayerInd_OutcornerAngle;	// 레이어 번호: 아웃코너앵글
-static bool		bLayerInd_OutcornerPanel;	// 레이어 번호: 아웃코너앵글
-static bool		bLayerInd_IncornerPanel;	// 레이어 번호: 인코너앵글
+static bool		bLayerInd_OutcornerPanel;	// 레이어 번호: 아웃코너판넬
+static bool		bLayerInd_IncornerPanel;	// 레이어 번호: 인코너판넬
 static bool		bLayerInd_RectpipeHanger;	// 레이어 번호: 각파이프 행거
 static bool		bLayerInd_EuroformHook;		// 레이어 번호: 유로폼 후크
 static bool		bLayerInd_Hidden;			// 레이어 번호: 숨김
@@ -54,13 +55,13 @@ static short	layerInd_Profile;			// 레이어 번호: KS프로파일
 static short	layerInd_Steelform;			// 레이어 번호: 스틸폼
 static short	layerInd_Fillersp;			// 레이어 번호: 휠러스페이서
 static short	layerInd_OutcornerAngle;	// 레이어 번호: 아웃코너앵글
-static short	layerInd_OutcornerPanel;	// 레이어 번호: 아웃코너앵글
-static short	layerInd_IncornerPanel;		// 레이어 번호: 인코너앵글
+static short	layerInd_OutcornerPanel;	// 레이어 번호: 아웃코너판넬
+static short	layerInd_IncornerPanel;		// 레이어 번호: 인코너판넬
 static short	layerInd_RectpipeHanger;	// 레이어 번호: 각파이프 행거
 
-static GS::Array<API_Guid>	elemList;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
+static GS::Array<API_Guid>	elemList_Front;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함 (앞면)
+static GS::Array<API_Guid>	elemList_Back;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함 (뒷면)
 
-//static double	preferWidth;
 static bool	clickedPrevButton;		// 이전 버튼을 눌렀습니까?
 static int	clickedIndex;			// 클릭한 버튼의 인덱스
 
@@ -310,10 +311,38 @@ GSErrCode	placeTableformOnWall (void)
 		return err;
 
 	// 테이블폼 배치하기
-	// ... --> 하나의 루틴으로?
+	placingZone.placeObjects (&placingZone);
 
 	// 테이블폼 상단 여백 채우기
-	// ... --> 하나의 루틴으로?
+	placingZone.fillRestAreas (&placingZone);
+
+	// 결과물 전체 그룹화 (앞면)
+	if (!elemList_Front.IsEmpty ()) {
+		GSSize nElems = elemList_Front.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_Front [i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+
+	// 결과물 전체 그룹화 (뒷면)
+	if (!elemList_Back.IsEmpty ()) {
+		GSSize nElems = elemList_Back.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_Back [i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -565,6 +594,516 @@ void	WallTableformPlacingZone::adjustCellsPosition (WallTableformPlacingZone* pl
 		placingZone->cells [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
 		placingZone->cells [xx].leftBottomZ = placingZone->leftBottomZ;
 	}
+}
+
+// 셀 정보를 기반으로 객체들을 배치함
+GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* placingZone)
+{
+	GSErrCode	err = NoError;
+	short	xx, yy, varEnd;
+	double	accumDist;
+	double	lengthDouble;
+	int		lengthInt, remainLengthInt;
+
+	// ================================================== 인코너 배치
+	// 좌측 인코너 배치
+	if (placingZone->bLincorner == true) {
+		// 앞면
+		EasyObjectPlacement incorner;
+		incorner.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang - DegreeToRad (90.0));
+
+		moveIn3D ('y', incorner.radAng + DegreeToRad (90.0), -placingZone->gap, &incorner.posX, &incorner.posY, &incorner.posZ);	// 벽과의 간격만큼 이동
+
+		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
+			elemList_Front.Push (incorner.placeObject (5,
+				"in_comp", APIParT_CString, "인코너판넬",
+				"wid_s", APIParT_Length, format_string ("%.3f", 0.100),
+				"leng_s", APIParT_Length, format_string ("%.3f", placingZone->lenLincorner),
+				"hei_s", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
+				"dir_s", APIParT_CString, "세우기"));
+
+			moveIn3D ('z', incorner.radAng + DegreeToRad (90.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &incorner.posX, &incorner.posY, &incorner.posZ);
+		}
+
+		// 뒷면
+		incorner.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+
+		moveIn3D ('y', incorner.radAng, infoWall.wallThk + placingZone->gap, &incorner.posX, &incorner.posY, &incorner.posZ);		// 벽과의 간격만큼 이동
+
+		varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+		for (xx = 0 ; xx < varEnd ; ++xx) {
+			if (placingZone->bExtra == true)
+				lengthDouble = (double)placingZone->cells [0].tableInVerExtra [xx] / 1000.0;
+			else
+				lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+
+			elemList_Back.Push (incorner.placeObject (5,
+				"in_comp", APIParT_CString, "인코너판넬",
+				"wid_s", APIParT_Length, format_string ("%.3f", placingZone->lenLincorner),
+				"leng_s", APIParT_Length, format_string ("%.3f", 0.100),
+				"hei_s", APIParT_Length, format_string ("%.3f", lengthDouble),
+				"dir_s", APIParT_CString, "세우기"));
+
+			moveIn3D ('z', incorner.radAng, lengthDouble, &incorner.posX, &incorner.posY, &incorner.posZ);
+		}
+	}
+	
+	// 우측 인코너 배치
+	if (placingZone->bRincorner == true) {
+		// 앞면
+		EasyObjectPlacement incorner;
+		incorner.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang - DegreeToRad (180.0));
+
+		moveIn3D ('y', incorner.radAng + DegreeToRad (180.0), -placingZone->gap, &incorner.posX, &incorner.posY, &incorner.posZ);		// 벽과의 간격만큼 이동
+		moveIn3D ('x', incorner.radAng + DegreeToRad (180.0), placingZone->horLen, &incorner.posX, &incorner.posY, &incorner.posZ);		// 영역 우측으로 이동
+
+		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
+			elemList_Front.Push (incorner.placeObject (5,
+				"in_comp", APIParT_CString, "인코너판넬",
+				"wid_s", APIParT_Length, format_string ("%.3f", placingZone->lenRincorner),
+				"leng_s", APIParT_Length, format_string ("%.3f", 0.100),
+				"hei_s", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
+				"dir_s", APIParT_CString, "세우기"));
+
+			moveIn3D ('z', incorner.radAng + DegreeToRad (180.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &incorner.posX, &incorner.posY, &incorner.posZ);
+		}
+
+		// 뒷면
+		incorner.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (90.0));
+
+		moveIn3D ('y', incorner.radAng - DegreeToRad (90.0), infoWall.wallThk + placingZone->gap, &incorner.posX, &incorner.posY, &incorner.posZ);	// 벽과의 간격만큼 이동
+		moveIn3D ('x', incorner.radAng - DegreeToRad (90.0), placingZone->horLen, &incorner.posX, &incorner.posY, &incorner.posZ);					// 영역 우측으로 이동
+
+		varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+		for (xx = 0 ; xx < varEnd ; ++xx) {
+			if (placingZone->bExtra == true)
+				lengthDouble = (double)placingZone->cells [0].tableInVerExtra [xx] / 1000.0;
+			else
+				lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+
+			elemList_Back.Push (incorner.placeObject (5,
+				"in_comp", APIParT_CString, "인코너판넬",
+				"wid_s", APIParT_Length, format_string ("%.3f", 0.100),
+				"leng_s", APIParT_Length, format_string ("%.3f", placingZone->lenRincorner),
+				"hei_s", APIParT_Length, format_string ("%.3f", lengthDouble),
+				"dir_s", APIParT_CString, "세우기"));
+
+			moveIn3D ('z', incorner.radAng, lengthDouble, &incorner.posX, &incorner.posY, &incorner.posZ);
+		}
+	}
+
+	// ================================================== 유로폼 배치
+	// 앞면 배치
+	EasyObjectPlacement euroform;
+	euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+
+	if (placingZone->bLincorner == true)	moveIn3D ('x', euroform.radAng, placingZone->lenLincorner, &euroform.posX, &euroform.posY, &euroform.posZ);		// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', euroform.radAng, -placingZone->gap, &euroform.posX, &euroform.posY, &euroform.posZ);														// 벽과의 간격만큼 이동
+
+	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		if (placingZone->cells [xx].objType == EUROFORM) {
+			accumDist = 0.0;
+
+			for (yy = 0 ; yy < placingZone->nCellsInVerBasic ; ++yy) {
+				if (placingZone->bVertical == true) {
+					// 세로방향
+					elemList_Front.Push (euroform.placeObject (5,
+						"eu_stan_onoff", APIParT_Boolean, "1.0",
+						"eu_wid", APIParT_CString, format_string ("%d", placingZone->cells [xx].horLen),
+						"eu_hei", APIParT_CString, format_string ("%d", placingZone->cells [xx].tableInVerBasic [yy]),
+						"u_ins", APIParT_CString, "벽세우기",
+						"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+				} else {
+					// 가로방향
+					moveIn3D ('x', euroform.radAng, (double)placingZone->cells [xx].horLen / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+					elemList_Front.Push (euroform.placeObject (5,
+						"eu_stan_onoff", APIParT_Boolean, "1.0",
+						"eu_wid", APIParT_CString, format_string ("%d", placingZone->cells [xx].tableInVerBasic [yy]),
+						"eu_hei", APIParT_CString, format_string ("%d", placingZone->cells [xx].horLen),
+						"u_ins", APIParT_CString, "벽눕히기",
+						"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+					moveIn3D ('x', euroform.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+				}
+				accumDist += (double)placingZone->cells [xx].tableInVerBasic [yy] / 1000.0;
+				moveIn3D ('z', euroform.radAng, (double)placingZone->cells [xx].tableInVerBasic [yy] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+			}
+			moveIn3D ('z', euroform.radAng, -accumDist, &euroform.posX, &euroform.posY, &euroform.posZ);
+		}
+
+		// 무조건 가로 방향으로 이동
+		moveIn3D ('x', euroform.radAng, (double)placingZone->cells [xx].horLen / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+	}
+
+	// 뒷면 배치
+	euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
+
+	if (placingZone->bLincorner == true)	moveIn3D ('x', euroform.radAng - DegreeToRad (180.0), placingZone->lenLincorner, &euroform.posX, &euroform.posY, &euroform.posZ);	// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', euroform.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &euroform.posX, &euroform.posY, &euroform.posZ);									// 벽과의 간격만큼 이동
+
+	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		if (placingZone->cells [xx].objType == EUROFORM) {
+			accumDist = 0.0;
+
+			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+			for (yy = 0 ; yy < varEnd ; ++yy) {
+				if (placingZone->bExtra == true)
+					lengthInt = placingZone->cells [xx].tableInVerExtra [yy];
+				else
+					lengthInt = placingZone->cells [xx].tableInVerBasic [yy];
+
+				if (placingZone->bVertical == true) {
+					// 세로방향
+					moveIn3D ('x', euroform.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+					elemList_Back.Push (euroform.placeObject (5,
+						"eu_stan_onoff", APIParT_Boolean, "1.0",
+						"eu_wid", APIParT_CString, format_string ("%d", placingZone->cells [xx].horLen),
+						"eu_hei", APIParT_CString, format_string ("%d", lengthInt),
+						"u_ins", APIParT_CString, "벽세우기",
+						"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+					moveIn3D ('x', euroform.radAng, (double)placingZone->cells [xx].horLen / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+				} else {
+					// 가로방향
+					elemList_Back.Push (euroform.placeObject (5,
+						"eu_stan_onoff", APIParT_Boolean, "1.0",
+						"eu_wid", APIParT_CString, format_string ("%d", lengthInt),
+						"eu_hei", APIParT_CString, format_string ("%d", placingZone->cells [xx].horLen),
+						"u_ins", APIParT_CString, "벽눕히기",
+						"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+				}
+				accumDist += (double)lengthInt / 1000.0;
+				moveIn3D ('z', euroform.radAng, (double)lengthInt / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+			}
+			moveIn3D ('z', euroform.radAng, -accumDist, &euroform.posX, &euroform.posY, &euroform.posZ);
+		}
+
+		// 무조건 가로 방향으로 이동
+		moveIn3D ('x', euroform.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+	}
+
+	// ================================================== 휠러스페이서 배치 (항상 세로방향)
+	// 앞면 배치
+	EasyObjectPlacement fillersp;
+	fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+
+	if (placingZone->bLincorner == true)	moveIn3D ('x', fillersp.radAng, placingZone->lenLincorner, &fillersp.posX, &fillersp.posY, &fillersp.posZ);		// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', fillersp.radAng, -placingZone->gap, &fillersp.posX, &fillersp.posY, &fillersp.posZ);														// 벽과의 간격만큼 이동
+
+	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		if (placingZone->cells [xx].objType == FILLERSP) {
+			accumDist = 0.0;
+			remainLengthInt = 0;
+			for (yy = 0 ; yy < placingZone->nCellsInVerBasic ; ++yy) {
+				remainLengthInt += placingZone->cells [xx].tableInVerBasic [yy];
+				accumDist += (double)placingZone->cells [xx].tableInVerBasic [yy] / 1000.0;
+			}
+
+			moveIn3D ('x', fillersp.radAng, (double)placingZone->cells [xx].horLen / 1000.0, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+			while (remainLengthInt > 0) {
+				if (remainLengthInt >= 2400)
+					lengthInt = 2400;
+				else
+					lengthInt = remainLengthInt;
+
+				elemList_Front.Push (fillersp.placeObject (4,
+					"f_thk", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
+					"f_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+					"f_ang", APIParT_Angle, format_string ("%.3f", DegreeToRad (90.0)),
+					"f_rota", APIParT_Angle, format_string ("%.3f", 0.0)));
+				moveIn3D ('z', fillersp.radAng, (double)lengthInt / 1000.0, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+
+				remainLengthInt -= 2400;
+			}
+			moveIn3D ('x', fillersp.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+			moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+		}
+
+		// 무조건 가로 방향으로 이동
+		moveIn3D ('x', fillersp.radAng, (double)placingZone->cells [xx].horLen / 1000.0, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+	}
+
+	// 뒷면 배치
+	fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
+
+	if (placingZone->bLincorner == true)	moveIn3D ('x', fillersp.radAng - DegreeToRad (180.0), placingZone->lenLincorner, &fillersp.posX, &fillersp.posY, &fillersp.posZ);	// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', fillersp.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &fillersp.posX, &fillersp.posY, &fillersp.posZ);									// 벽과의 간격만큼 이동
+
+	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		if (placingZone->cells [xx].objType == FILLERSP) {
+			accumDist = 0.0;
+			remainLengthInt = 0;
+
+			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+			for (yy = 0 ; yy < varEnd ; ++yy) {
+				if (placingZone->bExtra == true)
+					lengthInt = placingZone->cells [xx].tableInVerExtra [yy];
+				else
+					lengthInt = placingZone->cells [xx].tableInVerBasic [yy];
+
+				remainLengthInt += lengthInt;
+				accumDist += (double)lengthInt / 1000.0;
+			}
+
+			while (remainLengthInt > 0) {
+				if (remainLengthInt >= 2400)
+					lengthInt = 2400;
+				else
+					lengthInt = remainLengthInt;
+
+				elemList_Back.Push (fillersp.placeObject (4,
+					"f_thk", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
+					"f_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+					"f_ang", APIParT_Angle, format_string ("%.3f", DegreeToRad (90.0)),
+					"f_rota", APIParT_Angle, format_string ("%.3f", 0.0)));
+				moveIn3D ('z', fillersp.radAng, (double)lengthInt / 1000.0, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+
+				remainLengthInt -= 2400;
+			}
+			moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+		}
+
+		// 무조건 가로 방향으로 이동
+		moveIn3D ('x', fillersp.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+	}
+
+	// ================================================== 합판 배치 (항상 세로방향)
+	// 앞면 배치
+	EasyObjectPlacement plywood;
+	plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+
+	if (placingZone->bLincorner == true)	moveIn3D ('x', plywood.radAng, placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);		// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', plywood.radAng, -placingZone->gap, &plywood.posX, &plywood.posY, &plywood.posZ);														// 벽과의 간격만큼 이동
+
+	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		if (placingZone->cells [xx].objType == PLYWOOD) {
+			accumDist = 0.0;
+			remainLengthInt = 0;
+			for (yy = 0 ; yy < placingZone->nCellsInVerBasic ; ++yy) {
+				remainLengthInt += placingZone->cells [xx].tableInVerBasic [yy];
+				accumDist += (double)placingZone->cells [xx].tableInVerBasic [yy] / 1000.0;
+			}
+
+			while (remainLengthInt > 0) {
+				if (remainLengthInt >= 2400)
+					lengthInt = 2400;
+				else
+					lengthInt = remainLengthInt;
+
+				elemList_Front.Push (plywood.placeObject (13,
+					"p_stan", APIParT_CString, "비규격",
+					"w_dir", APIParT_CString, "벽세우기",
+					"p_thk", APIParT_CString, "11.5T",
+					"p_wid", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
+					"p_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+					"p_ang", APIParT_Angle, format_string ("%.3f", 0.0),
+					"sogak", APIParT_Boolean, "1.0",
+					"bInverseSogak", APIParT_Boolean, "1.0",
+					"prof", APIParT_CString, "소각",
+					"gap_a", APIParT_Length, format_string ("%.3f", 0.0),
+					"gap_b", APIParT_Length, format_string ("%.3f", 0.0),
+					"gap_c", APIParT_Length, format_string ("%.3f", 0.0),
+					"gap_d", APIParT_Length, format_string ("%.3f", 0.0)));
+				moveIn3D ('z', plywood.radAng, (double)lengthInt / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
+
+				remainLengthInt -= 2400;
+			}
+			moveIn3D ('z', plywood.radAng, -accumDist, &plywood.posX, &plywood.posY, &plywood.posZ);
+		}
+
+		// 무조건 가로 방향으로 이동
+		moveIn3D ('x', plywood.radAng, (double)placingZone->cells [xx].horLen / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
+	}
+
+	// 뒷면 배치
+	plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
+
+	if (placingZone->bLincorner == true)	moveIn3D ('x', plywood.radAng - DegreeToRad (180.0), placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);		// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', plywood.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &plywood.posX, &plywood.posY, &plywood.posZ);										// 벽과의 간격만큼 이동
+
+	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		if (placingZone->cells [xx].objType == PLYWOOD) {
+			accumDist = 0.0;
+			remainLengthInt = 0;
+
+			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+			for (yy = 0 ; yy < varEnd ; ++yy) {
+				if (placingZone->bExtra == true)
+					lengthInt = placingZone->cells [xx].tableInVerExtra [yy];
+				else
+					lengthInt = placingZone->cells [xx].tableInVerBasic [yy];
+
+				remainLengthInt += lengthInt;
+				accumDist += (double)lengthInt / 1000.0;
+			}
+
+			moveIn3D ('x', plywood.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
+			while (remainLengthInt > 0) {
+				if (remainLengthInt >= 2400)
+					lengthInt = 2400;
+				else
+					lengthInt = remainLengthInt;
+
+				elemList_Back.Push (plywood.placeObject (13,
+					"p_stan", APIParT_CString, "비규격",
+					"w_dir", APIParT_CString, "벽세우기",
+					"p_thk", APIParT_CString, "11.5T",
+					"p_wid", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
+					"p_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+					"p_ang", APIParT_Angle, format_string ("%.3f", 0.0),
+					"sogak", APIParT_Boolean, "1.0",
+					"bInverseSogak", APIParT_Boolean, "1.0",
+					"prof", APIParT_CString, "소각",
+					"gap_a", APIParT_Length, format_string ("%.3f", 0.0),
+					"gap_b", APIParT_Length, format_string ("%.3f", 0.0),
+					"gap_c", APIParT_Length, format_string ("%.3f", 0.0),
+					"gap_d", APIParT_Length, format_string ("%.3f", 0.0)));
+				moveIn3D ('z', plywood.radAng, (double)lengthInt / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
+
+				remainLengthInt -= 2400;
+			}
+			moveIn3D ('x', plywood.radAng, (double)placingZone->cells [xx].horLen / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
+			moveIn3D ('z', plywood.radAng, -accumDist, &plywood.posX, &plywood.posY, &plywood.posZ);
+		}
+
+		// 무조건 가로 방향으로 이동
+		moveIn3D ('x', plywood.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
+	}
+
+	// ================================================== 각재 배치 (항상 세로방향)
+	// 앞면 배치
+	EasyObjectPlacement timber;
+	timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+
+	if (placingZone->bLincorner == true)	moveIn3D ('x', timber.radAng, placingZone->lenLincorner, &timber.posX, &timber.posY, &timber.posZ);		// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', timber.radAng, -placingZone->gap, &timber.posX, &timber.posY, &timber.posZ);														// 벽과의 간격만큼 이동
+
+	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		if (placingZone->cells [xx].objType == TIMBER) {
+			accumDist = 0.0;
+			remainLengthInt = 0;
+			for (yy = 0 ; yy < placingZone->nCellsInVerBasic ; ++yy) {
+				remainLengthInt += placingZone->cells [xx].tableInVerBasic [yy];
+				accumDist += (double)placingZone->cells [xx].tableInVerBasic [yy] / 1000.0;
+			}
+
+			moveIn3D ('x', timber.radAng, (double)placingZone->cells [xx].horLen / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
+			while (remainLengthInt > 0) {
+				if (remainLengthInt >= 3600)
+					lengthInt = 3600;
+				else
+					lengthInt = remainLengthInt;
+
+				elemList_Front.Push (timber.placeObject (6,
+					"w_ins", APIParT_CString, "벽세우기",
+					"w_w", APIParT_Length, format_string ("%.3f", 0.050),
+					"w_h", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
+					"w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+					"w_ang", APIParT_Angle, format_string ("%.3f", DegreeToRad (90.0)),
+					"torsion_ang", APIParT_Angle, format_string ("%.3f", 0.0)));
+				moveIn3D ('z', timber.radAng, (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
+
+				remainLengthInt -= 3600;
+			}
+			moveIn3D ('x', timber.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
+			moveIn3D ('z', timber.radAng, -accumDist, &timber.posX, &timber.posY, &timber.posZ);
+		}
+
+		// 무조건 가로 방향으로 이동
+		moveIn3D ('x', timber.radAng, (double)placingZone->cells [xx].horLen / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
+	}
+
+	// 뒷면 배치
+	timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
+
+	if (placingZone->bLincorner == true)	moveIn3D ('x', timber.radAng - DegreeToRad (180.0), placingZone->lenLincorner, &timber.posX, &timber.posY, &timber.posZ);		// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', timber.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &timber.posX, &timber.posY, &timber.posZ);										// 벽과의 간격만큼 이동
+
+	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		if (placingZone->cells [xx].objType == TIMBER) {
+			accumDist = 0.0;
+			remainLengthInt = 0;
+
+			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+			for (yy = 0 ; yy < varEnd ; ++yy) {
+				if (placingZone->bExtra == true)
+					lengthInt = placingZone->cells [xx].tableInVerExtra [yy];
+				else
+					lengthInt = placingZone->cells [xx].tableInVerBasic [yy];
+
+				remainLengthInt += lengthInt;
+				accumDist += (double)lengthInt / 1000.0;
+			}
+
+			while (remainLengthInt > 0) {
+				if (remainLengthInt >= 3600)
+					lengthInt = 3600;
+				else
+					lengthInt = remainLengthInt;
+
+				elemList_Front.Push (timber.placeObject (6,
+					"w_ins", APIParT_CString, "벽세우기",
+					"w_w", APIParT_Length, format_string ("%.3f", 0.050),
+					"w_h", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
+					"w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+					"w_ang", APIParT_Angle, format_string ("%.3f", DegreeToRad (90.0)),
+					"torsion_ang", APIParT_Angle, format_string ("%.3f", 0.0)));
+				moveIn3D ('z', timber.radAng, (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
+
+				remainLengthInt -= 3600;
+			}
+			moveIn3D ('z', timber.radAng, -accumDist, &timber.posX, &timber.posY, &timber.posZ);
+		}
+
+		// 무조건 가로 방향으로 이동
+		moveIn3D ('x', timber.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
+	}
+	
+	// ================================================== 테이블폼 배치
+	// ... 벽과의 간격 고려하기 (gap)
+	// ... 세로/가로방향 고려 (bVertical)
+	// ... 테이블폼 타입 고려 (tableformType)
+	// ... 대칭/비대칭 고려 (bExtra)
+	
+	return err;
+}
+
+// 상단 여백을 유로폼 또는 합판, 각재 등으로 채움
+GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* placingZone)
+{
+	GSErrCode	err = NoError;
+
+	// !!!
+
+	return err;
+}
+
+// 테이블폼 타입A 배치
+void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placingZone, short idxCell)
+{
+	// !!!
+}
+
+// 테이블폼 타입B 배치
+void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placingZone, short idxCell)
+{
+	// !!!
+}
+
+// 테이블폼 타입C 배치
+void	WallTableformPlacingZone::placeTableformC (WallTableformPlacingZone* placingZone, short idxCell)
+{
+	// !!!
+}
+
+// 테이블폼 타입D 배치
+void	WallTableformPlacingZone::placeTableformD (WallTableformPlacingZone* placingZone, short idxCell)
+{
+	// !!!
 }
 
 // 테이블폼/유로폼/휠러스페이서/합판/목재 배치를 위한 다이얼로그 (테이블폼 구성, 요소 방향, 개수 및 길이)
@@ -1110,6 +1649,12 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 						}
 					}
 
+					// 테이블폼 타입이 아니면 버튼을 잠금
+					if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) != TABLEFORM)
+						DGDisableItem (dialogID, placingZone.BUTTON_OBJ [xx]);
+					else
+						DGEnableItem (dialogID, placingZone.BUTTON_OBJ [xx]);
+
 					// 테이블폼/유로폼이면 너비가 팝업컨트롤, 그 외에는 Edit컨트롤, 없으면 모두 숨김
 					if ((DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM)) {
 						if (!DGIsItemVisible (dialogID, placingZone.POPUP_WIDTH [xx]))			DGShowItem (dialogID, placingZone.POPUP_WIDTH [xx]);
@@ -1120,6 +1665,18 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					} else {
 						if (!DGIsItemVisible (dialogID, placingZone.EDITCONTROL_WIDTH [xx]))	DGShowItem (dialogID, placingZone.EDITCONTROL_WIDTH [xx]);
 						if (DGIsItemVisible (dialogID, placingZone.POPUP_WIDTH [xx]))			DGHideItem (dialogID, placingZone.POPUP_WIDTH [xx]);
+
+						// 휠러스페이서, 합판, 각재의 가로 방향 길이의 최소, 최대값
+						if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == FILLERSP) {
+							DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx], 0.010);
+							DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx], 0.050);
+						} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == PLYWOOD) {
+							DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx], 0.090);
+							DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx], 1.220);
+						} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TIMBER) {
+							DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx], 0.005);
+							DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx], 1.000);
+						}
 					}
 				}
 			}
@@ -1310,7 +1867,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 					// 가로 방향 길이 지정
 					if (placingZone.cells [xx].objType == NONE) {
-						// 가로, 세로 길이 모두 0
+						// 가로 길이 0
 						placingZone.cells [xx].horLen = 0;
 
 						// 테이블 내 가로 길이 모두 0
@@ -1327,7 +1884,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 					} else if ((placingZone.cells [xx].objType == FILLERSP) || (placingZone.cells [xx].objType == PLYWOOD) || (placingZone.cells [xx].objType == TIMBER)) {
 						// 휠러스페이서, 합판, 목재의 너비
-						placingZone.cells [xx].horLen = (int)DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx]) * 1000;
+						placingZone.cells [xx].horLen = (int)(DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx]) * 1000);
 
 						// 테이블 내 가로 길이 모두 0
 						for (yy = 0 ; yy < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++yy)
@@ -1337,28 +1894,24 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					// 세로 방향 길이 설정 (낮은쪽)
 					accumLength = 0;
 					for (yy = 0 ; yy < placingZone.nCellsInVerBasic ; ++yy) {
-						if (placingZone.cells [xx].objType != NONE) {
-							// 테이블 내 세로 길이 설정
-							placingZone.cells [xx].tableInVerBasic [yy] = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy])).ToCStr ().Get ());
-							accumLength += placingZone.cells [xx].tableInVerBasic [yy];
-						}
+						// 테이블 내 세로 길이 설정
+						placingZone.cells [xx].tableInVerBasic [yy] = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_BASIC [yy])).ToCStr ().Get ());
+						accumLength += placingZone.cells [xx].tableInVerBasic [yy];
 					}
 					placingZone.cells [xx].verLenBasic = accumLength;
 				
 					// 세로 방향 길이 설정 (높은쪽)
 					accumLength = 0;
 					for (yy = 0 ; yy < placingZone.nCellsInVerExtra ; ++yy) {
-						if (placingZone.cells [xx].objType != NONE) {
-							// 테이블 내 세로 길이 설정
-							placingZone.cells [xx].tableInVerExtra [yy] = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy])).ToCStr ().Get ());
-							accumLength += placingZone.cells [xx].tableInVerExtra [yy];
-						}
+						// 테이블 내 세로 길이 설정
+						placingZone.cells [xx].tableInVerExtra [yy] = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy], DGPopUpGetSelected (dialogID, placingZone.POPUP_HEIGHT_EXTRA [yy])).ToCStr ().Get ());
+						accumLength += placingZone.cells [xx].tableInVerExtra [yy];
 					}
 					placingZone.cells [xx].verLenExtra = accumLength;
 				}
 
 				// 레이어 설정
-				bLayerInd_Euroform = false;
+				bLayerInd_Euroform = true;		// 유로폼 항상 On
 				bLayerInd_RectPipe = false;
 				bLayerInd_PinBolt = false;
 				bLayerInd_WallTie = false;
@@ -1369,14 +1922,25 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				bLayerInd_Profile = false;
 
 				bLayerInd_Steelform = false;
-				bLayerInd_Plywood = false;
-				bLayerInd_Fillersp = false;
+				bLayerInd_Plywood = true;		// 합판 항상 On
+				bLayerInd_Timber = true;		// 각재 항상 On
 				bLayerInd_OutcornerAngle = false;
 				bLayerInd_OutcornerPanel = false;
-				bLayerInd_IncornerPanel = false;
 				bLayerInd_RectpipeHanger = false;
 				bLayerInd_EuroformHook = false;
 				bLayerInd_Hidden = false;
+
+				bLayerInd_Fillersp = false;
+				for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
+					if (placingZone.cells [xx].objType == FILLERSP) {
+						bLayerInd_Fillersp = true;
+						break;
+					}
+				}
+
+				bLayerInd_IncornerPanel = false;
+				if ((placingZone.bLincorner == true) || (placingZone.bRincorner == true))
+					bLayerInd_IncornerPanel = true;
 
 				if (placingZone.tableformType == 1) {
 					bLayerInd_Euroform = true;
@@ -1720,6 +2284,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
 			DGSetItemText (dialogID, LABEL_LAYER_STEELFORM, "스틸폼");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
+			DGSetItemText (dialogID, LABEL_LAYER_TIMBER, "각재");
 			DGSetItemText (dialogID, LABEL_LAYER_FILLERSP, "휠러스페이서");
 			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_ANGLE, "아웃코너앵글");
 			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_PANEL, "아웃코너판넬");
@@ -1847,6 +2412,17 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 				DGDisableItem (dialogID, USERCONTROL_LAYER_PLYWOOD);
 			}
 
+			ucb.itemID	 = USERCONTROL_LAYER_TIMBER;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, 1);
+			if (bLayerInd_Plywood == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_TIMBER);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_TIMBER);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_TIMBER);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_TIMBER);
+			}
+
 			ucb.itemID	 = USERCONTROL_LAYER_FILLERSP;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, 1);
@@ -1940,6 +2516,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM));
@@ -1958,6 +2535,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE));
@@ -1976,6 +2554,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM));
@@ -1994,6 +2573,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE));
@@ -2012,6 +2592,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT));
@@ -2030,6 +2611,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE));
@@ -2048,6 +2630,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN));
@@ -2066,6 +2649,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE));
@@ -2084,6 +2668,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
 						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM));
@@ -2102,12 +2687,32 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD));
+						break;
+					case USERCONTROL_LAYER_TIMBER:
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROFILE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK, DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER));
 						break;
 					case USERCONTROL_LAYER_FILLERSP:
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_SLABTABLEFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
@@ -2120,6 +2725,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
 						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP));
@@ -2138,6 +2744,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
 						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE));
@@ -2156,6 +2763,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
 						//DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL));
@@ -2174,6 +2782,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_INCORNER_PANEL));
@@ -2192,6 +2801,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE_HANGER));
@@ -2210,6 +2820,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL, DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM_HOOK));
@@ -2236,6 +2847,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 					if (bLayerInd_HeadPiece == true)		layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 					if (bLayerInd_Steelform == true)		layerInd_Steelform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM);
 					if (bLayerInd_Plywood == true)			layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
+					if (bLayerInd_Timber == true)			layerInd_Timber			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER);
 					if (bLayerInd_Fillersp == true)			layerInd_Fillersp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP);
 					if (bLayerInd_OutcornerAngle == true)	layerInd_OutcornerAngle	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE);
 					if (bLayerInd_OutcornerPanel == true)	layerInd_OutcornerPanel	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_OUTCORNER_PANEL);

@@ -20,6 +20,7 @@ namespace wallTableformPlacerDG {
 		LABEL_LAYER_HEADPIECE,
 		LABEL_LAYER_STEELFORM,
 		LABEL_LAYER_PLYWOOD,
+		LABEL_LAYER_TIMBER,
 		LABEL_LAYER_FILLERSP,
 		LABEL_LAYER_OUTCORNER_ANGLE,
 		LABEL_LAYER_OUTCORNER_PANEL,
@@ -38,6 +39,7 @@ namespace wallTableformPlacerDG {
 		USERCONTROL_LAYER_HEADPIECE,
 		USERCONTROL_LAYER_STEELFORM,
 		USERCONTROL_LAYER_PLYWOOD,
+		USERCONTROL_LAYER_TIMBER,
 		USERCONTROL_LAYER_FILLERSP,
 		USERCONTROL_LAYER_OUTCORNER_ANGLE,
 		USERCONTROL_LAYER_OUTCORNER_PANEL,
@@ -151,6 +153,7 @@ public:
 	double	marginTopBasic;		// 상단 여백 (낮은쪽)
 	double	marginTopExtra;		// 상단 여백 (높은쪽)
 
+public:
 	int	presetWidth_tableform [40];		// 세로 방향 테이블폼의 너비 모음 (2300 ... 200)
 	int	presetHeight_tableform [16];	// 세로 방향 테이블폼의 높이 모음 (6000 ... 1500)
 
@@ -167,6 +170,13 @@ public:
 	void	initCells (WallTableformPlacingZone* placingZone, bool bVertical);				// 셀 정보 초기화
 	double	getCellPositionLeftBottomX (WallTableformPlacingZone* placingZone, short idx);	// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
 	void	adjustCellsPosition (WallTableformPlacingZone* placingZone);					// 셀 위치를 바르게 교정함
+	GSErrCode	placeObjects (WallTableformPlacingZone* placingZone);						// 셀 정보를 기반으로 객체들을 배치함
+	GSErrCode	fillRestAreas (WallTableformPlacingZone* placingZone);						// 상단 여백을 유로폼 또는 합판, 각재 등으로 채움
+
+	void	placeTableformA (WallTableformPlacingZone* placingZone, short idxCell);			// 테이블폼 타입A 배치
+	void	placeTableformB (WallTableformPlacingZone* placingZone, short idxCell);			// 테이블폼 타입B 배치
+	void	placeTableformC (WallTableformPlacingZone* placingZone, short idxCell);			// 테이블폼 타입C 배치
+	void	placeTableformD (WallTableformPlacingZone* placingZone, short idxCell);			// 테이블폼 타입D 배치
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
