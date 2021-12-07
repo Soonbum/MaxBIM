@@ -173,10 +173,11 @@ public:
 	GSErrCode	placeObjects (WallTableformPlacingZone* placingZone);						// 셀 정보를 기반으로 객체들을 배치함
 	GSErrCode	fillRestAreas (WallTableformPlacingZone* placingZone);						// 상단 여백을 유로폼 또는 합판, 각재 등으로 채움
 
-	void	placeTableformA (WallTableformPlacingZone* placingZone, short idxCell);			// 테이블폼 타입A 배치
-	void	placeTableformB (WallTableformPlacingZone* placingZone, short idxCell);			// 테이블폼 타입B 배치
-	void	placeTableformC (WallTableformPlacingZone* placingZone, short idxCell);			// 테이블폼 타입C 배치
-	void	placeTableformD (WallTableformPlacingZone* placingZone, short idxCell);			// 테이블폼 타입D 배치
+	void	placeEuroformsOfTableform (WallTableformPlacingZone* placingZone, short idxCell);	// 테이블폼 내 유로폼 배치 (공통)
+	void	placeTableformA (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입A 배치 (유로폼 제외)
+	void	placeTableformB (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입B 배치 (유로폼 제외)
+	void	placeTableformC (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입C 배치 (유로폼 제외)
+	void	placeTableformD (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입D 배치 (유로폼 제외)
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장

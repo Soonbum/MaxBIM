@@ -298,6 +298,8 @@ GSErrCode	placeTableformOnWall (void)
 	placingZone.nCellsInVerBasic = (short)floor (placingZone.verLenBasic / 1.200);
 	placingZone.nCellsInVerExtra = (short)floor (placingZone.verLenExtra / 1.200);
 
+FIRST:
+
 	// [DIALOG] 1번째 다이얼로그에서 인코너 유무 및 길이, 테이블폼의 방향과 가로/세로 방향 유로폼의 개수와 각각의 길이를 선택함
 	result = DGBlankModalDialog (550, 950, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler1, 0);
 
@@ -308,41 +310,13 @@ GSErrCode	placeTableformOnWall (void)
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32519, ACAPI_GetOwnResModule (), wallTableformPlacerHandler2, 0);
 
 	if (result != DG_OK)
-		return err;
+		goto FIRST;
 
 	// 테이블폼 배치하기
 	placingZone.placeObjects (&placingZone);
 
 	// 테이블폼 상단 여백 채우기
 	placingZone.fillRestAreas (&placingZone);
-
-	// 결과물 전체 그룹화 (앞면)
-	if (!elemList_Front.IsEmpty ()) {
-		GSSize nElems = elemList_Front.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Front [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-	}
-
-	// 결과물 전체 그룹화 (뒷면)
-	if (!elemList_Back.IsEmpty ()) {
-		GSSize nElems = elemList_Back.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Back [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-	}
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -649,6 +623,34 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 		}
 	}
 	
+	// 결과물 전체 그룹화 (앞면)
+	if (!elemList_Front.IsEmpty ()) {
+		GSSize nElems = elemList_Front.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_Front [i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+
+	// 결과물 전체 그룹화 (뒷면)
+	if (!elemList_Back.IsEmpty ()) {
+		GSSize nElems = elemList_Back.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_Back [i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+
 	// 우측 인코너 배치
 	if (placingZone->bRincorner == true) {
 		// 앞면
@@ -694,6 +696,34 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 		}
 	}
 
+	// 결과물 전체 그룹화 (앞면)
+	if (!elemList_Front.IsEmpty ()) {
+		GSSize nElems = elemList_Front.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_Front [i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+
+	// 결과물 전체 그룹화 (뒷면)
+	if (!elemList_Back.IsEmpty ()) {
+		GSSize nElems = elemList_Back.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_Back [i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+
 	// ================================================== 유로폼 배치
 	// 앞면 배치
 	EasyObjectPlacement euroform;
@@ -730,6 +760,20 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				moveIn3D ('z', euroform.radAng, (double)placingZone->cells [xx].tableInVerBasic [yy] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
 			}
 			moveIn3D ('z', euroform.radAng, -accumDist, &euroform.posX, &euroform.posY, &euroform.posZ);
+
+			// 결과물 전체 그룹화 (앞면)
+			if (!elemList_Front.IsEmpty ()) {
+				GSSize nElems = elemList_Front.GetSize ();
+				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+				if (elemHead != NULL) {
+					for (GSIndex i = 0; i < nElems; i++)
+						(*elemHead)[i].guid = elemList_Front [i];
+
+					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+					BMKillHandle ((GSHandle *) &elemHead);
+				}
+			}
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -777,6 +821,20 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				moveIn3D ('z', euroform.radAng, (double)lengthInt / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
 			}
 			moveIn3D ('z', euroform.radAng, -accumDist, &euroform.posX, &euroform.posY, &euroform.posZ);
+
+			// 결과물 전체 그룹화 (뒷면)
+			if (!elemList_Back.IsEmpty ()) {
+				GSSize nElems = elemList_Back.GetSize ();
+				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+				if (elemHead != NULL) {
+					for (GSIndex i = 0; i < nElems; i++)
+						(*elemHead)[i].guid = elemList_Back [i];
+
+					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+					BMKillHandle ((GSHandle *) &elemHead);
+				}
+			}
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -818,6 +876,20 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 			}
 			moveIn3D ('x', fillersp.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 			moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+
+			// 결과물 전체 그룹화 (앞면)
+			if (!elemList_Front.IsEmpty ()) {
+				GSSize nElems = elemList_Front.GetSize ();
+				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+				if (elemHead != NULL) {
+					for (GSIndex i = 0; i < nElems; i++)
+						(*elemHead)[i].guid = elemList_Front [i];
+
+					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+					BMKillHandle ((GSHandle *) &elemHead);
+				}
+			}
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -863,6 +935,20 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				remainLengthInt -= 2400;
 			}
 			moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+
+			// 결과물 전체 그룹화 (뒷면)
+			if (!elemList_Back.IsEmpty ()) {
+				GSSize nElems = elemList_Back.GetSize ();
+				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+				if (elemHead != NULL) {
+					for (GSIndex i = 0; i < nElems; i++)
+						(*elemHead)[i].guid = elemList_Back [i];
+
+					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+					BMKillHandle ((GSHandle *) &elemHead);
+				}
+			}
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -911,6 +997,20 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				remainLengthInt -= 2400;
 			}
 			moveIn3D ('z', plywood.radAng, -accumDist, &plywood.posX, &plywood.posY, &plywood.posZ);
+
+			// 결과물 전체 그룹화 (앞면)
+			if (!elemList_Front.IsEmpty ()) {
+				GSSize nElems = elemList_Front.GetSize ();
+				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+				if (elemHead != NULL) {
+					for (GSIndex i = 0; i < nElems; i++)
+						(*elemHead)[i].guid = elemList_Front [i];
+
+					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+					BMKillHandle ((GSHandle *) &elemHead);
+				}
+			}
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -967,6 +1067,20 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 			}
 			moveIn3D ('x', plywood.radAng, (double)placingZone->cells [xx].horLen / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
 			moveIn3D ('z', plywood.radAng, -accumDist, &plywood.posX, &plywood.posY, &plywood.posZ);
+
+			// 결과물 전체 그룹화 (뒷면)
+			if (!elemList_Back.IsEmpty ()) {
+				GSSize nElems = elemList_Back.GetSize ();
+				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+				if (elemHead != NULL) {
+					for (GSIndex i = 0; i < nElems; i++)
+						(*elemHead)[i].guid = elemList_Back [i];
+
+					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+					BMKillHandle ((GSHandle *) &elemHead);
+				}
+			}
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -1010,6 +1124,20 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 			}
 			moveIn3D ('x', timber.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
 			moveIn3D ('z', timber.radAng, -accumDist, &timber.posX, &timber.posY, &timber.posZ);
+			
+			// 결과물 전체 그룹화 (앞면)
+			if (!elemList_Front.IsEmpty ()) {
+				GSSize nElems = elemList_Front.GetSize ();
+				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+				if (elemHead != NULL) {
+					for (GSIndex i = 0; i < nElems; i++)
+						(*elemHead)[i].guid = elemList_Front [i];
+
+					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+					BMKillHandle ((GSHandle *) &elemHead);
+				}
+			}
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -1045,7 +1173,7 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				else
 					lengthInt = remainLengthInt;
 
-				elemList_Front.Push (timber.placeObject (6,
+				elemList_Back.Push (timber.placeObject (6,
 					"w_ins", APIParT_CString, "벽세우기",
 					"w_w", APIParT_Length, format_string ("%.3f", 0.050),
 					"w_h", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
@@ -1057,6 +1185,20 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				remainLengthInt -= 3600;
 			}
 			moveIn3D ('z', timber.radAng, -accumDist, &timber.posX, &timber.posY, &timber.posZ);
+
+			// 결과물 전체 그룹화 (뒷면)
+			if (!elemList_Back.IsEmpty ()) {
+				GSSize nElems = elemList_Back.GetSize ();
+				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+				if (elemHead != NULL) {
+					for (GSIndex i = 0; i < nElems; i++)
+						(*elemHead)[i].guid = elemList_Back [i];
+
+					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+					BMKillHandle ((GSHandle *) &elemHead);
+				}
+			}
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -1064,10 +1206,14 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	}
 	
 	// ================================================== 테이블폼 배치
-	// ... 벽과의 간격 고려하기 (gap)
-	// ... 세로/가로방향 고려 (bVertical)
-	// ... 테이블폼 타입 고려 (tableformType)
-	// ... 대칭/비대칭 고려 (bExtra)
+	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		placingZone->placeEuroformsOfTableform (this, xx);		// 테이블폼의 유로폼 배치 (타입 불문 공통)
+		
+		if (placingZone->tableformType == 1)		placingZone->placeTableformA (this, xx);
+		else if (placingZone->tableformType == 2)	placingZone->placeTableformB (this, xx);
+		else if (placingZone->tableformType == 3)	placingZone->placeTableformC (this, xx);
+		else if (placingZone->tableformType == 4)	placingZone->placeTableformD (this, xx);
+	}
 	
 	return err;
 }
@@ -1082,25 +1228,168 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	return err;
 }
 
-// 테이블폼 타입A 배치
+// 테이블폼 내 유로폼 배치 (공통)
+void	WallTableformPlacingZone::placeEuroformsOfTableform (WallTableformPlacingZone* placingZone, short idxCell)
+{
+	short	xx, yy, varEnd;
+	double	accumDist;
+	double	lengthDouble;
+	int		lengthInt, remainLengthInt;
+
+	EasyObjectPlacement euroform;
+
+	if (placingZone->cells [idxCell].objType == TABLEFORM) {
+		if (placingZone->bVertical == true) {
+			// 세로방향
+			// 앞면
+			euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+
+			for (xx = 0 ; xx < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++xx) {
+				accumDist = 0.0;
+				for (yy = 0 ; yy < placingZone->nCellsInVerBasic ; ++yy) {
+					if ((placingZone->cells [idxCell].tableInHor [xx] > 0) && (placingZone->cells [idxCell].tableInVerBasic [yy] > 0)) {
+						elemList_Front.Push (euroform.placeObject (5,
+							"eu_stan_onoff", APIParT_Boolean, "1.0",
+							"eu_wid", APIParT_CString, format_string ("%d", placingZone->cells [idxCell].tableInHor [xx]),
+							"eu_hei", APIParT_CString, format_string ("%d", placingZone->cells [idxCell].tableInVerBasic [yy]),
+							"u_ins", APIParT_CString, "벽세우기",
+							"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+						accumDist += (double)placingZone->cells [idxCell].tableInVerBasic [yy] / 1000.0;
+						moveIn3D ('z', euroform.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [yy] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+					}
+				}
+				moveIn3D ('z', euroform.radAng, -accumDist, &euroform.posX, &euroform.posY, &euroform.posZ);
+				moveIn3D ('x', euroform.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+			}
+
+			// 뒷면
+			euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+			moveIn3D ('y', euroform.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2, &euroform.posX, &euroform.posY, &euroform.posZ);		// 벽과의 간격만큼 이동
+
+			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+			for (xx = 0 ; xx < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++xx) {
+				accumDist = 0.0;
+				for (yy = 0 ; yy < varEnd ; ++yy) {
+					if (placingZone->bExtra == true)
+						lengthInt = placingZone->cells [idxCell].tableInVerExtra [yy];
+					else
+						lengthInt = placingZone->cells [idxCell].tableInVerBasic [yy];
+
+					if ((placingZone->cells [idxCell].tableInHor [xx] > 0) && (lengthInt > 0)) {
+						moveIn3D ('x', euroform.radAng, -(double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+						elemList_Back.Push (euroform.placeObject (5,
+							"eu_stan_onoff", APIParT_Boolean, "1.0",
+							"eu_wid", APIParT_CString, format_string ("%d", placingZone->cells [idxCell].tableInHor [xx]),
+							"eu_hei", APIParT_CString, format_string ("%d", lengthInt),
+							"u_ins", APIParT_CString, "벽세우기",
+							"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+						moveIn3D ('x', euroform.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+
+						accumDist += (double)lengthInt / 1000.0;
+						moveIn3D ('z', euroform.radAng, (double)lengthInt / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+					}
+				}
+				moveIn3D ('z', euroform.radAng, -accumDist, &euroform.posX, &euroform.posY, &euroform.posZ);
+				moveIn3D ('x', euroform.radAng, -(double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+			}
+		} else {
+			// 가로방향
+			// 앞면
+			euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+
+			for (xx = 0 ; xx < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++xx) {
+				accumDist = 0.0;
+				for (yy = 0 ; yy < placingZone->nCellsInVerBasic ; ++yy) {
+					if ((placingZone->cells [idxCell].tableInHor [xx] > 0) && (placingZone->cells [idxCell].tableInVerBasic [yy] > 0)) {
+						moveIn3D ('x', euroform.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+						elemList_Front.Push (euroform.placeObject (5,
+							"eu_stan_onoff", APIParT_Boolean, "1.0",
+							"eu_wid", APIParT_CString, format_string ("%d", placingZone->cells [idxCell].tableInVerBasic [yy]),
+							"eu_hei", APIParT_CString, format_string ("%d", placingZone->cells [idxCell].tableInHor [xx]),
+							"u_ins", APIParT_CString, "벽눕히기",
+							"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+						moveIn3D ('x', euroform.radAng, -(double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+
+						accumDist += (double)placingZone->cells [idxCell].tableInVerBasic [yy] / 1000.0;
+						moveIn3D ('z', euroform.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [yy] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+					}
+				}
+				moveIn3D ('z', euroform.radAng, -accumDist, &euroform.posX, &euroform.posY, &euroform.posZ);
+				moveIn3D ('x', euroform.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+			}
+
+			// 뒷면
+			euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+			moveIn3D ('y', euroform.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2, &euroform.posX, &euroform.posY, &euroform.posZ);		// 벽과의 간격만큼 이동
+
+			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+			for (xx = 0 ; xx < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++xx) {
+				accumDist = 0.0;
+				for (yy = 0 ; yy < varEnd ; ++yy) {
+					if (placingZone->bExtra == true)
+						lengthInt = placingZone->cells [idxCell].tableInVerExtra [yy];
+					else
+						lengthInt = placingZone->cells [idxCell].tableInVerBasic [yy];
+
+					if ((placingZone->cells [idxCell].tableInHor [xx] > 0) && (lengthInt > 0)) {
+						elemList_Back.Push (euroform.placeObject (5,
+							"eu_stan_onoff", APIParT_Boolean, "1.0",
+							"eu_wid", APIParT_CString, format_string ("%d", lengthInt),
+							"eu_hei", APIParT_CString, format_string ("%d", placingZone->cells [idxCell].tableInHor [xx]),
+							"u_ins", APIParT_CString, "벽눕히기",
+							"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+
+						accumDist += (double)lengthInt / 1000.0;
+						moveIn3D ('z', euroform.radAng, (double)lengthInt / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+					}
+				}
+				moveIn3D ('z', euroform.radAng, -accumDist, &euroform.posX, &euroform.posY, &euroform.posZ);
+				moveIn3D ('x', euroform.radAng, -(double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &euroform.posX, &euroform.posY, &euroform.posZ);
+			}
+		}
+	}
+}
+
+// 테이블폼 타입A 배치 (유로폼 제외)
 void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placingZone, short idxCell)
 {
 	// !!!
+
+	// 수평 파이프
+	// 비계파이프v1.0
+
+	// 수직 파이프
+	// 비계파이프v1.0
+
+	// 핀볼트세트
+	// 핀볼트세트v1.0
+
+	// 결합철물
+	// 결합철물 (사각와셔활용) v1.0
+
+	// 헤드피스
+	// RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함)
+
+	// ... 벽과의 간격 고려하기 (gap)
+	// ... 세로/가로방향 고려 (bVertical)
+	// ... 대칭/비대칭 고려 (bExtra)
 }
 
-// 테이블폼 타입B 배치
+// 테이블폼 타입B 배치 (유로폼 제외)
 void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placingZone, short idxCell)
 {
 	// !!!
 }
 
-// 테이블폼 타입C 배치
+// 테이블폼 타입C 배치 (유로폼 제외)
 void	WallTableformPlacingZone::placeTableformC (WallTableformPlacingZone* placingZone, short idxCell)
 {
 	// !!!
 }
 
-// 테이블폼 타입D 배치
+// 테이블폼 타입D 배치 (유로폼 제외)
 void	WallTableformPlacingZone::placeTableformD (WallTableformPlacingZone* placingZone, short idxCell)
 {
 	// !!!
