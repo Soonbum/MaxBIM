@@ -5,7 +5,7 @@
 
 namespace wallTableformPlacerDG {
 	// 다이얼로그 항목 인덱스
-	enum	idxItems_1_forLayerSelection {
+	enum	idxItems_1_forWallTableform {
 		ICON_LAYER_CUSTOM = 3,
 		LABEL_LAYER_SETTINGS,
 		CHECKBOX_LAYER_COUPLING,
@@ -49,6 +49,26 @@ namespace wallTableformPlacerDG {
 		USERCONTROL_LAYER_HIDDEN,
 
 		BUTTON_AUTOSET
+	};
+
+	enum	idxItems_2_forWallTableform {
+		LABEL_DESC1_TOPREST = 3,
+		LABEL_HEIGHT_TOPREST,
+		EDITCONTROL_HEIGHT_TOPREST,
+		LABEL_DESC2_TOPREST,
+		LABEL_UP_TOPREST,
+		LABEL_ARROWUP_TOPREST,
+		LABEL_DOWN_TOPREST,
+		CHECKBOX_FORM_ONOFF_1_TOPREST,
+		CHECKBOX_FORM_ONOFF_2_TOPREST,
+		LABEL_PLYWOOD_TOPREST,
+		CHECKBOX_SET_STANDARD_1_TOPREST,
+		CHECKBOX_SET_STANDARD_2_TOPREST,
+		POPUP_EUROFORM_WIDTH_OPTIONS_1_TOPREST,
+		POPUP_EUROFORM_WIDTH_OPTIONS_2_TOPREST,
+		EDITCONTROL_EUROFORM_WIDTH_OPTIONS_1_TOPREST,
+		EDITCONTROL_EUROFORM_WIDTH_OPTIONS_2_TOPREST,
+		EDITCONTROL_PLYWOOD_TOPREST
 	};
 
 	enum	objType_forWallTableformPlacer {
@@ -148,7 +168,9 @@ public:
 	short	nCellsInVerBasic;	// 수직 방향 셀(유로폼) 개수 (낮은쪽)
 	short	nCellsInVerExtra;	// 수직 방향 셀(유로폼) 개수 (높은쪽)
 
-	CellForWallTableform		cells [50];			// 셀 배열 (인코너 제외)
+	CellForWallTableform		cells [50];				// 셀 배열 (인코너 제외)
+	MarginCellForWallTableform	marginCellsBasic [50];	// 셀 배열 (낮은쪽)
+	MarginCellForWallTableform	marginCellsExtra [50];	// 셀 배열 (높은쪽)
 
 	double	marginTopBasic;		// 상단 여백 (낮은쪽)
 	double	marginTopExtra;		// 상단 여백 (높은쪽)
@@ -174,10 +196,8 @@ public:
 	GSErrCode	fillRestAreas (WallTableformPlacingZone* placingZone);						// 상단 여백을 유로폼 또는 합판, 각재 등으로 채움
 
 	void	placeEuroformsOfTableform (WallTableformPlacingZone* placingZone, short idxCell);	// 테이블폼 내 유로폼 배치 (공통)
-	void	placeTableformA (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입A 배치 (유로폼 제외)
-	void	placeTableformB (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입B 배치 (유로폼 제외)
-	void	placeTableformC (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입C 배치 (유로폼 제외)
-	void	placeTableformD (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입D 배치 (유로폼 제외)
+	void	placeTableformA (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입A 배치 (유로폼 제외) - 각파이프 2줄
+	void	placeTableformB (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입B 배치 (유로폼 제외) - 각파이프 1줄
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
@@ -215,5 +235,6 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// 객체의 레이어를 선택하기 위한 다이얼로그
 short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 세로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
 short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼 가로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
+short DGCALLBACK wallTableformPlacerHandler4 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// 벽 상단의 나머지 영역을 유로폼 또는 합판/각재로 채울지 물어보는 다이얼로그
 
 #endif
