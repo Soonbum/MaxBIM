@@ -142,27 +142,27 @@ struct MarginCellForWallTableform
 class WallTableformPlacingZone
 {
 public:
-	double	leftBottomX;	// 좌하단 좌표 X
-	double	leftBottomY;	// 좌하단 좌표 Y
-	double	leftBottomZ;	// 좌하단 좌표 Z
+	double	leftBottomX;		// 좌하단 좌표 X
+	double	leftBottomY;		// 좌하단 좌표 Y
+	double	leftBottomZ;		// 좌하단 좌표 Z
 
-	double	horLen;			// 가로 길이
-	double	verLenBasic;	// 세로 길이 (낮은쪽)
-	double	verLenExtra;	// 세로 길이 (높은쪽)
-	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+	double	horLen;				// 가로 길이
+	double	verLenBasic;		// 세로 길이 (낮은쪽)
+	double	verLenExtra;		// 세로 길이 (높은쪽)
+	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
 
-	bool	bVertical;		// 방향: 세로방향(true), 가로방향(false)
+	bool	bVertical;			// 방향: 세로방향(true), 가로방향(false)
 
-	double	gap;			// 벽과의 간격
+	double	gap;				// 벽과의 간격
 
-	bool	bExtra;			// 높은쪽 모프가 있는가?
+	bool	bExtra;				// 높은쪽 모프가 있는가?
 
 	bool	bLincorner;			// 왼쪽 인코너 유무
 	bool	bRincorner;			// 오른쪽 인코너 유무
 	double	lenLincorner;		// 왼쪽 인코너 길이
 	double	lenRincorner;		// 오른쪽 인코너 길이
 
-	short	tableformType;		// 테이블폼 타입: 타입A (1), 타입B (2), 타입C (3), 타입D (4)
+	short	tableformType;		// 테이블폼 타입: 타입A (1), 타입B (2)
 
 	short	nCellsInHor;		// 수평 방향 셀(유로폼) 개수
 	short	nCellsInVerBasic;	// 수직 방향 셀(유로폼) 개수 (낮은쪽)
@@ -176,11 +176,11 @@ public:
 	double	marginTopExtra;		// 상단 여백 (높은쪽)
 
 public:
-	int	presetWidth_tableform [40];		// 세로 방향 테이블폼의 너비 모음 (2300 ... 200)
-	int	presetHeight_tableform [16];	// 세로 방향 테이블폼의 높이 모음 (6000 ... 1500)
+	int	presetWidth_tableform [40];				// 세로 방향 테이블폼의 너비 모음 (2300 ... 200)
+	int	presetHeight_tableform [16];			// 세로 방향 테이블폼의 높이 모음 (6000 ... 1500)
 
-	int	presetWidth_euroform [7];		// 세로 방향 유로폼의 너비 모음 (600 ... 200, 0)
-	int	presetHeight_euroform [4];		// 세로 방향 유로폼의 높이 모음 (1200 ... 600, 0)
+	int	presetWidth_euroform [7];				// 세로 방향 유로폼의 너비 모음 (600 ... 200, 0)
+	int	presetHeight_euroform [4];				// 세로 방향 유로폼의 높이 모음 (1200 ... 600, 0)
 
 	int	presetWidth_config_vertical [40][5];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
 	int	presetHeight_config_vertical [16][6];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
