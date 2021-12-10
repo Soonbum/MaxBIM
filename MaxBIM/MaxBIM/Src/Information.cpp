@@ -267,7 +267,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "배포일: 2021.12.09 - 18:11");
+			DGSetItemText (dialogID, itmIdx, "배포일: 2021.12.10 - 20:47");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
@@ -281,7 +281,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 프로그램 기능
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 320);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "1. 테이블폼 배치\n - 벽에 테이블폼 배치 (개발중)\n - 슬래브 하부에 테이블폼 배치\n - 보에 테이블폼 배치\n - 기둥에 테이블폼 배치\n\n\
+			DGSetItemText (dialogID, itmIdx, "1. 테이블폼 배치\n - 벽에 테이블폼 배치\n - 슬래브 하부에 테이블폼 배치\n - 보에 테이블폼 배치\n - 기둥에 테이블폼 배치\n\n\
 											 2. 동바리 배치\n - PERI 동바리 자동 배치\n\n\
 											 3. 레이어 유틸\n - 레이어 쉽게 선택하기\n - 레이어 쉽게 만들기\n - 레이어 쉽게 지정하기\n - 레이어 이름 검사하기");
 			DGShowItem (dialogID, itmIdx);
