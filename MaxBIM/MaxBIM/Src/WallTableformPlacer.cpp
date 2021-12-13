@@ -574,6 +574,28 @@ void	WallTableformPlacingZone::adjustCellsPosition (WallTableformPlacingZone* pl
 	}
 }
 
+// 상단 여백 셀 위치를 바르게 교정함
+void	WallTableformPlacingZone::adjustMarginCellsPosition (WallTableformPlacingZone* placingZone)
+{
+	for (short xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+		placingZone->marginCellsBasic [xx].ang = placingZone->ang;
+		placingZone->marginCellsBasic [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->marginCellsBasic [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->marginCellsBasic [xx].leftBottomZ = placingZone->leftBottomZ + placingZone->verLenBasic - placingZone->marginTopBasic;
+	}
+
+	if (placingZone->bExtra == true) {
+		for (short xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+			placingZone->marginCellsExtra [xx].ang = placingZone->ang;
+			placingZone->marginCellsExtra [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+			placingZone->marginCellsExtra [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+			placingZone->marginCellsExtra [xx].leftBottomZ = placingZone->leftBottomZ + placingZone->verLenExtra - placingZone->marginTopExtra;
+
+			moveIn3D ('y', placingZone->ang, infoWall.wallThk + placingZone->gap * 2, &placingZone->marginCellsExtra [xx].leftBottomX, &placingZone->marginCellsExtra [xx].leftBottomY, &placingZone->marginCellsExtra [xx].leftBottomZ);
+		}
+	}
+}
+
 // 셀 정보를 기반으로 객체들을 배치함
 GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* placingZone)
 {
@@ -1230,6 +1252,36 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 		else if (placingZone->tableformType == 2)	placingZone->placeTableformB (this, xx);
 	}
 	
+	// 결과물 전체 그룹화 (앞면)
+	if (!elemList_Front.IsEmpty ()) {
+		GSSize nElems = elemList_Front.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_Front [i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+		elemList_Front.Clear ();
+	}
+
+	// 결과물 전체 그룹화 (뒷면)
+	if (!elemList_Back.IsEmpty ()) {
+		GSSize nElems = elemList_Back.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_Back [i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+		elemList_Back.Clear ();
+	}
+
 	return err;
 }
 
@@ -1238,6 +1290,11 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 {
 	GSErrCode	err = NoError;
 	short	xx, yy;
+	int		remainLengthInt, lengthInt, remainLengthIntStored;
+	bool	onlyPlywood;
+
+	// 상단 여백 셀의 위치를 교정함
+	this->adjustMarginCellsPosition (placingZone);
 
 	if (placingZone->bExtra == true) {
 		// 양쪽 영역의 높이가 다를 경우
@@ -1251,16 +1308,115 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	} else {
 		// 양쪽 영역의 높이가 같을 경우
 
-		// 앞면 채우기
-		// ...
+		// 유로폼이 없을 경우, 채워야 할 전체 너비를 계산해야 함
+		remainLengthInt = (int)((placingZone->lenLincorner + placingZone->lenRincorner) * 1000);
 
-		// (1) 유로폼이 하나도 안 들어갈 경우, 인코너 영역부터 시작해서 합판(제작틀 있음, 오프셋 없음)으로 채울 것
-			// 0번 셀의 경우 좌측 인코너 영역이 있으면 거기부터 시작하고, 그렇지 않으면 셀 시작 위치부터 시작
-			// 마지막 셀의 경우 남은 너비가 0이고 우측 인코너 영역이 있으면 거기까지 채울 것
-			// 합판은 최대 2400, 각재는 3600까지 최대 사이즈로 부착할 것
-		// (2) 유로폼이 들어갈 경우, 인코너 상부 영역은 합판(제작틀 있음, 오프셋 없음)으로 채울 것
-			// 유로폼의 변 길이: 세로방향의 경우 아래 셀의 2장씩 묶어서, 가로방향은 그대로
-			// 합판은 최대 2400, 각재는 3600까지 최대 사이즈로 부착할 것
+		for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
+			if (placingZone->marginCellsBasic [xx].bFill == true) {
+				// 유로폼을 전혀 체크하지 않은 경우
+				if ((placingZone->marginCellsBasic [xx].bEuroform1 == false) && (placingZone->marginCellsBasic [xx].bEuroform2 == false)) {
+					onlyPlywood = true;
+					remainLengthInt += placingZone->cells [xx].horLen;
+
+				} else {
+					onlyPlywood = false;
+
+					if (placingZone->bLincorner == true) {
+						MarginCellForWallTableform	leftCornerCell;
+
+						// ...
+					}
+
+					// ... 중간 영역
+
+					if (placingZone->bRincorner == true) {
+						MarginCellForWallTableform	rightCornerCell;
+
+						// ...
+					}
+				}
+			}
+		}
+
+		remainLengthIntStored = remainLengthInt;	// 남은 전체 길이를 다른 변수에도 보관해 둠 (값을 잃어버리므로)
+
+		if (onlyPlywood == true) {
+			// 1. 합판으로만 채울 경우: 인코너 영역부터 시작해서 합판(제작틀 있음, 오프셋 없음)으로 채울 것
+				// 0번 셀의 경우 좌측 인코너 영역이 있으면 거기부터 시작하고, 그렇지 않으면 셀 시작 위치부터 시작
+				// 마지막 셀의 경우 남은 너비가 0이고 우측 인코너 영역이 있으면 거기까지 채울 것
+				// 합판은 최대 2400, 각재는 3600까지 최대 사이즈로 부착할 것
+
+			// 앞면 채우기
+			if (placingZone->marginTopBasic > 0.110) {
+				EasyObjectPlacement	plywood;
+				plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsBasic [0].leftBottomX, placingZone->marginCellsBasic [0].leftBottomY, placingZone->marginCellsBasic [0].leftBottomZ, placingZone->marginCellsBasic [0].ang);
+
+				moveIn3D ('x', plywood.radAng, -placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
+
+				while (remainLengthInt > 0) {
+					if (remainLengthInt >= 2400)
+						lengthInt = 2400;
+					else
+						lengthInt = remainLengthInt;
+
+					elemList_Front.Push (plywood.placeObject (13,
+						"p_stan", APIParT_CString, "비규격",
+						"w_dir", APIParT_CString, "벽눕히기",
+						"p_thk", APIParT_CString, "11.5T",
+						"p_wid", APIParT_Length, format_string ("%.3f", placingZone->marginTopBasic),
+						"p_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+						"p_ang", APIParT_Angle, format_string ("%.3f", 0.0),
+						"sogak", APIParT_Boolean, "1.0",
+						"bInverseSogak", APIParT_Boolean, "1.0",
+						"prof", APIParT_CString, "소각",
+						"gap_a", APIParT_Length, format_string ("%.3f", 0.0),
+						"gap_b", APIParT_Length, format_string ("%.3f", 0.0),
+						"gap_c", APIParT_Length, format_string ("%.3f", 0.0),
+						"gap_d", APIParT_Length, format_string ("%.3f", 0.0)));
+					moveIn3D ('x', plywood.radAng, (double)lengthInt / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
+
+					remainLengthInt -= 2400;
+				}
+
+				// 뒷면 채우기
+				remainLengthInt = remainLengthIntStored;
+				plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsBasic [0].leftBottomX, placingZone->marginCellsBasic [0].leftBottomY, placingZone->marginCellsBasic [0].leftBottomZ, placingZone->marginCellsBasic [0].ang + DegreeToRad (180.0));
+
+				moveIn3D ('y', plywood.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2, &plywood.posX, &plywood.posY, &plywood.posZ);
+				moveIn3D ('x', plywood.radAng - DegreeToRad (180.0), -placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
+
+				while (remainLengthInt > 0) {
+					if (remainLengthInt >= 2400)
+						lengthInt = 2400;
+					else
+						lengthInt = remainLengthInt;
+
+					moveIn3D ('x', plywood.radAng, -(double)lengthInt / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
+					elemList_Back.Push (plywood.placeObject (13,
+						"p_stan", APIParT_CString, "비규격",
+						"w_dir", APIParT_CString, "벽눕히기",
+						"p_thk", APIParT_CString, "11.5T",
+						"p_wid", APIParT_Length, format_string ("%.3f", placingZone->marginTopBasic),
+						"p_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+						"p_ang", APIParT_Angle, format_string ("%.3f", 0.0),
+						"sogak", APIParT_Boolean, "1.0",
+						"bInverseSogak", APIParT_Boolean, "1.0",
+						"prof", APIParT_CString, "소각",
+						"gap_a", APIParT_Length, format_string ("%.3f", 0.0),
+						"gap_b", APIParT_Length, format_string ("%.3f", 0.0),
+						"gap_c", APIParT_Length, format_string ("%.3f", 0.0),
+						"gap_d", APIParT_Length, format_string ("%.3f", 0.0)));
+
+					remainLengthInt -= 2400;
+				}
+			} else {
+				// ... 각재
+			}
+		} else {
+			// 2. 유로폼으로 채울 경우: 인코너 상부 영역은 합판(제작틀 있음, 오프셋 없음)으로 채울 것
+				// 유로폼의 변 길이: 세로방향의 경우 아래 셀의 2장씩 묶어서, 가로방향은 그대로
+				// 합판은 최대 2400, 각재는 3600까지 최대 사이즈로 부착할 것
+		}
 
 		// placingZone->marginCellsBasic [50]
 		// placingZone->marginCellsExtra [50]
@@ -1324,13 +1480,36 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 				// 450:	150 (설치) 300
 				// 400:	150 (설치) 250
 				// 200,300,비규격:	설치 안함
+	}
 
+	// 결과물 전체 그룹화 (앞면)
+	if (!elemList_Front.IsEmpty ()) {
+		GSSize nElems = elemList_Front.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_Front [i];
 
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
 
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+		elemList_Front.Clear ();
+	}
 
+	// 결과물 전체 그룹화 (뒷면)
+	if (!elemList_Back.IsEmpty ()) {
+		GSSize nElems = elemList_Back.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_Back [i];
 
-		// 뒷면 채우기
-		// ...
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+		elemList_Back.Clear ();
 	}
 
 	return err;
@@ -5067,8 +5246,8 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				// 인코너 유무 및 길이
 				placingZone.bLincorner = (DGGetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER) == TRUE) ? true : false;
 				placingZone.bRincorner = (DGGetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER) == TRUE) ? true : false;
-				placingZone.lenLincorner = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER);
-				placingZone.lenRincorner = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER);
+				placingZone.lenLincorner = (placingZone.bLincorner == true) ? DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER) : 0.0;
+				placingZone.lenRincorner = (placingZone.bRincorner == true) ? DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER) : 0.0;
 
 				// 세로 길이, 테이블 내 세로 길이 모두 0으로 초기화
 				for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {

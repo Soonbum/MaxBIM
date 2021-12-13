@@ -196,6 +196,7 @@ public:
 	void	initCells (WallTableformPlacingZone* placingZone, bool bVertical);				// 셀 정보 초기화
 	double	getCellPositionLeftBottomX (WallTableformPlacingZone* placingZone, short idx);	// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
 	void	adjustCellsPosition (WallTableformPlacingZone* placingZone);					// 셀 위치를 바르게 교정함
+	void	adjustMarginCellsPosition (WallTableformPlacingZone* placingZone);				// 상단 여백 셀 위치를 바르게 교정함
 	GSErrCode	placeObjects (WallTableformPlacingZone* placingZone);						// 셀 정보를 기반으로 객체들을 배치함
 	GSErrCode	fillRestAreas (WallTableformPlacingZone* placingZone);						// 상단 여백을 유로폼 또는 합판, 각재 등으로 채움
 
