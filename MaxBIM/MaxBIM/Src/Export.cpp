@@ -726,6 +726,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	double	totalLengthOfTimbers_50x80 = 0.0;	// 투바이 (50*80)
 	double	totalLengthOfTimbers_80x80 = 0.0;	// 산승각 (80*80)
 	double	totalLengthOfTimbersEtc = 0.0;		// 비규격
+	int		count;	// 개수
 
 	// 객체 종류별로 수량 출력
 	try {
@@ -736,6 +737,8 @@ GSErrCode	exportSelectedElementInfo (void)
 			for (yy = 0 ; yy < objectInfo.records.size () ; ++yy) {
 				// 객체 종류 이름과 레코드의 1번 필드가 일치하는 경우만 찾아서 출력함
 				retVal = my_strcmp (objectInfo.keyDesc.at(xx).c_str (), objectInfo.records.at(yy).at(0).c_str ());
+
+				count = atoi (objectInfo.records.at(yy).at(objectInfo.records.at(yy).size ()-1).c_str ());
 
 				if (retVal == 0) {
 					// 제목 출력
@@ -777,13 +780,13 @@ GSErrCode	exportSelectedElementInfo (void)
 						length3 = atof (objectInfo.records.at(yy).at(3).c_str ());
 						sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
 						if ( ((abs (length - 0.040) < EPS) && (abs (length2 - 0.050) < EPS)) || ((abs (length - 0.050) < EPS) && (abs (length2 - 0.040) < EPS)) )
-							totalLengthOfTimbers_40x50 += length3;
+							totalLengthOfTimbers_40x50 += (length3 * count);
 						else if ( ((abs (length - 0.050) < EPS) && (abs (length2 - 0.080) < EPS)) || ((abs (length - 0.080) < EPS) && (abs (length2 - 0.050) < EPS)) )
-							totalLengthOfTimbers_50x80 += length3;
+							totalLengthOfTimbers_50x80 += (length3 * count);
 						else if ((abs (length - 0.080) < EPS) && (abs (length2 - 0.080) < EPS))
-							totalLengthOfTimbers_80x80 += length3;
+							totalLengthOfTimbers_80x80 += (length3 * count);
 						else
-							totalLengthOfTimbersEtc += length3;
+							totalLengthOfTimbersEtc += (length3 * count);
 						fprintf (fp, buffer);
 
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "콘판넬") == 0) {
@@ -818,13 +821,13 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "합판") == 0) {
 						if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x6 [910x1820]") == 0) {
 							sprintf (buffer, "910 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
-							totalAreaOfPlywoods += (0.900 * 1.800);
+							totalAreaOfPlywoods += (0.900 * 1.800 * count);
 							fprintf (fp, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
-								totalLengthOfTimbers_40x50 += (atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000);
+								totalLengthOfTimbers_40x50 += ((atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000) * count);
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -833,13 +836,13 @@ GSErrCode	exportSelectedElementInfo (void)
 
 						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "4x8 [1220x2440]") == 0) {
 							sprintf (buffer, "1220 X 2440 X %s ", objectInfo.records.at(yy).at(2).c_str ());
-							totalAreaOfPlywoods += (1.200 * 2.400);
+							totalAreaOfPlywoods += (1.200 * 2.400 * count);
 							fprintf (fp, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
-								totalLengthOfTimbers_40x50 += (atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000);
+								totalLengthOfTimbers_40x50 += ((atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000) * count);
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -848,13 +851,13 @@ GSErrCode	exportSelectedElementInfo (void)
 
 						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x5 [606x1520]") == 0) {
 							sprintf (buffer, "606 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
-							totalAreaOfPlywoods += (0.600 * 1.500);
+							totalAreaOfPlywoods += (0.600 * 1.500 * count);
 							fprintf (fp, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
-								totalLengthOfTimbers_40x50 += (atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000);
+								totalLengthOfTimbers_40x50 += ((atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000) * count);
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -863,13 +866,13 @@ GSErrCode	exportSelectedElementInfo (void)
 
 						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x6 [606x1820]") == 0) {
 							sprintf (buffer, "606 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
-							totalAreaOfPlywoods += (0.600 * 1.800);
+							totalAreaOfPlywoods += (0.600 * 1.800 * count);
 							fprintf (fp, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
-								totalLengthOfTimbers_40x50 += (atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000);
+								totalLengthOfTimbers_40x50 += ((atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000) * count);
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -878,13 +881,13 @@ GSErrCode	exportSelectedElementInfo (void)
 
 						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x5 [910x1520]") == 0) {
 							sprintf (buffer, "910 X 1520 X %s ", objectInfo.records.at(yy).at(2).c_str ());
-							totalAreaOfPlywoods += (0.900 * 1.500);
+							totalAreaOfPlywoods += (0.900 * 1.500 * count);
 							fprintf (fp, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
-								totalLengthOfTimbers_40x50 += (atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000);
+								totalLengthOfTimbers_40x50 += ((atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000) * count);
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -896,13 +899,13 @@ GSErrCode	exportSelectedElementInfo (void)
 							length = atof (objectInfo.records.at(yy).at(3).c_str ());
 							length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
 							sprintf (buffer, "%.0f X %.0f X %s ", round (length*1000, 0), round (length2*1000, 0), objectInfo.records.at(yy).at(2).c_str ());
-							totalAreaOfPlywoods += (length * length2);
+							totalAreaOfPlywoods += (length * length2 * count);
 							fprintf (fp, buffer);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
-								totalLengthOfTimbers_40x50 += (atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000);
+								totalLengthOfTimbers_40x50 += ((atof (objectInfo.records.at(yy).at(6).c_str ()) / 1000) * count);
 								fprintf (fp, buffer);
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
@@ -921,13 +924,13 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "합판(다각형)") == 0) {
 						// 합판 면적
 						sprintf (buffer, "면적: %.2f ", atof (objectInfo.records.at(yy).at(1).c_str ()));
-						totalAreaOfPlywoods += atof (objectInfo.records.at(yy).at(1).c_str ());
+						totalAreaOfPlywoods += (atof (objectInfo.records.at(yy).at(1).c_str ()) * count);
 						fprintf (fp, buffer);
 
 						// 제작틀 ON
 						if (atoi (objectInfo.records.at(yy).at(2).c_str ()) > 0) {
 							sprintf (buffer, "(각재 총길이: %.0f) ", round (atof (objectInfo.records.at(yy).at(3).c_str ())*1000, 0));
-							totalLengthOfTimbers_40x50 += atof (objectInfo.records.at(yy).at(3).c_str ());
+							totalLengthOfTimbers_40x50 += (atof (objectInfo.records.at(yy).at(3).c_str ()) * count);
 							fprintf (fp, buffer);
 						}
 
@@ -997,7 +1000,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							length = atof (objectInfo.records.at(yy).at(3).c_str ());
 							length2 = atof (objectInfo.records.at(yy).at(4).c_str ());
 							length3 = atof (objectInfo.records.at(yy).at(5).c_str ());
-							totalAreaOfPlywoods += atof (objectInfo.records.at(yy).at(6).c_str ());
+							totalAreaOfPlywoods += (atof (objectInfo.records.at(yy).at(6).c_str ()) * count);
 							sprintf (buffer, "%.0f / 합판(%.0f X %.0f) ", round (atof (objectInfo.records.at(yy).at(1).c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
 						} else {
 							length = atof (objectInfo.records.at(yy).at(1).c_str ());
@@ -1009,7 +1012,7 @@ GSErrCode	exportSelectedElementInfo (void)
 						sprintf (buffer, "타입(%s) %.0f ", objectInfo.records.at(yy).at(1).c_str (), round (atof (objectInfo.records.at(yy).at(2).c_str ())*1000, 0));
 						fprintf (fp, buffer);
 						if (atoi (objectInfo.records.at(yy).at(3).c_str ()) > 0) {
-							totalAreaOfPlywoods += atof (objectInfo.records.at(yy).at(6).c_str ());
+							totalAreaOfPlywoods += (atof (objectInfo.records.at(yy).at(6).c_str ()) * count);
 							sprintf (buffer, "합판1(%.0f X %.0f) ", round (atof (objectInfo.records.at(yy).at(2).c_str ())*1000, 0), round (atof (objectInfo.records.at(yy).at(4).c_str ())*1000, 0));
 							fprintf (fp, buffer);
 							sprintf (buffer, "합판2(%.0f X %.0f) ", round (atof (objectInfo.records.at(yy).at(2).c_str ())*1000, 0), round (atof (objectInfo.records.at(yy).at(5).c_str ())*1000, 0));
@@ -1021,7 +1024,7 @@ GSErrCode	exportSelectedElementInfo (void)
 							length = atof (objectInfo.records.at(yy).at(4).c_str ());
 							length2 = atof (objectInfo.records.at(yy).at(5).c_str ());
 							length3 = atof (objectInfo.records.at(yy).at(6).c_str ());
-							totalAreaOfPlywoods += atof (objectInfo.records.at(yy).at(7).c_str ());
+							totalAreaOfPlywoods += (atof (objectInfo.records.at(yy).at(7).c_str ()) * count);
 							sprintf (buffer, "%.0f / 합판(%.0f X %.0f) ", round (atof (objectInfo.records.at(yy).at(2).c_str ())*1000, 0), round ((length - length2)*1000, 0), round (length3*1000, 0));
 						} else {
 							length = atof (objectInfo.records.at(yy).at(2).c_str ());
@@ -1032,7 +1035,7 @@ GSErrCode	exportSelectedElementInfo (void)
 					} else if (objectInfo.keyDesc.at(xx).compare ("눈썹보 브라켓 v2") == 0) {
 						if (atoi (objectInfo.records.at(yy).at(1).c_str ()) > 0) {
 							length = atof (objectInfo.records.at(yy).at(2).c_str ()) / 1000;
-							totalLengthOfTimbers_40x50 += length;
+							totalLengthOfTimbers_40x50 += (length * count);
 							sprintf (buffer, "각재(%.0f) ", round (length*1000, 0));
 						}
 						fprintf (fp, buffer);
