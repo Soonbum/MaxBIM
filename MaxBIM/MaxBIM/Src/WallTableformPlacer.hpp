@@ -159,6 +159,8 @@ public:
 
 	double	gap;				// 벽과의 간격
 
+	bool	bSingleSide;		// 단면인가?
+
 	bool	bExtra;				// 높은쪽 모프가 있는가?
 
 	bool	bLincorner;			// 왼쪽 인코너 유무
@@ -207,6 +209,7 @@ public:
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
 	short	EDITCONTROL_GAP;
+	short	CHECKBOX_SINGLESIDE;
 	short	POPUP_DIRECTION;
 	short	POPUP_TABLEFORM_TYPE;
 	short	EDITCONTROL_REMAIN_WIDTH;
