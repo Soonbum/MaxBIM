@@ -200,7 +200,8 @@ public:
 	void	adjustCellsPosition (WallTableformPlacingZone* placingZone);					// 셀 위치를 바르게 교정함
 	void	adjustMarginCellsPosition (WallTableformPlacingZone* placingZone);				// 상단 여백 셀 위치를 바르게 교정함
 	GSErrCode	placeObjects (WallTableformPlacingZone* placingZone);						// 셀 정보를 기반으로 객체들을 배치함
-	GSErrCode	fillRestAreas (WallTableformPlacingZone* placingZone);						// 상단 여백을 유로폼 또는 합판, 각재 등으로 채움
+	GSErrCode	fillRestAreas (WallTableformPlacingZone* placingZone, short idxCell);		// 상단 여백을 유로폼 또는 합판, 각재 등으로 채움
+	GSErrCode	fillCornerRestAreas (WallTableformPlacingZone* placingZone);				// 상단 여백 코너를 합판으로 채움
 
 	void	placeEuroformsOfTableform (WallTableformPlacingZone* placingZone, short idxCell);	// 테이블폼 내 유로폼 배치 (공통)
 	void	placeTableformA (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입A 배치 (유로폼 제외) - 각파이프 2줄
