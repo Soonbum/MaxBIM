@@ -591,15 +591,19 @@ void	WallTableformPlacingZone::adjustMarginCellsPosition (WallTableformPlacingZo
 		placingZone->marginCellsBasic [xx].leftBottomZ = placingZone->leftBottomZ + placingZone->verLenBasic - placingZone->marginTopBasic;
 	}
 
+	// 모프 1개만 있으면 양쪽의 높이와 여백 너비를 동일하게 세트
+	if (placingZone->bExtra == false) {
+		placingZone->marginTopExtra = placingZone->marginTopBasic;
+		placingZone->verLenExtra = placingZone->verLenBasic;
+	}
+
 	for (short xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
 		placingZone->marginCellsExtra [xx].ang = placingZone->ang;
 		placingZone->marginCellsExtra [xx].leftBottomX = placingZone->leftBottomX + (placingZone->gap * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
 		placingZone->marginCellsExtra [xx].leftBottomY = placingZone->leftBottomY - (placingZone->gap * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
-		if (placingZone->bExtra == true)
-			placingZone->marginCellsExtra [xx].leftBottomZ = placingZone->leftBottomZ + placingZone->verLenExtra - placingZone->marginTopExtra;
-		else
-			placingZone->marginCellsExtra [xx].leftBottomZ = placingZone->leftBottomZ + placingZone->verLenBasic - placingZone->marginTopBasic;
+		placingZone->marginCellsExtra [xx].leftBottomZ = placingZone->leftBottomZ + placingZone->verLenExtra - placingZone->marginTopExtra;
 
+		// 모프 1개만 있으면 양쪽의 채우기 옵션을 동일하게 세트
 		if (placingZone->bExtra == false) {
 			placingZone->marginCellsExtra [xx].bFill = placingZone->marginCellsBasic [xx].bFill;
 			placingZone->marginCellsExtra [xx].bEuroform1 = placingZone->marginCellsBasic [xx].bEuroform1;
@@ -610,9 +614,6 @@ void	WallTableformPlacingZone::adjustMarginCellsPosition (WallTableformPlacingZo
 			placingZone->marginCellsExtra [xx].formWidth2 = placingZone->marginCellsBasic [xx].formWidth2;
 		}
 	}
-
-	if (placingZone->bExtra == false)
-		placingZone->marginTopExtra = placingZone->marginTopBasic;
 }
 
 // 셀 정보를 기반으로 객체들을 배치함
@@ -1365,10 +1366,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 	// 유로폼이 차지하는 부분을 제외한 합판/각재가 덮는 부분의 너비
 	plywoodMarginBasic = placingZone->marginTopBasic - (placingZone->marginCellsBasic [idxCell].formWidth1 + placingZone->marginCellsBasic [idxCell].formWidth2);
-	if (placingZone->bExtra == true)
-		plywoodMarginExtra = placingZone->marginTopExtra - (placingZone->marginCellsExtra [idxCell].formWidth1 + placingZone->marginCellsExtra [idxCell].formWidth2);
-	else
-		plywoodMarginExtra = plywoodMarginBasic;
+	plywoodMarginExtra = placingZone->marginTopExtra - (placingZone->marginCellsExtra [idxCell].formWidth1 + placingZone->marginCellsExtra [idxCell].formWidth2);
 	
 	remainLengthIntStored = remainLengthInt = (int)(placingZone->cells [idxCell].horLen * 1000);	// 채워야 할 전체 너비를 계산해야 함
 
@@ -1707,7 +1705,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	}
 
 	// 블루클램프 및 블루목심레일 장착 - 뒷면
-	if ((placingZone->marginCellsExtra [idxCell].bFill == true) && (placingZone->bSingleSide == false)) {
+	if (placingZone->bSingleSide == false) {
 		blueClamp.init (L("블루클램프v1.0.gsm"), bLayerInd_BlueClamp, infoWall.floorInd, placingZone->marginCellsExtra [idxCell].leftBottomX, placingZone->marginCellsExtra [idxCell].leftBottomY, placingZone->marginCellsExtra [idxCell].leftBottomZ, placingZone->marginCellsExtra [idxCell].ang + DegreeToRad (270.0) + DegreeToRad (180.0));
 		moveIn3D ('y', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 		moveIn3D ('z', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.040 + placingZone->marginCellsExtra [idxCell].formWidth1 + placingZone->marginCellsExtra [idxCell].formWidth2, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
@@ -2137,7 +2135,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 	remainLengthIntStored = remainLengthInt = placingZone->cells [idxCell].horLen;
 
-	if ((placingZone->bExtra == false) && (placingZone->marginCellsExtra [idxCell].bFill == true)) {
+	if (placingZone->marginCellsExtra [idxCell].bFill == true) {
 		if (plywoodMarginExtra > 0.110 - EPS) {
 			// 뒷면 채우기
 			if (placingZone->bSingleSide == false) {
@@ -2361,7 +2359,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 		}
 	}
 
-	if ((placingZone->bExtra == false) && (placingZone->marginCellsExtra [idxCell].bFill == true)) {
+	if (placingZone->marginCellsExtra [idxCell].bFill == true) {
 		// 뒷면 채우기
 		if (placingZone->bSingleSide == false) {
 			// 1단 유로폼
