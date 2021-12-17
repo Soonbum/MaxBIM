@@ -1330,25 +1330,28 @@ GSErrCode	WallTableformPlacingZone::fillCornerRestAreas (WallTableformPlacingZon
 			
 		moveIn3D ('x', plywood.radAng, -placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
 
-		plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenLincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopBasic), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
+		if (placingZone->lenLincorner > EPS)
+			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenLincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopBasic), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
 
 		moveIn3D ('x', plywood.radAng, placingZone->horLen - placingZone->lenRincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
 
-		plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenRincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopBasic), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
+		if (placingZone->lenRincorner > EPS)
+			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenRincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopBasic), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
 	}
 
 	// 뒷면 채우기
-	if ( ((placingZone->bExtra == true) && (placingZone->marginCellsExtra [0].bFill == true)) ||
-		 ((placingZone->bExtra == false) && (placingZone->marginCellsBasic [0].bFill == true) && (placingZone->bSingleSide == false)) ) {
+	if (placingZone->marginCellsExtra [0].bFill == true) {
 		plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsExtra [0].leftBottomX, placingZone->marginCellsExtra [0].leftBottomY, placingZone->marginCellsExtra [0].leftBottomZ, placingZone->marginCellsExtra [0].ang + DegreeToRad (180.0));
 
 		moveIn3D ('y', plywood.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2, &plywood.posX, &plywood.posY, &plywood.posZ);
 
-		plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenLincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopExtra), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
+		if (placingZone->lenLincorner > EPS)
+			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenLincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopExtra), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
 
 		moveIn3D ('x', plywood.radAng - DegreeToRad (180.0), placingZone->horLen - placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
 
-		plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenRincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopExtra), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
+		if (placingZone->lenRincorner > EPS)
+			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenRincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopExtra), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
 	}
 
 	return	err;
@@ -1372,12 +1375,12 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 	// 블루클램프 및 블루목심레일 장착 - 앞면
 	EasyObjectPlacement blueClamp;
-	blueClamp.init (L("블루클램프v1.0.gsm"), bLayerInd_BlueClamp, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ, placingZone->marginCellsBasic [idxCell].ang + DegreeToRad (270.0));
+	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ, placingZone->marginCellsBasic [idxCell].ang + DegreeToRad (270.0));
 	moveIn3D ('y', blueClamp.radAng - DegreeToRad (270.0), -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 	moveIn3D ('z', blueClamp.radAng - DegreeToRad (270.0), 0.040 + placingZone->marginCellsBasic [idxCell].formWidth1 + placingZone->marginCellsBasic [idxCell].formWidth2, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 	EasyObjectPlacement blueTimberRail;
-	blueTimberRail.init (L("블루목심v1.0.gsm"), bLayerInd_BlueTimberRail, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ, placingZone->marginCellsBasic [idxCell].ang);
+	blueTimberRail.init (L("블루목심v1.0.gsm"), layerInd_BlueTimberRail, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ, placingZone->marginCellsBasic [idxCell].ang);
 	if (plywoodMarginBasic + EPS > 0.0) {
 		if ((plywoodMarginBasic >= 0.010 - EPS) && (plywoodMarginBasic <= 0.020 + EPS)) {
 			// 이 경우 블루목심 장착하지 않음
@@ -1706,11 +1709,11 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 	// 블루클램프 및 블루목심레일 장착 - 뒷면
 	if (placingZone->bSingleSide == false) {
-		blueClamp.init (L("블루클램프v1.0.gsm"), bLayerInd_BlueClamp, infoWall.floorInd, placingZone->marginCellsExtra [idxCell].leftBottomX, placingZone->marginCellsExtra [idxCell].leftBottomY, placingZone->marginCellsExtra [idxCell].leftBottomZ, placingZone->marginCellsExtra [idxCell].ang + DegreeToRad (270.0) + DegreeToRad (180.0));
+		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoWall.floorInd, placingZone->marginCellsExtra [idxCell].leftBottomX, placingZone->marginCellsExtra [idxCell].leftBottomY, placingZone->marginCellsExtra [idxCell].leftBottomZ, placingZone->marginCellsExtra [idxCell].ang + DegreeToRad (270.0) + DegreeToRad (180.0));
 		moveIn3D ('y', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 		moveIn3D ('z', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.040 + placingZone->marginCellsExtra [idxCell].formWidth1 + placingZone->marginCellsExtra [idxCell].formWidth2, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-		blueTimberRail.init (L("블루목심v1.0.gsm"), bLayerInd_BlueTimberRail, infoWall.floorInd, placingZone->marginCellsExtra [idxCell].leftBottomX, placingZone->marginCellsExtra [idxCell].leftBottomY, placingZone->marginCellsExtra [idxCell].leftBottomZ, placingZone->marginCellsExtra [idxCell].ang + DegreeToRad (180.0));
+		blueTimberRail.init (L("블루목심v1.0.gsm"), layerInd_BlueTimberRail, infoWall.floorInd, placingZone->marginCellsExtra [idxCell].leftBottomX, placingZone->marginCellsExtra [idxCell].leftBottomY, placingZone->marginCellsExtra [idxCell].leftBottomZ, placingZone->marginCellsExtra [idxCell].ang + DegreeToRad (180.0));
 		if (plywoodMarginExtra + EPS > 0.0) {
 			if ((plywoodMarginExtra >= 0.010 - EPS) && (plywoodMarginExtra <= 0.020 + EPS)) {
 				// 이 경우 블루목심 장착하지 않음
