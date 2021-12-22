@@ -131,6 +131,16 @@ struct InfoMorphForBeamTableform
 	API_Guid	guid;		// 모프의 GUID
 	short		floorInd;	// 층 인덱스
 	double		level;		// 모프의 고도
+
+	double	ang;			// 회전 각도 (단위: Radian, 회전축: Z축)
+
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	rightTopX;		// 우상단 좌표 X
+	double	rightTopY;		// 우상단 좌표 Y
+	double	rightTopZ;		// 우상단 좌표 Z
 };
 
 // 그리드 각 셀 정보
@@ -156,15 +166,16 @@ class BeamTableformPlacingZone
 public:
 	// 보 기하 정보
 	double	level;				// 보 윗면 고도
-	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
-	double	areaHeight_Left;	// 영역 높이 (좌측)
-	double	areaHeight_Right;	// 영역 높이 (우측)
+	double	ang;				// 보 회전 각도 (단위: Radian, 회전축: Z축)
+	double	areaHeight_Left;	// 영역 높이 (좌측)	: 항상 높은 쪽
+	double	areaHeight_Right;	// 영역 높이 (우측) : 항상 낮은 쪽
 	double	areaWidth_Bottom;	// 영역 너비 (하부)
 
 	API_Coord3D		begC;		// 배치 기준 시작점
 	API_Coord3D		endC;		// 배치 기준 끝점
-	double	beamHeight;			// 보 높이
+
 	double	beamLength;			// 보 길이
+	double	offset;				// 보 오프셋
 
 	double	gapSide;			// 보와의 간격 (측면)
 	double	gapBottom;			// 보와의 간격 (하부)

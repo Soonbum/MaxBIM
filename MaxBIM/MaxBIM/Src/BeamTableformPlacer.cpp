@@ -85,7 +85,6 @@ GSErrCode	placeTableformOnBeam (void)
 	API_Element				elem;
 	API_ElementMemo			memo;
 	API_ElemInfo3D			info3D;
-	//API_BeamRelation		relData;
 
 	// 모프 3D 구성요소 가져오기
 	API_Component3D			component;
@@ -94,22 +93,14 @@ GSErrCode	placeTableformOnBeam (void)
 	Int32					elemIdx, bodyIdx;
 	API_Coord3D				trCoord;
 	GS::Array<API_Coord3D>	coords;
-
-	// 폴리곤 점을 배열로 복사함
-	//API_Coord3D		nodes_random [20];
-	//long			nNodes;		// 모프 폴리곤의 정점 좌표 개수
-	//bool			bIsInPolygon1, bIsInPolygon2;
+	long					nNodes;
 
 	// 모프 객체 정보
-	InfoMorphForBeamTableform	infoMorph;
-
-	// 점 입력
-	//API_GetPointType		pointInfo;
-	//API_Coord3D				point1, point2;
-	//API_Coord3D				other_p1, other_p2;
-
-	// 교차점 찾기 (보 전체의 경우)
-	//API_Coord p1, p2, p3, p4, pResult;
+	InfoMorphForBeamTableform	infoMorph [2];
+	API_Coord3D					morph1_point [2];
+	API_Coord3D					morph2_point [2];
+	double						morph1_height = 0.0;
+	double						morph2_height = 0.0;
 
 	// 보와 모프와의 관계를 찾기 위한 변수 (보 일부의 경우)
 	//API_Coord				clickedPoint;
@@ -136,7 +127,7 @@ GSErrCode	placeTableformOnBeam (void)
 		return err;
 	}
 
-	// 보 1개, 모프 1~3개 선택해야 함
+	// 보 1개, 모프 1~2개 선택해야 함
 	if (selectionInfo.typeID != API_SelEmpty) {
 		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
 		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
@@ -164,9 +155,9 @@ GSErrCode	placeTableformOnBeam (void)
 		return err;
 	}
 
-	// 모프가 1~3개인가?
-	if ( !((nMorphs >= 1) && (nMorphs <= 3)) ) {
-		ACAPI_WriteReport ("보 측면(전체/일부)을 덮는 모프를 1개 선택하셔야 합니다.\n덮는 높이가 비대칭이면 보 반대쪽 측면을 덮는 모프도 있어야 합니다.\n덮는 길이가 측면과 다를 경우 보 아래쪽 면을 덮는 모프도 있어야 합니다.", true);
+	// 모프가 1~2개인가?
+	if ( !((nMorphs >= 1) && (nMorphs <= 2)) ) {
+		ACAPI_WriteReport ("보 측면(전체/일부)을 덮는 모프를 1개 선택하셔야 합니다.\n덮는 높이가 비대칭이면 보 반대쪽 측면을 덮는 모프도 있어야 합니다.", true);
 		err = APIERR_GENERAL;
 		return err;
 	}
@@ -191,188 +182,170 @@ GSErrCode	placeTableformOnBeam (void)
 
 	ACAPI_DisposeElemMemoHdls (&memo);
 
-	// !!!
-	// 1. 1~3번째 모프의 정보를 다 저장함 (모프의 각 꼭지점 정보를 저장할 것)
-	//   - 1번째 모프의 조건: (1) 점 8개 중에서 4개씩 x,y가 동일함
-	//   - 2번째 모프의 조건: (1) 점 8개 중에서 4개씩 x,y가 동일함
-	//   - 3번째 모프의 조건: (1) 모프 직육면체의 높이가 0에 수렴함
-	// 2. 모프의 정보를 통해 영역 정보 수집
+	for (xx = 0 ; xx < nMorphs ; ++xx) {
+		// 모프 정보를 가져옴
+		BNZeroMemory (&elem, sizeof (API_Element));
+		elem.header.guid = morphs.Pop ();
+		err = ACAPI_Element_Get (&elem);
+		err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
 
-	//// 모프 정보를 가져옴
-	//BNZeroMemory (&elem, sizeof (API_Element));
-	//elem.header.guid = morphs.Pop ();
-	//err = ACAPI_Element_Get (&elem);
-	//err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
+		// 모프의 정보 저장
+		infoMorph [xx].guid		= elem.header.guid;
+		infoMorph [xx].floorInd	= elem.header.floorInd;
+		infoMorph [xx].level	= info3D.bounds.zMin;
 
-	//// 모프의 정보 저장
-	//infoMorph.guid		= elem.header.guid;
-	//infoMorph.floorInd	= elem.header.floorInd;
-	//infoMorph.level		= info3D.bounds.zMin;
+		// 모프의 3D 바디를 가져옴
+		BNZeroMemory (&component, sizeof (API_Component3D));
+		component.header.typeID = API_BodyID;
+		component.header.index = info3D.fbody;
+		err = ACAPI_3D_GetComponent (&component);
 
-	//// 모프의 3D 바디를 가져옴
-	//BNZeroMemory (&component, sizeof (API_Component3D));
-	//component.header.typeID = API_BodyID;
-	//component.header.index = info3D.fbody;
-	//err = ACAPI_3D_GetComponent (&component);
+		nVert = component.body.nVert;
+		nEdge = component.body.nEdge;
+		nPgon = component.body.nPgon;
+		tm = component.body.tranmat;
+		elemIdx = component.body.head.elemIndex - 1;
+		bodyIdx = component.body.head.bodyIndex - 1;
+		
+		// 정점 좌표를 임의 순서대로 저장함
+		for (yy = 1 ; yy <= nVert ; ++yy) {
+			component.header.typeID	= API_VertID;
+			component.header.index	= yy;
+			err = ACAPI_3D_GetComponent (&component);
+			if (err == NoError) {
+				trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
+				trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
+				trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
+				coords.Push (trCoord);
+			}
+		}
+		nNodes = coords.GetSize ();
 
-	//// 모프의 3D 모델을 가져오지 못하면 종료
-	//if (err != NoError) {
-	//	ACAPI_WriteReport ("모프의 3D 모델을 가져오지 못했습니다.", true);
-	//	return err;
-	//}
+		// 1번째 모프의 양 끝점 추출
+		if (xx == 0) {
+			morph1_point [0] = coords [0];	// 모프의 1번째 점 저장
+			for (yy = 1 ; yy < nNodes ; ++yy) {
+				// x, y 좌표 값이 같으면 통과하고, 다르면 2번째 점으로 저장
+				if ( (abs (morph1_point [0].x - coords [yy].x) < EPS) && (abs (morph1_point [0].y - coords [yy].y) < EPS) ) {
+					continue;
+				} else {
+					morph1_point [1] = coords [yy];
+					break;
+				}
+			}
 
-	//nVert = component.body.nVert;
-	//nEdge = component.body.nEdge;
-	//nPgon = component.body.nPgon;
-	//tm = component.body.tranmat;
-	//elemIdx = component.body.head.elemIndex - 1;
-	//bodyIdx = component.body.head.bodyIndex - 1;
-	//
-	//// 정점 좌표를 임의 순서대로 저장함
-	//for (xx = 1 ; xx <= nVert ; ++xx) {
-	//	component.header.typeID	= API_VertID;
-	//	component.header.index	= xx;
-	//	err = ACAPI_3D_GetComponent (&component);
-	//	if (err == NoError) {
-	//		trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
-	//		trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
-	//		trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
-	//		coords.Push (trCoord);
-	//	}
-	//}
-	//nNodes = coords.GetSize ();
+			morph1_height = info3D.bounds.zMax - info3D.bounds.zMin;
+		}
 
-	//// 시작 부분 하단 점 클릭, 끝 부분 상단 점 클릭
-	//BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
-	//CHCopyC ("시작 부분 점을 클릭하십시오.", pointInfo.prompt);
-	//pointInfo.enableQuickSelection = true;
-	//err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
-	//point1 = pointInfo.pos;
+		// 2번째 모프의 양 끝점 추출
+		if (xx == 1) {
+			morph2_point [0] = coords [0];	// 모프의 1번째 점 저장
+			for (yy = 1 ; yy < nNodes ; ++yy) {
+				// x, y 좌표 값이 같으면 통과하고, 다르면 2번째 점으로 저장
+				if ( (abs (morph2_point [0].x - coords [yy].x) < EPS) && (abs (morph2_point [0].y - coords [yy].y) < EPS) ) {
+					continue;
+				} else {
+					morph2_point [1] = coords [yy];
+					break;
+				}
+			}
 
-	//BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
-	//CHCopyC ("끝 부분 점을 클릭하십시오.", pointInfo.prompt);
-	//pointInfo.enableQuickSelection = true;
-	//err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
-	//point2 = pointInfo.pos;
+			morph2_height = info3D.bounds.zMax - info3D.bounds.zMin;
+		}
 
-	//// 사용자가 클릭한 두 점을 통해 보의 시작점, 끝점을 찾음
-	//other_p1.x = infoBeam.begC.x;
-	//other_p1.y = infoBeam.begC.y;
-	//other_p1.z = info3D.bounds.zMin;
+		// 1번째 모프를 기반으로 좌하단, 우상단 점 가져오기
+		if (xx == 0) {
+			// 모프의 좌하단, 우상단 점 지정
+			if (abs (elem.morph.tranmat.tmx [11] - info3D.bounds.zMin) < EPS) {
+				// 좌하단 좌표 결정
+				infoMorph [xx].leftBottomX = elem.morph.tranmat.tmx [3];
+				infoMorph [xx].leftBottomY = elem.morph.tranmat.tmx [7];
+				infoMorph [xx].leftBottomZ = elem.morph.tranmat.tmx [11];
 
-	//other_p2.x = infoBeam.endC.x;
-	//other_p2.y = infoBeam.endC.y;
-	//other_p2.z = info3D.bounds.zMin;
+				// 우상단 좌표는?
+				if (abs (infoMorph [xx].leftBottomX - info3D.bounds.xMin) < EPS)
+					infoMorph [xx].rightTopX = info3D.bounds.xMax;
+				else
+					infoMorph [xx].rightTopX = info3D.bounds.xMin;
+				if (abs (infoMorph [xx].leftBottomY - info3D.bounds.yMin) < EPS)
+					infoMorph [xx].rightTopY = info3D.bounds.yMax;
+				else
+					infoMorph [xx].rightTopY = info3D.bounds.yMin;
+				if (abs (infoMorph [xx].leftBottomZ - info3D.bounds.zMin) < EPS)
+					infoMorph [xx].rightTopZ = info3D.bounds.zMax;
+				else
+					infoMorph [xx].rightTopZ = info3D.bounds.zMin;
+			} else {
+				// 우상단 좌표 결정
+				infoMorph [xx].rightTopX = elem.morph.tranmat.tmx [3];
+				infoMorph [xx].rightTopY = elem.morph.tranmat.tmx [7];
+				infoMorph [xx].rightTopZ = elem.morph.tranmat.tmx [11];
 
-	//// 영역 높이 값을 구함
-	////placingZone.areaHeight = info3D.bounds.zMax - info3D.bounds.zMin;
+				// 좌하단 좌표는?
+				if (abs (infoMorph [xx].rightTopX - info3D.bounds.xMin) < EPS)
+					infoMorph [xx].leftBottomX = info3D.bounds.xMax;
+				else
+					infoMorph [xx].leftBottomX = info3D.bounds.xMin;
+				if (abs (infoMorph [xx].rightTopY - info3D.bounds.yMin) < EPS)
+					infoMorph [xx].leftBottomY = info3D.bounds.yMax;
+				else
+					infoMorph [xx].leftBottomY = info3D.bounds.yMin;
+				if (abs (infoMorph [xx].rightTopZ - info3D.bounds.zMin) < EPS)
+					infoMorph [xx].leftBottomZ = info3D.bounds.zMax;
+				else
+					infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
+			}
 
-	//// 클릭한 두 점을 보의 시작점, 끝점과 연결시킴
-	//if (moreCloserPoint (point1, other_p1, other_p2) == 1) {
-	//	placingZone.begC = other_p1;
-	//	placingZone.endC = other_p2;
-	//} else {
-	//	placingZone.begC = other_p2;
-	//	placingZone.endC = other_p1;
-	//	infoBeam.offset = -infoBeam.offset;
-	//}
+			// 모프의 Z축 회전 각도
+			dx = infoMorph [xx].rightTopX - infoMorph [xx].leftBottomX;
+			dy = infoMorph [xx].rightTopY - infoMorph [xx].leftBottomY;
+			infoMorph [xx].ang = atan2 (dy, dx);
+		}
 
-	//// 폴리곤의 점들을 저장함
-	//for (xx = 0 ; xx < nNodes ; ++xx)
-	//	nodes_random [xx] = coords.Pop ();
+		// 저장된 좌표값 버리기
+		coords.Clear ();
 
-	//// 만약 선택한 두 점이 폴리곤에 속한 점이 아니면 오류
-	//bIsInPolygon1 = false;
-	//bIsInPolygon2 = false;
-	//for (xx = 0 ; xx < nNodes ; ++xx) {
-	//	if (isSamePoint (point1, nodes_random [xx]))
-	//		bIsInPolygon1 = true;
-	//	if (isSamePoint (point2, nodes_random [xx]))
-	//		bIsInPolygon2 = true;
-	//}
+		// 영역 모프 제거
+		API_Elem_Head* headList = new API_Elem_Head [1];
+		headList [0] = elem.header;
+		err = ACAPI_Element_Delete (&headList, 1);
+		delete headList;
+	}
 
-	//if ( !(bIsInPolygon1 && bIsInPolygon2) ) {
-	//	ACAPI_WriteReport ("폴리곤에 속하지 않은 점을 클릭했습니다.", true);
-	//	return err;
-	//}
+	// 영역 높이 저장
+	if (nMorphs == 2) {
+		if (morph1_height > morph2_height) {
+			placingZone.areaHeight_Left = morph1_height;
+			placingZone.areaHeight_Right = morph2_height;
+		} else {
+			placingZone.areaHeight_Left = morph2_height;
+			placingZone.areaHeight_Right = morph1_height;
+		}
+	} else {
+		placingZone.areaHeight_Left = morph1_height;
+		placingZone.areaHeight_Right = morph1_height;
+	}
 
-	//// 영역 모프 제거
-	//API_Elem_Head* headList = new API_Elem_Head [1];
-	//headList [0] = elem.header;
-	//err = ACAPI_Element_Delete (&headList, 1);
-	//delete headList;
+	// 보 길이
+	placingZone.beamLength = GetDistance (morph1_point [0], morph1_point [1]);
 
-	//// 두 점 간의 각도를 구함
-	//dx = placingZone.endC.x - placingZone.begC.x;
-	//dy = placingZone.endC.y - placingZone.begC.y;
-	//ang = RadToDegree (atan2 (dy, dx));
+	// 보 너비
+	placingZone.areaWidth_Bottom = infoBeam.width;
 
-	//// *클릭한 두 점 간의 거리가 보 전체 길이에 가까우면(90% 이상) 보 전체, 아니면 보 일부에 폼 배치하는 것으로 인식함
-	//if (GetDistance (point1, point2) >= (GetDistance (infoBeam.begC, infoBeam.endC) * 0.90)) {
+	// 보 오프셋
+	placingZone.offset = infoBeam.offset;
 
-	//	// 나머지 보 영역 정보를 저장함
-	//	placingZone.ang			= DegreeToRad (ang);
-	//	placingZone.level		= infoBeam.level;
-	//	placingZone.beamLength	= GetDistance (infoBeam.begC, infoBeam.endC);
+	// 보 윗면 고도
+	placingZone.level = infoBeam.level;
 
-	//} else {
+	// 배치 기준 시작점, 끝점
+	placingZone.begC.x = infoMorph [0].leftBottomX;
+	placingZone.begC.y = infoMorph [0].leftBottomY;
+	placingZone.begC.z = infoMorph [0].leftBottomZ;
 
-	//	// 나머지 보 영역 정보를 저장함
-	//	placingZone.ang			= DegreeToRad (ang);
-	//	placingZone.level		= infoBeam.level;
-	//	placingZone.beamLength	= GetDistance (point1.x, point1.y, point2.x, point2.y);
-
-	//	// 보 레퍼런스 라인과 모프 시작점 간의 거리를 측정한다
-	//	if (GetDistance (point1, other_p1) < GetDistance (point2, other_p1)) {
-	//		clickedPoint.x = point1.x;
-	//		clickedPoint.y = point1.y;
-	//		beginPoint.x = placingZone.begC.x;
-	//		beginPoint.y = placingZone.begC.y;
-	//		endPoint.x = placingZone.endC.x;
-	//		endPoint.y = placingZone.endC.y;
-
-	//		distance1 = distOfPointBetweenLine (clickedPoint, beginPoint, endPoint);
-	//		distance2 = GetDistance (beginPoint, clickedPoint);
-	//		if (abs (distance2 - distance1) > EPS)
-	//			distance3 = sqrt (distance2 * distance2 - distance1 * distance1);	// 보 시작점으로부터 모프 시작점까지의 X 거리
-	//		else
-	//			distance3 = 0.0;
-
-	//		// 보의 시작/끝점을 모프가 덮은 영역인 일부 구간으로 설정
-	//		placingZone.begC.x = beginPoint.x + (distance3 * cos(placingZone.ang));
-	//		placingZone.begC.y = beginPoint.y + (distance3 * sin(placingZone.ang));
-	//		placingZone.endC.x = beginPoint.x + (GetDistance (point1, point2) * cos(placingZone.ang));
-	//		placingZone.endC.y = beginPoint.y + (GetDistance (point1, point2) * sin(placingZone.ang));
-	//	} else {
-	//		clickedPoint.x = point1.x;
-	//		clickedPoint.y = point1.y;
-	//		beginPoint.x = placingZone.endC.x;
-	//		beginPoint.y = placingZone.endC.y;
-	//		endPoint.x = placingZone.begC.x;
-	//		endPoint.y = placingZone.begC.y;
-
-	//		distance1 = distOfPointBetweenLine (clickedPoint, endPoint, beginPoint);
-	//		distance2 = GetDistance (endPoint.x, endPoint.y, clickedPoint.x, clickedPoint.y);
-	//		if (abs (distance2 - distance1) > EPS)
-	//			distance3 = sqrt (distance2 * distance2 - distance1 * distance1);	// 보 시작점으로부터 모프 시작점까지의 X 거리
-	//		else
-	//			distance3 = 0.0;
-
-	//		// 보의 시작/끝점을 모프가 덮은 영역인 일부 구간으로 설정
-	//		placingZone.begC.x = endPoint.x + (distance3 * cos(placingZone.ang));
-	//		placingZone.begC.y = endPoint.y + (distance3 * sin(placingZone.ang));
-	//		placingZone.endC.x = endPoint.x + (GetDistance (point1, point2) * cos(placingZone.ang));
-	//		placingZone.endC.y = endPoint.y + (GetDistance (point1, point2) * sin(placingZone.ang));
-
-	//		infoBeam.offset = -infoBeam.offset;
-	//	}
-
-	//	// 보 정보 업데이트
-	//	infoBeam.begC.x		= placingZone.begC.x;
-	//	infoBeam.begC.y		= placingZone.begC.y;
-	//	infoBeam.endC.x		= placingZone.endC.x;
-	//	infoBeam.endC.y		= placingZone.endC.y;
-	//}
+	placingZone.endC.x = infoMorph [0].rightTopX;
+	placingZone.endC.y = infoMorph [0].rightTopY;
+	placingZone.endC.z = infoMorph [0].leftBottomZ;
 
 	// 작업 층 높이 반영
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));

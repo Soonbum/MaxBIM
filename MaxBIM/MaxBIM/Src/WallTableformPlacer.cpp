@@ -543,6 +543,12 @@ void	WallTableformPlacingZone::initCells (WallTableformPlacingZone* placingZone,
 			placingZone->cells [xx].tableInHor [1] = 600;
 			placingZone->cells [xx].tableInHor [2] = 500;
 			placingZone->cells [xx].tableInHor [3] = 600;
+			placingZone->cells [xx].tableInHor [4] = 0;
+			placingZone->cells [xx].tableInHor [5] = 0;
+			placingZone->cells [xx].tableInHor [6] = 0;
+			placingZone->cells [xx].tableInHor [7] = 0;
+			placingZone->cells [xx].tableInHor [8] = 0;
+			placingZone->cells [xx].tableInHor [9] = 0;
 		}
 
 	// 가로방향이면
@@ -555,6 +561,11 @@ void	WallTableformPlacingZone::initCells (WallTableformPlacingZone* placingZone,
 			placingZone->cells [xx].tableInHor [2] = 1200;
 			placingZone->cells [xx].tableInHor [3] = 1200;
 			placingZone->cells [xx].tableInHor [4] = 1200;
+			placingZone->cells [xx].tableInHor [5] = 0;
+			placingZone->cells [xx].tableInHor [6] = 0;
+			placingZone->cells [xx].tableInHor [7] = 0;
+			placingZone->cells [xx].tableInHor [8] = 0;
+			placingZone->cells [xx].tableInHor [9] = 0;
 		}
 	}
 }
@@ -6636,10 +6647,10 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 							clickedIndex = xx;
 							if (placingZone.bVertical == true) {
 								// 테이블폼 타입 (세로 방향)일 경우, 3번째 다이얼로그(세로방향) 열기
-								result = DGBlankModalDialog (350, 180, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler3_Vertical, (short) 0);
+								result = DGBlankModalDialog (770, 180, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler3_Vertical, (short) 0);
 							} else {
 								// 테이블폼 타입 (가로 방향)일 경우, 3번째 다이얼로그(가로방향) 열기
-								result = DGBlankModalDialog (420, 180, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler3_Horizontal, (short) 0);
+								result = DGBlankModalDialog (770, 180, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, wallTableformPlacerHandler3_Horizontal, (short) 0);
 							}
 
 							// 콤보박스의 전체 너비 값 변경
@@ -7111,13 +7122,13 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 적용 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 100, 140, 70, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 140, 70, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "확 인");
 			DGShowItem (dialogID, DG_OK);
 
 			// 종료 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 180, 140, 70, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 390, 140, 70, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_CANCEL, "취 소");
 			DGShowItem (dialogID, DG_CANCEL);
@@ -7127,14 +7138,14 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 			for (xx = 0 ; xx < sizeof (placingZone.cells [clickedIndex].tableInHor) / sizeof (int) ; ++xx)
 				accumLength += placingZone.cells [clickedIndex].tableInHor [xx];
 			sprintf (buffer, "기존 너비: %d", accumLength);
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 20, 100, 23);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 270, 20, 100, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, buffer);
 			DGShowItem (dialogID, itmIdx);
 
 			// 변경된 너비 (라벨)
 			sprintf (buffer, "변경된 너비: %d", 0);
-			placingZone.LABEL_TOTAL_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 20, 100, 23);
+			placingZone.LABEL_TOTAL_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 400, 20, 100, 23);
 			DGSetItemFont (dialogID, placingZone.LABEL_TOTAL_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, placingZone.LABEL_TOTAL_WIDTH, buffer);
 			DGShowItem (dialogID, placingZone.LABEL_TOTAL_WIDTH);
@@ -7142,7 +7153,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 			itmPosX = 35;
 			itmPosY = 55;
 
-			for (xx = 0 ; xx < 4 ; ++xx) {
+			for (xx = 0 ; xx < 10 ; ++xx) {
 				// 구분자
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 70);
 				DGShowItem (dialogID, itmIdx);
@@ -7174,7 +7185,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 
 			// 변경된 너비 (라벨) 업데이트
 			accumLength = 0;
-			for (xx = 0 ; xx < 4 ; ++xx) {
+			for (xx = 0 ; xx < 10 ; ++xx) {
 				accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 			}
 			sprintf (buffer, "변경된 너비: %d", accumLength);
@@ -7186,7 +7197,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 
 			// 변경된 너비 (라벨) 업데이트
 			accumLength = 0;
-			for (xx = 0 ; xx < 4 ; ++xx) {
+			for (xx = 0 ; xx < 10 ; ++xx) {
 				accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 			}
 			sprintf (buffer, "변경된 너비: %d", accumLength);
@@ -7198,15 +7209,12 @@ short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dial
 			switch (item) {
 				case DG_OK:
 					// 선택한 콤보박스들의 값을 기반으로 구조체 값을 갱신함
-					for (xx = 0 ; xx < 4 ; ++xx) {
+					for (xx = 0 ; xx < 10 ; ++xx) {
 						placingZone.cells [clickedIndex].tableInHor [xx] = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
-					}
-					for (xx = 4 ; xx < 10 ; ++xx) {
-						placingZone.cells [clickedIndex].tableInHor [xx] = 0;
 					}
 
 					accumLength = 0;
-					for (xx = 0 ; xx < 5 ; ++xx) {
+					for (xx = 0 ; xx < 10 ; ++xx) {
 						accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 					}
 					placingZone.cells [clickedIndex].horLen = accumLength;
@@ -7250,13 +7258,13 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 적용 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 140, 70, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 140, 70, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "확 인");
 			DGShowItem (dialogID, DG_OK);
 
 			// 종료 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 200, 140, 70, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 390, 140, 70, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_CANCEL, "취 소");
 			DGShowItem (dialogID, DG_CANCEL);
@@ -7266,14 +7274,14 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 			for (xx = 0 ; xx < sizeof (placingZone.cells [clickedIndex].tableInHor) / sizeof (int) ; ++xx)
 				accumLength += placingZone.cells [clickedIndex].tableInHor [xx];
 			sprintf (buffer, "기존 너비: %d", accumLength);
-			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 70, 20, 100, 23);
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 270, 20, 100, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, itmIdx, buffer);
 			DGShowItem (dialogID, itmIdx);
 
 			// 변경된 너비 (라벨)
 			sprintf (buffer, "변경된 너비: %d", 0);
-			placingZone.LABEL_TOTAL_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 20, 100, 23);
+			placingZone.LABEL_TOTAL_WIDTH = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 400, 20, 100, 23);
 			DGSetItemFont (dialogID, placingZone.LABEL_TOTAL_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, placingZone.LABEL_TOTAL_WIDTH, buffer);
 			DGShowItem (dialogID, placingZone.LABEL_TOTAL_WIDTH);
@@ -7281,7 +7289,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 			itmPosX = 35;
 			itmPosY = 55;
 
-			for (xx = 0 ; xx < 5 ; ++xx) {
+			for (xx = 0 ; xx < 10 ; ++xx) {
 				// 구분자
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_SEPARATOR, 0, 0, itmPosX, itmPosY, 70, 70);
 				DGShowItem (dialogID, itmIdx);
@@ -7313,7 +7321,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 
 			// 변경된 너비 (라벨) 업데이트
 			accumLength = 0;
-			for (xx = 0 ; xx < 5 ; ++xx) {
+			for (xx = 0 ; xx < 10 ; ++xx) {
 				accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 			}
 			sprintf (buffer, "변경된 너비: %d", accumLength);
@@ -7325,7 +7333,7 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 
 			// 변경된 너비 (라벨) 업데이트
 			accumLength = 0;
-			for (xx = 0 ; xx < 5 ; ++xx) {
+			for (xx = 0 ; xx < 10 ; ++xx) {
 				accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 			}
 			sprintf (buffer, "변경된 너비: %d", accumLength);
@@ -7337,15 +7345,12 @@ short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short di
 			switch (item) {
 				case DG_OK:
 					// 선택한 콤보박스들의 값을 기반으로 구조체 값을 갱신함
-					for (xx = 0 ; xx < 5 ; ++xx) {
+					for (xx = 0 ; xx < 10 ; ++xx) {
 						placingZone.cells [clickedIndex].tableInHor [xx] = atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
-					}
-					for (xx = 5 ; xx < 10 ; ++xx) {
-						placingZone.cells [clickedIndex].tableInHor [xx] = 0;
 					}
 
 					accumLength = 0;
-					for (xx = 0 ; xx < 5 ; ++xx) {
+					for (xx = 0 ; xx < 10 ; ++xx) {
 						accumLength += atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH_IN_TABLE [xx])).ToCStr ().Get ());
 					}
 					placingZone.cells [clickedIndex].horLen = accumLength;
