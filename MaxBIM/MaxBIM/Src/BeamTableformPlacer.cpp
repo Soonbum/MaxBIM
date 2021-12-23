@@ -69,7 +69,7 @@ GSErrCode	placeTableformOnBeam (void)
 	GSErrCode		err = NoError;
 	long			nSel;
 	short			xx, yy;
-	double			dx, dy, ang;
+	double			dx, dy;
 	short			result;
 
 	// Selection Manager 관련 변수
@@ -4640,9 +4640,11 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 			//////////////////////////////////////////////////////////// 아이템 배치 (유로폼)
 			// 라벨 및 체크박스
 			DGSetItemText (dialogID, LABEL_BEAM_SECTION, "보 단면");
-			DGSetItemText (dialogID, LABEL_BEAM_HEIGHT, "보 높이");
+			DGSetItemText (dialogID, LABEL_BEAM_LEFT_HEIGHT, "보 높이 (L)");
+			DGSetItemText (dialogID, LABEL_BEAM_RIGHT_HEIGHT, "보 높이 (R)");
 			DGSetItemText (dialogID, LABEL_BEAM_WIDTH, "보 너비");
-			DGSetItemText (dialogID, LABEL_TOTAL_HEIGHT, "총 높이");
+			DGSetItemText (dialogID, LABEL_TOTAL_LEFT_HEIGHT, "총 높이 (L)");
+			DGSetItemText (dialogID, LABEL_TOTAL_RIGHT_HEIGHT, "총 높이 (R)");
 			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, "총 너비");
 
 			DGSetItemText (dialogID, LABEL_REST_LSIDE, "나머지");
@@ -4729,106 +4731,131 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, 1);
 
-			//// 보 높이/너비 계산
-			//DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_HEIGHT, placingZone.areaHeight);
-			//DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_WIDTH, infoBeam.width);
+			// 보 높이/너비 계산
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_LEFT_HEIGHT, placingZone.areaHeight_Left);		// 보 높이 (L)
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_RIGHT_HEIGHT, placingZone.areaHeight_Right);		// 보 높이 (R)
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_WIDTH, placingZone.areaWidth_Bottom);			// 보 너비
 
-			//// 총 높이/너비 계산
-			//DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_HEIGHT, placingZone.areaHeight + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM));
-			//DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_WIDTH, infoBeam.width + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1)*2);
+			// 총 높이/너비 계산
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_LEFT_HEIGHT, placingZone.areaHeight_Left + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM));		// 총 높이 (L)
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_WIDTH, placingZone.areaWidth_Bottom + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1) + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE2));		// 총 너비
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_RIGHT_HEIGHT, placingZone.areaHeight_Right + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM));	// 총 높이 (R)
 
-			//// 부재별 체크박스-규격 설정
-			//(DGGetItemValLong (dialogID, CHECKBOX_WOOD_SIDE) == TRUE) ?		DGEnableItem (dialogID, EDITCONTROL_WOOD_SIDE)		:	DGDisableItem (dialogID, EDITCONTROL_WOOD_SIDE);
-			//(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_SIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_SIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_SIDE);
-			//(DGGetItemValLong (dialogID, CHECKBOX_FILLER_SIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_SIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_SIDE);
-			//(DGGetItemValLong (dialogID, CHECKBOX_FILLER_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_BOTTOM)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_BOTTOM);
-			//(DGGetItemValLong (dialogID, CHECKBOX_R_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_R_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_R_FORM_BOTTOM);
+			// 부재별 체크박스-규격 설정
+			(DGGetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_TIMBER_LSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_TIMBER_LSIDE);
+			(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_LSIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_LSIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_LSIDE);
+			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_LSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_LSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_LSIDE);
 
-			//// 측면 0번, 하부 0번 셀은 무조건 사용해야 함
-			//DGSetItemValLong (dialogID, CHECKBOX_B_FORM_SIDE, TRUE);
-			//DGSetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM, TRUE);
-			//DGDisableItem (dialogID, CHECKBOX_B_FORM_SIDE);
-			//DGDisableItem (dialogID, CHECKBOX_L_FORM_BOTTOM);
+			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_BOTTOM)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_BOTTOM);
+			(DGGetItemValLong (dialogID, CHECKBOX_R_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_R_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_R_FORM_BOTTOM);
 
-			//// 나머지 값 계산
-			//h1 = 0;
-			//h2 = 0;
-			//h3 = 0;
-			//h4 = 0;
-			//if (DGGetItemValLong (dialogID, CHECKBOX_WOOD_SIDE) == TRUE)	h1 = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
-			//if (DGGetItemValLong (dialogID, CHECKBOX_T_FORM_SIDE) == TRUE)	h2 = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
-			//if (DGGetItemValLong (dialogID, CHECKBOX_FILLER_SIDE) == TRUE)	h3 = DGGetItemValDouble (dialogID, EDITCONTROL_FILLER_SIDE);
-			//if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_SIDE) == TRUE)	h4 = atof (DGPopUpGetItemText (dialogID, POPUP_B_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_B_FORM_SIDE)).ToCStr ()) / 1000.0;
-			//hRest = placingZone.areaHeight + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM) - (h1 + h2 + h3 + h4);
-			//DGSetItemValDouble (dialogID, EDITCONTROL_REST_SIDE, hRest);
+			(DGGetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_TIMBER_RSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_TIMBER_RSIDE);
+			(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_RSIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_RSIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_RSIDE);
+			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_RSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_RSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_RSIDE);
 
-			//// 직접 변경해서는 안 되는 항목 잠그기
-			//DGDisableItem (dialogID, EDITCONTROL_GAP_SIDE2);
-			//DGDisableItem (dialogID, EDITCONTROL_BEAM_HEIGHT);
-			//DGDisableItem (dialogID, EDITCONTROL_BEAM_WIDTH);
-			//DGDisableItem (dialogID, EDITCONTROL_TOTAL_HEIGHT);
-			//DGDisableItem (dialogID, EDITCONTROL_TOTAL_WIDTH);
-			//DGDisableItem (dialogID, EDITCONTROL_REST_SIDE);
+			// 측면 0번, 하부 0번 셀은 무조건 사용해야 함
+			DGSetItemValLong (dialogID, CHECKBOX_B_FORM_LSIDE, TRUE);
+			DGSetItemValLong (dialogID, CHECKBOX_B_FORM_RSIDE, TRUE);
+			DGSetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM, TRUE);
+			DGDisableItem (dialogID, CHECKBOX_B_FORM_LSIDE);
+			DGDisableItem (dialogID, CHECKBOX_B_FORM_RSIDE);
+			DGDisableItem (dialogID, CHECKBOX_L_FORM_BOTTOM);
+
+			// 나머지 값 계산
+			h1 = 0;
+			h2 = 0;
+			h3 = 0;
+			h4 = 0;
+			if (DGGetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE) == TRUE)		h1 = DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_LSIDE);
+			if (DGGetItemValLong (dialogID, CHECKBOX_T_FORM_LSIDE) == TRUE)		h2 = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_LSIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_LSIDE)).ToCStr ()) / 1000.0;
+			if (DGGetItemValLong (dialogID, CHECKBOX_FILLER_LSIDE) == TRUE)		h3 = DGGetItemValDouble (dialogID, EDITCONTROL_FILLER_LSIDE);
+			if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_LSIDE) == TRUE)		h4 = atof (DGPopUpGetItemText (dialogID, POPUP_B_FORM_LSIDE, DGPopUpGetSelected (dialogID, POPUP_B_FORM_LSIDE)).ToCStr ()) / 1000.0;
+			hRest = placingZone.areaHeight_Left + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM) - (h1 + h2 + h3 + h4);
+			DGSetItemValDouble (dialogID, EDITCONTROL_REST_LSIDE, hRest);
+
+			h1 = 0;
+			h2 = 0;
+			h3 = 0;
+			h4 = 0;
+			if (DGGetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE) == TRUE)		h1 = DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_RSIDE);
+			if (DGGetItemValLong (dialogID, CHECKBOX_T_FORM_RSIDE) == TRUE)		h2 = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_RSIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_RSIDE)).ToCStr ()) / 1000.0;
+			if (DGGetItemValLong (dialogID, CHECKBOX_FILLER_RSIDE) == TRUE)		h3 = DGGetItemValDouble (dialogID, EDITCONTROL_FILLER_RSIDE);
+			if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_RSIDE) == TRUE)		h4 = atof (DGPopUpGetItemText (dialogID, POPUP_B_FORM_RSIDE, DGPopUpGetSelected (dialogID, POPUP_B_FORM_RSIDE)).ToCStr ()) / 1000.0;
+			hRest = placingZone.areaHeight_Right + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM) - (h1 + h2 + h3 + h4);
+			DGSetItemValDouble (dialogID, EDITCONTROL_REST_RSIDE, hRest);
+
+			// 직접 변경해서는 안 되는 항목 잠그기
+			DGDisableItem (dialogID, EDITCONTROL_GAP_SIDE2);
+			DGDisableItem (dialogID, EDITCONTROL_BEAM_LEFT_HEIGHT);
+			DGDisableItem (dialogID, EDITCONTROL_BEAM_RIGHT_HEIGHT);
+			DGDisableItem (dialogID, EDITCONTROL_BEAM_WIDTH);
+			DGDisableItem (dialogID, EDITCONTROL_TOTAL_LEFT_HEIGHT);
+			DGDisableItem (dialogID, EDITCONTROL_TOTAL_RIGHT_HEIGHT);
+			DGDisableItem (dialogID, EDITCONTROL_TOTAL_WIDTH);
+			DGDisableItem (dialogID, EDITCONTROL_REST_LSIDE);
+			DGDisableItem (dialogID, EDITCONTROL_REST_RSIDE);
 
 			break;
 		
 		case DG_MSG_CHANGE:
-			//// 나머지 값 계산
-			//h1 = 0;
-			//h2 = 0;
-			//h3 = 0;
-			//h4 = 0;
-			//if (DGGetItemValLong (dialogID, CHECKBOX_WOOD_SIDE) == TRUE)	h1 = DGGetItemValDouble (dialogID, EDITCONTROL_WOOD_SIDE);
-			//if (DGGetItemValLong (dialogID, CHECKBOX_T_FORM_SIDE) == TRUE)	h2 = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_SIDE)).ToCStr ()) / 1000.0;
-			//if (DGGetItemValLong (dialogID, CHECKBOX_FILLER_SIDE) == TRUE)	h3 = DGGetItemValDouble (dialogID, EDITCONTROL_FILLER_SIDE);
-			//if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_SIDE) == TRUE)	h4 = atof (DGPopUpGetItemText (dialogID, POPUP_B_FORM_SIDE, DGPopUpGetSelected (dialogID, POPUP_B_FORM_SIDE)).ToCStr ()) / 1000.0;
-			//hRest = placingZone.areaHeight + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM) - (h1 + h2 + h3 + h4);
-			//DGSetItemValDouble (dialogID, EDITCONTROL_REST_SIDE, hRest);
+			// 보 높이/너비 계산
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_LEFT_HEIGHT, placingZone.areaHeight_Left);		// 보 높이 (L)
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_RIGHT_HEIGHT, placingZone.areaHeight_Right);		// 보 높이 (R)
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_WIDTH, placingZone.areaWidth_Bottom);			// 보 너비
 
-			//switch (item) {
-			//	// 측면 간격은 동일함
-			//	// 총 높이/너비 계산
-			//	case EDITCONTROL_GAP_SIDE1:
-			//	case EDITCONTROL_GAP_BOTTOM:
-			//		DGSetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE2, DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1));
-			//		DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_HEIGHT, placingZone.areaHeight + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM));
-			//		DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_WIDTH, infoBeam.width + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1)*2);
+			// 총 높이/너비 계산
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_LEFT_HEIGHT, placingZone.areaHeight_Left + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM));		// 총 높이 (L)
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_WIDTH, placingZone.areaWidth_Bottom + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1) + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE2));		// 총 너비
+			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_RIGHT_HEIGHT, placingZone.areaHeight_Right + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM));	// 총 높이 (R)
 
-			//		break;
+			// 부재별 체크박스-규격 설정
+			(DGGetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_TIMBER_LSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_TIMBER_LSIDE);
+			(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_LSIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_LSIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_LSIDE);
+			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_LSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_LSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_LSIDE);
 
-			//	// 부재별 체크박스-규격 설정
-			//	case CHECKBOX_WOOD_SIDE:
-			//		(DGGetItemValLong (dialogID, CHECKBOX_WOOD_SIDE) == TRUE) ?		DGEnableItem (dialogID, EDITCONTROL_WOOD_SIDE)		:	DGDisableItem (dialogID, EDITCONTROL_WOOD_SIDE);
-			//		break;
-			//	case CHECKBOX_T_FORM_SIDE:
-			//		(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_SIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_SIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_SIDE);
-			//		break;
-			//	case CHECKBOX_FILLER_SIDE:
-			//		(DGGetItemValLong (dialogID, CHECKBOX_FILLER_SIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_SIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_SIDE);
-			//		break;
-			//	case CHECKBOX_B_FORM_SIDE:
-			//		(DGGetItemValLong (dialogID, CHECKBOX_B_FORM_SIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_B_FORM_SIDE)			:	DGDisableItem (dialogID, POPUP_B_FORM_SIDE);
-			//		break;
+			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_BOTTOM)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_BOTTOM);
+			(DGGetItemValLong (dialogID, CHECKBOX_R_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_R_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_R_FORM_BOTTOM);
 
-			//	case CHECKBOX_L_FORM_BOTTOM:
-			//		(DGGetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_L_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_L_FORM_BOTTOM);
-			//		break;
-			//	case CHECKBOX_FILLER_BOTTOM:
-			//		(DGGetItemValLong (dialogID, CHECKBOX_FILLER_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_BOTTOM)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_BOTTOM);
-			//		break;
-			//	case CHECKBOX_R_FORM_BOTTOM:
-			//		(DGGetItemValLong (dialogID, CHECKBOX_R_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_R_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_R_FORM_BOTTOM);
-			//		break;
-			//}
+			(DGGetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_TIMBER_RSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_TIMBER_RSIDE);
+			(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_RSIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_RSIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_RSIDE);
+			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_RSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_RSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_RSIDE);
+
+			// 나머지 값 계산
+			h1 = 0;
+			h2 = 0;
+			h3 = 0;
+			h4 = 0;
+			if (DGGetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE) == TRUE)		h1 = DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_LSIDE);
+			if (DGGetItemValLong (dialogID, CHECKBOX_T_FORM_LSIDE) == TRUE)		h2 = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_LSIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_LSIDE)).ToCStr ()) / 1000.0;
+			if (DGGetItemValLong (dialogID, CHECKBOX_FILLER_LSIDE) == TRUE)		h3 = DGGetItemValDouble (dialogID, EDITCONTROL_FILLER_LSIDE);
+			if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_LSIDE) == TRUE)		h4 = atof (DGPopUpGetItemText (dialogID, POPUP_B_FORM_LSIDE, DGPopUpGetSelected (dialogID, POPUP_B_FORM_LSIDE)).ToCStr ()) / 1000.0;
+			hRest = placingZone.areaHeight_Left + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM) - (h1 + h2 + h3 + h4);
+			DGSetItemValDouble (dialogID, EDITCONTROL_REST_LSIDE, hRest);
+
+			h1 = 0;
+			h2 = 0;
+			h3 = 0;
+			h4 = 0;
+			if (DGGetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE) == TRUE)		h1 = DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_RSIDE);
+			if (DGGetItemValLong (dialogID, CHECKBOX_T_FORM_RSIDE) == TRUE)		h2 = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_RSIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_RSIDE)).ToCStr ()) / 1000.0;
+			if (DGGetItemValLong (dialogID, CHECKBOX_FILLER_RSIDE) == TRUE)		h3 = DGGetItemValDouble (dialogID, EDITCONTROL_FILLER_RSIDE);
+			if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_RSIDE) == TRUE)		h4 = atof (DGPopUpGetItemText (dialogID, POPUP_B_FORM_RSIDE, DGPopUpGetSelected (dialogID, POPUP_B_FORM_RSIDE)).ToCStr ()) / 1000.0;
+			hRest = placingZone.areaHeight_Right + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM) - (h1 + h2 + h3 + h4);
+			DGSetItemValDouble (dialogID, EDITCONTROL_REST_RSIDE, hRest);
+
+			// 왼쪽 간격이 바뀌면 오른쪽 간격도 동일하게 바뀜
+			DGSetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE2, DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1));
 
 			// 레이어 같이 바뀜
-			if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
-				long selectedLayer;
+			if ((item >= USERCONTROL_LAYER_EUROFORM) && (item <= USERCONTROL_LAYER_BLUE_TIMBER_RAIL)) {
+				if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
+					long selectedLayer;
 
-				selectedLayer = DGGetItemValLong (dialogID, item);
+					selectedLayer = DGGetItemValLong (dialogID, item);
 
-				for (xx = USERCONTROL_LAYER_EUROFORM ; xx <= USERCONTROL_LAYER_BLUE_TIMBER_RAIL ; ++xx)
-					DGSetItemValLong (dialogID, xx, selectedLayer);
+					for (xx = USERCONTROL_LAYER_EUROFORM ; xx <= USERCONTROL_LAYER_BLUE_TIMBER_RAIL ; ++xx)
+						DGSetItemValLong (dialogID, xx, selectedLayer);
+				}
 			}
 
 			break;
@@ -4836,7 +4863,9 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 		case DG_MSG_CLICK:
 			switch (item) {
 				case DG_OK:
-					////////////////////////////////////////// 다이얼로그 창 정보를 입력 받음
+					//////////////////////////////////////// 다이얼로그 창 정보를 입력 받음
+					// !!!
+
 					//// 셀 설정 적용
 					//// 측면 [0]
 					//if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_SIDE) == TRUE) {
