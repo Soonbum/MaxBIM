@@ -10,7 +10,6 @@ namespace beamTableformPlacerDG {
 		EUROFORM,		// 유로폼v2.0
 		PLYWOOD,		// 합판v1.0
 		TIMBER,			// 목재v1.0
-		OUTCORNER_ANGLE,// 아웃코너앵글v1.0
 		FILLERSP		// 휠러스페이서v1.0
 	};
 
@@ -78,6 +77,8 @@ namespace beamTableformPlacerDG {
 		EDITCONTROL_FILLER_BOTTOM,
 		POPUP_R_FORM_BOTTOM,
 
+		BUTTON_COPY_TO_RIGHT,
+
 		ICON_LAYER,
 		LABEL_LAYER_SETTINGS,
 		CHECKBOX_LAYER_COUPLING,
@@ -108,24 +109,17 @@ namespace beamTableformPlacerDG {
 		BUTTON_AUTOSET
 	};
 
-	// !!!
 	enum	idxItems_2_forBeamPlacer {
-		DG_UPDATE_BUTTON		= 3,
-		DG_PREV,
-		LABEL_BEAM_SIDE_BOTTOM,
+		DG_PREV = 3,
 		LABEL_BEAM_SIDE,
-		LABEL_BEAM_BOTTOM,
-		AFTER_ALL
-	};
+		LABEL_TOTAL_LENGTH,
+		EDITCONTROL_TOTAL_LENGTH,
+		LABEL_REMAIN_LENGTH,
+		EDITCONTROL_REMAIN_LENGTH,
+		BUTTON_ADD_COL,
+		BUTTON_DEL_COL,
 
-	// !!!
-	enum	idxItems_3_forBeamPlacer {
-		LABEL_OBJ_TYPE			= 3,
-		POPUP_OBJ_TYPE,
-		CHECKBOX_SET_STANDARD,
-		LABEL_LENGTH,
-		EDITCONTROL_LENGTH,
-		POPUP_LENGTH
+		AFTER_ALL
 	};
 }
 
@@ -185,45 +179,37 @@ public:
 	double	gapBottom;			// 보와의 간격 (하부)
 
 	// 보 양끝 여백
-	double	marginBeginAtLSide;				// 측면 (좌측) 시작 부분 여백
-	double	marginEndAtLSide;				// 측면 (좌측) 끝 부분 여백
-	double	marginBeginAtRSide;				// 측면 (우측) 시작 부분 여백
-	double	marginEndAtRSide;				// 측면 (우측) 끝 부분 여백
-	double	marginBeginAtBottom;			// 하부 시작 부분 여백
-	double	marginEndAtBottom;				// 하부 끝 부분 여백
+	double	marginBegin;			// 시작 부분 여백
+	double	marginEnd;				// 끝 부분 여백
 
 	// 보 양끝 여백 채울지 여부
-	bool	bFillMarginBeginAtLSide;		// 측면 (좌측) 시작 부분 여백 채움
-	bool	bFillMarginEndAtLSide;			// 측면 (좌측) 끝 부분 여백 채움
-	bool	bFillMarginBeginAtRSide;		// 측면 (우측) 시작 부분 여백 채움
-	bool	bFillMarginEndAtRSide;			// 측면 (우측) 끝 부분 여백 채움
-	bool	bFillMarginBeginAtBottom;		// 하부 시작 부분 여백 채움
-	bool	bFillMarginEndAtBottom;			// 하부 끝 부분 여백 채움
+	bool	bFillMarginBegin;		// 시작 부분 여백 채움
+	bool	bFillMarginEnd;			// 끝 부분 여백 채움
 
 	// 셀 정보
 	CellForBeamTableform	cellsAtLSide [4][50];	// 왼쪽 측면 셀
 	CellForBeamTableform	cellsAtRSide [4][50];	// 오른쪽 측면 셀
 	CellForBeamTableform	cellsAtBottom [3][50];	// 하부 셀
-	short					nCellsAtLSide;			// 왼쪽 측면 셀 개수
-	short					nCellsAtRSide;			// 오른쪽 측면 셀 개수
-	short					nCellsAtBottom;			// 하부 셀 개수
+	short					nCells;					// 셀 개수
 
 public:
 	void		initCells (BeamTableformPlacingZone* placingZone);				// Cell 배열을 초기화함
-	void		addNewColAtLSide (BeamTableformPlacingZone* placingZone);		// 측면 왼쪽 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-	void		delLastColAtLSide (BeamTableformPlacingZone* placingZone);		// 측면 왼쪽 - 마지막 열을 삭제함
-	void		addNewColAtRSide (BeamTableformPlacingZone* placingZone);		// 측면 오른쪽 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-	void		delLastColAtRSide (BeamTableformPlacingZone* placingZone);		// 측면 오른쪽 - 마지막 열을 삭제함
-	void		addNewColAtBottom (BeamTableformPlacingZone* placingZone);		// 하부 - 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-	void		delLastColAtBottom (BeamTableformPlacingZone* placingZone);		// 하부 - 마지막 열을 삭제함
 	void		alignPlacingZone (BeamTableformPlacingZone* placingZone);		// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+	void		addNewCol (BeamTableformPlacingZone* placingZone);				// 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
+	void		delLastCol (BeamTableformPlacingZone* placingZone);				// 마지막 열을 삭제함
 	GSErrCode	fillRestAreas (BeamTableformPlacingZone* placingZone);			// 유로폼/휠러/각재를 채운 후 자투리 공간 채우기 (나머지 합판/각재 및 아웃코너앵글)
+
+public:
+	// 다이얼로그 동적 요소 인덱스 번호 저장
+	short	CHECKBOX_MARGIN_LEFT_END;
+	short	EDITCONTROL_MARGIN_LEFT_END;
+	short	CHECKBOX_MARGIN_RIGHT_END;
+	short	EDITCONTROL_MARGIN_RIGHT_END;
 };
 
 // 테이블폼폼 보 배치 함수
 GSErrCode	placeTableformOnBeam (void);		// 보에 테이블폼을 배치하는 통합 루틴
 short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
-short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
 
 #endif

@@ -1411,7 +1411,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	}
 
 	if (placingZone->marginCellsBasic [idxCell].bFill == true) {
-		if (plywoodMarginBasic > 0.110 - EPS) {
+		if (plywoodMarginBasic >= 0.090 - EPS) {
 			// 합판과 유로폼은 블루 클램프로 고정
 			if (placingZone->cells [idxCell].objType == TABLEFORM) {
 				for (yy = 0 ; yy < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++yy) {
@@ -1745,7 +1745,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 		if (placingZone->marginCellsExtra [idxCell].bFill == true) {
 			// 유로폼을 전혀 체크하지 않은 경우
-			if (plywoodMarginExtra > 0.110 - EPS) {
+			if (plywoodMarginExtra >= 0.090 - EPS) {
 				// 합판과 유로폼은 블루 클램프로 고정
 				if (placingZone->cells [idxCell].objType == TABLEFORM) {
 					for (yy = 0 ; yy < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++yy) {
@@ -2062,7 +2062,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	remainLengthIntStored = remainLengthInt = placingZone->cells [idxCell].horLen;
 
 	if (placingZone->marginCellsBasic [idxCell].bFill == true) {
-		if (plywoodMarginBasic > 0.110 - EPS) {
+		if (plywoodMarginBasic >= 0.090 - EPS) {
 			// 앞면 채우기
 			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ, placingZone->marginCellsBasic [idxCell].ang);
 
@@ -2150,7 +2150,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	remainLengthIntStored = remainLengthInt = placingZone->cells [idxCell].horLen;
 
 	if (placingZone->marginCellsExtra [idxCell].bFill == true) {
-		if (plywoodMarginExtra > 0.110 - EPS) {
+		if (plywoodMarginExtra >= 0.090 - EPS) {
 			// 뒷면 채우기
 			if (placingZone->bSingleSide == false) {
 				remainLengthInt = remainLengthIntStored;
@@ -7539,7 +7539,7 @@ short DGCALLBACK wallTableformPlacerHandler4 (short message, short dialogID, sho
 			if (iMarginSide == 1) {
 				if (placingZone.marginTopBasic < EPS) {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
-				} else if (placingZone.marginTopBasic < 0.110) {
+				} else if (placingZone.marginTopBasic < 0.090) {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
 				} else {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
@@ -7548,7 +7548,7 @@ short DGCALLBACK wallTableformPlacerHandler4 (short message, short dialogID, sho
 			} else {
 				if (placingZone.marginTopExtra < EPS) {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
-				} else if (placingZone.marginTopExtra < 0.110) {
+				} else if (placingZone.marginTopExtra < 0.090) {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
 				} else {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
@@ -7647,7 +7647,7 @@ short DGCALLBACK wallTableformPlacerHandler4 (short message, short dialogID, sho
 
 			if (changedPlywoodHeight < EPS) {
 				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
-			} else if (changedPlywoodHeight < 0.110) {
+			} else if (changedPlywoodHeight < 0.090) {
 				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
 			} else {
 				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");

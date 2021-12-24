@@ -384,35 +384,37 @@
 							NoIcon	"500"
 							NoIcon	"600"
 
-/* [ 49] */	Icon			215		368		 29		 14  	32502
-/* [ 50] */	LeftText		250		370		200		 23		LargePlain		"Layer Settings"
-/* [ 51] */	CheckBox		250		395		100		 23		LargePlain		"Coupling"
+/* [ 49] */	Button			295		 65		 70		 40		LargePlain		"Copy"
 
-/* [ 52] */	RightText		140		430		100		 23		LargePlain		"Euroform"
-/* [ 53] */	RightText		140		460		100		 23		LargePlain		"Plywood"
-/* [ 54] */	RightText		140		490		100		 23		LargePlain		"Wood"
-/* [ 55] */	RightText		140		520		100		 23		LargePlain		"OutcornerAngle"
-/* [ 56] */	RightText		140		550		100		 23		LargePlain		"Fillerspacer"
-/* [ 57] */	RightText		140		580		100		 23		LargePlain		"Rectpipe"
-/* [ 58] */	RightText		140		610		100		 23		LargePlain		"Rectpipe Hanger"
-/* [ 59] */	RightText		140		640		100		 23		LargePlain		"Pinbolt"
-/* [ 60] */	RightText		140		670		100		 23		LargePlain		"Euroform Hook"
-/* [ 61] */	RightText		140		700		100		 23		LargePlain		"Blue Clamp"
-/* [ 62] */	RightText		140		730		100		 23		LargePlain		"Blue Timber Rail"
+/* [ 50] */	Icon			215		368		 29		 14  	32502
+/* [ 51] */	LeftText		250		370		200		 23		LargePlain		"Layer Settings"
+/* [ 52] */	CheckBox		250		395		100		 23		LargePlain		"Coupling"
 
-/* [ 63] */	UserControl		250		424		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 64] */	UserControl		250		454		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
-/* [ 65] */	UserControl		250		484		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
-/* [ 66] */	UserControl		250		514		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
-/* [ 67] */	UserControl		250		544		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
-/* [ 68] */	UserControl		250		574		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE		*/
-/* [ 69] */	UserControl		250		604		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE HANGER	*/
-/* [ 70] */	UserControl		250		634		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
-/* [ 71] */	UserControl		250		664		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM HOOK	*/
-/* [ 72] */	UserControl		250		694		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE CLAMP		*/
-/* [ 73] */	UserControl		250		724		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE TIMBER RAIL	*/
+/* [ 53] */	RightText		140		430		100		 23		LargePlain		"Euroform"
+/* [ 54] */	RightText		140		460		100		 23		LargePlain		"Plywood"
+/* [ 55] */	RightText		140		490		100		 23		LargePlain		"Wood"
+/* [ 56] */	RightText		140		520		100		 23		LargePlain		"OutcornerAngle"
+/* [ 57] */	RightText		140		550		100		 23		LargePlain		"Fillerspacer"
+/* [ 58] */	RightText		140		580		100		 23		LargePlain		"Rectpipe"
+/* [ 59] */	RightText		140		610		100		 23		LargePlain		"Rectpipe Hanger"
+/* [ 60] */	RightText		140		640		100		 23		LargePlain		"Pinbolt"
+/* [ 61] */	RightText		140		670		100		 23		LargePlain		"Euroform Hook"
+/* [ 62] */	RightText		140		700		100		 23		LargePlain		"Blue Clamp"
+/* [ 63] */	RightText		140		730		100		 23		LargePlain		"Blue Timber Rail"
 
-/* [ 74] */	Button			250		770		160		 25		LargePlain		"Autoset"
+/* [ 64] */	UserControl		250		424		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 65] */	UserControl		250		454		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 66] */	UserControl		250		484		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD				*/
+/* [ 67] */	UserControl		250		514		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER_ANGLE	*/
+/* [ 68] */	UserControl		250		544		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
+/* [ 69] */	UserControl		250		574		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE		*/
+/* [ 70] */	UserControl		250		604		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE HANGER	*/
+/* [ 71] */	UserControl		250		634		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
+/* [ 72] */	UserControl		250		664		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM HOOK	*/
+/* [ 73] */	UserControl		250		694		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE CLAMP		*/
+/* [ 74] */	UserControl		250		724		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE TIMBER RAIL	*/
+
+/* [ 75] */	Button			250		770		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- place Insulation */
