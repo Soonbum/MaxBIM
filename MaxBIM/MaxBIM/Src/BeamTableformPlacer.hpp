@@ -195,14 +195,17 @@ public:
 public:
 	void		initCells (BeamTableformPlacingZone* placingZone);				// Cell 배열을 초기화함
 	void		alignPlacingZone (BeamTableformPlacingZone* placingZone);		// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-	void		addNewCol (BeamTableformPlacingZone* placingZone);				// 새로운 열을 추가함 (열 하나를 늘리고 추가된 열에 마지막 열 정보 복사)
-	void		delLastCol (BeamTableformPlacingZone* placingZone);				// 마지막 열을 삭제함
-	GSErrCode	fillRestAreas (BeamTableformPlacingZone* placingZone);			// 유로폼/휠러/각재를 채운 후 자투리 공간 채우기 (나머지 합판/각재 및 아웃코너앵글)
+	GSErrCode	placeBasicObjects (BeamTableformPlacingZone* placingZone);		// 유로폼/휠러/합판/각재를 배치함
+	GSErrCode	fillRestAreas (BeamTableformPlacingZone* placingZone);			// 유로폼/휠러/합판/각재를 채운 후 자투리 공간 채우기 (나머지 합판/각재 및 아웃코너앵글)
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
 	short	CHECKBOX_MARGIN_LEFT_END;
 	short	EDITCONTROL_MARGIN_LEFT_END;
+	short	BUTTON_OBJ [50];
+	short	POPUP_OBJ_TYPE [50];
+	short	POPUP_WIDTH [50];
+	short	EDITCONTROL_WIDTH [50];
 	short	CHECKBOX_MARGIN_RIGHT_END;
 	short	EDITCONTROL_MARGIN_RIGHT_END;
 };
