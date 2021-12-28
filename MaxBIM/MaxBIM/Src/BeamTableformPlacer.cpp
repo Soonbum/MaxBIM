@@ -80,7 +80,7 @@ GSErrCode	placeTableformOnBeam (void)
 		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
 	}
 	if (err == APIERR_NOSEL) {
-		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 보 (1개), 보 측면(전체/일부)을 덮는 모프 (1개)\n옵션 선택 (1): 보 반대쪽 측면을 덮는 모프 (1개)\n옵션 선택 (2): 보 아래쪽 면을 덮는 모프 (1개)", true);
+		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 보 (1개), 보 측면(전체/일부)을 덮는 모프 (1개)\n옵션 선택 (1): 보 반대쪽 측면을 덮는 모프 (1개)", true);
 	}
 	if (err != NoError) {
 		BMKillHandle ((GSHandle *) &selNeigs);
@@ -299,7 +299,6 @@ GSErrCode	placeTableformOnBeam (void)
 	placingZone.level = infoBeam.level;
 
 	// 배치 기준 시작점, 끝점 (영역 모프의 높이가 높은쪽이 기준이 됨)
-	//if ((infoMorph [0].rightTopZ - infoMorph [0].leftBottomZ) - (infoMorph [1].rightTopZ - infoMorph [1].leftBottomZ) > EPS) {
 	if (morph1_height > morph2_height) {
 		placingZone.begC.x = infoMorph [0].leftBottomX;
 		placingZone.begC.y = infoMorph [0].leftBottomY;
@@ -405,6 +404,61 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 	placingZone->marginBegin = 0.0;
 	placingZone->marginEnd = 0.0;
 
+	// 보 양끝 셀
+	placingZone->beginCellAtLSide.objType = PLYWOOD;
+	placingZone->beginCellAtLSide.leftBottomX = 0.0;
+	placingZone->beginCellAtLSide.leftBottomY = 0.0;
+	placingZone->beginCellAtLSide.leftBottomZ = 0.0;
+	placingZone->beginCellAtLSide.ang = 0.0;
+	placingZone->beginCellAtLSide.dirLen = 0.0;
+	placingZone->beginCellAtLSide.perLen = 0.0;
+	placingZone->beginCellAtLSide.attached_side = LEFT_SIDE;
+
+	placingZone->beginCellAtRSide.objType = PLYWOOD;
+	placingZone->beginCellAtRSide.leftBottomX = 0.0;
+	placingZone->beginCellAtRSide.leftBottomY = 0.0;
+	placingZone->beginCellAtRSide.leftBottomZ = 0.0;
+	placingZone->beginCellAtRSide.ang = 0.0;
+	placingZone->beginCellAtRSide.dirLen = 0.0;
+	placingZone->beginCellAtRSide.perLen = 0.0;
+	placingZone->beginCellAtRSide.attached_side = RIGHT_SIDE;
+
+	placingZone->beginCellAtBottom.objType = PLYWOOD;
+	placingZone->beginCellAtBottom.leftBottomX = 0.0;
+	placingZone->beginCellAtBottom.leftBottomY = 0.0;
+	placingZone->beginCellAtBottom.leftBottomZ = 0.0;
+	placingZone->beginCellAtBottom.ang = 0.0;
+	placingZone->beginCellAtBottom.dirLen = 0.0;
+	placingZone->beginCellAtBottom.perLen = 0.0;
+	placingZone->beginCellAtBottom.attached_side = BOTTOM_SIDE;
+
+	placingZone->endCellAtLSide.objType = PLYWOOD;
+	placingZone->endCellAtLSide.leftBottomX = 0.0;
+	placingZone->endCellAtLSide.leftBottomY = 0.0;
+	placingZone->endCellAtLSide.leftBottomZ = 0.0;
+	placingZone->endCellAtLSide.ang = 0.0;
+	placingZone->endCellAtLSide.dirLen = 0.0;
+	placingZone->endCellAtLSide.perLen = 0.0;
+	placingZone->endCellAtLSide.attached_side = LEFT_SIDE;
+
+	placingZone->endCellAtRSide.objType = PLYWOOD;
+	placingZone->endCellAtRSide.leftBottomX = 0.0;
+	placingZone->endCellAtRSide.leftBottomY = 0.0;
+	placingZone->endCellAtRSide.leftBottomZ = 0.0;
+	placingZone->endCellAtRSide.ang = 0.0;
+	placingZone->endCellAtRSide.dirLen = 0.0;
+	placingZone->endCellAtRSide.perLen = 0.0;
+	placingZone->endCellAtRSide.attached_side = RIGHT_SIDE;
+
+	placingZone->endCellAtBottom.objType = PLYWOOD;
+	placingZone->endCellAtBottom.leftBottomX = 0.0;
+	placingZone->endCellAtBottom.leftBottomY = 0.0;
+	placingZone->endCellAtBottom.leftBottomZ = 0.0;
+	placingZone->endCellAtBottom.ang = 0.0;
+	placingZone->endCellAtBottom.dirLen = 0.0;
+	placingZone->endCellAtBottom.perLen = 0.0;
+	placingZone->endCellAtBottom.attached_side = BOTTOM_SIDE;
+
 	// 셀 개수 초기화
 	placingZone->nCells = 0;
 
@@ -446,474 +500,180 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 	}
 }
 
+// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
+double	BeamTableformPlacingZone::getCellPositionLeftBottomX (BeamTableformPlacingZone* placingZone, short idx)
+{
+	double	distance = (placingZone->bFillMarginBegin == true) ? placingZone->marginBegin : 0;
+
+	for (short xx = 0 ; xx < idx ; ++xx)
+		distance += placingZone->cellsAtLSide [0][xx].dirLen;
+
+	return distance;
+}
+
 // Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 void	BeamTableformPlacingZone::alignPlacingZone (BeamTableformPlacingZone* placingZone)
 {
 	short	xx;
 
-	// !!!
-	// placingZone->begC
-	// placingZone->ang
-	// areaHeight_Left : 항상 높은쪽
-}
+	if (placingZone->bFillMarginBegin == true) {
+		placingZone->beginCellAtLSide.ang = placingZone->ang;
+		placingZone->beginCellAtLSide.leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
+		placingZone->beginCellAtLSide.leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->beginCellAtLSide.leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 
-//// 해당 셀 정보를 기반으로 라이브러리 배치
-//API_Guid	BeamTableformPlacingZone::placeLibPart (CellForBeamTableform objInfo)
-//{
-//	GSErrCode	err = NoError;
-//
-//	API_Element			element;
-//	API_ElementMemo		memo;
-//	API_LibPart			libPart;
-//
-//	const	GS::uchar_t* gsmName = NULL;
-//	double	aParam;
-//	double	bParam;
-//	Int32	addParNum;
-//
-//	double	validLength = 0.0;	// 유효한 길이인가?
-//	double	validWidth = 0.0;	// 유효한 너비인가?
-//
-//	char	tempString [20];
-//
-//	// GUID 변수 초기화
-//	element.header.guid.clock_seq_hi_and_reserved = 0;
-//	element.header.guid.clock_seq_low = 0;
-//	element.header.guid.node[0] = 0;
-//	element.header.guid.node[1] = 0;
-//	element.header.guid.node[2] = 0;
-//	element.header.guid.node[3] = 0;
-//	element.header.guid.node[4] = 0;
-//	element.header.guid.node[5] = 0;
-//	element.header.guid.time_hi_and_version = 0;
-//	element.header.guid.time_low = 0;
-//	element.header.guid.time_mid = 0;
-//
-//	// 라이브러리 이름 선택
-//	if (objInfo.objType == NONE)			return element.header.guid;
-//	if (objInfo.objType == EUROFORM)		gsmName = L("유로폼v2.0.gsm");
-//	if (objInfo.objType == PLYWOOD)			gsmName = L("합판v1.0.gsm");
-//	if (objInfo.objType == WOOD)			gsmName = L("목재v1.0.gsm");
-//	if (objInfo.objType == OUTCORNER_ANGLE)	gsmName = L("아웃코너앵글v1.0.gsm");
-//	if (objInfo.objType == FILLERSPACER)	gsmName = L("휠러스페이서v1.0.gsm");
-//
-//	// 객체 로드
-//	BNZeroMemory (&libPart, sizeof (libPart));
-//	GS::ucscpy (libPart.file_UName, gsmName);
-//	err = ACAPI_LibPart_Search (&libPart, false);
-//	if (err != NoError)
-//		return element.header.guid;
-//	if (libPart.location != NULL)
-//		delete libPart.location;
-//
-//	ACAPI_LibPart_Get (&libPart);
-//
-//	BNZeroMemory (&element, sizeof (API_Element));
-//	BNZeroMemory (&memo, sizeof (API_ElementMemo));
-//
-//	element.header.typeID = API_ObjectID;
-//	element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
-//
-//	ACAPI_Element_GetDefaults (&element, &memo);
-//	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
-//
-//	// 라이브러리의 파라미터 값 입력
-//	element.object.libInd = libPart.index;
-//	element.object.reflected = false;
-//	element.object.pos.x = objInfo.leftBottomX;
-//	element.object.pos.y = objInfo.leftBottomY;
-//	element.object.level = objInfo.leftBottomZ;
-//	element.object.xRatio = aParam;
-//	element.object.yRatio = bParam;
-//	element.object.angle = objInfo.ang;
-//	element.header.floorInd = infoBeam.floorInd;
-//
-//	if (objInfo.objType == EUROFORM) {
-//		element.header.layer = layerInd_Euroform;
-//
-//		// 규격품일 경우,
-//		if (objInfo.libPart.form.eu_stan_onoff == true) {
-//			setParameterByName (&memo, "eu_stan_onoff", 1.0);	// 규격폼 On/Off
-//
-//			// 너비
-//			sprintf (tempString, "%.0f", objInfo.libPart.form.eu_wid * 1000);
-//			setParameterByName (&memo, "eu_wid", tempString);
-//
-//			// 높이
-//			sprintf (tempString, "%.0f", objInfo.libPart.form.eu_hei * 1000);
-//			setParameterByName (&memo, "eu_hei", tempString);
-//
-//		// 비규격품일 경우,
-//		} else {
-//			setParameterByName (&memo, "eu_stan_onoff", 0.0);	// 규격폼 On/Off
-//			setParameterByName (&memo, "eu_wid2", objInfo.libPart.form.eu_wid2);	// 너비
-//			setParameterByName (&memo, "eu_hei2", objInfo.libPart.form.eu_hei2);	// 높이
-//		}
-//
-//		// 설치방향
-//		if (objInfo.libPart.form.u_ins_wall == true) {
-//			strcpy (tempString, "벽세우기");
-//		} else {
-//			strcpy (tempString, "벽눕히기");
-//			if (objInfo.libPart.form.eu_stan_onoff == true) {
-//				element.object.pos.x += ( objInfo.libPart.form.eu_hei * cos(objInfo.ang) );
-//				element.object.pos.y += ( objInfo.libPart.form.eu_hei * sin(objInfo.ang) );
-//				validLength = objInfo.libPart.form.eu_hei;
-//				validWidth = objInfo.libPart.form.eu_wid;
-//			} else {
-//				element.object.pos.x += ( objInfo.libPart.form.eu_hei2 * cos(objInfo.ang) );
-//				element.object.pos.y += ( objInfo.libPart.form.eu_hei2 * sin(objInfo.ang) );
-//				validLength = objInfo.libPart.form.eu_hei2;
-//				validWidth = objInfo.libPart.form.eu_wid2;
-//			}
-//		}
-//		setParameterByName (&memo, "u_ins", tempString);
-//
-//		// 회전X
-//		if (objInfo.attached_side == BOTTOM_SIDE) {
-//			setParameterByName (&memo, "ang_x", DegreeToRad (0.0));
-//		} else if (objInfo.attached_side == LEFT_SIDE) {
-//			setParameterByName (&memo, "ang_x", DegreeToRad (90.0));
-//			if (objInfo.libPart.form.eu_stan_onoff == true) {
-//				element.object.pos.x -= ( objInfo.libPart.form.eu_hei * cos(objInfo.ang) );
-//				element.object.pos.y -= ( objInfo.libPart.form.eu_hei * sin(objInfo.ang) );
-//			} else {
-//				element.object.pos.x -= ( objInfo.libPart.form.eu_hei2 * cos(objInfo.ang) );
-//				element.object.pos.y -= ( objInfo.libPart.form.eu_hei2 * sin(objInfo.ang) );
-//			}
-//			element.object.angle += DegreeToRad (180.0);
-//		} else {
-//			setParameterByName (&memo, "ang_x", DegreeToRad (90.0));
-//		}
-//
-//	} else if (objInfo.objType == FILLERSPACER) {
-//		element.header.layer = layerInd_Fillerspacer;
-//		setParameterByName (&memo, "f_thk", objInfo.libPart.fillersp.f_thk);	// 두께
-//		setParameterByName (&memo, "f_leng", objInfo.libPart.fillersp.f_leng);	// 길이
-//		setParameterByName (&memo, "f_ang", 0.0);								// 각도
-//
-//		// 회전
-//		if (objInfo.attached_side == BOTTOM_SIDE) {
-//			setParameterByName (&memo, "f_rota", DegreeToRad (90.0));
-//		} else if (objInfo.attached_side == LEFT_SIDE) {
-//			setParameterByName (&memo, "f_rota", DegreeToRad (0.0));
-//			element.object.pos.x += ( objInfo.libPart.fillersp.f_leng * cos(objInfo.ang) );
-//			element.object.pos.y += ( objInfo.libPart.fillersp.f_leng * sin(objInfo.ang) );
-//			element.object.angle += DegreeToRad (180.0);
-//		} else {
-//			setParameterByName (&memo, "f_rota", DegreeToRad (0.0));
-//		}
-//
-//		validLength = objInfo.libPart.fillersp.f_leng;
-//		validWidth = objInfo.libPart.fillersp.f_thk;
-//
-//	} else if (objInfo.objType == PLYWOOD) {
-//		element.header.layer = layerInd_Plywood;
-//		setParameterByName (&memo, "p_stan", "비규격");							// 규격
-//		setParameterByName (&memo, "w_dir", "벽눕히기");						// 설치방향
-//		setParameterByName (&memo, "p_thk", "11.5T");							// 두께
-//		setParameterByName (&memo, "p_wid", objInfo.libPart.plywood.p_wid);		// 가로
-//		setParameterByName (&memo, "p_leng", objInfo.libPart.plywood.p_leng);	// 세로
-//		setParameterByName (&memo, "sogak", 1.0);								// 제작틀 ON
-//		setParameterByName (&memo, "bInverseSogak", 1.0);						// 목재 조립방향 반전
-//		setParameterByName (&memo, "gap_a", 0.0);
-//		setParameterByName (&memo, "gap_b", 0.0);
-//		setParameterByName (&memo, "gap_c", 0.0);
-//		setParameterByName (&memo, "gap_d", 0.0);
-//		
-//		// 각도
-//		if (objInfo.attached_side == BOTTOM_SIDE) {
-//			setParameterByName (&memo, "p_ang", DegreeToRad (90.0));
-//		} else if (objInfo.attached_side == LEFT_SIDE) {
-//			setParameterByName (&memo, "p_ang", DegreeToRad (0.0));
-//			element.object.pos.x += ( objInfo.libPart.plywood.p_leng * cos(objInfo.ang) );
-//			element.object.pos.y += ( objInfo.libPart.plywood.p_leng * sin(objInfo.ang) );
-//			element.object.angle += DegreeToRad (180.0);
-//		}
-//
-//		validLength = objInfo.libPart.plywood.p_leng;
-//		validWidth = objInfo.libPart.plywood.p_wid;
-//
-//	} else if (objInfo.objType == WOOD) {
-//		element.header.layer = layerInd_Timber;
-//
-//		setParameterByName (&memo, "w_w", objInfo.libPart.wood.w_w);		// 두께
-//		setParameterByName (&memo, "w_h", objInfo.libPart.wood.w_h);		// 너비
-//		setParameterByName (&memo, "w_leng", objInfo.libPart.wood.w_leng);	// 길이
-//		setParameterByName (&memo, "w_ang", objInfo.libPart.wood.w_ang);	// 각도
-//	
-//		if (objInfo.attached_side == BOTTOM_SIDE) {
-//			setParameterByName (&memo, "w_ins", "바닥눕히기");				// 설치방향
-//		} else if (objInfo.attached_side == LEFT_SIDE) {
-//			setParameterByName (&memo, "w_ins", "벽세우기");				// 설치방향
-//			element.object.pos.x += ( objInfo.libPart.wood.w_leng * cos(objInfo.ang) );
-//			element.object.pos.y += ( objInfo.libPart.wood.w_leng * sin(objInfo.ang) );
-//			element.object.angle += DegreeToRad (180.0);
-//		} else {
-//			setParameterByName (&memo, "w_ins", "벽세우기");				// 설치방향
-//		}
-//
-//		validLength = objInfo.libPart.wood.w_leng;
-//		validWidth = objInfo.libPart.wood.w_h;
-//
-//	} else if (objInfo.objType == OUTCORNER_ANGLE) {
-//		element.header.layer = layerInd_OutcornerAngle;
-//		setParameterByName (&memo, "a_leng", objInfo.libPart.outangle.a_leng);	// 길이
-//		setParameterByName (&memo, "a_ang", 0.0);								// 각도
-//
-//		if (objInfo.attached_side == RIGHT_SIDE) {
-//			element.object.pos.x += ( objInfo.libPart.outangle.a_leng * cos(objInfo.ang) );
-//			element.object.pos.y += ( objInfo.libPart.outangle.a_leng * sin(objInfo.ang) );
-//			element.object.angle += DegreeToRad (180.0);
-//		}
-//
-//		validLength = objInfo.libPart.outangle.a_leng;
-//		validWidth = 0.064;
-//	}
-//
-//	// 객체 배치
-//	if ((objInfo.objType != NONE) && (validLength > EPS) && (validWidth > EPS))
-//		ACAPI_Element_Create (&element, &memo);
-//	ACAPI_DisposeElemMemoHdls (&memo);
-//
-//	return element.header.guid;
-//}
-//
-//// 라이브러리 배치: 유로폼 후크
-//API_Guid	BeamTableformPlacingZone::placeLibPart (EuroformHook params)
-//{
-//	GSErrCode	err = NoError;
-//	API_Element			elem;
-//	API_ElementMemo		memo;
-//	API_LibPart			libPart;
-//
-//	const GS::uchar_t*	gsmName = L("유로폼 후크.gsm");
-//	double				aParam;
-//	double				bParam;
-//	Int32				addParNum;
-//
-//	// 객체 로드
-//	BNZeroMemory (&elem, sizeof (API_Element));
-//	BNZeroMemory (&memo, sizeof (API_ElementMemo));
-//	BNZeroMemory (&libPart, sizeof (libPart));
-//	GS::ucscpy (libPart.file_UName, gsmName);
-//	err = ACAPI_LibPart_Search (&libPart, false);
-//	if (err != NoError)
-//		return elem.header.guid;
-//	if (libPart.location != NULL)
-//		delete libPart.location;
-//
-//	ACAPI_LibPart_Get (&libPart);
-//
-//	elem.header.typeID = API_ObjectID;
-//	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
-//
-//	ACAPI_Element_GetDefaults (&elem, &memo);
-//	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
-//
-//	// 라이브러리의 파라미터 값 입력
-//	elem.object.libInd = libPart.index;
-//	elem.object.reflected = false;
-//	elem.object.pos.x = params.leftBottomX;
-//	elem.object.pos.y = params.leftBottomY;
-//	elem.object.level = params.leftBottomZ;
-//	elem.object.xRatio = aParam;
-//	elem.object.yRatio = bParam;
-//	elem.object.angle = params.ang + DegreeToRad (180.0);
-//	elem.header.floorInd = infoBeam.floorInd;
-//
-//	// 레이어
-//	elem.header.layer = layerInd_EuroformHook;
-//
-//	setParameterByName (&memo, "rotationX", params.angX);			// X축 회전
-//	setParameterByName (&memo, "rotationY", params.angY);			// Y축 회전
-//	setParameterByName (&memo, "iHookType", params.iHookType);		// (1)수직-대, (2)수평-소
-//	setParameterByName (&memo, "iHookShape", params.iHookShape);	// (1)원형, (2)사각
-//
-//	// 객체 배치
-//	ACAPI_Element_Create (&elem, &memo);
-//	ACAPI_DisposeElemMemoHdls (&memo);
-//
-//	return	elem.header.guid;
-//}
-//
-//// 라이브러리 배치: 각파이프행거
-//API_Guid	BeamTableformPlacingZone::placeLibPart (RectPipeHanger params)
-//{
-//	GSErrCode	err = NoError;
-//	API_Element			elem;
-//	API_ElementMemo		memo;
-//	API_LibPart			libPart;
-//
-//	const GS::uchar_t*	gsmName = L("각파이프행거.gsm");
-//	double				aParam;
-//	double				bParam;
-//	Int32				addParNum;
-//
-//	// 객체 로드
-//	BNZeroMemory (&elem, sizeof (API_Element));
-//	BNZeroMemory (&memo, sizeof (API_ElementMemo));
-//	BNZeroMemory (&libPart, sizeof (libPart));
-//	GS::ucscpy (libPart.file_UName, gsmName);
-//	err = ACAPI_LibPart_Search (&libPart, false);
-//	if (err != NoError)
-//		return elem.header.guid;
-//	if (libPart.location != NULL)
-//		delete libPart.location;
-//
-//	ACAPI_LibPart_Get (&libPart);
-//
-//	elem.header.typeID = API_ObjectID;
-//	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
-//
-//	ACAPI_Element_GetDefaults (&elem, &memo);
-//	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
-//
-//	// 라이브러리의 파라미터 값 입력
-//	elem.object.libInd = libPart.index;
-//	elem.object.reflected = false;
-//	elem.object.pos.x = params.leftBottomX;
-//	elem.object.pos.y = params.leftBottomY;
-//	elem.object.level = params.leftBottomZ;
-//	elem.object.xRatio = aParam;
-//	elem.object.yRatio = bParam;
-//	elem.object.angle = params.ang - DegreeToRad (90);
-//	elem.header.floorInd = infoBeam.floorInd;
-//
-//	// 레이어
-//	elem.header.layer = layerInd_RectpipeHanger;
-//
-//	setParameterByName (&memo, "m_type", "각파이프행거");	// 품명
-//	setParameterByName (&memo, "angX", params.angX);		// 회전X
-//	setParameterByName (&memo, "angY", params.angY);		// 회전Y
-//
-//	// 객체 배치
-//	ACAPI_Element_Create (&elem, &memo);
-//	ACAPI_DisposeElemMemoHdls (&memo);
-//
-//	return	elem.header.guid;
-//}
-//
-//// 라이브러리 배치: 비계파이프
-//API_Guid	BeamTableformPlacingZone::placeLibPart (SquarePipe params)
-//{
-//	GSErrCode	err = NoError;
-//	API_Element			elem;
-//	API_ElementMemo		memo;
-//	API_LibPart			libPart;
-//
-//	const GS::uchar_t*	gsmName = L("비계파이프v1.0.gsm");
-//	double				aParam;
-//	double				bParam;
-//	Int32				addParNum;
-//
-//	// 객체 로드
-//	BNZeroMemory (&elem, sizeof (API_Element));
-//	BNZeroMemory (&memo, sizeof (API_ElementMemo));
-//	BNZeroMemory (&libPart, sizeof (libPart));
-//	GS::ucscpy (libPart.file_UName, gsmName);
-//	err = ACAPI_LibPart_Search (&libPart, false);
-//	if (err != NoError)
-//		return elem.header.guid;
-//	if (libPart.location != NULL)
-//		delete libPart.location;
-//
-//	ACAPI_LibPart_Get (&libPart);
-//
-//	elem.header.typeID = API_ObjectID;
-//	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
-//
-//	ACAPI_Element_GetDefaults (&elem, &memo);
-//	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
-//
-//	// 라이브러리의 파라미터 값 입력
-//	elem.object.libInd = libPart.index;
-//	elem.object.reflected = false;
-//	elem.object.pos.x = params.leftBottomX;
-//	elem.object.pos.y = params.leftBottomY;
-//	elem.object.level = params.leftBottomZ;
-//	elem.object.xRatio = aParam;
-//	elem.object.yRatio = bParam;
-//	elem.object.angle = params.ang;
-//	elem.header.floorInd = infoBeam.floorInd;
-//
-//	// 레이어
-//	elem.header.layer = layerInd_Rectpipe;
-//
-//	setParameterByName (&memo, "p_comp", "사각파이프");		// 사각파이프
-//	setParameterByName (&memo, "p_leng", params.length);	// 길이
-//	setParameterByName (&memo, "p_ang", params.pipeAng);	// 각도
-//
-//	// 객체 배치
-//	ACAPI_Element_Create (&elem, &memo);
-//	ACAPI_DisposeElemMemoHdls (&memo);
-//
-//	return	elem.header.guid;
-//}
-//
-//// 라이브러리 배치: 블루목심
-//API_Guid	BeamTableformPlacingZone::placeLibPart (BlueTimberRail params)
-//{
-//	GSErrCode	err = NoError;
-//	API_Element			elem;
-//	API_ElementMemo		memo;
-//	API_LibPart			libPart;
-//
-//	const GS::uchar_t*	gsmName = L("블루목심v1.0.gsm");
-//	double				aParam;
-//	double				bParam;
-//	Int32				addParNum;
-//
-//	// 객체 로드
-//	BNZeroMemory (&elem, sizeof (API_Element));
-//	BNZeroMemory (&memo, sizeof (API_ElementMemo));
-//	BNZeroMemory (&libPart, sizeof (libPart));
-//	GS::ucscpy (libPart.file_UName, gsmName);
-//	err = ACAPI_LibPart_Search (&libPart, false);
-//	if (err != NoError)
-//		return elem.header.guid;
-//	if (libPart.location != NULL)
-//		delete libPart.location;
-//
-//	ACAPI_LibPart_Get (&libPart);
-//
-//	elem.header.typeID = API_ObjectID;
-//	elem.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
-//
-//	ACAPI_Element_GetDefaults (&elem, &memo);
-//	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
-//
-//	// 라이브러리의 파라미터 값 입력
-//	elem.object.libInd = libPart.index;
-//	elem.object.reflected = false;
-//	elem.object.pos.x = params.leftBottomX;
-//	elem.object.pos.y = params.leftBottomY;
-//	elem.object.level = params.leftBottomZ;
-//	elem.object.xRatio = aParam;
-//	elem.object.yRatio = bParam;
-//	elem.object.angle = params.ang;
-//	elem.header.floorInd = infoBeam.floorInd;
-//
-//	// 레이어
-//	elem.header.layer = layerInd_TimberRail;
-//
-//	setParameterByName (&memo, "railType", params.railType);	// 규격
-//	setParameterByName (&memo, "angX", params.angX);			// 회전X
-//	setParameterByName (&memo, "angY", params.angY);			// 회전Y
-//
-//	// 객체 배치
-//	ACAPI_Element_Create (&elem, &memo);
-//	ACAPI_DisposeElemMemoHdls (&memo);
-//
-//	return	elem.header.guid;
-//}
+		placingZone->beginCellAtRSide.ang = placingZone->ang;
+		placingZone->beginCellAtRSide.leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
+		placingZone->beginCellAtRSide.leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->beginCellAtRSide.leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
+		moveIn3D ('y', placingZone->beginCellAtRSide.ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->beginCellAtRSide.leftBottomX, &placingZone->beginCellAtRSide.leftBottomY, &placingZone->beginCellAtRSide.leftBottomZ);
+
+		placingZone->beginCellAtBottom.ang = placingZone->ang;
+		placingZone->beginCellAtBottom.leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
+		placingZone->beginCellAtBottom.leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->beginCellAtBottom.leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
+	}
+
+	if (placingZone->bFillMarginEnd == true) {
+		placingZone->endCellAtLSide.ang = placingZone->ang;
+		placingZone->endCellAtLSide.leftBottomX = placingZone->endC.x + (placingZone->gapSide * sin(placingZone->ang));
+		placingZone->endCellAtLSide.leftBottomY = placingZone->endC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->endCellAtLSide.leftBottomZ = placingZone->endC.z - placingZone->gapBottom;
+
+		placingZone->endCellAtRSide.ang = placingZone->ang;
+		placingZone->endCellAtRSide.leftBottomX = placingZone->endC.x + (placingZone->gapSide * sin(placingZone->ang));
+		placingZone->endCellAtRSide.leftBottomY = placingZone->endC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->endCellAtRSide.leftBottomZ = placingZone->endC.z - placingZone->gapBottom;
+		moveIn3D ('y', placingZone->endCellAtRSide.ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->endCellAtRSide.leftBottomX, &placingZone->endCellAtRSide.leftBottomY, &placingZone->endCellAtRSide.leftBottomZ);
+
+		placingZone->endCellAtBottom.ang = placingZone->ang;
+		placingZone->endCellAtBottom.leftBottomX = placingZone->endC.x + (placingZone->gapSide * sin(placingZone->ang));
+		placingZone->endCellAtBottom.leftBottomY = placingZone->endC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->endCellAtBottom.leftBottomZ = placingZone->endC.z - placingZone->gapBottom;
+	}
+
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		// 측면 (아래쪽 유로폼 라인)
+		placingZone->cellsAtLSide [0][xx].ang = placingZone->ang;
+		placingZone->cellsAtLSide [0][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtLSide [0][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtLSide [0][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
+
+		placingZone->cellsAtRSide [0][xx].ang = placingZone->ang;
+		placingZone->cellsAtRSide [0][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtRSide [0][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtRSide [0][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
+		moveIn3D ('y', placingZone->cellsAtRSide [0][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->cellsAtRSide [0][xx].leftBottomX, &placingZone->cellsAtRSide [0][xx].leftBottomY, &placingZone->cellsAtRSide [0][xx].leftBottomZ);
+
+		// 측면 (휠러스페이서 라인)
+		placingZone->cellsAtLSide [1][xx].ang = placingZone->ang;
+		placingZone->cellsAtLSide [1][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtLSide [1][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtLSide [1][xx].leftBottomZ = placingZone->begC.z + placingZone->cellsAtLSide [0][xx].perLen - placingZone->gapBottom;
+
+		placingZone->cellsAtRSide [1][xx].ang = placingZone->ang;
+		placingZone->cellsAtRSide [1][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtRSide [1][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtRSide [1][xx].leftBottomZ = placingZone->begC.z + placingZone->cellsAtRSide [0][xx].perLen - placingZone->gapBottom;
+		moveIn3D ('y', placingZone->cellsAtRSide [1][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->cellsAtRSide [1][xx].leftBottomX, &placingZone->cellsAtRSide [1][xx].leftBottomY, &placingZone->cellsAtRSide [1][xx].leftBottomZ);
+
+		// 측면 (위쪽 유로폼 라인)
+		placingZone->cellsAtLSide [2][xx].ang = placingZone->ang;
+		placingZone->cellsAtLSide [2][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtLSide [2][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtLSide [2][xx].leftBottomZ = placingZone->begC.z + placingZone->cellsAtLSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen - placingZone->gapBottom;
+
+		placingZone->cellsAtRSide [2][xx].ang = placingZone->ang;
+		placingZone->cellsAtRSide [2][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtRSide [2][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtRSide [2][xx].leftBottomZ = placingZone->begC.z + placingZone->cellsAtRSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen - placingZone->gapBottom;
+		moveIn3D ('y', placingZone->cellsAtRSide [2][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->cellsAtRSide [2][xx].leftBottomX, &placingZone->cellsAtRSide [2][xx].leftBottomY, &placingZone->cellsAtRSide [2][xx].leftBottomZ);
+
+		// 측면 (각재 라인)
+		placingZone->cellsAtLSide [3][xx].ang = placingZone->ang;
+		placingZone->cellsAtLSide [3][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtLSide [3][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtLSide [3][xx].leftBottomZ = placingZone->begC.z + placingZone->cellsAtLSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen + placingZone->cellsAtLSide [2][xx].perLen - placingZone->gapBottom;
+
+		placingZone->cellsAtRSide [3][xx].ang = placingZone->ang;
+		placingZone->cellsAtRSide [3][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtRSide [3][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtRSide [3][xx].leftBottomZ = placingZone->begC.z + placingZone->cellsAtRSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen + placingZone->cellsAtLSide [2][xx].perLen - placingZone->gapBottom;
+		moveIn3D ('y', placingZone->cellsAtRSide [3][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
+
+		// 하부 (유로폼, 휠러, 유로폼)
+		placingZone->cellsAtBottom [0][xx].ang = placingZone->ang;
+		placingZone->cellsAtBottom [0][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtBottom [0][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtBottom [0][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
+
+		placingZone->cellsAtBottom [1][xx].ang = placingZone->ang;
+		placingZone->cellsAtBottom [1][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtBottom [1][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtBottom [1][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
+		moveIn3D ('y', placingZone->cellsAtBottom [1][xx].ang, placingZone->cellsAtBottom [0][xx].perLen, &placingZone->cellsAtBottom [1][xx].leftBottomX, &placingZone->cellsAtBottom [1][xx].leftBottomY, &placingZone->cellsAtBottom [1][xx].leftBottomZ);
+
+		placingZone->cellsAtBottom [2][xx].ang = placingZone->ang;
+		placingZone->cellsAtBottom [2][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * cos(placingZone->ang));
+		placingZone->cellsAtBottom [2][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang)) + (placingZone->getCellPositionLeftBottomX (placingZone, xx) * sin(placingZone->ang));
+		placingZone->cellsAtBottom [2][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
+		moveIn3D ('y', placingZone->cellsAtBottom [2][xx].ang, placingZone->cellsAtBottom [0][xx].perLen + placingZone->cellsAtBottom [1][xx].perLen, &placingZone->cellsAtBottom [2][xx].leftBottomX, &placingZone->cellsAtBottom [2][xx].leftBottomY, &placingZone->cellsAtBottom [2][xx].leftBottomZ);
+	}
+}
 
 // 유로폼/휠러/합판/각재를 배치함
 GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
 
-	// !!!
+	EasyObjectPlacement euroform, fillersp, plywood, timber;
+
+	if (placingZone->bFillMarginBegin == true) {
+		// 시작 부분 측면(L) 합판 배치
+		//placingZone->beginCellAtLSide;
+		plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+
+		//elemList.Push (plywood.placeObject (13,
+		//	"p_stan", APIParT_CString, "비규격",
+		//	"w_dir", APIParT_CString, "벽세우기",
+		//	"p_thk", APIParT_CString, "11.5T",
+		//	"p_wid", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
+		//	"p_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+		//	"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+		//	"sogak", APIParT_Boolean, "1.0",
+		//	"bInverseSogak", APIParT_Boolean, "1.0",
+		//	"prof", APIParT_CString, "소각",
+		//	"gap_a", APIParT_Length, format_string ("%.3f", 0.0),
+		//	"gap_b", APIParT_Length, format_string ("%.3f", 0.0),
+		//	"gap_c", APIParT_Length, format_string ("%.3f", 0.0),
+		//	"gap_d", APIParT_Length, format_string ("%.3f", 0.0)));
+
+		// 시작 부분 측면(R) 합판 배치
+		//placingZone->beginCellAtRSide;
+
+		// 시작 부분 하부 합판 배치
+		//placingZone->beginCellAtBottom;
+	}
+
+	if (placingZone->bFillMarginEnd == true) {
+		// 끝 부분 측면(L) 합판 배치
+		// 끝 부분 측면(R) 합판 배치
+		// 끝 부분 하부 합판 배치
+	}
+
+	// 측면(L) 유로폼 1단 배치
+	// 측면(L) 휠러스페이서 배치
+	// 측면(L) 유로폼 2단 배치
+	// 측면(L) 각재/합판 배치
+
+	// 측면(R) 유로폼 1단 배치
+	// 측면(R) 휠러스페이서 배치
+	// 측면(R) 유로폼 2단 배치
+	// 측면(R) 각재/합판 배치
+
+	// 하부 유로폼(L) 배치
+	// 하부 휠러스페이서 배치
+	// 하부 유로폼(R) 배치
 
 	return	err;
 }
@@ -4507,6 +4267,15 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					placingZone.gapSide = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1);
 					placingZone.gapBottom = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM);
 
+					///////////////////////////////////////////////////////////////// 보 양끝
+					placingZone.beginCellAtLSide.perLen = placingZone.areaHeight_Left + placingZone.gapBottom;
+					placingZone.beginCellAtRSide.perLen = placingZone.areaHeight_Right + placingZone.gapBottom;
+					placingZone.beginCellAtBottom.perLen = placingZone.areaWidth_Bottom + (placingZone.gapSide * 2);
+
+					placingZone.endCellAtLSide.perLen = placingZone.areaHeight_Left + placingZone.gapBottom;
+					placingZone.endCellAtRSide.perLen = placingZone.areaHeight_Right + placingZone.gapBottom;
+					placingZone.endCellAtBottom.perLen = placingZone.areaWidth_Bottom + (placingZone.gapSide * 2);
+
 					// 레이어 번호 저장
 					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
 					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
@@ -4563,7 +4332,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					DGSetItemValLong (dialogID, CHECKBOX_B_FORM_RSIDE, DGGetItemValLong (dialogID, CHECKBOX_B_FORM_LSIDE));
 					DGSetItemValLong (dialogID, CHECKBOX_FILLER_RSIDE, DGGetItemValLong (dialogID, CHECKBOX_FILLER_LSIDE));
 					DGSetItemValLong (dialogID, CHECKBOX_T_FORM_RSIDE, DGGetItemValLong (dialogID, CHECKBOX_T_FORM_LSIDE));
-					DGSetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE, DGGetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE));
+					DGSetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE, DGGetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE));
 
 					// 팝업 컨트롤 및 Edit컨트롤 값 복사
 					DGPopUpSelectItem (dialogID, POPUP_B_FORM_RSIDE, DGPopUpGetSelected (dialogID, POPUP_B_FORM_LSIDE));
@@ -4870,33 +4639,53 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 						placingZone.marginEnd = 0.0;
 					}
 
+					placingZone.beginCellAtLSide.dirLen = placingZone.marginBegin;
+					placingZone.beginCellAtRSide.dirLen = placingZone.marginBegin;
+					placingZone.beginCellAtBottom.dirLen = placingZone.marginBegin;
+
+					placingZone.endCellAtLSide.dirLen = placingZone.marginEnd;
+					placingZone.endCellAtRSide.dirLen = placingZone.marginEnd;
+					placingZone.endCellAtBottom.dirLen = placingZone.marginEnd;
+
 					// 셀 정보 저장
 					for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
 						if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == NONE + 1) {
 							placingZone.cellsAtLSide [0][xx].objType = NONE;
 							placingZone.cellsAtLSide [0][xx].dirLen = 0.0;
+							placingZone.cellsAtLSide [0][xx].perLen = 0.0;
 							placingZone.cellsAtLSide [1][xx].objType = NONE;
 							placingZone.cellsAtLSide [1][xx].dirLen = 0.0;
+							placingZone.cellsAtLSide [1][xx].perLen = 0.0;
 							placingZone.cellsAtLSide [2][xx].objType = NONE;
 							placingZone.cellsAtLSide [2][xx].dirLen = 0.0;
+							placingZone.cellsAtLSide [2][xx].perLen = 0.0;
 							placingZone.cellsAtLSide [3][xx].objType = NONE;
 							placingZone.cellsAtLSide [3][xx].dirLen = 0.0;
+							placingZone.cellsAtLSide [3][xx].perLen = 0.0;
 
 							placingZone.cellsAtRSide [0][xx].objType = NONE;
 							placingZone.cellsAtRSide [0][xx].dirLen = 0.0;
+							placingZone.cellsAtRSide [0][xx].perLen = 0.0;
 							placingZone.cellsAtRSide [1][xx].objType = NONE;
 							placingZone.cellsAtRSide [1][xx].dirLen = 0.0;
+							placingZone.cellsAtRSide [1][xx].perLen = 0.0;
 							placingZone.cellsAtRSide [2][xx].objType = NONE;
 							placingZone.cellsAtRSide [2][xx].dirLen = 0.0;
+							placingZone.cellsAtRSide [2][xx].perLen = 0.0;
 							placingZone.cellsAtRSide [3][xx].objType = NONE;
 							placingZone.cellsAtRSide [3][xx].dirLen = 0.0;
+							placingZone.cellsAtRSide [3][xx].perLen = 0.0;
 
 							placingZone.cellsAtBottom [0][xx].objType = NONE;
 							placingZone.cellsAtBottom [0][xx].dirLen = 0.0;
+							placingZone.cellsAtBottom [0][xx].perLen = 0.0;
 							placingZone.cellsAtBottom [1][xx].objType = NONE;
 							placingZone.cellsAtBottom [1][xx].dirLen = 0.0;
+							placingZone.cellsAtBottom [1][xx].perLen = 0.0;
 							placingZone.cellsAtBottom [2][xx].objType = NONE;
 							placingZone.cellsAtBottom [2][xx].dirLen = 0.0;
+							placingZone.cellsAtBottom [2][xx].perLen = 0.0;
+
 						} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM + 1) {
 							lengthDouble = atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000.0;
 
@@ -4913,33 +4702,45 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 							placingZone.cellsAtBottom [0][xx].dirLen = lengthDouble;
 							placingZone.cellsAtBottom [1][xx].dirLen = lengthDouble;
 							placingZone.cellsAtBottom [2][xx].dirLen = lengthDouble;
+
 						} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == PLYWOOD + 1) {
 							lengthDouble = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH [xx]);
 
 							placingZone.cellsAtLSide [0][xx].objType = PLYWOOD;
 							placingZone.cellsAtLSide [0][xx].dirLen = lengthDouble;
-							placingZone.cellsAtLSide [1][xx].objType = PLYWOOD;
-							placingZone.cellsAtLSide [1][xx].dirLen = lengthDouble;
-							placingZone.cellsAtLSide [2][xx].objType = PLYWOOD;
-							placingZone.cellsAtLSide [2][xx].dirLen = lengthDouble;
-							placingZone.cellsAtLSide [3][xx].objType = PLYWOOD;
-							placingZone.cellsAtLSide [3][xx].dirLen = lengthDouble;
+							placingZone.cellsAtLSide [0][xx].perLen = placingZone.areaHeight_Left + placingZone.gapBottom;
+							placingZone.cellsAtLSide [1][xx].objType = NONE;
+							placingZone.cellsAtLSide [1][xx].dirLen = 0.0;
+							placingZone.cellsAtLSide [1][xx].perLen = 0.0;
+							placingZone.cellsAtLSide [2][xx].objType = NONE;
+							placingZone.cellsAtLSide [2][xx].dirLen = 0.0;
+							placingZone.cellsAtLSide [2][xx].perLen = 0.0;
+							placingZone.cellsAtLSide [3][xx].objType = NONE;
+							placingZone.cellsAtLSide [3][xx].dirLen = 0.0;
+							placingZone.cellsAtLSide [3][xx].perLen = 0.0;
 
 							placingZone.cellsAtRSide [0][xx].objType = PLYWOOD;
 							placingZone.cellsAtRSide [0][xx].dirLen = lengthDouble;
-							placingZone.cellsAtRSide [1][xx].objType = PLYWOOD;
-							placingZone.cellsAtRSide [1][xx].dirLen = lengthDouble;
-							placingZone.cellsAtRSide [2][xx].objType = PLYWOOD;
-							placingZone.cellsAtRSide [2][xx].dirLen = lengthDouble;
-							placingZone.cellsAtRSide [3][xx].objType = PLYWOOD;
-							placingZone.cellsAtRSide [3][xx].dirLen = lengthDouble;
+							placingZone.cellsAtRSide [0][xx].perLen = placingZone.areaHeight_Right + placingZone.gapBottom;
+							placingZone.cellsAtRSide [1][xx].objType = NONE;
+							placingZone.cellsAtRSide [1][xx].dirLen = 0.0;
+							placingZone.cellsAtRSide [1][xx].perLen = 0.0;
+							placingZone.cellsAtRSide [2][xx].objType = NONE;
+							placingZone.cellsAtRSide [2][xx].dirLen = 0.0;
+							placingZone.cellsAtRSide [2][xx].perLen = 0.0;
+							placingZone.cellsAtRSide [3][xx].objType = NONE;
+							placingZone.cellsAtRSide [3][xx].dirLen = 0.0;
+							placingZone.cellsAtRSide [3][xx].perLen = 0.0;
 
 							placingZone.cellsAtBottom [0][xx].objType = PLYWOOD;
 							placingZone.cellsAtBottom [0][xx].dirLen = lengthDouble;
-							placingZone.cellsAtBottom [1][xx].objType = PLYWOOD;
-							placingZone.cellsAtBottom [1][xx].dirLen = lengthDouble;
-							placingZone.cellsAtBottom [2][xx].objType = PLYWOOD;
-							placingZone.cellsAtBottom [2][xx].dirLen = lengthDouble;
+							placingZone.cellsAtBottom [0][xx].perLen = placingZone.areaWidth_Bottom + (placingZone.gapSide * 2);
+							placingZone.cellsAtBottom [1][xx].objType = NONE;
+							placingZone.cellsAtBottom [1][xx].dirLen = 0.0;
+							placingZone.cellsAtBottom [1][xx].perLen = 0.0;
+							placingZone.cellsAtBottom [2][xx].objType = NONE;
+							placingZone.cellsAtBottom [2][xx].dirLen = 0.0;
+							placingZone.cellsAtBottom [2][xx].perLen = 0.0;
 						}
 					}
 

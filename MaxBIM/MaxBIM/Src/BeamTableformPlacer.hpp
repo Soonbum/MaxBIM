@@ -186,6 +186,14 @@ public:
 	bool	bFillMarginBegin;		// 시작 부분 여백 채움
 	bool	bFillMarginEnd;			// 끝 부분 여백 채움
 
+	// 보 양끝 셀
+	CellForBeamTableform	beginCellAtLSide;
+	CellForBeamTableform	beginCellAtRSide;
+	CellForBeamTableform	beginCellAtBottom;
+	CellForBeamTableform	endCellAtLSide;
+	CellForBeamTableform	endCellAtRSide;
+	CellForBeamTableform	endCellAtBottom;
+
 	// 셀 정보
 	CellForBeamTableform	cellsAtLSide [4][50];	// 왼쪽 측면 셀
 	CellForBeamTableform	cellsAtRSide [4][50];	// 오른쪽 측면 셀
@@ -193,10 +201,11 @@ public:
 	short					nCells;					// 셀 개수
 
 public:
-	void		initCells (BeamTableformPlacingZone* placingZone);				// Cell 배열을 초기화함
-	void		alignPlacingZone (BeamTableformPlacingZone* placingZone);		// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-	GSErrCode	placeBasicObjects (BeamTableformPlacingZone* placingZone);		// 유로폼/휠러/합판/각재를 배치함
-	GSErrCode	fillRestAreas (BeamTableformPlacingZone* placingZone);			// 유로폼/휠러/합판/각재를 채운 후 자투리 공간 채우기 (나머지 합판/각재 및 아웃코너앵글)
+	void		initCells (BeamTableformPlacingZone* placingZone);									// Cell 배열을 초기화함
+	double		getCellPositionLeftBottomX (BeamTableformPlacingZone* placingZone, short idx);		// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
+	void		alignPlacingZone (BeamTableformPlacingZone* placingZone);							// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+	GSErrCode	placeBasicObjects (BeamTableformPlacingZone* placingZone);							// 유로폼/휠러/합판/각재를 배치함
+	GSErrCode	fillRestAreas (BeamTableformPlacingZone* placingZone);								// 유로폼/휠러/합판/각재를 채운 후 자투리 공간 채우기 (나머지 합판/각재 및 아웃코너앵글)
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
