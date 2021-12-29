@@ -649,9 +649,9 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
 			elemList_Front.Push (incorner.placeObject (5,
 				"in_comp", APIParT_CString, "인코너판넬",
-				"wid_s", APIParT_Length, format_string ("%.3f", 0.100),
-				"leng_s", APIParT_Length, format_string ("%.3f", placingZone->lenLincorner),
-				"hei_s", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
+				"wid_s", APIParT_Length, format_string ("%f", 0.100),
+				"leng_s", APIParT_Length, format_string ("%f", placingZone->lenLincorner),
+				"hei_s", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
 				"dir_s", APIParT_CString, "세우기"));
 
 			moveIn3D ('z', incorner.radAng + DegreeToRad (90.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &incorner.posX, &incorner.posY, &incorner.posZ);
@@ -673,9 +673,9 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 
 				elemList_Back.Push (incorner.placeObject (5,
 					"in_comp", APIParT_CString, "인코너판넬",
-					"wid_s", APIParT_Length, format_string ("%.3f", placingZone->lenLincorner),
-					"leng_s", APIParT_Length, format_string ("%.3f", 0.100),
-					"hei_s", APIParT_Length, format_string ("%.3f", lengthDouble),
+					"wid_s", APIParT_Length, format_string ("%f", placingZone->lenLincorner),
+					"leng_s", APIParT_Length, format_string ("%f", 0.100),
+					"hei_s", APIParT_Length, format_string ("%f", lengthDouble),
 					"dir_s", APIParT_CString, "세우기"));
 
 				moveIn3D ('z', incorner.radAng, lengthDouble, &incorner.posX, &incorner.posY, &incorner.posZ);
@@ -725,9 +725,9 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
 			elemList_Front.Push (incorner.placeObject (5,
 				"in_comp", APIParT_CString, "인코너판넬",
-				"wid_s", APIParT_Length, format_string ("%.3f", placingZone->lenRincorner),
-				"leng_s", APIParT_Length, format_string ("%.3f", 0.100),
-				"hei_s", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
+				"wid_s", APIParT_Length, format_string ("%f", placingZone->lenRincorner),
+				"leng_s", APIParT_Length, format_string ("%f", 0.100),
+				"hei_s", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
 				"dir_s", APIParT_CString, "세우기"));
 
 			moveIn3D ('z', incorner.radAng + DegreeToRad (180.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &incorner.posX, &incorner.posY, &incorner.posZ);
@@ -750,9 +750,9 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 
 				elemList_Back.Push (incorner.placeObject (5,
 					"in_comp", APIParT_CString, "인코너판넬",
-					"wid_s", APIParT_Length, format_string ("%.3f", 0.100),
-					"leng_s", APIParT_Length, format_string ("%.3f", placingZone->lenRincorner),
-					"hei_s", APIParT_Length, format_string ("%.3f", lengthDouble),
+					"wid_s", APIParT_Length, format_string ("%f", 0.100),
+					"leng_s", APIParT_Length, format_string ("%f", placingZone->lenRincorner),
+					"hei_s", APIParT_Length, format_string ("%f", lengthDouble),
 					"dir_s", APIParT_CString, "세우기"));
 
 				moveIn3D ('z', incorner.radAng, lengthDouble, &incorner.posX, &incorner.posY, &incorner.posZ);
@@ -936,8 +936,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 					lengthInt = remainLengthInt;
 
 				elemList_Front.Push (fillersp.placeObject (4,
-					"f_thk", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
-					"f_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+					"f_thk", APIParT_Length, format_string ("%f", (double)placingZone->cells [xx].horLen / 1000.0),
+					"f_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0),
 					"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
 					"f_rota", APIParT_Angle, format_string ("%f", 0.0)));
 				moveIn3D ('z', fillersp.radAng, (double)lengthInt / 1000.0, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
@@ -998,8 +998,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 						lengthInt = remainLengthInt;
 
 					elemList_Back.Push (fillersp.placeObject (4,
-						"f_thk", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
-						"f_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+						"f_thk", APIParT_Length, format_string ("%f", (double)placingZone->cells [xx].horLen / 1000.0),
+						"f_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0),
 						"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
 						"f_rota", APIParT_Angle, format_string ("%f", 0.0)));
 					moveIn3D ('z', fillersp.radAng, (double)lengthInt / 1000.0, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
@@ -1056,16 +1056,16 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 					"p_stan", APIParT_CString, "비규격",
 					"w_dir", APIParT_CString, "벽세우기",
 					"p_thk", APIParT_CString, "11.5T",
-					"p_wid", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
-					"p_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+					"p_wid", APIParT_Length, format_string ("%f", (double)placingZone->cells [xx].horLen / 1000.0),
+					"p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0),
 					"p_ang", APIParT_Angle, format_string ("%f", 0.0),
 					"sogak", APIParT_Boolean, "1.0",
 					"bInverseSogak", APIParT_Boolean, "1.0",
 					"prof", APIParT_CString, "소각",
-					"gap_a", APIParT_Length, format_string ("%.3f", 0.0),
-					"gap_b", APIParT_Length, format_string ("%.3f", 0.0),
-					"gap_c", APIParT_Length, format_string ("%.3f", 0.0),
-					"gap_d", APIParT_Length, format_string ("%.3f", 0.0)));
+					"gap_a", APIParT_Length, format_string ("%f", 0.0),
+					"gap_b", APIParT_Length, format_string ("%f", 0.0),
+					"gap_c", APIParT_Length, format_string ("%f", 0.0),
+					"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 				moveIn3D ('z', plywood.radAng, (double)lengthInt / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 				remainLengthInt -= 2400;
@@ -1127,16 +1127,16 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 						"p_stan", APIParT_CString, "비규격",
 						"w_dir", APIParT_CString, "벽세우기",
 						"p_thk", APIParT_CString, "11.5T",
-						"p_wid", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
-						"p_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+						"p_wid", APIParT_Length, format_string ("%f", (double)placingZone->cells [xx].horLen / 1000.0),
+						"p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0),
 						"p_ang", APIParT_Angle, format_string ("%f", 0.0),
 						"sogak", APIParT_Boolean, "1.0",
 						"bInverseSogak", APIParT_Boolean, "1.0",
 						"prof", APIParT_CString, "소각",
-						"gap_a", APIParT_Length, format_string ("%.3f", 0.0),
-						"gap_b", APIParT_Length, format_string ("%.3f", 0.0),
-						"gap_c", APIParT_Length, format_string ("%.3f", 0.0),
-						"gap_d", APIParT_Length, format_string ("%.3f", 0.0)));
+						"gap_a", APIParT_Length, format_string ("%f", 0.0),
+						"gap_b", APIParT_Length, format_string ("%f", 0.0),
+						"gap_c", APIParT_Length, format_string ("%f", 0.0),
+						"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 					moveIn3D ('z', plywood.radAng, (double)lengthInt / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 					remainLengthInt -= 2400;
@@ -1191,9 +1191,9 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 
 				elemList_Front.Push (timber.placeObject (6,
 					"w_ins", APIParT_CString, "벽세우기",
-					"w_w", APIParT_Length, format_string ("%.3f", 0.050),
-					"w_h", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
-					"w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+					"w_w", APIParT_Length, format_string ("%f", 0.050),
+					"w_h", APIParT_Length, format_string ("%f", (double)placingZone->cells [xx].horLen / 1000.0),
+					"w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0),
 					"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
 					"torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 				moveIn3D ('z', timber.radAng, (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
@@ -1255,9 +1255,9 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 
 					elemList_Back.Push (timber.placeObject (6,
 						"w_ins", APIParT_CString, "벽세우기",
-						"w_w", APIParT_Length, format_string ("%.3f", 0.050),
-						"w_h", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
-						"w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
+						"w_w", APIParT_Length, format_string ("%f", 0.050),
+						"w_h", APIParT_Length, format_string ("%f", (double)placingZone->cells [xx].horLen / 1000.0),
+						"w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0),
 						"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
 						"torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 					moveIn3D ('z', timber.radAng, (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
@@ -1342,12 +1342,12 @@ GSErrCode	WallTableformPlacingZone::fillCornerRestAreas (WallTableformPlacingZon
 		moveIn3D ('x', plywood.radAng, -placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 		if (placingZone->lenLincorner > EPS)
-			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenLincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopBasic), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
+			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", placingZone->lenLincorner), "p_leng", APIParT_Length, format_string ("%f", placingZone->marginTopBasic), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0));
 
 		moveIn3D ('x', plywood.radAng, placingZone->horLen - placingZone->lenRincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 		if (placingZone->lenRincorner > EPS)
-			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenRincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopBasic), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
+			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", placingZone->lenRincorner), "p_leng", APIParT_Length, format_string ("%f", placingZone->marginTopBasic), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0));
 	}
 
 	// 뒷면 채우기
@@ -1357,12 +1357,12 @@ GSErrCode	WallTableformPlacingZone::fillCornerRestAreas (WallTableformPlacingZon
 		moveIn3D ('y', plywood.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 		if (placingZone->lenLincorner > EPS)
-			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenLincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopExtra), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
+			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", placingZone->lenLincorner), "p_leng", APIParT_Length, format_string ("%f", placingZone->marginTopExtra), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0));
 
 		moveIn3D ('x', plywood.radAng - DegreeToRad (180.0), placingZone->horLen - placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 		if (placingZone->lenRincorner > EPS)
-			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", placingZone->lenRincorner), "p_leng", APIParT_Length, format_string ("%.3f", placingZone->marginTopExtra), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0));
+			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", placingZone->lenRincorner), "p_leng", APIParT_Length, format_string ("%f", placingZone->marginTopExtra), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0));
 	}
 
 	return	err;
@@ -1417,102 +1417,102 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 				for (yy = 0 ; yy < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++yy) {
 					if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.100, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.100, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].tableInHor [yy] == 900) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].tableInHor [yy] == 1200) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					}
 				}
 			} else if (placingZone->cells [idxCell].objType == EUROFORM) {
 				if (placingZone->cells [idxCell].horLen == 600) {
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 				} else if (placingZone->cells [idxCell].horLen == 500) {
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 				} else if (placingZone->cells [idxCell].horLen == 450) {
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 				} else if (placingZone->cells [idxCell].horLen == 400) {
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.100, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 				} else if (placingZone->cells [idxCell].horLen == 300) {
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 				} else if (placingZone->cells [idxCell].horLen == 200) {
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.100, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 				} else if (placingZone->cells [idxCell].horLen == 900) {
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 				} else if (placingZone->cells [idxCell].horLen == 1200) {
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+					elemList_Front.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 					moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 				}
 			}
@@ -1751,102 +1751,102 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 					for (yy = 0 ; yy < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++yy) {
 						if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 						} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 						} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 						} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.100, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 						} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 						} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.100, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 						} else if (placingZone->cells [idxCell].tableInHor [yy] == 900) {
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 						} else if (placingZone->cells [idxCell].tableInHor [yy] == 1200) {
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+							elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 							moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 						}
 					}
 				} else if (placingZone->cells [idxCell].objType == EUROFORM) {
 					if (placingZone->cells [idxCell].horLen == 600) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].horLen == 500) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].horLen == 450) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].horLen == 400) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.100, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].horLen == 300) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].horLen == 200) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.100, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].horLen == 900) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					} else if (placingZone->cells [idxCell].horLen == 1200) {
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%.3f", 0.048)));
+						elemList_Back.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.048)));
 						moveIn3D ('x', blueClamp.radAng - DegreeToRad (270.0) - DegreeToRad (180.0), 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 					}
 				}
@@ -2075,7 +2075,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 					lengthInt = remainLengthInt;
 
 				if ((plywoodMarginBasic > EPS) && (lengthInt > 0))
-					elemList_Front.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", plywoodMarginBasic), "p_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0)));
+					elemList_Front.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginBasic), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
 				moveIn3D ('x', plywood.radAng, (double)lengthInt / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 				remainLengthInt -= 2400;
@@ -2098,7 +2098,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 						else
 							lengthInt = remainLengthInt;
 
-						elemList_Front.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%.3f", 0.050), "w_h", APIParT_Length, format_string ("%.3f", 0.080), "w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+						elemList_Front.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", 0.050), "w_h", APIParT_Length, format_string ("%f", 0.080), "w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 						moveIn3D ('x', timber.radAng, (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
 
 						remainLengthInt -= 3600;
@@ -2111,7 +2111,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 						else
 							lengthInt = remainLengthInt;
 
-						elemList_Front.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%.3f", 0.050), "w_h", APIParT_Length, format_string ("%.3f", 0.040), "w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+						elemList_Front.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", 0.050), "w_h", APIParT_Length, format_string ("%f", 0.040), "w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 						moveIn3D ('x', timber.radAng, (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
 
 						remainLengthInt -= 3600;
@@ -2124,7 +2124,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 						else
 							lengthInt = remainLengthInt;
 
-						elemList_Front.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%.3f", 0.080), "w_h", APIParT_Length, format_string ("%.3f", 0.050), "w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+						elemList_Front.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", 0.080), "w_h", APIParT_Length, format_string ("%f", 0.050), "w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 						moveIn3D ('x', timber.radAng, (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
 
 						remainLengthInt -= 3600;
@@ -2137,7 +2137,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 						else
 							lengthInt = remainLengthInt;
 
-						elemList_Front.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%.3f", 0.050), "w_h", APIParT_Length, format_string ("%.3f", 0.080), "w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+						elemList_Front.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", 0.050), "w_h", APIParT_Length, format_string ("%f", 0.080), "w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 						moveIn3D ('x', timber.radAng, (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
 
 						remainLengthInt -= 3600;
@@ -2167,7 +2167,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 					moveIn3D ('x', plywood.radAng, -(double)lengthInt / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
 					if ((plywoodMarginExtra > EPS) && (lengthInt > 0))
-						elemList_Back.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%.3f", plywoodMarginExtra), "p_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%.3f", 0.0), "gap_b", APIParT_Length, format_string ("%.3f", 0.0), "gap_c", APIParT_Length, format_string ("%.3f", 0.0), "gap_d", APIParT_Length, format_string ("%.3f", 0.0)));
+						elemList_Back.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginExtra), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
 
 					remainLengthInt -= 2400;
 				}
@@ -2194,7 +2194,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 								lengthInt = remainLengthInt;
 
 							moveIn3D ('x', timber.radAng - DegreeToRad (180.0), (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
-							elemList_Back.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%.3f", 0.050), "w_h", APIParT_Length, format_string ("%.3f", 0.080), "w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+							elemList_Back.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", 0.050), "w_h", APIParT_Length, format_string ("%f", 0.080), "w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 
 							remainLengthInt -= 3600;
 						}
@@ -2207,7 +2207,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 								lengthInt = remainLengthInt;
 
 							moveIn3D ('x', timber.radAng - DegreeToRad (180.0), (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
-							elemList_Back.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%.3f", 0.050), "w_h", APIParT_Length, format_string ("%.3f", 0.040), "w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+							elemList_Back.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", 0.050), "w_h", APIParT_Length, format_string ("%f", 0.040), "w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 
 							remainLengthInt -= 3600;
 						}
@@ -2220,7 +2220,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 								lengthInt = remainLengthInt;
 
 							moveIn3D ('x', timber.radAng - DegreeToRad (180.0), (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
-							elemList_Back.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%.3f", 0.080), "w_h", APIParT_Length, format_string ("%.3f", 0.050), "w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+							elemList_Back.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", 0.080), "w_h", APIParT_Length, format_string ("%f", 0.050), "w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 
 							remainLengthInt -= 3600;
 						}
@@ -2233,7 +2233,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 								lengthInt = remainLengthInt;
 
 							moveIn3D ('x', timber.radAng - DegreeToRad (180.0), (double)lengthInt / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
-							elemList_Back.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%.3f", 0.050), "w_h", APIParT_Length, format_string ("%.3f", 0.080), "w_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+							elemList_Back.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", 0.050), "w_h", APIParT_Length, format_string ("%f", 0.080), "w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 
 							remainLengthInt -= 3600;
 						}
@@ -2727,9 +2727,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('z', rectPipe.radAng, 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 하부
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('z', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('z', rectPipe.radAng, -0.031 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic - 1 ; ++xx) {								// 중간
@@ -2737,18 +2737,18 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 				moveIn3D ('z', rectPipe.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [xx] / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 				moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-				elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+				elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 				moveIn3D ('z', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-				elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+				elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 				moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			}
 		}
 		moveIn3D ('z', rectPipe.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [placingZone->nCellsInVerBasic - 1] / 1000.0 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 상부
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('z', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		// 수평 파이프 배치 - 뒷면
@@ -2760,9 +2760,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('z', rectPipe.radAng - DegreeToRad (180.0), 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 하부
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('z', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('z', rectPipe.radAng, -0.031 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			for (xx = 0 ; xx < varEnd - 1 ; ++xx) {														// 중간
@@ -2770,18 +2770,18 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 					moveIn3D ('z', rectPipe.radAng, (double)intPointer [xx] / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 					moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-					elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+					elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 					moveIn3D ('z', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-					elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+					elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 					moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 				}
 			}
 			moveIn3D ('z', rectPipe.radAng, (double)intPointer [varEnd - 1] / 1000.0 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 상부
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('z', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		}
 
@@ -2801,16 +2801,16 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('z', rectPipe.radAng, sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		moveIn3D ('x', rectPipe.radAng, -0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 왼쪽
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('x', rectPipe.radAng, 0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('x', rectPipe.radAng, -0.035 + 0.150 - (double)firstWidth / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		moveIn3D ('x', rectPipe.radAng, (double)(placingZone->cells [idxCell].horLen - lastWidth) / 1000.0 + 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		moveIn3D ('x', rectPipe.radAng, -0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 오른쪽
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('x', rectPipe.radAng, 0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 
 		// 수직 파이프 배치 - 뒷면
 		if (placingZone->bSingleSide == false) {
@@ -2829,16 +2829,16 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('z', rectPipe.radAng - DegreeToRad (180.0), sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('x', rectPipe.radAng, -0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 왼쪽
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('x', rectPipe.radAng, 0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('x', rectPipe.radAng, -0.035 + 0.150 - (double)lastWidth / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('x', rectPipe.radAng, (double)(placingZone->cells [idxCell].horLen - firstWidth) / 1000.0 + 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			moveIn3D ('x', rectPipe.radAng, -0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 오른쪽
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('x', rectPipe.radAng, 0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 		}
 
 		// 핀볼트 세트 - 앞면
@@ -2854,7 +2854,7 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 				moveIn3D ('x', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 				if (count > 0) {
 					pinbolt.radAng += DegreeToRad (90.0);
-					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 					pinbolt.radAng -= DegreeToRad (90.0);
 
 					--count;
@@ -2878,46 +2878,46 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 								// 좌측
 								if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 									moveIn3D ('x', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 									moveIn3D ('x', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
@@ -2926,45 +2926,45 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 								if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
@@ -2972,35 +2972,35 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 								// 나머지
 								if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 									moveIn3D ('x', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
 							}
@@ -3024,7 +3024,7 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 				moveIn3D ('x', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 				if (count > 0) {
 					pinbolt.radAng += DegreeToRad (90.0);
-					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 					pinbolt.radAng -= DegreeToRad (90.0);
 
 					--count;
@@ -3045,7 +3045,7 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 					moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 					if (count > 0) {
 						pinbolt.radAng += DegreeToRad (90.0);
-						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 						pinbolt.radAng -= DegreeToRad (90.0);
 
 						--count;
@@ -3069,46 +3069,46 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 									// 좌측
 									if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
@@ -3117,45 +3117,45 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 									if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
@@ -3163,35 +3163,35 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 									// 나머지
 									if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
 								}
@@ -3215,7 +3215,7 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 					moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 					if (count > 0) {
 						pinbolt.radAng += DegreeToRad (90.0);
-						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 						pinbolt.radAng -= DegreeToRad (90.0);
 
 						--count;
@@ -3232,9 +3232,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('y', join.radAng, -0.1815, &join.posX, &join.posY, &join.posZ);
 		moveIn3D ('z', join.radAng, 0.150, &join.posX, &join.posY, &join.posZ);
 
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('x', join.radAng, (double)(150 - firstWidth + placingZone->cells [idxCell].horLen - lastWidth + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
 
@@ -3242,9 +3242,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('y', join.radAng, -0.1815, &join.posX, &join.posY, &join.posZ);
 		moveIn3D ('z', join.radAng, (double)placingZone->cells [idxCell].verLenBasic / 1000.0 - 0.150, &join.posX, &join.posY, &join.posZ);
 
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('x', join.radAng, (double)(150 - firstWidth + placingZone->cells [idxCell].horLen - lastWidth + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		
 		// 결합철물 - 뒷면
 		if (placingZone->bSingleSide == false) {
@@ -3254,9 +3254,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('y', join.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1815, &join.posX, &join.posY, &join.posZ);
 			moveIn3D ('z', join.radAng - DegreeToRad (180.0), 0.150, &join.posX, &join.posY, &join.posZ);
 
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('x', join.radAng, -(double)(150 - firstWidth + placingZone->cells [idxCell].horLen - lastWidth + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 			join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
 
@@ -3264,9 +3264,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('y', join.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1815, &join.posX, &join.posY, &join.posZ);
 			moveIn3D ('z', join.radAng - DegreeToRad (180.0), (double)backHeight / 1000.0 - 0.150, &join.posX, &join.posY, &join.posZ);
 
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('x', join.radAng, -(double)(150 - firstWidth + placingZone->cells [idxCell].horLen - lastWidth + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		}
 
 		// 헤드피스 - 앞면
@@ -3277,9 +3277,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('y', headpiece.radAng, -0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
-		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('x', headpiece.radAng, (double)(-(firstWidth - 150 - 100) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 - 100)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
 
@@ -3307,9 +3307,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('y', headpiece.radAng, -0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('z', headpiece.radAng, (double)headpieceUpPosZ / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
-		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('x', headpiece.radAng, (double)(-(firstWidth - 150 - 100) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 - 100)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		// 헤드피스 - 뒷면
 		if (placingZone->bSingleSide == false) {
@@ -3319,9 +3319,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('y', headpiece.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 			moveIn3D ('z', headpiece.radAng - DegreeToRad (180.0), 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
-			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('x', headpiece.radAng - DegreeToRad (180.0), (double)(-(firstWidth - 150 + 100) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 + 100)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 			headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
 
@@ -3349,9 +3349,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('y', headpiece.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 			moveIn3D ('z', headpiece.radAng - DegreeToRad (180.0), (double)headpieceUpPosZ / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
-			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('x', headpiece.radAng - DegreeToRad (180.0), (double)(-(firstWidth - 150 + 100) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 + 100)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		}
 	} else {
 		// ================================================== 가로방향 (세로방향이 오른쪽으로 90도 누웠다고 생각하면 됨)
@@ -3372,9 +3372,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('x', rectPipe.radAng, 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		moveIn3D ('x', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 하부
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('x', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('x', rectPipe.radAng, -0.031 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		for (xx = 0 ; xx < realWidthCount - 1 ; ++xx) {												// 중간
@@ -3382,18 +3382,18 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 				moveIn3D ('x', rectPipe.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 				moveIn3D ('x', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-				elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+				elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 				moveIn3D ('x', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-				elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+				elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 				moveIn3D ('x', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			}
 		}
 		moveIn3D ('x', rectPipe.radAng, (double)placingZone->cells [idxCell].tableInHor [realWidthCount - 1] / 1000.0 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		moveIn3D ('x', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 상부
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('x', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('x', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		// 수평 파이프 배치 - 뒷면
@@ -3413,9 +3413,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 하부
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), -0.031 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			for (xx = 0 ; xx < realWidthCount - 1 ; ++xx) {												// 중간
@@ -3423,18 +3423,18 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 					moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 					moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-					elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+					elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 					moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-					elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+					elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 					moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 				}
 			}
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [realWidthCount - 1] / 1000.0 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 상부
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		}
 
@@ -3468,16 +3468,16 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('x', rectPipe.radAng, sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		moveIn3D ('z', rectPipe.radAng, 0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);		// 왼쪽
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('z', rectPipe.radAng, -0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('z', rectPipe.radAng, 0.035 - 0.150 + (double)topHeight / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		moveIn3D ('z', rectPipe.radAng, (double)(-placingZone->cells [idxCell].verLenBasic + bottomHeight) / 1000.0 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		moveIn3D ('z', rectPipe.radAng, 0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);		// 오른쪽
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('z', rectPipe.radAng, -0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 
 		// 테이블폼 내 바닥과 꼭대기 유로폼의 각각의 높이를 가져옴 (길이가 0인 유로폼은 통과) - 가로방향 (뒷면)
 		realHeightCount = 0;
@@ -3510,16 +3510,16 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].horLen / 1000.0 - sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('z', rectPipe.radAng, -0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 왼쪽
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('z', rectPipe.radAng, 0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('z', rectPipe.radAng, -0.035 + 0.150 - (double)bottomHeight / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('z', rectPipe.radAng, (double)(backHeight - topHeight) / 1000.0 + 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			moveIn3D ('z', rectPipe.radAng, -0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 오른쪽
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('z', rectPipe.radAng, 0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 
 			// 테이블폼 내 바닥과 꼭대기 유로폼의 각각의 높이를 가져옴 (길이가 0인 유로폼은 통과) - 가로방향 (앞면)
 			realHeightCount = 0;
@@ -3549,7 +3549,7 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 				moveIn3D ('z', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 				if (count > 0) {
 					pinbolt.radAng += DegreeToRad (90.0);
-					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 					pinbolt.radAng -= DegreeToRad (90.0);
 
 					--count;
@@ -3573,46 +3573,46 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 								// 우측
 								if (placingZone->cells [idxCell].tableInVerBasic [yy] == 600) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 500) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 450) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 400) {
 									moveIn3D ('z', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 300) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 200) {
 									moveIn3D ('z', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
@@ -3621,45 +3621,45 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 								if (placingZone->cells [idxCell].tableInVerBasic [yy] == 600) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 500) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 450) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 400) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 300) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 200) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
@@ -3667,35 +3667,35 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 								// 나머지
 								if (placingZone->cells [idxCell].tableInVerBasic [yy] == 600) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 500) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 450) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 400) {
 									moveIn3D ('z', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 300) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 200) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
 							}
@@ -3719,7 +3719,7 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 				moveIn3D ('z', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 				if (count > 0) {
 					pinbolt.radAng += DegreeToRad (90.0);
-					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 					pinbolt.radAng -= DegreeToRad (90.0);
 
 					--count;
@@ -3754,7 +3754,7 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 					moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), (double)intPointer [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 					if (count > 0) {
 						pinbolt.radAng += DegreeToRad (90.0);
-						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 						pinbolt.radAng -= DegreeToRad (90.0);
 
 						--count;
@@ -3778,46 +3778,46 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 									// 우측
 									if (intPointer [yy] == 600) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 500) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 450) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 400) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 300) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 200) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
@@ -3826,45 +3826,45 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 									if (intPointer [yy] == 600) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 500) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 450) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 400) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 300) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 200) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
@@ -3872,35 +3872,35 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 									// 나머지
 									if (intPointer [yy] == 600) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 500) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 450) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 400) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 300) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 200) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
 								}
@@ -3924,7 +3924,7 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 					moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), (double)intPointer [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 					if (count > 0) {
 						pinbolt.radAng += DegreeToRad (90.0);
-						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 						pinbolt.radAng -= DegreeToRad (90.0);
 
 						--count;
@@ -3955,9 +3955,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('y', join.radAng, -0.1815, &join.posX, &join.posY, &join.posZ);
 		moveIn3D ('x', join.radAng, 0.150, &join.posX, &join.posY, &join.posZ);
 
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('z', join.radAng, (double)(150 - bottomHeight + placingZone->cells [idxCell].verLenBasic - topHeight + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
 
@@ -3965,9 +3965,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('y', join.radAng, -0.1815, &join.posX, &join.posY, &join.posZ);
 		moveIn3D ('x', join.radAng, (double)placingZone->cells [idxCell].horLen / 1000.0 - 0.150, &join.posX, &join.posY, &join.posZ);
 
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('z', join.radAng, (double)(150 - bottomHeight + placingZone->cells [idxCell].verLenBasic - topHeight + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		
 		// 테이블폼 내 바닥과 꼭대기 유로폼의 각각의 높이를 가져옴 (길이가 0인 유로폼은 통과) - 가로방향 (뒷면)
 		realHeightCount = 0;
@@ -3991,9 +3991,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('y', join.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1815, &join.posX, &join.posY, &join.posZ);
 			moveIn3D ('x', join.radAng - DegreeToRad (180.0), 0.150, &join.posX, &join.posY, &join.posZ);
 
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('z', join.radAng, (double)(150 - bottomHeight + backHeight - topHeight + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 			join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
 
@@ -4001,9 +4001,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('y', join.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1815, &join.posX, &join.posY, &join.posZ);
 			moveIn3D ('x', join.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].horLen / 1000.0 - 0.150, &join.posX, &join.posY, &join.posZ);
 
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('z', join.radAng, (double)(150 - bottomHeight + backHeight - topHeight + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		}
 
 		// 테이블폼 내 바닥과 꼭대기 유로폼의 각각의 높이를 가져옴 (길이가 0인 유로폼은 통과) - 가로방향 (앞면)
@@ -4028,9 +4028,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('y', headpiece.radAng, -0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('x', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
-		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 		moveIn3D ('z', headpiece.radAng, (double)(-(bottomHeight - 150) + placingZone->cells [idxCell].verLenBasic + (-topHeight + 150)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 
 		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
 
@@ -4058,9 +4058,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('y', headpiece.radAng, -0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('x', headpiece.radAng, (double)(headpieceUpPosZ) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
-		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 		moveIn3D ('z', headpiece.radAng, (double)(-(bottomHeight - 150) + placingZone->cells [idxCell].verLenBasic + (-topHeight + 150)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 
 		// 테이블폼 내 바닥과 꼭대기 유로폼의 각각의 높이를 가져옴 (길이가 0인 유로폼은 통과) - 가로방향 (뒷면)
 		realHeightCount = 0;
@@ -4084,9 +4084,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('y', headpiece.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 			moveIn3D ('x', headpiece.radAng - DegreeToRad (180.0), 0.300 + 0.200, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
-			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 			moveIn3D ('z', headpiece.radAng - DegreeToRad (180.0), (double)(-(bottomHeight - 150) + backHeight + (-topHeight + 150)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 
 			headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
 
@@ -4114,9 +4114,9 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('y', headpiece.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 			moveIn3D ('x', headpiece.radAng - DegreeToRad (180.0), (double)(headpieceUpPosZ + 200) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
-			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 			moveIn3D ('z', headpiece.radAng - DegreeToRad (180.0), (double)(-(bottomHeight - 150) + backHeight + (-topHeight + 150)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%.3f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 		}
 	}
 
@@ -4217,19 +4217,19 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 		moveIn3D ('y', rectPipe.radAng, -(0.0635 + 0.025), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		moveIn3D ('z', rectPipe.radAng, 0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 		moveIn3D ('z', rectPipe.radAng, -0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic - 1 ; ++xx) {									// 중간
 			if (placingZone->cells [idxCell].tableInVerBasic [xx] > 0) {
 				moveIn3D ('z', rectPipe.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [xx] / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-				elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 			}
 		}
 		moveIn3D ('z', rectPipe.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [placingZone->nCellsInVerBasic - 1] / 1000.0 - 0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);		// 상부
 
-		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 
 		// 수평 파이프 배치 - 뒷면
 		if (placingZone->bSingleSide == false) {
@@ -4239,19 +4239,19 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 			moveIn3D ('y', rectPipe.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.0635 + 0.025), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			moveIn3D ('z', rectPipe.radAng - DegreeToRad (180.0), 0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 			moveIn3D ('z', rectPipe.radAng, -0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			for (xx = 0 ; xx < varEnd - 1 ; ++xx) {														// 중간
 				if (intPointer [xx] > 0) {
 					moveIn3D ('z', rectPipe.radAng, (double)intPointer [xx] / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-					elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 				}
 			}
 			moveIn3D ('z', rectPipe.radAng, (double)intPointer [varEnd - 1] / 1000.0 - 0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);		// 상부
 
-			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 		}
 
 		// 수직 파이프 배치 - 앞면
@@ -4269,11 +4269,11 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 		moveIn3D ('y', rectPipe.radAng, -(0.0635 + 0.075), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		moveIn3D ('z', rectPipe.radAng, sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 		moveIn3D ('x', rectPipe.radAng, 0.150 - (double)firstWidth / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		moveIn3D ('x', rectPipe.radAng, (double)(placingZone->cells [idxCell].horLen - lastWidth) / 1000.0 + 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 오른쪽
-		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 
 		// 수직 파이프 배치 - 뒷면
 		if (placingZone->bSingleSide == false) {
@@ -4291,11 +4291,11 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 			moveIn3D ('y', rectPipe.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.0635 + 0.075), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			moveIn3D ('z', rectPipe.radAng - DegreeToRad (180.0), sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 			moveIn3D ('x', rectPipe.radAng, 0.150 - (double)lastWidth / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('x', rectPipe.radAng, (double)(placingZone->cells [idxCell].horLen - firstWidth) / 1000.0 + 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);		// 오른쪽
-			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 		}
 
 		// 핀볼트 세트 - 앞면
@@ -4311,7 +4311,7 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 				moveIn3D ('x', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 				if (count > 0) {
 					pinbolt.radAng += DegreeToRad (90.0);
-					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 					pinbolt.radAng -= DegreeToRad (90.0);
 
 					--count;
@@ -4335,46 +4335,46 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 								// 좌측
 								if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 									moveIn3D ('x', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 									moveIn3D ('x', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
@@ -4383,45 +4383,45 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 								if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('x', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
@@ -4429,35 +4429,35 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 								// 나머지
 								if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 									moveIn3D ('x', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 									moveIn3D ('x', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('x', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
 							}
@@ -4481,7 +4481,7 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 				moveIn3D ('x', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 				if (count > 0) {
 					pinbolt.radAng += DegreeToRad (90.0);
-					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 					pinbolt.radAng -= DegreeToRad (90.0);
 
 					--count;
@@ -4502,7 +4502,7 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 					moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 					if (count > 0) {
 						pinbolt.radAng += DegreeToRad (90.0);
-						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 						pinbolt.radAng -= DegreeToRad (90.0);
 
 						--count;
@@ -4526,46 +4526,46 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 									// 좌측
 									if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
@@ -4574,45 +4574,45 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 									if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
@@ -4620,35 +4620,35 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 									// 나머지
 									if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 300) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (placingZone->cells [idxCell].tableInHor [yy] == 200) {
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
 								}
@@ -4672,7 +4672,7 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 					moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 					if (count > 0) {
 						pinbolt.radAng += DegreeToRad (90.0);
-						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 						pinbolt.radAng -= DegreeToRad (90.0);
 
 						--count;
@@ -4689,9 +4689,9 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 		moveIn3D ('y', join.radAng, -0.1815, &join.posX, &join.posY, &join.posZ);
 		moveIn3D ('z', join.radAng, 0.450, &join.posX, &join.posY, &join.posZ);
 
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('x', join.radAng, (double)(150 - firstWidth + placingZone->cells [idxCell].horLen - lastWidth + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
 
@@ -4699,9 +4699,9 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 		moveIn3D ('y', join.radAng, -0.1815, &join.posX, &join.posY, &join.posZ);
 		moveIn3D ('z', join.radAng, (double)placingZone->cells [idxCell].verLenBasic / 1000.0 - 0.450, &join.posX, &join.posY, &join.posZ);
 
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('x', join.radAng, (double)(150 - firstWidth + placingZone->cells [idxCell].horLen - lastWidth + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		
 		// 결합철물 - 뒷면
 		if (placingZone->bSingleSide == false) {
@@ -4711,9 +4711,9 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 			moveIn3D ('y', join.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1815, &join.posX, &join.posY, &join.posZ);
 			moveIn3D ('z', join.radAng - DegreeToRad (180.0), 0.450, &join.posX, &join.posY, &join.posZ);
 
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('x', join.radAng, -(double)(150 - firstWidth + placingZone->cells [idxCell].horLen - lastWidth + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 			join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
 
@@ -4721,9 +4721,9 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 			moveIn3D ('y', join.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1815, &join.posX, &join.posY, &join.posZ);
 			moveIn3D ('z', join.radAng - DegreeToRad (180.0), (double)backHeight / 1000.0 - 0.450, &join.posX, &join.posY, &join.posZ);
 
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('x', join.radAng, -(double)(150 - firstWidth + placingZone->cells [idxCell].horLen - lastWidth + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		}
 
 		// 헤드피스 - 앞면
@@ -4828,19 +4828,19 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 		moveIn3D ('y', rectPipe.radAng, -(0.0635 + 0.025), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		moveIn3D ('x', rectPipe.radAng, 0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 		moveIn3D ('x', rectPipe.radAng, -0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		for (xx = 0 ; xx < realWidthCount - 1 ; ++xx) {												// 중간
 			if (placingZone->cells [idxCell].tableInHor [xx] > 0) {
 				moveIn3D ('x', rectPipe.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-				elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 			}
 		}
 		moveIn3D ('x', rectPipe.radAng, (double)placingZone->cells [idxCell].tableInHor [realWidthCount - 1] / 1000.0 - 0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);		// 상부
 
-		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 
 		// 수평 파이프 배치 - 뒷면
 		if (placingZone->bSingleSide == false) {
@@ -4858,19 +4858,19 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 			moveIn3D ('y', rectPipe.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.0635 + 0.025), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), 0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), -0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			for (xx = 0 ; xx < realWidthCount - 1 ; ++xx) {												// 중간
 				if (placingZone->cells [idxCell].tableInHor [xx] > 0) {
 					moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-					elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 				}
 			}
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [realWidthCount - 1] / 1000.0 - 0.450, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 상부
 
-			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 		}
 
 		// 수직 파이프 배치 - 앞면
@@ -4902,11 +4902,11 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 		moveIn3D ('y', rectPipe.radAng, -(0.0635 + 0.075), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		moveIn3D ('x', rectPipe.radAng, sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 		moveIn3D ('z', rectPipe.radAng, -0.150 + (double)topHeight / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 		moveIn3D ('z', rectPipe.radAng, (double)(-placingZone->cells [idxCell].verLenBasic + bottomHeight) / 1000.0 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 오른쪽
-		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+		elemList_Front.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 
 		// 테이블폼 내 바닥과 꼭대기 유로폼의 각각의 높이를 가져옴 (길이가 0인 유로폼은 통과) - 가로방향 (뒷면)
 		realHeightCount = 0;
@@ -4938,11 +4938,11 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 			moveIn3D ('y', rectPipe.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.0635 + 0.075), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].horLen / 1000.0 - sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 			moveIn3D ('z', rectPipe.radAng, 0.150 - (double)bottomHeight / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('z', rectPipe.radAng, (double)(backHeight - topHeight) / 1000.0 + 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);		// 오른쪽
-			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%.3f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+			elemList_Back.Push (rectPipe.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 
 			// 테이블폼 내 바닥과 꼭대기 유로폼의 각각의 높이를 가져옴 (길이가 0인 유로폼은 통과) - 가로방향 (앞면)
 			realHeightCount = 0;
@@ -4972,7 +4972,7 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 				moveIn3D ('z', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 				if (count > 0) {
 					pinbolt.radAng += DegreeToRad (90.0);
-					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 					pinbolt.radAng -= DegreeToRad (90.0);
 
 					--count;
@@ -4996,46 +4996,46 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 								// 우측
 								if (placingZone->cells [idxCell].tableInVerBasic [yy] == 600) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 500) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 450) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 400) {
 									moveIn3D ('z', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 300) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 200) {
 									moveIn3D ('z', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
@@ -5044,45 +5044,45 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 								if (placingZone->cells [idxCell].tableInVerBasic [yy] == 600) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 500) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 450) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 400) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 300) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 200) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('y', pinbolt.radAng, -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('y', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									moveIn3D ('z', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
@@ -5090,35 +5090,35 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 								// 나머지
 								if (placingZone->cells [idxCell].tableInVerBasic [yy] == 600) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 500) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 450) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 400) {
 									moveIn3D ('z', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 300) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								} else if (placingZone->cells [idxCell].tableInVerBasic [yy] == 200) {
 									moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+										elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 									moveIn3D ('z', pinbolt.radAng, 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 								}
 							}
@@ -5142,7 +5142,7 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 				moveIn3D ('z', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 				if (count > 0) {
 					pinbolt.radAng += DegreeToRad (90.0);
-					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+					elemList_Front.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 					pinbolt.radAng -= DegreeToRad (90.0);
 
 					--count;
@@ -5177,7 +5177,7 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 					moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), (double)intPointer [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 					if (count > 0) {
 						pinbolt.radAng += DegreeToRad (90.0);
-						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 						pinbolt.radAng -= DegreeToRad (90.0);
 
 						--count;
@@ -5201,46 +5201,46 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 									// 우측
 									if (intPointer [yy] == 600) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 500) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 450) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 400) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 300) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 200) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
@@ -5249,45 +5249,45 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 									if (intPointer [yy] == 600) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 500) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 450) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 400) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 300) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 200) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 											moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), -0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
@@ -5295,35 +5295,35 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 									// 나머지
 									if (intPointer [yy] == 600) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.300, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 500) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 450) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 400) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.200, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.100, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 300) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									} else if (intPointer [yy] == 200) {
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
-											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+											elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 										moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 									}
 								}
@@ -5347,7 +5347,7 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 					moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), (double)intPointer [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 					if (count > 0) {
 						pinbolt.radAng += DegreeToRad (90.0);
-						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.100), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.010), "washer_pos", APIParT_Length, format_string ("%.3f", 0.050), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+						elemList_Back.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.100), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 						pinbolt.radAng -= DegreeToRad (90.0);
 
 						--count;
@@ -5378,9 +5378,9 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 		moveIn3D ('y', join.radAng, -0.1815, &join.posX, &join.posY, &join.posZ);
 		moveIn3D ('x', join.radAng, 0.450, &join.posX, &join.posY, &join.posZ);
 
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('z', join.radAng, (double)(150 - bottomHeight + placingZone->cells [idxCell].verLenBasic - topHeight + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
 
@@ -5388,9 +5388,9 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 		moveIn3D ('y', join.radAng, -0.1815, &join.posX, &join.posY, &join.posZ);
 		moveIn3D ('x', join.radAng, (double)placingZone->cells [idxCell].horLen / 1000.0 - 0.450, &join.posX, &join.posY, &join.posZ);
 
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('z', join.radAng, (double)(150 - bottomHeight + placingZone->cells [idxCell].verLenBasic - topHeight + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		
 		// 테이블폼 내 바닥과 꼭대기 유로폼의 각각의 높이를 가져옴 (길이가 0인 유로폼은 통과) - 가로방향 (뒷면)
 		realHeightCount = 0;
@@ -5414,9 +5414,9 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 			moveIn3D ('y', join.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1815, &join.posX, &join.posY, &join.posZ);
 			moveIn3D ('x', join.radAng - DegreeToRad (180.0), 0.450, &join.posX, &join.posY, &join.posZ);
 
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('z', join.radAng, (double)(150 - bottomHeight + backHeight - topHeight + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 			join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
 
@@ -5424,9 +5424,9 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 			moveIn3D ('y', join.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1815, &join.posX, &join.posY, &join.posZ);
 			moveIn3D ('x', join.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].horLen / 1000.0 - 0.450, &join.posX, &join.posY, &join.posZ);
 
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('z', join.radAng, (double)(150 - bottomHeight + backHeight - topHeight + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
-			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%.3f", 0.150), "bolt_dia", APIParT_Length, format_string ("%.3f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%.3f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%.3f", 0.108), "washer_size", APIParT_Length, format_string ("%.3f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		}
 
 		// 테이블폼 내 바닥과 꼭대기 유로폼의 각각의 높이를 가져옴 (길이가 0인 유로폼은 통과) - 가로방향 (앞면)

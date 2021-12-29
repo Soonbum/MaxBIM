@@ -316,14 +316,14 @@
 /* [ 21] */	RightText		480		 20		 70		 23		LargePlain		"T.R.Height"
 /* [ 22] */	LengthEdit		425		 13		 50		 25		LargePlain		"-5.0"	"5.0"	/* Total Right Height */
 
-/* [ 23] */	LeftText		 60		 70		 60		 25		LargePlain		"Rest"
-/* [ 24] */	CheckBox		 60		105		 60		 25		LargePlain		"Timber"
-/* [ 25] */	CheckBox		 60		140		 60		 25		LargePlain		"Form"
-/* [ 26] */	CheckBox		 60		175		 60		 25		LargePlain		"Filler"
-/* [ 27] */	CheckBox		 60		210		 60		 25		LargePlain		"Form"
+/* [ 23] */	LeftText		 50		 70		 70		 25		LargePlain		"Rest"
+/* [ 24] */	CheckBox		 50		105		 70		 25		LargePlain		"Timber"
+/* [ 25] */	CheckBox		 50		140		 70		 25		LargePlain		"Form"
+/* [ 26] */	CheckBox		 50		175		 70		 25		LargePlain		"Filler"
+/* [ 27] */	CheckBox		 50		210		 70		 25		LargePlain		"Form"
 
 /* [ 28] */	LengthEdit		125		 63		 60		 25		LargePlain		"-2.0"	"2.0"
-/* [ 29] */	LengthEdit		125		105		 60		 25		LargePlain		"-1.0"	"1.0"
+/* [ 29] */	LengthEdit		125		105		 60		 25		LargePlain		"0.005"	"1.0"
 /* [ 30] */	PopupControl	125		141		 60		 25		200		10
 							NoIcon	"200"
 							NoIcon	"300"
@@ -331,7 +331,7 @@
 							NoIcon	"450"
 							NoIcon	"500"
 							NoIcon	"600"
-/* [ 31] */	LengthEdit		125		175		 60		 25		LargePlain		"-1.0"	"1.0"
+/* [ 31] */	LengthEdit		125		175		 60		 25		LargePlain		"0.010"	"0.050"
 /* [ 32] */	PopupControl	125		208		 60		 25		200		10
 							NoIcon	"200"
 							NoIcon	"300"
@@ -341,7 +341,7 @@
 							NoIcon	"600"
 
 /* [ 33] */	LengthEdit		475		 63		 60		 25		LargePlain		"-2.0"	"2.0"
-/* [ 34] */	LengthEdit		475		105		 60		 25		LargePlain		"-1.0"	"1.0"
+/* [ 34] */	LengthEdit		475		105		 60		 25		LargePlain		"0.005"	"1.0"
 /* [ 35] */	PopupControl	475		141		 60		 25		200		10
 							NoIcon	"200"
 							NoIcon	"300"
@@ -349,7 +349,7 @@
 							NoIcon	"450"
 							NoIcon	"500"
 							NoIcon	"600"
-/* [ 36] */	LengthEdit		475		175		 60		 25		LargePlain		"-1.0"	"1.0"
+/* [ 36] */	LengthEdit		475		175		 60		 25		LargePlain		"0.010"	"0.050"
 /* [ 37] */	PopupControl	475		208		 60		 25		200		10
 							NoIcon	"200"
 							NoIcon	"300"
@@ -358,11 +358,11 @@
 							NoIcon	"500"
 							NoIcon	"600"
 
-/* [ 38] */	LeftText		540		 70		 60		 25		LargePlain		"Rest"
-/* [ 39] */	CheckBox		540		105		 60		 25		LargePlain		"Timber"
-/* [ 40] */	CheckBox		540		140		 60		 25		LargePlain		"Form"
-/* [ 41] */	CheckBox		540		175		 60		 25		LargePlain		"Filler"
-/* [ 42] */	CheckBox		540		210		 60		 25		LargePlain		"Form"
+/* [ 38] */	LeftText		540		 70		 70		 25		LargePlain		"Rest"
+/* [ 39] */	CheckBox		540		105		 70		 25		LargePlain		"Timber"
+/* [ 40] */	CheckBox		540		140		 70		 25		LargePlain		"Form"
+/* [ 41] */	CheckBox		540		175		 70		 25		LargePlain		"Filler"
+/* [ 42] */	CheckBox		540		210		 70		 25		LargePlain		"Form"
 
 /* [ 43] */	CheckBox		230		320		 60		 25		LargePlain		"Form"
 /* [ 44] */	CheckBox		300		320		 60		 25		LargePlain		"Filler"
@@ -375,7 +375,7 @@
 							NoIcon	"450"
 							NoIcon	"500"
 							NoIcon	"600"
-/* [ 47] */	LengthEdit		300		290		 60		 25		LargePlain		"-1.0"	"1.0"
+/* [ 47] */	LengthEdit		300		290		 60		 25		LargePlain		"0.010"	"0.050"
 /* [ 48] */	PopupControl	370		290		 60		 25		200		10
 							NoIcon	"200"
 							NoIcon	"300"

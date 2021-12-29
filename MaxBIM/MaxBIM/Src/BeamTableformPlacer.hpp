@@ -13,13 +13,6 @@ namespace beamTableformPlacerDG {
 		FILLERSP		// 휠러스페이서v1.0
 	};
 
-	// 부착되는 면 위치
-	enum	attachedSide {
-		BOTTOM_SIDE,
-		LEFT_SIDE,
-		RIGHT_SIDE
-	};
-
 	// 다이얼로그 항목 인덱스
 	enum	idxItems_1_forBeamPlacer {
 		LABEL_BEAM_SECTION		= 3,
@@ -155,7 +148,6 @@ struct CellForBeamTableform
 
 	double	dirLen;			// 보 설치방향 길이
 	double	perLen;			// 보 직각방향 길이
-	short	attached_side;	// 하부(BOTTOM_SIDE), 좌측면(LEFT_SIDE), 우측면(RIGHT_SIDE)
 };
 
 // 보 영역 정보

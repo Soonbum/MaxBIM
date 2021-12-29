@@ -412,7 +412,6 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 	placingZone->beginCellAtLSide.ang = 0.0;
 	placingZone->beginCellAtLSide.dirLen = 0.0;
 	placingZone->beginCellAtLSide.perLen = 0.0;
-	placingZone->beginCellAtLSide.attached_side = LEFT_SIDE;
 
 	placingZone->beginCellAtRSide.objType = PLYWOOD;
 	placingZone->beginCellAtRSide.leftBottomX = 0.0;
@@ -421,7 +420,6 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 	placingZone->beginCellAtRSide.ang = 0.0;
 	placingZone->beginCellAtRSide.dirLen = 0.0;
 	placingZone->beginCellAtRSide.perLen = 0.0;
-	placingZone->beginCellAtRSide.attached_side = RIGHT_SIDE;
 
 	placingZone->beginCellAtBottom.objType = PLYWOOD;
 	placingZone->beginCellAtBottom.leftBottomX = 0.0;
@@ -430,7 +428,6 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 	placingZone->beginCellAtBottom.ang = 0.0;
 	placingZone->beginCellAtBottom.dirLen = 0.0;
 	placingZone->beginCellAtBottom.perLen = 0.0;
-	placingZone->beginCellAtBottom.attached_side = BOTTOM_SIDE;
 
 	placingZone->endCellAtLSide.objType = PLYWOOD;
 	placingZone->endCellAtLSide.leftBottomX = 0.0;
@@ -439,7 +436,6 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 	placingZone->endCellAtLSide.ang = 0.0;
 	placingZone->endCellAtLSide.dirLen = 0.0;
 	placingZone->endCellAtLSide.perLen = 0.0;
-	placingZone->endCellAtLSide.attached_side = LEFT_SIDE;
 
 	placingZone->endCellAtRSide.objType = PLYWOOD;
 	placingZone->endCellAtRSide.leftBottomX = 0.0;
@@ -448,7 +444,6 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 	placingZone->endCellAtRSide.ang = 0.0;
 	placingZone->endCellAtRSide.dirLen = 0.0;
 	placingZone->endCellAtRSide.perLen = 0.0;
-	placingZone->endCellAtRSide.attached_side = RIGHT_SIDE;
 
 	placingZone->endCellAtBottom.objType = PLYWOOD;
 	placingZone->endCellAtBottom.leftBottomX = 0.0;
@@ -457,7 +452,6 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 	placingZone->endCellAtBottom.ang = 0.0;
 	placingZone->endCellAtBottom.dirLen = 0.0;
 	placingZone->endCellAtBottom.perLen = 0.0;
-	placingZone->endCellAtBottom.attached_side = BOTTOM_SIDE;
 
 	// 셀 개수 초기화
 	placingZone->nCells = 0;
@@ -472,7 +466,6 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 			placingZone->cellsAtLSide [xx][yy].ang = 0.0;
 			placingZone->cellsAtLSide [xx][yy].dirLen = 0.0;
 			placingZone->cellsAtLSide [xx][yy].perLen = 0.0;
-			placingZone->cellsAtLSide [xx][yy].attached_side = LEFT_SIDE;
 
 			placingZone->cellsAtRSide [xx][yy].objType = NONE;
 			placingZone->cellsAtRSide [xx][yy].leftBottomX = 0.0;
@@ -481,8 +474,6 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 			placingZone->cellsAtRSide [xx][yy].ang = 0.0;
 			placingZone->cellsAtRSide [xx][yy].dirLen = 0.0;
 			placingZone->cellsAtRSide [xx][yy].perLen = 0.0;
-			placingZone->cellsAtRSide [xx][yy].attached_side = RIGHT_SIDE;
-
 		}
 	}
 
@@ -495,7 +486,6 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 			placingZone->cellsAtBottom [xx][yy].ang = 0.0;
 			placingZone->cellsAtBottom [xx][yy].dirLen = 0.0;
 			placingZone->cellsAtBottom [xx][yy].perLen = 0.0;
-			placingZone->cellsAtBottom [xx][yy].attached_side = BOTTOM_SIDE;
 		}
 	}
 }
@@ -625,51 +615,237 @@ void	BeamTableformPlacingZone::alignPlacingZone (BeamTableformPlacingZone* placi
 GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
-
+	short	xx;
 	EasyObjectPlacement euroform, fillersp, plywood, timber;
 
 	if (placingZone->bFillMarginBegin == true) {
 		// 시작 부분 측면(L) 합판 배치
-		//placingZone->beginCellAtLSide;
-		plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
-
-		//elemList.Push (plywood.placeObject (13,
-		//	"p_stan", APIParT_CString, "비규격",
-		//	"w_dir", APIParT_CString, "벽세우기",
-		//	"p_thk", APIParT_CString, "11.5T",
-		//	"p_wid", APIParT_Length, format_string ("%.3f", (double)placingZone->cells [xx].horLen / 1000.0),
-		//	"p_leng", APIParT_Length, format_string ("%.3f", (double)lengthInt / 1000.0),
-		//	"p_ang", APIParT_Angle, format_string ("%f", 0.0),
-		//	"sogak", APIParT_Boolean, "1.0",
-		//	"bInverseSogak", APIParT_Boolean, "1.0",
-		//	"prof", APIParT_CString, "소각",
-		//	"gap_a", APIParT_Length, format_string ("%.3f", 0.0),
-		//	"gap_b", APIParT_Length, format_string ("%.3f", 0.0),
-		//	"gap_c", APIParT_Length, format_string ("%.3f", 0.0),
-		//	"gap_d", APIParT_Length, format_string ("%.3f", 0.0)));
+		if (placingZone->beginCellAtLSide.dirLen > EPS) {
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+			moveIn3D ('z', plywood.radAng, -0.0615, &plywood.posX, &plywood.posY, &plywood.posZ);
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽눕히기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", placingZone->beginCellAtLSide.perLen + 0.0615),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->beginCellAtLSide.dirLen),
+				"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+				"sogak", APIParT_Boolean, "1.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.070),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
+		}
 
 		// 시작 부분 측면(R) 합판 배치
-		//placingZone->beginCellAtRSide;
+		if (placingZone->beginCellAtRSide.dirLen > EPS) {
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->beginCellAtRSide.leftBottomX, placingZone->beginCellAtRSide.leftBottomY, placingZone->beginCellAtRSide.leftBottomZ, placingZone->beginCellAtRSide.ang);
+			moveIn3D ('x', plywood.radAng, beginCellAtRSide.dirLen, &plywood.posX, &plywood.posY, &plywood.posZ);
+			moveIn3D ('z', plywood.radAng, -0.0615, &plywood.posX, &plywood.posY, &plywood.posZ);
+			plywood.radAng += DegreeToRad (180.0);
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽눕히기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", placingZone->beginCellAtRSide.perLen + 0.0615),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->beginCellAtRSide.dirLen),
+				"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+				"sogak", APIParT_Boolean, "1.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.070),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
+		}
 
 		// 시작 부분 하부 합판 배치
-		//placingZone->beginCellAtBottom;
+		if (placingZone->beginCellAtBottom.dirLen > EPS) {
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->beginCellAtBottom.leftBottomX, placingZone->beginCellAtBottom.leftBottomY, placingZone->beginCellAtBottom.leftBottomZ, placingZone->beginCellAtBottom.ang);
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "바닥깔기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", placingZone->beginCellAtBottom.perLen),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->beginCellAtBottom.dirLen),
+				"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+				"sogak", APIParT_Boolean, "1.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.070),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
+		}
 	}
 
 	if (placingZone->bFillMarginEnd == true) {
 		// 끝 부분 측면(L) 합판 배치
+		if (placingZone->endCellAtLSide.dirLen > EPS) {
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->endCellAtLSide.leftBottomX, placingZone->endCellAtLSide.leftBottomY, placingZone->endCellAtLSide.leftBottomZ, placingZone->endCellAtLSide.ang);
+			moveIn3D ('x', plywood.radAng, -placingZone->endCellAtLSide.dirLen, &plywood.posX, &plywood.posY, &plywood.posZ);
+			moveIn3D ('z', plywood.radAng, -0.0615, &plywood.posX, &plywood.posY, &plywood.posZ);
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽눕히기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", placingZone->endCellAtLSide.perLen + 0.0615),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->endCellAtLSide.dirLen),
+				"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+				"sogak", APIParT_Boolean, "1.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.070),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
+		}
+
 		// 끝 부분 측면(R) 합판 배치
+		if (placingZone->endCellAtRSide.dirLen > EPS) {
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->endCellAtRSide.leftBottomX, placingZone->endCellAtRSide.leftBottomY, placingZone->endCellAtRSide.leftBottomZ, placingZone->endCellAtRSide.ang);
+			moveIn3D ('z', plywood.radAng, -0.0615, &plywood.posX, &plywood.posY, &plywood.posZ);
+			plywood.radAng += DegreeToRad (180.0);
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽눕히기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", placingZone->endCellAtRSide.perLen + 0.0615),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->endCellAtRSide.dirLen),
+				"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+				"sogak", APIParT_Boolean, "1.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.070),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
+		}
+
 		// 끝 부분 하부 합판 배치
+		if (placingZone->endCellAtBottom.dirLen > EPS) {
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->endCellAtBottom.leftBottomX, placingZone->endCellAtBottom.leftBottomY, placingZone->endCellAtBottom.leftBottomZ, placingZone->endCellAtBottom.ang);
+			moveIn3D ('x', plywood.radAng, -placingZone->endCellAtBottom.dirLen, &plywood.posX, &plywood.posY, &plywood.posZ);
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "바닥깔기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", placingZone->endCellAtBottom.perLen),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->endCellAtBottom.dirLen),
+				"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+				"sogak", APIParT_Boolean, "1.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.070),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
+		}
 	}
 
 	// 측면(L) 유로폼 1단 배치
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoBeam.floorInd, placingZone->cellsAtLSide [0][xx].leftBottomX, placingZone->cellsAtLSide [0][xx].leftBottomY, placingZone->cellsAtLSide [0][xx].leftBottomZ, placingZone->cellsAtLSide [0][xx].ang);
+
+		if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > EPS) && (placingZone->cellsAtLSide [0][xx].dirLen > EPS)) {
+			moveIn3D ('x', euroform.radAng, placingZone->cellsAtLSide [0][xx].dirLen, &euroform.posX, &euroform.posY, &euroform.posZ);
+			elemList.Push (euroform.placeObject (5,
+				"eu_stan_onoff", APIParT_Boolean, "1.0",
+				"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsAtLSide [0][xx].perLen * 1000.0),
+				"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsAtLSide [0][xx].dirLen * 1000.0),
+				"u_ins", APIParT_CString, "벽눕히기",
+				"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+		}
+	}
+
 	// 측면(L) 휠러스페이서 배치
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillerspacer, infoBeam.floorInd, placingZone->cellsAtLSide [1][xx].leftBottomX, placingZone->cellsAtLSide [1][xx].leftBottomY, placingZone->cellsAtLSide [1][xx].leftBottomZ, placingZone->cellsAtLSide [1][xx].ang);
+
+		if ((placingZone->cellsAtLSide [1][xx].objType == FILLERSP) && (placingZone->cellsAtLSide [1][xx].perLen > EPS) && (placingZone->cellsAtLSide [1][xx].dirLen > EPS)) {
+			elemList.Push (fillersp.placeObject (4,
+				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [1][xx].perLen),
+				"f_leng", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [1][xx].dirLen),
+				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"f_rota", APIParT_Angle, format_string ("%f", 0.0)));
+		}
+	}
+
 	// 측면(L) 유로폼 2단 배치
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoBeam.floorInd, placingZone->cellsAtLSide [2][xx].leftBottomX, placingZone->cellsAtLSide [2][xx].leftBottomY, placingZone->cellsAtLSide [2][xx].leftBottomZ, placingZone->cellsAtLSide [2][xx].ang);
+
+		if ((placingZone->cellsAtLSide [2][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [2][xx].perLen > EPS) && (placingZone->cellsAtLSide [2][xx].dirLen > EPS)) {
+			moveIn3D ('x', euroform.radAng, placingZone->cellsAtLSide [2][xx].dirLen, &euroform.posX, &euroform.posY, &euroform.posZ);
+			elemList.Push (euroform.placeObject (5,
+				"eu_stan_onoff", APIParT_Boolean, "1.0",
+				"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsAtLSide [2][xx].perLen * 1000.0),
+				"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsAtLSide [2][xx].dirLen * 1000.0),
+				"u_ins", APIParT_CString, "벽눕히기",
+				"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+		}
+	}
+
 	// 측면(L) 각재/합판 배치
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtLSide [3][xx].perLen > EPS) && (placingZone->cellsAtLSide [3][xx].dirLen > EPS)) {
+			if (placingZone->cellsAtLSide [3][xx].objType == TIMBER) {
+				// !!! 만약 너비가 40 미만이면 앞쪽으로 50*80
+					// 너비가 10 이면, 합판(너비 70 - 11.5T)을 1장 얹음
+					// 너비가 20 이면, 합판(너비 70 - 11.5T)을 2장 얹음
+					// 너비가 30 이면, 합판(너비 70 - 11.5T)을 3장 얹음
+				// !!! 만약 너비가 40 이면 50*40
+					// ...
+				// !!! 만약 너비가 50 이면 80*50
+					// 너비가 60 이면, 합판(너비 70 - 11.5T)을 1장 얹음
+					// 너비가 70 이면, 합판(너비 70 - 11.5T)을 2장 얹음
+				// !!! 만약 너비가 80 이면 80*80
+					// ...
+
+				timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoBeam.floorInd, placingZone->cellsAtLSide [3][xx].leftBottomX, placingZone->cellsAtLSide [3][xx].leftBottomY, placingZone->cellsAtLSide [3][xx].leftBottomZ, placingZone->cellsAtLSide [3][xx].ang);
+				//elemList.Push (timber.placeObject (6,
+				//	"w_ins", APIParT_CString, "벽세우기",
+				//	"w_w", APIParT_Length, format_string ("%f", 0.050),
+				//	"w_h", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [3][xx].perLen),
+				//	"w_leng", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [3][xx].dirLen),
+				//	"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				//	"torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+			} else if (placingZone->cellsAtLSide [3][xx].objType == PLYWOOD) {
+				// !!! 만약 너비가 90 이상이면
+
+				plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][xx].leftBottomX, placingZone->cellsAtLSide [3][xx].leftBottomY, placingZone->cellsAtLSide [3][xx].leftBottomZ, placingZone->cellsAtLSide [3][xx].ang);
+				//elemList.Push (plywood.placeObject (13,
+				//	"p_stan", APIParT_CString, "비규격",
+				//	"w_dir", APIParT_CString, "벽세우기",
+				//	"p_thk", APIParT_CString, "11.5T",
+				//	"p_wid", APIParT_Length, format_string ("%f", placingZone->endCellAtLSide.dirLen),
+				//	"p_leng", APIParT_Length, format_string ("%f", placingZone->endCellAtLSide.perLen + 0.0615),
+				//	"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+				//	"sogak", APIParT_Boolean, "1.0",
+				//	"bInverseSogak", APIParT_Boolean, "1.0",
+				//	"prof", APIParT_CString, "소각",
+				//	"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				//	"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				//	"gap_c", APIParT_Length, format_string ("%f", 0.070),
+				//	"gap_d", APIParT_Length, format_string ("%f", 0.0)));
+			}
+		}
+	}
+
+	// 측면(L) 전체 합판 배치 (측면 뷰에서 합판으로 선택한 경우)
+
+
+
 
 	// 측면(R) 유로폼 1단 배치
 	// 측면(R) 휠러스페이서 배치
 	// 측면(R) 유로폼 2단 배치
 	// 측면(R) 각재/합판 배치
+	// 측면(R) 전체 합판 배치 (측면 뷰에서 합판으로 선택한 경우)
 
 	// 하부 유로폼(L) 배치
 	// 하부 휠러스페이서 배치
@@ -3942,13 +4118,13 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, "총 너비");
 
 			DGSetItemText (dialogID, LABEL_REST_LSIDE, "나머지");
-			DGSetItemText (dialogID, CHECKBOX_TIMBER_LSIDE, "각재");
+			DGSetItemText (dialogID, CHECKBOX_TIMBER_LSIDE, "합판/각재");
 			DGSetItemText (dialogID, CHECKBOX_T_FORM_LSIDE, "유로폼");
 			DGSetItemText (dialogID, CHECKBOX_FILLER_LSIDE, "휠러");
 			DGSetItemText (dialogID, CHECKBOX_B_FORM_LSIDE, "유로폼");
 
 			DGSetItemText (dialogID, LABEL_REST_RSIDE, "나머지");
-			DGSetItemText (dialogID, CHECKBOX_TIMBER_RSIDE, "각재");
+			DGSetItemText (dialogID, CHECKBOX_TIMBER_RSIDE, "합판/각재");
 			DGSetItemText (dialogID, CHECKBOX_T_FORM_RSIDE, "유로폼");
 			DGSetItemText (dialogID, CHECKBOX_FILLER_RSIDE, "휠러");
 			DGSetItemText (dialogID, CHECKBOX_B_FORM_RSIDE, "유로폼");
@@ -4484,6 +4660,8 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 			// 왼쪽 끝 여백 길이 (Edit컨트롤)
 			placingZone.EDITCONTROL_MARGIN_LEFT_END = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 120, 140, 70, 25);
 			DGShowItem (dialogID, placingZone.EDITCONTROL_MARGIN_LEFT_END);
+			DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_MARGIN_LEFT_END, 0.090);
+			DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_MARGIN_LEFT_END, 2.440);
 
 			// 일반 셀: 기본값은 유로폼
 			itmPosX = 120+70;
@@ -4540,6 +4718,8 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 			// 오른쪽 끝 여백 길이 (Edit컨트롤)
 			placingZone.EDITCONTROL_MARGIN_RIGHT_END = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 140, 70, 25);
 			DGShowItem (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT_END);
+			DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT_END, 0.090);
+			DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT_END, 2.440);
 
 			// 총 길이, 남은 길이 표시
 			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_LENGTH, placingZone.beamLength);
@@ -4792,6 +4972,8 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 						DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [placingZone.nCells], DG_POPUP_BOTTOM, "0");
 						DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [placingZone.nCells], DG_POPUP_TOP);
 						DGShowItem (dialogID, placingZone.POPUP_WIDTH [placingZone.nCells]);
+						DGSetItemMinDouble (dialogID, placingZone.POPUP_WIDTH [placingZone.nCells], 0.090);
+						DGSetItemMaxDouble (dialogID, placingZone.POPUP_WIDTH [placingZone.nCells], 2.440);
 
 						// 너비 (팝업컨트롤) - 처음에는 숨김
 						placingZone.EDITCONTROL_WIDTH [placingZone.nCells] = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, itmPosY + 68, 70, 23);
@@ -4808,6 +4990,8 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 						// 오른쪽 끝 여백 길이 (Edit컨트롤)
 						placingZone.EDITCONTROL_MARGIN_RIGHT_END = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 140, 70, 25);
 						DGShowItem (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT_END);
+						DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT_END, 0.090);
+						DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT_END, 2.440);
 
 						++placingZone.nCells;
 						
