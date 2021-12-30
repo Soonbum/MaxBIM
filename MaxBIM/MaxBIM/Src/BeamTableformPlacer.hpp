@@ -197,7 +197,7 @@ public:
 	double		getCellPositionLeftBottomX (BeamTableformPlacingZone* placingZone, short idx);		// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
 	void		alignPlacingZone (BeamTableformPlacingZone* placingZone);							// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 	GSErrCode	placeBasicObjects (BeamTableformPlacingZone* placingZone);							// 유로폼/휠러/합판/각재를 배치함
-	GSErrCode	fillRestAreas (BeamTableformPlacingZone* placingZone);								// 유로폼/휠러/합판/각재를 채운 후 자투리 공간 채우기 (나머지 합판/각재 및 아웃코너앵글)
+	GSErrCode	placeAuxObjects (BeamTableformPlacingZone* placingZone);							// 유로폼/휠러/합판/각재를 채운 후 부자재 설치 (아웃코너앵글, 비계파이프, 핀볼트, 각파이프행거, 블루클램프, 블루목심)
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
