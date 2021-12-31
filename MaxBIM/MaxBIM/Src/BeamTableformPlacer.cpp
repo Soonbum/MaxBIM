@@ -616,12 +616,15 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 {
 	GSErrCode	err = NoError;
 	short	xx, yy;
+
+	// 원장 사이즈 길이 계산
 	bool	bShow;
 	bool	bBeginFound;
 	short	beginIndex, endIndex;
 	double	remainLengthDouble;
 	double	lengthDouble;
 
+	// 각재 및 합판 배치에 사용됨
 	double	horLen, verLen;
 	bool	bTimberMove;
 	double	moveZ;
@@ -795,14 +798,14 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 
 			fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillerspacer, infoBeam.floorInd, placingZone->cellsAtLSide [1][beginIndex].leftBottomX, placingZone->cellsAtLSide [1][beginIndex].leftBottomY, placingZone->cellsAtLSide [1][beginIndex].leftBottomZ, placingZone->cellsAtLSide [1][beginIndex].ang);
 
-			while (remainLengthDouble > 0) {
+			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 2.400)
 					lengthDouble = 2.400;
 				else
 					lengthDouble = remainLengthDouble;
 
 				elemList.Push (fillersp.placeObject (4,
-					"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [1][xx].perLen),
+					"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [1][beginIndex].perLen),
 					"f_leng", APIParT_Length, format_string ("%f", lengthDouble),
 					"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 					"f_rota", APIParT_Angle, format_string ("%f", 0.0)));
@@ -979,7 +982,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 							"p_stan", APIParT_CString, "비규격",
 							"w_dir", APIParT_CString, "벽눕히기",
 							"p_thk", APIParT_CString, "11.5T",
-							"p_wid", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [3][xx].perLen),
+							"p_wid", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [3][beginIndex].perLen),
 							"p_leng", APIParT_Length, format_string ("%f", lengthDouble),
 							"p_ang", APIParT_Angle, format_string ("%f", 0.0),
 							"sogak", APIParT_Boolean, "1.0",
@@ -1037,7 +1040,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 
 			fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillerspacer, infoBeam.floorInd, placingZone->cellsAtRSide [1][beginIndex].leftBottomX, placingZone->cellsAtRSide [1][beginIndex].leftBottomY, placingZone->cellsAtRSide [1][beginIndex].leftBottomZ, placingZone->cellsAtRSide [1][beginIndex].ang);
 
-			while (remainLengthDouble > 0) {
+			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 2.400)
 					lengthDouble = 2.400;
 				else
@@ -1046,7 +1049,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 				moveIn3D ('x', fillersp.radAng, lengthDouble, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 				fillersp.radAng += DegreeToRad (180.0);
 				elemList.Push (fillersp.placeObject (4,
-					"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsAtRSide [1][xx].perLen),
+					"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsAtRSide [1][beginIndex].perLen),
 					"f_leng", APIParT_Length, format_string ("%f", lengthDouble),
 					"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 					"f_rota", APIParT_Angle, format_string ("%f", 0.0)));
@@ -1233,7 +1236,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 							"p_stan", APIParT_CString, "비규격",
 							"w_dir", APIParT_CString, "벽눕히기",
 							"p_thk", APIParT_CString, "11.5T",
-							"p_wid", APIParT_Length, format_string ("%f", placingZone->cellsAtRSide [3][xx].perLen),
+							"p_wid", APIParT_Length, format_string ("%f", placingZone->cellsAtRSide [3][beginIndex].perLen),
 							"p_leng", APIParT_Length, format_string ("%f", lengthDouble),
 							"p_ang", APIParT_Angle, format_string ("%f", 0.0),
 							"sogak", APIParT_Boolean, "1.0",
@@ -1291,19 +1294,19 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 
 			fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillerspacer, infoBeam.floorInd, placingZone->cellsAtBottom [1][beginIndex].leftBottomX, placingZone->cellsAtBottom [1][beginIndex].leftBottomY, placingZone->cellsAtBottom [1][beginIndex].leftBottomZ, placingZone->cellsAtBottom [1][beginIndex].ang);
 
-			while (remainLengthDouble > 0) {
+			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 2.400)
 					lengthDouble = 2.400;
 				else
 					lengthDouble = remainLengthDouble;
 
-				moveIn3D ('y', fillersp.radAng, placingZone->cellsAtBottom [1][xx].perLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+				moveIn3D ('y', fillersp.radAng, placingZone->cellsAtBottom [1][beginIndex].perLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 				elemList.Push (fillersp.placeObject (4,
-					"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsAtBottom [1][xx].perLen),
+					"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsAtBottom [1][beginIndex].perLen),
 					"f_leng", APIParT_Length, format_string ("%f", lengthDouble),
 					"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 					"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
-				moveIn3D ('y', fillersp.radAng, -placingZone->cellsAtBottom [1][xx].perLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+				moveIn3D ('y', fillersp.radAng, -placingZone->cellsAtBottom [1][beginIndex].perLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 				moveIn3D ('x', fillersp.radAng, lengthDouble, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 
 				remainLengthDouble -= 2.400;
@@ -1396,26 +1399,424 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
+	short	xx, yy;
 
-	// 아웃코너앵글
-		// 원장 2400mm, 측면 유로폼 셀에 대해서만 부착
+	// 원장 사이즈 길이 계산
+	bool	bShow;
+	bool	bBeginFound;
+	short	beginIndex, endIndex;
+	double	remainLengthDouble;
+	double	lengthDouble;
+
+	EasyObjectPlacement outangle, hanger, blueClamp, blueTimberRail;
+	EasyObjectPlacement pipe1, pipe2;
+	EasyObjectPlacement pinbolt1, pinbolt2;
+
+	// 아웃코너앵글 (L) 배치
+	bShow = false;
+	bBeginFound = false;
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > 0) && (placingZone->cellsAtLSide [0][xx].dirLen > 0)) {
+			// 연속적인 인덱스 범위 찾기
+			if (bBeginFound == false) {
+				beginIndex = xx;
+				bBeginFound = true;
+				bShow = true;
+			}
+			endIndex = xx;
+		}
+
+		if (((placingZone->cellsAtLSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+			// 원장 사이즈 단위로 끊어서 배치하기
+			remainLengthDouble = 0.0;
+			for (yy = beginIndex ; yy <= endIndex ; ++yy)
+				remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
+
+			outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
+
+			while (remainLengthDouble > EPS) {
+				if (remainLengthDouble > 2.400)
+					lengthDouble = 2.400;
+				else
+					lengthDouble = remainLengthDouble;
+
+				moveIn3D ('x', outangle.radAng, lengthDouble, &outangle.posX, &outangle.posY, &outangle.posZ);
+				outangle.radAng += DegreeToRad (180.0);
+				elemList.Push (outangle.placeObject (2, "a_leng", APIParT_Length, format_string ("%f", lengthDouble), "a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+				outangle.radAng -= DegreeToRad (180.0);
+
+				remainLengthDouble -= 2.400;
+			}
+
+			bBeginFound = false;
+		}
+	}
+
+	// 아웃코너앵글 (R) 배치
+	bShow = false;
+	bBeginFound = false;
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtRSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx].perLen > 0) && (placingZone->cellsAtRSide [0][xx].dirLen > 0)) {
+			// 연속적인 인덱스 범위 찾기
+			if (bBeginFound == false) {
+				beginIndex = xx;
+				bBeginFound = true;
+				bShow = true;
+			}
+			endIndex = xx;
+		}
+
+		if (((placingZone->cellsAtRSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+			// 원장 사이즈 단위로 끊어서 배치하기
+			remainLengthDouble = 0.0;
+			for (yy = beginIndex ; yy <= endIndex ; ++yy)
+				remainLengthDouble += placingZone->cellsAtRSide [0][yy].dirLen;
+
+			outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
+
+			while (remainLengthDouble > EPS) {
+				if (remainLengthDouble > 2.400)
+					lengthDouble = 2.400;
+				else
+					lengthDouble = remainLengthDouble;
+
+				elemList.Push (outangle.placeObject (2, "a_leng", APIParT_Length, format_string ("%f", lengthDouble), "a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+				moveIn3D ('x', outangle.radAng, lengthDouble, &outangle.posX, &outangle.posY, &outangle.posZ);
+
+				remainLengthDouble -= 2.400;
+			}
+
+			bBeginFound = false;
+		}
+	}
+
+	// 비계파이프 (L) 배치 - 1단 유로폼
+	bShow = false;
+	bBeginFound = false;
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > 0) && (placingZone->cellsAtLSide [0][xx].dirLen > 0)) {
+			// 연속적인 인덱스 범위 찾기
+			if (bBeginFound == false) {
+				beginIndex = xx;
+				bBeginFound = true;
+				bShow = true;
+			}
+			endIndex = xx;
+		}
+
+		if (((placingZone->cellsAtLSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+			// 원장 사이즈 단위로 끊어서 배치하기
+			remainLengthDouble = 0.100;		// 양쪽으로 50mm 튀어나오므로 길이 미리 추가됨
+			for (yy = beginIndex ; yy <= endIndex ; ++yy)
+				remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
+
+			// 1번 파이프
+			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
+			moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3D ('y', pipe1.radAng, -0.0635 - 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.100, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.100, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+
+			// 2번 파이프
+			pipe2.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
+			moveIn3D ('x', pipe2.radAng, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			moveIn3D ('y', pipe2.radAng, -0.0635 - 0.025, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.600 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.500 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.450 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.400 - 0.100, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+
+			while (remainLengthDouble > EPS) {
+				if (remainLengthDouble > 6.000)
+					lengthDouble = 6.000;
+				else
+					lengthDouble = remainLengthDouble;
+
+				// 1번 파이프
+				elemList.Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				// 2번 파이프
+				if ((abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS)) {
+					elemList.Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					moveIn3D ('x', pipe2.radAng, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				}
+
+				remainLengthDouble -= 6.000;
+			}
+
+			bBeginFound = false;
+		}
+	}
+
+	// 비계파이프 (L) 배치 - 2단 유로폼
+	bShow = false;
+	bBeginFound = false;
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtLSide [2][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [2][xx].perLen > 0) && (placingZone->cellsAtLSide [2][xx].dirLen > 0)) {
+			// 연속적인 인덱스 범위 찾기
+			if (bBeginFound == false) {
+				beginIndex = xx;
+				bBeginFound = true;
+				bShow = true;
+			}
+			endIndex = xx;
+		}
+
+		if (((placingZone->cellsAtLSide [2][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+			// 원장 사이즈 단위로 끊어서 배치하기
+			remainLengthDouble = 0.100;		// 양쪽으로 50mm 튀어나오므로 길이 미리 추가됨
+			for (yy = beginIndex ; yy <= endIndex ; ++yy)
+				remainLengthDouble += placingZone->cellsAtLSide [2][yy].dirLen;
+
+			// 1번 파이프
+			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [2][beginIndex].leftBottomX, placingZone->cellsAtLSide [2][beginIndex].leftBottomY, placingZone->cellsAtLSide [2][beginIndex].leftBottomZ, placingZone->cellsAtLSide [2][beginIndex].ang);
+			moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3D ('y', pipe1.radAng, -0.0635 - 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.100, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.100, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+
+			// 2번 파이프
+			pipe2.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [2][beginIndex].leftBottomX, placingZone->cellsAtLSide [2][beginIndex].leftBottomY, placingZone->cellsAtLSide [2][beginIndex].leftBottomZ, placingZone->cellsAtLSide [2][beginIndex].ang);
+			moveIn3D ('x', pipe2.radAng, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			moveIn3D ('y', pipe2.radAng, -0.0635 - 0.025, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.600 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.500 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.450 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.400 - 0.100, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+
+			while (remainLengthDouble > EPS) {
+				if (remainLengthDouble > 6.000)
+					lengthDouble = 6.000;
+				else
+					lengthDouble = remainLengthDouble;
+
+				// 1번 파이프
+				elemList.Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				// 2번 파이프
+				if ((abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS)) {
+					elemList.Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					moveIn3D ('x', pipe2.radAng, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				}
+
+				remainLengthDouble -= 6.000;
+			}
+
+			bBeginFound = false;
+		}
+	}
+
+	// 비계파이프 (R) 배치 - 1단 유로폼
+	bShow = false;
+	bBeginFound = false;
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtRSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx].perLen > 0) && (placingZone->cellsAtRSide [0][xx].dirLen > 0)) {
+			// 연속적인 인덱스 범위 찾기
+			if (bBeginFound == false) {
+				beginIndex = xx;
+				bBeginFound = true;
+				bShow = true;
+			}
+			endIndex = xx;
+		}
+
+		if (((placingZone->cellsAtRSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+			// 원장 사이즈 단위로 끊어서 배치하기
+			remainLengthDouble = 0.100;		// 양쪽으로 50mm 튀어나오므로 길이 미리 추가됨
+			for (yy = beginIndex ; yy <= endIndex ; ++yy)
+				remainLengthDouble += placingZone->cellsAtRSide [0][yy].dirLen;
+
+			// 1번 파이프
+			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
+			moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3D ('y', pipe1.radAng, 0.0635 + 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.100, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.100, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+
+			// 2번 파이프
+			pipe2.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
+			moveIn3D ('x', pipe2.radAng, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			moveIn3D ('y', pipe2.radAng, 0.0635 + 0.025, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.600 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.500 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.450 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.400 - 0.100, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+
+			while (remainLengthDouble > EPS) {
+				if (remainLengthDouble > 6.000)
+					lengthDouble = 6.000;
+				else
+					lengthDouble = remainLengthDouble;
+
+				// 1번 파이프
+				moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				pipe1.radAng += DegreeToRad (180.0);
+				elemList.Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				pipe1.radAng -= DegreeToRad (180.0);
+				// 2번 파이프
+				if ((abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS)) {
+					moveIn3D ('x', pipe2.radAng, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+					pipe2.radAng += DegreeToRad (180.0);
+					elemList.Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					pipe2.radAng -= DegreeToRad (180.0);
+				}
+
+				remainLengthDouble -= 6.000;
+			}
+
+			bBeginFound = false;
+		}
+	}
+
+	// 비계파이프 (R) 배치 - 2단 유로폼
+	bShow = false;
+	bBeginFound = false;
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtRSide [2][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [2][xx].perLen > 0) && (placingZone->cellsAtRSide [2][xx].dirLen > 0)) {
+			// 연속적인 인덱스 범위 찾기
+			if (bBeginFound == false) {
+				beginIndex = xx;
+				bBeginFound = true;
+				bShow = true;
+			}
+			endIndex = xx;
+		}
+
+		if (((placingZone->cellsAtRSide [2][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+			// 원장 사이즈 단위로 끊어서 배치하기
+			remainLengthDouble = 0.100;		// 양쪽으로 50mm 튀어나오므로 길이 미리 추가됨
+			for (yy = beginIndex ; yy <= endIndex ; ++yy)
+				remainLengthDouble += placingZone->cellsAtRSide [2][yy].dirLen;
+
+			// 1번 파이프
+			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [2][beginIndex].leftBottomX, placingZone->cellsAtRSide [2][beginIndex].leftBottomY, placingZone->cellsAtRSide [2][beginIndex].leftBottomZ, placingZone->cellsAtRSide [2][beginIndex].ang);
+			moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3D ('y', pipe1.radAng, 0.0635 + 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.100, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.100, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS)
+				moveIn3D ('z', pipe1.radAng, 0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+
+			// 2번 파이프
+			pipe2.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [2][beginIndex].leftBottomX, placingZone->cellsAtRSide [2][beginIndex].leftBottomY, placingZone->cellsAtRSide [2][beginIndex].leftBottomZ, placingZone->cellsAtRSide [2][beginIndex].ang);
+			moveIn3D ('x', pipe2.radAng, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			moveIn3D ('y', pipe2.radAng, 0.0635 + 0.025, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.600 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.500 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.450 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS)
+				moveIn3D ('z', pipe2.radAng, 0.400 - 0.100, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+
+			while (remainLengthDouble > EPS) {
+				if (remainLengthDouble > 6.000)
+					lengthDouble = 6.000;
+				else
+					lengthDouble = remainLengthDouble;
+
+				// 1번 파이프
+				moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				pipe1.radAng += DegreeToRad (180.0);
+				elemList.Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				pipe1.radAng -= DegreeToRad (180.0);
+				// 2번 파이프
+				if ((abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS)) {
+					moveIn3D ('x', pipe2.radAng, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+					pipe2.radAng += DegreeToRad (180.0);
+					elemList.Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					pipe2.radAng -= DegreeToRad (180.0);
+				}
+
+				remainLengthDouble -= 6.000;
+			}
+
+			bBeginFound = false;
+		}
+	}
+
+	// 비계파이프 (하부-L) 배치
+	// 비계파이프 (하부-R) 배치
+	// 비계파이프 (하부-센터) 배치
+
+	// 핀볼트 (L) 배치
+	// 핀볼트 (R) 배치
+	// 핀볼트 (하부 배치)
+
+	// 각파이프행거 (L) 배치
+	// 각파이프행거 (R) 배치
+
+
+
+
+
 	// 비계파이프
 		// 원장 6000mm, 합판 영역으로 50mm 침범
-		// 측면 (모두 타공됨)
-			// 600, 500, 450: 위/아래에서 150씩 안쪽으로 2줄
-			// 400: 위/아래에서 100씩 안쪽으로 2줄
-			// 300: 중앙에만 1줄
-			// 200: 아래에서 150 이동, 1줄
 		// 하부
 			// 기본적으로 아웃코너앵글 밑에 부착 (타공X)
 			// 600 폼은 센터에 파이프 가로지름, 폼 2개 이상인 경우 경계에 파이프 가로지름 (타공O)
+
 	// 핀볼트 (측면에만)
 		// 단, 하부의 너비가 600 이상이면 가운데 각파이프에 적용됨
+
 	// 각파이프행거 (하부에만)
 		// 아웃코너앵글과 연결되는 각파이프만 사용
+
 	// 블루클램프
 		// 각파이프를 피해서 위/아래 2개 부착할 것
 		// 객체 속성은 예제 참조
+
 	// 블루목심
 		// 1200: (150) 부착 (750) 부착 (300)
 		// 900: (450) 부착 (450)
