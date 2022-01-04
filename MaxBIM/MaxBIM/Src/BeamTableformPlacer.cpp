@@ -835,169 +835,174 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 	}
 
 	// 측면(L) 각재/합판 배치
+	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtLSide [3][xx].perLen > EPS) && (placingZone->cellsAtLSide [3][xx].dirLen > EPS)) {
-			if (placingZone->cellsAtLSide [3][xx].objType == TIMBER) {
-				bTimberMove = false;
-				moveZ = 0.0;
-				addedPlywood = 0;
-				if (placingZone->cellsAtLSide [3][xx].perLen < 0.040 - EPS) {
-					// 40mm 미만이면 앞쪽으로(!) 50*80 각재
-					horLen = 0.050;
-					verLen = 0.080;
-					bTimberMove = true;
+		if (getObjectType (placingZone, true, 3) == TIMBER) {
+			if ((placingZone->cellsAtLSide [3][xx].objType == TIMBER) && (placingZone->cellsAtLSide [3][xx].perLen > 0) && (placingZone->cellsAtLSide [3][xx].dirLen > 0)) {
+				// 연속적인 인덱스 범위 찾기
+				if (bBeginFound == false) {
+					beginIndex = xx;
+					bBeginFound = true;
+					bShow = true;
 
-					if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.010) < EPS)	addedPlywood = 1;	// 10mm 이면 합판 1장 얹음
-					if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.020) < EPS)	addedPlywood = 2;	// 20mm 이면 합판 2장 얹음
-					if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.030) < EPS)	addedPlywood = 3;	// 30mm 이면 합판 3장 얹음
-				} else if ((placingZone->cellsAtLSide [3][xx].perLen >= 0.040 - EPS) && (placingZone->cellsAtLSide [3][xx].perLen < 0.050 - EPS)) {
-					// 40mm 이상 50mm 미만이면, 50*40 각재
-					horLen = 0.050;
-					verLen = 0.040;
-				} else if ((placingZone->cellsAtLSide [3][xx].perLen >= 0.050 - EPS) && (placingZone->cellsAtLSide [3][xx].perLen < 0.080 - EPS)) {
-					// 50mm 이상 80mm 미만이면, 80*50 각재
-					horLen = 0.080;
-					verLen = 0.050;
-					moveZ = verLen;
+					bTimberMove = false;
+					moveZ = 0.0;
+					addedPlywood = 0;
+					if (placingZone->cellsAtLSide [3][xx].perLen < 0.040 - EPS) {
+						// 40mm 미만이면 앞쪽으로(!) 50*80 각재
+						horLen = 0.050;
+						verLen = 0.080;
+						bTimberMove = true;
 
-					if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.060) < EPS)	addedPlywood = 1;	// 60mm 이면 합판 1장 얹음
-					if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.070) < EPS)	addedPlywood = 2;	// 70mm 이면 합판 2장 얹음
-				} else {
-					// 80mm 이상 90mm 미만이면, 80*80 각재
-					horLen = 0.080;
-					verLen = 0.080;
+						if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.010) < EPS)	addedPlywood = 1;	// 10mm 이면 합판 1장 얹음
+						if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.020) < EPS)	addedPlywood = 2;	// 20mm 이면 합판 2장 얹음
+						if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.030) < EPS)	addedPlywood = 3;	// 30mm 이면 합판 3장 얹음
+					} else if ((placingZone->cellsAtLSide [3][xx].perLen >= 0.040 - EPS) && (placingZone->cellsAtLSide [3][xx].perLen < 0.050 - EPS)) {
+						// 40mm 이상 50mm 미만이면, 50*40 각재
+						horLen = 0.050;
+						verLen = 0.040;
+					} else if ((placingZone->cellsAtLSide [3][xx].perLen >= 0.050 - EPS) && (placingZone->cellsAtLSide [3][xx].perLen < 0.080 - EPS)) {
+						// 50mm 이상 80mm 미만이면, 80*50 각재
+						horLen = 0.080;
+						verLen = 0.050;
+						moveZ = verLen;
+
+						if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.060) < EPS)	addedPlywood = 1;	// 60mm 이면 합판 1장 얹음
+						if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.070) < EPS)	addedPlywood = 2;	// 70mm 이면 합판 2장 얹음
+					} else {
+						// 80mm 이상 90mm 미만이면, 80*80 각재
+						horLen = 0.080;
+						verLen = 0.080;
+						moveZ = verLen;
+
+						if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.090) < EPS)	addedPlywood = 1;	// 90mm 이면 합판 1장 얹음
+						if (abs (placingZone->cellsAtLSide [3][xx].perLen - 0.100) < EPS)	addedPlywood = 2;	// 100mm 이면 합판 2장 얹음
+					}
+				}
+				endIndex = xx;
+			}
+
+			if (((placingZone->cellsAtLSide [3][xx].objType != TIMBER) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+				// 원장 사이즈 단위로 끊어서 배치하기 (각재)
+				remainLengthDouble = 0.0;
+				for (yy = beginIndex ; yy <= endIndex ; ++yy)
+					remainLengthDouble += placingZone->cellsAtLSide [3][yy].dirLen;
+
+				timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ, placingZone->cellsAtLSide [3][beginIndex].ang);
+
+				while (remainLengthDouble > EPS) {
+					if (remainLengthDouble > 3.600)
+						lengthDouble = 3.600;
+					else
+						lengthDouble = remainLengthDouble;
+
+					// 각재 설치
+					if (bTimberMove == true) {
+						moveIn3D ('y', timber.radAng, -0.067, &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('z', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
+					}
+					elemList.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", horLen), "w_h", APIParT_Length, format_string ("%f", verLen), "w_leng", APIParT_Length, format_string ("%f", lengthDouble), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+					if (bTimberMove == true) {
+						moveIn3D ('y', timber.radAng, 0.067, &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('z', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
+					}
+					moveIn3D ('x', timber.radAng, lengthDouble, &timber.posX, &timber.posY, &timber.posZ);
+
+					remainLengthDouble -= 3.600;
 				}
 
-				if ((placingZone->cellsAtLSide [3][xx].objType == TIMBER) && (placingZone->cellsAtLSide [3][xx].perLen > EPS) && (placingZone->cellsAtLSide [3][xx].dirLen > EPS)) {
-					// 연속적인 인덱스 범위 찾기
-					if (bBeginFound == false) {
-						beginIndex = xx;
-						bBeginFound = true;
-					}
-					endIndex = xx;
-				}
+				// 원장 사이즈 단위로 끊어서 배치하기 (추가 합판)
+				remainLengthDouble = 0.0;
+				for (yy = beginIndex ; yy <= endIndex ; ++yy)
+					remainLengthDouble += placingZone->cellsAtLSide [3][yy].dirLen;
 
-				if ((placingZone->cellsAtLSide [3][xx].objType != TIMBER) || (xx == placingZone->nCells-1)) {
-					// 원장 사이즈 단위로 끊어서 배치하기 (각재)
-					remainLengthDouble = 0.0;
-					for (yy = beginIndex ; yy <= endIndex ; ++yy)
-						remainLengthDouble += placingZone->cellsAtLSide [3][yy].dirLen;
+				plywood1.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ, placingZone->cellsAtLSide [3][beginIndex].ang);
+				plywood2.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ + 0.0115, placingZone->cellsAtLSide [3][beginIndex].ang);
+				plywood3.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ + 0.0115*2, placingZone->cellsAtLSide [3][beginIndex].ang);
 
-					timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ, placingZone->cellsAtLSide [3][beginIndex].ang);
-
-					while (remainLengthDouble > EPS) {
-						if (remainLengthDouble > 3.600)
-							lengthDouble = 3.600;
-						else
-							lengthDouble = remainLengthDouble;
-
-						// 각재 설치
-						if (bTimberMove == true) {
-							moveIn3D ('y', timber.radAng, -0.067, &timber.posX, &timber.posY, &timber.posZ);
-							moveIn3D ('z', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
-						}
-						elemList.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", horLen), "w_h", APIParT_Length, format_string ("%f", verLen), "w_leng", APIParT_Length, format_string ("%f", lengthDouble), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
-						if (bTimberMove == true) {
-							moveIn3D ('y', timber.radAng, 0.067, &timber.posX, &timber.posY, &timber.posZ);
-							moveIn3D ('z', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
-						}
-						moveIn3D ('x', timber.radAng, lengthDouble, &timber.posX, &timber.posY, &timber.posZ);
-
-						remainLengthDouble -= 3.600;
-					}
-
-					// 원장 사이즈 단위로 끊어서 배치하기 (추가 합판)
-					remainLengthDouble = 0.0;
-					for (yy = beginIndex ; yy <= endIndex ; ++yy)
-						remainLengthDouble += placingZone->cellsAtLSide [3][yy].dirLen;
-
-					plywood1.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ, placingZone->cellsAtLSide [3][beginIndex].ang);
-					plywood2.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ + 0.0115, placingZone->cellsAtLSide [3][beginIndex].ang);
-					plywood3.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ + 0.0115*2, placingZone->cellsAtLSide [3][beginIndex].ang);
-
-					while (remainLengthDouble > EPS) {
-						if (remainLengthDouble > 2.400)
-							lengthDouble = 2.400;
-						else
-							lengthDouble = remainLengthDouble;
+				while (remainLengthDouble > EPS) {
+					if (remainLengthDouble > 2.400)
+						lengthDouble = 2.400;
+					else
+						lengthDouble = remainLengthDouble;
 						
-						if (addedPlywood >= 1) {
-							moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-							moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-							elemList.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
-							moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-							moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-							moveIn3D ('x', plywood1.radAng, lengthDouble, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-						}
-						if (addedPlywood >= 2) {
-							moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-							moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-							elemList.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
-							moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-							moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-							moveIn3D ('x', plywood2.radAng, lengthDouble, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-						}
-						if (addedPlywood >= 3) {
-							moveIn3D ('y', plywood3.radAng, -0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-							moveIn3D ('z', plywood3.radAng, moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-							elemList.Push (plywood3.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
-							moveIn3D ('y', plywood3.radAng, 0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-							moveIn3D ('z', plywood3.radAng, -moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-							moveIn3D ('x', plywood3.radAng, lengthDouble, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-						}
-
-						remainLengthDouble -= 2.400;
+					if (addedPlywood >= 1) {
+						moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						elemList.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('x', plywood1.radAng, lengthDouble, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+					}
+					if (addedPlywood >= 2) {
+						moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						elemList.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('x', plywood2.radAng, lengthDouble, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+					}
+					if (addedPlywood >= 3) {
+						moveIn3D ('y', plywood3.radAng, -0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('z', plywood3.radAng, moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						elemList.Push (plywood3.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						moveIn3D ('y', plywood3.radAng, 0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('z', plywood3.radAng, -moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('x', plywood3.radAng, lengthDouble, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 					}
 
-					bBeginFound = false;
-				}
-			} else if (placingZone->cellsAtLSide [3][xx].objType == PLYWOOD) {
-				// 90mm 이상이면
-				if ((placingZone->cellsAtLSide [3][xx].objType == PLYWOOD) && (placingZone->cellsAtLSide [3][xx].perLen > EPS) && (placingZone->cellsAtLSide [3][xx].dirLen > EPS)) {
-					// 연속적인 인덱스 범위 찾기
-					if (bBeginFound == false) {
-						beginIndex = xx;
-						bBeginFound = true;
-					}
-					endIndex = xx;
+					remainLengthDouble -= 2.400;
 				}
 
-				if ((placingZone->cellsAtLSide [3][xx].objType != PLYWOOD) || (xx == placingZone->nCells-1)) {
-					// 원장 사이즈 단위로 끊어서 배치하기 (합판)
-					remainLengthDouble = 0.0;
-					for (yy = beginIndex ; yy <= endIndex ; ++yy)
-						remainLengthDouble += placingZone->cellsAtLSide [3][yy].dirLen;
-
-					plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ, placingZone->cellsAtLSide [3][beginIndex].ang);
-
-					while (remainLengthDouble > EPS) {
-						if (remainLengthDouble > 2.400)
-							lengthDouble = 2.400;
-						else
-							lengthDouble = remainLengthDouble;
-
-						// 합판 설치
-						elemList.Push (plywood.placeObject (13,
-							"p_stan", APIParT_CString, "비규격",
-							"w_dir", APIParT_CString, "벽눕히기",
-							"p_thk", APIParT_CString, "11.5T",
-							"p_wid", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [3][beginIndex].perLen),
-							"p_leng", APIParT_Length, format_string ("%f", lengthDouble),
-							"p_ang", APIParT_Angle, format_string ("%f", 0.0),
-							"sogak", APIParT_Boolean, "1.0",
-							"bInverseSogak", APIParT_Boolean, "1.0",
-							"prof", APIParT_CString, "소각",
-							"gap_a", APIParT_Length, format_string ("%f", 0.0),
-							"gap_b", APIParT_Length, format_string ("%f", 0.0),
-							"gap_c", APIParT_Length, format_string ("%f", 0.0),
-							"gap_d", APIParT_Length, format_string ("%f", 0.0)));
-						moveIn3D ('x', plywood.radAng, lengthDouble, &plywood.posX, &plywood.posY, &plywood.posZ);
-
-						remainLengthDouble -= 2.400;
-					}
-					bBeginFound = false;
+				bBeginFound = false;
+			}
+		} else if (getObjectType (placingZone, true, 3) == PLYWOOD) {
+			// 90mm 이상이면
+			if ((placingZone->cellsAtLSide [3][xx].objType == PLYWOOD) && (placingZone->cellsAtLSide [3][xx].perLen > 0) && (placingZone->cellsAtLSide [3][xx].dirLen > 0)) {
+				// 연속적인 인덱스 범위 찾기
+				if (bBeginFound == false) {
+					beginIndex = xx;
+					bBeginFound = true;
+					bShow = true;
 				}
+				endIndex = xx;
+			}
+
+			if (((placingZone->cellsAtLSide [3][xx].objType != PLYWOOD) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+				// 원장 사이즈 단위로 끊어서 배치하기 (합판)
+				remainLengthDouble = 0.0;
+				for (yy = beginIndex ; yy <= endIndex ; ++yy)
+					remainLengthDouble += placingZone->cellsAtLSide [3][yy].dirLen;
+
+				plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ, placingZone->cellsAtLSide [3][beginIndex].ang);
+
+				while (remainLengthDouble > EPS) {
+					if (remainLengthDouble > 2.400)
+						lengthDouble = 2.400;
+					else
+						lengthDouble = remainLengthDouble;
+
+					// 합판 설치
+					elemList.Push (plywood.placeObject (13,
+						"p_stan", APIParT_CString, "비규격",
+						"w_dir", APIParT_CString, "벽눕히기",
+						"p_thk", APIParT_CString, "11.5T",
+						"p_wid", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [3][beginIndex].perLen),
+						"p_leng", APIParT_Length, format_string ("%f", lengthDouble),
+						"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+						"sogak", APIParT_Boolean, "1.0",
+						"bInverseSogak", APIParT_Boolean, "1.0",
+						"prof", APIParT_CString, "소각",
+						"gap_a", APIParT_Length, format_string ("%f", 0.0),
+						"gap_b", APIParT_Length, format_string ("%f", 0.0),
+						"gap_c", APIParT_Length, format_string ("%f", 0.0),
+						"gap_d", APIParT_Length, format_string ("%f", 0.0)));
+					moveIn3D ('x', plywood.radAng, lengthDouble, &plywood.posX, &plywood.posY, &plywood.posZ);
+
+					remainLengthDouble -= 2.400;
+				}
+				bBeginFound = false;
 			}
 		}
 	}
@@ -1079,179 +1084,184 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 	}
 
 	// 측면(R) 각재/합판 배치
+	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtRSide [3][xx].perLen > EPS) && (placingZone->cellsAtRSide [3][xx].dirLen > EPS)) {
-			if (placingZone->cellsAtRSide [3][xx].objType == TIMBER) {
-				bTimberMove = false;
-				moveZ = 0.0;
-				addedPlywood = 0;
-				if (placingZone->cellsAtRSide [3][xx].perLen < 0.040 - EPS) {
-					// 40mm 미만이면 앞쪽으로(!) 50*80 각재
-					horLen = 0.050;
-					verLen = 0.080;
-					bTimberMove = true;
+		if (getObjectType (placingZone, false, 3) == TIMBER) {
+			if ((placingZone->cellsAtRSide [3][xx].objType == TIMBER) && (placingZone->cellsAtRSide [3][xx].perLen > 0) && (placingZone->cellsAtRSide [3][xx].dirLen > 0)) {
+				// 연속적인 인덱스 범위 찾기
+				if (bBeginFound == false) {
+					beginIndex = xx;
+					bBeginFound = true;
+					bShow = true;
 
-					if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.010) < EPS)	addedPlywood = 1;	// 10mm 이면 합판 1장 얹음
-					if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.020) < EPS)	addedPlywood = 2;	// 20mm 이면 합판 2장 얹음
-					if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.030) < EPS)	addedPlywood = 3;	// 30mm 이면 합판 3장 얹음
-				} else if ((placingZone->cellsAtRSide [3][xx].perLen >= 0.040 - EPS) && (placingZone->cellsAtRSide [3][xx].perLen < 0.050 - EPS)) {
-					// 40mm 이상 50mm 미만이면, 50*40 각재
-					horLen = 0.050;
-					verLen = 0.040;
-				} else if ((placingZone->cellsAtRSide [3][xx].perLen >= 0.050 - EPS) && (placingZone->cellsAtRSide [3][xx].perLen < 0.080 - EPS)) {
-					// 50mm 이상 80mm 미만이면, 80*50 각재
-					horLen = 0.080;
-					verLen = 0.050;
-					moveZ = verLen;
+					bTimberMove = false;
+					moveZ = 0.0;
+					addedPlywood = 0;
+					if (placingZone->cellsAtRSide [3][xx].perLen < 0.040 - EPS) {
+						// 40mm 미만이면 앞쪽으로(!) 50*80 각재
+						horLen = 0.050;
+						verLen = 0.080;
+						bTimberMove = true;
 
-					if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.060) < EPS)	addedPlywood = 1;	// 60mm 이면 합판 1장 얹음
-					if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.070) < EPS)	addedPlywood = 2;	// 70mm 이면 합판 2장 얹음
-				} else {
-					// 80mm 이상 90mm 미만이면, 80*80 각재
-					horLen = 0.080;
-					verLen = 0.080;
+						if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.010) < EPS)	addedPlywood = 1;	// 10mm 이면 합판 1장 얹음
+						if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.020) < EPS)	addedPlywood = 2;	// 20mm 이면 합판 2장 얹음
+						if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.030) < EPS)	addedPlywood = 3;	// 30mm 이면 합판 3장 얹음
+					} else if ((placingZone->cellsAtRSide [3][xx].perLen >= 0.040 - EPS) && (placingZone->cellsAtRSide [3][xx].perLen < 0.050 - EPS)) {
+						// 40mm 이상 50mm 미만이면, 50*40 각재
+						horLen = 0.050;
+						verLen = 0.040;
+					} else if ((placingZone->cellsAtRSide [3][xx].perLen >= 0.050 - EPS) && (placingZone->cellsAtRSide [3][xx].perLen < 0.080 - EPS)) {
+						// 50mm 이상 80mm 미만이면, 80*50 각재
+						horLen = 0.080;
+						verLen = 0.050;
+						moveZ = verLen;
+
+						if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.060) < EPS)	addedPlywood = 1;	// 60mm 이면 합판 1장 얹음
+						if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.070) < EPS)	addedPlywood = 2;	// 70mm 이면 합판 2장 얹음
+					} else {
+						// 80mm 이상 90mm 미만이면, 80*80 각재
+						horLen = 0.080;
+						verLen = 0.080;
+						moveZ = verLen;
+
+						if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.090) < EPS)	addedPlywood = 1;	// 90mm 이면 합판 1장 얹음
+						if (abs (placingZone->cellsAtRSide [3][xx].perLen - 0.100) < EPS)	addedPlywood = 2;	// 100mm 이면 합판 2장 얹음
+					}
+				}
+				endIndex = xx;
+			}
+
+			if (((placingZone->cellsAtRSide [3][xx].objType != TIMBER) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+				// 원장 사이즈 단위로 끊어서 배치하기 (각재)
+				remainLengthDouble = 0.0;
+				for (yy = beginIndex ; yy <= endIndex ; ++yy)
+					remainLengthDouble += placingZone->cellsAtRSide [3][yy].dirLen;
+
+				timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ, placingZone->cellsAtRSide [3][beginIndex].ang);
+
+				while (remainLengthDouble > EPS) {
+					if (remainLengthDouble > 3.600)
+						lengthDouble = 3.600;
+					else
+						lengthDouble = remainLengthDouble;
+
+					// 각재 설치
+					if (bTimberMove == true) {
+						moveIn3D ('y', timber.radAng, 0.067, &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('z', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
+					}
+					moveIn3D ('x', timber.radAng, lengthDouble, &timber.posX, &timber.posY, &timber.posZ);
+					timber.radAng += DegreeToRad (180.0);
+					elemList.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", horLen), "w_h", APIParT_Length, format_string ("%f", verLen), "w_leng", APIParT_Length, format_string ("%f", lengthDouble), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+					timber.radAng -= DegreeToRad (180.0);
+					if (bTimberMove == true) {
+						moveIn3D ('y', timber.radAng, -0.067, &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('z', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
+					}
+
+					remainLengthDouble -= 3.600;
 				}
 
-				if ((placingZone->cellsAtRSide [3][xx].objType == TIMBER) && (placingZone->cellsAtRSide [3][xx].perLen > EPS) && (placingZone->cellsAtRSide [3][xx].dirLen > EPS)) {
-					// 연속적인 인덱스 범위 찾기
-					if (bBeginFound == false) {
-						beginIndex = xx;
-						bBeginFound = true;
-					}
-					endIndex = xx;
-				}
+				// 원장 사이즈 단위로 끊어서 배치하기 (추가 합판)
+				remainLengthDouble = 0.0;
+				for (yy = beginIndex ; yy <= endIndex ; ++yy)
+					remainLengthDouble += placingZone->cellsAtRSide [3][yy].dirLen;
 
-				if ((placingZone->cellsAtRSide [3][xx].objType != TIMBER) || (xx == placingZone->nCells-1)) {
-					// 원장 사이즈 단위로 끊어서 배치하기 (각재)
-					remainLengthDouble = 0.0;
-					for (yy = beginIndex ; yy <= endIndex ; ++yy)
-						remainLengthDouble += placingZone->cellsAtRSide [3][yy].dirLen;
+				plywood1.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ, placingZone->cellsAtRSide [3][beginIndex].ang);
+				plywood2.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ + 0.0115, placingZone->cellsAtRSide [3][beginIndex].ang);
+				plywood3.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ + 0.0115*2, placingZone->cellsAtRSide [3][beginIndex].ang);
 
-					timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ, placingZone->cellsAtRSide [3][beginIndex].ang);
-
-					while (remainLengthDouble > EPS) {
-						if (remainLengthDouble > 3.600)
-							lengthDouble = 3.600;
-						else
-							lengthDouble = remainLengthDouble;
-
-						// 각재 설치
-						if (bTimberMove == true) {
-							moveIn3D ('y', timber.radAng, 0.067, &timber.posX, &timber.posY, &timber.posZ);
-							moveIn3D ('z', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
-						}
-						moveIn3D ('x', timber.radAng, lengthDouble, &timber.posX, &timber.posY, &timber.posZ);
-						timber.radAng += DegreeToRad (180.0);
-						elemList.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", horLen), "w_h", APIParT_Length, format_string ("%f", verLen), "w_leng", APIParT_Length, format_string ("%f", lengthDouble), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
-						timber.radAng -= DegreeToRad (180.0);
-						if (bTimberMove == true) {
-							moveIn3D ('y', timber.radAng, -0.067, &timber.posX, &timber.posY, &timber.posZ);
-							moveIn3D ('z', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
-						}
-
-						remainLengthDouble -= 3.600;
-					}
-
-					// 원장 사이즈 단위로 끊어서 배치하기 (추가 합판)
-					remainLengthDouble = 0.0;
-					for (yy = beginIndex ; yy <= endIndex ; ++yy)
-						remainLengthDouble += placingZone->cellsAtRSide [3][yy].dirLen;
-
-					plywood1.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ, placingZone->cellsAtRSide [3][beginIndex].ang);
-					plywood2.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ + 0.0115, placingZone->cellsAtRSide [3][beginIndex].ang);
-					plywood3.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ + 0.0115*2, placingZone->cellsAtRSide [3][beginIndex].ang);
-
-					while (remainLengthDouble > EPS) {
-						if (remainLengthDouble > 2.400)
-							lengthDouble = 2.400;
-						else
-							lengthDouble = remainLengthDouble;
+				while (remainLengthDouble > EPS) {
+					if (remainLengthDouble > 2.400)
+						lengthDouble = 2.400;
+					else
+						lengthDouble = remainLengthDouble;
 						
-						if (addedPlywood >= 1) {
-							moveIn3D ('x', plywood1.radAng, lengthDouble, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-							moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-							moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-							plywood1.radAng += DegreeToRad (180.0);
-							elemList.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
-							plywood1.radAng -= DegreeToRad (180.0);
-							moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-							moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-						}
-						if (addedPlywood >= 2) {
-							moveIn3D ('x', plywood2.radAng, lengthDouble, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-							moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-							moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-							plywood2.radAng += DegreeToRad (180.0);
-							elemList.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
-							plywood2.radAng -= DegreeToRad (180.0);
-							moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-							moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-						}
-						if (addedPlywood >= 3) {
-							moveIn3D ('x', plywood3.radAng, lengthDouble, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-							moveIn3D ('y', plywood3.radAng, 0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-							moveIn3D ('z', plywood3.radAng, moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-							plywood3.radAng += DegreeToRad (180.0);
-							elemList.Push (plywood3.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
-							plywood3.radAng -= DegreeToRad (180.0);
-							moveIn3D ('y', plywood3.radAng, -0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-							moveIn3D ('z', plywood3.radAng, -moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-						}
-
-						remainLengthDouble -= 2.400;
+					if (addedPlywood >= 1) {
+						moveIn3D ('x', plywood1.radAng, lengthDouble, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						plywood1.radAng += DegreeToRad (180.0);
+						elemList.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						plywood1.radAng -= DegreeToRad (180.0);
+						moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+					}
+					if (addedPlywood >= 2) {
+						moveIn3D ('x', plywood2.radAng, lengthDouble, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						plywood2.radAng += DegreeToRad (180.0);
+						elemList.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						plywood2.radAng -= DegreeToRad (180.0);
+						moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+					}
+					if (addedPlywood >= 3) {
+						moveIn3D ('x', plywood3.radAng, lengthDouble, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('y', plywood3.radAng, 0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('z', plywood3.radAng, moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						plywood3.radAng += DegreeToRad (180.0);
+						elemList.Push (plywood3.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						plywood3.radAng -= DegreeToRad (180.0);
+						moveIn3D ('y', plywood3.radAng, -0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('z', plywood3.radAng, -moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 					}
 
-					bBeginFound = false;
-				}
-			} else if (placingZone->cellsAtRSide [3][xx].objType == PLYWOOD) {
-				// 90mm 이상이면
-				if ((placingZone->cellsAtRSide [3][xx].objType == PLYWOOD) && (placingZone->cellsAtRSide [3][xx].perLen > EPS) && (placingZone->cellsAtRSide [3][xx].dirLen > EPS)) {
-					// 연속적인 인덱스 범위 찾기
-					if (bBeginFound == false) {
-						beginIndex = xx;
-						bBeginFound = true;
-					}
-					endIndex = xx;
+					remainLengthDouble -= 2.400;
 				}
 
-				if ((placingZone->cellsAtRSide [3][xx].objType != PLYWOOD) || (xx == placingZone->nCells-1)) {
-					// 원장 사이즈 단위로 끊어서 배치하기 (합판)
-					remainLengthDouble = 0.0;
-					for (yy = beginIndex ; yy <= endIndex ; ++yy)
-						remainLengthDouble += placingZone->cellsAtRSide [3][yy].dirLen;
-
-					plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ, placingZone->cellsAtRSide [3][beginIndex].ang);
-
-					while (remainLengthDouble > EPS) {
-						if (remainLengthDouble > 2.400)
-							lengthDouble = 2.400;
-						else
-							lengthDouble = remainLengthDouble;
-
-						// 합판 설치
-						moveIn3D ('x', plywood.radAng, lengthDouble, &plywood.posX, &plywood.posY, &plywood.posZ);
-						plywood.radAng += DegreeToRad (180.0);
-						elemList.Push (plywood.placeObject (13,
-							"p_stan", APIParT_CString, "비규격",
-							"w_dir", APIParT_CString, "벽눕히기",
-							"p_thk", APIParT_CString, "11.5T",
-							"p_wid", APIParT_Length, format_string ("%f", placingZone->cellsAtRSide [3][beginIndex].perLen),
-							"p_leng", APIParT_Length, format_string ("%f", lengthDouble),
-							"p_ang", APIParT_Angle, format_string ("%f", 0.0),
-							"sogak", APIParT_Boolean, "1.0",
-							"bInverseSogak", APIParT_Boolean, "1.0",
-							"prof", APIParT_CString, "소각",
-							"gap_a", APIParT_Length, format_string ("%f", 0.0),
-							"gap_b", APIParT_Length, format_string ("%f", 0.0),
-							"gap_c", APIParT_Length, format_string ("%f", 0.0),
-							"gap_d", APIParT_Length, format_string ("%f", 0.0)));
-						plywood.radAng -= DegreeToRad (180.0);
-
-						remainLengthDouble -= 2.400;
-					}
-					bBeginFound = false;
+				bBeginFound = false;
+			}
+		} else if (getObjectType (placingZone, false, 3) == PLYWOOD) {
+			// 90mm 이상이면
+			if ((placingZone->cellsAtRSide [3][xx].objType == PLYWOOD) && (placingZone->cellsAtRSide [3][xx].perLen > 0) && (placingZone->cellsAtRSide [3][xx].dirLen > 0)) {
+				// 연속적인 인덱스 범위 찾기
+				if (bBeginFound == false) {
+					beginIndex = xx;
+					bBeginFound = true;
+					bShow = true;
 				}
+				endIndex = xx;
+			}
+
+			if (((placingZone->cellsAtRSide [3][xx].objType != PLYWOOD) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+				// 원장 사이즈 단위로 끊어서 배치하기 (합판)
+				remainLengthDouble = 0.0;
+				for (yy = beginIndex ; yy <= endIndex ; ++yy)
+					remainLengthDouble += placingZone->cellsAtRSide [3][yy].dirLen;
+
+				plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ, placingZone->cellsAtRSide [3][beginIndex].ang);
+
+				while (remainLengthDouble > EPS) {
+					if (remainLengthDouble > 2.400)
+						lengthDouble = 2.400;
+					else
+						lengthDouble = remainLengthDouble;
+
+					// 합판 설치
+					moveIn3D ('x', plywood.radAng, lengthDouble, &plywood.posX, &plywood.posY, &plywood.posZ);
+					plywood.radAng += DegreeToRad (180.0);
+					elemList.Push (plywood.placeObject (13,
+						"p_stan", APIParT_CString, "비규격",
+						"w_dir", APIParT_CString, "벽눕히기",
+						"p_thk", APIParT_CString, "11.5T",
+						"p_wid", APIParT_Length, format_string ("%f", placingZone->cellsAtRSide [3][beginIndex].perLen),
+						"p_leng", APIParT_Length, format_string ("%f", lengthDouble),
+						"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+						"sogak", APIParT_Boolean, "1.0",
+						"bInverseSogak", APIParT_Boolean, "1.0",
+						"prof", APIParT_CString, "소각",
+						"gap_a", APIParT_Length, format_string ("%f", 0.0),
+						"gap_b", APIParT_Length, format_string ("%f", 0.0),
+						"gap_c", APIParT_Length, format_string ("%f", 0.0),
+						"gap_d", APIParT_Length, format_string ("%f", 0.0)));
+					plywood.radAng -= DegreeToRad (180.0);
+
+					remainLengthDouble -= 2.400;
+				}
+				bBeginFound = false;
 			}
 		}
 	}
@@ -2234,7 +2244,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
 
 			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS)
 				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
@@ -2271,7 +2281,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
 
 			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS)
 				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
@@ -2332,7 +2342,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtLSide [2][beginIndex].leftBottomX, placingZone->cellsAtLSide [2][beginIndex].leftBottomY, placingZone->cellsAtLSide [2][beginIndex].leftBottomZ, placingZone->cellsAtLSide [2][beginIndex].ang);
 
 			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS)
 				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
@@ -2369,7 +2379,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtLSide [2][beginIndex].leftBottomX, placingZone->cellsAtLSide [2][beginIndex].leftBottomY, placingZone->cellsAtLSide [2][beginIndex].leftBottomZ, placingZone->cellsAtLSide [2][beginIndex].ang);
 
 			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS)
 				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
@@ -2430,7 +2440,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
 
 			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, 0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS)
 				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
@@ -2467,7 +2477,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
 
 			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, 0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS)
 				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
@@ -2528,7 +2538,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtRSide [2][beginIndex].leftBottomX, placingZone->cellsAtRSide [2][beginIndex].leftBottomY, placingZone->cellsAtRSide [2][beginIndex].leftBottomZ, placingZone->cellsAtRSide [2][beginIndex].ang);
 
 			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, 0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS)
 				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
@@ -2565,7 +2575,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtRSide [2][beginIndex].leftBottomX, placingZone->cellsAtRSide [2][beginIndex].leftBottomY, placingZone->cellsAtRSide [2][beginIndex].leftBottomZ, placingZone->cellsAtRSide [2][beginIndex].ang);
 
 			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, 0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS)
 				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
@@ -2603,18 +2613,492 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 	}
 
 	// 블루클램프 (하부-L)
+	bShow = false;
+	bBeginFound = false;
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
+			// 연속적인 인덱스 범위 찾기
+			if (bBeginFound == false) {
+				beginIndex = xx;
+				bBeginFound = true;
+				bShow = true;
+			}
+			endIndex = xx;
+		}
+
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+			// 원장 사이즈 단위로 끊어서 배치하기
+			remainLengthDouble = 0.0;
+			for (yy = beginIndex ; yy <= endIndex ; ++yy)
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
+
+			// 시작 부분
+			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
+
+			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('z', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			moveIn3D ('y', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+
+			moveIn3D ('y', blueClamp.radAng, placingZone->cellsAtBottom [0][beginIndex].perLen - 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			
+			if ( !((abs (placingZone->cellsAtBottom [0][beginIndex].perLen - 0.300) < EPS) || (abs (placingZone->cellsAtBottom [0][beginIndex].perLen - 0.200) < EPS)) )
+				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+
+			// 끝 부분
+			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
+
+			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('z', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			moveIn3D ('y', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+
+			moveIn3D ('y', blueClamp.radAng, placingZone->cellsAtBottom [0][beginIndex].perLen - 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			if ( !((abs (placingZone->cellsAtBottom [0][beginIndex].perLen - 0.300) < EPS) || (abs (placingZone->cellsAtBottom [0][beginIndex].perLen - 0.200) < EPS)) )
+				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+
+			bBeginFound = false;
+		}
+	}
+
 	// 블루클램프 (하부-R)
+	bShow = false;
+	bBeginFound = false;
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtBottom [2][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [2][xx].perLen > 0) && (placingZone->cellsAtBottom [2][xx].dirLen > 0)) {
+			// 연속적인 인덱스 범위 찾기
+			if (bBeginFound == false) {
+				beginIndex = xx;
+				bBeginFound = true;
+				bShow = true;
+			}
+			endIndex = xx;
+		}
 
-	// 블루목심 (L)
-	// 블루목심 (R)
+		if (((placingZone->cellsAtBottom [2][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+			// 원장 사이즈 단위로 끊어서 배치하기
+			remainLengthDouble = 0.0;
+			for (yy = beginIndex ; yy <= endIndex ; ++yy)
+				remainLengthDouble += placingZone->cellsAtBottom [2][yy].dirLen;
 
-	// !!! 블루목심
-		// 1200: (150) 부착 (750) 부착 (300)
-		// 900: (450) 부착 (450)
-		// 600: (150) 부착 (450)
-		// 객체 속성은 예제 참조
+			// 시작 부분
+			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtBottom [2][beginIndex].leftBottomX, placingZone->cellsAtBottom [2][beginIndex].leftBottomY, placingZone->cellsAtBottom [2][beginIndex].leftBottomZ, placingZone->cellsAtBottom [2][beginIndex].ang);
+
+			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('z', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			moveIn3D ('y', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+
+			moveIn3D ('y', blueClamp.radAng, placingZone->cellsAtBottom [2][beginIndex].perLen - 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			if ( !((abs (placingZone->cellsAtBottom [2][beginIndex].perLen - 0.300) < EPS) || (abs (placingZone->cellsAtBottom [2][beginIndex].perLen - 0.200) < EPS)) )
+				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+
+			// 끝 부분
+			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtBottom [2][beginIndex].leftBottomX, placingZone->cellsAtBottom [2][beginIndex].leftBottomY, placingZone->cellsAtBottom [2][beginIndex].leftBottomZ, placingZone->cellsAtBottom [2][beginIndex].ang);
+
+			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('z', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			moveIn3D ('y', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+
+			moveIn3D ('y', blueClamp.radAng, placingZone->cellsAtBottom [2][beginIndex].perLen - 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+			if ( !((abs (placingZone->cellsAtBottom [2][beginIndex].perLen - 0.300) < EPS) || (abs (placingZone->cellsAtBottom [2][beginIndex].perLen - 0.200) < EPS)) )
+				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+
+			bBeginFound = false;
+		}
+	}
+
+	// 블루클램프 (상부-L): 측면 아래에서 4번째 셀이 합판일 경우
+	//for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+	//	if (placingZone->cellsAtLSide [3][xx].objType == PLYWOOD) {
+	//		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtLSide [3][xx].leftBottomX, placingZone->cellsAtLSide [3][xx].leftBottomY, placingZone->cellsAtLSide [3][xx].leftBottomZ, placingZone->cellsAtLSide [3][xx].ang);
+
+	//		moveIn3D ('y', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//		moveIn3D ('z', blueClamp.radAng, 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+	//		if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 1.200) < EPS) {
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (270.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (270.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (270.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (270.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (270.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (270.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//		} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.900) < EPS) {
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (270.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (270.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (270.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (270.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//		} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.600) < EPS) {
+	//			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (270.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (270.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (270.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (270.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//		}
+	//	}
+	//}
+
+	// 블루클램프 (상부-R): 측면 아래에서 4번째 셀이 합판일 경우
+	//for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+	//	if (placingZone->cellsAtRSide [3][xx].objType == PLYWOOD) {
+	//		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtRSide [3][xx].leftBottomX, placingZone->cellsAtRSide [3][xx].leftBottomY, placingZone->cellsAtRSide [3][xx].leftBottomZ, placingZone->cellsAtRSide [3][xx].ang);
+
+	//		moveIn3D ('y', blueClamp.radAng, 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//		moveIn3D ('z', blueClamp.radAng, 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+
+	//		if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 1.200) < EPS) {
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (90.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (90.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (90.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (90.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (90.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (90.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//		} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.900) < EPS) {
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (90.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (90.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (90.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (90.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//		} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.600) < EPS) {
+	//			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (90.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (90.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//				blueClamp.radAng += DegreeToRad (90.0);
+	//				elemList.Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "openingWidth", APIParT_Length, format_string ("%f", 0.047)));
+	//				blueClamp.radAng -= DegreeToRad (90.0);
+	//			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+	//		}
+	//	}
+	//}
+
+	// 블루목심 (상부-L): 측면 아래에서 4번째 셀이 각재일 경우
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtLSide [3][xx].objType == TIMBER) || (placingZone->cellsAtLSide [3][xx].objType == PLYWOOD)) {
+			blueTimberRail.init (L("블루목심v1.0.gsm"), layerInd_BlueTimberRail, infoBeam.floorInd, placingZone->cellsAtLSide [3][xx].leftBottomX, placingZone->cellsAtLSide [3][xx].leftBottomY, placingZone->cellsAtLSide [3][xx].leftBottomZ, placingZone->cellsAtLSide [3][xx].ang);
+
+			if (placingZone->cellsAtLSide [3][xx].perLen < 0.040 - EPS) {
+				// 앞으로 설치된 50*80 각재
+				moveIn3D ('x', blueTimberRail.radAng, -0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng, -0.053, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+
+				if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 1.200) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.900) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.600) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				}
+			} else if ((placingZone->cellsAtLSide [3][xx].perLen >= 0.040 - EPS) && (placingZone->cellsAtLSide [3][xx].perLen < 0.050 - EPS)) {
+				// 50*40 각재
+				moveIn3D ('x', blueTimberRail.radAng, -0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng, -0.053, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+
+				if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 1.200) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.900) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.600) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				}
+			} else if ((placingZone->cellsAtLSide [3][xx].perLen >= 0.050 - EPS) && (placingZone->cellsAtLSide [3][xx].perLen < 0.080 - EPS)) {
+				moveIn3D ('x', blueTimberRail.radAng, -0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng, -0.0525, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+
+				// 80*50 각재
+				if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 1.200) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.900) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.600) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				}
+			} else if ((placingZone->cellsAtLSide [3][xx].perLen >= 0.080 - EPS) && (placingZone->cellsAtLSide [3][xx].perLen <= 0.100 + EPS)) {
+				moveIn3D ('x', blueTimberRail.radAng, -0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng, -0.0525, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+
+				// 80*80 각재
+				if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 1.200) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.900) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.600) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				}
+			} else if (placingZone->cellsAtLSide [3][xx].perLen >= 0.200 - EPS) {
+				moveIn3D ('x', blueTimberRail.radAng, -0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng, -0.064, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+
+				// 합판 및 제작틀
+				if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 1.200) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.900) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtLSide [3][xx].dirLen - 0.600) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				}
+			}
+		}
+	}
+
+	// 블루목심 (상부-R): 측면 아래에서 4번째 셀이 각재일 경우
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if ((placingZone->cellsAtRSide [3][xx].objType == TIMBER) || (placingZone->cellsAtRSide [3][xx].objType == PLYWOOD)) {
+			blueTimberRail.init (L("블루목심v1.0.gsm"), layerInd_BlueTimberRail, infoBeam.floorInd, placingZone->cellsAtRSide [3][xx].leftBottomX, placingZone->cellsAtRSide [3][xx].leftBottomY, placingZone->cellsAtRSide [3][xx].leftBottomZ, placingZone->cellsAtRSide [3][xx].ang);
+
+			if (placingZone->cellsAtRSide [3][xx].perLen < 0.040 - EPS) {
+				// 앞으로 설치된 50*80 각재
+				moveIn3D ('x', blueTimberRail.radAng, -0.023 + 0.194, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng, 0.053, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+
+				if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 1.200) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.900) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.600) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				}
+			} else if ((placingZone->cellsAtRSide [3][xx].perLen >= 0.040 - EPS) && (placingZone->cellsAtRSide [3][xx].perLen < 0.050 - EPS)) {
+				// 50*40 각재
+				moveIn3D ('x', blueTimberRail.radAng, -0.023 + 0.194, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng, 0.053, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+
+				if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 1.200) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.900) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.600) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				}
+			} else if ((placingZone->cellsAtRSide [3][xx].perLen >= 0.050 - EPS) && (placingZone->cellsAtRSide [3][xx].perLen < 0.080 - EPS)) {
+				moveIn3D ('x', blueTimberRail.radAng, -0.023 + 0.194, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng, 0.0525, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+
+				// 80*50 각재
+				if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 1.200) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.900) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.600) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				}
+			} else if ((placingZone->cellsAtRSide [3][xx].perLen >= 0.080 - EPS) && (placingZone->cellsAtRSide [3][xx].perLen <= 0.100 + EPS)) {
+				moveIn3D ('x', blueTimberRail.radAng, -0.023 + 0.194, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng, 0.0525, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+
+				// 80*80 각재
+				if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 1.200) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.900) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.600) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				}
+			} else if (placingZone->cellsAtRSide [3][xx].perLen >= 0.200 - EPS) {
+				moveIn3D ('x', blueTimberRail.radAng, -0.023 + 0.194, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng, 0.064, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+
+				// 합판 및 제작틀
+				if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 1.200) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.900) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				} else if (abs (placingZone->cellsAtRSide [3][xx].dirLen - 0.600) < EPS) {
+					moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						blueTimberRail.radAng += DegreeToRad (180.0);
+						elemList.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 1", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+						blueTimberRail.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				}
+			}
+		}
+	}
 
 	return	err;
+}
+
+// 왼쪽 혹은 오른쪽 면의 idx 번째 셀에 배치되는 객체의 타입을 조사함
+short BeamTableformPlacingZone::getObjectType (BeamTableformPlacingZone* placingZone, bool bLeft, short idx)
+{
+	short objType = NONE;
+
+	for (short xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if (bLeft == true) {
+			if (placingZone->cellsAtLSide [idx][xx].objType != NONE)
+				objType = placingZone->cellsAtLSide [idx][xx].objType;
+		} else {
+			if (placingZone->cellsAtRSide [idx][xx].objType != NONE)
+				objType = placingZone->cellsAtRSide [idx][xx].objType;
+		}
+	}
+
+	return objType;
 }
 
 // 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
@@ -2911,7 +3395,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE) == TRUE) {
 						for (xx = 0 ; xx < 50 ; ++xx) {
-							if (DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_LSIDE) >= 0.090 - EPS)
+							if (DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_LSIDE) >= 0.200 - EPS)
 								placingZone.cellsAtLSide [3][xx].objType = PLYWOOD;
 							else
 								placingZone.cellsAtLSide [3][xx].objType = TIMBER;
@@ -2943,7 +3427,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE) == TRUE) {
 						for (xx = 0 ; xx < 50 ; ++xx) {
-							if (DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_RSIDE) >= 0.090 - EPS)
+							if (DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_RSIDE) >= 0.200 - EPS)
 								placingZone.cellsAtRSide [3][xx].objType = PLYWOOD;
 							else
 								placingZone.cellsAtRSide [3][xx].objType = TIMBER;

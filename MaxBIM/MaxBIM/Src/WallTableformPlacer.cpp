@@ -1394,7 +1394,9 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	blueTimberRail.init (L("블루목심v1.0.gsm"), layerInd_BlueTimberRail, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ, placingZone->marginCellsBasic [idxCell].ang);
 	if (plywoodMarginBasic + EPS > 0.0) {
 		if ((plywoodMarginBasic >= 0.010 - EPS) && (plywoodMarginBasic <= 0.020 + EPS)) {
-			// 이 경우 블루목심 장착하지 않음
+			moveIn3D ('x', blueTimberRail.radAng, -0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+			moveIn3D ('y', blueTimberRail.radAng, -0.053, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+			moveIn3D ('z', blueTimberRail.radAng, -0.003 + placingZone->marginCellsBasic [idxCell].formWidth1 + placingZone->marginCellsBasic [idxCell].formWidth2, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 		} else if (abs (plywoodMarginBasic - 0.040) < EPS) {
 			moveIn3D ('x', blueTimberRail.radAng, -0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 			moveIn3D ('y', blueTimberRail.radAng, -0.053, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
@@ -1520,7 +1522,69 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 			// 각재와 유로폼은 블루 목심레일로 고정
 			if (plywoodMarginBasic + EPS > 0.0) {
 				if ((plywoodMarginBasic >= 0.010 - EPS) && (plywoodMarginBasic <= 0.020 + EPS)) {
-					// 이 경우 블루목심 장착하지 않음
+					if (placingZone->cells [idxCell].objType == TABLEFORM) {
+						for (yy = 0 ; yy < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++yy) {
+							if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
+								moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
+								moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng, 0.350, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
+								moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
+								moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng, 0.250, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else if (placingZone->cells [idxCell].tableInHor [yy] == 900) {
+								moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else if (placingZone->cells [idxCell].tableInHor [yy] == 1200) {
+								moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else {
+								moveIn3D ('x', blueTimberRail.radAng, (double)placingZone->cells [idxCell].tableInHor [yy] / 1000.0, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							}
+						}
+					} else if (placingZone->cells [idxCell].objType == EUROFORM) {
+						if (placingZone->cells [idxCell].horLen == 600) {
+							moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+							moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						} else if (placingZone->cells [idxCell].horLen == 500) {
+							moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+							moveIn3D ('x', blueTimberRail.radAng, 0.350, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						} else if (placingZone->cells [idxCell].horLen == 450) {
+							moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+							moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						} else if (placingZone->cells [idxCell].horLen == 400) {
+							moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+							moveIn3D ('x', blueTimberRail.radAng, 0.250, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						} else if (placingZone->cells [idxCell].horLen == 900) {
+							moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+							moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						} else if (placingZone->cells [idxCell].horLen == 1200) {
+							moveIn3D ('x', blueTimberRail.radAng, 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+							moveIn3D ('x', blueTimberRail.radAng, 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							elemList_Front.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+							moveIn3D ('x', blueTimberRail.radAng, 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						} else  {
+							moveIn3D ('x', blueTimberRail.radAng, (double)placingZone->cells [idxCell].horLen / 1000.0, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+						}
+					}
 				} else if (abs (plywoodMarginBasic - 0.040) < EPS) {
 					if (placingZone->cells [idxCell].objType == TABLEFORM) {
 						for (yy = 0 ; yy < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++yy) {
@@ -1727,7 +1791,9 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 		blueTimberRail.init (L("블루목심v1.0.gsm"), layerInd_BlueTimberRail, infoWall.floorInd, placingZone->marginCellsExtra [idxCell].leftBottomX, placingZone->marginCellsExtra [idxCell].leftBottomY, placingZone->marginCellsExtra [idxCell].leftBottomZ, placingZone->marginCellsExtra [idxCell].ang + DegreeToRad (180.0));
 		if (plywoodMarginExtra + EPS > 0.0) {
 			if ((plywoodMarginExtra >= 0.010 - EPS) && (plywoodMarginExtra <= 0.020 + EPS)) {
-				// 이 경우 블루목심 장착하지 않음
+				moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.194 - 0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('y', blueTimberRail.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.053, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+				moveIn3D ('z', blueTimberRail.radAng - DegreeToRad (180.0), -0.003 + placingZone->marginCellsExtra [idxCell].formWidth1 + placingZone->marginCellsExtra [idxCell].formWidth2, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 			} else if (abs (plywoodMarginExtra - 0.040) < EPS) {
 				moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.194 - 0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				moveIn3D ('y', blueTimberRail.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.053, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
@@ -1855,7 +1921,69 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 				// 각재와 유로폼은 블루 목심레일로 고정
 				if (plywoodMarginExtra + EPS > 0.0) {
 					if ((plywoodMarginExtra >= 0.010 - EPS) && (plywoodMarginExtra <= 0.020 + EPS)) {
-						// 이 경우 블루목심 장착하지 않음
+						if (placingZone->cells [idxCell].objType == TABLEFORM) {
+							for (yy = 0 ; yy < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++yy) {
+								if (placingZone->cells [idxCell].tableInHor [yy] == 600) {
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+									elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								} else if (placingZone->cells [idxCell].tableInHor [yy] == 500) {
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+									elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.350, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								} else if (placingZone->cells [idxCell].tableInHor [yy] == 450) {
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+									elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								} else if (placingZone->cells [idxCell].tableInHor [yy] == 400) {
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+									elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.250, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								} else if (placingZone->cells [idxCell].tableInHor [yy] == 900) {
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+									elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								} else if (placingZone->cells [idxCell].tableInHor [yy] == 1200) {
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+									elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+									elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								} else {
+									moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [yy] / 1000.0, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								}
+							}
+						} else if (placingZone->cells [idxCell].objType == EUROFORM) {
+							if (placingZone->cells [idxCell].horLen == 600) {
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else if (placingZone->cells [idxCell].horLen == 500) {
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.350, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else if (placingZone->cells [idxCell].horLen == 450) {
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else if (placingZone->cells [idxCell].horLen == 400) {
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.250, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else if (placingZone->cells [idxCell].horLen == 900) {
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else if (placingZone->cells [idxCell].horLen == 1200) {
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.150, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.750, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+								elemList_Back.Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "블루목심 4", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), 0.300, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							} else  {
+								moveIn3D ('x', blueTimberRail.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].horLen / 1000.0, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
+							}
+						}
 					} else if (abs (plywoodMarginExtra - 0.040) < EPS) {
 						if (placingZone->cells [idxCell].objType == TABLEFORM) {
 							for (yy = 0 ; yy < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++yy) {
@@ -2054,9 +2182,11 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 		}
 	}
 
-	// 합판 및 각재 채우기
+	// 합판 및 각재 채우기 !!!
 	EasyObjectPlacement	plywood;
 	EasyObjectPlacement timber;
+	short	addedPlywood;
+	double	moveZ;
 
 	// 채워야 할 전체 너비를 계산해야 함
 	remainLengthIntStored = remainLengthInt = placingZone->cells [idxCell].horLen;
@@ -2089,7 +2219,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 			if (plywoodMarginBasic + EPS > 0.0) {
 				// 유로폼 상단 앞쪽에 투바이(50*80) 배치 - 여백에 부착하지 않음
 				if ((plywoodMarginBasic >= 0.010 - EPS) && (plywoodMarginBasic <= 0.020 + EPS)) {
-					moveIn3D ('y', timber.radAng, -0.0635, &timber.posX, &timber.posY, &timber.posZ);
+					moveIn3D ('y', timber.radAng, -0.067, &timber.posX, &timber.posY, &timber.posZ);
 					moveIn3D ('z', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
 
 					while (remainLengthInt > 0) {
@@ -2184,7 +2314,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 				if (plywoodMarginExtra + EPS > 0.0) {
 					// 유로폼 상단 앞쪽에 투바이(50*80) 배치 - 여백에 부착하지 않음
 					if ((plywoodMarginExtra >= 0.010 - EPS) && (plywoodMarginExtra <= 0.020 + EPS)) {
-						moveIn3D ('y', timber.radAng - DegreeToRad (180.0), -0.0635, &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('y', timber.radAng - DegreeToRad (180.0), -0.067, &timber.posX, &timber.posY, &timber.posZ);
 						moveIn3D ('z', timber.radAng - DegreeToRad (180.0), -0.080, &timber.posX, &timber.posY, &timber.posZ);
 
 						while (remainLengthInt > 0) {
