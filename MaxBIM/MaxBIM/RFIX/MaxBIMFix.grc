@@ -106,7 +106,7 @@
 
 /* [  8] */	Icon			110		 20		300		230  	32504		/* Morph for Wall */
 /* [  9] */	Icon			110		 20		300		230  	32505		/* Morph for Slab */
-/* [ 10] */	Icon			110		 20		300		230  	32506		/* Morph for Beam */
+/* [ 10] */	Icon			110		 20		300		115  	32506		/* Morph for Beam */
 /* [ 11] */	Icon			110		 20		300		230  	32507		/* Morph for Column */
 }
 

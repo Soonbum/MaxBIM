@@ -1413,7 +1413,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	}
 
 	if (placingZone->marginCellsBasic [idxCell].bFill == true) {
-		if (plywoodMarginBasic >= 0.090 - EPS) {
+		if (plywoodMarginBasic > 0.100 + EPS) {
 			// 합판과 유로폼은 블루 클램프로 고정
 			if (placingZone->cells [idxCell].objType == TABLEFORM) {
 				for (yy = 0 ; yy < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++yy) {
@@ -1811,7 +1811,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 		if (placingZone->marginCellsExtra [idxCell].bFill == true) {
 			// 유로폼을 전혀 체크하지 않은 경우
-			if (plywoodMarginExtra >= 0.090 - EPS) {
+			if (plywoodMarginExtra > 0.100 + EPS) {
 				// 합판과 유로폼은 블루 클램프로 고정
 				if (placingZone->cells [idxCell].objType == TABLEFORM) {
 					for (yy = 0 ; yy < sizeof (placingZone->cells [idxCell].tableInHor) / sizeof (int) ; ++yy) {
@@ -2182,8 +2182,9 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 		}
 	}
 
-	// 합판 및 각재 채우기 !!!
+	// 합판 및 각재 채우기
 	EasyObjectPlacement	plywood;
+	EasyObjectPlacement plywood1, plywood2, plywood3;
 	EasyObjectPlacement timber;
 	short	addedPlywood;
 	double	moveZ;
@@ -2192,7 +2193,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	remainLengthIntStored = remainLengthInt = placingZone->cells [idxCell].horLen;
 
 	if (placingZone->marginCellsBasic [idxCell].bFill == true) {
-		if (plywoodMarginBasic >= 0.090 - EPS) {
+		if (plywoodMarginBasic > 0.100 + EPS) {
 			// 앞면 채우기
 			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ, placingZone->marginCellsBasic [idxCell].ang);
 
@@ -2213,12 +2214,19 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 		} else {
 			// 앞면 채우기
 			timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ, placingZone->marginCellsBasic [idxCell].ang);
+			plywood1.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ, placingZone->marginCellsBasic [idxCell].ang);
+			plywood2.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ + 0.0115, placingZone->marginCellsBasic [idxCell].ang);
+			plywood3.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ + 0.0115*2, placingZone->marginCellsBasic [idxCell].ang);
 
 			moveIn3D ('z', timber.radAng, placingZone->marginCellsBasic [idxCell].formWidth1 + placingZone->marginCellsBasic [idxCell].formWidth2, &timber.posX, &timber.posY, &timber.posZ);
 
+			moveIn3D ('z', plywood1.radAng, placingZone->marginCellsBasic [idxCell].formWidth1 + placingZone->marginCellsBasic [idxCell].formWidth2, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+			moveIn3D ('z', plywood2.radAng, placingZone->marginCellsBasic [idxCell].formWidth1 + placingZone->marginCellsBasic [idxCell].formWidth2, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+			moveIn3D ('z', plywood3.radAng, placingZone->marginCellsBasic [idxCell].formWidth1 + placingZone->marginCellsBasic [idxCell].formWidth2, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+
 			if (plywoodMarginBasic + EPS > 0.0) {
 				// 유로폼 상단 앞쪽에 투바이(50*80) 배치 - 여백에 부착하지 않음
-				if ((plywoodMarginBasic >= 0.010 - EPS) && (plywoodMarginBasic <= 0.020 + EPS)) {
+				if ((plywoodMarginBasic >= 0.010 - EPS) && (plywoodMarginBasic <= 0.030 + EPS)) {
 					moveIn3D ('y', timber.radAng, -0.067, &timber.posX, &timber.posY, &timber.posZ);
 					moveIn3D ('z', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
 
@@ -2233,6 +2241,48 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 						remainLengthInt -= 3600;
 					}
+
+					if (abs (plywoodMarginBasic - 0.010) < EPS)	addedPlywood = 1;	// 10mm 이면 합판 1장 얹음
+					if (abs (plywoodMarginBasic - 0.020) < EPS)	addedPlywood = 2;	// 20mm 이면 합판 2장 얹음
+					if (abs (plywoodMarginBasic - 0.030) < EPS)	addedPlywood = 3;	// 30mm 이면 합판 3장 얹음
+					moveZ = 0.0;
+
+					remainLengthInt = remainLengthIntStored;
+
+					while (remainLengthInt > 0) {
+						if (remainLengthInt >= 2400)
+							lengthInt = 2400;
+						else
+							lengthInt = remainLengthInt;
+						
+						if (addedPlywood >= 1) {
+							moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							elemList_Front.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+							moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							moveIn3D ('x', plywood1.radAng, (double)lengthInt / 1000.0, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						}
+						if (addedPlywood >= 2) {
+							moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							elemList_Front.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+							moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							moveIn3D ('x', plywood2.radAng, (double)lengthInt / 1000.0, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						}
+						if (addedPlywood >= 3) {
+							moveIn3D ('y', plywood3.radAng, -0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+							moveIn3D ('z', plywood3.radAng, moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+							elemList_Front.Push (plywood3.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+							moveIn3D ('y', plywood3.radAng, 0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+							moveIn3D ('z', plywood3.radAng, -moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+							moveIn3D ('x', plywood3.radAng, (double)lengthInt / 1000.0, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						}
+
+						remainLengthInt -= 2400;
+					}
+
 				// 여백에 다루끼(50*40) 배치
 				} else if (abs (plywoodMarginBasic - 0.040) < EPS) {
 					while (remainLengthInt > 0) {
@@ -2246,6 +2296,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 						remainLengthInt -= 3600;
 					}
+
 				// 여백에 투바이(80*50) 배치
 				} else if ((plywoodMarginBasic >= 0.050 - EPS) && (plywoodMarginBasic <= 0.070 + EPS)) {
 					while (remainLengthInt > 0) {
@@ -2259,6 +2310,39 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 						remainLengthInt -= 3600;
 					}
+
+					if (abs (plywoodMarginBasic - 0.060) < EPS)	addedPlywood = 1;	// 60mm 이면 합판 1장 얹음
+					if (abs (plywoodMarginBasic - 0.070) < EPS)	addedPlywood = 2;	// 70mm 이면 합판 2장 얹음
+					moveZ = 0.050;
+
+					remainLengthInt = remainLengthIntStored;
+
+					while (remainLengthInt > 0) {
+						if (remainLengthInt >= 2400)
+							lengthInt = 2400;
+						else
+							lengthInt = remainLengthInt;
+						
+						if (addedPlywood >= 1) {
+							moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							elemList_Front.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+							moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							moveIn3D ('x', plywood1.radAng, (double)lengthInt / 1000.0, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						}
+						if (addedPlywood >= 2) {
+							moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							elemList_Front.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+							moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							moveIn3D ('x', plywood2.radAng, (double)lengthInt / 1000.0, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						}
+
+						remainLengthInt -= 2400;
+					}
+
 				// 여백에 투바이(50*80) 배치
 				} else if (plywoodMarginBasic >= 0.080 - EPS) {
 					while (remainLengthInt > 0) {
@@ -2272,6 +2356,38 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 						remainLengthInt -= 3600;
 					}
+
+					if (abs (plywoodMarginBasic - 0.090) < EPS)	addedPlywood = 1;	// 90mm 이면 합판 1장 얹음
+					if (abs (plywoodMarginBasic - 0.100) < EPS)	addedPlywood = 2;	// 100mm 이면 합판 2장 얹음
+					moveZ = 0.080;
+
+					remainLengthInt = remainLengthIntStored;
+
+					while (remainLengthInt > 0) {
+						if (remainLengthInt >= 2400)
+							lengthInt = 2400;
+						else
+							lengthInt = remainLengthInt;
+						
+						if (addedPlywood >= 1) {
+							moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							elemList_Front.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+							moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							moveIn3D ('x', plywood1.radAng, (double)lengthInt / 1000.0, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						}
+						if (addedPlywood >= 2) {
+							moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							elemList_Front.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+							moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							moveIn3D ('x', plywood2.radAng, (double)lengthInt / 1000.0, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						}
+
+						remainLengthInt -= 2400;
+					}
 				}
 			}
 		}
@@ -2280,7 +2396,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	remainLengthIntStored = remainLengthInt = placingZone->cells [idxCell].horLen;
 
 	if (placingZone->marginCellsExtra [idxCell].bFill == true) {
-		if (plywoodMarginExtra >= 0.090 - EPS) {
+		if (plywoodMarginExtra > 0.100 + EPS) {
 			// 뒷면 채우기
 			if (placingZone->bSingleSide == false) {
 				remainLengthInt = remainLengthIntStored;
@@ -2307,14 +2423,24 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 			if (placingZone->bSingleSide == false) {
 				remainLengthInt = remainLengthIntStored;
 				timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoWall.floorInd, placingZone->marginCellsExtra [idxCell].leftBottomX, placingZone->marginCellsExtra [idxCell].leftBottomY, placingZone->marginCellsExtra [idxCell].leftBottomZ, placingZone->marginCellsExtra [idxCell].ang + DegreeToRad (180.0));
+				plywood1.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsExtra [idxCell].leftBottomX, placingZone->marginCellsExtra [idxCell].leftBottomY, placingZone->marginCellsExtra [idxCell].leftBottomZ, placingZone->marginCellsExtra [idxCell].ang + DegreeToRad (180.0));
+				plywood2.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsExtra [idxCell].leftBottomX, placingZone->marginCellsExtra [idxCell].leftBottomY, placingZone->marginCellsExtra [idxCell].leftBottomZ + 0.0115, placingZone->marginCellsExtra [idxCell].ang + DegreeToRad (180.0));
+				plywood3.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsExtra [idxCell].leftBottomX, placingZone->marginCellsExtra [idxCell].leftBottomY, placingZone->marginCellsExtra [idxCell].leftBottomZ + 0.0115*2, placingZone->marginCellsExtra [idxCell].ang + DegreeToRad (180.0));
 
 				moveIn3D ('y', timber.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2, &timber.posX, &timber.posY, &timber.posZ);
 				moveIn3D ('z', timber.radAng - DegreeToRad (180.0), placingZone->marginCellsExtra [idxCell].formWidth1 + placingZone->marginCellsExtra [idxCell].formWidth2, &timber.posX, &timber.posY, &timber.posZ);
 
+				moveIn3D ('y', plywood1.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+				moveIn3D ('y', plywood2.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+				moveIn3D ('y', plywood3.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+				moveIn3D ('z', plywood1.radAng - DegreeToRad (180.0), placingZone->marginCellsExtra [idxCell].formWidth1 + placingZone->marginCellsExtra [idxCell].formWidth2, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+				moveIn3D ('z', plywood2.radAng - DegreeToRad (180.0), placingZone->marginCellsExtra [idxCell].formWidth1 + placingZone->marginCellsExtra [idxCell].formWidth2, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+				moveIn3D ('z', plywood3.radAng - DegreeToRad (180.0), placingZone->marginCellsExtra [idxCell].formWidth1 + placingZone->marginCellsExtra [idxCell].formWidth2, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+
 				if (plywoodMarginExtra + EPS > 0.0) {
 					// 유로폼 상단 앞쪽에 투바이(50*80) 배치 - 여백에 부착하지 않음
-					if ((plywoodMarginExtra >= 0.010 - EPS) && (plywoodMarginExtra <= 0.020 + EPS)) {
-						moveIn3D ('y', timber.radAng - DegreeToRad (180.0), -0.067, &timber.posX, &timber.posY, &timber.posZ);
+					if ((plywoodMarginExtra >= 0.010 - EPS) && (plywoodMarginExtra <= 0.030 + EPS)) {
+						moveIn3D ('y', timber.radAng - DegreeToRad (180.0), 0.067, &timber.posX, &timber.posY, &timber.posZ);
 						moveIn3D ('z', timber.radAng - DegreeToRad (180.0), -0.080, &timber.posX, &timber.posY, &timber.posZ);
 
 						while (remainLengthInt > 0) {
@@ -2328,6 +2454,48 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 							remainLengthInt -= 3600;
 						}
+
+						if (abs (plywoodMarginExtra - 0.010) < EPS)	addedPlywood = 1;	// 10mm 이면 합판 1장 얹음
+						if (abs (plywoodMarginExtra - 0.020) < EPS)	addedPlywood = 2;	// 20mm 이면 합판 2장 얹음
+						if (abs (plywoodMarginExtra - 0.030) < EPS)	addedPlywood = 3;	// 30mm 이면 합판 3장 얹음
+						moveZ = 0.0;
+
+						remainLengthInt = remainLengthIntStored;
+
+						while (remainLengthInt > 0) {
+							if (remainLengthInt >= 2400)
+								lengthInt = 2400;
+							else
+								lengthInt = remainLengthInt;
+						
+							if (addedPlywood >= 1) {
+								moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+								moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+								moveIn3D ('x', plywood1.radAng, -(double)lengthInt / 1000.0, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+								elemList_Front.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+								moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+								moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							}
+							if (addedPlywood >= 2) {
+								moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+								moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+								moveIn3D ('x', plywood2.radAng, -(double)lengthInt / 1000.0, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+								elemList_Front.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+								moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+								moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							}
+							if (addedPlywood >= 3) {
+								moveIn3D ('y', plywood3.radAng, -0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+								moveIn3D ('z', plywood3.radAng, moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+								moveIn3D ('x', plywood3.radAng, -(double)lengthInt / 1000.0, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+								elemList_Front.Push (plywood3.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+								moveIn3D ('y', plywood3.radAng, 0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+								moveIn3D ('z', plywood3.radAng, -moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+							}
+
+							remainLengthInt -= 2400;
+						}
+
 					// 여백에 다루끼(50*40) 배치
 					} else if (abs (plywoodMarginExtra - 0.040) < EPS) {
 						while (remainLengthInt > 0) {
@@ -2354,6 +2522,39 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 							remainLengthInt -= 3600;
 						}
+
+						if (abs (plywoodMarginExtra - 0.060) < EPS)	addedPlywood = 1;	// 60mm 이면 합판 1장 얹음
+						if (abs (plywoodMarginExtra - 0.070) < EPS)	addedPlywood = 2;	// 70mm 이면 합판 2장 얹음
+						moveZ = 0.050;
+
+						remainLengthInt = remainLengthIntStored;
+
+						while (remainLengthInt > 0) {
+							if (remainLengthInt >= 2400)
+								lengthInt = 2400;
+							else
+								lengthInt = remainLengthInt;
+						
+							if (addedPlywood >= 1) {
+								moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+								moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+								moveIn3D ('x', plywood1.radAng, -(double)lengthInt / 1000.0, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+								elemList_Front.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+								moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+								moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+							}
+							if (addedPlywood >= 2) {
+								moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+								moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+								moveIn3D ('x', plywood2.radAng, -(double)lengthInt / 1000.0, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+								elemList_Front.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+								moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+								moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+							}
+
+							remainLengthInt -= 2400;
+						}
+
 					// 여백에 투바이(50*80) 배치
 					} else if (plywoodMarginExtra >= 0.080 - EPS) {
 						while (remainLengthInt > 0) {
@@ -2366,6 +2567,38 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 							elemList_Back.Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", 0.050), "w_h", APIParT_Length, format_string ("%f", 0.080), "w_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 
 							remainLengthInt -= 3600;
+
+							if (abs (plywoodMarginExtra - 0.090) < EPS)	addedPlywood = 1;	// 90mm 이면 합판 1장 얹음
+							if (abs (plywoodMarginExtra - 0.100) < EPS)	addedPlywood = 2;	// 100mm 이면 합판 2장 얹음
+							moveZ = 0.080;
+
+							remainLengthInt = remainLengthIntStored;
+
+							while (remainLengthInt > 0) {
+								if (remainLengthInt >= 2400)
+									lengthInt = 2400;
+								else
+									lengthInt = remainLengthInt;
+						
+								if (addedPlywood >= 1) {
+									moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+									moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+									moveIn3D ('x', plywood1.radAng, -(double)lengthInt / 1000.0, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+									elemList_Front.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+									moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+									moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+								}
+								if (addedPlywood >= 2) {
+									moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+									moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+									moveIn3D ('x', plywood2.radAng, -(double)lengthInt / 1000.0, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+									elemList_Front.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+									moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+									moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+								}
+
+								remainLengthInt -= 2400;
+							}
 						}
 					}
 				}
@@ -7669,7 +7902,7 @@ short DGCALLBACK wallTableformPlacerHandler4 (short message, short dialogID, sho
 			if (iMarginSide == 1) {
 				if (placingZone.marginTopBasic < EPS) {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
-				} else if (placingZone.marginTopBasic < 0.090) {
+				} else if (placingZone.marginTopBasic <= 0.100 + EPS) {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
 				} else {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
@@ -7678,7 +7911,7 @@ short DGCALLBACK wallTableformPlacerHandler4 (short message, short dialogID, sho
 			} else {
 				if (placingZone.marginTopExtra < EPS) {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
-				} else if (placingZone.marginTopExtra < 0.090) {
+				} else if (placingZone.marginTopExtra <= 0.100 + EPS) {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
 				} else {
 					DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");
@@ -7777,7 +8010,7 @@ short DGCALLBACK wallTableformPlacerHandler4 (short message, short dialogID, sho
 
 			if (changedPlywoodHeight < EPS) {
 				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "없음");
-			} else if (changedPlywoodHeight < 0.090) {
+			} else if (changedPlywoodHeight <= 0.100 + EPS) {
 				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "목재");
 			} else {
 				DGSetItemText (dialogID, LABEL_PLYWOOD_TOPREST, "합판");

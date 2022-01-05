@@ -119,7 +119,7 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					DGShowItem (dialogID, itmIdx);
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 380, 300, 23);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오:\n모프, 벽, (높이가 다른 모프)");
+					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오:\n벽, 모프, (높이가 다른 모프)");
 					DGShowItem (dialogID, itmIdx);
 
 					break;
@@ -151,7 +151,7 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					DGShowItem (dialogID, itmIdx);
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 350, 300, 23);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오: 모프, 슬래브");
+					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오: 슬래브, 모프");
 					DGShowItem (dialogID, itmIdx);
 
 					break;
@@ -171,27 +171,15 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					// 그림에 대한 설명
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 260, 300, 23);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, "테이블폼을 붙일 보 측면 전체 혹은 일부에 모프를\n그리십시오.");
+					DGSetItemText (dialogID, itmIdx, "테이블폼을 붙일 보 측면에 모프를\n그리십시오.");
 					DGShowItem (dialogID, itmIdx);
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 290, 300, 23);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, "보 전체의 경우, 간섭 보를 인식하려면 간섭 보가\n관통해야 합니다.");
+					DGSetItemText (dialogID, itmIdx, "보 측면/하부에 단열재가 있으면 모프를 단열재 위에\n그리면 됩니다.");
 					DGShowItem (dialogID, itmIdx);
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 320, 300, 23);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, "보 전체의 경우, 간섭 보는 1개만 인식되므로 간섭 보가\n많으면 보 일부로 나눠서 작업하십시오.");
-					DGShowItem (dialogID, itmIdx);
-					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 350, 300, 23);
-					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, "실행 후 모프의 시작점, 끝점을 순서대로\n클릭하십시오.");
-					DGShowItem (dialogID, itmIdx);
-					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 380, 300, 23);
-					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, "보 측면/하부에 단열재가 있으면 모프를 단열재 위에\n그리면 됩니다.");
-					DGShowItem (dialogID, itmIdx);
-					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 410, 300, 23);
-					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오: 모프, 메인보");
+					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오: 보, 모프, (높이가 다른 모프)");
 					DGShowItem (dialogID, itmIdx);
 
 					break;
@@ -223,11 +211,7 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					DGShowItem (dialogID, itmIdx);
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 350, 300, 23);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, "기둥이 벽에 붙거나 침범하는 경우, 벽을 같이\n선택하십시오.");
-					DGShowItem (dialogID, itmIdx);
-					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 380, 300, 23);
-					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오:\n모프, 기둥, (보 다수), (벽)");
+					DGSetItemText (dialogID, itmIdx, "다음 요소를 선택한 후 실행하십시오:\n기둥, 모프, (보 다수)");
 					DGShowItem (dialogID, itmIdx);
 
 					break;
@@ -267,7 +251,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "배포일: 2022.01.04 - 18:38");
+			DGSetItemText (dialogID, itmIdx, "배포일: 2022.01.05 - 14:56");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
