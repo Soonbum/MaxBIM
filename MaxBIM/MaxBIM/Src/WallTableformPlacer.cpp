@@ -2472,7 +2472,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 								moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 								moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 								moveIn3D ('x', plywood1.radAng, -(double)lengthInt / 1000.0, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-								elemList_Front.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+								elemList_Back.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
 								moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 								moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 							}
@@ -2480,7 +2480,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 								moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 								moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 								moveIn3D ('x', plywood2.radAng, -(double)lengthInt / 1000.0, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-								elemList_Front.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+								elemList_Back.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
 								moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 								moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 							}
@@ -2488,7 +2488,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 								moveIn3D ('y', plywood3.radAng, -0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 								moveIn3D ('z', plywood3.radAng, moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 								moveIn3D ('x', plywood3.radAng, -(double)lengthInt / 1000.0, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-								elemList_Front.Push (plywood3.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+								elemList_Back.Push (plywood3.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
 								moveIn3D ('y', plywood3.radAng, 0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 								moveIn3D ('z', plywood3.radAng, -moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 							}
@@ -2539,7 +2539,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 								moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 								moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 								moveIn3D ('x', plywood1.radAng, -(double)lengthInt / 1000.0, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-								elemList_Front.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+								elemList_Back.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
 								moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 								moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 							}
@@ -2547,7 +2547,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 								moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 								moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 								moveIn3D ('x', plywood2.radAng, -(double)lengthInt / 1000.0, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-								elemList_Front.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+								elemList_Back.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
 								moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 								moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 							}
@@ -2584,7 +2584,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 									moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 									moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 									moveIn3D ('x', plywood1.radAng, -(double)lengthInt / 1000.0, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-									elemList_Front.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+									elemList_Back.Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
 									moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 									moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 								}
@@ -2592,7 +2592,7 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 									moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 									moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 									moveIn3D ('x', plywood2.radAng, -(double)lengthInt / 1000.0, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-									elemList_Front.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+									elemList_Back.Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "ºñ±Ô°Ý", "w_dir", APIParT_CString, "¹Ù´Úµ¤±â", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
 									moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 									moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 								}

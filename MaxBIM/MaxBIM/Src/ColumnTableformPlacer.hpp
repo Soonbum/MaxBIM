@@ -39,7 +39,7 @@ namespace columnTableformPlacerDG {
 		WEST
 	};
 
-	// 다이얼로그 항목 인덱스 !!!
+	// 다이얼로그 항목 인덱스
 	enum	idxItems_1_forColumnTableformPlacer {
 		LABEL_COLUMN_SECTION		= 3,
 

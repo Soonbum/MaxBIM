@@ -333,6 +333,9 @@ GSErrCode	placeTableformOnBeam (void)
 	}
 	BMKillHandle ((GSHandle *) &storyInfo.data);
 
+	placingZone.begC.z -= workLevel_beam;
+	placingZone.endC.z -= workLevel_beam;
+
 FIRST:
 
 	// placingZone의 Cell 정보 초기화
