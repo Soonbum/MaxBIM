@@ -93,7 +93,6 @@
 	0  128  128
 }
 
-
 /* ---------------------------------------------------------- Manual Palette */
 'GDLG'  32516  Palette | grow		  0		  0		420		500		"Manual Palette" {
 /* [  1] */	Button			180		460		100		 25		LargePlain		"OK"
@@ -500,4 +499,51 @@
 /* [ 56] */	UserControl		210		624		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
 
 /* [ 57] */	Button			210		675		160		 25		LargePlain		"Autoset"
+}
+
+/* ---------------------------------------------------------- place PERI Supporting Post for Beam Tableform */
+'GDLG'  32525  Modal | grow	  0		  0		600		690		"PERI Supporting Post Placer" {
+/* [  1] */	Button			240		640		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			330		640		 70		 25		LargePlain		"Cancel"
+
+/* [  3] */	LeftText		 20		 20		 50		 25		LargePlain		"Type"
+/* [  4] */	PopupControl	 70		 13		200		 25		200		10		/* 타입 */
+
+/* [  5] */	LeftText		 20		 60		100		 23		LargePlain		"Plan View"
+
+/* [  6] */	Separator		100		140		450		140		/* Beam */ 
+/* [  7] */	Separator		170		145		300		130		/* Supporting Post */
+
+/* [  8] */	LeftText		 10		150		 80		 23		LargePlain		"Beam Width"
+/* [  9] */	LengthEdit		 10		175		 60		 25		LargePlain		"-10" "10"
+/* [ 10] */	LeftText		 10		220		 80		 23		LargePlain		"Beam Length"
+/* [ 11] */	LengthEdit		 10		245		 60		 25		LargePlain		"-10" "10"
+/* [ 12] */	LeftText		110		 85		 70		 23		LargePlain		"Offset"
+/* [ 13] */	LengthEdit		110		110		 50		 25		LargePlain		"-100" "100"
+
+/* [ 14] */	CenterText		175		175		 70		 23		LargePlain		"Gap (Width)"
+/* [ 15] */	PopupControl	175		200		 70		 25		200		10		/* Gap Distance along Width Direction */
+/* [ 16] */	CenterText		290		220		 70		 23		LargePlain		"Gap (Length)"
+/* [ 17] */	PopupControl	290		245		 70		 25		200		10		/* Gap Distance along Length Direction */
+
+/* [ 18] */	Icon			235		318		 29		 14  	32502
+/* [ 19] */	LeftText		270		320		200		 23		LargePlain		"Layer Settings"
+/* [ 20] */	CheckBox		270		350		100		 23		LargePlain		"Coupling"
+/* [ 21] */	RightText		160		380		100		 23		LargePlain		"Vertical Post"
+/* [ 22] */	RightText		160		410		100		 23		LargePlain		"Horizontal Post"
+/* [ 23] */	RightText		160		440		100		 23		LargePlain		"Girder"
+/* [ 24] */	RightText		160		470		100		 23		LargePlain		"Beam Bracket"
+/* [ 25] */	RightText		160		500		100		 23		LargePlain		"Yoke"
+/* [ 26] */	RightText		160		530		100		 23		LargePlain		"Timber"
+/* [ 27] */	RightText		160		560		100		 23		LargePlain		"Jack Support"
+
+/* [ 28] */	UserControl		270		374		160		 25		257	0x0006 0x0000 0		/* Layer Control - VERTICAL POST	*/
+/* [ 29] */	UserControl		270		404		160		 25		257	0x0006 0x0000 0		/* Layer Control - HORIZONTAL POST	*/
+/* [ 30] */	UserControl		270		434		160		 25		257	0x0006 0x0000 0		/* Layer Control - GIRDER			*/
+/* [ 31] */	UserControl		270		464		160		 25		257	0x0006 0x0000 0		/* Layer Control - BEAM BRACKET		*/
+/* [ 32] */	UserControl		270		494		160		 25		257	0x0006 0x0000 0		/* Layer Control - YOKE				*/
+/* [ 33] */	UserControl		270		524		160		 25		257	0x0006 0x0000 0		/* Layer Control - TIMBER			*/
+/* [ 34] */	UserControl		270		554		160		 25		257	0x0006 0x0000 0		/* Layer Control - JACK SUPPORT		*/
+
+/* [ 35] */	Button			270		584		160		 25		LargePlain		"Autoset"
 }
