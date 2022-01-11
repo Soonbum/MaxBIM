@@ -3103,6 +3103,8 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
+	short	xx;
+	double	distance;
 
 	EasyObjectPlacement	verticalPost, horizontalPost, girder, beamBracket, yoke, timber, jackSupport;
 
@@ -3113,21 +3115,13 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		moveIn3D ('z', verticalPost.radAng, -0.003 - 0.1135 - 0.240, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 		moveIn3D ('x', verticalPost.radAng, placingZone->postStartOffset, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 		moveIn3D ('y', verticalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-		verticalPost.radAng += DegreeToRad (90.0);
-		elemList.Push (verticalPost.placeObject (6, "stType", APIParT_CString, "MP 480", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
-		verticalPost.radAng -= DegreeToRad (90.0);
+		elemList.Push (verticalPost.placeObject (7, "stType", APIParT_CString, "MP 120", "len_current", APIParT_Length, "1.200", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 		moveIn3D ('y', verticalPost.radAng, placingZone->postGapWidth, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-		verticalPost.radAng += DegreeToRad (90.0);
-		elemList.Push (verticalPost.placeObject (6, "stType", APIParT_CString, "MP 480", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
-		verticalPost.radAng -= DegreeToRad (90.0);
+		elemList.Push (verticalPost.placeObject (7, "stType", APIParT_CString, "MP 120", "len_current", APIParT_Length, "1.200", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 		moveIn3D ('x', verticalPost.radAng, placingZone->postGapLength, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-		verticalPost.radAng += DegreeToRad (90.0);
-		elemList.Push (verticalPost.placeObject (6, "stType", APIParT_CString, "MP 480", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
-		verticalPost.radAng -= DegreeToRad (90.0);
+		elemList.Push (verticalPost.placeObject (7, "stType", APIParT_CString, "MP 120", "len_current", APIParT_Length, "1.200", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 		moveIn3D ('y', verticalPost.radAng, -placingZone->postGapWidth, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-		verticalPost.radAng += DegreeToRad (90.0);
-		elemList.Push (verticalPost.placeObject (6, "stType", APIParT_CString, "MP 480", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
-		verticalPost.radAng -= DegreeToRad (90.0);
+		elemList.Push (verticalPost.placeObject (7, "stType", APIParT_CString, "MP 120", "len_current", APIParT_Length, "1.200", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 
 		// 배치: GT24 거더
 		girder.init (L("GT24 거더 v1.0.gsm"), layerInd_Girder, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
@@ -3151,47 +3145,149 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		girder.radAng -= DegreeToRad (90.0);
 
 		// 배치: 보 브라켓
-		// ...
+		beamBracket.init (L("블루 보 브라켓 v1.0.gsm"), layerInd_BeamBracket, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
+		moveIn3D ('x', beamBracket.radAng, placingZone->postStartOffset, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
+		moveIn3D ('y', beamBracket.radAng, -0.1135, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
+		moveIn3D ('z', beamBracket.radAng, -0.1135, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
+		beamBracket.radAng += DegreeToRad (270.0);
+		elemList.Push (beamBracket.placeObject (2, "type", APIParT_CString, "730", "verticalHeight", APIParT_Length, format_string ("%f", 0.500)));
+		beamBracket.radAng -= DegreeToRad (270.0);
+		moveIn3D ('x', beamBracket.radAng, placingZone->postGapLength, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
+		beamBracket.radAng += DegreeToRad (270.0);
+		elemList.Push (beamBracket.placeObject (2, "type", APIParT_CString, "730", "verticalHeight", APIParT_Length, format_string ("%f", 0.500)));
+		beamBracket.radAng -= DegreeToRad (270.0);
+		moveIn3D ('y', beamBracket.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2) + (0.1135 * 2), &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
+		beamBracket.radAng += DegreeToRad (90.0);
+		elemList.Push (beamBracket.placeObject (2, "type", APIParT_CString, "730", "verticalHeight", APIParT_Length, format_string ("%f", 0.500)));
+		beamBracket.radAng -= DegreeToRad (90.0);
+		moveIn3D ('x', beamBracket.radAng, -placingZone->postGapLength, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
+		beamBracket.radAng += DegreeToRad (90.0);
+		elemList.Push (beamBracket.placeObject (2, "type", APIParT_CString, "730", "verticalHeight", APIParT_Length, format_string ("%f", 0.500)));
+		beamBracket.radAng -= DegreeToRad (90.0);
 
 	// PERI 동바리 + 보 멍에제
 	} else if (placingZone->typeOfSupportingPost == 2) {
-		// 배치: PERI동바리 수직재 !!!
+		// 배치: PERI동바리 수직재
 		verticalPost.init (L("PERI동바리 수직재 v0.1.gsm"), layerInd_VerticalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
-		moveIn3D ('z', verticalPost.radAng, -0.1135 - 0.240, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
+		moveIn3D ('z', verticalPost.radAng, -0.1135 - 0.240 + 0.135, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 		moveIn3D ('x', verticalPost.radAng, placingZone->postStartOffset, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 		moveIn3D ('y', verticalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-		verticalPost.radAng += DegreeToRad (90.0);
-		elemList.Push (verticalPost.placeObject (6, "stType", APIParT_CString, "MP 480", "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
-		verticalPost.radAng -= DegreeToRad (90.0);
+		elemList.Push (verticalPost.placeObject (7, "stType", APIParT_CString, "MP 120", "len_current", APIParT_Length, "1.200", "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 		moveIn3D ('y', verticalPost.radAng, placingZone->postGapWidth, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-		verticalPost.radAng += DegreeToRad (90.0);
-		elemList.Push (verticalPost.placeObject (6, "stType", APIParT_CString, "MP 480", "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
-		verticalPost.radAng -= DegreeToRad (90.0);
+		elemList.Push (verticalPost.placeObject (7, "stType", APIParT_CString, "MP 120", "len_current", APIParT_Length, "1.200", "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 		moveIn3D ('x', verticalPost.radAng, placingZone->postGapLength, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-		verticalPost.radAng += DegreeToRad (90.0);
-		elemList.Push (verticalPost.placeObject (6, "stType", APIParT_CString, "MP 480", "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
-		verticalPost.radAng -= DegreeToRad (90.0);
+		elemList.Push (verticalPost.placeObject (7, "stType", APIParT_CString, "MP 120", "len_current", APIParT_Length, "1.200", "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 		moveIn3D ('y', verticalPost.radAng, -placingZone->postGapWidth, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-		verticalPost.radAng += DegreeToRad (90.0);
-		elemList.Push (verticalPost.placeObject (6, "stType", APIParT_CString, "MP 480", "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
-		verticalPost.radAng -= DegreeToRad (90.0);
+		elemList.Push (verticalPost.placeObject (7, "stType", APIParT_CString, "MP 120", "len_current", APIParT_Length, "1.200", "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 
 		// 배치: 보 멍에제
-		// ...
+		if (abs (placingZone->postGapWidth - 1.200) < EPS)
+			distance = 0.0015;
+		else if (abs (placingZone->postGapWidth - 1.500) < EPS)
+			distance = 0.1515;
+
+		yoke.init (L("보 멍에제v1.0.gsm"), layerInd_Yoke, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
+		moveIn3D ('x', yoke.radAng, placingZone->postStartOffset + 0.075, &yoke.posX, &yoke.posY, &yoke.posZ);
+		moveIn3D ('y', yoke.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - 0.260, &yoke.posX, &yoke.posY, &yoke.posZ);
+		moveIn3D ('z', yoke.radAng, -0.2635, &yoke.posX, &yoke.posY, &yoke.posZ);
+		yoke.radAng += DegreeToRad (90.0);
+		elemList.Push (yoke.placeObject (5, "beamLength", APIParT_Length, format_string ("%f", placingZone->postGapWidth + 0.300), "verticalGap", APIParT_Length, format_string ("%f", placingZone->postGapWidth), "innerVerticalLen", APIParT_Length, "0.700", "LbarHdist", APIParT_Length, format_string ("%f", distance), "RbarHdist", APIParT_Length, format_string ("%f", distance)));
+		yoke.radAng -= DegreeToRad (90.0);
+		moveIn3D ('x', yoke.radAng, placingZone->postGapLength, &yoke.posX, &yoke.posY, &yoke.posZ);
+		yoke.radAng += DegreeToRad (90.0);
+		elemList.Push (yoke.placeObject (5, "beamLength", APIParT_Length, format_string ("%f", placingZone->postGapWidth + 0.300), "verticalGap", APIParT_Length, format_string ("%f", placingZone->postGapWidth), "innerVerticalLen", APIParT_Length, "0.700", "LbarHdist", APIParT_Length, format_string ("%f", distance), "RbarHdist", APIParT_Length, format_string ("%f", distance)));
+		yoke.radAng -= DegreeToRad (90.0);
 	}
 
-	// 배치: PERI동바리 수평재
-	// ...
+	// 배치: PERI동바리 수평재 (너비 방향)
+	if (placingZone->typeOfSupportingPost == 1)
+		distance = -0.003 - 0.1135 - 0.240;
+	else if (placingZone->typeOfSupportingPost == 2)
+		distance = -0.1135 - 0.240 + 0.135;
 
-	// 배치: 각재
-	// ...
+	horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
+	moveIn3D ('x', horizontalPost.radAng, placingZone->postStartOffset, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 + placingZone->postGapWidth) / 2 - 0.050, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	moveIn3D ('z', horizontalPost.radAng, distance - 1.000, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	if (abs (placingZone->postGapWidth - 1.200) < EPS) {
+		horizontalPost.radAng += DegreeToRad (270.0);
+		elemList.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "120 cm", "lenFrame", APIParT_Length, "1.100"));
+		horizontalPost.radAng -= DegreeToRad (270.0);
+	} else if (abs (placingZone->postGapWidth - 1.500) < EPS) {
+		horizontalPost.radAng += DegreeToRad (270.0);
+		elemList.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "150 cm", "lenFrame", APIParT_Length, "1.400"));
+		horizontalPost.radAng -= DegreeToRad (270.0);
+	}
+	moveIn3D ('x', horizontalPost.radAng, placingZone->postGapLength, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	moveIn3D ('y', horizontalPost.radAng, -placingZone->postGapWidth + 0.100, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	if (abs (placingZone->postGapWidth - 1.200) < EPS) {
+		horizontalPost.radAng += DegreeToRad (90.0);
+		elemList.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "120 cm", "lenFrame", APIParT_Length, "1.100"));
+		horizontalPost.radAng -= DegreeToRad (90.0);
+	} else if (abs (placingZone->postGapWidth - 1.500) < EPS) {
+		horizontalPost.radAng += DegreeToRad (90.0);
+		elemList.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "150 cm", "lenFrame", APIParT_Length, "1.400"));
+		horizontalPost.radAng -= DegreeToRad (90.0);
+	}
 
-	// 배치: 잭 서포트
-	// ...
+	// 배치: PERI동바리 수평재 (길이 방향)
+	horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
+	moveIn3D ('x', horizontalPost.radAng, placingZone->postStartOffset + 0.050, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	moveIn3D ('z', horizontalPost.radAng, distance - 1.000, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	if (abs (placingZone->postGapLength - 1.200) < EPS) {
+		elemList.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "120 cm", "lenFrame", APIParT_Length, "1.100"));
+	} else if (abs (placingZone->postGapLength - 1.500) < EPS) {
+		elemList.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "150 cm", "lenFrame", APIParT_Length, "1.400"));
+	} else if (abs (placingZone->postGapLength - 2.300) < EPS) {
+		elemList.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "230 cm", "lenFrame", APIParT_Length, "2.200"));
+	}
+	moveIn3D ('x', horizontalPost.radAng, placingZone->postGapLength - 0.100, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	moveIn3D ('y', horizontalPost.radAng, placingZone->postGapWidth, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	if (abs (placingZone->postGapLength - 1.200) < EPS) {
+		horizontalPost.radAng += DegreeToRad (180.0);
+		elemList.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "120 cm", "lenFrame", APIParT_Length, "1.100"));
+		horizontalPost.radAng -= DegreeToRad (180.0);
+	} else if (abs (placingZone->postGapLength - 1.500) < EPS) {
+		horizontalPost.radAng += DegreeToRad (180.0);
+		elemList.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "150 cm", "lenFrame", APIParT_Length, "1.400"));
+		horizontalPost.radAng -= DegreeToRad (180.0);
+	} else if (abs (placingZone->postGapLength - 2.300) < EPS) {
+		horizontalPost.radAng += DegreeToRad (180.0);
+		elemList.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "230 cm", "lenFrame", APIParT_Length, "2.200"));
+		horizontalPost.radAng -= DegreeToRad (180.0);
+	}
 
-	//double	postStartOffset;		// 시작 위치
-	//double	postGapWidth;			// 너비 1200, 1500
-	//double	postGapLength;			// 길이 1200, 1500, 2300
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		if (placingZone->cellsAtBottom [0][xx].objType == PLYWOOD) {
+			// 배치: 각재
+			timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoBeam.floorInd, placingZone->cellsAtBottom [0][xx].leftBottomX, placingZone->cellsAtBottom [0][xx].leftBottomY, placingZone->cellsAtBottom [0][xx].leftBottomZ, placingZone->cellsAtBottom [0][xx].ang);
+
+			moveIn3D ('x', timber.radAng, placingZone->cellsAtBottom [0][xx].dirLen / 2 - 0.075, &timber.posX, &timber.posY, &timber.posZ);
+			moveIn3D ('y', timber.radAng, -0.0215, &timber.posX, &timber.posY, &timber.posZ);		
+			moveIn3D ('z', timber.radAng, -0.0115, &timber.posX, &timber.posY, &timber.posZ);
+
+			timber.radAng += DegreeToRad (90.0);
+			elemList.Push (timber.placeObject (6, "w_ins", APIParT_CString, "바닥눕히기", "w_w", APIParT_Length, format_string ("%f", 0.080), "w_h", APIParT_Length, format_string ("%f", 0.050), "w_leng", APIParT_Length, format_string ("%f", placingZone->cellsAtBottom [0][xx].perLen + (0.0615 - 0.040)*2), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+			timber.radAng -= DegreeToRad (90.0);
+
+			moveIn3D ('x', timber.radAng, 0.100, &timber.posX, &timber.posY, &timber.posZ);
+
+			timber.radAng += DegreeToRad (90.0);
+			elemList.Push (timber.placeObject (6, "w_ins", APIParT_CString, "바닥눕히기", "w_w", APIParT_Length, format_string ("%f", 0.080), "w_h", APIParT_Length, format_string ("%f", 0.050), "w_leng", APIParT_Length, format_string ("%f", placingZone->cellsAtBottom [0][xx].perLen + (0.0615 - 0.040)*2), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+			timber.radAng -= DegreeToRad (90.0);
+
+			// 배치: 잭 서포트
+			// ...
+			jackSupport.init (L("잭서포트v1.0.gsm"), layerInd_JackSupport, infoBeam.floorInd, placingZone->cellsAtBottom [0][xx].leftBottomX, placingZone->cellsAtBottom [0][xx].leftBottomY, placingZone->cellsAtBottom [0][xx].leftBottomZ, placingZone->cellsAtBottom [0][xx].ang);
+			
+			moveIn3D ('x', jackSupport.radAng, placingZone->cellsAtBottom [0][xx].dirLen / 2, &jackSupport.posX, &jackSupport.posY, &jackSupport.posZ);
+			moveIn3D ('y', jackSupport.radAng, placingZone->cellsAtBottom [0][xx].perLen / 2, &jackSupport.posX, &jackSupport.posY, &jackSupport.posZ);
+			moveIn3D ('z', jackSupport.radAng, -0.0115 - 0.080 - 2.400, &jackSupport.posX, &jackSupport.posY, &jackSupport.posZ);
+			
+			elemList.Push (jackSupport.placeObject (3, "j_comp", APIParT_CString, "잭서포트", "j_stan", APIParT_CString, "Free", "j_leng", APIParT_Length, "2.400"));
+		}
+	}
 
 	return	err;
 }
@@ -4328,11 +4424,15 @@ short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, sho
 			if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SUPPORTING_POST_PERI) == 1) {
 				DGEnableItem (dialogID, LABEL_LAYER_GIRDER_PERI);
 				DGEnableItem (dialogID, USERCONTROL_LAYER_GIRDER_PERI);
+				DGEnableItem (dialogID, LABEL_LAYER_BEAM_BRACKET_PERI);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_BEAM_BRACKET_PERI);
 				DGDisableItem (dialogID, LABEL_LAYER_YOKE_PERI);
 				DGDisableItem (dialogID, USERCONTROL_LAYER_YOKE_PERI);
 			} else {
 				DGDisableItem (dialogID, LABEL_LAYER_GIRDER_PERI);
 				DGDisableItem (dialogID, USERCONTROL_LAYER_GIRDER_PERI);
+				DGDisableItem (dialogID, LABEL_LAYER_BEAM_BRACKET_PERI);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_BEAM_BRACKET_PERI);
 				DGEnableItem (dialogID, LABEL_LAYER_YOKE_PERI);
 				DGEnableItem (dialogID, USERCONTROL_LAYER_YOKE_PERI);
 			}
@@ -4346,11 +4446,15 @@ short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, sho
 					if (DGPopUpGetSelected (dialogID, POPUP_TYPE_SUPPORTING_POST_PERI) == 1) {
 						DGEnableItem (dialogID, LABEL_LAYER_GIRDER_PERI);
 						DGEnableItem (dialogID, USERCONTROL_LAYER_GIRDER_PERI);
+						DGEnableItem (dialogID, LABEL_LAYER_BEAM_BRACKET_PERI);
+						DGEnableItem (dialogID, USERCONTROL_LAYER_BEAM_BRACKET_PERI);
 						DGDisableItem (dialogID, LABEL_LAYER_YOKE_PERI);
 						DGDisableItem (dialogID, USERCONTROL_LAYER_YOKE_PERI);
 					} else {
 						DGDisableItem (dialogID, LABEL_LAYER_GIRDER_PERI);
 						DGDisableItem (dialogID, USERCONTROL_LAYER_GIRDER_PERI);
+						DGDisableItem (dialogID, LABEL_LAYER_BEAM_BRACKET_PERI);
+						DGDisableItem (dialogID, USERCONTROL_LAYER_BEAM_BRACKET_PERI);
 						DGEnableItem (dialogID, LABEL_LAYER_YOKE_PERI);
 						DGEnableItem (dialogID, USERCONTROL_LAYER_YOKE_PERI);
 					}
@@ -4374,7 +4478,7 @@ short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, sho
 					layerInd_Girder			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_GIRDER_PERI);
 					layerInd_BeamBracket	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BEAM_BRACKET_PERI);
 					layerInd_Yoke			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_YOKE_PERI);
-					layerInd_Timber			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER);
+					layerInd_Timber			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER_PERI);
 					layerInd_JackSupport	= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JACK_SUPPORT_PERI);
 
 					break;
@@ -4397,7 +4501,7 @@ short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, sho
 					DGSetItemValLong (dialogID, USERCONTROL_LAYER_GIRDER_PERI, layerInd_Girder);
 					DGSetItemValLong (dialogID, USERCONTROL_LAYER_BEAM_BRACKET_PERI, layerInd_BeamBracket);
 					DGSetItemValLong (dialogID, USERCONTROL_LAYER_YOKE_PERI, layerInd_Yoke);
-					DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, layerInd_Timber);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER_PERI, layerInd_Timber);
 					DGSetItemValLong (dialogID, USERCONTROL_LAYER_JACK_SUPPORT_PERI, layerInd_JackSupport);
 
 					break;
