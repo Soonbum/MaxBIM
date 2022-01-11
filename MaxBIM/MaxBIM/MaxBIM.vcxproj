@@ -144,7 +144,6 @@
     <ClInclude Include="Src\MaxBIM.hpp" />
     <ClInclude Include="Src\Quantities.hpp" />
     <ClInclude Include="Src\SlabTableformPlacer.hpp" />
-    <ClInclude Include="Src\SupportingPostPlacer.hpp" />
     <ClInclude Include="Src\UtilityFunctions.hpp" />
     <ClInclude Include="Src\WallTableformPlacer.hpp" />
   </ItemGroup>
@@ -157,7 +156,6 @@
     <ClCompile Include="Src\Layers.cpp" />
     <ClCompile Include="Src\Quantities.cpp" />
     <ClCompile Include="Src\SlabTableformPlacer.cpp" />
-    <ClCompile Include="Src\SupportingPostPlacer.cpp" />
     <ClCompile Include="Src\MaxBIM.cpp" />
     <ClCompile Include="Src\UtilityFunctions.cpp" />
     <ClCompile Include="Src\WallTableformPlacer.cpp" />

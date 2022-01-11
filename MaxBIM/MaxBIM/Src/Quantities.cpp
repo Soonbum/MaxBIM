@@ -20,7 +20,7 @@ GSErrCode	placeQuantityPlywood (void)
 	qElemInfo.dialogID = 0;
 
 	if ((qElemInfo.dialogID == 0) || !DGIsDialogOpen (qElemInfo.dialogID)) {
-		qElemInfo.dialogID = DGModelessInit (ACAPI_GetOwnResModule (), 32520, ACAPI_GetOwnResModule (), qElemDlgCallBack, (DGUserData) &qElemInfo, 1);
+		qElemInfo.dialogID = DGModelessInit (ACAPI_GetOwnResModule (), 32504, ACAPI_GetOwnResModule (), qElemDlgCallBack, (DGUserData) &qElemInfo, 1);
 	}
 
 	return	err;
@@ -634,7 +634,7 @@ GSErrCode	placeInsulation (void)
 	insulElemInfo.dialogID = 0;
 
 	if ((insulElemInfo.dialogID == 0) || !DGIsDialogOpen (insulElemInfo.dialogID)) {
-		insulElemInfo.dialogID = DGModelessInit (ACAPI_GetOwnResModule (), 32523, ACAPI_GetOwnResModule (), insulElemDlgCallBack, (DGUserData) &insulElemInfo, 1);
+		insulElemInfo.dialogID = DGModelessInit (ACAPI_GetOwnResModule (), 32507, ACAPI_GetOwnResModule (), insulElemDlgCallBack, (DGUserData) &insulElemInfo, 1);
 	}
 
 	return	err;

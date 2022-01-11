@@ -350,7 +350,7 @@ FIRST:
 	placingZone.initCells (&placingZone);
 
 	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32522, ACAPI_GetOwnResModule (), beamTableformPlacerHandler1, 0);
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32506, ACAPI_GetOwnResModule (), beamTableformPlacerHandler1, 0);
 
 	if (result == DG_CANCEL)
 		return err;
@@ -381,7 +381,7 @@ FIRST:
 	err = placingZone.placeAuxObjects (&placingZone);
 
 	// [DIALOG] 동바리/멍에제 프리셋을 배치할지 여부를 물어봄
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32525, ACAPI_GetOwnResModule (), beamTableformPlacerHandler3, 0);
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32509, ACAPI_GetOwnResModule (), beamTableformPlacerHandler3, 0);
 
 	// 동바리/멍에제 프리셋을 배치함
 	if (result == DG_OK)

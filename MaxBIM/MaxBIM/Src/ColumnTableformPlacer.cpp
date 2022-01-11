@@ -318,7 +318,7 @@ GSErrCode	placeTableformOnColumn (void)
 FIRST_SOLE_COLUMN:
 	
 	// [DIALOG] 1번째 다이얼로그에서 유로폼 정보 입력 받음
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32524, ACAPI_GetOwnResModule (), columnTableformPlacerHandler_soleColumn_1, 0);
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32508, ACAPI_GetOwnResModule (), columnTableformPlacerHandler_soleColumn_1, 0);
 
 	if (result == DG_CANCEL)
 		return err;

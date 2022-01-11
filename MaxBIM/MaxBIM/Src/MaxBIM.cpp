@@ -3,13 +3,12 @@
  */
 
 #include "MaxBIM.hpp"
+#include "UtilityFunctions.hpp"
 
 #include "WallTableformPlacer.hpp"
 #include "SlabTableformPlacer.hpp"
 #include "BeamTableformPlacer.hpp"
 #include "ColumnTableformPlacer.hpp"
-
-#include "SupportingPostPlacer.hpp"
 
 #include "Layers.hpp"
 
@@ -18,8 +17,6 @@
 #include "Quantities.hpp"
 
 #include "Information.hpp"
-
-#include "UtilityFunctions.hpp"
 
 #define	MDID_DEVELOPER_ID	829517673
 #define	MDID_LOCAL_ID		3588511626
@@ -55,8 +52,6 @@ GSErrCode	__ACENV_CALL	RegisterInterface (void)
 	GSErrCode err;
 	
 	err = ACAPI_Register_Menu (32011, 32012, MenuCode_UserDef, MenuFlag_Default);	// 테이블폼 배치
-	err = ACAPI_Register_Menu (32015, 32016, MenuCode_UserDef, MenuFlag_Default);	// 동바리 배치
-	err = ACAPI_Register_Menu (32013, 32014, MenuCode_UserDef, MenuFlag_Default);	// Library Converting
 	err = ACAPI_Register_Menu (32005, 32006, MenuCode_UserDef, MenuFlag_Default);	// 레이어 유틸
 	err = ACAPI_Register_Menu (32007, 32008, MenuCode_UserDef, MenuFlag_Default);	// 내보내기
 	err = ACAPI_Register_Menu (32009, 32010, MenuCode_UserDef, MenuFlag_Default);	// 물량 산출
@@ -109,19 +104,6 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						return err;
 					});
 					break;
-			}
-			break;
-
-		case 32015:
-			// 동바리 배치
-			switch (menuParams->menuItemRef.itemIndex) {
-			case 1:
-				// PERI 동바리 자동 배치
-				err = ACAPI_CallUndoableCommand ("PERI 동바리 자동 배치", [&] () -> GSErrCode {
-					err = placePERIPost ();
-					return err;
-				});
-				break;
 			}
 			break;
 
@@ -251,8 +233,6 @@ GSErrCode __ACENV_CALL	Initialize (void)
 	GSErrCode err;
 	
 	err = ACAPI_Install_MenuHandler (32011, MenuCommandHandler);	// 테이블폼 배치
-	err = ACAPI_Install_MenuHandler (32015, MenuCommandHandler);	// 동바리 배치
-	err = ACAPI_Install_MenuHandler (32013, MenuCommandHandler);	// Library Converting
 	err = ACAPI_Install_MenuHandler (32005, MenuCommandHandler);	// 레이어 유틸
 	err = ACAPI_Install_MenuHandler (32007, MenuCommandHandler);	// 내보내기
 	err = ACAPI_Install_MenuHandler (32009, MenuCommandHandler);	// 물량 산출

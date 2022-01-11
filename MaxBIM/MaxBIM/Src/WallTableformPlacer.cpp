@@ -303,7 +303,7 @@ FIRST:
 		return err;
 
 	// [DIALOG] 2번째 다이얼로그에서 부재별 레이어를 지정함
-	result = DGModalDialog (ACAPI_GetOwnResModule (), 32519, ACAPI_GetOwnResModule (), wallTableformPlacerHandler2, 0);
+	result = DGModalDialog (ACAPI_GetOwnResModule (), 32503, ACAPI_GetOwnResModule (), wallTableformPlacerHandler2, 0);
 
 	if (result != DG_OK)
 		goto FIRST;
