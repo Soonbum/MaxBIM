@@ -241,13 +241,14 @@ public:
 	double	postGapLength;			// 길이
 
 public:
-	void		initCells (BeamTableformPlacingZone* placingZone);									// Cell 배열을 초기화함
-	double		getCellPositionLeftBottomX (BeamTableformPlacingZone* placingZone, short idx);		// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
-	void		alignPlacingZone (BeamTableformPlacingZone* placingZone);							// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-	GSErrCode	placeBasicObjects (BeamTableformPlacingZone* placingZone);							// 유로폼/휠러/합판/각재를 배치함
-	GSErrCode	placeAuxObjects (BeamTableformPlacingZone* placingZone);							// 유로폼/휠러/합판/각재를 채운 후 부자재 설치 (아웃코너앵글, 비계파이프, 핀볼트, 각파이프행거, 블루클램프, 블루목심)
-	GSErrCode	placeSupportingPostPreset (BeamTableformPlacingZone* placingZone);					// 동바리/멍에제 프리셋을 배치함
-	short		getObjectType (BeamTableformPlacingZone* placingZone, bool bLeft, short idx);		// 왼쪽 혹은 오른쪽 면의 idx 번째 셀에 배치되는 객체의 타입을 조사함
+	void		initCells (BeamTableformPlacingZone* placingZone);											// Cell 배열을 초기화함
+	double		getCellPositionLeftBottomX (BeamTableformPlacingZone* placingZone, short idx);				// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
+	void		alignPlacingZone (BeamTableformPlacingZone* placingZone);									// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
+	GSErrCode	placeBasicObjects (BeamTableformPlacingZone* placingZone);									// 유로폼/휠러/합판/각재를 배치함
+	GSErrCode	placeAuxObjects (BeamTableformPlacingZone* placingZone);									// 유로폼/휠러/합판/각재를 채운 후 부자재 설치 (아웃코너앵글, 비계파이프, 핀볼트, 각파이프행거, 블루클램프, 블루목심)
+	GSErrCode	placeSupportingPostPreset (BeamTableformPlacingZone* placingZone);							// 동바리/멍에제 프리셋을 배치함
+	short		getObjectType (BeamTableformPlacingZone* placingZone, bool bLeft, short idx);				// 왼쪽 혹은 오른쪽 면의 idx 번째 셀에 배치되는 객체의 타입을 조사함
+	short		getAreaSeqNumOfCell (BeamTableformPlacingZone* placingZone, bool bLeft, bool bTableform, short idx);	// idx 번째 셀은 몇 번째 연속적인 테이블폼 혹은 합판 영역인가?
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
