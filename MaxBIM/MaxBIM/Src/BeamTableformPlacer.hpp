@@ -116,24 +116,41 @@ namespace beamTableformPlacerDG {
 	};
 
 	enum	idxItems_3_forBeamPlacer {
-		LABEL_TYPE_SUPPORTING_POST_PERI = 3,
+		DG_PREV_PERI = 3,
+
+		LABEL_TYPE_SUPPORTING_POST_PERI,
 		POPUP_TYPE_SUPPORTING_POST_PERI,
+
+		LABEL_NUM_OF_POST_SET_PERI,
+		POPUP_NUM_OF_POST_SET_PERI,
+
+		LABEL_BEAM_ELEVATION_PERI,
+		EDITCONTROL_BEAM_ELEVATION_PERI,
+
 		LABEL_PLAN_VIEW_PERI,
 
 		SEPARATOR_BEAM_PERI,
-		SEPARATOR_SUPPORTING_POST_PERI,
+		SEPARATOR_SUPPORTING_POST1_PERI,
+		SEPARATOR_SUPPORTING_POST2_PERI,
 
 		LABEL_BEAM_WIDTH_PERI,
 		EDITCONTROL_BEAM_WIDTH_PERI,
 		LABEL_BEAM_LENGTH_PERI,
 		EDITCONTROL_BEAM_LENGTH_PERI,
-		LABEL_OFFSET_PERI,
-		EDITCONTROL_OFFSET_PERI,
 
-		LABEL_GAP_WIDTH_DIRECTION_PERI,
-		POPUP_GAP_WIDTH_DIRECTION_PERI,
-		LABEL_GAP_LENGTH_DIRECTION_PERI,
-		POPUP_GAP_LENGTH_DIRECTION_PERI,
+		LABEL_OFFSET_1_PERI,
+		EDITCONTROL_OFFSET_1_PERI,
+		LABEL_GAP_WIDTH_DIRECTION_1_PERI,
+		POPUP_GAP_WIDTH_DIRECTION_1_PERI,
+		LABEL_GAP_LENGTH_DIRECTION_1_PERI,
+		POPUP_GAP_LENGTH_DIRECTION_1_PERI,
+
+		LABEL_OFFSET_2_PERI,
+		EDITCONTROL_OFFSET_2_PERI,
+		LABEL_GAP_WIDTH_DIRECTION_2_PERI,
+		POPUP_GAP_WIDTH_DIRECTION_2_PERI,
+		LABEL_GAP_LENGTH_DIRECTION_2_PERI,
+		POPUP_GAP_LENGTH_DIRECTION_2_PERI,
 
 		ICON_LAYER_PERI,
 		LABEL_LAYER_SETTINGS_PERI,
@@ -209,8 +226,13 @@ public:
 	double	beamLength;			// 보 길이
 	double	offset;				// 보 오프셋
 
+	// 보와의 간격
 	double	gapSide;			// 보와의 간격 (측면)
 	double	gapBottom;			// 보와의 간격 (하부)
+
+	// 측면 나머지 여백 길이
+	double	hRest_Left;
+	double	hRest_Right;
 
 	// 보 양끝 여백
 	double	marginBegin;			// 시작 부분 여백
@@ -236,6 +258,8 @@ public:
 
 	// 동바리/멍에제 프리셋 정보
 	short	typeOfSupportingPost;	// 타입
+	short	numOfSupportingPostSet;	// 동바리 세트 개수
+	double	beamElevation;			// 보 하부면 고도
 	double	postStartOffset;		// 시작 위치
 	double	postGapWidth;			// 너비
 	double	postGapLength;			// 길이

@@ -251,7 +251,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "배포일: 2022.01.12 - 16:50");
+			DGSetItemText (dialogID, itmIdx, "배포일: 2022.01.13 - 16:44");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
