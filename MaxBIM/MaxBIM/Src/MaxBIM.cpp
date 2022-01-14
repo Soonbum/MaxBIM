@@ -211,6 +211,21 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
+						// sprintf, strcpy, strtok 함수 사용후 null 문자 여부
+						char tempStr [128];
+						char *token;
+						std::string insElem;
+
+						sprintf (tempStr, "%s", "test");
+						WriteReport_Alert ("sprintf 실행 결과: %d", strlen (tempStr));
+						strcpy (tempStr, "test");
+						WriteReport_Alert ("strcpy 실행 결과: %d", strlen (tempStr));
+						insElem = tempStr;
+						WriteReport_Alert ("std::string 실행 결과: %d", insElem.size ());
+						token = strtok (tempStr, "\0");
+						if (token != NULL)
+							WriteReport_Alert ("strtok 실행 결과: %d", strlen (token));
+
 						// *** 원하는 코드를 위에 넣으시오.
 						return err;
 					});

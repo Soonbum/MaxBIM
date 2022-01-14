@@ -274,19 +274,14 @@ GSErrCode	showLayersEasily (void)
 						if (lineCount == 1)		layerInfo.code_name.push_back (insElem);		// 공사구분
 						if (lineCount == 2)		layerInfo.code_desc.push_back (insElem);		// 공사구분 설명
 						if (lineCount == 3) {
-							// 만약 동 번호 숫자가 1자리로 들어오면 앞에 000을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "000");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%04d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
-
-							// 만약 동 번호 숫자가 3자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 3) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
-							}
+							insElem = tempStr;
 
 							layerInfo.dong_name.push_back (insElem);							// 동
 						}
@@ -294,32 +289,38 @@ GSErrCode	showLayersEasily (void)
 						if (lineCount == 5)		layerInfo.floor_name.push_back (insElem);		// 층
 						if (lineCount == 6)		layerInfo.floor_desc.push_back (insElem);		// 층 설명
 						if (lineCount == 7) {
-							// 만약 타설번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.cast_name.push_back (insElem);		// 타설번호
 						}
 						if (lineCount == 8) {
-							// 만약 CJ 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.CJ_name.push_back (insElem);			// CJ
 						}
 						if (lineCount == 9) {
-							// 만약 CJ 속 시공순서 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
 						}
@@ -328,18 +329,14 @@ GSErrCode	showLayersEasily (void)
 						if (lineCount == 12)	layerInfo.obj_cat.push_back (insElem);			// 부재가 속한 카테고리(공사구분)
 						if (lineCount == 13)	layerInfo.productSite_name.push_back (insElem);	// 제작처 구분
 						if (lineCount == 14) {
-							// 만약 제작 번호가 1자리로 들어오면 앞에 00을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "00");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%03d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
-							// 만약 제작 번호가 2자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 2) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
-							}
+							insElem = tempStr;
 
 							layerInfo.productNum_name.push_back (insElem);	// 제작 번호
 						}
@@ -417,15 +414,15 @@ GSErrCode	showLayersEasily (void)
 				// 3차 (동 구분) - 필수 (4글자)
 				else if (i == 3) {
 					strcpy (tempStr, token);
-					// 동 구분일 경우,
-					if (strlen (tempStr) == 4) {
-						strcpy (tok3, tempStr);
-						success = true;
-						nBaseFields ++;
+					if (isStringDouble (tempStr) == TRUE) {
+						// 숫자인 경우
+						sprintf (tok3, "%04d", atoi (tempStr));
 					} else {
-						i = 100;
-						success = false;
+						// 문자열인 경우
+						strcpy (tok3, tempStr);
 					}
+					success = true;
+					nBaseFields ++;
 				}
 				// 4차 (층 구분) - 필수 (3글자)
 				else if (i == 4) {
@@ -442,38 +439,41 @@ GSErrCode	showLayersEasily (void)
 				// 5차 (타설번호) - 필수 (2글자, 숫자)
 				else if (i == 5) {
 					strcpy (tempStr, token);
-					if (strlen (tempStr) == 2) {
-						strcpy (tok5, tempStr);
-						success = true;
-						nBaseFields ++;
+					if (isStringDouble (tempStr) == TRUE) {
+						// 숫자인 경우
+						sprintf (tok5, "%02d", atoi (tempStr));
 					} else {
-						i = 100;
-						success = false;
+						// 문자열인 경우
+						strcpy (tok5, tempStr);
 					}
+					success = true;
+					nBaseFields ++;
 				}
 				// 6차 (CJ 구간) - 필수 (2글자, 숫자)
 				else if (i == 6) {
 					strcpy (tempStr, token);
-					if (strlen (tempStr) == 2) {
-						strcpy (tok6, tempStr);
-						success = true;
-						nBaseFields ++;
+					if (isStringDouble (tempStr) == TRUE) {
+						// 숫자인 경우
+						sprintf (tok6, "%02d", atoi (tempStr));
 					} else {
-						i = 100;
-						success = false;
+						// 문자열인 경우
+						strcpy (tok6, tempStr);
 					}
+					success = true;
+					nBaseFields ++;
 				}
 				// 7차 (CJ 속 시공순서) - 필수 (2글자, 숫자)
 				else if (i == 7) {
 					strcpy (tempStr, token);
-					if (strlen (tempStr) == 2) {
-						strcpy (tok7, tempStr);
-						success = true;
-						nBaseFields ++;
+					if (isStringDouble (tempStr) == TRUE) {
+						// 숫자인 경우
+						sprintf (tok7, "%02d", atoi (tempStr));
 					} else {
-						i = 100;
-						success = false;
+						// 문자열인 경우
+						strcpy (tok7, tempStr);
 					}
+					success = true;
+					nBaseFields ++;
 				}
 				// 8차 (부재 구분) - 필수 (3글자 이상)
 				else if (i == 8) {
@@ -502,14 +502,15 @@ GSErrCode	showLayersEasily (void)
 				// 10차 (제작 번호) - 필수 (3글자, 숫자)
 				else if (i == 10) {
 					strcpy (tempStr, token);
-					if (strlen (tempStr) == 3) {
-						strcpy (tok10, tempStr);
-						extSuccess = true;
-						nExtendFields ++;
+					if (isStringDouble (tempStr) == TRUE) {
+						// 숫자인 경우
+						sprintf (tok10, "%03d", atoi (tempStr));
 					} else {
-						i = 100;
-						extSuccess = false;
+						// 문자열인 경우
+						strcpy (tok10, tempStr);
 					}
+					extSuccess = true;
+					nExtendFields ++;
 				}
 				++i;
 				token = strtok (NULL, "-");
@@ -546,7 +547,7 @@ GSErrCode	showLayersEasily (void)
 
 				// 5단계. 타설번호
 				for (yy = 0 ; yy < layerInfo.cast_name.size () ; ++yy) {
-					if (strncmp (tok5, layerInfo.cast_name [yy].c_str (), 2) == 0) {
+					if (my_strcmp (tok5, layerInfo.cast_name [yy].c_str ()) == 0) {
 						layerInfo.cast_state [yy] = true;
 					}
 					layerInfo.bCastAllShow = true;
@@ -554,7 +555,7 @@ GSErrCode	showLayersEasily (void)
 
 				// 6단계. CJ 구간
 				for (yy = 0 ; yy < layerInfo.CJ_name.size () ; ++yy) {
-					if (strncmp (tok6, layerInfo.CJ_name [yy].c_str (), 2) == 0) {
+					if (my_strcmp (tok6, layerInfo.CJ_name [yy].c_str ()) == 0) {
 						layerInfo.CJ_state [yy] = true;
 					}
 					layerInfo.bCJAllShow = true;
@@ -562,7 +563,7 @@ GSErrCode	showLayersEasily (void)
 
 				// 7단계. CJ 속 시공순서
 				for (yy = 0 ; yy < layerInfo.CJ_name.size () ; ++yy) {
-					if (strncmp (tok7, layerInfo.orderInCJ_name [yy].c_str (), 2) == 0) {
+					if (my_strcmp (tok7, layerInfo.orderInCJ_name [yy].c_str ()) == 0) {
 						layerInfo.orderInCJ_state [yy] = true;
 					}
 					layerInfo.bOrderInCJAllShow = true;
@@ -623,23 +624,23 @@ GSErrCode	showLayersEasily (void)
 	}
 
 	short	z;
-	char	code1 [10][5];		// 공사 코드
+	char	code1 [10][32];		// 공사 코드
 	short	LenCode1;
-	char	code2 [1600][5];	// 동 코드
+	char	code2 [1600][32];	// 동 코드
 	short	LenCode2;
-	char	code3 [120][5];		// 층 코드
+	char	code3 [120][32];	// 층 코드
 	short	LenCode3;
-	char	code4 [100][5];		// 타설번호 코드
+	char	code4 [100][32];	// 타설번호 코드
 	short	LenCode4;
-	char	code5 [100][5];		// CJ 코드
+	char	code5 [100][32];	// CJ 코드
 	short	LenCode5;
-	char	code6 [100][5];		// CJ 속 시공순서 코드
+	char	code6 [100][32];	// CJ 속 시공순서 코드
 	short	LenCode6;
-	char	code7 [90][5];		// 부재 코드
+	char	code7 [90][32];		// 부재 코드
 	short	LenCode7;
 	char	code8 [10][32];		// 제작처 코드
 	short	LenCode8;
-	char	code9 [1000][5];	// 제작번호 코드
+	char	code9 [1000][32];	// 제작번호 코드
 	short	LenCode9;
 
 	char	fullLayerName [128];
@@ -1709,19 +1710,14 @@ GSErrCode	makeLayersEasily (void)
 						if (lineCount == 1)		layerInfo.code_name.push_back (insElem);		// 공사구분
 						if (lineCount == 2)		layerInfo.code_desc.push_back (insElem);		// 공사구분 설명
 						if (lineCount == 3) {
-							// 만약 동 번호 숫자가 1자리로 들어오면 앞에 000을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "000");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%04d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
-
-							// 만약 동 번호 숫자가 3자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 3) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
-							}
+							insElem = tempStr;
 
 							layerInfo.dong_name.push_back (insElem);							// 동
 						}
@@ -1729,32 +1725,38 @@ GSErrCode	makeLayersEasily (void)
 						if (lineCount == 5)		layerInfo.floor_name.push_back (insElem);		// 층
 						if (lineCount == 6)		layerInfo.floor_desc.push_back (insElem);		// 층 설명
 						if (lineCount == 7) {
-							// 만약 타설번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.cast_name.push_back (insElem);		// 타설번호
 						}
 						if (lineCount == 8) {
-							// 만약 CJ 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.CJ_name.push_back (insElem);			// CJ
 						}
 						if (lineCount == 9) {
-							// 만약 CJ 속 시공순서 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
 						}
@@ -1763,18 +1765,14 @@ GSErrCode	makeLayersEasily (void)
 						if (lineCount == 12)	layerInfo.obj_cat.push_back (insElem);			// 부재가 속한 카테고리(공사구분)
 						if (lineCount == 13)	layerInfo.productSite_name.push_back (insElem);	// 제작처 구분
 						if (lineCount == 14) {
-							// 만약 제작 번호가 1자리로 들어오면 앞에 00을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "00");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%03d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
-							// 만약 제작 번호가 2자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 2) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
-							}
+							insElem = tempStr;
 
 							layerInfo.productNum_name.push_back (insElem);	// 제작 번호
 						}
@@ -1804,23 +1802,23 @@ GSErrCode	makeLayersEasily (void)
 	}
 
 	short	z;
-	char	code1 [10][5];		// 공사 코드
+	char	code1 [10][32];		// 공사 코드
 	short	LenCode1;
-	char	code2 [1600][5];	// 동 코드
+	char	code2 [1600][32];	// 동 코드
 	short	LenCode2;
-	char	code3 [120][5];		// 층 코드
+	char	code3 [120][32];	// 층 코드
 	short	LenCode3;
-	char	code4 [100][5];		// 타설번호 코드
+	char	code4 [100][32];	// 타설번호 코드
 	short	LenCode4;
-	char	code5 [100][5];		// CJ 코드
+	char	code5 [100][32];	// CJ 코드
 	short	LenCode5;
-	char	code6 [100][5];		// CJ 속 시공순서 코드
+	char	code6 [100][32];	// CJ 속 시공순서 코드
 	short	LenCode6;
-	char	code7 [90][5];		// 부재 코드
+	char	code7 [90][32];		// 부재 코드
 	short	LenCode7;
 	char	code8 [10][32];		// 제작처 코드
 	short	LenCode8;
-	char	code9 [1000][5];	// 제작번호 코드
+	char	code9 [1000][32];	// 제작번호 코드
 	short	LenCode9;
 
 	char	fullLayerName [128];
@@ -2984,19 +2982,14 @@ GSErrCode	assignLayerEasily (void)
 						if (lineCount == 1)		layerInfo.code_name.push_back (insElem);		// 공사구분
 						if (lineCount == 2)		layerInfo.code_desc.push_back (insElem);		// 공사구분 설명
 						if (lineCount == 3) {
-							// 만약 동 번호 숫자가 1자리로 들어오면 앞에 000을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "000");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%04d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
-
-							// 만약 동 번호 숫자가 3자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 3) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
-							}
+							insElem = tempStr;
 
 							layerInfo.dong_name.push_back (insElem);							// 동
 						}
@@ -3004,32 +2997,38 @@ GSErrCode	assignLayerEasily (void)
 						if (lineCount == 5)		layerInfo.floor_name.push_back (insElem);		// 층
 						if (lineCount == 6)		layerInfo.floor_desc.push_back (insElem);		// 층 설명
 						if (lineCount == 7) {
-							// 만약 타설번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.cast_name.push_back (insElem);		// 타설번호
 						}
 						if (lineCount == 8) {
-							// 만약 CJ 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.CJ_name.push_back (insElem);			// CJ
 						}
 						if (lineCount == 9) {
-							// 만약 CJ 속 시공순서 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
 						}
@@ -3038,18 +3037,14 @@ GSErrCode	assignLayerEasily (void)
 						if (lineCount == 12)	layerInfo.obj_cat.push_back (insElem);			// 부재가 속한 카테고리(공사구분)
 						if (lineCount == 13)	layerInfo.productSite_name.push_back (insElem);	// 제작처 구분
 						if (lineCount == 14) {
-							// 만약 제작 번호가 1자리로 들어오면 앞에 00을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "00");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%03d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
-							// 만약 제작 번호가 2자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 2) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
-							}
+							insElem = tempStr;
 
 							layerInfo.productNum_name.push_back (insElem);	// 제작 번호
 						}
@@ -3079,23 +3074,23 @@ GSErrCode	assignLayerEasily (void)
 	}
 
 	short	z;
-	char	code1 [10][5];		// 공사 코드
+	char	code1 [10][32];		// 공사 코드
 	short	LenCode1;
-	char	code2 [1600][5];	// 동 코드
+	char	code2 [1600][32];	// 동 코드
 	short	LenCode2;
-	char	code3 [120][5];		// 층 코드
+	char	code3 [120][32];	// 층 코드
 	short	LenCode3;
-	char	code4 [100][5];		// 타설번호 코드
+	char	code4 [100][32];	// 타설번호 코드
 	short	LenCode4;
-	char	code5 [100][5];		// CJ 코드
+	char	code5 [100][32];	// CJ 코드
 	short	LenCode5;
-	char	code6 [100][5];		// CJ 속 시공순서 코드
+	char	code6 [100][32];	// CJ 속 시공순서 코드
 	short	LenCode6;
-	char	code7 [90][5];		// 부재 코드
+	char	code7 [90][32];		// 부재 코드
 	short	LenCode7;
 	char	code8 [10][32];		// 제작처 코드
 	short	LenCode8;
-	char	code9 [1000][5];	// 제작번호 코드
+	char	code9 [1000][32];	// 제작번호 코드
 	short	LenCode9;
 
 	char	fullLayerName [128];
@@ -4314,19 +4309,14 @@ GSErrCode	inspectLayerNames (void)
 						if (lineCount == 1)		layerInfo.code_name.push_back (insElem);		// 공사구분
 						if (lineCount == 2)		layerInfo.code_desc.push_back (insElem);		// 공사구분 설명
 						if (lineCount == 3) {
-							// 만약 동 번호 숫자가 1자리로 들어오면 앞에 000을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "000");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%04d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
-
-							// 만약 동 번호 숫자가 3자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 3) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
-							}
+							insElem = tempStr;
 
 							layerInfo.dong_name.push_back (insElem);							// 동
 						}
@@ -4334,32 +4324,38 @@ GSErrCode	inspectLayerNames (void)
 						if (lineCount == 5)		layerInfo.floor_name.push_back (insElem);		// 층
 						if (lineCount == 6)		layerInfo.floor_desc.push_back (insElem);		// 층 설명
 						if (lineCount == 7) {
-							// 만약 타설번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.cast_name.push_back (insElem);		// 타설번호
 						}
 						if (lineCount == 8) {
-							// 만약 CJ 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.CJ_name.push_back (insElem);			// CJ
 						}
 						if (lineCount == 9) {
-							// 만약 CJ 속 시공순서 번호 숫자가 1자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
+							insElem = tempStr;
 
 							layerInfo.orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
 						}
@@ -4368,18 +4364,14 @@ GSErrCode	inspectLayerNames (void)
 						if (lineCount == 12)	layerInfo.obj_cat.push_back (insElem);			// 부재가 속한 카테고리(공사구분)
 						if (lineCount == 13)	layerInfo.productSite_name.push_back (insElem);	// 제작처 구분
 						if (lineCount == 14) {
-							// 만약 제작 번호가 1자리로 들어오면 앞에 00을 붙일 것
-							if (strlen (token) == 1) {
-								strcpy (tempStr, "00");
-								strcat (tempStr, token);
-								insElem = tempStr;
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%03d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
 							}
-							// 만약 제작 번호가 2자리로 들어오면 앞에 0을 붙일 것
-							if (strlen (token) == 2) {
-								strcpy (tempStr, "0");
-								strcat (tempStr, token);
-								insElem = tempStr;
-							}
+							insElem = tempStr;
 
 							layerInfo.productNum_name.push_back (insElem);	// 제작 번호
 						}
@@ -4400,23 +4392,23 @@ GSErrCode	inspectLayerNames (void)
 	//allocateMemory (&layerInfo);
 
 	short	z;
-	char	code1 [10][5];		// 공사 코드
+	char	code1 [10][32];		// 공사 코드
 	short	LenCode1;
-	char	code2 [1600][5];	// 동 코드
+	char	code2 [1600][32];	// 동 코드
 	short	LenCode2;
-	char	code3 [120][5];		// 층 코드
+	char	code3 [120][32];	// 층 코드
 	short	LenCode3;
-	char	code4 [100][5];		// 타설번호 코드
+	char	code4 [100][32];	// 타설번호 코드
 	short	LenCode4;
-	char	code5 [100][5];		// CJ 코드
+	char	code5 [100][32];	// CJ 코드
 	short	LenCode5;
-	char	code6 [100][5];		// CJ 속 시공순서 코드
+	char	code6 [100][32];	// CJ 속 시공순서 코드
 	short	LenCode6;
-	char	code7 [90][5];		// 부재 코드
+	char	code7 [90][32];		// 부재 코드
 	short	LenCode7;
 	char	code8 [10][32];		// 제작처 코드
 	short	LenCode8;
-	char	code9 [1000][5];	// 제작번호 코드
+	char	code9 [1000][32];	// 제작번호 코드
 	short	LenCode9;
 
 	vector<string>	exceptionLayerNames;	// 예외 처리된 레이어 이름 목록
@@ -4569,15 +4561,15 @@ GSErrCode	inspectLayerNames (void)
 				// 3차 (동 구분) - 필수 (4글자)
 				else if (i == 3) {
 					strcpy (tempStr, token);
-					// 동 구분일 경우,
-					if (strlen (tempStr) == 4) {
-						strcpy (tok3, tempStr);
-						success = true;
-						nBaseFields ++;
+					if (isStringDouble (tempStr) == TRUE) {
+						// 숫자인 경우
+						sprintf (tok3, "%04d", atoi (tempStr));
 					} else {
-						i = 100;
-						success = false;
+						// 문자열인 경우
+						strcpy (tok3, tempStr);
 					}
+					success = true;
+					nBaseFields ++;
 				}
 				// 4차 (층 구분) - 필수 (3글자)
 				else if (i == 4) {
@@ -4594,38 +4586,41 @@ GSErrCode	inspectLayerNames (void)
 				// 5차 (타설번호) - 필수 (2글자, 숫자)
 				else if (i == 5) {
 					strcpy (tempStr, token);
-					if (strlen (tempStr) == 2) {
-						strcpy (tok5, tempStr);
-						success = true;
-						nBaseFields ++;
+					if (isStringDouble (tempStr) == TRUE) {
+						// 숫자인 경우
+						sprintf (tok5, "%02d", atoi (tempStr));
 					} else {
-						i = 100;
-						success = false;
+						// 문자열인 경우
+						strcpy (tok5, tempStr);
 					}
+					success = true;
+					nBaseFields ++;
 				}
 				// 6차 (CJ 구간) - 필수 (2글자, 숫자)
 				else if (i == 6) {
 					strcpy (tempStr, token);
-					if (strlen (tempStr) == 2) {
-						strcpy (tok6, tempStr);
-						success = true;
-						nBaseFields ++;
+					if (isStringDouble (tempStr) == TRUE) {
+						// 숫자인 경우
+						sprintf (tok6, "%02d", atoi (tempStr));
 					} else {
-						i = 100;
-						success = false;
+						// 문자열인 경우
+						strcpy (tok6, tempStr);
 					}
+					success = true;
+					nBaseFields ++;
 				}
 				// 7차 (CJ 속 시공순서) - 필수 (2글자, 숫자)
 				else if (i == 7) {
 					strcpy (tempStr, token);
-					if (strlen (tempStr) == 2) {
-						strcpy (tok7, tempStr);
-						success = true;
-						nBaseFields ++;
+					if (isStringDouble (tempStr) == TRUE) {
+						// 숫자인 경우
+						sprintf (tok7, "%02d", atoi (tempStr));
 					} else {
-						i = 100;
-						success = false;
+						// 문자열인 경우
+						strcpy (tok7, tempStr);
 					}
+					success = true;
+					nBaseFields ++;
 				}
 				// 8차 (부재 구분) - 필수 (3글자 이상)
 				else if (i == 8) {
@@ -4654,14 +4649,15 @@ GSErrCode	inspectLayerNames (void)
 				// 10차 (제작 번호) - 필수 (3글자, 숫자)
 				else if (i == 10) {
 					strcpy (tempStr, token);
-					if (strlen (tempStr) == 3) {
-						strcpy (tok10, tempStr);
-						extSuccess = true;
-						nExtendFields ++;
+					if (isStringDouble (tempStr) == TRUE) {
+						// 숫자인 경우
+						sprintf (tok10, "%03d", atoi (tempStr));
 					} else {
-						i = 100;
-						extSuccess = false;
+						// 문자열인 경우
+						strcpy (tok10, tempStr);
 					}
+					extSuccess = true;
+					nExtendFields ++;
 				}
 				++i;
 				token = strtok (NULL, "-");
