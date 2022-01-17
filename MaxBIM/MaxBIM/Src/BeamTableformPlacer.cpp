@@ -3083,6 +3083,8 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 	GSErrCode	err = NoError;
 	short	xx;
 	double	distance;
+	double	MRK_range;
+	double	MRK_move;
 
 	double	beamElevation = placingZone->beamElevation;
 	double	heightGapBeamBtwPost;
@@ -3096,16 +3098,26 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 
 	// 수직재 규격 결정하기 (가능하면 하위 규격으로 할 것)
 	// MP 120 (800~1200), MP 250 (1450~2500), MP 350 (1950~3500), MP 480 (2600~4800), MP 625 (4300~6250)
-	if (beamElevation - heightGapBeamBtwPost - placingZone->gapBottom >= 0.800 - EPS)
+	if (beamElevation - heightGapBeamBtwPost - placingZone->gapBottom >= 0.800 - EPS) {
 		strcpy (postType, "MP 120");
-	if (beamElevation - heightGapBeamBtwPost - placingZone->gapBottom >= 1.450 - EPS)
+		MRK_range = 0.595;
+	}
+	if (beamElevation - heightGapBeamBtwPost - placingZone->gapBottom >= 1.450 - EPS) {
 		strcpy (postType, "MP 250");
-	if (beamElevation - heightGapBeamBtwPost - placingZone->gapBottom >= 1.950 - EPS)
+		MRK_range = 1.245;
+	}
+	if (beamElevation - heightGapBeamBtwPost - placingZone->gapBottom >= 1.950 - EPS) {
 		strcpy (postType, "MP 350");
-	if (beamElevation - heightGapBeamBtwPost - placingZone->gapBottom >= 2.600 - EPS)
+		MRK_range = 1.745;
+	}
+	if (beamElevation - heightGapBeamBtwPost - placingZone->gapBottom >= 2.600 - EPS) {
 		strcpy (postType, "MP 480");
-	if (beamElevation - heightGapBeamBtwPost - placingZone->gapBottom >= 4.300 - EPS)
+		MRK_range = 2.395;
+	}
+	if (beamElevation - heightGapBeamBtwPost - placingZone->gapBottom >= 4.300 - EPS) {
 		strcpy (postType, "MP 625");
+		MRK_range = 4.095;
+	}
 
 	EasyObjectPlacement	verticalPost, horizontalPost, girder, beamBracket, yoke, timber, jackSupport;
 
@@ -3215,6 +3227,15 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		yoke.radAng -= DegreeToRad (90.0);
 	}
 
+	// MRK 높이 지정
+	if (((beamElevation - heightGapBeamBtwPost - placingZone->gapBottom - 2.000) <= MRK_range) && ((beamElevation - heightGapBeamBtwPost - placingZone->gapBottom - 3.000) >= 0.005)) {
+		MRK_move = beamElevation - heightGapBeamBtwPost - placingZone->gapBottom - 2.000;
+	} else if ((beamElevation - heightGapBeamBtwPost - placingZone->gapBottom - 3.000) < 0.005) {
+		MRK_move = beamElevation - heightGapBeamBtwPost - placingZone->gapBottom - 1.800;
+	} else {
+		MRK_move = beamElevation - heightGapBeamBtwPost - placingZone->gapBottom - 2.200;
+	}
+
 	// 배치: PERI동바리 수평재 (너비 방향)
 	if (placingZone->typeOfSupportingPost == 1)
 		distance = -0.003 - 0.1135 - 0.240;
@@ -3224,7 +3245,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 	horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 	moveIn3D ('x', horizontalPost.radAng, placingZone->postStartOffset, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 	moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 + placingZone->postGapWidth) / 2 - 0.050 - placingZone->gapSide, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
-	moveIn3D ('z', horizontalPost.radAng, distance - 1.000 - placingZone->gapBottom, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	moveIn3D ('z', horizontalPost.radAng, distance - placingZone->gapBottom - MRK_move, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 	if (abs (placingZone->postGapWidth - 0.900) < EPS) {
 		horizontalPost.radAng += DegreeToRad (270.0);
 		elemList_SupportingPost.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "90 cm", "lenFrame", APIParT_Length, "0.800"));
@@ -3258,7 +3279,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 	horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 	moveIn3D ('x', horizontalPost.radAng, placingZone->postStartOffset + 0.050, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 	moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - placingZone->gapSide, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
-	moveIn3D ('z', horizontalPost.radAng, distance - 1.000 - placingZone->gapBottom, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	moveIn3D ('z', horizontalPost.radAng, distance - placingZone->gapBottom - MRK_move, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 	if (abs (placingZone->postGapLength - 1.200) < EPS) {
 		elemList_SupportingPost.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "120 cm", "lenFrame", APIParT_Length, "1.100"));
 	} else if (abs (placingZone->postGapLength - 1.500) < EPS) {
@@ -3404,7 +3425,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 		moveIn3D ('x', horizontalPost.radAng, placingZone->beamLength - placingZone->postGapLength - placingZone->postStartOffset, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 		moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 + placingZone->postGapWidth) / 2 - 0.050 - placingZone->gapSide, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
-		moveIn3D ('z', horizontalPost.radAng, distance - 1.000 - placingZone->gapBottom, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+		moveIn3D ('z', horizontalPost.radAng, distance - placingZone->gapBottom - MRK_move, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 		if (abs (placingZone->postGapWidth - 0.900) < EPS) {
 			horizontalPost.radAng += DegreeToRad (270.0);
 			elemList_SupportingPost.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "90 cm", "lenFrame", APIParT_Length, "0.800"));
@@ -3438,7 +3459,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 		moveIn3D ('x', horizontalPost.radAng, placingZone->beamLength - placingZone->postGapLength - placingZone->postStartOffset + 0.050, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 		moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - placingZone->gapSide, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
-		moveIn3D ('z', horizontalPost.radAng, distance - 1.000 - placingZone->gapBottom, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+		moveIn3D ('z', horizontalPost.radAng, distance - placingZone->gapBottom - MRK_move, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 		if (abs (placingZone->postGapLength - 1.200) < EPS) {
 			elemList_SupportingPost.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "120 cm", "lenFrame", APIParT_Length, "1.100"));
 		} else if (abs (placingZone->postGapLength - 1.500) < EPS) {
