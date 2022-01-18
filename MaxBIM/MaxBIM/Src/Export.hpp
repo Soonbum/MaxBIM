@@ -140,14 +140,55 @@ struct VisibleObjectInfo
 	short	nItems;
 };
 
+// 보 테이블폼 물량표 작성을 위한 구조체에 사용되는 셀 정보
+struct BeamTableformCell
+{
+	double	euroform_1_leftHeight;		// 높은쪽 높이 (1단 유로폼)
+	double	euroform_1_rightHeight;		// 낮은쪽 높이 (1단 유로폼)
+	double	euroform_1_bottomWidth;		// 하부 너비 (1단 유로폼)
+
+	double	euroform_2_leftHeight;		// 높은쪽 높이 (2단 유로폼)
+	double	euroform_2_rightHeight;		// 낮은쪽 높이 (2단 유로폼)
+	double	euroform_2_bottomWidth;		// 하부 너비 (2단 유로폼)
+
+	double	fillersp_leftHeight;		// 높은쪽 높이 (휠러스페이서)
+	double	fillersp_rightHeight;		// 낮은쪽 높이 (휠러스페이서)
+
+	double	timber_leftHeight;			// 높은쪽 높이 (각재 또는 합판)
+	double	timber_rightHeight;			// 낮은쪽 높이 (각재 또는 합판)
+
+	double	plywoodOnly_leftHeight;		// 높은쪽 높이 (전체 합판)
+	double	plywoodOnly_rightHeight;	// 낮은쪽 높이 (전체 합판)
+	double	plywoodOnly_bottomWidth;	// 하부 너비 (전체 합판)
+};
+
+// 보 테이블폼 물량표 작성을 위한 구조체
+struct BeamTableformInfo
+{
+	char	layerName [256];	// 레이어 이름
+	short	iBeamDirection;		// 보 방향 (HORIZONTAL_DIRECTION (1), VERTICAL_DIRECTION (2))
+
+	double	leftHeight;			// 높은쪽 높이
+	double	rightHeight;		// 낮은쪽 높이
+	double	bottomWidth;		// 하부 너비
+
+	short	nCells;						// 셀 개수
+	BeamTableformCell	cells [30];		// 셀 정보
+};
+
 void		initArray (double arr [], short arrSize);											// 배열 초기화 함수
 int			compare (const void* first, const void* second);									// 오름차순으로 정렬할 때 사용하는 비교함수 (퀵소트)
+
 ColumnInfo	findColumn (ColumnPos* columnPos, short iHor, short iVer, short floorInd);			// 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
 GSErrCode	exportGridElementInfo (void);														// 부재(기둥,보,슬래브)들의 정보를 추출하고 정리해서 엑셀 파일로 내보내기
 short		DGCALLBACK inputThresholdHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그] 기둥 간 최소 간격 거리를 사용자에게 입력 받음 (기본값: 2000 mm)
+
 GSErrCode	exportSelectedElementInfo (void);													// 선택한 부재 정보 내보내기 (Single 모드)
 GSErrCode	exportElementInfoOnVisibleLayers (void);											// 선택한 부재 정보 내보내기 (Multi 모드)
+
 GSErrCode	filterSelection (void);																// 부재별 선택 후 보여주기
 short		DGCALLBACK filterSelectionHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그] 다이얼로그에서 보이는 레이어 상에 있는 객체들의 종류를 보여주고, 체크한 종류의 객체들만 선택 후 보여줌
+
+GSErrCode	exportBeamTableformInformation (void);												// 보 테이블폼 물량 정보 내보내기
 
 #endif

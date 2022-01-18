@@ -143,6 +143,9 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 4:		// 부재별 선택 후 보여주기
 					err = filterSelection ();
 					break;
+				case 5:		// 보 테이블폼 물량표 작성
+					err = exportBeamTableformInformation ();
+					break;
 			}
 			break;
 

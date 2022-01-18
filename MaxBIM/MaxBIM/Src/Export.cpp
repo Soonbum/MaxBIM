@@ -1710,7 +1710,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 	// 작업 층 정보
 	API_StoryInfo	storyInfo;
-	double			workLevel_object;		// 벽의 작업 층 높이
+	double			workLevel_object;		// 객체의 작업 층 높이
 
 
 	// 진행바를 표현하기 위한 변수
@@ -3218,6 +3218,191 @@ GSErrCode	filterSelection (void)
 	}
 
 	return	err;
+}
+
+// 보 테이블폼 물량 정보 내보내기
+GSErrCode	exportBeamTableformInformation (void)
+{
+	GSErrCode	err = NoError;
+	unsigned short		xx;
+	short	mm;
+	bool	regenerate = true;
+	bool	suspGrp;
+
+	GS::Array<API_Guid>		elemList;
+	GS::Array<API_Guid>		objects;
+	long					nObjects = 0;
+
+	API_Element			elem;
+	API_ElementMemo		memo;
+	BeamTableformInfo	tableformInfo;		// 보 테이블폼 정보
+
+	// 레이어 관련 변수
+	short			nLayers;
+	API_Attribute	attrib;
+	short			nVisibleLayers = 0;
+	short			visLayerList [1024];
+	char			fullLayerName [512];
+
+	// 기타
+	char			buffer [512];
+	char			filename [512];
+
+	// 엑셀 파일로 기둥 정보 내보내기
+	// 파일 저장을 위한 변수
+	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
+	IO::Location		location;
+	GS::UniString		resultString;
+	API_MiscAppInfo		miscAppInfo;
+	FILE				*fp;
+
+
+	// 그룹화 일시정지 ON
+	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
+	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+
+	// 프로젝트 내 레이어 개수를 알아냄
+	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	attrib.layer.head.typeID = API_LayerID;
+	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+
+	// 보이는 레이어들의 목록 저장하기
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			if (!((attrib.layer.head.flags & APILay_Hidden) == true)) {
+				visLayerList [nVisibleLayers++] = attrib.layer.head.index;
+			}
+		}
+	}
+
+	// 일시적으로 모든 레이어 숨기기
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			attrib.layer.head.flags |= APILay_Hidden;
+			ACAPI_Attribute_Modify (&attrib, NULL);
+		}
+	}
+
+	ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
+	sprintf (filename, "%s - 보 테이블폼 물량표.csv", miscAppInfo.caption);
+	fp = fopen (filename, "w+");
+
+	if (fp == NULL) {
+		WriteReport_Alert ("통합 버전 엑셀파일을 만들 수 없습니다.");
+		return	NoError;
+	}
+
+	// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 "보 테이블폼 물량표" 루틴 실행
+	for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = visLayerList [mm-1];
+		err = ACAPI_Attribute_Get (&attrib);
+
+		// 초기화
+		// !!!
+
+		if (err == NoError) {
+			// 레이어 보이기
+			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+				attrib.layer.head.flags ^= APILay_Hidden;
+				ACAPI_Attribute_Modify (&attrib, NULL);
+			}
+
+			// 모든 요소 가져오기
+			ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음, 객체 타입만
+			while (elemList.GetSize () > 0) {
+				objects.Push (elemList.Pop ());
+			}
+			nObjects = objects.GetSize ();
+
+			if (nObjects == 0)
+				continue;
+
+			// 레이어 이름 가져옴
+			sprintf (fullLayerName, "%s", attrib.layer.head.name);
+			fullLayerName [strlen (fullLayerName)] = '\0';
+
+			// 레이어 이름 (통합 버전에만)
+			sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
+			fprintf (fp, buffer);
+
+			for (xx = 0 ; xx < nObjects ; ++xx) {
+				BNZeroMemory (&elem, sizeof (API_Element));
+				BNZeroMemory (&memo, sizeof (API_ElementMemo));
+				elem.header.guid = objects.Pop ();
+				err = ACAPI_Element_Get (&elem);
+
+				if (err == NoError && elem.header.hasMemo) {
+					err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+					if (err == NoError) {
+						// todo
+					}
+
+					ACAPI_DisposeElemMemoHdls (&memo);
+				}
+			}
+
+			// 파일 출력하기
+			// !!!
+
+			// 레이어 숨기기
+			attrib.layer.head.flags |= APILay_Hidden;
+			ACAPI_Attribute_Modify (&attrib, NULL);
+		}
+	}
+
+	fclose (fp);
+
+	// 모든 프로세스를 마치면 처음에 수집했던 보이는 레이어들을 다시 켜놓을 것
+	for (xx = 1 ; xx <= nVisibleLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = visLayerList [xx-1];
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+				attrib.layer.head.flags ^= APILay_Hidden;
+				ACAPI_Attribute_Modify (&attrib, NULL);
+			}
+		}
+	}
+
+	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	location.ToDisplayText (&resultString);
+	sprintf (buffer, "결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
+	ACAPI_WriteReport (buffer, true);
+
+
+
+	// 레이어 별로 순회
+		// 레이어 상에 있는 객체들의 정보를 수집하되 유로폼, 합판, 각재, 휠러스페이서만 수집할 것
+		// 수집한 객체들의 좌표들을 저장할 것
+			// 좌표의 분포가 가로 방향이면,
+				// 좌표의 분포를 좌우로 나누기 (기준: 200mm 이상 떨어져 있어야 함)
+				// 왼쪽 측판, 오른쪽 측판, 하판 정보 추출 (전체 측면 높이, 합판 또는 유로폼의 높이와 길이)
+			// 좌표의 분포가 세로 방향이면,
+				// 좌표의 분포를 상하로 나누기 (기준: 200mm 이상 떨어져 있어야 함)
+				// 위쪽 측판, 아래쪽 측판, 하판 정보 추출 (전체 하부면 너비, 유로폼의 너비와 길이)
+
+	WriteReport_Alert ("테스트 중입니다.");
+
+	return err;
 }
 
 // [다이얼로그] 기둥 간 최소 간격 거리를 사용자에게 입력 받음 (기본값: 2000 mm)
