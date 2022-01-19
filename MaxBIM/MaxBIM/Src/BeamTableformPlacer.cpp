@@ -1495,7 +1495,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
-	short	xx, yy;
+	short	xx, yy, zz;
 
 	// 원장 사이즈 길이 계산
 	bool	bShow;
@@ -1503,6 +1503,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 	short	beginIndex, endIndex;
 	double	remainLengthDouble;
 	double	lengthDouble;
+	double	tempLengthDouble;
 
 	EasyObjectPlacement outangle, hanger, blueClamp, blueTimberRail;
 	EasyObjectPlacement pipe1, pipe2;
@@ -2254,11 +2255,15 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			hanger.radAng += DegreeToRad (90.0);
 			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (90.0);
-			moveIn3D ('x', hanger.radAng, floor (remainLengthDouble / 0.150 / 2) * 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3D ('x', hanger.radAng, -0.150 + remainLengthDouble - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (90.0);
 			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (90.0);
-			moveIn3D ('x', hanger.radAng, -floor (remainLengthDouble / 0.150 / 2) * 0.150 + remainLengthDouble - 0.300, &hanger.posX, &hanger.posY, &hanger.posZ);
+			tempLengthDouble = 0.0;
+			for (zz = beginIndex ; zz <= beginIndex + round ((endIndex - beginIndex) / 2, 0) ; ++zz) {
+				tempLengthDouble += placingZone->cellsAtLSide [0][zz].dirLen;
+			}
+			moveIn3D ('x', hanger.radAng, 0.150 - remainLengthDouble + tempLengthDouble - 0.450, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (90.0);
 			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (90.0);
@@ -2293,11 +2298,15 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			hanger.radAng += DegreeToRad (270.0);
 			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (270.0);
-			moveIn3D ('x', hanger.radAng, floor (remainLengthDouble / 0.150 / 2) * 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3D ('x', hanger.radAng, -0.150 + remainLengthDouble - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (270.0);
 			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (270.0);
-			moveIn3D ('x', hanger.radAng, -floor (remainLengthDouble / 0.150 / 2) * 0.150 + remainLengthDouble - 0.300, &hanger.posX, &hanger.posY, &hanger.posZ);
+			tempLengthDouble = 0.0;
+			for (zz = beginIndex ; zz <= beginIndex + round ((endIndex - beginIndex) / 2, 0) ; ++zz) {
+				tempLengthDouble += placingZone->cellsAtRSide [0][zz].dirLen;
+			}
+			moveIn3D ('x', hanger.radAng, 0.150 - remainLengthDouble + tempLengthDouble - 0.450, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (270.0);
 			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (270.0);

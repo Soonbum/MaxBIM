@@ -26,6 +26,24 @@ namespace exportDG {
 		BUTTON_ALL_UNSEL,
 		CHECKBOX_INCLUDE_UNKNOWN_OBJECT
 	};
+
+	enum	BEAMTABLEFORM_DIRECTION {
+		HORIZONTAL_DIRECTION,
+		VERTICAL_DIRECTION
+	};
+
+	enum	BEAMTABLEFORM_OBJECT_TYPE {
+		EUROFORM,
+		PLYWOOD,
+		TIMBER,
+		FILLERSP
+	};
+
+	enum	ATTACH_POSITION {
+		LEFT_SIDE,
+		RIGHT_SIDE,
+		BOTTOM_SIDE
+	};
 }
 
 // 개별 기둥의 정보
@@ -140,40 +158,55 @@ struct VisibleObjectInfo
 	short	nItems;
 };
 
+// 보 테이블폼 내 자재들에 대한 정보
+struct objectInBeamTableform
+{
+	short	objType;			// EUROFORM, PLYWOOD, TIMBER, FILLERSP
+	short	attachPosition;		// LEFT_SIDE, RIGHT_SIDE, BOTTOM_SIDE
+	API_Coord3D	origin;			// 원점 좌표
+	double	width;				// 객체 너비
+	double	length;				// 객체 길이
+};
+
 // 보 테이블폼 물량표 작성을 위한 구조체에 사용되는 셀 정보
 struct BeamTableformCell
 {
-	double	euroform_1_leftHeight;		// 높은쪽 높이 (1단 유로폼)
-	double	euroform_1_rightHeight;		// 낮은쪽 높이 (1단 유로폼)
+	double	euroform_1_leftHeight;		// 왼쪽/위쪽 높이 (1단 유로폼)
+	double	euroform_1_rightHeight;		// 오른쪽/아래쪽 높이 (1단 유로폼)
 	double	euroform_1_bottomWidth;		// 하부 너비 (1단 유로폼)
 
-	double	euroform_2_leftHeight;		// 높은쪽 높이 (2단 유로폼)
-	double	euroform_2_rightHeight;		// 낮은쪽 높이 (2단 유로폼)
+	double	euroform_2_leftHeight;		// 왼쪽/위쪽 높이 (2단 유로폼)
+	double	euroform_2_rightHeight;		// 오른쪽/아래쪽 높이 (2단 유로폼)
 	double	euroform_2_bottomWidth;		// 하부 너비 (2단 유로폼)
 
-	double	fillersp_leftHeight;		// 높은쪽 높이 (휠러스페이서)
-	double	fillersp_rightHeight;		// 낮은쪽 높이 (휠러스페이서)
+	double	fillersp_leftHeight;		// 왼쪽/위쪽 높이 (휠러스페이서)
+	double	fillersp_rightHeight;		// 오른쪽/아래쪽 높이 (휠러스페이서)
+	double	fillersp_bottomWidth;		// 하부 너비 (휠러스페이서)
 
-	double	timber_leftHeight;			// 높은쪽 높이 (각재 또는 합판)
-	double	timber_rightHeight;			// 낮은쪽 높이 (각재 또는 합판)
+	double	timber_leftHeight;			// 왼쪽/위쪽 높이 (각재 또는 합판)
+	double	timber_rightHeight;			// 오른쪽/아래쪽 높이 (각재 또는 합판)
 
-	double	plywoodOnly_leftHeight;		// 높은쪽 높이 (전체 합판)
-	double	plywoodOnly_rightHeight;	// 낮은쪽 높이 (전체 합판)
+	double	plywoodOnly_leftHeight;		// 왼쪽/위쪽 높이 (전체 합판)
+	double	plywoodOnly_rightHeight;	// 오른쪽/아래쪽 높이 (전체 합판)
 	double	plywoodOnly_bottomWidth;	// 하부 너비 (전체 합판)
 };
 
-// 보 테이블폼 물량표 작성을 위한 구조체
-struct BeamTableformInfo
+// 보 테이블폼 물량표 작성을 위한 클래스
+class BeamTableformInfo
 {
-	char	layerName [256];	// 레이어 이름
-	short	iBeamDirection;		// 보 방향 (HORIZONTAL_DIRECTION (1), VERTICAL_DIRECTION (2))
+public:
+	short	iBeamDirection;		// 보 방향 (HORIZONTAL_DIRECTION, VERTICAL_DIRECTION)
 
-	double	leftHeight;			// 높은쪽 높이
-	double	rightHeight;		// 낮은쪽 높이
+	double	leftHeight;			// 왼쪽/위쪽 높이
+	double	rightHeight;		// 오른쪽/아래쪽 높이
 	double	bottomWidth;		// 하부 너비
 
 	short	nCells;						// 셀 개수
 	BeamTableformCell	cells [30];		// 셀 정보
+
+public:
+	BeamTableformInfo ();		// 보 테이블폼 물량표 작성을 위한 클래스 생성자 (초기화)
+	void init ();				// 초기화
 };
 
 void		initArray (double arr [], short arrSize);											// 배열 초기화 함수

@@ -3220,6 +3220,45 @@ GSErrCode	filterSelection (void)
 	return	err;
 }
 
+// 보 테이블폼 물량표 작성을 위한 클래스 생성자 (초기화)
+BeamTableformInfo::BeamTableformInfo ()
+{
+	this->init ();
+}
+
+// 초기화
+void BeamTableformInfo::init ()
+{
+	this->iBeamDirection = 0;
+
+	this->leftHeight = 0.0;
+	this->rightHeight = 0.0;
+	this->bottomWidth = 0.0;
+
+	this->nCells = 0;
+
+	for (short xx = 0 ; xx < 30 ; ++xx) {
+		this->cells [xx].euroform_1_leftHeight = 0.0;
+		this->cells [xx].euroform_1_rightHeight = 0.0;
+		this->cells [xx].euroform_1_bottomWidth = 0.0;
+
+		this->cells [xx].euroform_2_leftHeight = 0.0;
+		this->cells [xx].euroform_2_rightHeight = 0.0;
+		this->cells [xx].euroform_2_bottomWidth = 0.0;
+
+		this->cells [xx].fillersp_leftHeight = 0.0;
+		this->cells [xx].fillersp_rightHeight = 0.0;
+		this->cells [xx].fillersp_bottomWidth = 0.0;
+
+		this->cells [xx].timber_leftHeight = 0.0;
+		this->cells [xx].timber_rightHeight = 0.0;
+
+		this->cells [xx].plywoodOnly_leftHeight = 0.0;
+		this->cells [xx].plywoodOnly_rightHeight = 0.0;
+		this->cells [xx].plywoodOnly_bottomWidth = 0.0;
+	}
+}
+
 // 보 테이블폼 물량 정보 내보내기
 GSErrCode	exportBeamTableformInformation (void)
 {
@@ -3229,13 +3268,16 @@ GSErrCode	exportBeamTableformInformation (void)
 	bool	regenerate = true;
 	bool	suspGrp;
 
-	GS::Array<API_Guid>		elemList;
 	GS::Array<API_Guid>		objects;
 	long					nObjects = 0;
 
 	API_Element			elem;
 	API_ElementMemo		memo;
-	BeamTableformInfo	tableformInfo;		// 보 테이블폼 정보
+
+	BeamTableformInfo				tableformInfo;	// 보 테이블폼 정보
+	vector<objectInBeamTableform>	objectList;		// 객체 리스트
+
+	double				xmin, xmax, ymin, ymax;
 
 	// 레이어 관련 변수
 	short			nLayers;
@@ -3245,6 +3287,7 @@ GSErrCode	exportBeamTableformInformation (void)
 	char			fullLayerName [512];
 
 	// 기타
+	char			tempStr [512];
 	char			buffer [512];
 	char			filename [512];
 
@@ -3302,7 +3345,7 @@ GSErrCode	exportBeamTableformInformation (void)
 	fp = fopen (filename, "w+");
 
 	if (fp == NULL) {
-		WriteReport_Alert ("통합 버전 엑셀파일을 만들 수 없습니다.");
+		WriteReport_Alert ("엑셀파일을 만들 수 없습니다.");
 		return	NoError;
 	}
 
@@ -3313,9 +3356,6 @@ GSErrCode	exportBeamTableformInformation (void)
 		attrib.layer.head.index = visLayerList [mm-1];
 		err = ACAPI_Attribute_Get (&attrib);
 
-		// 초기화
-		// !!!
-
 		if (err == NoError) {
 			// 레이어 보이기
 			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
@@ -3323,11 +3363,12 @@ GSErrCode	exportBeamTableformInformation (void)
 				ACAPI_Attribute_Modify (&attrib, NULL);
 			}
 
+			// 초기화
+			tableformInfo.init ();
+			objectList.clear ();
+
 			// 모든 요소 가져오기
-			ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음, 객체 타입만
-			while (elemList.GetSize () > 0) {
-				objects.Push (elemList.Pop ());
-			}
+			ACAPI_Element_GetElemList (API_ObjectID, &objects, APIFilt_OnVisLayer);	// 보이는 레이어에 있음, 객체 타입만
 			nObjects = objects.GetSize ();
 
 			if (nObjects == 0)
@@ -3344,22 +3385,99 @@ GSErrCode	exportBeamTableformInformation (void)
 			for (xx = 0 ; xx < nObjects ; ++xx) {
 				BNZeroMemory (&elem, sizeof (API_Element));
 				BNZeroMemory (&memo, sizeof (API_ElementMemo));
-				elem.header.guid = objects.Pop ();
+				elem.header.guid = objects [xx];
 				err = ACAPI_Element_Get (&elem);
 
 				if (err == NoError && elem.header.hasMemo) {
 					err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
 					if (err == NoError) {
-						// todo
+						objectInBeamTableform	newObject;
+
+						// 객체의 타입, 너비와 길이를 저장
+						if (my_strcmp (getParameterStringByName (&memo, "u_comp"), "유로폼") == 0) {
+							newObject.objType = EUROFORM;
+
+							sprintf (tempStr, "%s", getParameterStringByName (&memo, "eu_wid"));
+							newObject.width = atof (tempStr) / 1000.0;
+							sprintf (tempStr, "%s", getParameterStringByName (&memo, "eu_hei"));
+							newObject.length = atof (tempStr) / 1000.0;
+						} else if (my_strcmp (getParameterStringByName (&memo, "g_comp"), "합판") == 0) {
+							newObject.objType = PLYWOOD;
+
+							if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "벽눕히기") == 0) {
+								newObject.width = getParameterValueByName (&memo, "p_wid");
+								newObject.length = getParameterValueByName (&memo, "p_leng");
+							} else {
+								newObject.width = getParameterValueByName (&memo, "p_leng");
+								newObject.length = getParameterValueByName (&memo, "p_wid");
+							}
+						} else if (my_strcmp (getParameterStringByName (&memo, "w_comp"), "휠러스페이서") == 0) {
+							newObject.objType = FILLERSP;
+
+							newObject.width = getParameterValueByName (&memo, "f_thk");
+							newObject.length = getParameterValueByName (&memo, "f_leng");
+						} else if (my_strcmp (getParameterStringByName (&memo, "w_comp"), "목재") == 0) {
+							newObject.objType = TIMBER;
+
+							newObject.width = getParameterValueByName (&memo, "w_h");
+							newObject.length = getParameterValueByName (&memo, "w_leng");
+						}
+
+						// 원점 좌표 저장
+						newObject.origin.x = elem.object.pos.x;
+						newObject.origin.y = elem.object.pos.y;
+						newObject.origin.z = elem.object.level;
+
+						objectList.push_back (newObject);
 					}
 
 					ACAPI_DisposeElemMemoHdls (&memo);
 				}
 			}
 
+			nObjects = (long)objectList.size ();
+
+			// 보 방향을 찾아냄 (가로인가, 세로인가?)
+			for (xx = 0 ; xx < nObjects ; ++xx) {
+				if (xx == 0) {
+					xmin = xmax = objectList [xx].origin.x;
+					ymin = ymax = objectList [xx].origin.y;
+				} else {
+					if (xmin > objectList [xx].origin.x)	xmin = objectList [xx].origin.x;
+					if (ymin > objectList [xx].origin.y)	ymin = objectList [xx].origin.y;
+					if (xmax < objectList [xx].origin.x)	xmax = objectList [xx].origin.x;
+					if (ymax < objectList [xx].origin.y)	ymax = objectList [xx].origin.y;
+				}
+			}
+
+			if (abs (xmax - xmin) > abs (ymax - ymin))
+				tableformInfo.iBeamDirection = HORIZONTAL_DIRECTION;
+			else
+				tableformInfo.iBeamDirection = VERTICAL_DIRECTION;
+
+			// 수집된 정보 분류하기
+			for (xx = 0 ; xx < nObjects ; ++xx) {
+				if (tableformInfo.iBeamDirection == HORIZONTAL_DIRECTION) {
+					// 좌표의 분포를 좌우로 나누기 (기준: 200mm 이상 떨어져 있어야 함)
+					// 왼쪽 측판, 오른쪽 측판, 하판 정보 추출 (전체 측면 높이, 합판 또는 유로폼의 높이와 길이)
+				} else {
+					// 좌표의 분포를 상하로 나누기 (기준: 200mm 이상 떨어져 있어야 함)
+					// 위쪽 측판, 아래쪽 측판, 하판 정보 추출 (전체 하부면 너비, 유로폼의 너비와 길이)
+				}
+
+				// newObject.attachPosition;
+				// tableformInfo (클래스)
+			}
+
 			// 파일 출력하기
-			// !!!
+			// ...
+
+			// 객체 비우기
+			if (!objects.IsEmpty ())
+				objects.Clear ();
+			if (!objectList.empty ())
+				objectList.clear ();
 
 			// 레이어 숨기기
 			attrib.layer.head.flags |= APILay_Hidden;
@@ -3386,21 +3504,7 @@ GSErrCode	exportBeamTableformInformation (void)
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);
 	sprintf (buffer, "결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
-	ACAPI_WriteReport (buffer, true);
-
-
-
-	// 레이어 별로 순회
-		// 레이어 상에 있는 객체들의 정보를 수집하되 유로폼, 합판, 각재, 휠러스페이서만 수집할 것
-		// 수집한 객체들의 좌표들을 저장할 것
-			// 좌표의 분포가 가로 방향이면,
-				// 좌표의 분포를 좌우로 나누기 (기준: 200mm 이상 떨어져 있어야 함)
-				// 왼쪽 측판, 오른쪽 측판, 하판 정보 추출 (전체 측면 높이, 합판 또는 유로폼의 높이와 길이)
-			// 좌표의 분포가 세로 방향이면,
-				// 좌표의 분포를 상하로 나누기 (기준: 200mm 이상 떨어져 있어야 함)
-				// 위쪽 측판, 아래쪽 측판, 하판 정보 추출 (전체 하부면 너비, 유로폼의 너비와 길이)
-
-	WriteReport_Alert ("테스트 중입니다.");
+	WriteReport_Alert (buffer);
 
 	return err;
 }
