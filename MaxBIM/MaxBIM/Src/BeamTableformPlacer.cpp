@@ -1044,7 +1044,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 				bBeginFound = false;
 			}
 		} else if (getObjectType (placingZone, true, 3) == PLYWOOD) {
-			// 90mm 이상이면
+			// 100mm 초과이면
 			if ((placingZone->cellsAtLSide [3][xx].objType == PLYWOOD) && (placingZone->cellsAtLSide [3][xx].perLen > 0) && (placingZone->cellsAtLSide [3][xx].dirLen > 0)) {
 				// 연속적인 인덱스 범위 찾기
 				if (bBeginFound == false) {
@@ -1301,7 +1301,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 				bBeginFound = false;
 			}
 		} else if (getObjectType (placingZone, false, 3) == PLYWOOD) {
-			// 90mm 이상이면
+			// 100mm 초과이면
 			if ((placingZone->cellsAtRSide [3][xx].objType == PLYWOOD) && (placingZone->cellsAtRSide [3][xx].perLen > 0) && (placingZone->cellsAtRSide [3][xx].dirLen > 0)) {
 				// 연속적인 인덱스 범위 찾기
 				if (bBeginFound == false) {
@@ -3876,7 +3876,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE) == TRUE) {
 						for (xx = 0 ; xx < 50 ; ++xx) {
-							if (DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_LSIDE) >= 0.200 - EPS)
+							if (DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_LSIDE) >= 0.100 + EPS)
 								placingZone.cellsAtLSide [3][xx].objType = PLYWOOD;
 							else
 								placingZone.cellsAtLSide [3][xx].objType = TIMBER;
@@ -3908,7 +3908,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE) == TRUE) {
 						for (xx = 0 ; xx < 50 ; ++xx) {
-							if (DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_RSIDE) >= 0.200 - EPS)
+							if (DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_RSIDE) >= 0.100 + EPS)
 								placingZone.cellsAtRSide [3][xx].objType = PLYWOOD;
 							else
 								placingZone.cellsAtRSide [3][xx].objType = TIMBER;

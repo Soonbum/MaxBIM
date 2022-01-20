@@ -171,24 +171,15 @@ struct objectInBeamTableform
 // 보 테이블폼 물량표 작성을 위한 구조체에 사용되는 셀 정보
 struct BeamTableformCell
 {
-	double	euroform_1_leftHeight;		// 왼쪽/위쪽 높이 (1단 유로폼)
-	double	euroform_1_rightHeight;		// 오른쪽/아래쪽 높이 (1단 유로폼)
-	double	euroform_1_bottomWidth;		// 하부 너비 (1단 유로폼)
+	double	euroform_leftHeight;		// 왼쪽/아래쪽 높이 (유로폼)
+	double	euroform_rightHeight;		// 오른쪽/위쪽 높이 (유로폼)
+	double	euroform_bottomWidth;		// 하부 너비 (유로폼)
 
-	double	euroform_2_leftHeight;		// 왼쪽/위쪽 높이 (2단 유로폼)
-	double	euroform_2_rightHeight;		// 오른쪽/아래쪽 높이 (2단 유로폼)
-	double	euroform_2_bottomWidth;		// 하부 너비 (2단 유로폼)
-
-	double	fillersp_leftHeight;		// 왼쪽/위쪽 높이 (휠러스페이서)
-	double	fillersp_rightHeight;		// 오른쪽/아래쪽 높이 (휠러스페이서)
-	double	fillersp_bottomWidth;		// 하부 너비 (휠러스페이서)
-
-	double	timber_leftHeight;			// 왼쪽/위쪽 높이 (각재 또는 합판)
-	double	timber_rightHeight;			// 오른쪽/아래쪽 높이 (각재 또는 합판)
-
-	double	plywoodOnly_leftHeight;		// 왼쪽/위쪽 높이 (전체 합판)
-	double	plywoodOnly_rightHeight;	// 오른쪽/아래쪽 높이 (전체 합판)
+	double	plywoodOnly_leftHeight;		// 왼쪽/아래쪽 높이 (전체 합판)
+	double	plywoodOnly_rightHeight;	// 오른쪽/위쪽 높이 (전체 합판)
 	double	plywoodOnly_bottomWidth;	// 하부 너비 (전체 합판)
+
+	double	length;						// 셀 길이
 };
 
 // 보 테이블폼 물량표 작성을 위한 클래스
@@ -196,13 +187,8 @@ class BeamTableformInfo
 {
 public:
 	short	iBeamDirection;		// 보 방향 (HORIZONTAL_DIRECTION, VERTICAL_DIRECTION)
-
-	double	leftHeight;			// 왼쪽/위쪽 높이
-	double	rightHeight;		// 오른쪽/아래쪽 높이
-	double	bottomWidth;		// 하부 너비
-
 	short	nCells;						// 셀 개수
-	BeamTableformCell	cells [30];		// 셀 정보
+	BeamTableformCell	cells [50];		// 셀 정보
 
 public:
 	BeamTableformInfo ();		// 보 테이블폼 물량표 작성을 위한 클래스 생성자 (초기화)
@@ -211,6 +197,8 @@ public:
 
 void		initArray (double arr [], short arrSize);											// 배열 초기화 함수
 int			compare (const void* first, const void* second);									// 오름차순으로 정렬할 때 사용하는 비교함수 (퀵소트)
+bool		comparePosX (const objectInBeamTableform& a, const objectInBeamTableform& b);		// vector 내 자재 정보 구조체 정렬을 위한 비교 함수 (좌표값 X 기준)
+bool		comparePosY (const objectInBeamTableform& a, const objectInBeamTableform& b);		// vector 내 자재 정보 구조체 정렬을 위한 비교 함수 (좌표값 Y 기준)
 
 ColumnInfo	findColumn (ColumnPos* columnPos, short iHor, short iVer, short floorInd);			// 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
 GSErrCode	exportGridElementInfo (void);														// 부재(기둥,보,슬래브)들의 정보를 추출하고 정리해서 엑셀 파일로 내보내기
