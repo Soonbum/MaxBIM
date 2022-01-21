@@ -2883,7 +2883,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "喉风格缴 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				}
-			} else if ((placingZone->cellsAtLSide [3][xx].perLen >= 0.080 - EPS) && (placingZone->cellsAtLSide [3][xx].perLen <= 0.100 + EPS)) {
+			} else if ((placingZone->cellsAtLSide [3][xx].perLen >= 0.080 - EPS) && (placingZone->cellsAtLSide [3][xx].perLen < 0.100 + EPS)) {
 				moveIn3D ('x', blueTimberRail.radAng, -0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				moveIn3D ('y', blueTimberRail.radAng, -0.0525, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
@@ -2904,7 +2904,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueTimberRail.placeObject (3, "railType", APIParT_CString, "喉风格缴 3", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				}
-			} else if (placingZone->cellsAtLSide [3][xx].perLen >= 0.200 - EPS) {
+			} else if (placingZone->cellsAtLSide [3][xx].perLen >= 0.100 - EPS) {
 				moveIn3D ('x', blueTimberRail.radAng, -0.023, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				moveIn3D ('y', blueTimberRail.radAng, -0.064, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
@@ -3021,7 +3021,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 						blueTimberRail.radAng -= DegreeToRad (180.0);
 					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				}
-			} else if ((placingZone->cellsAtRSide [3][xx].perLen >= 0.080 - EPS) && (placingZone->cellsAtRSide [3][xx].perLen <= 0.100 + EPS)) {
+			} else if ((placingZone->cellsAtRSide [3][xx].perLen >= 0.080 - EPS) && (placingZone->cellsAtRSide [3][xx].perLen < 0.100 + EPS)) {
 				moveIn3D ('x', blueTimberRail.radAng, -0.023 + 0.194, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				moveIn3D ('y', blueTimberRail.radAng, 0.0525, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
@@ -3050,7 +3050,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 						blueTimberRail.radAng -= DegreeToRad (180.0);
 					moveIn3D ('x', blueTimberRail.radAng, 0.450, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				}
-			} else if (placingZone->cellsAtRSide [3][xx].perLen >= 0.200 - EPS) {
+			} else if (placingZone->cellsAtRSide [3][xx].perLen >= 0.100 - EPS) {
 				moveIn3D ('x', blueTimberRail.radAng, -0.023 + 0.194, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				moveIn3D ('y', blueTimberRail.radAng, 0.064, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);
 				moveIn3D ('z', blueTimberRail.radAng, -0.003, &blueTimberRail.posX, &blueTimberRail.posY, &blueTimberRail.posZ);

@@ -3278,8 +3278,8 @@ GSErrCode	exportBeamTableformInformation (void)
 	objectInBeamTableform			newObject;
 
 	double				xmin, xmax, ymin, ymax;
-	double				ang_x, ang_y;
-	bool				bValid;
+	int					ang_x, ang_y;
+	bool				bValid, bFirst;
 	double				xcenter, ycenter;
 
 	// 레이어 관련 변수
@@ -3394,8 +3394,8 @@ GSErrCode	exportBeamTableformInformation (void)
 						bValid = false;
 
 						// 초기화
-						newObject.attachPosition = LEFT_SIDE;
-						newObject.objType = EUROFORM;
+						newObject.attachPosition = NO_POSITION;
+						newObject.objType = NONE;
 						newObject.length = 0.0;
 						newObject.width = 0.0;
 						newObject.length = 0.0;
@@ -3408,7 +3408,6 @@ GSErrCode	exportBeamTableformInformation (void)
 						newObject.origin.y = elem.object.pos.y;
 						newObject.origin.z = elem.object.level;
 						
-						// !!! SIDE 설정 오류
 						// 객체의 타입, 너비와 길이를 저장
 						if (my_strcmp (getParameterStringByName (&memo, "u_comp"), "유로폼") == 0) {
 							if (my_strcmp (getParameterStringByName (&memo, "u_ins"), "벽눕히기") == 0) {
@@ -3419,100 +3418,64 @@ GSErrCode	exportBeamTableformInformation (void)
 								sprintf (tempStr, "%s", getParameterStringByName (&memo, "eu_hei"));
 								newObject.length = atof (tempStr) / 1000.0;
 
-								ang_x = RadToDegree (getParameterValueByName (&memo, "ang_x"));
-								ang_y = RadToDegree (getParameterValueByName (&memo, "ang_y"));
+								ang_x = (int)round (RadToDegree (getParameterValueByName (&memo, "ang_x")), 0);
+								ang_y = (int)round (RadToDegree (getParameterValueByName (&memo, "ang_y")), 0);
 
-								if ( ((abs (ang_x -   0.0) < EPS) && (abs (ang_y -  0.0) < EPS)) ||
-									 ((abs (ang_x -  90.0) < EPS) && (abs (ang_y -  0.0) < EPS)) ||
-									 ((abs (ang_x - 180.0) < EPS) && (abs (ang_y -  0.0) < EPS)) ||
-									 ((abs (ang_x -  90.0) < EPS) && (abs (ang_y - 90.0) < EPS)) ) {
+								if ( ((ang_x ==   0) && (ang_y ==  0)) ||
+									 ((ang_x ==  90) && (ang_y ==  0)) ||
+									 ((ang_x == 180) && (ang_y ==  0)) ||
+									 ((ang_x ==  90) && (ang_y == 90)) )
 									newObject.attachPosition = LEFT_SIDE;
-								} else {
+								else if ( ((ang_x ==   0) && (ang_y == 90)) ||
+										  ((ang_x == 180) && (ang_y == 90)) )
 									newObject.attachPosition = BOTTOM_SIDE;
-								}
 
 								bValid = true;
 							}
+						}
 
-						} else if (my_strcmp (getParameterStringByName (&memo, "g_comp"), "합판") == 0) {
+						else if (my_strcmp (getParameterStringByName (&memo, "g_comp"), "합판") == 0) {
 							if (abs (getParameterValueByName (&memo, "sogak") - 1.0) < EPS) {
 								newObject.objType = PLYWOOD;
 
-								ang_x = RadToDegree (getParameterValueByName (&memo, "p_ang"));
+								ang_x = (int)round (RadToDegree (getParameterValueByName (&memo, "p_ang")), 0);
 
 								if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "벽눕히기") == 0) {
 									newObject.width = getParameterValueByName (&memo, "p_wid");
 									newObject.length = getParameterValueByName (&memo, "p_leng");
-									if ( (abs (ang_x - 0.0) < EPS) || (abs (ang_x - 180.0) < EPS) )
+									if ( (ang_x == 0) || (ang_x == 180) )
 										newObject.attachPosition = LEFT_SIDE;
 									else
 										newObject.attachPosition = BOTTOM_SIDE;
 								} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "벽세우기") == 0) {
 									newObject.width = getParameterValueByName (&memo, "p_leng");
 									newObject.length = getParameterValueByName (&memo, "p_wid");
-									if ( (abs (ang_x - 0.0) < EPS) || (abs (ang_x - 180.0) < EPS) )
+									if ( (ang_x == 0) || (ang_x == 180) )
 										newObject.attachPosition = LEFT_SIDE;
 									else
 										newObject.attachPosition = BOTTOM_SIDE;
 								} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "바닥깔기") == 0) {
 									newObject.width = getParameterValueByName (&memo, "p_wid");
 									newObject.length = getParameterValueByName (&memo, "p_leng");
-									if ( (abs (ang_x - 90.0) < EPS) || (abs (ang_x - 270.0) < EPS) )
+									if ( (ang_x == 90) || (ang_x == 270) )
 										newObject.attachPosition = LEFT_SIDE;
 									else
 										newObject.attachPosition = BOTTOM_SIDE;
 								} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "바닥덮기") == 0) {
 									newObject.width = getParameterValueByName (&memo, "p_wid");
 									newObject.length = getParameterValueByName (&memo, "p_leng");
-									if ( (abs (ang_x - 90.0) < EPS) || (abs (ang_x - 270.0) < EPS) )
+									if ( (ang_x == 90) || (ang_x == 270) )
 										newObject.attachPosition = LEFT_SIDE;
 									else
 										newObject.attachPosition = BOTTOM_SIDE;
 								}
 
 								// 단, 전체를 덮는 합판은 너비가 200mm 이상이어야 함
-								if (newObject.width >= 0.200)
+								if (newObject.width > 0.200 - EPS)
 									bValid = true;
 								else
 									bValid = false;
 							}
-
-						//} else if (my_strcmp (getParameterStringByName (&memo, "w_comp"), "휠러스페이서") == 0) {
-						//	newObject.objType = FILLERSP;
-
-						//	newObject.width = getParameterValueByName (&memo, "f_thk");
-						//	newObject.length = getParameterValueByName (&memo, "f_leng");
-
-						//	ang_x = RadToDegree (getParameterValueByName (&memo, "f_ang"));		// 각도
-						//	ang_y = RadToDegree (getParameterValueByName (&memo, "f_rota"));	// 회전
-
-						//	if ( (abs (ang_x - 0.0) < EPS) || (abs (ang_y - 0.0) < EPS) ) {
-						//		newObject.attachPosition = LEFT_SIDE;
-						//		bValid = true;
-						//	} else if ( (abs (ang_x - 0.0) < EPS) || (abs (ang_y - 90.0) < EPS) ) {
-						//		newObject.attachPosition = BOTTOM_SIDE;
-						//		bValid = true;
-						//	}
-
-						//} else if (my_strcmp (getParameterStringByName (&memo, "w_comp"), "목재") == 0) {
-						//	newObject.objType = TIMBER;
-
-						//	newObject.width = getParameterValueByName (&memo, "w_h");
-						//	newObject.length = getParameterValueByName (&memo, "w_leng");
-
-						//	ang_x = RadToDegree (getParameterValueByName (&memo, "w_ang"));			// 각도
-						//	ang_y = RadToDegree (getParameterValueByName (&memo, "torsion_ang"));	// 비틀림각도
-
-						//	if ( (abs (ang_x - 0.0) < EPS) || (abs (ang_y - 0.0) < EPS) ) {
-						//		if (my_strcmp (getParameterStringByName (&memo, "w_ins"), "벽세우기") == 0) {
-						//			newObject.attachPosition = LEFT_SIDE;
-						//			bValid = true;
-						//		} else if (my_strcmp (getParameterStringByName (&memo, "w_ins"), "바닥눕히기") == 0) {
-						//			newObject.attachPosition = BOTTOM_SIDE;
-						//			bValid = true;
-						//		}
-						//	}
-
 						}
 
 						if (bValid == true)
@@ -3526,15 +3489,19 @@ GSErrCode	exportBeamTableformInformation (void)
 			nObjects = (long)objectList.size ();
 
 			// 보 방향을 찾아냄 (가로인가, 세로인가?)
+			bFirst = false;
 			for (xx = 0 ; xx < nObjects ; ++xx) {
-				if (xx == 0) {
-					xmin = xmax = objectList [xx].origin.x;
-					ymin = ymax = objectList [xx].origin.y;
-				} else {
-					if (xmin > objectList [xx].origin.x)	xmin = objectList [xx].origin.x;
-					if (ymin > objectList [xx].origin.y)	ymin = objectList [xx].origin.y;
-					if (xmax < objectList [xx].origin.x)	xmax = objectList [xx].origin.x;
-					if (ymax < objectList [xx].origin.y)	ymax = objectList [xx].origin.y;
+				if (objectList [xx].attachPosition != BOTTOM_SIDE) {
+					if (bFirst == false) {
+						xmin = xmax = objectList [xx].origin.x;
+						ymin = ymax = objectList [xx].origin.y;
+						bFirst = true;
+					} else {
+						if (xmin > objectList [xx].origin.x)	xmin = objectList [xx].origin.x;
+						if (ymin > objectList [xx].origin.y)	ymin = objectList [xx].origin.y;
+						if (xmax < objectList [xx].origin.x)	xmax = objectList [xx].origin.x;
+						if (ymax < objectList [xx].origin.y)	ymax = objectList [xx].origin.y;
+					}
 				}
 			}
 			if (abs (xmax - xmin) > abs (ymax - ymin))
@@ -3551,33 +3518,21 @@ GSErrCode	exportBeamTableformInformation (void)
 			}
 
 			// 센터 위치 찾기
-			xcenter = (xmax - xmin) / 2;
-			ycenter = (ymax - ymin) / 2;
+			xcenter = (xmax - xmin) / 2 + xmin;
+			ycenter = (ymax - ymin) / 2 + ymin;
 
-			// !!! SIDE 설정 오류
 			// 수집된 정보 분류하기
 			for (xx = 0 ; xx < nObjects ; ++xx) {
 				// 왼쪽/아래쪽(최소)과 오른쪽/위쪽(최대) 측판 사이의 중간점을 기준으로 구분
 				if (tableformInfo.iBeamDirection == HORIZONTAL_DIRECTION) {
-					if (objectList [xx].origin.x > xcenter) {
-						if (objectList [xx].attachPosition == LEFT_SIDE)
-							objectList [xx].attachPosition = RIGHT_SIDE;	// 오른쪽
-					}
-				} else {
 					if (objectList [xx].origin.y > ycenter) {
 						if (objectList [xx].attachPosition == LEFT_SIDE)
 							objectList [xx].attachPosition = RIGHT_SIDE;	// 위쪽
 					}
-				}
-
-				// !!!
-				if (objectList [xx].objType == EUROFORM) {
-					if (objectList [xx].attachPosition == LEFT_SIDE) {
-						WriteReport_Alert ("좌측 - 너비(%.0f), 길이(%.0f)", objectList [xx].width * 1000, objectList [xx].length * 1000);
-					} else if (objectList [xx].attachPosition == RIGHT_SIDE) {
-						WriteReport_Alert ("우측 - 너비(%.0f), 길이(%.0f)", objectList [xx].width * 1000, objectList [xx].length * 1000);
-					} else if (objectList [xx].attachPosition == BOTTOM_SIDE) {
-						WriteReport_Alert ("하부 - 너비(%.0f), 길이(%.0f)", objectList [xx].width * 1000, objectList [xx].length * 1000);
+				} else {
+					if (objectList [xx].origin.x > xcenter) {
+						if (objectList [xx].attachPosition == LEFT_SIDE)
+							objectList [xx].attachPosition = RIGHT_SIDE;	// 오른쪽
 					}
 				}
 			}
@@ -3587,6 +3542,30 @@ GSErrCode	exportBeamTableformInformation (void)
 			short nCells_right = 0;
 			short nCells_bottom = 0;
 
+			// !!! 임시 코드
+			for (xx = 0 ; xx < nObjects ; ++xx) {
+				char temp1 [32];
+				char temp2 [32];
+
+				if (objectList [xx].objType == EUROFORM)		strcpy (temp1, "유로폼");
+				else if (objectList [xx].objType == PLYWOOD)	strcpy (temp1, "합판");
+				else											strcpy (temp1, "오류");
+
+				if (objectList [xx].attachPosition == LEFT_SIDE)		strcpy (temp2, "좌측");
+				else if (objectList [xx].attachPosition == RIGHT_SIDE)	strcpy (temp2, "우측");
+				else if (objectList [xx].attachPosition == BOTTOM_SIDE)	strcpy (temp2, "하부");
+
+				sprintf (buffer, "%s(%s), (%.0f / %.0f / %.0f) 너비 (%.0f) 길이 (%.0f)\n",
+					temp1, temp2,
+					objectList [xx].origin.x * 1000, objectList [xx].origin.y * 1000, objectList [xx].origin.z * 1000,
+					objectList [xx].width * 1000, objectList [xx].length * 1000);
+				fprintf (fp, buffer);
+			}
+
+			// !!! 아래 코드는 수정해야 함
+			// --> 값을 할당하는 순서를 조정해야 함
+				// 1. 합판 또는 유로폼은 각각 3개씩 연속으로 입력해야 함
+				// 2. 
 			// 보 테이블폼 물량표 작성을 위한 클래스 - 인스턴스 작성하기
 			for (xx = 0 ; xx < nObjects ; ++xx) {
 				if (objectList [xx].attachPosition == LEFT_SIDE) {
@@ -3594,7 +3573,8 @@ GSErrCode	exportBeamTableformInformation (void)
 						tableformInfo.cells [nCells_left].euroform_leftHeight = objectList [xx].width;
 						tableformInfo.cells [nCells_left].length = objectList [xx].length;
 						++ nCells_left;
-					} else if (objectList [xx].objType == PLYWOOD) {
+					}
+					if (objectList [xx].objType == PLYWOOD) {
 						tableformInfo.cells [nCells_left].plywoodOnly_leftHeight = objectList [xx].width;
 						tableformInfo.cells [nCells_left].length = objectList [xx].length;
 						++ nCells_left;
@@ -3605,7 +3585,8 @@ GSErrCode	exportBeamTableformInformation (void)
 					if (objectList [xx].objType == EUROFORM) {
 						tableformInfo.cells [nCells_right].euroform_rightHeight = objectList [xx].width;
 						++ nCells_right;
-					} else if (objectList [xx].objType == PLYWOOD) {
+					}
+					if (objectList [xx].objType == PLYWOOD) {
 						tableformInfo.cells [nCells_right].plywoodOnly_rightHeight = objectList [xx].width;
 						++ nCells_right;
 					}
@@ -3615,7 +3596,8 @@ GSErrCode	exportBeamTableformInformation (void)
 					if (objectList [xx].objType == EUROFORM) {
 						tableformInfo.cells [nCells_bottom].euroform_bottomWidth = objectList [xx].width;
 						++ nCells_bottom;
-					} else if (objectList [xx].objType == PLYWOOD) {
+					}
+					if (objectList [xx].objType == PLYWOOD) {
 						tableformInfo.cells [nCells_bottom].plywoodOnly_bottomWidth = objectList [xx].width;
 						++ nCells_bottom;
 					}
@@ -3623,51 +3605,34 @@ GSErrCode	exportBeamTableformInformation (void)
 			}
 
 			// 셀 개수 저장
-			if ((nCells_left == nCells_right) && (nCells_left == nCells_bottom)) {
-				tableformInfo.nCells = nCells_left;
+			if (nObjects != 0) {
+				if ((nCells_left == nCells_right) && (nCells_left == nCells_bottom)) {
+					// 성공한 경우
+					tableformInfo.nCells = nCells_left;
 
-				// 파일 출력하기 (물량표 작성)
-				sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
-				fprintf (fp, buffer);
+					// 파일 출력하기 (물량표 작성)
+					sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
+					fprintf (fp, buffer);
 
-				char	headerStr [16];
-				for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
-					if (tableformInfo.cells [xx].euroform_leftHeight > EPS) {
-						strcpy (headerStr, "유로폼");
-					} else {
-						strcpy (headerStr, "합판");
+					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
+						if (tableformInfo.cells [xx].euroform_leftHeight > EPS) {
+							sprintf (buffer, "\n유로폼,길이,%.0f,,밑면,%.0f,측면1,%.0f,측면2,%.0f", tableformInfo.cells [xx].length * 1000, tableformInfo.cells [xx].euroform_bottomWidth * 1000, tableformInfo.cells [xx].euroform_leftHeight * 1000, tableformInfo.cells [xx].euroform_rightHeight * 1000);
+						} else {
+							sprintf (buffer, "\n합판,길이,%.0f,,밑면,%.0f,측면1,%.0f,측면2,%.0f", tableformInfo.cells [xx].length * 1000, tableformInfo.cells [xx].plywoodOnly_bottomWidth * 1000, tableformInfo.cells [xx].plywoodOnly_leftHeight * 1000, tableformInfo.cells [xx].plywoodOnly_rightHeight * 1000);
+						}
+						fprintf (fp, buffer);
 					}
-					sprintf (buffer, "\n%s,%.0f,,밑면,%.0f,측면1,%.0f,측면2,%.0f\n", headerStr, tableformInfo.cells [xx].length * 1000, tableformInfo.cells [xx].euroform_bottomWidth * 1000, tableformInfo.cells [xx].euroform_leftHeight * 1000, tableformInfo.cells [xx].euroform_rightHeight * 1000);
+				} else {
+					// 실패한 경우
+					tableformInfo.nCells = 0;
+
+					// 파일 출력하기 (물량표 작성)
+					sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
+					fprintf (fp, buffer);
+
+					sprintf (buffer, "\n정규화된 보 테이블폼 레이어가 아닙니다.\n");
 					fprintf (fp, buffer);
 				}
-			} else {
-				tableformInfo.nCells = 0;
-
-				WriteReport_Alert ("셀 개수: 좌측(%d), 우측(%d), 하부(%d)", nCells_left, nCells_right, nCells_bottom);
-
-				// 객체 비우기
-				if (!objects.IsEmpty ())
-					objects.Clear ();
-				if (!objectList.empty ())
-					objectList.clear ();
-
-				fclose (fp);
-
-				// 모든 프로세스를 마치면 처음에 수집했던 보이는 레이어들을 다시 켜놓을 것
-				for (xx = 1 ; xx <= nVisibleLayers ; ++xx) {
-					BNZeroMemory (&attrib, sizeof (API_Attribute));
-					attrib.layer.head.typeID = API_LayerID;
-					attrib.layer.head.index = visLayerList [xx-1];
-					err = ACAPI_Attribute_Get (&attrib);
-					if (err == NoError) {
-						if ((attrib.layer.head.flags & APILay_Hidden) == true) {
-							attrib.layer.head.flags ^= APILay_Hidden;
-							ACAPI_Attribute_Modify (&attrib, NULL);
-						}
-					}
-				}
-
-				return	err;
 			}
 
 			// 객체 비우기

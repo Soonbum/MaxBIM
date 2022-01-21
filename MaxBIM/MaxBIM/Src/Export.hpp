@@ -33,13 +33,13 @@ namespace exportDG {
 	};
 
 	enum	BEAMTABLEFORM_OBJECT_TYPE {
+		NONE,
 		EUROFORM,
-		PLYWOOD,
-		TIMBER,
-		FILLERSP
+		PLYWOOD
 	};
 
 	enum	ATTACH_POSITION {
+		NO_POSITION,
 		LEFT_SIDE,
 		RIGHT_SIDE,
 		BOTTOM_SIDE
@@ -161,7 +161,7 @@ struct VisibleObjectInfo
 // 보 테이블폼 내 자재들에 대한 정보
 struct objectInBeamTableform
 {
-	short	objType;			// EUROFORM, PLYWOOD, TIMBER, FILLERSP
+	short	objType;			// EUROFORM, PLYWOOD
 	short	attachPosition;		// LEFT_SIDE, RIGHT_SIDE, BOTTOM_SIDE
 	API_Coord3D	origin;			// 원점 좌표
 	double	width;				// 객체 너비
