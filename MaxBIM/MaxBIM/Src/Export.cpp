@@ -3537,11 +3537,14 @@ GSErrCode	exportBeamTableformInformation (void)
 				}
 			}
 
+			// !!!
 			// 만약 3개씩 객체 타입이 일치하지 않는 경우, 이전 셀의 3번째 항목과 다음 셀의 1번째 항목을 교환함
 			objectInBeamTableform	tempObj;
+
 			if ((objectList.size () % 3 == 0) && (objectList.size () > 2)) {
 				for (xx = 0 ; xx < (objectList.size () / 3) - 1 ; ++xx) {
-					if ( (objectList [3*xx + 1].objType != objectList [3*xx + 2].objType) ) {
+					// 3번째 항목만 다른 경우, (Mirrored 설치 미적용된 경우)
+					if ( (objectList [3*xx].objType == objectList [3*xx + 1].objType) && (objectList [3*xx + 1].objType != objectList [3*xx + 2].objType) ) {
 						tempObj.objType			= objectList [3*xx + 2].objType;
 						tempObj.attachPosition	= objectList [3*xx + 2].attachPosition;
 						tempObj.origin			= objectList [3*xx + 2].origin;
@@ -3560,10 +3563,196 @@ GSErrCode	exportBeamTableformInformation (void)
 						objectList [3*xx + 2 + 1].width				= tempObj.width;
 						objectList [3*xx + 2 + 1].length			= tempObj.length;
 					}
+					// 합판-유로폼-합판-(유로폼-합판-유로폼) 순서대로 되어 있는 경우, (Mirrored 설치 적용된 경우)
+					// 유로폼이 먼저 와야 함
+					else if ( (objectList [3*xx].objType == PLYWOOD) && (objectList [3*xx + 1].objType == EUROFORM) && (objectList [3*xx + 2].objType == PLYWOOD) ) {
+						if (objectList [3*xx + 3].objType == PLYWOOD) {
+							// [3*xx]와 [3*xx + 4] 교환
+							tempObj.objType			= objectList [3*xx].objType;
+							tempObj.attachPosition	= objectList [3*xx].attachPosition;
+							tempObj.origin			= objectList [3*xx].origin;
+							tempObj.width			= objectList [3*xx].width;
+							tempObj.length			= objectList [3*xx].length;
+
+							objectList [3*xx].objType			= objectList [3*xx + 4].objType;
+							objectList [3*xx].attachPosition	= objectList [3*xx + 4].attachPosition;
+							objectList [3*xx].origin			= objectList [3*xx + 4].origin;
+							objectList [3*xx].width				= objectList [3*xx + 4].width;
+							objectList [3*xx].length			= objectList [3*xx + 4].length;
+
+							objectList [3*xx + 4].objType			= tempObj.objType;
+							objectList [3*xx + 4].attachPosition	= tempObj.attachPosition;
+							objectList [3*xx + 4].origin			= tempObj.origin;
+							objectList [3*xx + 4].width				= tempObj.width;
+							objectList [3*xx + 4].length			= tempObj.length;
+
+							// [3*xx + 2]와 [3*xx + 5] 교환
+							tempObj.objType			= objectList [3*xx + 2].objType;
+							tempObj.attachPosition	= objectList [3*xx + 2].attachPosition;
+							tempObj.origin			= objectList [3*xx + 2].origin;
+							tempObj.width			= objectList [3*xx + 2].width;
+							tempObj.length			= objectList [3*xx + 2].length;
+
+							objectList [3*xx + 2].objType			= objectList [3*xx + 5].objType;
+							objectList [3*xx + 2].attachPosition	= objectList [3*xx + 5].attachPosition;
+							objectList [3*xx + 2].origin			= objectList [3*xx + 5].origin;
+							objectList [3*xx + 2].width				= objectList [3*xx + 5].width;
+							objectList [3*xx + 2].length			= objectList [3*xx + 5].length;
+
+							objectList [3*xx + 5].objType			= tempObj.objType;
+							objectList [3*xx + 5].attachPosition	= tempObj.attachPosition;
+							objectList [3*xx + 5].origin			= tempObj.origin;
+							objectList [3*xx + 5].width				= tempObj.width;
+							objectList [3*xx + 5].length			= tempObj.length;
+
+						} else if (objectList [3*xx + 4].objType == PLYWOOD) {
+							// [3*xx]와 [3*xx + 3] 교환
+							tempObj.objType			= objectList [3*xx].objType;
+							tempObj.attachPosition	= objectList [3*xx].attachPosition;
+							tempObj.origin			= objectList [3*xx].origin;
+							tempObj.width			= objectList [3*xx].width;
+							tempObj.length			= objectList [3*xx].length;
+
+							objectList [3*xx].objType			= objectList [3*xx + 3].objType;
+							objectList [3*xx].attachPosition	= objectList [3*xx + 3].attachPosition;
+							objectList [3*xx].origin			= objectList [3*xx + 3].origin;
+							objectList [3*xx].width				= objectList [3*xx + 3].width;
+							objectList [3*xx].length			= objectList [3*xx + 3].length;
+
+							objectList [3*xx + 3].objType			= tempObj.objType;
+							objectList [3*xx + 3].attachPosition	= tempObj.attachPosition;
+							objectList [3*xx + 3].origin			= tempObj.origin;
+							objectList [3*xx + 3].width				= tempObj.width;
+							objectList [3*xx + 3].length			= tempObj.length;
+
+							// [3*xx + 2]와 [3*xx + 5] 교환
+							tempObj.objType			= objectList [3*xx + 2].objType;
+							tempObj.attachPosition	= objectList [3*xx + 2].attachPosition;
+							tempObj.origin			= objectList [3*xx + 2].origin;
+							tempObj.width			= objectList [3*xx + 2].width;
+							tempObj.length			= objectList [3*xx + 2].length;
+
+							objectList [3*xx + 2].objType			= objectList [3*xx + 5].objType;
+							objectList [3*xx + 2].attachPosition	= objectList [3*xx + 5].attachPosition;
+							objectList [3*xx + 2].origin			= objectList [3*xx + 5].origin;
+							objectList [3*xx + 2].width				= objectList [3*xx + 5].width;
+							objectList [3*xx + 2].length			= objectList [3*xx + 5].length;
+
+							objectList [3*xx + 5].objType			= tempObj.objType;
+							objectList [3*xx + 5].attachPosition	= tempObj.attachPosition;
+							objectList [3*xx + 5].origin			= tempObj.origin;
+							objectList [3*xx + 5].width				= tempObj.width;
+							objectList [3*xx + 5].length			= tempObj.length;
+
+						} else if (objectList [3*xx + 5].objType == PLYWOOD) {
+							// [3*xx]와 [3*xx + 3] 교환
+							tempObj.objType			= objectList [3*xx].objType;
+							tempObj.attachPosition	= objectList [3*xx].attachPosition;
+							tempObj.origin			= objectList [3*xx].origin;
+							tempObj.width			= objectList [3*xx].width;
+							tempObj.length			= objectList [3*xx].length;
+
+							objectList [3*xx].objType			= objectList [3*xx + 3].objType;
+							objectList [3*xx].attachPosition	= objectList [3*xx + 3].attachPosition;
+							objectList [3*xx].origin			= objectList [3*xx + 3].origin;
+							objectList [3*xx].width				= objectList [3*xx + 3].width;
+							objectList [3*xx].length			= objectList [3*xx + 3].length;
+
+							objectList [3*xx + 3].objType			= tempObj.objType;
+							objectList [3*xx + 3].attachPosition	= tempObj.attachPosition;
+							objectList [3*xx + 3].origin			= tempObj.origin;
+							objectList [3*xx + 3].width				= tempObj.width;
+							objectList [3*xx + 3].length			= tempObj.length;
+
+							// [3*xx + 2]와 [3*xx + 4] 교환
+							tempObj.objType			= objectList [3*xx + 2].objType;
+							tempObj.attachPosition	= objectList [3*xx + 2].attachPosition;
+							tempObj.origin			= objectList [3*xx + 2].origin;
+							tempObj.width			= objectList [3*xx + 2].width;
+							tempObj.length			= objectList [3*xx + 2].length;
+
+							objectList [3*xx + 2].objType			= objectList [3*xx + 4].objType;
+							objectList [3*xx + 2].attachPosition	= objectList [3*xx + 4].attachPosition;
+							objectList [3*xx + 2].origin			= objectList [3*xx + 4].origin;
+							objectList [3*xx + 2].width				= objectList [3*xx + 4].width;
+							objectList [3*xx + 2].length			= objectList [3*xx + 4].length;
+
+							objectList [3*xx + 4].objType			= tempObj.objType;
+							objectList [3*xx + 4].attachPosition	= tempObj.attachPosition;
+							objectList [3*xx + 4].origin			= tempObj.origin;
+							objectList [3*xx + 4].width				= tempObj.width;
+							objectList [3*xx + 4].length			= tempObj.length;
+						}
+					}
+					
+					// 유로폼-합판-유로폼-(합판-유로폼-합판) 순서대로 되어 있는 경우, (Mirrored 설치 적용된 경우)
+					// 유로폼이 먼저 와야 함
+					else if ( (objectList [3*xx].objType == EUROFORM) && (objectList [3*xx + 1].objType == PLYWOOD) && (objectList [3*xx + 2].objType == EUROFORM) ) {
+						if (objectList [3*xx + 3].objType == EUROFORM) {
+							// [3*xx + 1]와 [3*xx + 3] 교환
+							tempObj.objType			= objectList [3*xx + 1].objType;
+							tempObj.attachPosition	= objectList [3*xx + 1].attachPosition;
+							tempObj.origin			= objectList [3*xx + 1].origin;
+							tempObj.width			= objectList [3*xx + 1].width;
+							tempObj.length			= objectList [3*xx + 1].length;
+
+							objectList [3*xx + 1].objType			= objectList [3*xx + 3].objType;
+							objectList [3*xx + 1].attachPosition	= objectList [3*xx + 3].attachPosition;
+							objectList [3*xx + 1].origin			= objectList [3*xx + 3].origin;
+							objectList [3*xx + 1].width				= objectList [3*xx + 3].width;
+							objectList [3*xx + 1].length			= objectList [3*xx + 3].length;
+
+							objectList [3*xx + 3].objType			= tempObj.objType;
+							objectList [3*xx + 3].attachPosition	= tempObj.attachPosition;
+							objectList [3*xx + 3].origin			= tempObj.origin;
+							objectList [3*xx + 3].width				= tempObj.width;
+							objectList [3*xx + 3].length			= tempObj.length;
+
+						} else if (objectList [3*xx + 4].objType == EUROFORM) {
+							// [3*xx + 1]와 [3*xx + 4] 교환
+							tempObj.objType			= objectList [3*xx + 1].objType;
+							tempObj.attachPosition	= objectList [3*xx + 1].attachPosition;
+							tempObj.origin			= objectList [3*xx + 1].origin;
+							tempObj.width			= objectList [3*xx + 1].width;
+							tempObj.length			= objectList [3*xx + 1].length;
+
+							objectList [3*xx + 1].objType			= objectList [3*xx + 4].objType;
+							objectList [3*xx + 1].attachPosition	= objectList [3*xx + 4].attachPosition;
+							objectList [3*xx + 1].origin			= objectList [3*xx + 4].origin;
+							objectList [3*xx + 1].width				= objectList [3*xx + 4].width;
+							objectList [3*xx + 1].length			= objectList [3*xx + 4].length;
+
+							objectList [3*xx + 4].objType			= tempObj.objType;
+							objectList [3*xx + 4].attachPosition	= tempObj.attachPosition;
+							objectList [3*xx + 4].origin			= tempObj.origin;
+							objectList [3*xx + 4].width				= tempObj.width;
+							objectList [3*xx + 4].length			= tempObj.length;
+
+						} else if (objectList [3*xx + 5].objType == EUROFORM) {
+							// [3*xx + 1]와 [3*xx + 5] 교환
+							tempObj.objType			= objectList [3*xx + 1].objType;
+							tempObj.attachPosition	= objectList [3*xx + 1].attachPosition;
+							tempObj.origin			= objectList [3*xx + 1].origin;
+							tempObj.width			= objectList [3*xx + 1].width;
+							tempObj.length			= objectList [3*xx + 1].length;
+
+							objectList [3*xx + 1].objType			= objectList [3*xx + 5].objType;
+							objectList [3*xx + 1].attachPosition	= objectList [3*xx + 5].attachPosition;
+							objectList [3*xx + 1].origin			= objectList [3*xx + 5].origin;
+							objectList [3*xx + 1].width				= objectList [3*xx + 5].width;
+							objectList [3*xx + 1].length			= objectList [3*xx + 5].length;
+
+							objectList [3*xx + 5].objType			= tempObj.objType;
+							objectList [3*xx + 5].attachPosition	= tempObj.attachPosition;
+							objectList [3*xx + 5].origin			= tempObj.origin;
+							objectList [3*xx + 5].width				= tempObj.width;
+							objectList [3*xx + 5].length			= tempObj.length;
+						}
+					}
 				}
 			}
 
-			//// 디버그용 코드
+			// 디버그용 코드
 			//sprintf (buffer, "\n");
 			//fprintf (fp, buffer);
 			//for (xx = 0 ; xx < nObjects ; ++xx) {
@@ -3629,6 +3818,7 @@ GSErrCode	exportBeamTableformInformation (void)
 			}
 
 			// 셀 개수 저장
+			// !!! 기존의 세로 쓰기 형태에서 가로 쓰기 형태로 바꿀 것
 			if (nObjects != 0) {
 				if ((nCells_left == nCells_right) && (nCells_left == nCells_bottom)) {
 					// 성공한 경우
