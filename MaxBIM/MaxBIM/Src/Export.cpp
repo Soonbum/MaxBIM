@@ -3537,35 +3537,59 @@ GSErrCode	exportBeamTableformInformation (void)
 				}
 			}
 
+			// 만약 3개씩 객체 타입이 일치하지 않는 경우, 이전 셀의 3번째 항목과 다음 셀의 1번째 항목을 교환함
+			objectInBeamTableform	tempObj;
+			if ((objectList.size () % 3 == 0) && (objectList.size () > 2)) {
+				for (xx = 0 ; xx < (objectList.size () / 3) - 1 ; ++xx) {
+					if ( (objectList [3*xx + 1].objType != objectList [3*xx + 2].objType) ) {
+						tempObj.objType			= objectList [3*xx + 2].objType;
+						tempObj.attachPosition	= objectList [3*xx + 2].attachPosition;
+						tempObj.origin			= objectList [3*xx + 2].origin;
+						tempObj.width			= objectList [3*xx + 2].width;
+						tempObj.length			= objectList [3*xx + 2].length;
+
+						objectList [3*xx + 2].objType			= objectList [3*xx + 2 + 1].objType;
+						objectList [3*xx + 2].attachPosition	= objectList [3*xx + 2 + 1].attachPosition;
+						objectList [3*xx + 2].origin			= objectList [3*xx + 2 + 1].origin;
+						objectList [3*xx + 2].width				= objectList [3*xx + 2 + 1].width;
+						objectList [3*xx + 2].length			= objectList [3*xx + 2 + 1].length;
+
+						objectList [3*xx + 2 + 1].objType			= tempObj.objType;
+						objectList [3*xx + 2 + 1].attachPosition	= tempObj.attachPosition;
+						objectList [3*xx + 2 + 1].origin			= tempObj.origin;
+						objectList [3*xx + 2 + 1].width				= tempObj.width;
+						objectList [3*xx + 2 + 1].length			= tempObj.length;
+					}
+				}
+			}
+
+			//// 디버그용 코드
+			//sprintf (buffer, "\n");
+			//fprintf (fp, buffer);
+			//for (xx = 0 ; xx < nObjects ; ++xx) {
+			//	char temp1 [32];
+			//	char temp2 [32];
+
+			//	if (objectList [xx].objType == EUROFORM)		strcpy (temp1, "유로폼");
+			//	else if (objectList [xx].objType == PLYWOOD)	strcpy (temp1, "합판");
+			//	else											strcpy (temp1, "오류");
+
+			//	if (objectList [xx].attachPosition == LEFT_SIDE)		strcpy (temp2, "좌측");
+			//	else if (objectList [xx].attachPosition == RIGHT_SIDE)	strcpy (temp2, "우측");
+			//	else if (objectList [xx].attachPosition == BOTTOM_SIDE)	strcpy (temp2, "하부");
+
+			//	sprintf (buffer, "%s(%s), (%.0f / %.0f / %.0f) 너비 (%.0f) 길이 (%.0f)\n",
+			//		temp1, temp2,
+			//		objectList [xx].origin.x * 1000, objectList [xx].origin.y * 1000, objectList [xx].origin.z * 1000,
+			//		objectList [xx].width * 1000, objectList [xx].length * 1000);
+			//	fprintf (fp, buffer);
+			//}
+
 			// 셀 개수를 세기 위한 변수
 			short nCells_left = 0;
 			short nCells_right = 0;
 			short nCells_bottom = 0;
 
-			// !!! 임시 코드
-			for (xx = 0 ; xx < nObjects ; ++xx) {
-				char temp1 [32];
-				char temp2 [32];
-
-				if (objectList [xx].objType == EUROFORM)		strcpy (temp1, "유로폼");
-				else if (objectList [xx].objType == PLYWOOD)	strcpy (temp1, "합판");
-				else											strcpy (temp1, "오류");
-
-				if (objectList [xx].attachPosition == LEFT_SIDE)		strcpy (temp2, "좌측");
-				else if (objectList [xx].attachPosition == RIGHT_SIDE)	strcpy (temp2, "우측");
-				else if (objectList [xx].attachPosition == BOTTOM_SIDE)	strcpy (temp2, "하부");
-
-				sprintf (buffer, "%s(%s), (%.0f / %.0f / %.0f) 너비 (%.0f) 길이 (%.0f)\n",
-					temp1, temp2,
-					objectList [xx].origin.x * 1000, objectList [xx].origin.y * 1000, objectList [xx].origin.z * 1000,
-					objectList [xx].width * 1000, objectList [xx].length * 1000);
-				fprintf (fp, buffer);
-			}
-
-			// !!! 아래 코드는 수정해야 함
-			// --> 값을 할당하는 순서를 조정해야 함
-				// 1. 합판 또는 유로폼은 각각 3개씩 연속으로 입력해야 함
-				// 2. 
 			// 보 테이블폼 물량표 작성을 위한 클래스 - 인스턴스 작성하기
 			for (xx = 0 ; xx < nObjects ; ++xx) {
 				if (objectList [xx].attachPosition == LEFT_SIDE) {

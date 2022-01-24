@@ -81,7 +81,11 @@ public:
 	API_Guid	placeObject (double posX, double posY, double posZ, double radAng);		// 객체 배치
 	API_Guid	placeObject (const GS::uchar_t* gsmName, short nParams, const char* paramNameList [], API_AddParID* paramTypeList, const char* paramValList [], short layerInd, short floorInd, double posX, double posY, double posZ, double radAng);	// 객체 배치
 	API_Guid	placeObject (short nParams, ...);	// 객체 배치 (파라미터의 개수 및 파라미터 이름/타입/값만 입력)
-	API_Guid	placeObject (const GS::uchar_t* gsmName, short layerInd, short floorInd, double posX, double posY, double posZ, double radAng, short nParams, ...);	// 초기화를 하는 동시에 객체 배치 (가변 파라미터: 파라미터의 개수 및 파라미터 이름/타입/값만 입력)
+	API_Guid	placeObject (const GS::uchar_t* gsmName, short layerInd, short floorInd, double posX, double posY, double posZ, double radAng, short nParams, ...);				// 초기화를 하는 동시에 객체 배치 (가변 파라미터: 파라미터의 개수 및 파라미터 이름/타입/값만 입력)
+	API_Guid	placeObjectMirrored (double posX, double posY, double posZ, double radAng);		// 객체 배치
+	API_Guid	placeObjectMirrored (const GS::uchar_t* gsmName, short nParams, const char* paramNameList [], API_AddParID* paramTypeList, const char* paramValList [], short layerInd, short floorInd, double posX, double posY, double posZ, double radAng);	// 객체 배치
+	API_Guid	placeObjectMirrored (short nParams, ...);	// 객체 배치 (파라미터의 개수 및 파라미터 이름/타입/값만 입력)
+	API_Guid	placeObjectMirrored (const GS::uchar_t* gsmName, short layerInd, short floorInd, double posX, double posY, double posZ, double radAng, short nParams, ...);		// 초기화를 하는 동시에 객체 배치 (가변 파라미터: 파라미터의 개수 및 파라미터 이름/타입/값만 입력)
 
 	// 사용법 안내
 	/*

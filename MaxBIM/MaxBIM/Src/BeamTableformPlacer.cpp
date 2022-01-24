@@ -397,12 +397,6 @@ SECOND:
 	// 부자재 배치하기
 	err = placingZone.placeAuxObjects (&placingZone);
 
-	// 3번째 다이얼로그에서 OK 버튼을 눌러야만 다음 단계로 넘어감
-	if (clickedOKButton != true)
-		return err;
-	else
-		err = placingZone.placeSupportingPostPreset (&placingZone);		// 동바리/멍에제 프리셋을 배치함
-
 	// 결과물 전체 그룹화
 	if (!elemList_LeftEnd.IsEmpty ()) {
 		GSSize nElems = elemList_LeftEnd.GetSize ();
@@ -423,19 +417,6 @@ SECOND:
 		if (elemHead != NULL) {
 			for (GSIndex i = 0; i < nElems; i++)
 				(*elemHead)[i].guid = elemList_RightEnd[i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-	}
-
-	if (!elemList_SupportingPost.IsEmpty ()) {
-		GSSize nElems = elemList_SupportingPost.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_SupportingPost[i];
 
 			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
 
@@ -468,6 +449,25 @@ SECOND:
 
 				BMKillHandle ((GSHandle *) &elemHead);
 			}
+		}
+	}
+
+	// 3번째 다이얼로그에서 OK 버튼을 눌러야만 다음 단계로 넘어감
+	if (clickedOKButton != true)
+		return err;
+	else
+		err = placingZone.placeSupportingPostPreset (&placingZone);		// 동바리/멍에제 프리셋을 배치함
+
+	if (!elemList_SupportingPost.IsEmpty ()) {
+		GSSize nElems = elemList_SupportingPost.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList_SupportingPost[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
 		}
 	}
 
@@ -743,10 +743,9 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 		// 시작 부분 측면(R) 합판 배치
 		if (placingZone->beginCellAtRSide.dirLen > EPS) {
 			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->beginCellAtRSide.leftBottomX, placingZone->beginCellAtRSide.leftBottomY, placingZone->beginCellAtRSide.leftBottomZ, placingZone->beginCellAtRSide.ang);
-			moveIn3D ('x', plywood.radAng, beginCellAtRSide.dirLen, &plywood.posX, &plywood.posY, &plywood.posZ);
 			moveIn3D ('z', plywood.radAng, -0.0615, &plywood.posX, &plywood.posY, &plywood.posZ);
 			plywood.radAng += DegreeToRad (180.0);
-			elemList_LeftEnd.Push (plywood.placeObject (13,
+			elemList_LeftEnd.Push (plywood.placeObjectMirrored (13,
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽눕히기",
 				"p_thk", APIParT_CString, "11.5T",
@@ -756,9 +755,9 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
-				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_a", APIParT_Length, format_string ("%f", 0.070),
 				"gap_b", APIParT_Length, format_string ("%f", 0.0),
-				"gap_c", APIParT_Length, format_string ("%f", 0.070),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
 				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 		}
 
@@ -807,9 +806,10 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 		// 끝 부분 측면(R) 합판 배치
 		if (placingZone->endCellAtRSide.dirLen > EPS) {
 			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->endCellAtRSide.leftBottomX, placingZone->endCellAtRSide.leftBottomY, placingZone->endCellAtRSide.leftBottomZ, placingZone->endCellAtRSide.ang);
+			moveIn3D ('x', plywood.radAng, -placingZone->endCellAtRSide.dirLen, &plywood.posX, &plywood.posY, &plywood.posZ);
 			moveIn3D ('z', plywood.radAng, -0.0615, &plywood.posX, &plywood.posY, &plywood.posZ);
 			plywood.radAng += DegreeToRad (180.0);
-			elemList_RightEnd.Push (plywood.placeObject (13,
+			elemList_RightEnd.Push (plywood.placeObjectMirrored (13,
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽눕히기",
 				"p_thk", APIParT_CString, "11.5T",
@@ -819,9 +819,9 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
-				"gap_a", APIParT_Length, format_string ("%f", 0.070),
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
 				"gap_b", APIParT_Length, format_string ("%f", 0.0),
-				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.070),
 				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 		}
 
@@ -1098,8 +1098,9 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoBeam.floorInd, placingZone->cellsAtRSide [0][xx].leftBottomX, placingZone->cellsAtRSide [0][xx].leftBottomY, placingZone->cellsAtRSide [0][xx].leftBottomZ, placingZone->cellsAtRSide [0][xx].ang);
 
 		if ((placingZone->cellsAtRSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx].perLen > EPS) && (placingZone->cellsAtRSide [0][xx].dirLen > EPS)) {
+			moveIn3D ('x', euroform.radAng, placingZone->cellsAtRSide [0][xx].dirLen, &euroform.posX, &euroform.posY, &euroform.posZ);
 			euroform.radAng += DegreeToRad (180.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (euroform.placeObject (5,
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (euroform.placeObjectMirrored (5,
 				"eu_stan_onoff", APIParT_Boolean, "1.0",
 				"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsAtRSide [0][xx].perLen * 1000.0),
 				"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsAtRSide [0][xx].dirLen * 1000.0),
@@ -1137,14 +1138,14 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 				else
 					lengthDouble = remainLengthDouble;
 
-				moveIn3D ('x', fillersp.radAng, lengthDouble, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 				fillersp.radAng += DegreeToRad (180.0);
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (fillersp.placeObject (4,
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (fillersp.placeObjectMirrored (4,
 					"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsAtRSide [1][beginIndex].perLen),
 					"f_leng", APIParT_Length, format_string ("%f", lengthDouble),
 					"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 					"f_rota", APIParT_Angle, format_string ("%f", 0.0)));
 				fillersp.radAng -= DegreeToRad (180.0);
+				moveIn3D ('x', fillersp.radAng, lengthDouble, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 
 				remainLengthDouble -= 2.400;
 			}
@@ -1158,8 +1159,9 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoBeam.floorInd, placingZone->cellsAtRSide [2][xx].leftBottomX, placingZone->cellsAtRSide [2][xx].leftBottomY, placingZone->cellsAtRSide [2][xx].leftBottomZ, placingZone->cellsAtRSide [2][xx].ang);
 
 		if ((placingZone->cellsAtRSide [2][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [2][xx].perLen > EPS) && (placingZone->cellsAtRSide [2][xx].dirLen > EPS)) {
+			moveIn3D ('x', euroform.radAng, placingZone->cellsAtRSide [2][xx].dirLen, &euroform.posX, &euroform.posY, &euroform.posZ);
 			euroform.radAng += DegreeToRad (180.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (euroform.placeObject (5,
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (euroform.placeObjectMirrored (5,
 				"eu_stan_onoff", APIParT_Boolean, "1.0",
 				"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsAtRSide [2][xx].perLen * 1000.0),
 				"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsAtRSide [2][xx].dirLen * 1000.0),
@@ -1237,10 +1239,10 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 						moveIn3D ('y', timber.radAng, 0.067, &timber.posX, &timber.posY, &timber.posZ);
 						moveIn3D ('z', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
 					}
-					moveIn3D ('x', timber.radAng, lengthDouble, &timber.posX, &timber.posY, &timber.posZ);
 					timber.radAng += DegreeToRad (180.0);
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", horLen), "w_h", APIParT_Length, format_string ("%f", verLen), "w_leng", APIParT_Length, format_string ("%f", lengthDouble), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (timber.placeObjectMirrored (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", horLen), "w_h", APIParT_Length, format_string ("%f", verLen), "w_leng", APIParT_Length, format_string ("%f", lengthDouble), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 					timber.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', timber.radAng, lengthDouble, &timber.posX, &timber.posY, &timber.posZ);
 					if (bTimberMove == true) {
 						moveIn3D ('y', timber.radAng, -0.067, &timber.posX, &timber.posY, &timber.posZ);
 						moveIn3D ('z', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
@@ -1265,32 +1267,32 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 						lengthDouble = remainLengthDouble;
 						
 					if (addedPlywood >= 1) {
-						moveIn3D ('x', plywood1.radAng, lengthDouble, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 						moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 						moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 						plywood1.radAng += DegreeToRad (180.0);
-						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood1.placeObjectMirrored (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
 						plywood1.radAng -= DegreeToRad (180.0);
+						moveIn3D ('x', plywood1.radAng, lengthDouble, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 						moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 						moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 					}
 					if (addedPlywood >= 2) {
-						moveIn3D ('x', plywood2.radAng, lengthDouble, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 						moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 						moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 						plywood2.radAng += DegreeToRad (180.0);
-						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood2.placeObjectMirrored (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
 						plywood2.radAng -= DegreeToRad (180.0);
+						moveIn3D ('x', plywood2.radAng, lengthDouble, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 						moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 						moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 					}
 					if (addedPlywood >= 3) {
-						moveIn3D ('x', plywood3.radAng, lengthDouble, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 						moveIn3D ('y', plywood3.radAng, 0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 						moveIn3D ('z', plywood3.radAng, moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 						plywood3.radAng += DegreeToRad (180.0);
-						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood3.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood3.placeObjectMirrored (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
 						plywood3.radAng -= DegreeToRad (180.0);
+						moveIn3D ('x', plywood3.radAng, lengthDouble, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 						moveIn3D ('y', plywood3.radAng, -0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 						moveIn3D ('z', plywood3.radAng, -moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 					}
@@ -1327,9 +1329,8 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 						lengthDouble = remainLengthDouble;
 
 					// 합판 설치
-					moveIn3D ('x', plywood.radAng, lengthDouble, &plywood.posX, &plywood.posY, &plywood.posZ);
 					plywood.radAng += DegreeToRad (180.0);
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood.placeObject (13,
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood.placeObjectMirrored (13,
 						"p_stan", APIParT_CString, "비규격",
 						"w_dir", APIParT_CString, "벽눕히기",
 						"p_thk", APIParT_CString, "11.5T",
@@ -1344,6 +1345,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 						"gap_c", APIParT_Length, format_string ("%f", 0.0),
 						"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 					plywood.radAng -= DegreeToRad (180.0);
+					moveIn3D ('x', plywood.radAng, lengthDouble, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 					remainLengthDouble -= 2.400;
 				}
@@ -1451,9 +1453,8 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 
 			// 측면(R) 합판 배치
 			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [0][xx].leftBottomX, placingZone->cellsAtRSide [0][xx].leftBottomY, placingZone->cellsAtRSide [0][xx].leftBottomZ, placingZone->cellsAtRSide [0][xx].ang);
-			moveIn3D ('x', plywood.radAng, cellsAtRSide [0][xx].dirLen, &plywood.posX, &plywood.posY, &plywood.posZ);
 			plywood.radAng += DegreeToRad (180.0);
-			elemList_Plywood [getAreaSeqNumOfCell (placingZone, true, false, xx)].Push (plywood.placeObject (13,
+			elemList_Plywood [getAreaSeqNumOfCell (placingZone, true, false, xx)].Push (plywood.placeObjectMirrored (13,
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽눕히기",
 				"p_thk", APIParT_CString, "11.5T",
