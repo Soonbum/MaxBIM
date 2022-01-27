@@ -3292,6 +3292,7 @@ GSErrCode	exportBeamTableformInformation (void)
 	// 기타
 	char			tempStr [512];
 	char			buffer [512];
+	char			tempBuffer [512];
 	char			filename [512];
 
 	// 엑셀 파일로 기둥 정보 내보내기
@@ -3431,6 +3432,26 @@ GSErrCode	exportBeamTableformInformation (void)
 									newObject.attachPosition = BOTTOM_SIDE;
 
 								bValid = true;
+							} else if (my_strcmp (getParameterStringByName (&memo, "u_ins"), "벽세우기") == 0) {
+								newObject.objType = EUROFORM;
+
+								sprintf (tempStr, "%s", getParameterStringByName (&memo, "eu_wid"));
+								newObject.width = atof (tempStr) / 1000.0;
+								sprintf (tempStr, "%s", getParameterStringByName (&memo, "eu_hei"));
+								newObject.length = atof (tempStr) / 1000.0;
+
+								ang_x = (int)round (RadToDegree (getParameterValueByName (&memo, "ang_x")), 0);
+								ang_y = (int)round (RadToDegree (getParameterValueByName (&memo, "ang_y")), 0);
+
+								if ( ((ang_x ==   0) && (ang_y ==  0)) ||
+									 ((ang_x ==  90) && (ang_y ==  0)) ||
+									 ((ang_x == 180) && (ang_y ==  0)) )
+									newObject.attachPosition = LEFT_SIDE;
+								else if ( ((ang_x ==   0) && (ang_y == 90)) ||
+										  ((ang_x == 180) && (ang_y == 90)) )
+									newObject.attachPosition = BOTTOM_SIDE;
+
+								bValid = true;
 							}
 						}
 
@@ -3537,7 +3558,6 @@ GSErrCode	exportBeamTableformInformation (void)
 				}
 			}
 
-			// !!!
 			// 만약 3개씩 객체 타입이 일치하지 않는 경우, 이전 셀의 3번째 항목과 다음 셀의 1번째 항목을 교환함
 			objectInBeamTableform	tempObj;
 
@@ -3752,7 +3772,7 @@ GSErrCode	exportBeamTableformInformation (void)
 				}
 			}
 
-			// 디버그용 코드
+			//// 디버그용 코드
 			//sprintf (buffer, "\n");
 			//fprintf (fp, buffer);
 			//for (xx = 0 ; xx < nObjects ; ++xx) {
@@ -3828,14 +3848,44 @@ GSErrCode	exportBeamTableformInformation (void)
 					sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
 					fprintf (fp, buffer);
 
+					strcpy (buffer, "\n");
 					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
-						if (tableformInfo.cells [xx].euroform_leftHeight > EPS) {
-							sprintf (buffer, "\n유로폼,길이,%.0f,,밑면,%.0f,측면1,%.0f,측면2,%.0f", tableformInfo.cells [xx].length * 1000, tableformInfo.cells [xx].euroform_bottomWidth * 1000, tableformInfo.cells [xx].euroform_leftHeight * 1000, tableformInfo.cells [xx].euroform_rightHeight * 1000);
-						} else {
-							sprintf (buffer, "\n합판,길이,%.0f,,밑면,%.0f,측면1,%.0f,측면2,%.0f", tableformInfo.cells [xx].length * 1000, tableformInfo.cells [xx].plywoodOnly_bottomWidth * 1000, tableformInfo.cells [xx].plywoodOnly_leftHeight * 1000, tableformInfo.cells [xx].plywoodOnly_rightHeight * 1000);
-						}
-						fprintf (fp, buffer);
+						if (tableformInfo.cells [xx].euroform_leftHeight > EPS)
+							strcat (buffer, "유로폼,,,,");
+						else
+							strcat (buffer, "합판,,,,");
 					}
+					fprintf (fp, buffer);
+
+					strcpy (buffer, "\n");
+					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
+						strcat (buffer, "밑면,측면1,측면2,,");
+					}
+					fprintf (fp, buffer);
+
+					strcpy (buffer, "\n");
+					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
+						if (tableformInfo.cells [xx].euroform_leftHeight > EPS)
+							sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfo.cells [xx].euroform_bottomWidth * 1000, tableformInfo.cells [xx].euroform_leftHeight * 1000, tableformInfo.cells [xx].euroform_rightHeight * 1000);
+						else
+							sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfo.cells [xx].plywoodOnly_bottomWidth * 1000, tableformInfo.cells [xx].plywoodOnly_leftHeight * 1000, tableformInfo.cells [xx].plywoodOnly_rightHeight * 1000);
+						strcat (buffer, tempBuffer);
+					}
+					fprintf (fp, buffer);
+
+					strcpy (buffer, "\n");
+					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
+						strcat (buffer, "길이,,,,");
+					}
+					fprintf (fp, buffer);
+
+					strcpy (buffer, "\n");
+					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
+						sprintf (tempBuffer, "%.0f,,,,", tableformInfo.cells [xx].length * 1000);
+						strcat (buffer, tempBuffer);
+					}
+					fprintf (fp, buffer);
+
 				} else {
 					// 실패한 경우
 					tableformInfo.nCells = 0;

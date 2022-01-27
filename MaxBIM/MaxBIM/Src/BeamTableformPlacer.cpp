@@ -4114,6 +4114,20 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 	static short	dialogSizeX = 500;	// 현재 다이얼로그 크기 X
 	static short	dialogSizeY = 360;	// 현재 다이얼로그 크기 Y
 
+	//double	preset [11][6] = {
+	//	1.800, 3.0,		0.600, 0.600, 0.600, 0.000,
+	//	2.100, 3.0,		0.600, 0.900, 0.600, 0.000,
+	//	2.400, 3.0,		0.600, 1.200, 0.600, 0.000,
+	//	2.700, 3.0,		0.600, 1.200, 0.900, 0.000,
+	//	3.000, 3.0,		1.200, 0.600, 1.200, 0.000,
+	//	3.300, 3.0,		1.200, 0.900, 1.200, 0.000,
+	//	3.600, 3.0,		1.200, 1.200, 1.200, 0.000,
+	//	3.900, 4.0,		0.600, 1.200, 1.200, 0.900,
+	//	4.200, 4.0,		0.900, 1.200, 1.200, 0.900,
+	//	4.500, 4.0,		1.200, 1.200, 1.200, 0.900,
+	//	4.800, 4.0,		1.200, 1.200, 1.200, 1.200
+	//};
+
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
@@ -4177,6 +4191,21 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 			DGSetItemFont (dialogID, BUTTON_DEL_COL, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, BUTTON_DEL_COL, "삭제");
 			DGShowItem (dialogID, BUTTON_DEL_COL);
+
+			// 셀 개수 지정하기 ...
+			//double	remainCenterLength = placingZone.beamLength - (0.200 + 0.200 + 0.250);	// 250mm보다 더 추가되는 센터 휠러의 추가 길이
+			//short	selectedIndex;
+			//bool	bFoundPreset = false;
+
+			//for (xx = sizeof (preset [0]) / sizeof (double) - 1 ; xx >= 0  ; --xx) {
+			//	if ((remainCenterLength - preset [xx][0] * 2) > EPS) {
+			//		selectedIndex = xx;
+			//		bFoundPreset = true;
+			//		break;
+			//	}
+			//}
+			//if (bFoundPreset == true)
+			//	placingZone.nCells = ((short)preset [selectedIndex][1]) * 2 + 1;	// 새로운 셀 개수 지정
 
 			// 왼쪽 끝 여백 채우기 여부 (체크박스)
 			placingZone.CHECKBOX_MARGIN_LEFT_END = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, 120, 70, 70, 70);
@@ -4250,6 +4279,12 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 			DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT_END, 0.090);
 			DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT_END, 2.440);
 			DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT_END, 0.200);
+
+			//// 객체 종류 및 길이 설정 ...
+			//for (xx = 0 ; xx < (short)preset [selectedIndex][1] ; ++xx) {
+			//	// ... 객체 종류 설정
+			//	// ... 길이 지정
+			//}
 
 			// 총 길이, 남은 길이 표시
 			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_LENGTH, placingZone.beamLength);
