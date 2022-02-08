@@ -954,7 +954,7 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjects_soleColumn (ColumnTablefo
 	double	heightOfFormArea = 0.0;
 	double	elev_headpiece;
 
-	CellForColumnTableform	insCell;
+	EasyObjectPlacement	pipe, pinbolt, hanger, headpiece, columnBand1, columnBand2;
 
 	// 기둥의 가로, 세로 길이
 	xLen = (placingZone->coreWidth/2 + placingZone->venThick);
@@ -986,627 +986,958 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjects_soleColumn (ColumnTablefo
 	}
 
 	// 1. 비계파이프 배치
-	insCell.objType = SQUARE_PIPE;
-	insCell.libPart.sqrPipe.length = heightOfFormArea;
-	insCell.libPart.sqrPipe.pipeAng = DegreeToRad (90);
-	insCell.libPart.sqrPipe.bPunching = true;
-	insCell.libPart.sqrPipe.bHoleDir = true;
+	pipe.init (L("비계파이프v1.0.gsm"), layerInd_SqrPipe, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
 	// 위쪽
-	insCell.leftBottomX = placingZone->origoPos.x;
-	insCell.leftBottomY = placingZone->origoPos.y;
-	insCell.leftBottomZ = placingZone->bottomOffset;
-	insCell.ang = placingZone->angle;
-
 	if (placingZone->bUseOutcornerPanel == true) {
-		moveIn3D ('x', insCell.ang, -xLen + placingZone->cellsLT [0].horLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen + 0.0635 + 0.025, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.050, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('x', insCell.ang, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
+		moveIn3D ('x', pipe.radAng, -xLen + placingZone->cellsLT [0].horLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('y', pipe.radAng, yLen + 0.0635 + 0.025, &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('z', pipe.radAng, 0.050, &pipe.posX, &pipe.posY, &pipe.posZ);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		moveIn3D ('x', pipe.radAng, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
 	} else {
-		moveIn3D ('x', insCell.ang, -xLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen + 0.0635 + 0.025, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.050, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('x', insCell.ang, xLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
+		moveIn3D ('x', pipe.radAng, -xLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('y', pipe.radAng, yLen + 0.0635 + 0.025, &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('z', pipe.radAng, 0.050, &pipe.posX, &pipe.posY, &pipe.posZ);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		moveIn3D ('x', pipe.radAng, xLen*2, &pipe.posX, &pipe.posY, &pipe.posZ);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
 	}
 
 	// 아래쪽
-	insCell.leftBottomX = placingZone->origoPos.x;
-	insCell.leftBottomY = placingZone->origoPos.y;
-	insCell.leftBottomZ = placingZone->bottomOffset;
-	insCell.ang = placingZone->angle;
+	pipe.init (L("비계파이프v1.0.gsm"), layerInd_SqrPipe, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
 	if (placingZone->bUseOutcornerPanel == true) {
-		moveIn3D ('x', insCell.ang, -xLen + placingZone->cellsLT [0].horLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -(yLen + 0.0635 + 0.025), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.050, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('x', insCell.ang, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
+		moveIn3D ('x', pipe.radAng, -xLen + placingZone->cellsLT [0].horLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('y', pipe.radAng, -(yLen + 0.0635 + 0.025), &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('z', pipe.radAng, 0.050, &pipe.posX, &pipe.posY, &pipe.posZ);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		moveIn3D ('x', pipe.radAng, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
 	} else {
-		moveIn3D ('x', insCell.ang, -xLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -(yLen + 0.0635 + 0.025), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.050, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('x', insCell.ang, xLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
+		moveIn3D ('x', pipe.radAng, -xLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('y', pipe.radAng, -(yLen + 0.0635 + 0.025), &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('z', pipe.radAng, 0.050, &pipe.posX, &pipe.posY, &pipe.posZ);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		moveIn3D ('x', pipe.radAng, xLen*2, &pipe.posX, &pipe.posY, &pipe.posZ);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
 	}
 
 	// 왼쪽
-	insCell.leftBottomX = placingZone->origoPos.x;
-	insCell.leftBottomY = placingZone->origoPos.y;
-	insCell.leftBottomZ = placingZone->bottomOffset;
-	insCell.ang = placingZone->angle;
+	pipe.init (L("비계파이프v1.0.gsm"), layerInd_SqrPipe, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
 	if (placingZone->bUseOutcornerPanel == true) {
-		moveIn3D ('x', insCell.ang, -(xLen + 0.0635 + 0.025), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen - placingZone->cellsLT [0].verLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.050, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
-		moveIn3D ('y', insCell.ang, placingZone->cellsLT [0].verLen - yLen*2 + placingZone->cellsLB [0].verLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
+		moveIn3D ('x', pipe.radAng, -(xLen + 0.0635 + 0.025), &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('y', pipe.radAng, yLen - placingZone->cellsLT [0].verLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('z', pipe.radAng, 0.050, &pipe.posX, &pipe.posY, &pipe.posZ);
+		pipe.radAng += DegreeToRad (90);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		pipe.radAng -= DegreeToRad (90);
+		moveIn3D ('y', pipe.radAng, placingZone->cellsLT [0].verLen - yLen*2 + placingZone->cellsLB [0].verLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		pipe.radAng += DegreeToRad (90);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		pipe.radAng -= DegreeToRad (90);
 	} else {
-		moveIn3D ('x', insCell.ang, -(xLen + 0.0635 + 0.025), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.050, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
-		moveIn3D ('y', insCell.ang, -yLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
+		moveIn3D ('x', pipe.radAng, -(xLen + 0.0635 + 0.025), &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('y', pipe.radAng, yLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('z', pipe.radAng, 0.050, &pipe.posX, &pipe.posY, &pipe.posZ);
+		pipe.radAng += DegreeToRad (90);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		pipe.radAng -= DegreeToRad (90);
+		moveIn3D ('y', pipe.radAng, -yLen*2, &pipe.posX, &pipe.posY, &pipe.posZ);
+		pipe.radAng += DegreeToRad (90);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		pipe.radAng -= DegreeToRad (90);
 	}
 
 	// 오른쪽
-	insCell.leftBottomX = placingZone->origoPos.x;
-	insCell.leftBottomY = placingZone->origoPos.y;
-	insCell.leftBottomZ = placingZone->bottomOffset;
-	insCell.ang = placingZone->angle;
+	pipe.init (L("비계파이프v1.0.gsm"), layerInd_SqrPipe, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
 	if (placingZone->bUseOutcornerPanel == true) {
-		moveIn3D ('x', insCell.ang, (xLen + 0.0635 + 0.025), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen - placingZone->cellsLT [0].verLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.050, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
-		moveIn3D ('y', insCell.ang, placingZone->cellsLT [0].verLen - yLen*2 + placingZone->cellsLB [0].verLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
+		moveIn3D ('x', pipe.radAng, (xLen + 0.0635 + 0.025), &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('y', pipe.radAng, yLen - placingZone->cellsLT [0].verLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('z', pipe.radAng, 0.050, &pipe.posX, &pipe.posY, &pipe.posZ);
+		pipe.radAng += DegreeToRad (90);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		pipe.radAng -= DegreeToRad (90);
+		moveIn3D ('y', pipe.radAng, placingZone->cellsLT [0].verLen - yLen*2 + placingZone->cellsLB [0].verLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		pipe.radAng += DegreeToRad (90);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		pipe.radAng -= DegreeToRad (90);
 	} else {
-		moveIn3D ('x', insCell.ang, (xLen + 0.0635 + 0.025), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.050, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
-		moveIn3D ('y', insCell.ang, -yLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
+		moveIn3D ('x', pipe.radAng, (xLen + 0.0635 + 0.025), &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('y', pipe.radAng, yLen, &pipe.posX, &pipe.posY, &pipe.posZ);
+		moveIn3D ('z', pipe.radAng, 0.050, &pipe.posX, &pipe.posY, &pipe.posZ);
+		pipe.radAng += DegreeToRad (90);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		pipe.radAng -= DegreeToRad (90);
+		moveIn3D ('y', pipe.radAng, -yLen*2, &pipe.posX, &pipe.posY, &pipe.posZ);
+		pipe.radAng += DegreeToRad (90);
+		elemList.Push (pipe.placeObject (7,
+			"p_comp", APIParT_CString, "사각파이프",
+			"p_leng", APIParT_Length, format_string ("%f", heightOfFormArea),
+			"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"bPunching", APIParT_Boolean, "1.0",
+			"holeDir", APIParT_CString, "정면",
+			"holeDia", APIParT_Length, "0.013",
+			"holeDist", APIParT_Length, "0.050"));
+		pipe.radAng -= DegreeToRad (90);
 	}
 
 	// 2. 핀볼트세트 또는 각파이프행거 배치
 	if (placingZone->bUseOutcornerPanel == true) {
 		// 아웃코너판넬의 경우, 핀볼트세트 배치
-		insCell.objType = PINBOLT;
-		insCell.libPart.pinbolt.bPinBoltRot90 = false;
-		insCell.libPart.pinbolt.boltLen = 0.100;
-		insCell.libPart.pinbolt.washerPos = 0.050;
-		insCell.libPart.pinbolt.angX = DegreeToRad (0);
-		insCell.libPart.pinbolt.angY = DegreeToRad (90);
-
 		// 위쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		pinbolt.init (L("핀볼트세트v1.0.gsm"), layerInd_Pinbolt, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, -xLen + placingZone->cellsLT [0].horLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen + 0.0635 + 0.050 + 0.050, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('x', pinbolt.radAng, -xLen + placingZone->cellsLT [0].horLen, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+		moveIn3D ('y', pinbolt.radAng, yLen + 0.0635 + 0.050 + 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng -= DegreeToRad (90);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng += DegreeToRad (90);
+			moveIn3D ('z', pinbolt.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng -= DegreeToRad (90);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng += DegreeToRad (90);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		}
-		moveIn3D ('z', insCell.ang, -heightOfFormArea, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('x', insCell.ang, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('z', pinbolt.radAng, -heightOfFormArea, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+		moveIn3D ('x', pinbolt.radAng, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng -= DegreeToRad (90);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng += DegreeToRad (90);
+			moveIn3D ('z', pinbolt.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng -= DegreeToRad (90);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng += DegreeToRad (90);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		}
 
 		// 아래쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		pinbolt.init (L("핀볼트세트v1.0.gsm"), layerInd_Pinbolt, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, -xLen + placingZone->cellsLT [0].horLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -(yLen + 0.0635 + 0.050 + 0.050), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('x', pinbolt.radAng, -xLen + placingZone->cellsLT [0].horLen, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+		moveIn3D ('y', pinbolt.radAng, -(yLen + 0.0635 + 0.050 + 0.050), &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (270);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (270);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (270);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (270);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng -= DegreeToRad (270);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng += DegreeToRad (270);
+			moveIn3D ('z', pinbolt.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng -= DegreeToRad (270);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng += DegreeToRad (270);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		}
-		moveIn3D ('z', insCell.ang, -heightOfFormArea, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('x', insCell.ang, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('z', pinbolt.radAng, -heightOfFormArea, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+		moveIn3D ('x', pinbolt.radAng, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (270);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (270);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (270);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (270);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng -= DegreeToRad (270);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng += DegreeToRad (270);
+			moveIn3D ('z', pinbolt.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng -= DegreeToRad (270);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng += DegreeToRad (270);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		}
 
 		// 왼쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		pinbolt.init (L("핀볼트세트v1.0.gsm"), layerInd_Pinbolt, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, -(xLen + 0.0635 + 0.050 + 0.050), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen - placingZone->cellsLT [0].verLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('x', pinbolt.radAng, -(xLen + 0.0635 + 0.050 + 0.050), &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+		moveIn3D ('y', pinbolt.radAng, yLen - placingZone->cellsLT [0].verLen, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			elemList.Push (placeLibPart (insCell));
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsL1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			elemList.Push (placeLibPart (insCell));
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			moveIn3D ('z', pinbolt.radAng, -0.150 + placingZone->cellsL1 [xx].height - 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		}
-		moveIn3D ('z', insCell.ang, -heightOfFormArea, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, placingZone->cellsLT [0].verLen - xLen*2 + placingZone->cellsLB [0].verLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('z', pinbolt.radAng, -heightOfFormArea, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+		moveIn3D ('y', pinbolt.radAng, placingZone->cellsLT [0].verLen - xLen*2 + placingZone->cellsLB [0].verLen, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			elemList.Push (placeLibPart (insCell));
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsL1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			elemList.Push (placeLibPart (insCell));
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			moveIn3D ('z', pinbolt.radAng, -0.150 + placingZone->cellsL1 [xx].height - 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		}
 
 		// 오른쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		pinbolt.init (L("핀볼트세트v1.0.gsm"), layerInd_Pinbolt, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, (xLen + 0.0635 + 0.050 + 0.050), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen - placingZone->cellsLT [0].verLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('x', pinbolt.radAng, (xLen + 0.0635 + 0.050 + 0.050), &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+		moveIn3D ('y', pinbolt.radAng, yLen - placingZone->cellsLT [0].verLen, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (180);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (180);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsL1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (180);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (180);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng += DegreeToRad (180);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng -= DegreeToRad (180);
+			moveIn3D ('z', pinbolt.radAng, -0.150 + placingZone->cellsL1 [xx].height - 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng += DegreeToRad (180);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng -= DegreeToRad (180);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		}
-		moveIn3D ('z', insCell.ang, -heightOfFormArea, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, placingZone->cellsLT [0].verLen - xLen*2 + placingZone->cellsLB [0].verLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('z', pinbolt.radAng, -heightOfFormArea, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+		moveIn3D ('y', pinbolt.radAng, placingZone->cellsLT [0].verLen - xLen*2 + placingZone->cellsLB [0].verLen, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (180);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (180);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsL1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (180);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (180);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng += DegreeToRad (180);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng -= DegreeToRad (180);
+			moveIn3D ('z', pinbolt.radAng, -0.150 + placingZone->cellsL1 [xx].height - 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			pinbolt.radAng += DegreeToRad (180);
+			elemList.Push (pinbolt.placeObject (7,
+				"bRotated", APIParT_Boolean, "0.0",
+				"bolt_len", APIParT_Length, "0.100",
+				"bolt_dia", APIParT_Length, "0.010",
+				"washer_pos", APIParT_Length, "0.050",
+				"washer_size", APIParT_Length, "0.100",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			pinbolt.radAng -= DegreeToRad (180);
+			moveIn3D ('z', pinbolt.radAng, 0.150, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
 		}
 	} else {
 		// 아웃코너앵글의 경우, 각파이프행거 배치
-		insCell.objType = HANGER;
-		insCell.libPart.hanger.angX = DegreeToRad (0);
-		insCell.libPart.hanger.angY = DegreeToRad (0);
-
 		// 위쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		hanger.init (L("각파이프행거.gsm"), layerInd_Hanger, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		insCell.libPart.hanger.angX = DegreeToRad (90);
-		moveIn3D ('x', insCell.ang, -xLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen + 0.0635, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('x', hanger.radAng, -xLen, &hanger.posX, &hanger.posY, &hanger.posZ);
+		moveIn3D ('y', hanger.radAng, yLen + 0.0635, &hanger.posX, &hanger.posY, &hanger.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			elemList.Push (placeLibPart (insCell));
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			elemList.Push (placeLibPart (insCell));
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			moveIn3D ('z', hanger.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 		}
-		insCell.libPart.hanger.angX = DegreeToRad (-90);
-		moveIn3D ('z', insCell.ang, -heightOfFormArea, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('x', insCell.ang, xLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('z', hanger.radAng, -heightOfFormArea, &hanger.posX, &hanger.posY, &hanger.posZ);
+		moveIn3D ('x', hanger.radAng, xLen*2, &hanger.posX, &hanger.posY, &hanger.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (180);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (180);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (180);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (180);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng += DegreeToRad (180);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (-90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng -= DegreeToRad (180);
+			moveIn3D ('z', hanger.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng += DegreeToRad (180);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (-90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng -= DegreeToRad (180);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 		}
 
 		// 아래쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		hanger.init (L("각파이프행거.gsm"), layerInd_Hanger, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		insCell.libPart.hanger.angX = DegreeToRad (270);
-		moveIn3D ('x', insCell.ang, -xLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -(yLen + 0.0635), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('x', hanger.radAng, -xLen, &hanger.posX, &hanger.posY, &hanger.posZ);
+		moveIn3D ('y', hanger.radAng, -(yLen + 0.0635), &hanger.posX, &hanger.posY, &hanger.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			elemList.Push (placeLibPart (insCell));
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			elemList.Push (placeLibPart (insCell));
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			moveIn3D ('z', hanger.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 		}
-		insCell.libPart.hanger.angX = DegreeToRad (-270);
-		moveIn3D ('z', insCell.ang, -heightOfFormArea, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('x', insCell.ang, xLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('z', hanger.radAng, -heightOfFormArea, &hanger.posX, &hanger.posY, &hanger.posZ);
+		moveIn3D ('x', hanger.radAng, xLen*2, &hanger.posX, &hanger.posY, &hanger.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (180);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (180);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (180);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (180);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng += DegreeToRad (180);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (-270.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng -= DegreeToRad (180);
+			moveIn3D ('z', hanger.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng += DegreeToRad (180);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (-270.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng -= DegreeToRad (180);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 		}
 
 		// 왼쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		hanger.init (L("각파이프행거.gsm"), layerInd_Hanger, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		insCell.libPart.hanger.angX = DegreeToRad (270);
-		moveIn3D ('x', insCell.ang, -(xLen + 0.0635), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('x', hanger.radAng, -(xLen + 0.0635), &hanger.posX, &hanger.posY, &hanger.posZ);
+		moveIn3D ('y', hanger.radAng, yLen, &hanger.posX, &hanger.posY, &hanger.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng -= DegreeToRad (90);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng += DegreeToRad (90);
+			moveIn3D ('z', hanger.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng -= DegreeToRad (90);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng += DegreeToRad (90);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 		}
-		insCell.libPart.hanger.angX = DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -heightOfFormArea, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -yLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('z', hanger.radAng, -heightOfFormArea, &hanger.posX, &hanger.posY, &hanger.posZ);
+		moveIn3D ('y', hanger.radAng, -yLen*2, &hanger.posX, &hanger.posY, &hanger.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng += DegreeToRad (90);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng -= DegreeToRad (90);
+			moveIn3D ('z', hanger.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng += DegreeToRad (90);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng -= DegreeToRad (90);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 		}
 
 		// 오른쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		hanger.init (L("각파이프행거.gsm"), layerInd_Hanger, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		insCell.libPart.hanger.angX = DegreeToRad (90);
-		moveIn3D ('x', insCell.ang, (xLen + 0.0635), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('x', hanger.radAng, (xLen + 0.0635), &hanger.posX, &hanger.posY, &hanger.posZ);
+		moveIn3D ('y', hanger.radAng, yLen, &hanger.posX, &hanger.posY, &hanger.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang -= DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang += DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng -= DegreeToRad (90);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng += DegreeToRad (90);
+			moveIn3D ('z', hanger.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng -= DegreeToRad (90);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng += DegreeToRad (90);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 		}
-		insCell.libPart.hanger.angX = DegreeToRad (270);
-		moveIn3D ('z', insCell.ang, -heightOfFormArea, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -yLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+		moveIn3D ('z', hanger.radAng, -heightOfFormArea, &hanger.posX, &hanger.posY, &hanger.posZ);
+		moveIn3D ('y', hanger.radAng, -yLen*2, &hanger.posX, &hanger.posY, &hanger.posZ);
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-			insCell.ang += DegreeToRad (90);
-			elemList.Push (placeLibPart (insCell));
-			insCell.ang -= DegreeToRad (90);
-			moveIn3D ('z', insCell.ang, 0.150, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng += DegreeToRad (90);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng -= DegreeToRad (90);
+			moveIn3D ('z', hanger.radAng, -0.150 + placingZone->cellsT1 [xx].height - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			hanger.radAng += DegreeToRad (90);
+			elemList.Push (hanger.placeObject (4,
+				"m_type", APIParT_CString, "각파이프행거",
+				"c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			hanger.radAng -= DegreeToRad (90);
+			moveIn3D ('z', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 		}
 	}
 
 	// 3. 헤드피스 배치
-	insCell.objType = HEAD;
-
 	if (placingZone->bUseOutcornerPanel == true) {
 		// 아웃코너판넬의 경우, 아웃코너판넬의 너비를 고려함
-
 		// 위쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, -xLen + placingZone->cellsLT [0].horLen + 0.0475, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen + 0.0635 + 0.155, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (180);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (180);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (180);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (180);
-		moveIn3D ('z', insCell.ang, -elev_headpiece + 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('x', insCell.ang, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (180);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (180);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (180);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (180);
+		moveIn3D ('x', headpiece.radAng, -xLen + placingZone->cellsLT [0].horLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, yLen + 0.0635 + 0.155, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (180);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (180);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (180);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (180);
+		moveIn3D ('z', headpiece.radAng, -elev_headpiece + 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('x', headpiece.radAng, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (180);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (180);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (180);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (180);
 
 		// 아래쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, -xLen + placingZone->cellsLT [0].horLen - 0.0475, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -(yLen + 0.0635 + 0.155), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('z', insCell.ang, -elev_headpiece + 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('x', insCell.ang, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
+		moveIn3D ('x', headpiece.radAng, -xLen + placingZone->cellsLT [0].horLen - 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, -(yLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		moveIn3D ('z', headpiece.radAng, -elev_headpiece + 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('x', headpiece.radAng, -placingZone->cellsLT [0].horLen + xLen*2 - placingZone->cellsRT [0].horLen, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		// 왼쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, -(xLen + 0.0635 + 0.155), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen - placingZone->cellsLT [0].verLen + 0.0475, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang -= DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang += DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang -= DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang += DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -elev_headpiece + 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, placingZone->cellsLT [0].verLen - yLen*2 + placingZone->cellsLB [0].verLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang -= DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang += DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang -= DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang += DegreeToRad (90);
+		moveIn3D ('x', headpiece.radAng, -(xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, yLen - placingZone->cellsLT [0].verLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng -= DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng += DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng -= DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng += DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -elev_headpiece + 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, placingZone->cellsLT [0].verLen - yLen*2 + placingZone->cellsLB [0].verLen, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng -= DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng += DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng -= DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng += DegreeToRad (90);
 
 		// 오른쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, (xLen + 0.0635 + 0.155), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen - placingZone->cellsLT [0].verLen - 0.0475, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -elev_headpiece + 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, placingZone->cellsLT [0].verLen - yLen*2 + placingZone->cellsLB [0].verLen, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
+		moveIn3D ('x', headpiece.radAng, (xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, yLen - placingZone->cellsLT [0].verLen - 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -elev_headpiece + 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, placingZone->cellsLT [0].verLen - yLen*2 + placingZone->cellsLB [0].verLen, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (90);
 	} else {
 		// 아웃코너앵글의 경우, 아웃코너판넬의 너비를 고려하지 않음
-
 		// 위쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, -xLen + 0.0475, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen + 0.0635 + 0.155, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (180);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (180);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (180);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (180);
-		moveIn3D ('z', insCell.ang, -elev_headpiece + 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('x', insCell.ang, xLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (180);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (180);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (180);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (180);
+		moveIn3D ('x', headpiece.radAng, -xLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, yLen + 0.0635 + 0.155, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (180);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (180);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (180);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (180);
+		moveIn3D ('z', headpiece.radAng, -elev_headpiece + 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('x', headpiece.radAng, xLen*2, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (180);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (180);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (180);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (180);
 
 		// 아래쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, -xLen- 0.0475, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -(yLen + 0.0635 + 0.155), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('z', insCell.ang, -elev_headpiece + 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('x', insCell.ang, xLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
+		moveIn3D ('x', headpiece.radAng, -xLen- 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, -(yLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		moveIn3D ('z', headpiece.radAng, -elev_headpiece + 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('x', headpiece.radAng, xLen*2, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		// 왼쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, -(xLen + 0.0635 + 0.155), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen + 0.0475, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang -= DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang += DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang -= DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang += DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -elev_headpiece + 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -yLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang -= DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang += DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang -= DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang += DegreeToRad (90);
+		moveIn3D ('x', headpiece.radAng, -(xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, yLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng -= DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng += DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng -= DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng += DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -elev_headpiece + 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, -yLen*2, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng -= DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng += DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng -= DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng += DegreeToRad (90);
 
 		// 오른쪽
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
+		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', insCell.ang, (xLen + 0.0635 + 0.155), &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, yLen - 0.0475, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -elev_headpiece + 0.300, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -yLen*2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
-		moveIn3D ('z', insCell.ang, -0.300 + elev_headpiece, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		insCell.ang += DegreeToRad (90);
-		elemList.Push (placeLibPart (insCell));
-		insCell.ang -= DegreeToRad (90);
+		moveIn3D ('x', headpiece.radAng, (xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, yLen - 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -elev_headpiece + 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, -yLen*2, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (90);
+		moveIn3D ('z', headpiece.radAng, -0.300 + elev_headpiece, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		headpiece.radAng += DegreeToRad (90);
+		elemList.Push (headpiece.placeObject (4,
+			"type", APIParT_CString, "타입 A",
+			"plateThk", APIParT_Length, format_string ("%f", 0.009),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		headpiece.radAng -= DegreeToRad (90);
 	}
 
 	// 4. 기둥밴드 또는 웰러 배치
 	if (placingZone->typeOfColumnBand == 1) {
-		insCell.objType = COLUMN_BAND1;
-		insCell.libPart.columnBand.band_size = 1;
-		insCell.libPart.columnBand.c_w = placingZone->coreWidth + placingZone->venThick*2;
-		insCell.libPart.columnBand.c_h = placingZone->coreDepth + placingZone->venThick*2;
-		insCell.libPart.columnBand.addOffset = 0.050;
+		columnBand1.init (L("기둥밴드v2.0.gsm"), layerInd_ColumnBand, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
-
-		moveIn3D ('x', insCell.ang, -0.0035 + insCell.libPart.columnBand.c_w/2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('y', insCell.ang, -0.1535 - insCell.libPart.columnBand.c_h/2, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		moveIn3D ('z', insCell.ang, heightOfFormArea/2 - 0.900, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('z', insCell.ang, 0.900, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('z', insCell.ang, 0.900, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
+		moveIn3D ('x', columnBand1.radAng, -0.0035 + (placingZone->coreWidth + placingZone->venThick*2)/2, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
+		moveIn3D ('y', columnBand1.radAng, -0.1535 - (placingZone->coreDepth + placingZone->venThick*2)/2, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
+		moveIn3D ('z', columnBand1.radAng, heightOfFormArea/2 - 0.900, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
+		elemList.Push (columnBand1.placeObject (4,
+			"band_size", APIParT_CString, "80x40x1270",
+			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
+			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
+			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
+		moveIn3D ('z', columnBand1.radAng, 0.900, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
+		elemList.Push (columnBand1.placeObject (4,
+			"band_size", APIParT_CString, "80x40x1270",
+			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
+			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
+			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
+		moveIn3D ('z', columnBand1.radAng, 0.900, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
+		elemList.Push (columnBand1.placeObject (4,
+			"band_size", APIParT_CString, "80x40x1270",
+			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
+			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
+			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
 	} else if (placingZone->typeOfColumnBand == 2) {
-		insCell.objType = COLUMN_BAND2;
-		insCell.libPart.wella.c_w = placingZone->coreWidth + placingZone->venThick*2;
-		insCell.libPart.wella.c_h = placingZone->coreDepth + placingZone->venThick*2;
-		insCell.libPart.wella.addOffset = 0.050;
+		columnBand2.init (L("웰라v1.0.gsm"), layerInd_ColumnBand, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		insCell.leftBottomX = placingZone->origoPos.x;
-		insCell.leftBottomY = placingZone->origoPos.y;
-		insCell.leftBottomZ = placingZone->bottomOffset;
-		insCell.ang = placingZone->angle;
-
-		moveIn3D ('z', insCell.ang, heightOfFormArea/2 - 0.900, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('z', insCell.ang, 0.900, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
-		moveIn3D ('z', insCell.ang, 0.900, &insCell.leftBottomX, &insCell.leftBottomY, &insCell.leftBottomZ);
-		elemList.Push (placeLibPart (insCell));
+		moveIn3D ('z', columnBand2.radAng, heightOfFormArea/2 - 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
+		elemList.Push (columnBand2.placeObject (3,
+			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
+			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
+			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
+		moveIn3D ('z', columnBand2.radAng, 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
+		elemList.Push (columnBand2.placeObject (3,
+			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
+			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
+			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
+		moveIn3D ('z', columnBand2.radAng, 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
+		elemList.Push (columnBand2.placeObject (3,
+			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
+			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
+			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
 	}
 
 	return	err;
@@ -1628,7 +1959,7 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 	double		columnWidth;
 	double		marginHeight;
 
-	CellForColumnTableform	insCell;
+	EasyObjectPlacement		plywood;
 
 	// 셀의 최종 높이를 구함
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx)
@@ -1655,48 +1986,72 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 			rightLenOfBeam = placingZone->coreWidth + placingZone->venThick*2 - placingZone->beams [NORTH].width - leftLenOfBeam;
 
 			// 합판 (왼쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle + DegreeToRad (180);
-			insCell.leftBottomX = rotatedPoint.x;
-			insCell.leftBottomY = rotatedPoint.y;
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = leftLenOfBeam;
-			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x, rotatedPoint.y, heightOfFormArea, placingZone->angle + DegreeToRad (180));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", leftLenOfBeam),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 
 			// 합판 (아래쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle + DegreeToRad (180);
-			insCell.leftBottomX = rotatedPoint.x - leftLenOfBeam * cos(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y - leftLenOfBeam * sin(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = placingZone->beams [NORTH].width;
-			insCell.libPart.plywood.p_leng = marginHeight;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x - leftLenOfBeam * cos(placingZone->angle), rotatedPoint.y - leftLenOfBeam * sin(placingZone->angle), heightOfFormArea, placingZone->angle + DegreeToRad (180));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", placingZone->beams [NORTH].width),
+				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 
 			// 합판 (오른쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle + DegreeToRad (180);
-			insCell.leftBottomX = rotatedPoint.x - (leftLenOfBeam + placingZone->beams [NORTH].width) * cos(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y - (leftLenOfBeam + placingZone->beams [NORTH].width) * sin(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = rightLenOfBeam;
-			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x - (leftLenOfBeam + placingZone->beams [NORTH].width) * cos(placingZone->angle), rotatedPoint.y - (leftLenOfBeam + placingZone->beams [NORTH].width) * sin(placingZone->angle), heightOfFormArea, placingZone->angle + DegreeToRad (180));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 		} else {
 			// 합판 (전체)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle + DegreeToRad (180);
-			insCell.leftBottomX = rotatedPoint.x;
-			insCell.leftBottomY = rotatedPoint.y;
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = columnWidth;
-			insCell.libPart.plywood.p_leng = marginHeight;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x, rotatedPoint.y, heightOfFormArea, placingZone->angle + DegreeToRad (180));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", columnWidth),
+				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 		}
 	}
 
@@ -1721,48 +2076,72 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 			rightLenOfBeam = placingZone->coreWidth + placingZone->venThick*2 - placingZone->beams [SOUTH].width - leftLenOfBeam;
 
 			// 합판 (왼쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle;
-			insCell.leftBottomX = rotatedPoint.x;
-			insCell.leftBottomY = rotatedPoint.y;
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = leftLenOfBeam;
-			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x, rotatedPoint.y, heightOfFormArea, placingZone->angle);
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", leftLenOfBeam),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 
 			// 합판 (아래쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle;
-			insCell.leftBottomX = rotatedPoint.x + leftLenOfBeam * cos(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y + leftLenOfBeam * sin(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = placingZone->beams [SOUTH].width;
-			insCell.libPart.plywood.p_leng = marginHeight;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x + leftLenOfBeam * cos(placingZone->angle), rotatedPoint.y + leftLenOfBeam * sin(placingZone->angle), heightOfFormArea, placingZone->angle);
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", placingZone->beams [SOUTH].width),
+				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 
 			// 합판 (오른쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle;
-			insCell.leftBottomX = rotatedPoint.x + (leftLenOfBeam + placingZone->beams [SOUTH].width) * cos(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y + (leftLenOfBeam + placingZone->beams [SOUTH].width) * sin(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = rightLenOfBeam;
-			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x + (leftLenOfBeam + placingZone->beams [SOUTH].width) * cos(placingZone->angle), rotatedPoint.y + (leftLenOfBeam + placingZone->beams [SOUTH].width) * sin(placingZone->angle), heightOfFormArea, placingZone->angle);
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 		} else {
 			// 합판 (전체)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle;
-			insCell.leftBottomX = rotatedPoint.x;
-			insCell.leftBottomY = rotatedPoint.y;
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = columnWidth;
-			insCell.libPart.plywood.p_leng = marginHeight;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x, rotatedPoint.y, heightOfFormArea, placingZone->angle);
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", columnWidth),
+				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 		}
 	}
 
@@ -1787,48 +2166,72 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 			rightLenOfBeam = placingZone->coreDepth + placingZone->venThick*2 - placingZone->beams [WEST].width - leftLenOfBeam;
 
 			// 합판 (왼쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle - DegreeToRad (90);
-			insCell.leftBottomX = rotatedPoint.x;
-			insCell.leftBottomY = rotatedPoint.y;
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = leftLenOfBeam;
-			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x, rotatedPoint.y, heightOfFormArea, placingZone->angle - DegreeToRad (90));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", leftLenOfBeam),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 
 			// 합판 (아래쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle - DegreeToRad (90);
-			insCell.leftBottomX = rotatedPoint.x + leftLenOfBeam * sin(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y - leftLenOfBeam * cos(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = placingZone->beams [WEST].width;
-			insCell.libPart.plywood.p_leng = marginHeight;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x + leftLenOfBeam * sin(placingZone->angle), rotatedPoint.y - leftLenOfBeam * cos(placingZone->angle), heightOfFormArea, placingZone->angle - DegreeToRad (90));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", placingZone->beams [WEST].width),
+				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 
 			// 합판 (오른쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle - DegreeToRad (90);
-			insCell.leftBottomX = rotatedPoint.x + (leftLenOfBeam + placingZone->beams [WEST].width) * sin(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y - (leftLenOfBeam + placingZone->beams [WEST].width) * cos(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = rightLenOfBeam;
-			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x + (leftLenOfBeam + placingZone->beams [WEST].width) * sin(placingZone->angle), rotatedPoint.y - (leftLenOfBeam + placingZone->beams [WEST].width) * cos(placingZone->angle), heightOfFormArea, placingZone->angle - DegreeToRad (90));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 		} else {
 			// 합판 (전체)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle - DegreeToRad (90);
-			insCell.leftBottomX = rotatedPoint.x;
-			insCell.leftBottomY = rotatedPoint.y;
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = columnWidth;
-			insCell.libPart.plywood.p_leng = marginHeight;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x, rotatedPoint.y, heightOfFormArea, placingZone->angle - DegreeToRad (90));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", columnWidth),
+				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 		}
 	}
 
@@ -1853,48 +2256,72 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 			rightLenOfBeam = placingZone->coreDepth + placingZone->venThick*2 - placingZone->beams [EAST].width - leftLenOfBeam;
 
 			// 합판 (왼쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle + DegreeToRad (90);
-			insCell.leftBottomX = rotatedPoint.x;
-			insCell.leftBottomY = rotatedPoint.y;
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = leftLenOfBeam;
-			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x, rotatedPoint.y, heightOfFormArea, placingZone->angle + DegreeToRad (90));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", leftLenOfBeam),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 
 			// 합판 (아래쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle + DegreeToRad (90);
-			insCell.leftBottomX = rotatedPoint.x - leftLenOfBeam * sin(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y + leftLenOfBeam * cos(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = placingZone->beams [EAST].width;
-			insCell.libPart.plywood.p_leng = marginHeight;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x - leftLenOfBeam * sin(placingZone->angle), rotatedPoint.y + leftLenOfBeam * cos(placingZone->angle), heightOfFormArea, placingZone->angle + DegreeToRad (90));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", placingZone->beams [EAST].width),
+				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 
 			// 합판 (오른쪽)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle + DegreeToRad (90);
-			insCell.leftBottomX = rotatedPoint.x - (leftLenOfBeam + placingZone->beams [EAST].width) * sin(placingZone->angle);
-			insCell.leftBottomY = rotatedPoint.y + (leftLenOfBeam + placingZone->beams [EAST].width) * cos(placingZone->angle);
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = rightLenOfBeam;
-			insCell.libPart.plywood.p_leng = placingZone->areaHeight - heightOfFormArea;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x - (leftLenOfBeam + placingZone->beams [EAST].width) * sin(placingZone->angle), rotatedPoint.y + (leftLenOfBeam + placingZone->beams [EAST].width) * cos(placingZone->angle), heightOfFormArea, placingZone->angle + DegreeToRad (90));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam),
+				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 		} else {
 			// 합판 (전체)
-			insCell.objType = PLYWOOD;
-			insCell.ang = placingZone->angle + DegreeToRad (90);
-			insCell.leftBottomX = rotatedPoint.x;
-			insCell.leftBottomY = rotatedPoint.y;
-			insCell.leftBottomZ = heightOfFormArea;
-			insCell.libPart.plywood.p_wid = columnWidth;
-			insCell.libPart.plywood.p_leng = marginHeight;
-
-			elemList.Push (placingZone->placeLibPart (insCell));
+			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoColumn.floorInd, rotatedPoint.x, rotatedPoint.y, heightOfFormArea, placingZone->angle + DegreeToRad (90));
+			elemList.Push (plywood.placeObject (13,
+				"p_stan", APIParT_CString, "비규격",
+				"w_dir", APIParT_CString, "벽세우기",
+				"p_thk", APIParT_CString, "11.5T",
+				"p_wid", APIParT_Length, format_string ("%f", columnWidth),
+				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
+				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"sogak", APIParT_Boolean, "0.0",
+				"bInverseSogak", APIParT_Boolean, "1.0",
+				"prof", APIParT_CString, "소각",
+				"gap_a", APIParT_Length, format_string ("%f", 0.0),
+				"gap_b", APIParT_Length, format_string ("%f", 0.0),
+				"gap_c", APIParT_Length, format_string ("%f", 0.0),
+				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 		}
 	}
 
