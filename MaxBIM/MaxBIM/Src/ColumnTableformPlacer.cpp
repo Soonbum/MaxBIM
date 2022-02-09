@@ -337,33 +337,7 @@ FIRST_SOLE_COLUMN:
 		return err;
 
 	// 1, 2번째 다이얼로그를 통해 입력된 데이터를 기반으로 객체를 배치
-	for (xx = 0 ; xx < placingZone.nCells ; ++xx) {
-		placingZone.cellsLT [xx].guid = placingZone.placeLibPart (placingZone.cellsLT [xx]);
-		elemList.Push (placingZone.cellsLT [xx].guid);
-		placingZone.cellsRT [xx].guid = placingZone.placeLibPart (placingZone.cellsRT [xx]);
-		elemList.Push (placingZone.cellsRT [xx].guid);
-		placingZone.cellsLB [xx].guid = placingZone.placeLibPart (placingZone.cellsLB [xx]);
-		elemList.Push (placingZone.cellsLB [xx].guid);
-		placingZone.cellsRB [xx].guid = placingZone.placeLibPart (placingZone.cellsRB [xx]);
-		elemList.Push (placingZone.cellsRB [xx].guid);
-
-		placingZone.cellsT1 [xx].guid = placingZone.placeLibPart (placingZone.cellsT1 [xx]);
-		elemList.Push (placingZone.cellsT1 [xx].guid);
-		placingZone.cellsT2 [xx].guid = placingZone.placeLibPart (placingZone.cellsT2 [xx]);
-		elemList.Push (placingZone.cellsT2 [xx].guid);
-		placingZone.cellsL1 [xx].guid = placingZone.placeLibPart (placingZone.cellsL1 [xx]);
-		elemList.Push (placingZone.cellsL1 [xx].guid);
-		placingZone.cellsL2 [xx].guid = placingZone.placeLibPart (placingZone.cellsL2 [xx]);
-		elemList.Push (placingZone.cellsL2 [xx].guid);
-		placingZone.cellsR1 [xx].guid = placingZone.placeLibPart  (placingZone.cellsR1 [xx]);
-		elemList.Push (placingZone.cellsR1 [xx].guid);
-		placingZone.cellsR2 [xx].guid = placingZone.placeLibPart (placingZone.cellsR2 [xx]);
-		elemList.Push (placingZone.cellsR2 [xx].guid);
-		placingZone.cellsB1 [xx].guid = placingZone.placeLibPart (placingZone.cellsB1 [xx]);
-		elemList.Push (placingZone.cellsB1 [xx].guid);
-		placingZone.cellsB2 [xx].guid = placingZone.placeLibPart (placingZone.cellsB2 [xx]);
-		elemList.Push (placingZone.cellsB2 [xx].guid);
-	}
+	err = placingZone.placeBasicObjects_soleColumn (&placingZone);
 
 	// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스 배치
 	err = placingZone.placeRestObjects_soleColumn (&placingZone);
@@ -616,332 +590,326 @@ void	ColumnTableformPlacingZone::alignPlacingZone_soleColumn (ColumnTableformPla
 		}
 
 		// 위쪽 1
-		formWidth = placingZone->cellsT1 [xx].libPart.form.eu_wid;
-		formHeight = placingZone->cellsT1 [xx].libPart.form.eu_hei;
-		placingZone->cellsT1 [xx].libPart.form.eu_stan_onoff = false;
+		formWidth = placingZone->cellsT1 [xx].horLen;
+		formHeight = placingZone->cellsT1 [xx].height;
+		placingZone->cellsT1 [xx].bStandardEuroform = false;
 		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
 			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
-				placingZone->cellsT1 [xx].libPart.form.eu_stan_onoff = true;
+				placingZone->cellsT1 [xx].bStandardEuroform = true;
 		
 		// 위쪽 2
-		formWidth = placingZone->cellsT2 [xx].libPart.form.eu_wid;
-		formHeight = placingZone->cellsT2 [xx].libPart.form.eu_hei;
-		placingZone->cellsT2 [xx].libPart.form.eu_stan_onoff = false;
+		formWidth = placingZone->cellsT2 [xx].horLen;
+		formHeight = placingZone->cellsT2 [xx].height;
+		placingZone->cellsT2 [xx].bStandardEuroform = false;
 		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
 			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
-				placingZone->cellsT2 [xx].libPart.form.eu_stan_onoff = true;
+				placingZone->cellsT2 [xx].bStandardEuroform = true;
 
 		// 좌측 1
-		formWidth = placingZone->cellsL1 [xx].libPart.form.eu_wid;
-		formHeight = placingZone->cellsL1 [xx].libPart.form.eu_hei;
-		placingZone->cellsL1 [xx].libPart.form.eu_stan_onoff = false;
+		formWidth = placingZone->cellsL1 [xx].verLen;
+		formHeight = placingZone->cellsL1 [xx].height;
+		placingZone->cellsL1 [xx].bStandardEuroform = false;
 		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
 			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
-				placingZone->cellsL1 [xx].libPart.form.eu_stan_onoff = true;
+				placingZone->cellsL1 [xx].bStandardEuroform = true;
 
 		// 좌측 2
-		formWidth = placingZone->cellsL2 [xx].libPart.form.eu_wid;
-		formHeight = placingZone->cellsL2 [xx].libPart.form.eu_hei;
-		placingZone->cellsL2 [xx].libPart.form.eu_stan_onoff = false;
+		formWidth = placingZone->cellsL2 [xx].verLen;
+		formHeight = placingZone->cellsL2 [xx].height;
+		placingZone->cellsL2 [xx].bStandardEuroform = false;
 		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
 			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
-				placingZone->cellsL2 [xx].libPart.form.eu_stan_onoff = true;
+				placingZone->cellsL2 [xx].bStandardEuroform = true;
 
 		// 우측 1
-		formWidth = placingZone->cellsR1 [xx].libPart.form.eu_wid;
-		formHeight = placingZone->cellsR1 [xx].libPart.form.eu_hei;
-		placingZone->cellsR1 [xx].libPart.form.eu_stan_onoff = false;
+		formWidth = placingZone->cellsR1 [xx].verLen;
+		formHeight = placingZone->cellsR1 [xx].height;
+		placingZone->cellsR1 [xx].bStandardEuroform = false;
 		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
 			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
-				placingZone->cellsR1 [xx].libPart.form.eu_stan_onoff = true;
+				placingZone->cellsR1 [xx].bStandardEuroform = true;
 
 		// 우측 2
-		formWidth = placingZone->cellsR2 [xx].libPart.form.eu_wid;
-		formHeight = placingZone->cellsR2 [xx].libPart.form.eu_hei;
-		placingZone->cellsR2 [xx].libPart.form.eu_stan_onoff = false;
+		formWidth = placingZone->cellsR2 [xx].verLen;
+		formHeight = placingZone->cellsR2 [xx].height;
+		placingZone->cellsR2 [xx].bStandardEuroform = false;
 		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
 			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
-				placingZone->cellsR2 [xx].libPart.form.eu_stan_onoff = true;
+				placingZone->cellsR2 [xx].bStandardEuroform = true;
 
 		// 아래쪽 1
-		formWidth = placingZone->cellsB1 [xx].libPart.form.eu_wid;
-		formHeight = placingZone->cellsB1 [xx].libPart.form.eu_hei;
-		placingZone->cellsB1 [xx].libPart.form.eu_stan_onoff = false;
+		formWidth = placingZone->cellsB1 [xx].horLen;
+		formHeight = placingZone->cellsB1 [xx].height;
+		placingZone->cellsB1 [xx].bStandardEuroform = false;
 		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
 			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
-				placingZone->cellsB1 [xx].libPart.form.eu_stan_onoff = true;
+				placingZone->cellsB1 [xx].bStandardEuroform = true;
 
 		// 아래쪽 2
-		formWidth = placingZone->cellsB2 [xx].libPart.form.eu_wid;
-		formHeight = placingZone->cellsB2 [xx].libPart.form.eu_hei;
-		placingZone->cellsB2 [xx].libPart.form.eu_stan_onoff = false;
+		formWidth = placingZone->cellsB2 [xx].horLen;
+		formHeight = placingZone->cellsB2 [xx].height;
+		placingZone->cellsB2 [xx].bStandardEuroform = false;
 		if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
 			if ( (abs (formHeight - 1.200) < EPS) || (abs (formHeight - 0.900) < EPS) || (abs (formHeight - 0.600) < EPS) )
-				placingZone->cellsB2 [xx].libPart.form.eu_stan_onoff = true;
+				placingZone->cellsB2 [xx].bStandardEuroform = true;
 	}
 }
 
-// 해당 셀 정보를 기반으로 라이브러리 배치
-API_Guid	ColumnTableformPlacingZone::placeLibPart (CellForColumnTableform objInfo)
+// 유로폼/아웃코너판넬/아웃코너앵글 배치
+GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTableformPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
+	short	xx;
+	EasyObjectPlacement	euroform, outpanel, outangle;
 
-	API_Element			element;
-	API_ElementMemo		memo;
-	API_LibPart			libPart;
-
-	const	GS::uchar_t* gsmName = NULL;
-	double	aParam;
-	double	bParam;
-	Int32	addParNum;
-
-	double	validLength = 0.0;	// 유효한 길이인가?
-	double	validWidth = 0.0;	// 유효한 너비인가?
-
-	char	tempString [20];
-
-	short		xx;
-	API_StoryInfo	storyInfo;
-
-	// GUID 변수 초기화
-	element.header.guid.clock_seq_hi_and_reserved = 0;
-	element.header.guid.clock_seq_low = 0;
-	element.header.guid.node[0] = 0;
-	element.header.guid.node[1] = 0;
-	element.header.guid.node[2] = 0;
-	element.header.guid.node[3] = 0;
-	element.header.guid.node[4] = 0;
-	element.header.guid.node[5] = 0;
-	element.header.guid.time_hi_and_version = 0;
-	element.header.guid.time_low = 0;
-	element.header.guid.time_mid = 0;
-
-	// 라이브러리 이름 선택
-	if (objInfo.objType == NONE)			return element.header.guid;
-	if (objInfo.objType == EUROFORM)		gsmName = L("유로폼v2.0.gsm");
-	if (objInfo.objType == OUTPANEL)		gsmName = L("아웃코너판넬v1.0.gsm");
-	if (objInfo.objType == OUTANGLE)		gsmName = L("아웃코너앵글v1.0.gsm");
-	if (objInfo.objType == SQUARE_PIPE)		gsmName = L("비계파이프v1.0.gsm");
-	if (objInfo.objType == PINBOLT)			gsmName = L("핀볼트세트v1.0.gsm");
-	if (objInfo.objType == HANGER)			gsmName = L("각파이프행거.gsm");
-	if (objInfo.objType == HEAD)			gsmName = L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm");
-	if (objInfo.objType == COLUMN_BAND1)	gsmName = L("기둥밴드v2.0.gsm");
-	if (objInfo.objType == COLUMN_BAND2)	gsmName = L("웰라v1.0.gsm");
-	if (objInfo.objType == PLYWOOD)			gsmName = L("합판v1.0.gsm");
-
-	// 객체 로드
-	BNZeroMemory (&libPart, sizeof (libPart));
-	GS::ucscpy (libPart.file_UName, gsmName);
-	err = ACAPI_LibPart_Search (&libPart, false);
-	if (err != NoError)
-		return element.header.guid;
-	if (libPart.location != NULL)
-		delete libPart.location;
-
-	ACAPI_LibPart_Get (&libPart);
-
-	BNZeroMemory (&element, sizeof (API_Element));
-	BNZeroMemory (&memo, sizeof (API_ElementMemo));
-
-	element.header.typeID = API_ObjectID;
-	element.header.guid = GSGuid2APIGuid (GS::Guid (libPart.ownUnID));
-
-	ACAPI_Element_GetDefaults (&element, &memo);
-	ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
-
-	// 라이브러리의 파라미터 값 입력
-	element.object.libInd = libPart.index;
-	element.object.reflected = false;
-	element.object.pos.x = objInfo.leftBottomX;
-	element.object.pos.y = objInfo.leftBottomY;
-	element.object.level = objInfo.leftBottomZ;
-	element.object.xRatio = aParam;
-	element.object.yRatio = bParam;
-	element.object.angle = objInfo.ang;
-	element.header.floorInd = infoColumn.floorInd;
-
-	// 작업 층 높이 반영
-	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
-		if (storyInfo.data [0][xx].index == infoColumn.floorInd) {
-			element.object.level -= storyInfo.data [0][xx].level;
-			break;
-		}
-	}
-	BMKillHandle ((GSHandle *) &storyInfo.data);
-
-	if (objInfo.objType == EUROFORM) {
-		element.header.layer = layerInd_Euroform;
-
-		// 규격품일 경우,
-		if (objInfo.libPart.form.eu_stan_onoff == true) {
-			// 규격폼 On/Off
-			setParameterByName (&memo, "eu_stan_onoff", 1.0);	// 규격폼 On/Off
-
-			// 너비
-			sprintf (tempString, "%.0f", objInfo.libPart.form.eu_wid * 1000);
-			setParameterByName (&memo, "eu_wid", tempString);
-
-			// 높이
-			sprintf (tempString, "%.0f", objInfo.libPart.form.eu_hei * 1000);
-			setParameterByName (&memo, "eu_hei", tempString);
-
-		// 비규격품일 경우,
-		} else {
-			setParameterByName (&memo, "eu_stan_onoff", 0.0);	// 규격폼 On/Off
-			setParameterByName (&memo, "eu_wid2", objInfo.libPart.form.eu_wid2);	// 너비
-			setParameterByName (&memo, "eu_hei2", objInfo.libPart.form.eu_hei2);	// 높이
-		}
-
-		// 설치방향
-		if (objInfo.libPart.form.u_ins_wall == true) {
-			strcpy (tempString, "벽세우기");
-			if (objInfo.libPart.form.eu_stan_onoff == true) {
-				validWidth = objInfo.libPart.form.eu_wid;
-				validLength = objInfo.libPart.form.eu_hei;
+	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+		// 1. 유로폼 배치
+		// 위쪽 1
+		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoColumn.floorInd, placingZone->cellsT1 [xx].leftBottomX, placingZone->cellsT1 [xx].leftBottomY, placingZone->cellsT1 [xx].leftBottomZ, placingZone->cellsT1 [xx].ang);
+		if ((placingZone->cellsT1 [xx].horLen > EPS) && (placingZone->cellsT1 [xx].height > EPS)) {
+			if (placingZone->cellsT1 [xx].bStandardEuroform == true) {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "1.0",
+					"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsT1 [xx].horLen * 1000),
+					"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsT1 [xx].height * 1000),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 			} else {
-				validWidth = objInfo.libPart.form.eu_wid2;
-				validLength = objInfo.libPart.form.eu_hei2;
-			}
-		} else {
-			strcpy (tempString, "벽눕히기");
-			if (objInfo.libPart.form.eu_stan_onoff == true) {
-				element.object.pos.x += ( objInfo.libPart.form.eu_hei * cos(objInfo.ang) );
-				element.object.pos.y += ( objInfo.libPart.form.eu_hei * sin(objInfo.ang) );
-				validWidth = objInfo.libPart.form.eu_hei;
-				validLength = objInfo.libPart.form.eu_wid;
-			} else {
-				element.object.pos.x += ( objInfo.libPart.form.eu_hei2 * cos(objInfo.ang) );
-				element.object.pos.y += ( objInfo.libPart.form.eu_hei2 * sin(objInfo.ang) );
-				validWidth = objInfo.libPart.form.eu_hei2;
-				validLength = objInfo.libPart.form.eu_wid2;
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "0.0",
+					"eu_wid2", APIParT_Length, format_string ("%f", placingZone->cellsT1 [xx].horLen),
+					"eu_hei2", APIParT_Length, format_string ("%f", placingZone->cellsT1 [xx].height),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 			}
 		}
-		setParameterByName (&memo, "u_ins", tempString);
 
-		// 회전X
-		setParameterByName (&memo, "ang_x", DegreeToRad (90.0));	// 회전X
+		// 위쪽 2
+		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoColumn.floorInd, placingZone->cellsT2 [xx].leftBottomX, placingZone->cellsT2 [xx].leftBottomY, placingZone->cellsT2 [xx].leftBottomZ, placingZone->cellsT2 [xx].ang);
+		if ((placingZone->cellsT2 [xx].horLen > EPS) && (placingZone->cellsT2 [xx].height > EPS)) {
+			if (placingZone->cellsT2 [xx].bStandardEuroform == true) {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "1.0",
+					"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsT2 [xx].horLen * 1000),
+					"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsT2 [xx].height * 1000),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			} else {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "0.0",
+					"eu_wid2", APIParT_Length, format_string ("%f", placingZone->cellsT2 [xx].horLen),
+					"eu_hei2", APIParT_Length, format_string ("%f", placingZone->cellsT2 [xx].height),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			}
+		}
 
-	} else if (objInfo.objType == OUTPANEL) {
-		element.header.layer = layerInd_OutPanel;
-		setParameterByName (&memo, "wid_s", objInfo.libPart.outpanel.wid_s);	// 가로(빨강)
-		setParameterByName (&memo, "leng_s", objInfo.libPart.outpanel.leng_s);	// 세로(파랑)
-		setParameterByName (&memo, "hei_s", objInfo.libPart.outpanel.hei_s);	// 높이
-		setParameterByName (&memo, "dir_s", "세우기");							// 설치방향
+		// 아래쪽 1
+		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoColumn.floorInd, placingZone->cellsB1 [xx].leftBottomX, placingZone->cellsB1 [xx].leftBottomY, placingZone->cellsB1 [xx].leftBottomZ, placingZone->cellsB1 [xx].ang);
+		if ((placingZone->cellsB1 [xx].horLen > EPS) && (placingZone->cellsB1 [xx].height > EPS)) {
+			if (placingZone->cellsB1 [xx].bStandardEuroform == true) {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "1.0",
+					"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsB1 [xx].horLen * 1000),
+					"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsB1 [xx].height * 1000),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			} else {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "0.0",
+					"eu_wid2", APIParT_Length, format_string ("%f", placingZone->cellsB1 [xx].horLen),
+					"eu_hei2", APIParT_Length, format_string ("%f", placingZone->cellsB1 [xx].height),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			}
+		}
 
-		validWidth = objInfo.libPart.outpanel.leng_s + objInfo.libPart.outpanel.wid_s;
-		validLength = objInfo.libPart.outpanel.hei_s;
+		// 아래쪽 2
+		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoColumn.floorInd, placingZone->cellsB2 [xx].leftBottomX, placingZone->cellsB2 [xx].leftBottomY, placingZone->cellsB2 [xx].leftBottomZ, placingZone->cellsB2 [xx].ang);
+		if ((placingZone->cellsB2 [xx].horLen > EPS) && (placingZone->cellsB2 [xx].height > EPS)) {
+			if (placingZone->cellsB2 [xx].bStandardEuroform == true) {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "1.0",
+					"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsB2 [xx].horLen * 1000),
+					"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsB2 [xx].height * 1000),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			} else {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "0.0",
+					"eu_wid2", APIParT_Length, format_string ("%f", placingZone->cellsB2 [xx].horLen),
+					"eu_hei2", APIParT_Length, format_string ("%f", placingZone->cellsB2 [xx].height),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			}
+		}
 
-	} else if (objInfo.objType == OUTANGLE) {
-		element.header.layer = layerInd_OutAngle;
-		setParameterByName (&memo, "a_leng", objInfo.libPart.outangle.a_leng);	// 길이
-		setParameterByName (&memo, "a_ang", objInfo.libPart.outangle.a_ang);	// 각도
+		// 좌측 1
+		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoColumn.floorInd, placingZone->cellsL1 [xx].leftBottomX, placingZone->cellsL1 [xx].leftBottomY, placingZone->cellsL1 [xx].leftBottomZ, placingZone->cellsL1 [xx].ang);
+		if ((placingZone->cellsL1 [xx].verLen > EPS) && (placingZone->cellsL1 [xx].height > EPS)) {
+			if (placingZone->cellsL1 [xx].bStandardEuroform == true) {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "1.0",
+					"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsL1 [xx].verLen * 1000),
+					"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsL1 [xx].height * 1000),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			} else {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "0.0",
+					"eu_wid2", APIParT_Length, format_string ("%f", placingZone->cellsL1 [xx].verLen),
+					"eu_hei2", APIParT_Length, format_string ("%f", placingZone->cellsL1 [xx].height),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			}
+		}
 
-		validWidth = 0.063;
-		validLength = objInfo.libPart.outangle.a_leng;
+		// 좌측 2
+		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoColumn.floorInd, placingZone->cellsL2 [xx].leftBottomX, placingZone->cellsL2 [xx].leftBottomY, placingZone->cellsL2 [xx].leftBottomZ, placingZone->cellsL2 [xx].ang);
+		if ((placingZone->cellsL2 [xx].verLen > EPS) && (placingZone->cellsL2 [xx].height > EPS)) {
+			if (placingZone->cellsL2 [xx].bStandardEuroform == true) {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "1.0",
+					"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsL2 [xx].verLen * 1000),
+					"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsL2 [xx].height * 1000),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			} else {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "0.0",
+					"eu_wid2", APIParT_Length, format_string ("%f", placingZone->cellsL2 [xx].verLen),
+					"eu_hei2", APIParT_Length, format_string ("%f", placingZone->cellsL2 [xx].height),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			}
+		}
 
-	} else if (objInfo.objType == SQUARE_PIPE) {
-		element.header.layer = layerInd_SqrPipe;
-		setParameterByName (&memo, "p_comp", "사각파이프");						// 품명
-		setParameterByName (&memo, "p_leng", objInfo.libPart.sqrPipe.length);	// 파이프 길이
-		setParameterByName (&memo, "p_ang", objInfo.libPart.sqrPipe.pipeAng);	// 각도 (수평: 0, 수직: 90)
-		
-		// 타공
-		if (objInfo.libPart.sqrPipe.bPunching == true)
-			setParameterByName (&memo, "bPunching", 1.0);
-		else
-			setParameterByName (&memo, "bPunching", 0.0);
+		// 우측 1
+		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoColumn.floorInd, placingZone->cellsR1 [xx].leftBottomX, placingZone->cellsR1 [xx].leftBottomY, placingZone->cellsR1 [xx].leftBottomZ, placingZone->cellsR1 [xx].ang);
+		if ((placingZone->cellsR1 [xx].verLen > EPS) && (placingZone->cellsR1 [xx].height > EPS)) {
+			if (placingZone->cellsR1 [xx].bStandardEuroform == true) {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "1.0",
+					"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsR1 [xx].verLen * 1000),
+					"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsR1 [xx].height * 1000),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			} else {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "0.0",
+					"eu_wid2", APIParT_Length, format_string ("%f", placingZone->cellsR1 [xx].verLen),
+					"eu_hei2", APIParT_Length, format_string ("%f", placingZone->cellsR1 [xx].height),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			}
+		}
 
-		if (objInfo.libPart.sqrPipe.bHoleDir == true)
-			setParameterByName (&memo, "holeDir", "정면");
-		else
-			setParameterByName (&memo, "holeDir", "측면");
+		// 우측 2
+		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoColumn.floorInd, placingZone->cellsR2 [xx].leftBottomX, placingZone->cellsR2 [xx].leftBottomY, placingZone->cellsR2 [xx].leftBottomZ, placingZone->cellsR2 [xx].ang);
+		if ((placingZone->cellsR2 [xx].verLen > EPS) && (placingZone->cellsR2 [xx].height > EPS)) {
+			if (placingZone->cellsR2 [xx].bStandardEuroform == true) {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "1.0",
+					"eu_wid", APIParT_CString, format_string ("%.0f", placingZone->cellsR2 [xx].verLen * 1000),
+					"eu_hei", APIParT_CString, format_string ("%.0f", placingZone->cellsR2 [xx].height * 1000),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			} else {
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "0.0",
+					"eu_wid2", APIParT_Length, format_string ("%f", placingZone->cellsR2 [xx].verLen),
+					"eu_hei2", APIParT_Length, format_string ("%f", placingZone->cellsR2 [xx].height),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			}
+		}
 
-		validWidth = 0.050;
-		validLength = objInfo.libPart.sqrPipe.length;
 
-	} else if (objInfo.objType == PINBOLT) {
-		element.header.layer = layerInd_Pinbolt;
-		// 핀볼트 90도 회전
-		if (objInfo.libPart.pinbolt.bPinBoltRot90 == true)
-			setParameterByName (&memo, "bPinBoltRot90", 1.0);
-		else
-			setParameterByName (&memo, "bPinBoltRot90", 0.0);
+		// 2. 아웃코너판넬 배치
+		// 좌상단
+		outpanel.init (L("아웃코너판넬v1.0.gsm"), layerInd_OutPanel, infoColumn.floorInd, placingZone->cellsLT [xx].leftBottomX, placingZone->cellsLT [xx].leftBottomY, placingZone->cellsLT [xx].leftBottomZ, placingZone->cellsLT [xx].ang);
+		if ((placingZone->cellsLT [xx].objType == OUTPANEL) && (placingZone->cellsLT [xx].verLen > EPS) && (placingZone->cellsLT [xx].horLen > EPS) && (placingZone->cellsLT [xx].height > EPS))
+			elemList.Push (outpanel.placeObject (4,
+				"wid_s", APIParT_Length, format_string ("%f", placingZone->cellsLT [xx].verLen),
+				"leng_s", APIParT_Length, format_string ("%f", placingZone->cellsLT [xx].horLen),
+				"hei_s", APIParT_Length, format_string ("%f", placingZone->cellsLT [xx].height),
+				"dir_s", APIParT_CString, "세우기"));
 
-		setParameterByName (&memo, "bolt_len", objInfo.libPart.pinbolt.boltLen);		// 볼트 길이
-		setParameterByName (&memo, "washer_pos", objInfo.libPart.pinbolt.washerPos);	// 와셔 위치
-		setParameterByName (&memo, "angX", objInfo.libPart.pinbolt.angX);				// X축 회전
-		setParameterByName (&memo, "angY", objInfo.libPart.pinbolt.angY);				// Y축 회전
+		// 우상단
+		outpanel.init (L("아웃코너판넬v1.0.gsm"), layerInd_OutPanel, infoColumn.floorInd, placingZone->cellsRT [xx].leftBottomX, placingZone->cellsRT [xx].leftBottomY, placingZone->cellsRT [xx].leftBottomZ, placingZone->cellsRT [xx].ang);
+		if ((placingZone->cellsRT [xx].objType == OUTPANEL) && (placingZone->cellsRT [xx].verLen > EPS) && (placingZone->cellsRT [xx].horLen > EPS) && (placingZone->cellsRT [xx].height > EPS))
+			elemList.Push (outpanel.placeObject (4,
+				"wid_s", APIParT_Length, format_string ("%f", placingZone->cellsRT [xx].horLen),
+				"leng_s", APIParT_Length, format_string ("%f", placingZone->cellsRT [xx].verLen),
+				"hei_s", APIParT_Length, format_string ("%f", placingZone->cellsRT [xx].height),
+				"dir_s", APIParT_CString, "세우기"));
 
-		validWidth = 0.100;
-		validLength = objInfo.libPart.pinbolt.boltLen;
+		// 좌하단
+		outpanel.init (L("아웃코너판넬v1.0.gsm"), layerInd_OutPanel, infoColumn.floorInd, placingZone->cellsLB [xx].leftBottomX, placingZone->cellsLB [xx].leftBottomY, placingZone->cellsLB [xx].leftBottomZ, placingZone->cellsLB [xx].ang);
+		if ((placingZone->cellsLB [xx].objType == OUTPANEL) && (placingZone->cellsLB [xx].verLen > EPS) && (placingZone->cellsLB [xx].horLen > EPS) && (placingZone->cellsLB [xx].height > EPS))
+			elemList.Push (outpanel.placeObject (4,
+				"wid_s", APIParT_Length, format_string ("%f", placingZone->cellsLB [xx].horLen),
+				"leng_s", APIParT_Length, format_string ("%f", placingZone->cellsLB [xx].verLen),
+				"hei_s", APIParT_Length, format_string ("%f", placingZone->cellsLB [xx].height),
+				"dir_s", APIParT_CString, "세우기"));
 
-	} else if (objInfo.objType == HANGER) {
-		element.header.layer = layerInd_Hanger;
-		setParameterByName (&memo, "m_type", "각파이프행거");					// 품명
-		setParameterByName (&memo, "angX", objInfo.libPart.hanger.angX);		// X축 회전
-		setParameterByName (&memo, "angY", objInfo.libPart.hanger.angY);		// Y축 회전
+		// 우하단
+		outpanel.init (L("아웃코너판넬v1.0.gsm"), layerInd_OutPanel, infoColumn.floorInd, placingZone->cellsRB [xx].leftBottomX, placingZone->cellsRB [xx].leftBottomY, placingZone->cellsRB [xx].leftBottomZ, placingZone->cellsRB [xx].ang);
+		if ((placingZone->cellsRB [xx].objType == OUTPANEL) && (placingZone->cellsRB [xx].verLen > EPS) && (placingZone->cellsRB [xx].horLen > EPS) && (placingZone->cellsRB [xx].height > EPS))
+			elemList.Push (outpanel.placeObject (4,
+				"wid_s", APIParT_Length, format_string ("%f", placingZone->cellsRB [xx].verLen),
+				"leng_s", APIParT_Length, format_string ("%f", placingZone->cellsRB [xx].horLen),
+				"hei_s", APIParT_Length, format_string ("%f", placingZone->cellsRB [xx].height),
+				"dir_s", APIParT_CString, "세우기"));
 
-		validWidth = 1.0;
-		validLength = 1.0;
 
-	} else if (objInfo.objType == HEAD) {
-		element.header.layer = layerInd_Head;
+		// 3. 아웃코너앵글 배치
+		// 좌상단
+		outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsLT [xx].leftBottomX, placingZone->cellsLT [xx].leftBottomY, placingZone->cellsLT [xx].leftBottomZ, placingZone->cellsLT [xx].ang);
+		if ((placingZone->cellsLT [xx].objType == OUTANGLE) && (placingZone->cellsLT [xx].height > EPS))
+			elemList.Push (outangle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", placingZone->cellsLT [xx].height),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 
-		validWidth = 1.0;
-		validLength = 1.0;
+		// 우상단
+		outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsRT [xx].leftBottomX, placingZone->cellsRT [xx].leftBottomY, placingZone->cellsRT [xx].leftBottomZ, placingZone->cellsRT [xx].ang);
+		if ((placingZone->cellsRT [xx].objType == OUTANGLE) && (placingZone->cellsRT [xx].height > EPS))
+			elemList.Push (outangle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", placingZone->cellsRT [xx].height),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 
-	} else if (objInfo.objType == COLUMN_BAND1) {
-		element.header.layer = layerInd_ColumnBand;
+		// 좌하단
+		outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsLB [xx].leftBottomX, placingZone->cellsLB [xx].leftBottomY, placingZone->cellsLB [xx].leftBottomZ, placingZone->cellsLB [xx].ang);
+		if ((placingZone->cellsLB [xx].objType == OUTANGLE) && (placingZone->cellsLB [xx].height > EPS))
+			elemList.Push (outangle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", placingZone->cellsLB [xx].height),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 
-		// 규격
-		if (objInfo.libPart.columnBand.band_size == 1)
-			setParameterByName (&memo, "band_size", "80x40x1270");
-		else if (objInfo.libPart.columnBand.band_size == 2)
-			setParameterByName (&memo, "band_size", "80x40x1620");
-		else if (objInfo.libPart.columnBand.band_size == 3)
-			setParameterByName (&memo, "band_size", "80x40x2020");
-		else if (objInfo.libPart.columnBand.band_size == 4)
-			setParameterByName (&memo, "band_size", "80x40x2420");
-
-		setParameterByName (&memo, "c_w", objInfo.libPart.columnBand.c_w);				// 가로 (내경)
-		setParameterByName (&memo, "c_h", objInfo.libPart.columnBand.c_h);				// 세로 (내경)
-		setParameterByName (&memo, "addOffset", objInfo.libPart.columnBand.addOffset);	// 두께 추가 (각파이프 등) - 단, 유로폼 두께는 자동으로 포함되므로 여기에서는 제외
-
-		validWidth = objInfo.libPart.columnBand.c_w;
-		validLength = objInfo.libPart.columnBand.c_w;
-
-	} else if (objInfo.objType == COLUMN_BAND2) {
-		element.header.layer = layerInd_ColumnBand;
-
-		setParameterByName (&memo, "c_w", objInfo.libPart.wella.c_w);				// 가로 (내경)
-		setParameterByName (&memo, "c_h", objInfo.libPart.wella.c_h);				// 세로 (내경)
-		setParameterByName (&memo, "addOffset", objInfo.libPart.wella.addOffset);	// 두께 추가 (각파이프 등) - 단, 유로폼 두께는 자동으로 포함되므로 여기에서는 제외
-
-		validWidth = objInfo.libPart.wella.c_w;
-		validLength = objInfo.libPart.wella.c_w;
-
-	} else if (objInfo.objType == PLYWOOD) {
-		element.header.layer = layerInd_Plywood;
-		setParameterByName (&memo, "p_stan", "비규격");							// 규격
-		setParameterByName (&memo, "w_dir", "벽세우기");						// 설치방향
-		setParameterByName (&memo, "p_thk", "11.5T");							// 두께
-		setParameterByName (&memo, "p_wid", objInfo.libPart.plywood.p_wid);		// 가로
-		setParameterByName (&memo, "p_leng", objInfo.libPart.plywood.p_leng);	// 세로
-		setParameterByName (&memo, "sogak", 0.0);								// 제작틀 OFF
-		setParameterByName (&memo, "p_ang", DegreeToRad (0.0));					// 각도
-
-		validLength = objInfo.libPart.plywood.p_leng;
-		validWidth = objInfo.libPart.plywood.p_wid;
+		// 우하단
+		outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsRB [xx].leftBottomX, placingZone->cellsRB [xx].leftBottomY, placingZone->cellsRB [xx].leftBottomZ, placingZone->cellsRB [xx].ang);
+		if ((placingZone->cellsRB [xx].objType == OUTANGLE) && (placingZone->cellsRB [xx].height > EPS))
+			elemList.Push (outangle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", placingZone->cellsRB [xx].height),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 	}
 
-	// 객체 배치
-	if ((objInfo.objType != NONE) && (validLength > EPS) && (validWidth > EPS))
-		ACAPI_Element_Create (&element, &memo);
-	ACAPI_DisposeElemMemoHdls (&memo);
-
-	return element.header.guid;
+	return	err;
 }
 
 // 비계파이프, 핀볼트세트/각파이프행거, 헤드피스 배치
@@ -2593,9 +2561,6 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsLT [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_1);
 							placingZone.cellsLT [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1);
 							placingZone.cellsLT [xx].height = 1.200;
-							placingZone.cellsLT [xx].libPart.outpanel.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_1);
-							placingZone.cellsLT [xx].libPart.outpanel.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_1);
-							placingZone.cellsLT [xx].libPart.outpanel.hei_s = 1.200;
 
 							// 우상단
 							xLen = (placingZone.coreWidth/2 + placingZone.venThick);
@@ -2612,9 +2577,6 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsRT [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_4);
 							placingZone.cellsRT [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1);
 							placingZone.cellsRT [xx].height = 1.200;
-							placingZone.cellsRT [xx].libPart.outpanel.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_1);
-							placingZone.cellsRT [xx].libPart.outpanel.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_4);
-							placingZone.cellsRT [xx].libPart.outpanel.hei_s = 1.200;
 
 							// 좌하단
 							xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
@@ -2631,9 +2593,6 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsLB [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_1);
 							placingZone.cellsLB [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_4);
 							placingZone.cellsLB [xx].height = 1.200;
-							placingZone.cellsLB [xx].libPart.outpanel.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_4);
-							placingZone.cellsLB [xx].libPart.outpanel.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_1);
-							placingZone.cellsLB [xx].libPart.outpanel.hei_s = 1.200;
 
 							// 우하단
 							xLen = (placingZone.coreWidth/2 + placingZone.venThick);
@@ -2650,9 +2609,6 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsRB [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_4);
 							placingZone.cellsRB [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_4);
 							placingZone.cellsRB [xx].height = 1.200;
-							placingZone.cellsRB [xx].libPart.outpanel.leng_s = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_4);
-							placingZone.cellsRB [xx].libPart.outpanel.wid_s = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_4);
-							placingZone.cellsRB [xx].libPart.outpanel.hei_s = 1.200;
 						} else {
 							placingZone.bUseOutcornerPanel = false;
 
@@ -2671,8 +2627,6 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsLT [xx].horLen = 0.0635;
 							placingZone.cellsLT [xx].verLen = 0.0635;
 							placingZone.cellsLT [xx].height = 1.200;
-							placingZone.cellsLT [xx].libPart.outangle.a_leng = 1.200;
-							placingZone.cellsLT [xx].libPart.outangle.a_ang = DegreeToRad (90);
 
 							// 우상단
 							xLen = (placingZone.coreWidth/2 + placingZone.venThick);
@@ -2689,8 +2643,6 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsRT [xx].horLen = 0.0635;
 							placingZone.cellsRT [xx].verLen = 0.0635;
 							placingZone.cellsRT [xx].height = 1.200;
-							placingZone.cellsRT [xx].libPart.outangle.a_leng = 1.200;
-							placingZone.cellsRT [xx].libPart.outangle.a_ang = DegreeToRad (90);
 
 							// 좌하단
 							xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
@@ -2707,8 +2659,6 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsLB [xx].horLen = 0.0635;
 							placingZone.cellsLB [xx].verLen = 0.0635;
 							placingZone.cellsLB [xx].height = 1.200;
-							placingZone.cellsLB [xx].libPart.outangle.a_leng = 1.200;
-							placingZone.cellsLB [xx].libPart.outangle.a_ang = DegreeToRad (90);
 
 							// 우하단
 							xLen = (placingZone.coreWidth/2 + placingZone.venThick);
@@ -2725,8 +2675,6 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsRB [xx].horLen = 0.0635;
 							placingZone.cellsRB [xx].verLen = 0.0635;
 							placingZone.cellsRB [xx].height = 1.200;
-							placingZone.cellsRB [xx].libPart.outangle.a_leng = 1.200;
-							placingZone.cellsRB [xx].libPart.outangle.a_ang = DegreeToRad (90);
 						}
 
 						// 위쪽 1
@@ -2749,16 +2697,11 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 						placingZone.cellsT1 [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2);
 						placingZone.cellsT1 [xx].verLen = 0.064;
 						placingZone.cellsT1 [xx].height = 1.200;
-						placingZone.cellsT1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2);
-						placingZone.cellsT1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2);
-						placingZone.cellsT1 [xx].libPart.form.eu_hei = 1.200;
-						placingZone.cellsT1 [xx].libPart.form.eu_hei2 = 1.200;
-						placingZone.cellsT1 [xx].libPart.form.u_ins_wall = true;
-						formWidth = placingZone.cellsT1 [xx].libPart.form.eu_wid;
+						formWidth = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_2);
 						if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-							placingZone.cellsT1 [xx].libPart.form.eu_stan_onoff = true;
+							placingZone.cellsT1 [xx].bStandardEuroform = true;
 						else
-							placingZone.cellsT1 [xx].libPart.form.eu_stan_onoff = false;
+							placingZone.cellsT1 [xx].bStandardEuroform = false;
 
 						// 위쪽 2
 						if (DGGetItemValLong (dialogID, CHECKBOX_TOP_ADDITIONAL_FORM) == TRUE) {
@@ -2781,16 +2724,11 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsT2 [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_3);
 							placingZone.cellsT2 [xx].verLen = 0.064;
 							placingZone.cellsT2 [xx].height = 1.200;
-							placingZone.cellsT2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_3);
-							placingZone.cellsT2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_3);
-							placingZone.cellsT2 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsT2 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsT2 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsT2 [xx].libPart.form.eu_wid;
+							formWidth = DGGetItemValDouble (dialogID, EDITCONTROL_TOP_3);
 							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsT2 [xx].libPart.form.eu_stan_onoff = true;
+								placingZone.cellsT2 [xx].bStandardEuroform = true;
 							else
-								placingZone.cellsT2 [xx].libPart.form.eu_stan_onoff = false;
+								placingZone.cellsT2 [xx].bStandardEuroform = false;
 						}
 
 						// 좌측 1
@@ -2813,16 +2751,11 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 						placingZone.cellsL1 [xx].horLen = 0.064;
 						placingZone.cellsL1 [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2);
 						placingZone.cellsL1 [xx].height = 1.200;
-						placingZone.cellsL1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2);
-						placingZone.cellsL1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2);
-						placingZone.cellsL1 [xx].libPart.form.eu_hei = 1.200;
-						placingZone.cellsL1 [xx].libPart.form.eu_hei2 = 1.200;
-						placingZone.cellsL1 [xx].libPart.form.u_ins_wall = true;
-						formWidth = placingZone.cellsL1 [xx].libPart.form.eu_wid;
+						formWidth = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_2);
 						if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-							placingZone.cellsL1 [xx].libPart.form.eu_stan_onoff = true;
+							placingZone.cellsL1 [xx].bStandardEuroform = true;
 						else
-							placingZone.cellsL1 [xx].libPart.form.eu_stan_onoff = false;
+							placingZone.cellsL1 [xx].bStandardEuroform = false;
 
 						// 좌측 2
 						if (DGGetItemValLong (dialogID, CHECKBOX_LEFT_ADDITIONAL_FORM) == TRUE) {
@@ -2845,16 +2778,11 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsL2 [xx].horLen = 0.064;
 							placingZone.cellsL2 [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_3);
 							placingZone.cellsL2 [xx].height = 1.200;
-							placingZone.cellsL2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_3);
-							placingZone.cellsL2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_3);
-							placingZone.cellsL2 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsL2 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsL2 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsL2 [xx].libPart.form.eu_wid;
+							formWidth = DGGetItemValDouble (dialogID, EDITCONTROL_LEFT_3);
 							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsL2 [xx].libPart.form.eu_stan_onoff = true;
+								placingZone.cellsL2 [xx].bStandardEuroform = true;
 							else
-								placingZone.cellsL2 [xx].libPart.form.eu_stan_onoff = false;
+								placingZone.cellsL2 [xx].bStandardEuroform = false;
 						}
 
 						// 우측 1
@@ -2877,16 +2805,11 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 						placingZone.cellsR1 [xx].horLen = 0.064;
 						placingZone.cellsR1 [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2);
 						placingZone.cellsR1 [xx].height = 1.200;
-						placingZone.cellsR1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2);
-						placingZone.cellsR1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2);
-						placingZone.cellsR1 [xx].libPart.form.eu_hei = 1.200;
-						placingZone.cellsR1 [xx].libPart.form.eu_hei2 = 1.200;
-						placingZone.cellsR1 [xx].libPart.form.u_ins_wall = true;
-						formWidth = placingZone.cellsR1 [xx].libPart.form.eu_wid;
+						formWidth = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_2);
 						if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-							placingZone.cellsR1 [xx].libPart.form.eu_stan_onoff = true;
+							placingZone.cellsR1 [xx].bStandardEuroform = true;
 						else
-							placingZone.cellsR1 [xx].libPart.form.eu_stan_onoff = false;
+							placingZone.cellsR1 [xx].bStandardEuroform = false;
 
 						// 우측 2
 						if (DGGetItemValLong (dialogID, CHECKBOX_RIGHT_ADDITIONAL_FORM) == TRUE) { 
@@ -2909,16 +2832,11 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsR2 [xx].horLen = 0.064;
 							placingZone.cellsR2 [xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3);
 							placingZone.cellsR2 [xx].height = 1.200;
-							placingZone.cellsR2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3);
-							placingZone.cellsR2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3);
-							placingZone.cellsR2 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsR2 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsR2 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsR2 [xx].libPart.form.eu_wid;
+							formWidth = DGGetItemValDouble (dialogID, EDITCONTROL_RIGHT_3);
 							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsR2 [xx].libPart.form.eu_stan_onoff = true;
+								placingZone.cellsR2 [xx].bStandardEuroform = true;
 							else
-								placingZone.cellsR2 [xx].libPart.form.eu_stan_onoff = false;
+								placingZone.cellsR2 [xx].bStandardEuroform = false;
 						}
 
 						// 아래쪽 1
@@ -2941,16 +2859,11 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 						placingZone.cellsB1 [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2);
 						placingZone.cellsB1 [xx].verLen = 0.064;
 						placingZone.cellsB1 [xx].height = 1.200;
-						placingZone.cellsB1 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2);
-						placingZone.cellsB1 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2);
-						placingZone.cellsB1 [xx].libPart.form.eu_hei = 1.200;
-						placingZone.cellsB1 [xx].libPart.form.eu_hei2 = 1.200;
-						placingZone.cellsB1 [xx].libPart.form.u_ins_wall = true;
-						formWidth = placingZone.cellsB1 [xx].libPart.form.eu_wid;
+						formWidth = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_2);
 						if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-							placingZone.cellsB1 [xx].libPart.form.eu_stan_onoff = true;
+							placingZone.cellsB1 [xx].bStandardEuroform = true;
 						else
-							placingZone.cellsB1 [xx].libPart.form.eu_stan_onoff = false;
+							placingZone.cellsB1 [xx].bStandardEuroform = false;
 
 						// 아래쪽 2
 						if (DGGetItemValLong (dialogID, CHECKBOX_BOTTOM_ADDITIONAL_FORM) == TRUE) {
@@ -2973,16 +2886,11 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsB2 [xx].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_3);
 							placingZone.cellsB2 [xx].verLen = 0.064;
 							placingZone.cellsB2 [xx].height = 1.200;
-							placingZone.cellsB2 [xx].libPart.form.eu_wid = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_3);
-							placingZone.cellsB2 [xx].libPart.form.eu_wid2 = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_3);
-							placingZone.cellsB2 [xx].libPart.form.eu_hei = 1.200;
-							placingZone.cellsB2 [xx].libPart.form.eu_hei2 = 1.200;
-							placingZone.cellsB2 [xx].libPart.form.u_ins_wall = true;
-							formWidth = placingZone.cellsB2 [xx].libPart.form.eu_wid;
+							formWidth = DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_3);
 							if ( (abs (formWidth - 0.600) < EPS) || (abs (formWidth - 0.500) < EPS) || (abs (formWidth - 0.450) < EPS) || (abs (formWidth - 0.400) < EPS) || (abs (formWidth - 0.300) < EPS) || (abs (formWidth - 0.200) < EPS) )
-								placingZone.cellsB2 [xx].libPart.form.eu_stan_onoff = true;
+								placingZone.cellsB2 [xx].bStandardEuroform = true;
 							else
-								placingZone.cellsB2 [xx].libPart.form.eu_stan_onoff = false;
+								placingZone.cellsB2 [xx].bStandardEuroform = false;
 						}
 					}
 
@@ -4193,17 +4101,17 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_3 (short message, short
 
 				DGShowItem (dialogID, CHECKBOX_SET_STANDARD);
 				DGShowItem (dialogID, LABEL_LENGTH);
-				if (placingZone.cellsB1 [idx].libPart.form.eu_stan_onoff == true) {
+				if (placingZone.cellsB1 [idx].bStandardEuroform == true) {
 					DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, TRUE);
 					DGShowItem (dialogID, POPUP_LENGTH);
-					if (abs (placingZone.cellsB1 [idx].libPart.form.eu_hei - 1.200) < EPS)		popupSelectedIdx = 1;
-					if (abs (placingZone.cellsB1 [idx].libPart.form.eu_hei - 0.900) < EPS)		popupSelectedIdx = 2;
-					if (abs (placingZone.cellsB1 [idx].libPart.form.eu_hei - 0.600) < EPS)		popupSelectedIdx = 3;
+					if (abs (placingZone.cellsB1 [idx].height - 1.200) < EPS)		popupSelectedIdx = 1;
+					if (abs (placingZone.cellsB1 [idx].height - 0.900) < EPS)		popupSelectedIdx = 2;
+					if (abs (placingZone.cellsB1 [idx].height - 0.600) < EPS)		popupSelectedIdx = 3;
 					DGPopUpSelectItem (dialogID, POPUP_LENGTH, popupSelectedIdx);
 				} else {
 					DGSetItemValLong (dialogID, CHECKBOX_SET_STANDARD, FALSE);
 					DGShowItem (dialogID, EDITCONTROL_LENGTH);
-					DGSetItemValDouble (dialogID, EDITCONTROL_LENGTH, placingZone.cellsB1 [idx].libPart.form.eu_hei2);
+					DGSetItemValDouble (dialogID, EDITCONTROL_LENGTH, placingZone.cellsB1 [idx].height);
 					DGSetItemMinDouble (dialogID, EDITCONTROL_LENGTH, 0.050);
 					DGSetItemMaxDouble (dialogID, EDITCONTROL_LENGTH, 1.500);
 				}
@@ -4274,77 +4182,44 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_3 (short message, short
 
 						if (placingZone.bUseOutcornerPanel == true) {
 							placingZone.cellsLT [idx].objType = OUTPANEL;
-							placingZone.cellsLT [idx].height = length;
-							placingZone.cellsLT [idx].libPart.outpanel.hei_s = length;
-
 							placingZone.cellsRT [idx].objType = OUTPANEL;
-							placingZone.cellsRT [idx].height = length;
-							placingZone.cellsRT [idx].libPart.outpanel.hei_s = length;
-
 							placingZone.cellsLB [idx].objType = OUTPANEL;
-							placingZone.cellsLB [idx].height = length;
-							placingZone.cellsLB [idx].libPart.outpanel.hei_s = length;
-
 							placingZone.cellsRB [idx].objType = OUTPANEL;
-							placingZone.cellsRB [idx].height = length;
-							placingZone.cellsRB [idx].libPart.outpanel.hei_s = length;
 						} else {
 							placingZone.cellsLT [idx].objType = OUTANGLE;
-							placingZone.cellsLT [idx].height = length;
-							placingZone.cellsLT [idx].libPart.outangle.a_leng = length;
-
 							placingZone.cellsRT [idx].objType = OUTANGLE;
-							placingZone.cellsRT [idx].height = length;
-							placingZone.cellsRT [idx].libPart.outangle.a_leng = length;
-
 							placingZone.cellsLB [idx].objType = OUTANGLE;
-							placingZone.cellsLB [idx].height = length;
-							placingZone.cellsLB [idx].libPart.outangle.a_leng = length;
-
 							placingZone.cellsRB [idx].objType = OUTANGLE;
-							placingZone.cellsRB [idx].height = length;
-							placingZone.cellsRB [idx].libPart.outangle.a_leng = length;
 						}
 							
+						placingZone.cellsLT [idx].height = length;
+						placingZone.cellsRT [idx].height = length;
+						placingZone.cellsLB [idx].height = length;
+						placingZone.cellsRB [idx].height = length;
+
 						placingZone.cellsT1 [idx].objType = EUROFORM;
 						placingZone.cellsT1 [idx].height = length;
-						placingZone.cellsT1 [idx].libPart.form.eu_hei = length;
-						placingZone.cellsT1 [idx].libPart.form.eu_hei2 = length;
 
 						placingZone.cellsT2 [idx].objType = EUROFORM;
 						placingZone.cellsT2 [idx].height = length;
-						placingZone.cellsT2 [idx].libPart.form.eu_hei = length;
-						placingZone.cellsT2 [idx].libPart.form.eu_hei2 = length;
 
 						placingZone.cellsL1 [idx].objType = EUROFORM;
 						placingZone.cellsL1 [idx].height = length;
-						placingZone.cellsL1 [idx].libPart.form.eu_hei = length;
-						placingZone.cellsL1 [idx].libPart.form.eu_hei2 = length;
 
 						placingZone.cellsL2 [idx].objType = EUROFORM;
 						placingZone.cellsL2 [idx].height = length;
-						placingZone.cellsL2 [idx].libPart.form.eu_hei = length;
-						placingZone.cellsL2 [idx].libPart.form.eu_hei2 = length;
 
 						placingZone.cellsR1 [idx].objType = EUROFORM;
 						placingZone.cellsR1 [idx].height = length;
-						placingZone.cellsR1 [idx].libPart.form.eu_hei = length;
-						placingZone.cellsR1 [idx].libPart.form.eu_hei2 = length;
 
 						placingZone.cellsR2 [idx].objType = EUROFORM;
 						placingZone.cellsR2 [idx].height = length;
-						placingZone.cellsR2 [idx].libPart.form.eu_hei = length;
-						placingZone.cellsR2 [idx].libPart.form.eu_hei2 = length;
 
 						placingZone.cellsB1 [idx].objType = EUROFORM;
 						placingZone.cellsB1 [idx].height = length;
-						placingZone.cellsB1 [idx].libPart.form.eu_hei = length;
-						placingZone.cellsB1 [idx].libPart.form.eu_hei2 = length;
 
 						placingZone.cellsB2 [idx].objType = EUROFORM;
 						placingZone.cellsB2 [idx].height = length;
-						placingZone.cellsB2 [idx].libPart.form.eu_hei = length;
-						placingZone.cellsB2 [idx].libPart.form.eu_hei2 = length;
 					}
 
 					break;

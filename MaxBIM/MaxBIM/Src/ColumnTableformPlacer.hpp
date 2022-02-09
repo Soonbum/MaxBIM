@@ -9,14 +9,7 @@ namespace columnTableformPlacerDG {
 		NONE,			// 없음
 		EUROFORM,		// 유로폼v2.0
 		OUTPANEL,		// 아웃코너판넬v1.0
-		OUTANGLE,		// 아웃코너앵글v1.0
-		SQUARE_PIPE,	// 비계파이프v1.0
-		PINBOLT,		// 핀볼트세트v1.0
-		HANGER,			// 각파이프행거
-		HEAD,			// 빔조인트용 Push-Pull Props 헤드피스 v1.0
-		COLUMN_BAND1,	// 기둥밴드v2.0
-		COLUMN_BAND2,	// 웰라v1.0
-		PLYWOOD			// 합판v1.0
+		OUTANGLE		// 아웃코너앵글v1.0
 	};
 
 	// 부재가 부착되는 곳에 해당하는 기둥의 앵커 포인트
@@ -165,18 +158,7 @@ struct CellForColumnTableform
 	double	verLen;			// 세로 길이
 	double	height;			// 높이
 
-	union {
-		Euroform		form;
-		OutcornerPanel	outpanel;
-		OutcornerAngle	outangle;
-		SquarePipe		sqrPipe;
-		PinBoltSet		pinbolt;
-		RectPipeHanger	hanger;
-		HeadpieceOfPushPullProps	head;
-		ColumnBand		columnBand;
-		Wella			wella;
-		Plywood			plywood;
-	} libPart;
+	bool	bStandardEuroform;		// 규격폼인가? (유로폼인 경우)
 };
 
 // 기둥 영역 정보
@@ -244,7 +226,7 @@ public:
 	void		addTopCell (ColumnTableformPlacingZone* target_zone);					// 꼭대기에 셀 추가
 	void		delTopCell (ColumnTableformPlacingZone* target_zone);					// 꼭대기의 셀 삭제
 	void		alignPlacingZone_soleColumn (ColumnTableformPlacingZone* placingZone);	// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-	API_Guid	placeLibPart (CellForColumnTableform objInfo);							// 해당 셀 정보를 기반으로 라이브러리 배치
+	GSErrCode	placeBasicObjects_soleColumn (ColumnTableformPlacingZone* placingZone);	// 유로폼/아웃코너판넬/아웃코너앵글 배치
 	GSErrCode	placeRestObjects_soleColumn (ColumnTableformPlacingZone* placingZone);	// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스 배치
 	GSErrCode	fillRestAreas_soleColumn (ColumnTableformPlacingZone* placingZone);		// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
 };
