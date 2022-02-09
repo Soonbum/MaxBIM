@@ -3273,9 +3273,10 @@ GSErrCode	exportBeamTableformInformation (void)
 	API_Element			elem;
 	API_ElementMemo		memo;
 
-	BeamTableformInfo				tableformInfo;	// 보 테이블폼 정보
 	vector<objectInBeamTableform>	objectList;		// 객체 리스트
 	objectInBeamTableform			newObject;
+	BeamTableformInfo				tableformInfo;			// 보 테이블폼 정보
+	BeamTableformInfo				tableformInfoSummary;	// 보 테이블폼 정보 (요약판)
 
 	double				xmin, xmax, ymin, ymax;
 	int					ang_x, ang_y;
@@ -3369,6 +3370,7 @@ GSErrCode	exportBeamTableformInformation (void)
 
 			// 초기화
 			tableformInfo.init ();
+			tableformInfoSummary.init ();
 			objectList.clear ();
 
 			// 모든 요소 가져오기
@@ -3837,20 +3839,71 @@ GSErrCode	exportBeamTableformInformation (void)
 				}
 			}
 
-			// 셀 개수 저장
-			// !!! 기존의 세로 쓰기 형태에서 가로 쓰기 형태로 바꿀 것
+			// 보 테이블폼 정보 (요약판) 만들기
+			tableformInfoSummary.iBeamDirection = tableformInfo.iBeamDirection;
+			bool	bBeforeCellEuroform;	// 이전 셀이 유로폼입니까?
+
 			if (nObjects != 0) {
 				if ((nCells_left == nCells_right) && (nCells_left == nCells_bottom)) {
 					// 성공한 경우
 					tableformInfo.nCells = nCells_left;
+					tableformInfoSummary.nCells = 0;
+
+					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
+						if (xx == 0) {
+							// 0번 셀은 무조건 저장
+							tableformInfoSummary.cells [0] = tableformInfo.cells [0];
+							++ tableformInfoSummary.nCells;
+							
+							// 이전 셀 정보 저장함
+							if (tableformInfo.cells [0].euroform_leftHeight > EPS)
+								bBeforeCellEuroform = true;
+							else
+								bBeforeCellEuroform = false;
+						} else {
+							if (tableformInfo.cells [xx].euroform_leftHeight > EPS) {
+								// 현재 셀이 유로폼이면,
+								if (bBeforeCellEuroform == true) {
+									// 이전 셀이 유로폼인 경우, 이전 셀에 현재 셀의 길이 합산
+									tableformInfoSummary.cells [tableformInfoSummary.nCells - 1].length += tableformInfo.cells [xx].length;
+								} else {
+									// 이전 셀이 합판인 경우, 새로운 셀 추가
+									tableformInfoSummary.cells [tableformInfoSummary.nCells] = tableformInfo.cells [xx];
+									++ tableformInfoSummary.nCells;
+								}
+
+								bBeforeCellEuroform = true;
+							} else {
+								// 현재 셀이 합판이면,
+								if (bBeforeCellEuroform == true) {
+									// 이전 셀이 유로폼인 경우, 새로운 셀 추가
+									tableformInfoSummary.cells [tableformInfoSummary.nCells] = tableformInfo.cells [xx];
+									++ tableformInfoSummary.nCells;
+								} else {
+									// 이전 셀이 합판인 경우, 이전 셀에 현재 셀의 길이 합산
+									tableformInfoSummary.cells [tableformInfoSummary.nCells - 1].length += tableformInfo.cells [xx].length;
+								}
+
+								bBeforeCellEuroform = false;
+							}
+						}
+					}
+				}
+			}
+
+			// 셀 개수 저장
+			if (nObjects != 0) {
+				if ((nCells_left == nCells_right) && (nCells_left == nCells_bottom)) {
+					// 성공한 경우
+					//tableformInfo.nCells = nCells_left;
 
 					// 파일 출력하기 (물량표 작성)
 					sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
 					fprintf (fp, buffer);
 
 					strcpy (buffer, "\n");
-					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
-						if (tableformInfo.cells [xx].euroform_leftHeight > EPS)
+					for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+						if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS)
 							strcat (buffer, "유로폼,,,,");
 						else
 							strcat (buffer, "합판,,,,");
@@ -3858,37 +3911,37 @@ GSErrCode	exportBeamTableformInformation (void)
 					fprintf (fp, buffer);
 
 					strcpy (buffer, "\n");
-					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
+					for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
 						strcat (buffer, "밑면,측면1,측면2,,");
 					}
 					fprintf (fp, buffer);
 
 					strcpy (buffer, "\n");
-					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
-						if (tableformInfo.cells [xx].euroform_leftHeight > EPS)
-							sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfo.cells [xx].euroform_bottomWidth * 1000, tableformInfo.cells [xx].euroform_leftHeight * 1000, tableformInfo.cells [xx].euroform_rightHeight * 1000);
+					for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+						if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS)
+							sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfoSummary.cells [xx].euroform_bottomWidth * 1000, tableformInfoSummary.cells [xx].euroform_leftHeight * 1000, tableformInfoSummary.cells [xx].euroform_rightHeight * 1000);
 						else
-							sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfo.cells [xx].plywoodOnly_bottomWidth * 1000, tableformInfo.cells [xx].plywoodOnly_leftHeight * 1000, tableformInfo.cells [xx].plywoodOnly_rightHeight * 1000);
+							sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfoSummary.cells [xx].plywoodOnly_bottomWidth * 1000, tableformInfoSummary.cells [xx].plywoodOnly_leftHeight * 1000, tableformInfoSummary.cells [xx].plywoodOnly_rightHeight * 1000);
 						strcat (buffer, tempBuffer);
 					}
 					fprintf (fp, buffer);
 
 					strcpy (buffer, "\n");
-					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
+					for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
 						strcat (buffer, "길이,,,,");
 					}
 					fprintf (fp, buffer);
 
 					strcpy (buffer, "\n");
-					for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
-						sprintf (tempBuffer, "%.0f,,,,", tableformInfo.cells [xx].length * 1000);
+					for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+						sprintf (tempBuffer, "%.0f,,,,", tableformInfoSummary.cells [xx].length * 1000);
 						strcat (buffer, tempBuffer);
 					}
 					fprintf (fp, buffer);
 
 				} else {
 					// 실패한 경우
-					tableformInfo.nCells = 0;
+					tableformInfoSummary.nCells = 0;
 
 					// 파일 출력하기 (물량표 작성)
 					sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
