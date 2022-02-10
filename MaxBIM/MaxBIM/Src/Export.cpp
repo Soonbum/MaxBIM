@@ -36,13 +36,13 @@ int compare (const void* first, const void* second)
 // vector 내 자재 정보 구조체 정렬을 위한 비교 함수 (좌표값 X 기준)
 bool comparePosX (const objectInBeamTableform& a, const objectInBeamTableform& b)
 {
-	return a.origin.x < b.origin.x;
+	return	(a.minPos.x + (a.maxPos.x - a.minPos.x)/2) < (b.minPos.x + (b.maxPos.x - b.minPos.x)/2);
 }
 
 // vector 내 자재 정보 구조체 정렬을 위한 비교 함수 (좌표값 Y 기준)
 bool comparePosY (const objectInBeamTableform& a, const objectInBeamTableform& b)
 {
-	return a.origin.y < b.origin.y;
+	return	(a.minPos.y + (a.maxPos.y - a.minPos.y)/2) < (b.minPos.y + (b.maxPos.y - b.minPos.y)/2);
 }
 
 // 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
@@ -3272,6 +3272,7 @@ GSErrCode	exportBeamTableformInformation (void)
 
 	API_Element			elem;
 	API_ElementMemo		memo;
+	API_ElemInfo3D		info3D;
 
 	vector<objectInBeamTableform>	objectList;		// 객체 리스트
 	objectInBeamTableform			newObject;
@@ -3393,6 +3394,7 @@ GSErrCode	exportBeamTableformInformation (void)
 				BNZeroMemory (&memo, sizeof (API_ElementMemo));
 				elem.header.guid = objects [xx];
 				err = ACAPI_Element_Get (&elem);
+				err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
 
 				if (err == NoError && elem.header.hasMemo) {
 					err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
@@ -3409,11 +3411,25 @@ GSErrCode	exportBeamTableformInformation (void)
 						newObject.origin.x = 0.0;
 						newObject.origin.y = 0.0;
 						newObject.origin.z = 0.0;
+						newObject.minPos.x = 0.0;
+						newObject.minPos.y = 0.0;
+						newObject.minPos.z = 0.0;
+						newObject.maxPos.x = 0.0;
+						newObject.maxPos.y = 0.0;
+						newObject.maxPos.z = 0.0;
 
 						// 원점 좌표 저장
 						newObject.origin.x = elem.object.pos.x;
 						newObject.origin.y = elem.object.pos.y;
 						newObject.origin.z = elem.object.level;
+
+						// 최소점, 최대점 좌표 저장
+						newObject.minPos.x = info3D.bounds.xMin;
+						newObject.minPos.y = info3D.bounds.yMin;
+						newObject.minPos.z = info3D.bounds.zMin;
+						newObject.maxPos.x = info3D.bounds.xMax;
+						newObject.maxPos.y = info3D.bounds.yMax;
+						newObject.maxPos.z = info3D.bounds.zMax;
 						
 						// 객체의 타입, 너비와 길이를 저장
 						if (my_strcmp (getParameterStringByName (&memo, "u_comp"), "유로폼") == 0) {
@@ -3564,221 +3580,8 @@ GSErrCode	exportBeamTableformInformation (void)
 				}
 			}
 
-			// 만약 3개씩 객체 타입이 일치하지 않는 경우, 이전 셀의 3번째 항목과 다음 셀의 1번째 항목을 교환함
-			objectInBeamTableform	tempObj;
-
-			if ((objectList.size () % 3 == 0) && (objectList.size () > 2)) {
-				for (xx = 0 ; xx < (objectList.size () / 3) - 1 ; ++xx) {
-					// 3번째 항목만 다른 경우, (Mirrored 설치 미적용된 경우)
-					if ( (objectList [3*xx].objType == objectList [3*xx + 1].objType) && (objectList [3*xx + 1].objType != objectList [3*xx + 2].objType) ) {
-						tempObj.objType			= objectList [3*xx + 2].objType;
-						tempObj.attachPosition	= objectList [3*xx + 2].attachPosition;
-						tempObj.origin			= objectList [3*xx + 2].origin;
-						tempObj.width			= objectList [3*xx + 2].width;
-						tempObj.length			= objectList [3*xx + 2].length;
-
-						objectList [3*xx + 2].objType			= objectList [3*xx + 2 + 1].objType;
-						objectList [3*xx + 2].attachPosition	= objectList [3*xx + 2 + 1].attachPosition;
-						objectList [3*xx + 2].origin			= objectList [3*xx + 2 + 1].origin;
-						objectList [3*xx + 2].width				= objectList [3*xx + 2 + 1].width;
-						objectList [3*xx + 2].length			= objectList [3*xx + 2 + 1].length;
-
-						objectList [3*xx + 2 + 1].objType			= tempObj.objType;
-						objectList [3*xx + 2 + 1].attachPosition	= tempObj.attachPosition;
-						objectList [3*xx + 2 + 1].origin			= tempObj.origin;
-						objectList [3*xx + 2 + 1].width				= tempObj.width;
-						objectList [3*xx + 2 + 1].length			= tempObj.length;
-					}
-					// 합판-유로폼-합판-(유로폼-합판-유로폼) 순서대로 되어 있는 경우, (Mirrored 설치 적용된 경우)
-					// 유로폼이 먼저 와야 함
-					else if ( (objectList [3*xx].objType == PLYWOOD) && (objectList [3*xx + 1].objType == EUROFORM) && (objectList [3*xx + 2].objType == PLYWOOD) ) {
-						if (objectList [3*xx + 3].objType == PLYWOOD) {
-							// [3*xx]와 [3*xx + 4] 교환
-							tempObj.objType			= objectList [3*xx].objType;
-							tempObj.attachPosition	= objectList [3*xx].attachPosition;
-							tempObj.origin			= objectList [3*xx].origin;
-							tempObj.width			= objectList [3*xx].width;
-							tempObj.length			= objectList [3*xx].length;
-
-							objectList [3*xx].objType			= objectList [3*xx + 4].objType;
-							objectList [3*xx].attachPosition	= objectList [3*xx + 4].attachPosition;
-							objectList [3*xx].origin			= objectList [3*xx + 4].origin;
-							objectList [3*xx].width				= objectList [3*xx + 4].width;
-							objectList [3*xx].length			= objectList [3*xx + 4].length;
-
-							objectList [3*xx + 4].objType			= tempObj.objType;
-							objectList [3*xx + 4].attachPosition	= tempObj.attachPosition;
-							objectList [3*xx + 4].origin			= tempObj.origin;
-							objectList [3*xx + 4].width				= tempObj.width;
-							objectList [3*xx + 4].length			= tempObj.length;
-
-							// [3*xx + 2]와 [3*xx + 5] 교환
-							tempObj.objType			= objectList [3*xx + 2].objType;
-							tempObj.attachPosition	= objectList [3*xx + 2].attachPosition;
-							tempObj.origin			= objectList [3*xx + 2].origin;
-							tempObj.width			= objectList [3*xx + 2].width;
-							tempObj.length			= objectList [3*xx + 2].length;
-
-							objectList [3*xx + 2].objType			= objectList [3*xx + 5].objType;
-							objectList [3*xx + 2].attachPosition	= objectList [3*xx + 5].attachPosition;
-							objectList [3*xx + 2].origin			= objectList [3*xx + 5].origin;
-							objectList [3*xx + 2].width				= objectList [3*xx + 5].width;
-							objectList [3*xx + 2].length			= objectList [3*xx + 5].length;
-
-							objectList [3*xx + 5].objType			= tempObj.objType;
-							objectList [3*xx + 5].attachPosition	= tempObj.attachPosition;
-							objectList [3*xx + 5].origin			= tempObj.origin;
-							objectList [3*xx + 5].width				= tempObj.width;
-							objectList [3*xx + 5].length			= tempObj.length;
-
-						} else if (objectList [3*xx + 4].objType == PLYWOOD) {
-							// [3*xx]와 [3*xx + 3] 교환
-							tempObj.objType			= objectList [3*xx].objType;
-							tempObj.attachPosition	= objectList [3*xx].attachPosition;
-							tempObj.origin			= objectList [3*xx].origin;
-							tempObj.width			= objectList [3*xx].width;
-							tempObj.length			= objectList [3*xx].length;
-
-							objectList [3*xx].objType			= objectList [3*xx + 3].objType;
-							objectList [3*xx].attachPosition	= objectList [3*xx + 3].attachPosition;
-							objectList [3*xx].origin			= objectList [3*xx + 3].origin;
-							objectList [3*xx].width				= objectList [3*xx + 3].width;
-							objectList [3*xx].length			= objectList [3*xx + 3].length;
-
-							objectList [3*xx + 3].objType			= tempObj.objType;
-							objectList [3*xx + 3].attachPosition	= tempObj.attachPosition;
-							objectList [3*xx + 3].origin			= tempObj.origin;
-							objectList [3*xx + 3].width				= tempObj.width;
-							objectList [3*xx + 3].length			= tempObj.length;
-
-							// [3*xx + 2]와 [3*xx + 5] 교환
-							tempObj.objType			= objectList [3*xx + 2].objType;
-							tempObj.attachPosition	= objectList [3*xx + 2].attachPosition;
-							tempObj.origin			= objectList [3*xx + 2].origin;
-							tempObj.width			= objectList [3*xx + 2].width;
-							tempObj.length			= objectList [3*xx + 2].length;
-
-							objectList [3*xx + 2].objType			= objectList [3*xx + 5].objType;
-							objectList [3*xx + 2].attachPosition	= objectList [3*xx + 5].attachPosition;
-							objectList [3*xx + 2].origin			= objectList [3*xx + 5].origin;
-							objectList [3*xx + 2].width				= objectList [3*xx + 5].width;
-							objectList [3*xx + 2].length			= objectList [3*xx + 5].length;
-
-							objectList [3*xx + 5].objType			= tempObj.objType;
-							objectList [3*xx + 5].attachPosition	= tempObj.attachPosition;
-							objectList [3*xx + 5].origin			= tempObj.origin;
-							objectList [3*xx + 5].width				= tempObj.width;
-							objectList [3*xx + 5].length			= tempObj.length;
-
-						} else if (objectList [3*xx + 5].objType == PLYWOOD) {
-							// [3*xx]와 [3*xx + 3] 교환
-							tempObj.objType			= objectList [3*xx].objType;
-							tempObj.attachPosition	= objectList [3*xx].attachPosition;
-							tempObj.origin			= objectList [3*xx].origin;
-							tempObj.width			= objectList [3*xx].width;
-							tempObj.length			= objectList [3*xx].length;
-
-							objectList [3*xx].objType			= objectList [3*xx + 3].objType;
-							objectList [3*xx].attachPosition	= objectList [3*xx + 3].attachPosition;
-							objectList [3*xx].origin			= objectList [3*xx + 3].origin;
-							objectList [3*xx].width				= objectList [3*xx + 3].width;
-							objectList [3*xx].length			= objectList [3*xx + 3].length;
-
-							objectList [3*xx + 3].objType			= tempObj.objType;
-							objectList [3*xx + 3].attachPosition	= tempObj.attachPosition;
-							objectList [3*xx + 3].origin			= tempObj.origin;
-							objectList [3*xx + 3].width				= tempObj.width;
-							objectList [3*xx + 3].length			= tempObj.length;
-
-							// [3*xx + 2]와 [3*xx + 4] 교환
-							tempObj.objType			= objectList [3*xx + 2].objType;
-							tempObj.attachPosition	= objectList [3*xx + 2].attachPosition;
-							tempObj.origin			= objectList [3*xx + 2].origin;
-							tempObj.width			= objectList [3*xx + 2].width;
-							tempObj.length			= objectList [3*xx + 2].length;
-
-							objectList [3*xx + 2].objType			= objectList [3*xx + 4].objType;
-							objectList [3*xx + 2].attachPosition	= objectList [3*xx + 4].attachPosition;
-							objectList [3*xx + 2].origin			= objectList [3*xx + 4].origin;
-							objectList [3*xx + 2].width				= objectList [3*xx + 4].width;
-							objectList [3*xx + 2].length			= objectList [3*xx + 4].length;
-
-							objectList [3*xx + 4].objType			= tempObj.objType;
-							objectList [3*xx + 4].attachPosition	= tempObj.attachPosition;
-							objectList [3*xx + 4].origin			= tempObj.origin;
-							objectList [3*xx + 4].width				= tempObj.width;
-							objectList [3*xx + 4].length			= tempObj.length;
-						}
-					}
-					
-					// 유로폼-합판-유로폼-(합판-유로폼-합판) 순서대로 되어 있는 경우, (Mirrored 설치 적용된 경우)
-					// 유로폼이 먼저 와야 함
-					else if ( (objectList [3*xx].objType == EUROFORM) && (objectList [3*xx + 1].objType == PLYWOOD) && (objectList [3*xx + 2].objType == EUROFORM) ) {
-						if (objectList [3*xx + 3].objType == EUROFORM) {
-							// [3*xx + 1]와 [3*xx + 3] 교환
-							tempObj.objType			= objectList [3*xx + 1].objType;
-							tempObj.attachPosition	= objectList [3*xx + 1].attachPosition;
-							tempObj.origin			= objectList [3*xx + 1].origin;
-							tempObj.width			= objectList [3*xx + 1].width;
-							tempObj.length			= objectList [3*xx + 1].length;
-
-							objectList [3*xx + 1].objType			= objectList [3*xx + 3].objType;
-							objectList [3*xx + 1].attachPosition	= objectList [3*xx + 3].attachPosition;
-							objectList [3*xx + 1].origin			= objectList [3*xx + 3].origin;
-							objectList [3*xx + 1].width				= objectList [3*xx + 3].width;
-							objectList [3*xx + 1].length			= objectList [3*xx + 3].length;
-
-							objectList [3*xx + 3].objType			= tempObj.objType;
-							objectList [3*xx + 3].attachPosition	= tempObj.attachPosition;
-							objectList [3*xx + 3].origin			= tempObj.origin;
-							objectList [3*xx + 3].width				= tempObj.width;
-							objectList [3*xx + 3].length			= tempObj.length;
-
-						} else if (objectList [3*xx + 4].objType == EUROFORM) {
-							// [3*xx + 1]와 [3*xx + 4] 교환
-							tempObj.objType			= objectList [3*xx + 1].objType;
-							tempObj.attachPosition	= objectList [3*xx + 1].attachPosition;
-							tempObj.origin			= objectList [3*xx + 1].origin;
-							tempObj.width			= objectList [3*xx + 1].width;
-							tempObj.length			= objectList [3*xx + 1].length;
-
-							objectList [3*xx + 1].objType			= objectList [3*xx + 4].objType;
-							objectList [3*xx + 1].attachPosition	= objectList [3*xx + 4].attachPosition;
-							objectList [3*xx + 1].origin			= objectList [3*xx + 4].origin;
-							objectList [3*xx + 1].width				= objectList [3*xx + 4].width;
-							objectList [3*xx + 1].length			= objectList [3*xx + 4].length;
-
-							objectList [3*xx + 4].objType			= tempObj.objType;
-							objectList [3*xx + 4].attachPosition	= tempObj.attachPosition;
-							objectList [3*xx + 4].origin			= tempObj.origin;
-							objectList [3*xx + 4].width				= tempObj.width;
-							objectList [3*xx + 4].length			= tempObj.length;
-
-						} else if (objectList [3*xx + 5].objType == EUROFORM) {
-							// [3*xx + 1]와 [3*xx + 5] 교환
-							tempObj.objType			= objectList [3*xx + 1].objType;
-							tempObj.attachPosition	= objectList [3*xx + 1].attachPosition;
-							tempObj.origin			= objectList [3*xx + 1].origin;
-							tempObj.width			= objectList [3*xx + 1].width;
-							tempObj.length			= objectList [3*xx + 1].length;
-
-							objectList [3*xx + 1].objType			= objectList [3*xx + 5].objType;
-							objectList [3*xx + 1].attachPosition	= objectList [3*xx + 5].attachPosition;
-							objectList [3*xx + 1].origin			= objectList [3*xx + 5].origin;
-							objectList [3*xx + 1].width				= objectList [3*xx + 5].width;
-							objectList [3*xx + 1].length			= objectList [3*xx + 5].length;
-
-							objectList [3*xx + 5].objType			= tempObj.objType;
-							objectList [3*xx + 5].attachPosition	= tempObj.attachPosition;
-							objectList [3*xx + 5].origin			= tempObj.origin;
-							objectList [3*xx + 5].width				= tempObj.width;
-							objectList [3*xx + 5].length			= tempObj.length;
-						}
-					}
-				}
-			}
-
-			//// 디버그용 코드
+			////////////////////////////////////////////////////////////////////////////////////////////////////
+			// 디버그용 코드
 			//sprintf (buffer, "\n");
 			//fprintf (fp, buffer);
 			//for (xx = 0 ; xx < nObjects ; ++xx) {
@@ -3793,12 +3596,15 @@ GSErrCode	exportBeamTableformInformation (void)
 			//	else if (objectList [xx].attachPosition == RIGHT_SIDE)	strcpy (temp2, "우측");
 			//	else if (objectList [xx].attachPosition == BOTTOM_SIDE)	strcpy (temp2, "하부");
 
-			//	sprintf (buffer, "%s(%s), (%.0f / %.0f / %.0f) 너비 (%.0f) 길이 (%.0f)\n",
+			//	sprintf (buffer, "%s(%s), (%.0f / %.0f / %.0f) 범위X (%.0f ~ %.0f) 범위Y (%.0f ~ %.0f), 너비 (%.0f) 길이 (%.0f)\n",
 			//		temp1, temp2,
 			//		objectList [xx].origin.x * 1000, objectList [xx].origin.y * 1000, objectList [xx].origin.z * 1000,
+			//		objectList [xx].minPos.x * 1000, objectList [xx].maxPos.x * 1000,
+			//		objectList [xx].minPos.y * 1000, objectList [xx].maxPos.y * 1000,
 			//		objectList [xx].width * 1000, objectList [xx].length * 1000);
 			//	fprintf (fp, buffer);
 			//}
+			////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			// 셀 개수를 세기 위한 변수
 			short nCells_left = 0;

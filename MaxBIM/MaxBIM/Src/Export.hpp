@@ -164,6 +164,7 @@ struct objectInBeamTableform
 	short	objType;			// EUROFORM, PLYWOOD
 	short	attachPosition;		// LEFT_SIDE, RIGHT_SIDE, BOTTOM_SIDE
 	API_Coord3D	origin;			// 원점 좌표
+	API_Coord3D	minPos, maxPos;	// 최소점, 최대점 위치
 	double	width;				// 객체 너비
 	double	length;				// 객체 길이
 };
