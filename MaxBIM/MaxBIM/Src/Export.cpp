@@ -3262,7 +3262,7 @@ void BeamTableformInfo::init ()
 GSErrCode	exportBeamTableformInformation (void)
 {
 	GSErrCode	err = NoError;
-	unsigned short		xx;
+	unsigned short		xx, yy, zz;
 	short	mm;
 	bool	regenerate = true;
 	bool	suspGrp;
@@ -3277,6 +3277,7 @@ GSErrCode	exportBeamTableformInformation (void)
 	objectInBeamTableform			newObject;
 	BeamTableformInfo				tableformInfo;			// 보 테이블폼 정보
 	BeamTableformInfo				tableformInfoSummary;	// 보 테이블폼 정보 (요약판)
+	BeamTableformEuroformCellType	euroformCellType;		// 유로폼 셀 타입 정보
 
 	double				xmin, xmax, ymin, ymax;
 	int					ang_x, ang_y;
@@ -3353,6 +3354,9 @@ GSErrCode	exportBeamTableformInformation (void)
 		WriteReport_Alert ("엑셀파일을 만들 수 없습니다.");
 		return	NoError;
 	}
+
+	// 유로폼 셀 타입 정보 초기화
+	euroformCellType.nCells = 0;
 
 	// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 "보 테이블폼 물량표" 루틴 실행
 	for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
@@ -3891,65 +3895,100 @@ GSErrCode	exportBeamTableformInformation (void)
 				}
 			}
 
-			// 셀 개수 저장
-			if (nObjects != 0) {
-				if ((nCells_left == nCells_right) && (nCells_left == nCells_bottom)) {
-					// 성공한 경우
-					//tableformInfo.nCells = nCells_left;
-
-					// 파일 출력하기 (물량표 작성)
-					sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
-					fprintf (fp, buffer);
-
-					strcpy (buffer, "\n");
-					for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-						if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS)
-							strcat (buffer, "유로폼,,,,");
-						else
-							strcat (buffer, "합판,,,,");
+			// 유일한 유로폼 셀을 저장함
+			bool	bFoundSameCell = false;		// 동일한 셀을 찾았는지 여부를 체크함
+			for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+				if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS) {
+					// euroformCellType 내부에 현재 셀(유로폼 셀만)과 일치하는 셀이 있는지 확인할 것
+					for (yy = 0 ; yy < euroformCellType.nCells ; ++yy) {
+						if (tableformInfoSummary.cells [xx] == euroformCellType.cells [yy])
+							bFoundSameCell = true;
 					}
-					fprintf (fp, buffer);
 
-					strcpy (buffer, "\n");
-					for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-						strcat (buffer, "밑면,측면1,측면2,,");
+					// 동일한 타입의 유로폼 셀 타입을 찾지 못했을 경우,
+					if (bFoundSameCell == false) {
+						// 새로운 유로폼 셀 타입 추가
+						euroformCellType.cells [euroformCellType.nCells] = tableformInfoSummary.cells [xx];
+						++ euroformCellType.nCells;
 					}
-					fprintf (fp, buffer);
-
-					strcpy (buffer, "\n");
-					for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-						if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS)
-							sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfoSummary.cells [xx].euroform_bottomWidth * 1000, tableformInfoSummary.cells [xx].euroform_leftHeight * 1000, tableformInfoSummary.cells [xx].euroform_rightHeight * 1000);
-						else
-							sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfoSummary.cells [xx].plywoodOnly_bottomWidth * 1000, tableformInfoSummary.cells [xx].plywoodOnly_leftHeight * 1000, tableformInfoSummary.cells [xx].plywoodOnly_rightHeight * 1000);
-						strcat (buffer, tempBuffer);
-					}
-					fprintf (fp, buffer);
-
-					strcpy (buffer, "\n");
-					for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-						strcat (buffer, "길이,,,,");
-					}
-					fprintf (fp, buffer);
-
-					strcpy (buffer, "\n");
-					for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-						sprintf (tempBuffer, "%.0f,,,,", tableformInfoSummary.cells [xx].length * 1000);
-						strcat (buffer, tempBuffer);
-					}
-					fprintf (fp, buffer);
-
-				} else {
-					// 실패한 경우
-					tableformInfoSummary.nCells = 0;
-
-					// 파일 출력하기 (물량표 작성)
-					sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
-					fprintf (fp, buffer);
-
-					sprintf (buffer, "\n정규화된 보 테이블폼 레이어가 아닙니다.\n");
-					fprintf (fp, buffer);
 				}
+			}
+
+			// 유로폼 셀 타입별 레이어 이름 저장하기
+			bool	bDuplicatedLayername = false;
+			for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+				if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS) {
+					for (yy = 0 ; yy < euroformCellType.nCells ; ++yy) {
+						if (tableformInfoSummary.cells [xx] == euroformCellType.cells [yy]) {
+							// 레이어 이름이 중복된 것은 없는지 확인할 것
+							for (zz = 0 ; zz < euroformCellType.layerNames [yy].size () ; ++zz) {
+								if (euroformCellType.layerNames [yy].at (zz).compare (fullLayerName) == 0)
+									bDuplicatedLayername = true;
+							}
+
+							if (bDuplicatedLayername == false)
+								euroformCellType.layerNames [yy].push_back (fullLayerName);
+						}
+					}
+				}
+			}
+
+			// 정보 출력
+			if (tableformInfoSummary.nCells > 0) {
+				sprintf (buffer, "<< 레이어 : %s >>\n", fullLayerName);
+				fprintf (fp, buffer);
+
+				strcpy (buffer, "");
+				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+					if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS)
+						strcat (buffer, "유로폼,,,,");
+					else
+						strcat (buffer, "합판,,,,");
+				}
+				fprintf (fp, buffer);
+
+				strcpy (buffer, "\n");
+				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+					strcat (buffer, "밑면,측면1,측면2,,");
+				}
+				fprintf (fp, buffer);
+
+				strcpy (buffer, "\n");
+				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+					if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS)
+						sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfoSummary.cells [xx].euroform_bottomWidth * 1000, tableformInfoSummary.cells [xx].euroform_leftHeight * 1000, tableformInfoSummary.cells [xx].euroform_rightHeight * 1000);
+					else
+						sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfoSummary.cells [xx].plywoodOnly_bottomWidth * 1000, tableformInfoSummary.cells [xx].plywoodOnly_leftHeight * 1000, tableformInfoSummary.cells [xx].plywoodOnly_rightHeight * 1000);
+					strcat (buffer, tempBuffer);
+				}
+				fprintf (fp, buffer);
+
+				strcpy (buffer, "\n");
+				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+					strcat (buffer, "길이,,,,");
+				}
+				fprintf (fp, buffer);
+
+				strcpy (buffer, "\n");
+				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+					sprintf (tempBuffer, "%.0f,,,,", tableformInfoSummary.cells [xx].length * 1000);
+					strcat (buffer, tempBuffer);
+				}
+				fprintf (fp, buffer);
+
+				strcpy (buffer, "\n\n");
+				fprintf (fp, buffer);
+
+			} else {
+				// 실패한 경우
+				sprintf (buffer, "<< 레이어 : %s >>\n", fullLayerName);
+				fprintf (fp, buffer);
+
+				sprintf (buffer, "\n정규화된 보 테이블폼 레이어가 아닙니다.\n");
+				fprintf (fp, buffer);
+
+				strcpy (buffer, "\n\n");
+				fprintf (fp, buffer);
 			}
 
 			// 객체 비우기
@@ -3961,6 +4000,25 @@ GSErrCode	exportBeamTableformInformation (void)
 			// 레이어 숨기기
 			attrib.layer.head.flags |= APILay_Hidden;
 			ACAPI_Attribute_Modify (&attrib, NULL);
+		}
+	}
+
+	// 유로폼 셀 타입 정보를 파일 끝 부분에 기록할 것
+	if (euroformCellType.nCells > 0) {
+		sprintf (buffer, "\n\n========== 테이블폼(유로폼) 타입 ==========\n");
+		fprintf (fp, buffer);
+
+		for (xx = 0 ; xx < euroformCellType.nCells ; ++xx) {
+			sprintf (buffer, "순번,밑면,측면1,측면2,길이\n");
+			fprintf (fp, buffer);
+
+			sprintf (buffer, "%d,%.0f,%.0f,%.0f,%.0f\n", xx+1, euroformCellType.cells [xx].euroform_bottomWidth * 1000, euroformCellType.cells [xx].euroform_leftHeight * 1000, euroformCellType.cells [xx].euroform_rightHeight * 1000, euroformCellType.cells [xx].length * 1000);
+			fprintf (fp, buffer);
+
+			for (yy = 0 ; yy < euroformCellType.layerNames [xx].size () ; ++yy) {
+				sprintf (buffer, ",%s\n", euroformCellType.layerNames [xx].at (yy).c_str ());
+				fprintf (fp, buffer);
+			}
 		}
 	}
 

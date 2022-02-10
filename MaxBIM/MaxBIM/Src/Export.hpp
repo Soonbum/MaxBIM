@@ -169,8 +169,9 @@ struct objectInBeamTableform
 };
 
 // 보 테이블폼 물량표 작성을 위한 구조체에 사용되는 셀 정보
-struct BeamTableformCell
+class BeamTableformCell
 {
+public:
 	double	euroform_leftHeight;		// 왼쪽/아래쪽 높이 (유로폼)
 	double	euroform_rightHeight;		// 오른쪽/위쪽 높이 (유로폼)
 	double	euroform_bottomWidth;		// 하부 너비 (유로폼)
@@ -180,6 +181,43 @@ struct BeamTableformCell
 	double	plywoodOnly_bottomWidth;	// 하부 너비 (전체 합판)
 
 	double	length;						// 셀 길이
+
+public:
+	bool operator == (BeamTableformCell& other) {
+		if (this->euroform_leftHeight > EPS) {
+			if ((abs (this->euroform_leftHeight - other.euroform_leftHeight) < EPS) && (abs (this->euroform_rightHeight - other.euroform_rightHeight) < EPS) && (abs (this->euroform_bottomWidth - other.euroform_bottomWidth) < EPS) && (abs (this->length - other.length) < EPS))
+				return true;
+			else
+				return false;
+		} else {
+			if ((abs (this->plywoodOnly_leftHeight - other.plywoodOnly_leftHeight) < EPS) && (abs (this->plywoodOnly_rightHeight - other.plywoodOnly_rightHeight) < EPS) && (abs (this->plywoodOnly_bottomWidth - other.plywoodOnly_bottomWidth) < EPS) && (abs (this->length - other.length) < EPS))
+				return true;
+			else
+				return false;
+		}
+	}
+	bool operator != (BeamTableformCell& other) {
+		if (this->euroform_leftHeight > EPS) {
+			if ((abs (this->euroform_leftHeight - other.euroform_leftHeight) < EPS) && (abs (this->euroform_rightHeight - other.euroform_rightHeight) < EPS) && (abs (this->euroform_bottomWidth - other.euroform_bottomWidth) < EPS) && (abs (this->length - other.length) < EPS))
+				return false;
+			else
+				return true;
+		} else {
+			if ((abs (this->plywoodOnly_leftHeight - other.plywoodOnly_leftHeight) < EPS) && (abs (this->plywoodOnly_rightHeight - other.plywoodOnly_rightHeight) < EPS) && (abs (this->plywoodOnly_bottomWidth - other.plywoodOnly_bottomWidth) < EPS) && (abs (this->length - other.length) < EPS))
+				return false;
+			else
+				return true;
+		}
+	}
+};
+
+// 보 테이블폼의 유로폼 셀 타입 정보
+class BeamTableformEuroformCellType
+{
+public:
+	short				nCells;
+	BeamTableformCell	cells [50];
+	vector<string>		layerNames [50];
 };
 
 // 보 테이블폼 물량표 작성을 위한 클래스
