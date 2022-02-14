@@ -212,6 +212,14 @@ public:
 	}
 };
 
+// 레이어 이름 및 해당 레이어의 인덱스
+class LayerList
+{
+public:
+	short	layerInd;
+	string	layerName;
+};
+
 // 보 테이블폼의 유로폼 셀 타입 정보
 class BeamTableformEuroformCellType
 {
@@ -238,6 +246,7 @@ void		initArray (double arr [], short arrSize);											// 배열 초기화 함수
 int			compare (const void* first, const void* second);									// 오름차순으로 정렬할 때 사용하는 비교함수 (퀵소트)
 bool		comparePosX (const objectInBeamTableform& a, const objectInBeamTableform& b);		// vector 내 자재 정보 구조체 정렬을 위한 비교 함수 (좌표값 X 기준)
 bool		comparePosY (const objectInBeamTableform& a, const objectInBeamTableform& b);		// vector 내 자재 정보 구조체 정렬을 위한 비교 함수 (좌표값 Y 기준)
+bool		compareLayerName (const LayerList& a, const LayerList& b);							// vector 내 레이어 정보 구조체 정렬을 위한 비교 함수 (레이어 이름 기준)
 
 ColumnInfo	findColumn (ColumnPos* columnPos, short iHor, short iVer, short floorInd);			// 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
 GSErrCode	exportGridElementInfo (void);														// 부재(기둥,보,슬래브)들의 정보를 추출하고 정리해서 엑셀 파일로 내보내기

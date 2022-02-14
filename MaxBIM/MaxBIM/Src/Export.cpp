@@ -45,6 +45,15 @@ bool comparePosY (const objectInBeamTableform& a, const objectInBeamTableform& b
 	return	(a.minPos.y + (a.maxPos.y - a.minPos.y)/2) < (b.minPos.y + (b.maxPos.y - b.minPos.y)/2);
 }
 
+// vector 내 레이어 정보 구조체 정렬을 위한 비교 함수 (레이어 이름 기준)
+bool compareLayerName (const LayerList& a, const LayerList& b)
+{
+	if (a.layerName.compare (b.layerName) < 0)
+		return true;
+	else
+		return false;
+}
+
 // 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
 ColumnInfo	findColumn (ColumnPos* columnPos, short iHor, short iVer, short floorInd)
 {
@@ -3291,6 +3300,7 @@ GSErrCode	exportBeamTableformInformation (void)
 	short			nVisibleLayers = 0;
 	short			visLayerList [1024];
 	char			fullLayerName [512];
+	vector<LayerList>	layerList;
 
 	// 기타
 	char			tempStr [512];
@@ -3335,6 +3345,26 @@ GSErrCode	exportBeamTableformInformation (void)
 		}
 	}
 
+	// 레이어 이름과 인덱스 저장
+	for (xx = 0 ; xx < nVisibleLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = visLayerList [xx];
+		err = ACAPI_Attribute_Get (&attrib);
+
+		sprintf (fullLayerName, "%s", attrib.layer.head.name);
+		fullLayerName [strlen (fullLayerName)] = '\0';
+
+		LayerList newLayerItem;
+		newLayerItem.layerInd = visLayerList [xx];
+		newLayerItem.layerName = fullLayerName;
+
+		layerList.push_back (newLayerItem);
+	}
+
+	// 레이어 이름 기준으로 정렬하여 레이어 인덱스 순서 변경
+	sort (layerList.begin (), layerList.end (), compareLayerName);		// 레이어 이름 기준 오름차순 정렬
+
 	// 일시적으로 모든 레이어 숨기기
 	for (xx = 1 ; xx <= nLayers ; ++xx) {
 		BNZeroMemory (&attrib, sizeof (API_Attribute));
@@ -3363,7 +3393,8 @@ GSErrCode	exportBeamTableformInformation (void)
 	for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
 		BNZeroMemory (&attrib, sizeof (API_Attribute));
 		attrib.layer.head.typeID = API_LayerID;
-		attrib.layer.head.index = visLayerList [mm-1];
+		//attrib.layer.head.index = visLayerList [mm-1];
+		attrib.layer.head.index = layerList [mm-1].layerInd;
 		err = ACAPI_Attribute_Get (&attrib);
 
 		if (err == NoError) {
@@ -3741,9 +3772,56 @@ GSErrCode	exportBeamTableformInformation (void)
 
 			// 정보 출력
 			if (tableformInfoSummary.nCells > 0) {
-				sprintf (buffer, "<< 레이어 : %s >>\n", fullLayerName);
+				sprintf (buffer, ",,<< 레이어 : %s >>\n", fullLayerName);
 				fprintf (fp, buffer);
 
+				// 해당 레이어에 적용된 타입 코드를 1번째 필드에 출력
+				strcpy (buffer, "");
+				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
+					if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS) {
+						for (yy = 0 ; yy < euroformCellType.nCells ; ++yy) {
+							if (tableformInfoSummary.cells [xx] == euroformCellType.cells [yy]) {
+								sprintf (tempBuffer, "%.0f x %.0f x %.0f x %.0f ", euroformCellType.cells [yy].euroform_bottomWidth * 1000, euroformCellType.cells [yy].euroform_leftHeight * 1000, euroformCellType.cells [yy].euroform_rightHeight * 1000, euroformCellType.cells [yy].length * 1000);
+								strcat (buffer, tempBuffer);
+							}
+						}
+					}
+				}
+				strcat (buffer, ",");
+				fprintf (fp, buffer);
+
+				// 레이어 이름 끝에 2개 혹은 1개 필드가 숫자로 되어 있으면 2번째 필드에 출력 (숫자 필드가 없으면 빈 필드로 둠)
+				strcpy (tempBuffer, fullLayerName);
+
+				char* token = strtok (tempBuffer, "-");
+				string insElem;
+				vector<string> layerNameComp;
+
+				while (token != NULL) {
+					if (strlen (token) > 0) {
+						insElem = token;
+						layerNameComp.push_back (insElem);
+					}
+					token = strtok (NULL, "-");
+				}
+
+				sprintf (buffer, ",");
+				if (layerNameComp.size () >= 2) {
+					// 마지막 요소와 마지막 직전 요소가 모두 숫자일 경우
+					int lastNum = atoi (layerNameComp.at (layerNameComp.size () - 1).c_str ());
+					int lastBeforeNum = atoi (layerNameComp.at (layerNameComp.size () - 2).c_str ());
+
+					if ((lastNum != 0) && (lastBeforeNum != 0)) {
+						sprintf (buffer, "%s-%s,", layerNameComp.at (layerNameComp.size () - 2).c_str (), layerNameComp.at (layerNameComp.size () - 1).c_str ());
+					} else if (lastNum != 0) {
+						sprintf (buffer, "\'%s,", layerNameComp.at (layerNameComp.size () - 1).c_str ());
+					} else {
+						sprintf (buffer, ",");
+					}
+				}
+				fprintf (fp, buffer);
+
+				// 레이어에 배치된 보 테이블폼 정보를 출력함
 				strcpy (buffer, "");
 				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
 					if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS)
@@ -3753,13 +3831,13 @@ GSErrCode	exportBeamTableformInformation (void)
 				}
 				fprintf (fp, buffer);
 
-				strcpy (buffer, "\n");
+				strcpy (buffer, "\n,,");
 				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
 					strcat (buffer, "밑면,측면1,측면2,,");
 				}
 				fprintf (fp, buffer);
 
-				strcpy (buffer, "\n");
+				strcpy (buffer, "\n,,");
 				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
 					if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS)
 						sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfoSummary.cells [xx].euroform_bottomWidth * 1000, tableformInfoSummary.cells [xx].euroform_leftHeight * 1000, tableformInfoSummary.cells [xx].euroform_rightHeight * 1000);
@@ -3769,13 +3847,13 @@ GSErrCode	exportBeamTableformInformation (void)
 				}
 				fprintf (fp, buffer);
 
-				strcpy (buffer, "\n");
+				strcpy (buffer, "\n,,");
 				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
 					strcat (buffer, "길이,,,,");
 				}
 				fprintf (fp, buffer);
 
-				strcpy (buffer, "\n");
+				strcpy (buffer, "\n,,");
 				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
 					sprintf (tempBuffer, "%.0f,,,,", tableformInfoSummary.cells [xx].length * 1000);
 					strcat (buffer, tempBuffer);
@@ -3787,10 +3865,10 @@ GSErrCode	exportBeamTableformInformation (void)
 
 			} else {
 				// 실패한 경우
-				sprintf (buffer, "<< 레이어 : %s >>\n", fullLayerName);
+				sprintf (buffer, ",,<< 레이어 : %s >>\n", fullLayerName);
 				fprintf (fp, buffer);
 
-				sprintf (buffer, "\n정규화된 보 테이블폼 레이어가 아닙니다.\n");
+				sprintf (buffer, "\n,,정규화된 보 테이블폼 레이어가 아닙니다.\n");
 				fprintf (fp, buffer);
 
 				strcpy (buffer, "\n\n");
@@ -3811,18 +3889,45 @@ GSErrCode	exportBeamTableformInformation (void)
 
 	// 유로폼 셀 타입 정보를 파일 끝 부분에 기록할 것
 	if (euroformCellType.nCells > 0) {
-		sprintf (buffer, "\n\n========== 테이블폼(유로폼) 타입 ==========\n");
+		sprintf (buffer, "\n\n,,========== 테이블폼(유로폼) 타입 ==========\n");
 		fprintf (fp, buffer);
 
 		for (xx = 0 ; xx < euroformCellType.nCells ; ++xx) {
-			sprintf (buffer, "순번,밑면,측면1,측면2,길이\n");
+			sprintf (buffer, ",,순번,밑면,측면1,측면2,길이\n");
 			fprintf (fp, buffer);
 
-			sprintf (buffer, "%d,%.0f,%.0f,%.0f,%.0f\n", xx+1, euroformCellType.cells [xx].euroform_bottomWidth * 1000, euroformCellType.cells [xx].euroform_leftHeight * 1000, euroformCellType.cells [xx].euroform_rightHeight * 1000, euroformCellType.cells [xx].length * 1000);
+			sprintf (buffer, ",,%d,%.0f,%.0f,%.0f,%.0f\n", xx+1, euroformCellType.cells [xx].euroform_bottomWidth * 1000, euroformCellType.cells [xx].euroform_leftHeight * 1000, euroformCellType.cells [xx].euroform_rightHeight * 1000, euroformCellType.cells [xx].length * 1000);
 			fprintf (fp, buffer);
 
 			for (yy = 0 ; yy < euroformCellType.layerNames [xx].size () ; ++yy) {
-				sprintf (buffer, ",%s\n", euroformCellType.layerNames [xx].at (yy).c_str ());
+				strcpy (tempBuffer, euroformCellType.layerNames [xx].at (yy).c_str ());
+				char* token = strtok (tempBuffer, "-");
+				string insElem;
+				vector<string> layerNameComp;
+
+				while (token != NULL) {
+					if (strlen (token) > 0) {
+						insElem = token;
+						layerNameComp.push_back (insElem);
+					}
+					token = strtok (NULL, "-");
+				}
+
+				if (layerNameComp.size () >= 2) {
+					// 마지막 요소와 마지막 직전 요소가 모두 숫자일 경우
+					int lastNum = atoi (layerNameComp.at (layerNameComp.size () - 1).c_str ());
+					int lastBeforeNum = atoi (layerNameComp.at (layerNameComp.size () - 2).c_str ());
+
+					if ((lastNum != 0) && (lastBeforeNum != 0)) {
+						sprintf (buffer, ",,,%s-%s,%s\n", layerNameComp.at (layerNameComp.size () - 2).c_str (), layerNameComp.at (layerNameComp.size () - 1).c_str (), euroformCellType.layerNames [xx].at (yy).c_str ());
+					} else if (lastNum != 0) {
+						sprintf (buffer, ",,,\'%s,%s\n", layerNameComp.at (layerNameComp.size () - 1).c_str (), euroformCellType.layerNames [xx].at (yy).c_str ());
+					} else {
+						sprintf (buffer, ",,,%s\n", euroformCellType.layerNames [xx].at (yy).c_str ());
+					}
+				} else {
+					sprintf (buffer, ",,,%s\n", euroformCellType.layerNames [xx].at (yy).c_str ()); 
+				}
 				fprintf (fp, buffer);
 			}
 		}
