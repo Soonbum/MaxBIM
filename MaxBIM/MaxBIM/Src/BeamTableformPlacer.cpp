@@ -90,10 +90,10 @@ GSErrCode	placeTableformOnBeam (void)
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
 	if (err == APIERR_NOPLAN) {
-		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
+		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
 	}
 	if (err == APIERR_NOSEL) {
-		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 보 (1개), 보 측면(전체/일부)을 덮는 모프 (1개)\n옵션 선택 (1): 보 반대쪽 측면을 덮는 모프 (1개)", true);
+		WriteReport_Alert ("아무 것도 선택하지 않았습니다.\n필수 선택: 보 (1개), 보 측면(전체/일부)을 덮는 모프 (1개)\n옵션 선택 (1): 보 반대쪽 측면을 덮는 모프 (1개)");
 	}
 	if (err != NoError) {
 		BMKillHandle ((GSHandle *) &selNeigs);
@@ -123,14 +123,14 @@ GSErrCode	placeTableformOnBeam (void)
 
 	// 보가 1개인가?
 	if (nBeams != 1) {
-		ACAPI_WriteReport ("보를 1개 선택해야 합니다.", true);
+		WriteReport_Alert ("보를 1개 선택해야 합니다.");
 		err = APIERR_GENERAL;
 		return err;
 	}
 
 	// 모프가 1~2개인가?
 	if ( !((nMorphs >= 1) && (nMorphs <= 2)) ) {
-		ACAPI_WriteReport ("보 측면(전체/일부)을 덮는 모프를 1개 선택하셔야 합니다.\n덮는 높이가 비대칭이면 보 반대쪽 측면을 덮는 모프도 있어야 합니다.", true);
+		WriteReport_Alert ("보 측면(전체/일부)을 덮는 모프를 1개 선택하셔야 합니다.\n덮는 높이가 비대칭이면 보 반대쪽 측면을 덮는 모프도 있어야 합니다.");
 		err = APIERR_GENERAL;
 		return err;
 	}

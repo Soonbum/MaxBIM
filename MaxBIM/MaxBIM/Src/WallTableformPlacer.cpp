@@ -101,10 +101,10 @@ GSErrCode	placeTableformOnWall (void)
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
 	if (err == APIERR_NOPLAN) {
-		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
+		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
 	}
 	if (err == APIERR_NOSEL) {
-		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 벽 (1개), 벽을 덮는 모프 (1개)\n옵션 선택: 벽을 덮는 모프(뒷면 - 1차 모프와 높이가 다름) (1개)", true);
+		WriteReport_Alert ("아무 것도 선택하지 않았습니다.\n필수 선택: 벽 (1개), 벽을 덮는 모프 (1개)\n옵션 선택: 벽을 덮는 모프(뒷면 - 1차 모프와 높이가 다름) (1개)");
 	}
 	if (err != NoError) {
 		BMKillHandle ((GSHandle *) &selNeigs);
@@ -134,14 +134,14 @@ GSErrCode	placeTableformOnWall (void)
 
 	// 벽이 1개인가?
 	if (nWalls != 1) {
-		ACAPI_WriteReport ("벽을 1개 선택해야 합니다.", true);
+		WriteReport_Alert ("벽을 1개 선택해야 합니다.");
 		err = APIERR_GENERAL;
 		return err;
 	}
 
 	// 모프가 1개 또는 2개인가?
 	if ((nMorphs < 1) || (nMorphs > 2)) {
-		ACAPI_WriteReport ("벽을 덮는 모프를 1개 또는 2개를 선택하셔야 합니다.", true);
+		WriteReport_Alert ("벽을 덮는 모프를 1개 또는 2개를 선택하셔야 합니다.");
 		err = APIERR_GENERAL;
 		return err;
 	}
@@ -155,7 +155,7 @@ GSErrCode	placeTableformOnWall (void)
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);	// memo.coords : 폴리곤 좌표를 가져올 수 있음
 	
 	if (elem.wall.thickness != elem.wall.thickness1) {
-		ACAPI_WriteReport ("벽의 두께는 균일해야 합니다.", true);
+		WriteReport_Alert ("벽의 두께는 균일해야 합니다.");
 		err = APIERR_GENERAL;
 		return err;
 	}
@@ -178,7 +178,7 @@ GSErrCode	placeTableformOnWall (void)
 
 		// 만약 모프가 누워 있으면(세워져 있지 않으면) 중단
 		if (abs (info3D.bounds.zMax - info3D.bounds.zMin) < EPS) {
-			ACAPI_WriteReport ("모프가 세워져 있지 않습니다.", true);
+			WriteReport_Alert ("모프가 세워져 있지 않습니다.");
 			err = APIERR_GENERAL;
 			return err;
 		}

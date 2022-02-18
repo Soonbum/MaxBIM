@@ -346,7 +346,7 @@ GSErrCode	showLayersEasily (void)
 				tokCount ++;
 			}
 		} else {
-			ACAPI_WriteReport ("layer.csv 파일을 C:\\로 복사하십시오.", true);
+			WriteReport_Alert ("layer.csv 파일을 C:\\로 복사하십시오.");
 			return	err;
 		}
 	}
@@ -1782,7 +1782,7 @@ GSErrCode	makeLayersEasily (void)
 				tokCount ++;
 			}
 		} else {
-			ACAPI_WriteReport ("layer.csv 파일을 C:\\로 복사하십시오.", true);
+			WriteReport_Alert ("layer.csv 파일을 C:\\로 복사하십시오.");
 			return	err;
 		}
 	}
@@ -2069,8 +2069,7 @@ GSErrCode	makeLayersEasily (void)
 	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 생성된 레이어 개수 보여주기
-	sprintf (tempStr, "총 %d 개의 레이어가 생성되었습니다.", madeLayers);
-	ACAPI_WriteReport (tempStr, true);
+	WriteReport_Alert ("총 %d 개의 레이어가 생성되었습니다.", madeLayers);
 
 	return	err;
 }
@@ -2942,10 +2941,10 @@ GSErrCode	assignLayerEasily (void)
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);	// 선택한 요소 가져오기
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
 	if (err == APIERR_NOPLAN) {
-		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
+		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
 	}
 	if (err == APIERR_NOSEL) {
-		ACAPI_WriteReport ("객체를 아무 것도 선택하지 않았습니다.", true);
+		WriteReport_Alert ("객체를 아무 것도 선택하지 않았습니다.");
 	}
 	if (err != NoError) {
 		BMKillHandle ((GSHandle *) &selNeigs);
@@ -3054,7 +3053,7 @@ GSErrCode	assignLayerEasily (void)
 				tokCount ++;
 			}
 		} else {
-			ACAPI_WriteReport ("layer.csv 파일을 C:\\로 복사하십시오.", true);
+			WriteReport_Alert ("layer.csv 파일을 C:\\로 복사하십시오.");
 			return	err;
 		}
 	}
@@ -3289,13 +3288,13 @@ GSErrCode	assignLayerEasily (void)
 															err = ACAPI_Element_Change (&elem, &mask, NULL, 0, true);
 														}
 													} else {
-														ACAPI_WriteReport ("레이어가 없으므로 실행을 중지합니다.", true);
+														WriteReport_Alert ("레이어가 없으므로 실행을 중지합니다.");
 														return	err;
 													}
 												}
 											} else {
 												// 정상적인 레이어가 아님
-												ACAPI_WriteReport ("레이어 지정을 잘못하셨습니다.", true);
+												WriteReport_Alert ("레이어 지정을 잘못하셨습니다.");
 											}
 										}
 									}
@@ -3397,13 +3396,13 @@ GSErrCode	assignLayerEasily (void)
 													err = ACAPI_Element_Change (&elem, &mask, NULL, 0, true);
 												}
 											} else {
-												ACAPI_WriteReport ("레이어가 없으므로 실행을 중지합니다.", true);
+												WriteReport_Alert ("레이어가 없으므로 실행을 중지합니다.");
 												return	err;
 											}
 										}
 									} else {
 										// 정상적인 레이어가 아님
-										ACAPI_WriteReport ("레이어 지정을 잘못하셨습니다.", true);
+										WriteReport_Alert ("레이어 지정을 잘못하셨습니다.");
 									}
 								}
 							}
@@ -4381,7 +4380,7 @@ GSErrCode	inspectLayerNames (void)
 				tokCount ++;
 			}
 		} else {
-			ACAPI_WriteReport ("layer.csv 파일을 C:\\로 복사하십시오.", true);
+			WriteReport_Alert ("layer.csv 파일을 C:\\로 복사하십시오.");
 			return	err;
 		}
 	}

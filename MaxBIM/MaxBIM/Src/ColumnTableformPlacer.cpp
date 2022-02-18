@@ -92,10 +92,10 @@ GSErrCode	placeTableformOnColumn (void)
 	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
 	if (err == APIERR_NOPLAN) {
-		ACAPI_WriteReport ("열린 프로젝트 창이 없습니다.", true);
+		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
 	}
 	if (err == APIERR_NOSEL) {
-		ACAPI_WriteReport ("아무 것도 선택하지 않았습니다.\n필수 선택: 기둥 (1개), 기둥 측면을 덮는 모프 (1개)\n옵션 선택: 기둥과 맞닿는 보 (다수)", true);
+		WriteReport_Alert ("아무 것도 선택하지 않았습니다.\n필수 선택: 기둥 (1개), 기둥 측면을 덮는 모프 (1개)\n옵션 선택: 기둥과 맞닿는 보 (다수)");
 	}
 	if (err != NoError) {
 		BMKillHandle ((GSHandle *) &selNeigs);
@@ -129,14 +129,14 @@ GSErrCode	placeTableformOnColumn (void)
 
 	// 기둥이 1개인가?
 	if (nColumns != 1) {
-		ACAPI_WriteReport ("기둥을 1개 선택해야 합니다.", true);
+		WriteReport_Alert ("기둥을 1개 선택해야 합니다.");
 		err = APIERR_GENERAL;
 		return err;
 	}
 
 	// 모프가 1개인가?
 	if (nMorphs != 1) {
-		ACAPI_WriteReport ("기둥 측면을 덮는 모프를 1개 선택하셔야 합니다.", true);
+		WriteReport_Alert ("기둥 측면을 덮는 모프를 1개 선택하셔야 합니다.");
 		err = APIERR_GENERAL;
 		return err;
 	}

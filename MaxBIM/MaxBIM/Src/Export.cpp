@@ -92,7 +92,6 @@ GSErrCode	exportGridElementInfo (void)
 
 	GS::Array<API_Guid> elemList;
 	long	nElems;
-	char	msg [512];
 	char	buffer [256];
 	char	piece [20];
 	short	xx, yy, zz;
@@ -137,7 +136,7 @@ GSErrCode	exportGridElementInfo (void)
 	result = DGBlankModalDialog (250, 100, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, inputThresholdHandler, 0);
 
 	if (result != DG_OK) {
-		ACAPI_WriteReport ("내보내기를 중단합니다.", true);
+		WriteReport_Alert ("내보내기를 중단합니다.");
 		return	err;
 	}
 
@@ -338,11 +337,9 @@ GSErrCode	exportGridElementInfo (void)
 	if (bFileCreationSuccess_column == true) {
 		ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 		location.ToDisplayText (&resultString);
-		sprintf (msg, "%s를 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", file_column, resultString.ToCStr ().Get ());
-		ACAPI_WriteReport (msg, true);
+		WriteReport_Alert ("%s를 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", file_column, resultString.ToCStr ().Get ());
 	} else {
-		sprintf (msg, "%s를 생성할 수 없습니다.", file_column);
-		ACAPI_WriteReport (msg, true);
+		WriteReport_Alert ("%s를 생성할 수 없습니다.", file_column);
 	}
 
 	// ================================================== 보
@@ -366,7 +363,7 @@ GSErrCode	exportGridElementInfo (void)
 	//		elem.beam.width,
 	//		elem.beam.height,
 	//		elem.beam.level);
-	//	ACAPI_WriteReport (msg, true);
+	//	WriteReport_Alert (msg);
 
 	//	ACAPI_DisposeElemMemoHdls (&memo);
 	//}
@@ -386,7 +383,7 @@ GSErrCode	exportGridElementInfo (void)
 	//		elem.header.floorInd,
 	//		elem.slab.thickness,
 	//		elem.slab.level);
-	//	ACAPI_WriteReport (msg, true);
+	//	WriteReport_Alert (msg);
 
 	//	/*
 	//	for (yy = 0 ; yy < elem.slab.poly.nCoords ; ++yy) {
@@ -418,7 +415,7 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 	fp = fopen ("C:\\objectInfo.csv", "r");
 
 	if (fp == NULL) {
-		ACAPI_WriteReport ("objectInfo.csv 파일을 C:\\로 복사하십시오.", true);
+		WriteReport_Alert ("objectInfo.csv 파일을 C:\\로 복사하십시오.");
 	} else {
 		lineCount = 0;
 
@@ -511,7 +508,7 @@ int	SummaryOfObjectInfo::quantityPlus1 (vector<string> record)
 			}
 		}
 	} catch (exception& ex) {
-		WriteReport ("quantityPlus1 함수에서 오류 발생: %s", ex.what ());
+		WriteReport_Alert ("quantityPlus1 함수에서 오류 발생: %s", ex.what ());
 	}
 
 	// 없으면 신규 레코드 추가하고 1 리턴
@@ -531,7 +528,7 @@ void SummaryOfObjectInfo::clear ()
 			this->records.at(xx).clear ();
 		}
 	} catch (exception& ex) {
-		WriteReport ("clear 함수에서 오류 발생: %s", ex.what ());
+		WriteReport_Alert ("clear 함수에서 오류 발생: %s", ex.what ());
 	}
 	this->records.clear ();
 }
@@ -588,7 +585,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
 	if (err != NoError) {
 		BMKillHandle ((GSHandle *) &selNeigs);
-		ACAPI_WriteReport ("요소들을 선택해야 합니다.", true);
+		WriteReport_Alert ("요소들을 선택해야 합니다.");
 		return err;
 	}
 
@@ -630,7 +627,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	fp_interReport = fopen (filename, "w+");
 
 	if ((fp == NULL) || (fp_interReport == NULL)) {
-		ACAPI_WriteReport ("파일을 열 수 없습니다.", true);
+		WriteReport_Alert ("파일을 열 수 없습니다.");
 		return err;
 	}
 
@@ -689,7 +686,7 @@ GSErrCode	exportSelectedElementInfo (void)
 						}
 					}
 				} catch (exception& ex) {
-					WriteReport ("객체 정보 수집에서 오류 발생: %s", ex.what ());
+					WriteReport_Alert ("객체 정보 수집에서 오류 발생: %s", ex.what ());
 				}
 
 				// 끝내 찾지 못하면 알 수 없는 객체로 취급함
@@ -1093,7 +1090,7 @@ GSErrCode	exportSelectedElementInfo (void)
 			}
 		}
 	} catch (exception& ex) {
-		WriteReport ("출력 함수에서 오류 발생: %s", ex.what ());
+		WriteReport_Alert ("출력 함수에서 오류 발생: %s", ex.what ());
 	}
 
 	// 일반 요소 - 보
@@ -1655,7 +1652,7 @@ GSErrCode	exportSelectedElementInfo (void)
 			}
 		}
 	} catch (exception& ex) {
-		WriteReport ("출력 함수에서 오류 발생: %s", ex.what ());
+		WriteReport_Alert ("출력 함수에서 오류 발생: %s", ex.what ());
 	}
 
 	// 알 수 없는 객체
@@ -1672,8 +1669,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);
-	sprintf (buffer, "결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
-	ACAPI_WriteReport (buffer, true);
+	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
 
 	return	err;
 }
@@ -1800,7 +1796,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	fp_unite = fopen (filename, "w+");
 
 	if (fp_unite == NULL) {
-		ACAPI_WriteReport ("통합 버전 엑셀파일을 만들 수 없습니다.", true);
+		WriteReport_Alert ("통합 버전 엑셀파일을 만들 수 없습니다.");
 		return	NoError;
 	}
 
@@ -1869,8 +1865,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			fp = fopen (filename, "w+");
 
 			if (fp == NULL) {
-				sprintf (buffer, "레이어 %s는 파일명이 될 수 없으므로 생략합니다.", fullLayerName);
-				ACAPI_WriteReport (buffer, true);
+				WriteReport_Alert ("레이어 %s는 파일명이 될 수 없으므로 생략합니다.", fullLayerName);
 				continue;
 			}
 
@@ -1955,7 +1950,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								}
 							}
 						} catch (exception& ex) {
-							WriteReport ("객체 정보 수집에서 오류 발생: %s", ex.what ());
+							WriteReport_Alert ("객체 정보 수집에서 오류 발생: %s", ex.what ());
 						}
 
 						// 끝내 찾지 못하면 알 수 없는 객체로 취급함
@@ -2370,7 +2365,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 					}
 				}
 			} catch (exception& ex) {
-				WriteReport ("출력 함수에서 오류 발생: %s", ex.what ());
+				WriteReport_Alert ("출력 함수에서 오류 발생: %s", ex.what ());
 			}
 
 			// 일반 요소 - 보
@@ -2934,8 +2929,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);
-	sprintf (buffer, "결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
-	ACAPI_WriteReport (buffer, true);
+	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
 
 	return	err;
 }

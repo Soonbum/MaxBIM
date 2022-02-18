@@ -110,39 +110,54 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Slab Bottom */
-'GDLG'  32502  Modal | grow	  0		  0		300		495		"슬래브 하부에 배치" {
-/* [  1] */	Button			 70		455		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		455		 70		 25		LargePlain		"Cancel"
+'GDLG'  32502  Modal | grow	  0		  0		380		645		"슬래브 하부에 배치" {
+/* [  1] */	Button			120		605		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			210		605		 70		 25		LargePlain		"Cancel"
 
-/* [  3] */	LeftText		 10		 10		300		 23		LargePlain		"Tableform Settings"
-/* [  4] */	RightText		 50		 40		 70		 23		LargePlain		"Width"
-/* [  5] */	PopupControl	140		 33		100		 25		200		10		/* 너비 */
-/* [  6] */	RightText		 50		 70		 70		 23		LargePlain		"Height"
-/* [  7] */	PopupControl	140		 63		100		 25		100		10		/* 높이 */
-/* [  8] */	RightText		 50		100		 70		 23		LargePlain		"Orientation"
-/* [  9] */	PopupControl	140		 93		100		 25		100		10		/* 설치방향 */
-/* [ 10] */	Separator		  5		130		290		  1
+/* [  3] */	LeftText		 20		 10		100		 23		LargePlain		"Select Type"
+/* [  4] */	PushRadio		 20		 33		100		 25		LargePlain		101		"Euroform"
+/* [  5] */	PushRadio		 20		 63		100		 25		LargePlain		101		"Tableform"
+/* [  6] */	PushRadio		 20		 93		100		 25		LargePlain		101		"Plywood"
 
-/* [ 11] */	RightText		 10		145		100		 23		LargePlain		"Gap from Slab"
-/* [ 12] */	LengthEdit		140		138		 50		 25		LargePlain		"0"	"1.0"
-/* [ 13] */	Separator		  5		170		290		  1
+/* [  7] */	LeftText		160		 10		300		 23		LargePlain		"Cell Settings"
+/* [  8] */	LeftText		160		 40		 70		 23		LargePlain		"Width"
+/* [  9] */	PopupControl	250		 33		100		 25		200		10		/* 너비 */
+/* [ 10] */	LeftText		160		 70		 70		 23		LargePlain		"Height"
+/* [ 11] */	PopupControl	250		 63		100		 25		100		10		/* 높이 */
+/* [ 12] */	LeftText		160		100		 70		 23		LargePlain		"Orientation"
+/* [ 13] */	PopupControl	250		 93		100		 25		100		10		/* 설치방향 */
 
-/* [ 14] */	Icon			 85		183		 29		 14  	32502
-/* [ 15] */	LeftText		120		185		200		 23		LargePlain		"Layer Settings"
-/* [ 16] */	CheckBox		120		210		100		 23		LargePlain		"Coupling"
-/* [ 17] */	RightText		 10		245		100		 23		LargePlain		"Tableform"
-/* [ 18] */	RightText		 10		275		100		 23		LargePlain		"Plywood"
-/* [ 19] */	RightText		 10		305		100		 23		LargePlain		"Wood"
-/* [ 20] */	RightText		 10		335		100		 23		LargePlain		"C Profile"
-/* [ 21] */	RightText		 10		365		100		 23		LargePlain		"Fittings"
+/* [ 14] */	Separator		  5		130		370		  1
+/* [ 15] */	RightText		 10		145		100		 23		LargePlain		"Gap from Slab"
+/* [ 16] */	LengthEdit		140		138		 50		 25		LargePlain		"0"	"1.0"
+/* [ 17] */	Separator		  5		170		370		  1
 
-/* [ 22] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM	*/
-/* [ 23] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD		*/
-/* [ 24] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - WOOD			*/
-/* [ 25] */	UserControl		120		329		160		 25		257	0x0006 0x0000 0		/* Layer Control - C PROFILE	*/
-/* [ 26] */	UserControl		120		359		160		 25		257	0x0006 0x0000 0		/* Layer Control - FITTINGS		*/
+/* [ 18] */	Icon			 85		183		 29		 14  	32502
+/* [ 19] */	LeftText		120		185		200		 23		LargePlain		"Layer Settings"
+/* [ 20] */	CheckBox		120		210		100		 23		LargePlain		"Coupling"
+/* [ 21] */	RightText		 10		245		100		 23		LargePlain		"Euroform"
+/* [ 22] */	RightText		 10		275		100		 23		LargePlain		"Tableform"
+/* [ 23] */	RightText		 10		305		100		 23		LargePlain		"Plywood"
+/* [ 24] */	RightText		 10		335		100		 23		LargePlain		"Timber"
+/* [ 25] */	RightText		 10		365		100		 23		LargePlain		"C Profile"
+/* [ 26] */	RightText		 10		395		100		 23		LargePlain		"Pinbolt"
+/* [ 27] */	RightText		 10		425		100		 23		LargePlain		"Fittings"
+/* [ 28] */	RightText		 10		455		100		 23		LargePlain		"GT24 Girder"
+/* [ 29] */	RightText		 10		485		100		 23		LargePlain		"PERI Support"
+/* [ 30] */	RightText		 10		515		100		 23		LargePlain		"Steel Support"
 
-/* [ 27] */	Button			120		410		160		 25		LargePlain		"Autoset"
+/* [ 31] */	UserControl		120		239		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 32] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM		*/
+/* [ 33] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 34] */	UserControl		120		329		160		 25		257	0x0006 0x0000 0		/* Layer Control - TIMBER			*/
+/* [ 35] */	UserControl		120		359		160		 25		257	0x0006 0x0000 0		/* Layer Control - C PROFILE		*/
+/* [ 36] */	UserControl		120		389		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
+/* [ 37] */	UserControl		120		419		160		 25		257	0x0006 0x0000 0		/* Layer Control - FITTINGS			*/
+/* [ 38] */	UserControl		120		449		160		 25		257	0x0006 0x0000 0		/* Layer Control - GT24 GIRDER		*/
+/* [ 39] */	UserControl		120		479		160		 25		257	0x0006 0x0000 0		/* Layer Control - PERI SUPPORT		*/
+/* [ 40] */	UserControl		120		509		160		 25		257	0x0006 0x0000 0		/* Layer Control - STEEL SUPPORT	*/
+
+/* [ 41] */	Button			120		560		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- Layer assignment */
