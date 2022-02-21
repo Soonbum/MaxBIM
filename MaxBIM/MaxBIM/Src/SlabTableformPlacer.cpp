@@ -11,10 +11,9 @@ using namespace slabTableformPlacerDG;
 static SlabTableformPlacingZone		placingZone;	// 기본 슬래브 하부 영역 정보
 static InfoSlab		infoSlab;						// 슬래브 객체 정보
 
-API_Guid		structuralObject_forTableformSlab;					// 구조 객체의 GUID
+API_Guid		structuralObject_forTableformSlab;	// 구조 객체의 GUID
 
 static short		clickedBtnItemIdx;			// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
-static bool			clickedOKButton;			// OK 버튼을 눌렀습니까?
 static bool			clickedExcludeRestButton;	// 자투리 제외 버튼을 눌렀습니까?
 static bool			clickedPrevButton;			// 이전 버튼을 눌렀습니까?
 static short		layerInd_Euroform;			// 레이어 번호: 유로폼
@@ -29,10 +28,6 @@ static short		layerInd_PERI_Support;		// 레이어 번호: PERI동바리 수직재
 static short		layerInd_Steel_Support;		// 레이어 번호: 강관 동바리
 static short		itemInitIdx = GRIDBUTTON_IDX_START;		// 그리드 버튼 항목 인덱스 시작 번호
 static API_Coord3D		firstClickPoint;		// 1번째로 클릭한 점
-static short			TButtonStartIdx = 0;	// T 버튼 시작 인덱스
-static short			BButtonStartIdx = 0;	// B 버튼 시작 인덱스
-static short			LButtonStartIdx = 0;	// L 버튼 시작 인덱스
-static short			RButtonStartIdx = 0;	// R 버튼 시작 인덱스
 static GS::Array<API_Guid>	elemList;			// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 
 
@@ -199,7 +194,16 @@ GSErrCode	placeTableformOnSlabBottom (void)
 			trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
 			trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
 			trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
-			coords.Push (trCoord);
+			if ( (abs (trCoord.x - 1.0) < EPS) || (abs (trCoord.y - 0.0) < EPS) || (abs (trCoord.z - 0.0) < EPS) )
+				;
+			else if ( (abs (trCoord.x - 0.0) < EPS) || (abs (trCoord.y - 1.0) < EPS) || (abs (trCoord.z - 0.0) < EPS) )
+				;
+			else if ( (abs (trCoord.x - 0.0) < EPS) || (abs (trCoord.y - 0.0) < EPS) || (abs (trCoord.z - 1.0) < EPS) )
+				;
+			else if ( (abs (trCoord.x - 0.0) < EPS) || (abs (trCoord.y - 0.0) < EPS) || (abs (trCoord.z - 0.0) < EPS) )
+				;
+			else
+				coords.Push (trCoord);
 		}
 	}
 	nNodes = coords.GetSize ();
@@ -323,34 +327,43 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	// 영역 정보의 고도 정보 수정
 	placingZone.level = infoSlab.level + infoSlab.offsetFromTop - infoSlab.thickness - placingZone.gap;
 
-	// !!! 최외곽 가로, 세로 길이 계산
-	for (xx = 0 ; xx < nEntered ; ++xx) {
-		placeCoordinateLabel (nodes_sequential [xx].x, nodes_sequential [xx].y, nodes_sequential [xx].z, true, format_string ("%d", xx+1));
+	// 최외곽 가로, 세로 길이 계산
+	double	xMin, xMax;
+	double	yMin, yMax;
+
+	xMin = xMax = nodes_sequential [0].x;
+	yMin = yMax = nodes_sequential [0].y;	
+
+	for (xx = 1 ; xx < nEntered ; ++xx) {
+		if (xMin > nodes_sequential [xx].x)		xMin = nodes_sequential [xx].x;
+		if (xMax < nodes_sequential [xx].x)		xMax = nodes_sequential [xx].x;
+		
+		if (yMin > nodes_sequential [xx].y)		yMin = nodes_sequential [xx].y;
+		if (yMax < nodes_sequential [xx].y)		yMax = nodes_sequential [xx].y;
 	}
-	// borderHorLen
-	// borderVerLen
+
+	placingZone.borderHorLen = xMax - xMin;
+	placingZone.borderVerLen = yMax - yMin;
 
 FIRST:
 
 	// [DIALOG] 1번째 다이얼로그에서 테이블폼 정보 입력 받음
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32502, ACAPI_GetOwnResModule (), slabBottomTableformPlacerHandler1, 0);
 
+	if (result != DG_OK)
+		return err;
+
 	// placingZone의 Cell 정보 초기화
 	placingZone.initCells (&placingZone);
 
 	// [DIALOG] 2번째 다이얼로그에서 테이블폼 배치를 수정하거나 보강 목재를 삽입합니다.
-	//clickedOKButton = false;
-	//clickedExcludeRestButton = false;
-	//clickedPrevButton = false;
-	//result = DGBlankModalDialog (185, 290, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, slabBottomTableformPlacerHandler2, 0);
+	clickedExcludeRestButton = false;	// Cancel 버튼, 배치 - 자투리 제외
+	clickedPrevButton = false;			// 이전 버튼
+	result = DGBlankModalDialog (185, 290, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, slabBottomTableformPlacerHandler2, 0);
 
 	// 이전 버튼을 누르면 1번째 다이얼로그 다시 실행
-	//if (clickedPrevButton == true)
-	//	goto FIRST;
-
-	// 2번째 다이얼로그에서 OK 버튼을 눌러야만 다음 단계로 넘어감
-	//if (clickedOKButton == false)
-	//	return err;
+	if (clickedPrevButton == true)
+		goto FIRST;
 
 	// 나머지 영역 채우기 - 합판, 목재
 	//if (clickedExcludeRestButton == false)
@@ -385,15 +398,42 @@ void	SlabTableformPlacingZone::initCells (SlabTableformPlacingZone* placingZone)
 
 	for (xx = 0 ; xx < 50 ; ++xx) {
 		for (yy = 0 ; yy < 50 ; ++yy) {
-			placingZone->cells [xx][yy].objType = NONE;
-			placingZone->cells [xx][yy].ang = 0.0;
-			placingZone->cells [xx][yy].horLen = 0.0;
-			placingZone->cells [xx][yy].verLen = 0.0;
+			placingZone->cells [xx][yy].objType = placingZone->iTableformType;
+			placingZone->cells [xx][yy].ang = placingZone->ang;
+			if (placingZone->bVertical == true) {
+				placingZone->cells [xx][yy].horLen = placingZone->initHorLen;
+				placingZone->cells [xx][yy].verLen = placingZone->initVerLen;
+			} else {
+				placingZone->cells [xx][yy].horLen = placingZone->initVerLen;
+				placingZone->cells [xx][yy].verLen = placingZone->initHorLen;
+			}
 			placingZone->cells [xx][yy].leftBottomX = 0.0;
 			placingZone->cells [xx][yy].leftBottomY = 0.0;
 			placingZone->cells [xx][yy].leftBottomZ = 0.0;
 		}
 	}
+
+	// !!!
+	// nHorCells
+		// 세로 방향일 경우
+			// 최외곽 가로 길이를 initHorLen으로 나눈 수
+		// 가로 방향일 경우
+			// 최외곽 가로 길이를 initVerLen으로 나눈 수
+	// nVerCells
+		// 세로 방향일 경우
+			// 최외곽 세로 길이를 initVerLen으로 나눈 수
+		// 가로 방향일 경우
+			// 최외곽 세로 길이를 initHorLen으로 나눈 수
+
+	// formArrayWidth
+		// nHorCells 만큼 cell들의 horLen 값들의 합
+	// formArrayHeight
+		// nVerCells 만큼 cell들의 verLen 값들의 합
+
+	// marginLeft, marginRight
+		// (borderHorLen - formArrayWidth) / 2
+	// marginTop, marginBottom
+		// (borderVerLen - formArrayHeight) / 2
 }
 
 //// 해당 셀 정보를 기반으로 라이브러리 배치
@@ -1053,202 +1093,6 @@ void	SlabTableformPlacingZone::initCells (SlabTableformPlacingZone* placingZone)
 //		insCell.ang -= DegreeToRad (90.0);
 //	}
 //
-//	// 보강 목재 설치 : T 버튼에 해당 (왼쪽부터 시작, 0부터 eu_count_hor-2까지) : LeftBottom에서 RightBottom까지
-//	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) + 0.064;
-//	startYPos = axisPoint.y + placingZone.corner_leftTop.x - placingZone.outerLeft - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) - placingZone.cells [0][0].horLen + 0.050 + placingZone.leftMove;
-//	for (xx = 0 ; xx < placingZone.tb_count_hor-1 ; ++xx) {
-//		// 1번
-//		insCell.objType = WOOD;
-//		insCell.ang = placingZone.ang + DegreeToRad (90.0);
-//		insCell.leftBottomX = startXPos;
-//		insCell.leftBottomY = startYPos;
-//		insCell.leftBottomZ = placingZone.level - 0.0115;
-//		insCell.libPart.wood.w_ang = 0.0;
-//		insCell.libPart.wood.w_h = 0.050;
-//		insCell.libPart.wood.w_leng = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - 0.0545 - 0.064 - placingZone.upMove;
-//		insCell.libPart.wood.w_w = 0.040;
-//
-//		// 위치 값을 비회전값으로 변환
-//		rotatedPoint.x = insCell.leftBottomX;
-//		rotatedPoint.y = insCell.leftBottomY;
-//		rotatedPoint.z = insCell.leftBottomZ;
-//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-//		insCell.leftBottomX = unrotatedPoint.x;
-//		insCell.leftBottomY = unrotatedPoint.y;
-//		insCell.leftBottomZ = unrotatedPoint.z;
-//
-//		// 셀 배치
-//		if (placingZone.topBoundsCells [xx] == true)
-//			elemList.Push (placingZone.placeLibPart (insCell));
-//
-//		// 2번
-//		insCell.leftBottomX = startXPos;
-//		insCell.leftBottomY = startYPos - 0.050;
-//
-//		// 위치 값을 비회전값으로 변환
-//		rotatedPoint.x = insCell.leftBottomX;
-//		rotatedPoint.y = insCell.leftBottomY;
-//		rotatedPoint.z = insCell.leftBottomZ;
-//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-//		insCell.leftBottomX = unrotatedPoint.x;
-//		insCell.leftBottomY = unrotatedPoint.y;
-//		insCell.leftBottomZ = unrotatedPoint.z;
-//
-//		// 셀 배치
-//		if (placingZone.topBoundsCells [xx] == true)
-//			elemList.Push (placingZone.placeLibPart (insCell));
-//
-//		// 다음 셀 배치를 위해 시작 좌표 이동
-//		startYPos -= placingZone.cells [0][xx+1].horLen;
-//	}
-//	
-//	// 보강 목재 설치 : B 버튼에 해당 (왼쪽부터 시작, 0부터 eu_count_hor-2까지) : LeftTop에서 RightTop까지
-//	startXPos = axisPoint.x - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) + 0.0545 - placingZone.upMove;
-//	startYPos = axisPoint.y + placingZone.corner_leftTop.x - placingZone.outerLeft - (placingZone.outerRight - placingZone.outerLeft) / 2 + (placingZone.formArrayWidth / 2) - placingZone.cells [0][0].horLen + 0.050 + placingZone.leftMove;
-//	for (xx = 0 ; xx < placingZone.tb_count_hor-1 ; ++xx) {
-//		// 1번
-//		insCell.objType = WOOD;
-//		insCell.ang = placingZone.ang + DegreeToRad (90.0);
-//		insCell.leftBottomX = startXPos;
-//		insCell.leftBottomY = startYPos;
-//		insCell.leftBottomZ = placingZone.level - 0.0115;
-//		insCell.libPart.wood.w_ang = 0.0;
-//		insCell.libPart.wood.w_h = 0.050;
-//		insCell.libPart.wood.w_leng = (placingZone.outerTop - placingZone.outerBottom) / 2 - (placingZone.formArrayHeight / 2) - 0.0545 - 0.064 + placingZone.upMove;
-//		insCell.libPart.wood.w_w = 0.040;
-//
-//		// 위치 값을 비회전값으로 변환
-//		rotatedPoint.x = insCell.leftBottomX;
-//		rotatedPoint.y = insCell.leftBottomY;
-//		rotatedPoint.z = insCell.leftBottomZ;
-//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-//		insCell.leftBottomX = unrotatedPoint.x;
-//		insCell.leftBottomY = unrotatedPoint.y;
-//		insCell.leftBottomZ = unrotatedPoint.z;
-//
-//		// 셀 배치
-//		if (placingZone.bottomBoundsCells [xx] == true)
-//			elemList.Push (placingZone.placeLibPart (insCell));
-//
-//		// 2번
-//		insCell.leftBottomX = startXPos;
-//		insCell.leftBottomY = startYPos - 0.050;
-//
-//		// 위치 값을 비회전값으로 변환
-//		rotatedPoint.x = insCell.leftBottomX;
-//		rotatedPoint.y = insCell.leftBottomY;
-//		rotatedPoint.z = insCell.leftBottomZ;
-//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-//		insCell.leftBottomX = unrotatedPoint.x;
-//		insCell.leftBottomY = unrotatedPoint.y;
-//		insCell.leftBottomZ = unrotatedPoint.z;
-//
-//		// 셀 배치
-//		if (placingZone.bottomBoundsCells [xx] == true)
-//			elemList.Push (placingZone.placeLibPart (insCell));
-//
-//		// 다음 셀 배치를 위해 시작 좌표 이동
-//		startYPos -= placingZone.cells [0][xx+1].horLen;
-//	}
-//
-//	// 보강 목재 설치 : L 버튼에 해당 (위부터 시작, 0부터 eu_count_ver-2까지) : LeftBottom에서 LeftTop까지
-//	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + 0.064;
-//	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.upMove;
-//	for (xx = placingZone.tb_count_ver-2 ; xx >= 0 ; --xx) {
-//		// 1번
-//		insCell.objType = WOOD;
-//		insCell.ang = placingZone.ang;
-//		insCell.leftBottomX = startXPos;
-//		insCell.leftBottomY = startYPos;
-//		insCell.leftBottomZ = placingZone.level - 0.0115;
-//		insCell.libPart.wood.w_ang = 0.0;
-//		insCell.libPart.wood.w_h = 0.050;
-//		insCell.libPart.wood.w_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.0545 - 0.064 - placingZone.leftMove;
-//		insCell.libPart.wood.w_w = 0.040;
-//
-//		// 위치 값을 비회전값으로 변환
-//		rotatedPoint.x = insCell.leftBottomX;
-//		rotatedPoint.y = insCell.leftBottomY;
-//		rotatedPoint.z = insCell.leftBottomZ;
-//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-//		insCell.leftBottomX = unrotatedPoint.x;
-//		insCell.leftBottomY = unrotatedPoint.y;
-//		insCell.leftBottomZ = unrotatedPoint.z;
-//
-//		// 셀 배치
-//		if (placingZone.leftBoundsCells [xx] == true)
-//			elemList.Push (placingZone.placeLibPart (insCell));
-//
-//		// 2번
-//		insCell.leftBottomX = startXPos;
-//		insCell.leftBottomY = startYPos + 0.050;
-//
-//		// 위치 값을 비회전값으로 변환
-//		rotatedPoint.x = insCell.leftBottomX;
-//		rotatedPoint.y = insCell.leftBottomY;
-//		rotatedPoint.z = insCell.leftBottomZ;
-//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-//		insCell.leftBottomX = unrotatedPoint.x;
-//		insCell.leftBottomY = unrotatedPoint.y;
-//		insCell.leftBottomZ = unrotatedPoint.z;
-//
-//		// 셀 배치
-//		if (placingZone.leftBoundsCells [xx] == true)
-//			elemList.Push (placingZone.placeLibPart (insCell));
-//
-//		// 다음 셀 배치를 위해 시작 좌표 이동
-//		startYPos -= placingZone.cells [xx][0].verLen;
-//	}
-//
-//	// 보강 목재 설치 : R 버튼에 해당 (위부터 시작, 0부터 eu_count_ver-2까지) : RightBottom에서 RightTop까지
-//	startXPos = axisPoint.x - placingZone.corner_leftTop.x + placingZone.outerLeft + (placingZone.outerRight - placingZone.outerLeft) - ((placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.0545) - placingZone.leftMove;
-//	startYPos = axisPoint.y - (placingZone.outerTop - placingZone.outerBottom) / 2 + (placingZone.formArrayHeight / 2) - placingZone.cells [0][0].verLen - placingZone.upMove;
-//	for (xx = placingZone.tb_count_ver-2 ; xx >= 0 ; --xx) {
-//		// 1번
-//		insCell.objType = WOOD;
-//		insCell.ang = placingZone.ang;
-//		insCell.leftBottomX = startXPos;
-//		insCell.leftBottomY = startYPos;
-//		insCell.leftBottomZ = placingZone.level - 0.0115;
-//		insCell.libPart.wood.w_ang = 0.0;
-//		insCell.libPart.wood.w_h = 0.050;
-//		insCell.libPart.wood.w_leng = (placingZone.outerRight - placingZone.outerLeft) / 2 - (placingZone.formArrayWidth / 2) - 0.0545 - 0.064 + placingZone.leftMove;
-//		insCell.libPart.wood.w_w = 0.040;
-//
-//		// 위치 값을 비회전값으로 변환
-//		rotatedPoint.x = insCell.leftBottomX;
-//		rotatedPoint.y = insCell.leftBottomY;
-//		rotatedPoint.z = insCell.leftBottomZ;
-//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-//		insCell.leftBottomX = unrotatedPoint.x;
-//		insCell.leftBottomY = unrotatedPoint.y;
-//		insCell.leftBottomZ = unrotatedPoint.z;
-//
-//		// 셀 배치
-//		if (placingZone.rightBoundsCells [xx] == true)
-//			elemList.Push (placingZone.placeLibPart (insCell));
-//
-//		// 2번
-//		insCell.leftBottomX = startXPos;
-//		insCell.leftBottomY = startYPos + 0.050;
-//
-//		// 위치 값을 비회전값으로 변환
-//		rotatedPoint.x = insCell.leftBottomX;
-//		rotatedPoint.y = insCell.leftBottomY;
-//		rotatedPoint.z = insCell.leftBottomZ;
-//		unrotatedPoint = getUnrotatedPoint (rotatedPoint, axisPoint, RadToDegree (insCell.ang));
-//		insCell.leftBottomX = unrotatedPoint.x;
-//		insCell.leftBottomY = unrotatedPoint.y;
-//		insCell.leftBottomZ = unrotatedPoint.z;
-//
-//		// 셀 배치
-//		if (placingZone.rightBoundsCells [xx] == true)
-//			elemList.Push (placingZone.placeLibPart (insCell));
-//
-//		// 다음 셀 배치를 위해 시작 좌표 이동
-//		startYPos -= placingZone.cells [xx][0].verLen;
-//	}
-//
 //	return err;
 //}
 
@@ -1597,49 +1441,112 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
 	short	result;
-	short	btnSizeX = 50, btnSizeY = 50;
-	short	dialogSizeX, dialogSizeY;
-	short	btnInitPosX = 220 + 25;
-	short	btnPosX, btnPosY;
-	short	xx, yy;
-	short	pp, qq;
-	short	xx1, yy1;
-	short	idxBtn;
-	short	lastIdxBtn = 0;
-	double	leftMargin, rightMargin, topMargin, bottomMargin;
+	//short	btnSizeX = 50, btnSizeY = 50;
+	//short	dialogSizeX, dialogSizeY;
+	//short	btnInitPosX = 220 + 25;
+	//short	btnPosX, btnPosY;
+	//short	idxBtn;
+	//short	lastIdxBtn = 0;
+	//double	leftMargin, rightMargin, topMargin, bottomMargin;
 	std::string		txtButton = "";
-	API_Element		elem;
-	GSErrCode		err;
 
-	//switch (message) {
-		//case DG_MSG_INIT:
-			//// 다이얼로그 타이틀
-			//DGSetDialogTitle (dialogID, "슬래브 하부에 배치 - 테이블폼 배치 수정");
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "슬래브 하부에 배치 - 배치 수정");
 
-			////////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
-			//// 배치 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 210, 130, 25);
-			//DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, DG_OK, "2. 배  치");
-			//DGShowItem (dialogID, DG_OK);
+			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
+			// 배치 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 110, 130, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "배치 - 자투리 채우기");
+			DGShowItem (dialogID, DG_OK);
 
-			//// 종료 버튼 1
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 250, 130, 25);
-			//DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, DG_CANCEL, "3. 자투리 채우기");
-			//DGShowItem (dialogID, DG_CANCEL);
+			// 종료 버튼 1
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 150, 130, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "배치 - 자투리 제외");
+			DGShowItem (dialogID, DG_CANCEL);
 
-			//// 종료 버튼 2
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 290, 130, 25);
-			//DGSetItemFont (dialogID, DG_CANCEL2, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, DG_CANCEL2, "3. 자투리 제외");
-			//DGShowItem (dialogID, DG_CANCEL2);
+			// 이전 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 190, 130, 25);
+			DGSetItemFont (dialogID, DG_PREV, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_PREV, "이전");
+			DGShowItem (dialogID, DG_PREV);
 
-			//// 이전 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 330, 130, 25);
-			//DGSetItemFont (dialogID, DG_PREV, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, DG_PREV, "이전");
-			//DGShowItem (dialogID, DG_PREV);
+			// 행 추가 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 30, 65, 25);
+			DGSetItemFont (dialogID, PUSHBUTTON_ADD_ROW, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, PUSHBUTTON_ADD_ROW, "행 추가");
+			DGShowItem (dialogID, PUSHBUTTON_ADD_ROW);
+
+			// 행 삭제 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 85, 30, 65, 25);
+			DGSetItemFont (dialogID, PUSHBUTTON_DEL_ROW, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, PUSHBUTTON_DEL_ROW, "행 삭제");
+			DGShowItem (dialogID, PUSHBUTTON_DEL_ROW);
+
+			// 열 추가 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 70, 65, 25);
+			DGSetItemFont (dialogID, PUSHBUTTON_ADD_COL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, PUSHBUTTON_ADD_COL, "열 추가");
+			DGShowItem (dialogID, PUSHBUTTON_ADD_COL);
+		
+			// 열 삭제 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 85, 70, 65, 25);
+			DGSetItemFont (dialogID, PUSHBUTTON_DEL_COL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, PUSHBUTTON_DEL_COL, "열 삭제");
+			DGShowItem (dialogID, PUSHBUTTON_DEL_COL);
+
+			// !!!
+
+			//// 그리드 구조체에 따라서 버튼을 동적으로 배치함
+			//btnPosX = 220 + 25, btnPosY = (btnSizeY * placingZone.tb_count_ver) + 25;
+			//for (xx = 0 ; xx < placingZone.tb_count_ver ; ++xx) {
+			//	for (yy = 0 ; yy < placingZone.tb_count_hor ; ++yy) {
+			//		idxBtn = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
+			//		lastIdxBtn = idxBtn;
+			//		DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+
+			//		txtButton = "";
+			//		if (placingZone.cells [xx][yy].objType == NONE) {
+			//			txtButton = "NONE";
+			//		} else if (placingZone.cells [xx][yy].objType == SLAB_TABLEFORM) {
+			//			if (placingZone.cells [xx][yy].libPart.tableform.direction)
+			//				txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+			//			else
+			//				txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+			//		} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+			//			txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+			//		}
+			//		DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
+			//		DGShowItem (dialogID, idxBtn);
+			//		btnPosX += btnSizeX;
+			//	}
+			//	btnPosX = btnInitPosX;
+			//	btnPosY -= btnSizeY;
+			//}
+
+			////// 타입에 따라 셀 종류가 달라짐
+			////if (placingZone.iTableformType == EUROFORM) {
+			////	if (placingZone.bVertical == true) {
+			////		txtButton = format_string ("유로폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+			////	} else {
+			////		txtButton = format_string ("유로폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].verLen * 1000, placingZone.cells [xx][yy].horLen * 1000);
+			////	}
+			////} else if (placingZone.iTableformType == TABLEFORM) {
+			////	if (placingZone.bVertical == true) {
+			////		txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+			////	} else {
+			////		txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].verLen * 1000, placingZone.cells [xx][yy].horLen * 1000);
+			////	}
+			////} else if (placingZone.iTableformType == PLYWOOD) {
+			////	if (placingZone.bVertical == true) {
+			////		txtButton = format_string ("합판\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
+			////	} else {
+			////		txtButton = format_string ("합판\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].verLen * 1000, placingZone.cells [xx][yy].horLen * 1000);
+			////	}
+			////}
 
 			//// 라벨: 여백(좌)
 			//DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 20, 20, 23);
@@ -1689,138 +1596,14 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 			//DGShowItem (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH_DOWN);
 			//DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH_DOWN, placingZone.remain_ver_updated / 2);
 
-			//// 라벨: 테이블폼/휠러스페이서 배치 설정
-			//DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 200, 10, 200, 23);
-			//DGSetItemFont (dialogID, LABEL_GRID_TABLEFORM_WOOD, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, LABEL_GRID_TABLEFORM_WOOD, "테이블폼/보강 목재 배치 설정");
-			//DGShowItem (dialogID, LABEL_GRID_TABLEFORM_WOOD);
-
-			//// 남은 거리 확인 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 90, 130, 25);
-			//DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, "1. 남은 길이 확인");
-			//DGShowItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
-			//DGDisableItem (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH);
-
-			//// 행 추가 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 130, 65, 25);
-			//DGSetItemFont (dialogID, PUSHBUTTON_ADD_ROW, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, PUSHBUTTON_ADD_ROW, "행 추가");
-			//DGShowItem (dialogID, PUSHBUTTON_ADD_ROW);
-
-			//// 행 삭제 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 130, 65, 25);
-			//DGSetItemFont (dialogID, PUSHBUTTON_DEL_ROW, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, PUSHBUTTON_DEL_ROW, "행 삭제");
-			//DGShowItem (dialogID, PUSHBUTTON_DEL_ROW);
-
-			//// 열 추가 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 40, 170, 65, 25);
-			//DGSetItemFont (dialogID, PUSHBUTTON_ADD_COL, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, PUSHBUTTON_ADD_COL, "열 추가");
-			//DGShowItem (dialogID, PUSHBUTTON_ADD_COL);
-		
-			//// 열 삭제 버튼
-			//DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 105, 170, 65, 25);
-			//DGSetItemFont (dialogID, PUSHBUTTON_DEL_COL, DG_IS_LARGE | DG_IS_PLAIN);
-			//DGSetItemText (dialogID, PUSHBUTTON_DEL_COL, "열 삭제");
-			//DGShowItem (dialogID, PUSHBUTTON_DEL_COL);
-
 			//// 메인 창 크기를 변경
 			//dialogSizeX = 350 + (btnSizeX * placingZone.tb_count_hor) + 50;
 			//dialogSizeY = max<short>(450, 150 + (btnSizeY * placingZone.tb_count_ver) + 50);
 			//DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
 
-			//// 그리드 구조체에 따라서 버튼을 동적으로 배치함
-			//btnPosX = 220 + 25, btnPosY = (btnSizeY * placingZone.tb_count_ver) + 25;
-			//for (xx = 0 ; xx < placingZone.tb_count_ver ; ++xx) {
-			//	for (yy = 0 ; yy < placingZone.tb_count_hor ; ++yy) {
-			//		idxBtn = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, btnPosX, btnPosY, btnSizeX, btnSizeY);
-			//		lastIdxBtn = idxBtn;
-			//		DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
+			break;
 
-			//		txtButton = "";
-			//		if (placingZone.cells [xx][yy].objType == NONE) {
-			//			txtButton = "NONE";
-			//		} else if (placingZone.cells [xx][yy].objType == SLAB_TABLEFORM) {
-			//			if (placingZone.cells [xx][yy].libPart.tableform.direction)
-			//				txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-			//			else
-			//				txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-			//		} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
-			//			txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-			//		}
-			//		DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
-			//		DGShowItem (dialogID, idxBtn);
-			//		btnPosX += btnSizeX;
-			//	}
-			//	btnPosX = btnInitPosX;
-			//	btnPosY -= btnSizeY;
-			//}
-
-			//// 위쪽 보강 목재 체크 박스
-			//btnPosX = 270 + 12, btnPosY = 48;
-			//for (xx = 0 ; xx < placingZone.tb_count_hor - 1 ; ++xx) {
-			//	idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
-			//	lastIdxBtn = idxBtn;
-			//	DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
-
-			//	txtButton = "T";
-			//	DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
-			//	DGShowItem (dialogID, idxBtn);
-			//	btnPosX += 50;
-			//}
-
-			//TButtonStartIdx = lastIdxBtn - (placingZone.tb_count_hor - 2);
-
-			//// 아래쪽 보강 목재 체크 박스
-			//btnPosX = 270 + 12, btnPosY = (btnSizeY * (placingZone.tb_count_ver + 1)) + 27;
-			//for (xx = 0 ; xx < placingZone.tb_count_hor - 1 ; ++xx) {
-			//	idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
-			//	lastIdxBtn = idxBtn;
-			//	DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
-
-			//	txtButton = "B";
-			//	DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
-			//	DGShowItem (dialogID, idxBtn);
-			//	btnPosX += 50;
-			//}
-
-			//BButtonStartIdx = lastIdxBtn - (placingZone.tb_count_hor - 2);
-
-			//// 왼쪽 보강 목재 체크 박스
-			//btnPosX = 219, btnPosY = 114;
-			//for (xx = 0 ; xx < placingZone.tb_count_ver - 1 ; ++xx) {
-			//	idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
-			//	lastIdxBtn = idxBtn;
-			//	DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL);
-
-			//	txtButton = "L";
-			//	DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
-			//	DGShowItem (dialogID, idxBtn);
-			//	btnPosY += 50;
-			//}
-
-			//LButtonStartIdx = lastIdxBtn - (placingZone.tb_count_ver - 2);
-
-			//// 오른쪽 보강 목재 체크 박스
-			//btnPosX = 220 + 25 + (btnSizeX * placingZone.tb_count_hor), btnPosY = 114;
-			//for (xx = 0 ; xx < placingZone.tb_count_ver - 1 ; ++xx) {
-			//	idxBtn = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, btnPosX, btnPosY, 25, 25);
-			//	lastIdxBtn = idxBtn;
-			//	DGSetItemFont (dialogID, idxBtn, DG_IS_SMALL); 
-
-			//	txtButton = "R";
-			//	DGSetItemText (dialogID, idxBtn, txtButton.c_str ());
-			//	DGShowItem (dialogID, idxBtn);
-			//	btnPosY += 50;
-			//}
-
-			//RButtonStartIdx = lastIdxBtn - (placingZone.tb_count_ver - 2);
-
-			//break;
-
-		//case DG_MSG_CHANGE:
+		case DG_MSG_CHANGE:
 			//switch (item) {
 			//	case EDITCONTROL_REMAIN_HORIZONTAL_LENGTH_LEFT:
 			//		// 왼쪽 여백을 변경하면,
@@ -1892,54 +1675,11 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 			//		break;
 			//}
 
-			//break;
+			break;
 
-		//case DG_MSG_CLICK:
-			//switch (item) {
-			//	case PUSHBUTTON_CONFIRM_REMAIN_LENGTH:
-			//		// 종료하지 않고 남은 가로 거리와 그리드 버튼 속성을 변경함
-			//		item = 0;
-
-			//		// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
-			//		placingZone.alignPlacingZone (&placingZone);
-
-			//		// 버튼 인덱스 iteration 준비
-			//		idxBtn = itemInitIdx;
-			//		
-			//		// 그리드 버튼 텍스트 업데이트
-			//		for (xx = 0 ; xx < placingZone.tb_count_ver ; ++xx) {
-			//			for (yy = 0 ; yy < placingZone.tb_count_hor ; ++yy) {
-
-			//				txtButton = "";
-			//				if (placingZone.cells [xx][yy].objType == NONE) {
-			//					txtButton = "NONE";
-			//				} else if (placingZone.cells [xx][yy].objType == SLAB_TABLEFORM) {
-			//					if (placingZone.cells [xx][yy].libPart.tableform.direction)
-			//						txtButton = format_string ("테이블폼\n(가로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-			//					else
-			//						txtButton = format_string ("테이블폼\n(세로)\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-			//				} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
-			//					txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-			//				}
-
-			//				DGSetItemText (dialogID, idxBtn, txtButton.c_str ());		// 그리드 버튼 텍스트 지정
-			//				++idxBtn;
-			//			}
-			//		}
-
-			//		// 남은 가로/세로 길이 업데이트
-			//		DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH_LEFT, placingZone.remain_hor_updated / 2 - placingZone.leftMove);
-			//		DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_HORIZONTAL_LENGTH_RIGHT, placingZone.remain_hor_updated / 2 + placingZone.leftMove);
-			//		DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH_UP, placingZone.remain_ver_updated / 2 - placingZone.upMove);
-			//		DGSetItemValDouble (dialogID, EDITCONTROL_REMAIN_VERTICAL_LENGTH_DOWN, placingZone.remain_ver_updated / 2 + placingZone.upMove);
-			//		DGSetItemFont (dialogID, PUSHBUTTON_CONFIRM_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_BOLD);
-
-			//		break;
-
-			//	case DG_OK:
-			//		// 종료하지 않고 배치된 객체를 수정 및 재배치하고 그리드 버튼 속성을 변경함
-			//		item = 0;
-
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
 			//		// 셀 정보(타입 및 크기) 변경 발생, 모든 셀의 위치 값을 업데이트
 			//		placingZone.alignPlacingZone (&placingZone);
 
@@ -2103,20 +1843,16 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 			//			++RButtonStartIdx;
 			//		}
 
-			//		clickedOKButton = true;
+					break;
 
-			//		break;
+				case DG_CANCEL:
+					clickedExcludeRestButton = true;
+					break;
 
-			//	case DG_CANCEL:
-			//		break;
-
-			//	case DG_CANCEL2:
-			//		clickedExcludeRestButton = true;
-			//		break;
-
-			//	case DG_PREV:
-			//		clickedPrevButton = true;
-			//		break;
+				case DG_PREV:
+					clickedPrevButton = true;
+					break;
+			}
 
 			//	case PUSHBUTTON_ADD_ROW:
 			//		// 종료하지 않고 남은 가로 거리와 그리드 버튼 속성을 변경함
@@ -2641,12 +2377,13 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 
 			//		break;
 			//}
-	//	case DG_MSG_CLOSE:
-			//switch (item) {
-			//	case DG_CLOSEBOX:
-			//		break;
-			//}
-	//}
+
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
 
 	result = item;
 
@@ -2663,8 +2400,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 	double	temp;
 	short	rIdx, cIdx;		// 행 번호, 열 번호
 
-	//switch (message) {
-		//case DG_MSG_INIT:
+	switch (message) {
+		case DG_MSG_INIT:
 
 			//// slabBottomTableformPlacerHandler2 에서 클릭한 그리드 버튼의 인덱스 값을 이용하여 셀 인덱스 값 로드
 			//idxCell = (clickedBtnItemIdx - itemInitIdx);
@@ -2942,7 +2679,7 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			//	DGHideItem (dialogID, LABEL_CAUTION);
 			//}
 
-			//break;
+			break;
 
 		//case DG_MSG_CHANGE:
 			//switch (item) {
@@ -3101,9 +2838,9 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 
 			// break;
 
-		//case DG_MSG_CLICK:
-			//switch (item) {
-			//	case DG_OK:
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
 
 			//		// slabBottomTableformPlacerHandler2 에서 클릭한 그리드 버튼의 인덱스 값을 이용하여 셀 인덱스 값 로드
 			//		idxCell = (clickedBtnItemIdx - itemInitIdx);
@@ -3172,17 +2909,17 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			//			}
 			//		}
 
-			//		break;
-			//	case DG_CANCEL:
-			//		break;
-			//}
-		//case DG_MSG_CLOSE:
-			//switch (item) {
-			//	case DG_CLOSEBOX:
-			//		break;
-			//}
-			//break;
-	//}
+					break;
+				case DG_CANCEL:
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+			break;
+	}
 
 	result = item;
 

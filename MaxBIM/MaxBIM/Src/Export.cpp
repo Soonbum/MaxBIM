@@ -1717,6 +1717,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	short			nVisibleLayers = 0;
 	short			visLayerList [1024];
 	char			fullLayerName [512];
+	vector<LayerList>	layerList;
 
 	// 레이어 타입에 따라 캡쳐 방향 지정
 	char*			foundLayerName;
@@ -1779,6 +1780,26 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 		}
 	}
 
+	// 레이어 이름과 인덱스 저장
+	for (xx = 0 ; xx < nVisibleLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = visLayerList [xx];
+		err = ACAPI_Attribute_Get (&attrib);
+
+		sprintf (fullLayerName, "%s", attrib.layer.head.name);
+		fullLayerName [strlen (fullLayerName)] = '\0';
+
+		LayerList newLayerItem;
+		newLayerItem.layerInd = visLayerList [xx];
+		newLayerItem.layerName = fullLayerName;
+
+		layerList.push_back (newLayerItem);
+	}
+
+	// 레이어 이름 기준으로 정렬하여 레이어 인덱스 순서 변경
+	sort (layerList.begin (), layerList.end (), compareLayerName);		// 레이어 이름 기준 오름차순 정렬
+
 	// 일시적으로 모든 레이어 숨기기
 	for (xx = 1 ; xx <= nLayers ; ++xx) {
 		BNZeroMemory (&attrib, sizeof (API_Attribute));
@@ -1811,7 +1832,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
 		BNZeroMemory (&attrib, sizeof (API_Attribute));
 		attrib.layer.head.typeID = API_LayerID;
-		attrib.layer.head.index = visLayerList [mm-1];
+		//attrib.layer.head.index = visLayerList [mm-1];
+		attrib.layer.head.index = layerList [mm-1].layerInd;
 		err = ACAPI_Attribute_Get (&attrib);
 
 		// 초기화
