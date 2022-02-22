@@ -66,15 +66,6 @@ namespace slabTableformPlacerDG {
 		PUSHBUTTON_DEL_ROW,
 		PUSHBUTTON_ADD_COL,
 		PUSHBUTTON_DEL_COL,
-		LABEL_REMAIN_HORIZONTAL_LENGTH_LEFT,
-		LABEL_REMAIN_HORIZONTAL_LENGTH_RIGHT,
-		LABEL_REMAIN_VERTICAL_LENGTH_UP,
-		LABEL_REMAIN_VERTICAL_LENGTH_DOWN,
-		EDITCONTROL_REMAIN_HORIZONTAL_LENGTH_LEFT,
-		EDITCONTROL_REMAIN_HORIZONTAL_LENGTH_RIGHT,
-		EDITCONTROL_REMAIN_VERTICAL_LENGTH_UP,
-		EDITCONTROL_REMAIN_VERTICAL_LENGTH_DOWN,
-		LABEL_GRID_TABLEFORM_WOOD,
 
 		// 이후에는 그리드 버튼이 배치됨
 		GRIDBUTTON_IDX_START
@@ -142,6 +133,10 @@ public:
 	double	borderHorLen;		// 최외곽 가로 길이
 	double	borderVerLen;		// 최외곽 세로 길이
 
+	API_Coord3D		center;		// 최외곽 중심 점
+	API_Coord3D		leftBottom;	// 최외곽 좌하단 점
+	API_Coord3D		rightTop;	// 최외곽 우상단 점
+
 	double	initHorLen;			// 셀 가로 길이 초기값
 	double	initVerLen;			// 셀 세로 길이 초기값
 
@@ -159,13 +154,21 @@ public:
 	short	nHorCells;			// 가로 방향 셀 개수
 	short	nVerCells;			// 세로 방향 셀 개수
 
-	CellForSlabTableform	cells [50][50];		// 셀 정보
+	CellForSlabTableform	cells [50][50];		// 셀 정보 (0행은 하단, 0열은 좌측)
 
 public:
 	void		initCells (SlabTableformPlacingZone* placingZone);											// Cell 배열을 초기화함
 	//API_Guid	placeLibPart (CellForSlabTableform objInfo);												// 해당 셀 정보를 기반으로 라이브러리 배치
 	//API_Guid	placeLibPartOnSlabTableform (CellForSlabTableform objInfo);									// 슬래브 테이블폼의 부속 철물들에 해당하는 라이브러리 배치
-	//GSErrCode	fillRestAreas (void);																		// 유로폼을 채운 후 자투리 공간 채우기
+	GSErrCode	fillRestAreas (void);																		// 자투리 공간 채우기 (합판, 각재)
+
+public:
+	// 다이얼로그 동적 요소 인덱스 번호 저장
+	short	CELL_BUTTON [50][50];
+	short	EDITCONTROL_MARGIN_LEFT;
+	short	EDITCONTROL_MARGIN_RIGHT;
+	short	EDITCONTROL_MARGIN_TOP;
+	short	EDITCONTROL_MARGIN_BOTTOM;
 };
 
 // 테이블폼 슬래브 하부 배치 함수
