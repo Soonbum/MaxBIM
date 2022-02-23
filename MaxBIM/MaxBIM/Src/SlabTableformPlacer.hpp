@@ -68,7 +68,7 @@ namespace slabTableformPlacerDG {
 		PUSHBUTTON_DEL_COL,
 
 		// 이후에는 그리드 버튼이 배치됨
-		GRIDBUTTON_IDX_START
+		AFTER_ALL
 	};
 
 	enum	idxItems_3_forSlabBottomTableformPlacer {
@@ -158,9 +158,11 @@ public:
 
 public:
 	void		initCells (SlabTableformPlacingZone* placingZone);											// Cell 배열을 초기화함
+	void		alignPlacingZone (SlabTableformPlacingZone* placingZone);									// Cell 배열의 위치를 조정함
+	GSErrCode	fillTableformAreas (void);																	// 테이블폼 공간 채우기
+	GSErrCode	fillRestAreas (void);																		// 자투리 공간 채우기 (합판, 각재)
 	//API_Guid	placeLibPart (CellForSlabTableform objInfo);												// 해당 셀 정보를 기반으로 라이브러리 배치
 	//API_Guid	placeLibPartOnSlabTableform (CellForSlabTableform objInfo);									// 슬래브 테이블폼의 부속 철물들에 해당하는 라이브러리 배치
-	GSErrCode	fillRestAreas (void);																		// 자투리 공간 채우기 (합판, 각재)
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
