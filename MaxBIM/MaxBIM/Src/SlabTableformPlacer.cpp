@@ -333,7 +333,7 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	double	yMin, yMax;
 
 	xMin = xMax = nodes_sequential [0].x;
-	yMin = yMax = nodes_sequential [0].y;	
+	yMin = yMax = nodes_sequential [0].y;
 
 	for (xx = 1 ; xx < nEntered ; ++xx) {
 		if (xMin > nodes_sequential [xx].x)		xMin = nodes_sequential [xx].x;
@@ -351,6 +351,7 @@ GSErrCode	placeTableformOnSlabBottom (void)
 		// 코너가 꺾인 모프일 경우
 		// 좌하단 점
 		placingZone.leftBottom = getUnrotatedPoint (nodes_sequential [nEntered - 2], nodes_sequential [0], RadToDegree (placingZone.ang));
+		placingZone.leftBottom.z = placingZone.level;
 		moveIn2D ('y', placingZone.ang, GetDistance (nodes_sequential [0], nodes_sequential [nEntered - 1]), &placingZone.leftBottom.x, &placingZone.leftBottom.y);
 		// 우상단 점
 		placingZone.rightTop = placingZone.leftBottom;
@@ -360,11 +361,12 @@ GSErrCode	placeTableformOnSlabBottom (void)
 		// 코너가 꺾인 모프가 아닐 경우
 		// 좌하단 점
 		placingZone.leftBottom = nodes_sequential [0];
+		placingZone.leftBottom.z = placingZone.level;
 		// 우상단 점
 		placingZone.rightTop = placingZone.leftBottom;
 		moveIn2D ('x', placingZone.ang, placingZone.borderHorLen, &placingZone.rightTop.x, &placingZone.rightTop.y);
 		moveIn2D ('y', placingZone.ang, -placingZone.borderVerLen, &placingZone.rightTop.x, &placingZone.rightTop.y);
-	}
+	}	
 
 	// 최외곽 중심 점 찾기
 	placingZone.center = placingZone.leftBottom;
@@ -390,6 +392,9 @@ FIRST:
 	// 이전 버튼을 누르면 1번째 다이얼로그 다시 실행
 	if (clickedPrevButton == true)
 		goto FIRST;
+
+	// !!!
+	WriteReport_Alert ("레벨: %f, 고도: %f", placingZone.level, placingZone.cells [0][0].leftBottomZ);
 
 	// 테이블폼 영역 채우기
 	err = placingZone.fillTableformAreas ();
@@ -434,7 +439,7 @@ void	SlabTableformPlacingZone::initCells (SlabTableformPlacingZone* placingZone)
 			placingZone->cells [xx][yy].verLen = placingZone->initVerLen;
 			placingZone->cells [xx][yy].leftBottomX = 0.0;
 			placingZone->cells [xx][yy].leftBottomY = 0.0;
-			placingZone->cells [xx][yy].leftBottomZ = 0.0;
+			placingZone->cells [xx][yy].leftBottomZ = placingZone->level;
 		}
 	}
 
@@ -471,13 +476,13 @@ void	SlabTableformPlacingZone::alignPlacingZone (SlabTableformPlacingZone* placi
 
 	API_Coord3D	point = placingZone->leftBottom;
 
-	moveIn3D ('x', placingZone->ang, placingZone->marginLeft, &point.x, &point.y, &point.z);
-	moveIn3D ('y', placingZone->ang, -placingZone->marginBottom, &point.x, &point.y, &point.z);
+	moveIn2D ('x', placingZone->ang, placingZone->marginLeft, &point.x, &point.y);
+	moveIn2D ('y', placingZone->ang, -placingZone->marginBottom, &point.x, &point.y);
 
 	// 테이블폼 시작 좌표 지정
 	placingZone->leftBottomX = point.x;
 	placingZone->leftBottomY = point.y;
-	placingZone->leftBottomZ = point.z;
+	placingZone->leftBottomZ = placingZone->level;
 
 	if (placingZone->bVertical) {
 		for (xx = 0 ; xx < placingZone->nVerCells ; ++xx) {
@@ -486,13 +491,13 @@ void	SlabTableformPlacingZone::alignPlacingZone (SlabTableformPlacingZone* placi
 				placingZone->cells [xx][yy].ang = placingZone->ang;
 				placingZone->cells [xx][yy].leftBottomX = point.x;
 				placingZone->cells [xx][yy].leftBottomY = point.y;
-				placingZone->cells [xx][yy].leftBottomZ = point.z;
+				placingZone->cells [xx][yy].leftBottomZ = placingZone->level;
 
-				moveIn3D ('x', placingZone->ang, placingZone->cells [xx][yy].horLen, &point.x, &point.y, &point.z);
+				moveIn2D ('x', placingZone->ang, placingZone->cells [xx][yy].horLen, &point.x, &point.y);
 				accumLength += placingZone->cells [xx][yy].horLen;
 			}
-			moveIn3D ('x', placingZone->ang, -accumLength, &point.x, &point.y, &point.z);
-			moveIn3D ('y', placingZone->ang, -placingZone->cells [xx][0].verLen, &point.x, &point.y, &point.z);
+			moveIn2D ('x', placingZone->ang, -accumLength, &point.x, &point.y);
+			moveIn2D ('y', placingZone->ang, -placingZone->cells [xx][0].verLen, &point.x, &point.y);
 		}
 	} else {
 		for (xx = 0 ; xx < placingZone->nVerCells ; ++xx) {
@@ -501,20 +506,13 @@ void	SlabTableformPlacingZone::alignPlacingZone (SlabTableformPlacingZone* placi
 				placingZone->cells [xx][yy].ang = placingZone->ang;
 				placingZone->cells [xx][yy].leftBottomX = point.x;
 				placingZone->cells [xx][yy].leftBottomY = point.y;
-				placingZone->cells [xx][yy].leftBottomZ = point.z;
+				placingZone->cells [xx][yy].leftBottomZ = placingZone->level;
 
-				moveIn3D ('x', placingZone->ang, placingZone->cells [xx][yy].verLen, &point.x, &point.y, &point.z);
+				moveIn2D ('x', placingZone->ang, placingZone->cells [xx][yy].verLen, &point.x, &point.y);
 				accumLength += placingZone->cells [xx][yy].verLen;
 			}
-			moveIn3D ('x', placingZone->ang, -accumLength, &point.x, &point.y, &point.z);
-			moveIn3D ('y', placingZone->ang, -placingZone->cells [xx][0].horLen, &point.x, &point.y, &point.z);
-		}
-	}
-	
-	// !!! 테스트로 각 셀의 원점에 flag 표시해보기
-	for (xx = 0 ; xx < placingZone->nVerCells ; ++xx) {
-		for (yy = 0 ; yy < placingZone->nHorCells ; ++yy) {
-			placeCoordinateLabel (placingZone->cells [xx][yy].leftBottomX, placingZone->cells [xx][yy].leftBottomY, placingZone->cells [xx][yy].leftBottomZ, true, format_string ("%d행 %d열", xx, yy));
+			moveIn2D ('x', placingZone->ang, -accumLength, &point.x, &point.y);
+			moveIn2D ('y', placingZone->ang, -placingZone->cells [xx][0].horLen, &point.x, &point.y);
 		}
 	}
 }
@@ -888,8 +886,16 @@ void	SlabTableformPlacingZone::alignPlacingZone (SlabTableformPlacingZone* placi
 GSErrCode	SlabTableformPlacingZone::fillTableformAreas (void)
 {
 	GSErrCode	err = NoError;
+	short	xx, yy;
 
-	// !!!
+	// 타입, 설치방향에 따라 
+
+	// !!! 테스트로 각 셀의 원점에 flag 표시해보기
+	for (xx = 0 ; xx < placingZone.nVerCells ; ++xx) {
+		for (yy = 0 ; yy < placingZone.nHorCells ; ++yy) {
+			placeCoordinateLabel (placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, true, format_string ("%d행 %d열", xx, yy));
+		}
+	}
 
 	return err;
 }
