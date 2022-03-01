@@ -325,9 +325,6 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	}
 	BMKillHandle ((GSHandle *) &storyInfo.data);
 
-	// 영역 정보의 고도 정보 수정
-	placingZone.level = infoSlab.level + infoSlab.offsetFromTop - infoSlab.thickness - placingZone.gap;
-
 	// 최외곽 가로, 세로 길이 계산
 	double	xMin, xMax;
 	double	yMin, yMax;
@@ -351,7 +348,6 @@ GSErrCode	placeTableformOnSlabBottom (void)
 		// 코너가 꺾인 모프일 경우
 		// 좌하단 점
 		placingZone.leftBottom = getUnrotatedPoint (nodes_sequential [nEntered - 2], nodes_sequential [0], RadToDegree (placingZone.ang));
-		placingZone.leftBottom.z = placingZone.level;
 		moveIn2D ('y', placingZone.ang, GetDistance (nodes_sequential [0], nodes_sequential [nEntered - 1]), &placingZone.leftBottom.x, &placingZone.leftBottom.y);
 		// 우상단 점
 		placingZone.rightTop = placingZone.leftBottom;
@@ -361,7 +357,6 @@ GSErrCode	placeTableformOnSlabBottom (void)
 		// 코너가 꺾인 모프가 아닐 경우
 		// 좌하단 점
 		placingZone.leftBottom = nodes_sequential [0];
-		placingZone.leftBottom.z = placingZone.level;
 		// 우상단 점
 		placingZone.rightTop = placingZone.leftBottom;
 		moveIn2D ('x', placingZone.ang, placingZone.borderHorLen, &placingZone.rightTop.x, &placingZone.rightTop.y);
@@ -378,6 +373,9 @@ FIRST:
 	// [DIALOG] 1번째 다이얼로그에서 테이블폼 정보 입력 받음
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32502, ACAPI_GetOwnResModule (), slabBottomTableformPlacerHandler1, 0);
 
+	// 영역 정보의 고도 정보 수정
+	placingZone.level = infoSlab.level + workLevel_slab + infoSlab.offsetFromTop - infoSlab.thickness - placingZone.gap;
+
 	if (result != DG_OK)
 		return err;
 
@@ -392,9 +390,6 @@ FIRST:
 	// 이전 버튼을 누르면 1번째 다이얼로그 다시 실행
 	if (clickedPrevButton == true)
 		goto FIRST;
-
-	// !!!
-	WriteReport_Alert ("레벨: %f, 고도: %f", placingZone.level, placingZone.cells [0][0].leftBottomZ);
 
 	// 테이블폼 영역 채우기
 	err = placingZone.fillTableformAreas ();
