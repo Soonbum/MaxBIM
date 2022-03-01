@@ -11,7 +11,7 @@ using namespace slabTableformPlacerDG;
 static SlabTableformPlacingZone		placingZone;	// 기본 슬래브 하부 영역 정보
 static InfoSlab		infoSlab;						// 슬래브 객체 정보
 
-API_Guid		structuralObject_forTableformSlab;	// 구조 객체의 GUID
+API_Guid	structuralObject_forTableformSlab;		// 구조 객체의 GUID
 
 static short		clickedBtnItemIdx;			// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool			clickedExcludeRestButton;	// 자투리 제외 버튼을 눌렀습니까?
@@ -346,6 +346,8 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	// 최외곽 좌하단 점, 우상단 점 찾기
 	if (GetDistance (nodes_sequential [0], nodes_sequential [nEntered - 2]) < (placingZone.borderHorLen/2)) {
 		// 코너가 꺾인 모프일 경우
+		placingZone.bRectangleArea = false;
+
 		// 좌하단 점
 		placingZone.leftBottom = getUnrotatedPoint (nodes_sequential [nEntered - 2], nodes_sequential [0], RadToDegree (placingZone.ang));
 		moveIn2D ('y', placingZone.ang, GetDistance (nodes_sequential [0], nodes_sequential [nEntered - 1]), &placingZone.leftBottom.x, &placingZone.leftBottom.y);
@@ -355,6 +357,8 @@ GSErrCode	placeTableformOnSlabBottom (void)
 		moveIn2D ('y', placingZone.ang, -placingZone.borderVerLen, &placingZone.rightTop.x, &placingZone.rightTop.y);
 	} else {
 		// 코너가 꺾인 모프가 아닐 경우
+		placingZone.bRectangleArea = true;
+
 		// 좌하단 점
 		placingZone.leftBottom = nodes_sequential [0];
 		// 우상단 점
@@ -883,12 +887,51 @@ GSErrCode	SlabTableformPlacingZone::fillTableformAreas (void)
 	GSErrCode	err = NoError;
 	short	xx, yy;
 
-	// 타입, 설치방향에 따라 
+	// !!! 테스트로 테이블폼 영역 양끝에 flag 표시해보기
+	//API_Coord3D endPoint;
+	//endPoint.x = placingZone.cells [0][0].leftBottomX;
+	//endPoint.y = placingZone.cells [0][0].leftBottomY;
+	//endPoint.z = placingZone.cells [0][0].leftBottomZ;
+	//moveIn2D ('x', placingZone.ang, placingZone.formArrayWidth, &endPoint.x, &endPoint.y);
+	//moveIn2D ('y', placingZone.ang, -placingZone.formArrayHeight, &endPoint.x, &endPoint.y);
+
+	//placeCoordinateLabel (placingZone.cells [0][0].leftBottomX, placingZone.cells [0][0].leftBottomY, placingZone.cells [0][0].leftBottomZ);
+	//placeCoordinateLabel (endPoint.x, endPoint.y, endPoint.z);
 
 	// !!! 테스트로 각 셀의 원점에 flag 표시해보기
-	for (xx = 0 ; xx < placingZone.nVerCells ; ++xx) {
-		for (yy = 0 ; yy < placingZone.nHorCells ; ++yy) {
-			placeCoordinateLabel (placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, true, format_string ("%d행 %d열", xx, yy));
+	//for (xx = 0 ; xx < placingZone.nVerCells ; ++xx) {
+	//	for (yy = 0 ; yy < placingZone.nHorCells ; ++yy) {
+	//		placeCoordinateLabel (placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, true, format_string ("%d행 %d열", xx, yy));
+	//	}
+	//}
+
+	// 타입, 설치방향에 따라 다르게 배치함
+	if (placingZone.iTableformType == EUROFORM) {
+		EasyObjectPlacement	euroform;
+
+		if (placingZone.bVertical == true) {
+			//euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoSlab.floorInd, placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, placingZone.cells [xx][yy].ang);
+			// 회전 필요
+			//elemList.Push (euroform.placeObject (5,
+			//	"eu_stan_onoff", APIParT_Boolean, "1.0",
+			//	"eu_wid", APIParT_CString, format_string ("%d", placingZone.cells [xx][yy].horLen),
+			//	"eu_hei", APIParT_CString, format_string ("%d", placingZone.cells [xx][yy].verLen),
+			//	"u_ins", APIParT_CString, "벽세우기",
+			//	"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+		} else {
+			//
+		}
+	} else if (placingZone.iTableformType == TABLEFORM) {
+		if (placingZone.bVertical == true) {
+			//
+		} else {
+			//
+		}
+	} else if (placingZone.iTableformType == PLYWOOD) {
+		if (placingZone.bVertical == true) {
+			//
+		} else {
+			//
 		}
 	}
 
@@ -1737,12 +1780,50 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 			if (item == DG_OK) {
 				// 배치 - 자투리 채우기 버튼
 				clickedExcludeRestButton = false;
-				placingZone.alignPlacingZone (&placingZone);	// 셀 위치 재조정
+
+				// 테이블폼 배열 전체 너비, 높이 저장
+				placingZone.formArrayWidth = 0.0;
+				placingZone.formArrayHeight = 0.0;
+				if (placingZone.bVertical == true) {
+					for (xx = 0 ; xx < placingZone.nHorCells ; ++xx)	placingZone.formArrayWidth += placingZone.cells [0][xx].horLen;
+					for (xx = 0 ; xx < placingZone.nVerCells ; ++xx)	placingZone.formArrayHeight += placingZone.cells [xx][0].verLen;
+				} else {
+					for (xx = 0 ; xx < placingZone.nHorCells ; ++xx)	placingZone.formArrayWidth += placingZone.cells [0][xx].verLen;
+					for (xx = 0 ; xx < placingZone.nVerCells ; ++xx)	placingZone.formArrayHeight += placingZone.cells [xx][0].horLen;
+				}
+
+				// 여백 길이 저장
+				placingZone.marginLeft = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_MARGIN_LEFT);
+				placingZone.marginRight = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT);
+				placingZone.marginTop = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_MARGIN_TOP);
+				placingZone.marginBottom = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_MARGIN_BOTTOM);
+
+				// 셀 위치 재조정
+				placingZone.alignPlacingZone (&placingZone);
 
 			} else if (item == DG_CANCEL) {
 				// 배치 - 자투리 제외 버튼
 				clickedExcludeRestButton = true;
-				placingZone.alignPlacingZone (&placingZone);	// 셀 위치 재조정
+
+				// 테이블폼 배열 전체 너비, 높이 저장
+				placingZone.formArrayWidth = 0.0;
+				placingZone.formArrayHeight = 0.0;
+				if (placingZone.bVertical == true) {
+					for (xx = 0 ; xx < placingZone.nHorCells ; ++xx)	placingZone.formArrayWidth += placingZone.cells [0][xx].horLen;
+					for (xx = 0 ; xx < placingZone.nVerCells ; ++xx)	placingZone.formArrayHeight += placingZone.cells [xx][0].verLen;
+				} else {
+					for (xx = 0 ; xx < placingZone.nHorCells ; ++xx)	placingZone.formArrayWidth += placingZone.cells [0][xx].verLen;
+					for (xx = 0 ; xx < placingZone.nVerCells ; ++xx)	placingZone.formArrayHeight += placingZone.cells [xx][0].horLen;
+				}
+
+				// 여백 길이 저장
+				placingZone.marginLeft = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_MARGIN_LEFT);
+				placingZone.marginRight = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_MARGIN_RIGHT);
+				placingZone.marginTop = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_MARGIN_TOP);
+				placingZone.marginBottom = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_MARGIN_BOTTOM);
+
+				// 셀 위치 재조정
+				placingZone.alignPlacingZone (&placingZone);
 
 			} else if (item == DG_PREV) {
 				// 이전 버튼

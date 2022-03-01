@@ -118,6 +118,7 @@ public:
 	short	iTableformType;		// 테이블폼 타입 (1: 유로폼, 2: 콘판넬 테이블폼, 3: 합판)
 	double	gap;				// 슬래브와의 간격
 	bool	bVertical;			// true이면 세로 방향, false이면 가로 방향
+	bool	bRectangleArea;		// 직사각형 모프이면 true, 꺾인 모서리 모프이면 false
 
 	double	borderHorLen;		// 최외곽 가로 길이
 	double	borderVerLen;		// 최외곽 세로 길이
