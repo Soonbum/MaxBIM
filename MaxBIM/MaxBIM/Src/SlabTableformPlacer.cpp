@@ -931,7 +931,6 @@ GSErrCode	SlabTableformPlacingZone::fillTableformAreas (void)
 				} else {
 					moveIn3D ('y', tableform.radAng, -placingZone.cells [xx][yy].horLen, &tableform.posX, &tableform.posY, &tableform.posZ);
 				}
-				// !!! 파이프 길이가 안 맞네
 				sprintf (verLenIntStr, "%.0f", placingZone.cells [xx][yy].verLen * 1000);
 				sprintf (horLenIntStr, "%.0f", placingZone.cells [xx][yy].horLen * 1000);
 				sprintf (typeStr, "%s x %s", verLenIntStr, horLenIntStr);

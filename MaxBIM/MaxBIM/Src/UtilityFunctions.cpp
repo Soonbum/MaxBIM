@@ -605,6 +605,8 @@ API_Guid	EasyObjectPlacement::placeObject (double posX, double posY, double posZ
 				sprintf (paramName, "%s", this->paramName [xx]);
 				paramValDouble = atof (this->paramVal [xx]);
 				setParameterByName (&memo, paramName, paramValDouble);
+				if (my_strcmp (paramName, "A") == 0)	elem.object.xRatio = paramValDouble;
+				if (my_strcmp (paramName, "B") == 0)	elem.object.yRatio = paramValDouble;
 			}
 		}
 	}
@@ -687,6 +689,8 @@ API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short nPa
 				sprintf (paramName, "%s", paramNameList [xx]);
 				paramValDouble = atof (paramValList [xx]);
 				setParameterByName (&memo, paramName, paramValDouble);
+				if (my_strcmp (paramName, "A") == 0)	elem.object.xRatio = paramValDouble;
+				if (my_strcmp (paramName, "B") == 0)	elem.object.yRatio = paramValDouble;
 			}
 		}
 	}
@@ -767,6 +771,8 @@ API_Guid	EasyObjectPlacement::placeObject (short nParams, ...)
 				sprintf (paramName, "%s", this->paramName [xx]);
 				paramValDouble = atof (this->paramVal [xx]);
 				setParameterByName (&memo, paramName, paramValDouble);
+				if (my_strcmp (paramName, "A") == 0)	elem.object.xRatio = paramValDouble;
+				if (my_strcmp (paramName, "B") == 0)	elem.object.yRatio = paramValDouble;
 			}
 		}
 	}
@@ -851,6 +857,8 @@ API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short lay
 				sprintf (paramName, "%s", this->paramName [xx]);
 				paramValDouble = atof (this->paramVal [xx]);
 				setParameterByName (&memo, paramName, paramValDouble);
+				if (my_strcmp (paramName, "A") == 0)	elem.object.xRatio = paramValDouble;
+				if (my_strcmp (paramName, "B") == 0)	elem.object.yRatio = paramValDouble;
 			}
 		}
 	}
@@ -927,6 +935,8 @@ API_Guid	EasyObjectPlacement::placeObjectMirrored (double posX, double posY, dou
 				sprintf (paramName, "%s", this->paramName [xx]);
 				paramValDouble = atof (this->paramVal [xx]);
 				setParameterByName (&memo, paramName, paramValDouble);
+				if (my_strcmp (paramName, "A") == 0)	elem.object.xRatio = paramValDouble;
+				if (my_strcmp (paramName, "B") == 0)	elem.object.yRatio = paramValDouble;
 			}
 		}
 	}
@@ -1009,6 +1019,8 @@ API_Guid	EasyObjectPlacement::placeObjectMirrored (const GS::uchar_t* gsmName, s
 				sprintf (paramName, "%s", paramNameList [xx]);
 				paramValDouble = atof (paramValList [xx]);
 				setParameterByName (&memo, paramName, paramValDouble);
+				if (my_strcmp (paramName, "A") == 0)	elem.object.xRatio = paramValDouble;
+				if (my_strcmp (paramName, "B") == 0)	elem.object.yRatio = paramValDouble;
 			}
 		}
 	}
@@ -1089,6 +1101,8 @@ API_Guid	EasyObjectPlacement::placeObjectMirrored (short nParams, ...)
 				sprintf (paramName, "%s", this->paramName [xx]);
 				paramValDouble = atof (this->paramVal [xx]);
 				setParameterByName (&memo, paramName, paramValDouble);
+				if (my_strcmp (paramName, "A") == 0)	elem.object.xRatio = paramValDouble;
+				if (my_strcmp (paramName, "B") == 0)	elem.object.yRatio = paramValDouble;
 			}
 		}
 	}
@@ -1173,6 +1187,8 @@ API_Guid	EasyObjectPlacement::placeObjectMirrored (const GS::uchar_t* gsmName, s
 				sprintf (paramName, "%s", this->paramName [xx]);
 				paramValDouble = atof (this->paramVal [xx]);
 				setParameterByName (&memo, paramName, paramValDouble);
+				if (my_strcmp (paramName, "A") == 0)	elem.object.xRatio = paramValDouble;
+				if (my_strcmp (paramName, "B") == 0)	elem.object.yRatio = paramValDouble;
 			}
 		}
 	}
