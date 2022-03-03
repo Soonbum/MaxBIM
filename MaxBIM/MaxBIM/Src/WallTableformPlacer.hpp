@@ -27,6 +27,7 @@ namespace wallTableformPlacerDG {
 		LABEL_LAYER_INCORNER_PANEL,
 		LABEL_LAYER_RECTPIPE_HANGER,
 		LABEL_LAYER_EUROFORM_HOOK,
+		LABEL_LAYER_CROSS_JOINT_BAR,
 		LABEL_LAYER_BLUE_CLAMP,
 		LABEL_LAYER_BLUE_TIMBER_RAIL,
 		LABEL_LAYER_HIDDEN,
@@ -48,6 +49,7 @@ namespace wallTableformPlacerDG {
 		USERCONTROL_LAYER_INCORNER_PANEL,
 		USERCONTROL_LAYER_RECTPIPE_HANGER,
 		USERCONTROL_LAYER_EUROFORM_HOOK,
+		USERCONTROL_LAYER_CROSS_JOINT_BAR,
 		USERCONTROL_LAYER_BLUE_CLAMP,
 		USERCONTROL_LAYER_BLUE_TIMBER_RAIL,
 		USERCONTROL_LAYER_HIDDEN,
@@ -168,7 +170,7 @@ public:
 	double	lenLincorner;		// 왼쪽 인코너 길이
 	double	lenRincorner;		// 오른쪽 인코너 길이
 
-	short	tableformType;		// 테이블폼 타입: 타입A (1), 타입B (2)
+	short	tableformType;		// 테이블폼 타입: 타입A (1), 타입B (2), 타입C (3)
 
 	short	nCellsInHor;		// 수평 방향 셀(유로폼) 개수
 	short	nCellsInVerBasic;	// 수직 방향 셀(유로폼) 개수 (낮은쪽)
@@ -206,6 +208,7 @@ public:
 	void	placeEuroformsOfTableform (WallTableformPlacingZone* placingZone, short idxCell);	// 테이블폼 내 유로폼 배치 (공통)
 	void	placeTableformA (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입A 배치 (유로폼 제외) - 각파이프 2줄
 	void	placeTableformB (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입B 배치 (유로폼 제외) - 각파이프 1줄
+	void	placeTableformC (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입C 배치 (유로폼 제외) - 각파이프 1줄, 십자 조인트 바 활용
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장

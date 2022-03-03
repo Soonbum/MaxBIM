@@ -887,52 +887,88 @@ GSErrCode	SlabTableformPlacingZone::fillTableformAreas (void)
 	GSErrCode	err = NoError;
 	short	xx, yy;
 
-	// !!! 테스트로 테이블폼 영역 양끝에 flag 표시해보기
-	//API_Coord3D endPoint;
-	//endPoint.x = placingZone.cells [0][0].leftBottomX;
-	//endPoint.y = placingZone.cells [0][0].leftBottomY;
-	//endPoint.z = placingZone.cells [0][0].leftBottomZ;
-	//moveIn2D ('x', placingZone.ang, placingZone.formArrayWidth, &endPoint.x, &endPoint.y);
-	//moveIn2D ('y', placingZone.ang, -placingZone.formArrayHeight, &endPoint.x, &endPoint.y);
-
-	//placeCoordinateLabel (placingZone.cells [0][0].leftBottomX, placingZone.cells [0][0].leftBottomY, placingZone.cells [0][0].leftBottomZ);
-	//placeCoordinateLabel (endPoint.x, endPoint.y, endPoint.z);
-
-	// !!! 테스트로 각 셀의 원점에 flag 표시해보기
-	//for (xx = 0 ; xx < placingZone.nVerCells ; ++xx) {
-	//	for (yy = 0 ; yy < placingZone.nHorCells ; ++yy) {
-	//		placeCoordinateLabel (placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, true, format_string ("%d행 %d열", xx, yy));
-	//	}
-	//}
-
 	// 타입, 설치방향에 따라 다르게 배치함
 	if (placingZone.iTableformType == EUROFORM) {
-		EasyObjectPlacement	euroform;
+		// 유로폼 배치
+		EasyObjectPlacement euroform;
 
-		if (placingZone.bVertical == true) {
-			//euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoSlab.floorInd, placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, placingZone.cells [xx][yy].ang);
-			// 회전 필요
-			//elemList.Push (euroform.placeObject (5,
-			//	"eu_stan_onoff", APIParT_Boolean, "1.0",
-			//	"eu_wid", APIParT_CString, format_string ("%d", placingZone.cells [xx][yy].horLen),
-			//	"eu_hei", APIParT_CString, format_string ("%d", placingZone.cells [xx][yy].verLen),
-			//	"u_ins", APIParT_CString, "벽세우기",
-			//	"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
-		} else {
-			//
+		for (xx = 0 ; xx < placingZone.nVerCells ; ++xx) {
+			for (yy = 0 ; yy < placingZone.nHorCells ; ++yy) {
+				euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoSlab.floorInd, placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, placingZone.cells [xx][yy].ang);
+				if (placingZone.bVertical == false) {
+					moveIn3D ('y', euroform.radAng, -placingZone.cells [xx][yy].horLen, &euroform.posX, &euroform.posY, &euroform.posZ);
+					euroform.radAng += DegreeToRad (90.0);
+				}
+				elemList.Push (euroform.placeObject (6,
+					"eu_stan_onoff", APIParT_Boolean, "1.0",
+					"eu_wid", APIParT_CString, format_string ("%.0f", placingZone.cells [xx][yy].horLen * 1000),
+					"eu_hei", APIParT_CString, format_string ("%.0f", placingZone.cells [xx][yy].verLen * 1000),
+					"u_ins", APIParT_CString, "벽세우기",
+					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+			}
 		}
+
+		// C형강 배치
+		// ...
+
+		// 핀볼트 배치
+		// ...
 	} else if (placingZone.iTableformType == TABLEFORM) {
-		if (placingZone.bVertical == true) {
-			//
-		} else {
-			//
+		// 콘판넬 배치
+		EasyObjectPlacement tableform;
+		char verLenIntStr [12];
+		char horLenIntStr [12];
+		char typeStr [24];
+		char verLenDoubleStr [12];
+		char horLenDoubleStr [12];
+
+		for (xx = 0 ; xx < placingZone.nVerCells ; ++xx) {
+			for (yy = 0 ; yy < placingZone.nHorCells ; ++yy) {
+				tableform.init (L("슬래브 테이블폼 (콘판넬) v1.0.gsm"), layerInd_SlabTableform, infoSlab.floorInd, placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, placingZone.cells [xx][yy].ang);
+				if (placingZone.bVertical == true) {
+					tableform.radAng -= DegreeToRad (90.0);
+				} else {
+					moveIn3D ('y', tableform.radAng, -placingZone.cells [xx][yy].horLen, &tableform.posX, &tableform.posY, &tableform.posZ);
+				}
+				// !!! 파이프 길이가 안 맞네
+				sprintf (verLenIntStr, "%.0f", placingZone.cells [xx][yy].verLen * 1000);
+				sprintf (horLenIntStr, "%.0f", placingZone.cells [xx][yy].horLen * 1000);
+				sprintf (typeStr, "%s x %s", verLenIntStr, horLenIntStr);
+				sprintf (verLenDoubleStr, "%f", placingZone.cells [xx][yy].verLen);
+				sprintf (horLenDoubleStr, "%f", placingZone.cells [xx][yy].horLen);
+				elemList.Push (tableform.placeObject (8,
+					"type", APIParT_CString, typeStr,
+					"A", APIParT_Length, verLenDoubleStr,
+					"B", APIParT_Length, horLenDoubleStr,
+					"ZZYZX", APIParT_Length, "0.0615",
+					"bLprofileOnNorth", APIParT_Boolean, "0.0",
+					"bLprofileOnSouth", APIParT_Boolean, "0.0",
+					"bLprofileOnWest", APIParT_Boolean, "0.0",
+					"bLprofileOnEast", APIParT_Boolean, "0.0"));
+			}
 		}
+
+		// C형강 배치
+		// ...
+
+		// 결합철물 배치
+		// ...
+
+		// PERI동바리 배치
+		// ...
 	} else if (placingZone.iTableformType == PLYWOOD) {
-		if (placingZone.bVertical == true) {
-			//
-		} else {
-			//
-		}
+		// 합판 배치
+		// ...
+
+		// GT24 거더 배치
+		// ...
+
+		// PERI동바리 배치
+		// ...
+
+		// 강관동바리 배치
+		// ...
 	}
 
 	return err;
@@ -1446,6 +1482,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 			}
 
 			// 레이어 활성화/비활성화
+			for (xx = LABEL_LAYER_EUROFORM ; xx <= LABEL_LAYER_STEEL_SUPPORT ; ++xx)
+				DGEnableItem (dialogID, xx);
 			for (xx = USERCONTROL_LAYER_EUROFORM ; xx <= USERCONTROL_LAYER_STEEL_SUPPORT ; ++xx)
 				DGEnableItem (dialogID, xx);
 
