@@ -917,6 +917,7 @@ GSErrCode	SlabTableformPlacingZone::fillTableformAreas (void)
 	} else if (placingZone.iTableformType == TABLEFORM) {
 		// 콘판넬 배치
 		EasyObjectPlacement tableform;
+
 		char verLenIntStr [12];
 		char horLenIntStr [12];
 		char typeStr [24];
@@ -958,7 +959,26 @@ GSErrCode	SlabTableformPlacingZone::fillTableformAreas (void)
 		// ...
 	} else if (placingZone.iTableformType == PLYWOOD) {
 		// 합판 배치
-		// ...
+		EasyObjectPlacement plywood;
+
+		for (xx = 0 ; xx < placingZone.nVerCells ; ++xx) {
+			for (yy = 0 ; yy < placingZone.nHorCells ; ++yy) {
+				plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoSlab.floorInd, placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, placingZone.cells [xx][yy].ang);
+				if (placingZone.bVertical == true) {
+					plywood.radAng -= DegreeToRad (90.0);
+				} else {
+					moveIn3D ('y', plywood.radAng, -placingZone.cells [xx][yy].horLen, &plywood.posX, &plywood.posY, &plywood.posZ);
+				}
+				elemList.Push (plywood.placeObject (7,
+					"p_stan", APIParT_CString, "비규격",
+					"w_dir", APIParT_CString, "바닥깔기",
+					"p_thk", APIParT_CString, "11.5T",
+					"p_wid", APIParT_Length, format_string ("%f", placingZone.cells [xx][yy].horLen),
+					"p_leng", APIParT_Length, format_string ("%f", placingZone.cells [xx][yy].verLen),
+					"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+					"sogak", APIParT_Boolean, "0.0"));
+			}
+		}
 
 		// GT24 거더 배치
 		// ...
