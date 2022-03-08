@@ -255,6 +255,8 @@ short		DGCALLBACK inputThresholdHandler (short message, short dialogID, short it
 GSErrCode	exportSelectedElementInfo (void);													// 선택한 부재 정보 내보내기 (Single 모드)
 GSErrCode	exportElementInfoOnVisibleLayers (void);											// 선택한 부재 정보 내보내기 (Multi 모드)
 
+int			quantityPlusN (vector<vector<string>> *db, vector<string> record, int n);			// 객체의 레코드 수량 n 증가
+
 GSErrCode	filterSelection (void);																// 부재별 선택 후 보여주기
 short		DGCALLBACK filterSelectionHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그] 다이얼로그에서 보이는 레이어 상에 있는 객체들의 종류를 보여주고, 체크한 종류의 객체들만 선택 후 보여줌
 

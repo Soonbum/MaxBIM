@@ -571,6 +571,12 @@ GSErrCode	exportSelectedElementInfo (void)
 	GS::Array<API_Guid>::Iterator	iterObj;
 	API_Guid	curGuid;
 
+	// Single 모드 전용
+	vector<vector<string>>	plywoodInfo;	// 합판 종류별 정보
+	vector<vector<string>>	darukiInfo;		// 각재 종류별 정보 (합판에 부착된 제작틀만)
+	char*	token;
+	char	infoText [256];
+
 
 	// 그룹화 일시정지 ON
 	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
@@ -747,6 +753,10 @@ GSErrCode	exportSelectedElementInfo (void)
 	double	totalLengthOfTimbersEtc = 0.0;		// 비규격
 	int		count;	// 개수
 
+	// *합판, 목재 제작 수량을 계산하기 위한 변수
+	plywoodInfo.clear ();
+	darukiInfo.clear ();
+
 	// 객체 종류별로 수량 출력
 	try {
 		for (xx = 0 ; xx < objectInfo.keyDesc.size () ; ++xx) {
@@ -842,6 +852,11 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "910 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
 							totalAreaOfPlywoods += (0.900 * 1.800 * count);
 							fprintf (fp, buffer);
+							
+							// 합판 정보 DB에 삽입
+							record.clear ();
+							record.push_back (buffer);
+							quantityPlusN (&plywoodInfo, record, count);
 
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
@@ -851,6 +866,19 @@ GSErrCode	exportSelectedElementInfo (void)
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
 								fprintf (fp, buffer);
+								
+								// 다루끼 DB에 삽입
+								strcpy (infoText, objectInfo.records.at(yy).at(7).c_str ());
+								token = strtok (infoText, " /");
+								while (token != NULL) {
+									// 숫자이면 push
+									if (atoi (token) != 0) {
+										record.clear ();
+										record.push_back (token);
+										quantityPlusN (&darukiInfo, record, 1);
+									}
+									token = strtok (NULL, " /");
+								}
 							}
 
 						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "4x8 [1220x2440]") == 0) {
@@ -858,6 +886,11 @@ GSErrCode	exportSelectedElementInfo (void)
 							totalAreaOfPlywoods += (1.200 * 2.400 * count);
 							fprintf (fp, buffer);
 
+							// 합판 정보 DB에 삽입
+							record.clear ();
+							record.push_back (buffer);
+							quantityPlusN (&plywoodInfo, record, count);
+
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
@@ -866,6 +899,19 @@ GSErrCode	exportSelectedElementInfo (void)
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
 								fprintf (fp, buffer);
+
+								// 다루끼 DB에 삽입
+								strcpy (infoText, objectInfo.records.at(yy).at(7).c_str ());
+								token = strtok (infoText, " /");
+								while (token != NULL) {
+									// 숫자이면 push
+									if (atoi (token) != 0) {
+										record.clear ();
+										record.push_back (token);
+										quantityPlusN (&darukiInfo, record, 1);
+									}
+									token = strtok (NULL, " /");
+								}
 							}
 
 						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x5 [606x1520]") == 0) {
@@ -873,6 +919,11 @@ GSErrCode	exportSelectedElementInfo (void)
 							totalAreaOfPlywoods += (0.600 * 1.500 * count);
 							fprintf (fp, buffer);
 
+							// 합판 정보 DB에 삽입
+							record.clear ();
+							record.push_back (buffer);
+							quantityPlusN (&plywoodInfo, record, count);
+
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
@@ -881,6 +932,19 @@ GSErrCode	exportSelectedElementInfo (void)
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
 								fprintf (fp, buffer);
+
+								// 다루끼 DB에 삽입
+								strcpy (infoText, objectInfo.records.at(yy).at(7).c_str ());
+								token = strtok (infoText, " /");
+								while (token != NULL) {
+									// 숫자이면 push
+									if (atoi (token) != 0) {
+										record.clear ();
+										record.push_back (token);
+										quantityPlusN (&darukiInfo, record, 1);
+									}
+									token = strtok (NULL, " /");
+								}
 							}
 
 						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "2x6 [606x1820]") == 0) {
@@ -888,6 +952,11 @@ GSErrCode	exportSelectedElementInfo (void)
 							totalAreaOfPlywoods += (0.600 * 1.800 * count);
 							fprintf (fp, buffer);
 
+							// 합판 정보 DB에 삽입
+							record.clear ();
+							record.push_back (buffer);
+							quantityPlusN (&plywoodInfo, record, count);
+
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
@@ -896,6 +965,19 @@ GSErrCode	exportSelectedElementInfo (void)
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
 								fprintf (fp, buffer);
+
+								// 다루끼 DB에 삽입
+								strcpy (infoText, objectInfo.records.at(yy).at(7).c_str ());
+								token = strtok (infoText, " /");
+								while (token != NULL) {
+									// 숫자이면 push
+									if (atoi (token) != 0) {
+										record.clear ();
+										record.push_back (token);
+										quantityPlusN (&darukiInfo, record, 1);
+									}
+									token = strtok (NULL, " /");
+								}
 							}
 
 						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x5 [910x1520]") == 0) {
@@ -903,6 +985,11 @@ GSErrCode	exportSelectedElementInfo (void)
 							totalAreaOfPlywoods += (0.900 * 1.500 * count);
 							fprintf (fp, buffer);
 
+							// 합판 정보 DB에 삽입
+							record.clear ();
+							record.push_back (buffer);
+							quantityPlusN (&plywoodInfo, record, count);
+
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
@@ -911,6 +998,19 @@ GSErrCode	exportSelectedElementInfo (void)
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
 								fprintf (fp, buffer);
+
+								// 다루끼 DB에 삽입
+								strcpy (infoText, objectInfo.records.at(yy).at(7).c_str ());
+								token = strtok (infoText, " /");
+								while (token != NULL) {
+									// 숫자이면 push
+									if (atoi (token) != 0) {
+										record.clear ();
+										record.push_back (token);
+										quantityPlusN (&darukiInfo, record, 1);
+									}
+									token = strtok (NULL, " /");
+								}
 							}
 
 						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "비규격") == 0) {
@@ -921,6 +1021,11 @@ GSErrCode	exportSelectedElementInfo (void)
 							totalAreaOfPlywoods += (length * length2 * count);
 							fprintf (fp, buffer);
 
+							// 합판 정보 DB에 삽입
+							record.clear ();
+							record.push_back (buffer);
+							quantityPlusN (&plywoodInfo, record, count);
+
 							// 제작틀 ON
 							if (atoi (objectInfo.records.at(yy).at(5).c_str ()) > 0) {
 								sprintf (buffer, "(각재 총길이: %s) ", objectInfo.records.at(yy).at(6).c_str ());
@@ -929,6 +1034,19 @@ GSErrCode	exportSelectedElementInfo (void)
 
 								sprintf (buffer, "(각재 절단 길이: %s) ", objectInfo.records.at(yy).at(7).c_str ());
 								fprintf (fp, buffer);
+
+								// 다루끼 DB에 삽입
+								strcpy (infoText, objectInfo.records.at(yy).at(7).c_str ());
+								token = strtok (infoText, " /");
+								while (token != NULL) {
+									// 숫자이면 push
+									if (atoi (token) != 0) {
+										record.clear ();
+										record.push_back (token);
+										quantityPlusN (&darukiInfo, record, 1);
+									}
+									token = strtok (NULL, " /");
+								}
 							}
 
 						} else if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "비정형") == 0) {
@@ -1106,6 +1224,29 @@ GSErrCode	exportSelectedElementInfo (void)
 	if (objectInfo.nUnknownObjects > 0) {
 		sprintf (buffer, "\n알 수 없는 객체 : %d EA\n", objectInfo.nUnknownObjects);
 		fprintf (fp, buffer);
+	}
+
+	// !!!
+	if (plywoodInfo.size () > 0) {
+		sprintf (buffer, "\n합판 규격별 제작 수량은 다음과 같습니다.");
+		fprintf (fp, buffer);
+
+		for (xx = 0 ; xx < plywoodInfo.size () ; ++xx) {
+			sprintf (buffer, "\n%s : %s EA", plywoodInfo.at(xx).at(0).c_str (), plywoodInfo.at(xx).at(1).c_str ());
+			fprintf (fp, buffer);
+		}
+		fprintf (fp, "\n");
+	}
+
+	if (darukiInfo.size () > 0) {
+		sprintf (buffer, "\n합판 제작틀 다루끼 (40*50) 규격별 제작 수량은 다음과 같습니다.");
+		fprintf (fp, buffer);
+		
+		for (xx = 0 ; xx < darukiInfo.size () ; ++xx) {
+			sprintf (buffer, "\n%s : %s EA", darukiInfo.at(xx).at(0).c_str (), darukiInfo.at(xx).at(1).c_str ());
+			fprintf (fp, buffer);
+		}
+		fprintf (fp, "\n");
 	}
 
 	// *합판, 목재 구매 수량 계산
@@ -2954,6 +3095,55 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
 
 	return	err;
+}
+
+// 객체의 레코드 수량 n 증가
+int		quantityPlusN (vector<vector<string>> *db, vector<string> record, int n)
+{
+	int		xx, yy;
+	size_t	vecLen;
+	size_t	inVecLen1, inVecLen2;
+	int		diff;
+	int		value;
+	char	tempStr [512];
+
+	vecLen = db->size ();
+
+	try {
+		for (xx = 0 ; xx < vecLen ; ++xx) {
+			// 변수 값도 동일할 경우
+			inVecLen1 = db->at(xx).size () - 1;		// 끝의 개수 필드를 제외한 길이
+			inVecLen2 = record.size ();
+
+			if (inVecLen1 == inVecLen2) {
+				// 일치하지 않는 필드가 하나라도 있는지 찾아볼 것
+				diff = 0;
+				for (yy = 0 ; yy < inVecLen1 ; ++yy) {
+					if (my_strcmp (db->at(xx).at(yy).c_str (), record.at(yy).c_str ()) != 0)
+						diff++;
+				}
+
+				// 모든 필드가 일치하면
+				if (diff == 0) {
+					value = atoi (db->at(xx).back ().c_str ());
+					value += n;
+					sprintf (tempStr, "%d", value);
+					db->at(xx).pop_back ();
+					db->at(xx).push_back (tempStr);
+					return value;
+				}
+			}
+		}
+	} catch (exception& ex) {
+		WriteReport_Alert ("quantityPlusN 함수에서 오류 발생: %s", ex.what ());
+	}
+
+	// 없으면 신규 레코드 추가하고 n 리턴
+	sprintf (tempStr, "%d", n);
+	record.push_back (tempStr);
+	db->push_back (record);
+
+	return n;
 }
 
 // 부재별 선택 후 보여주기

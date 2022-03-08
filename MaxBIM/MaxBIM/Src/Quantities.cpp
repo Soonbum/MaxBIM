@@ -102,7 +102,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
 				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "계단");
 
-				// 층 정보 저장 !!!
+				// 층 정보 저장
 				BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
 				ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
 				for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
