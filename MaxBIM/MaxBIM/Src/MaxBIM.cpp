@@ -72,6 +72,9 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 {
 	GSErrCode	err = NoError;
 
+	API_MenuItemRef	itemRef;
+	GSFlags			itemFlags;
+
 	switch (menuParams->menuItemRef.menuResID) {
 		case 32011:
 			// 테이블폼 배치
@@ -153,29 +156,49 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			// 반자동 배치
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:		// 물량합판 부착하기
+					BNZeroMemory (&itemRef, sizeof (API_MenuItemRef));
+					itemRef.menuResID = 32009;
+					itemRef.itemIndex = 1;
+					itemFlags = 0;
+					ACAPI_Interface (APIIo_GetMenuItemFlagsID, &itemRef, &itemFlags);
+
 					extern qElem qElemInfo;
+
 					if (qElemInfo.dialogID == 0) {
 						err = placeQuantityPlywood ();
+						itemFlags |= API_MenuItemChecked;
 					} else {
 						if ((qElemInfo.dialogID != 0) || DGIsDialogOpen (qElemInfo.dialogID)) {
 							DGModelessClose (qElemInfo.dialogID);
 							qElemInfo.dialogID = 0;
+							itemFlags &= ~API_MenuItemChecked;
 						}
 					}
+					ACAPI_Interface (APIIo_SetMenuItemFlagsID, &itemRef, &itemFlags);
 					return err;
 
 					break;
 
 				case 2:		// 단열재 부착하기
+					BNZeroMemory (&itemRef, sizeof (API_MenuItemRef));
+					itemRef.menuResID = 32009;
+					itemRef.itemIndex = 2;
+					itemFlags = 0;
+					ACAPI_Interface (APIIo_GetMenuItemFlagsID, &itemRef, &itemFlags);
+
 					extern insulElem insulElemInfo;
+
 					if (insulElemInfo.dialogID == 0) {
 						err = placeInsulation ();
+						itemFlags |= API_MenuItemChecked;
 					} else {
 						if ((insulElemInfo.dialogID != 0) || DGIsDialogOpen (insulElemInfo.dialogID)) {
 							DGModelessClose (insulElemInfo.dialogID);
 							insulElemInfo.dialogID = 0;
+							itemFlags &= ~API_MenuItemChecked;
 						}
 					}
+					ACAPI_Interface (APIIo_SetMenuItemFlagsID, &itemRef, &itemFlags);
 					return err;
 
 					break;
@@ -186,15 +209,25 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			// 정보
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:		// 애드온 사용법 보기
+					BNZeroMemory (&itemRef, sizeof (API_MenuItemRef));
+					itemRef.menuResID = 32003;
+					itemRef.itemIndex = 1;
+					itemFlags = 0;
+					ACAPI_Interface (APIIo_GetMenuItemFlagsID, &itemRef, &itemFlags);
+
 					extern short modelessDialogID;
+
 					if (modelessDialogID == 0) {
 						err = showHelp ();
+						itemFlags |= API_MenuItemChecked;
 					} else {
 						if ((modelessDialogID != 0) || DGIsDialogOpen (modelessDialogID)) {
 							DGModelessClose (modelessDialogID);
 							modelessDialogID = 0;
+							itemFlags &= ~API_MenuItemChecked;
 						}
 					}
+					ACAPI_Interface (APIIo_SetMenuItemFlagsID, &itemRef, &itemFlags);
 					return err;
 
 					break;
