@@ -54,6 +54,50 @@ bool compareLayerName (const LayerList& a, const LayerList& b)
 		return false;
 }
 
+// vector 내 레코드 내 필드(숫자 값)를 기준으로 내림차순 정렬을 위한 비교 함수
+bool	compareVectorStringByValue (const vector<string>& a, const vector<string>& b)
+{
+	if (atof (a.at(0).c_str ()) > atof (b.at(0).c_str ()))
+		return true;
+	else
+		return false;
+}
+
+// vector 내 레코드 내 필드(문자열)를 기준으로 내림차순 정렬을 위한 비교 함수
+bool	compareVectorStringByString (const vector<string>& a, const vector<string>& b)
+{
+	if (a.at(0).compare (b.at(0)) > 0)
+		return true;
+	else
+		return false;
+}
+
+// vector 내 레코드 내 여러 필드들을 기준으로 내림차순 정렬을 위한 비교 함수
+bool	compareVectorStringMultiField (const vector<string>& a, const vector<string>& b)
+{
+	int xx;
+	size_t aLen = a.size ();
+	size_t bLen = b.size ();
+
+	// 필드 개수가 같을 경우 본격적으로 정렬
+	if (aLen == bLen) {
+		size_t recordLen = aLen;
+
+		for (xx = 1 ; xx < recordLen ; ++xx) {
+			if (a.at(xx).compare (b.at(xx)) > 0)
+				return true;
+			else if (a.at(xx).compare (b.at(xx)) < 0)
+				return false;
+		}
+	} else if (aLen > bLen) {
+		return true;
+	} else {
+		return false;
+	}
+
+	return false;
+}
+
 // 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
 ColumnInfo	findColumn (ColumnPos* columnPos, short iHor, short iVer, short floorInd)
 {
@@ -745,7 +789,13 @@ GSErrCode	exportSelectedElementInfo (void)
 	double	length, length2, length3;
 	bool	bTitleAppeared;
 
-	// *합판, 목재 구매 수량을 계산하기 위한 변수
+	// 레코드 1차 정렬 (1번째 필드(객체 이름) 기준으로 내림차순 정렬)
+	sort (objectInfo.records.begin (), objectInfo.records.end (), compareVectorStringByString);
+
+	// 레코드 2차 정렬 (2번째 이후 필드 기준으로 내림차순 정렬)
+	sort (objectInfo.records.begin (), objectInfo.records.end (), compareVectorStringMultiField);
+
+	// *합판, 각재 구매 수량을 계산하기 위한 변수
 	double	totalAreaOfPlywoods = 0.0;
 	double	totalLengthOfTimbers_40x50 = 0.0;	// 다루끼 (40*50)
 	double	totalLengthOfTimbers_50x80 = 0.0;	// 투바이 (50*80)
@@ -753,7 +803,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	double	totalLengthOfTimbersEtc = 0.0;		// 비규격
 	int		count;	// 개수
 
-	// *합판, 목재 제작 수량을 계산하기 위한 변수
+	// *합판, 다루끼 제작 수량을 계산하기 위한 변수
 	plywoodInfo.clear ();
 	darukiInfo.clear ();
 
@@ -1226,7 +1276,10 @@ GSErrCode	exportSelectedElementInfo (void)
 		fprintf (fp, buffer);
 	}
 
-	// !!!
+	// *합판, 다루끼 제작 수량 계산
+	sort (plywoodInfo.begin (), plywoodInfo.end (), compareVectorStringByString);
+	sort (darukiInfo.begin (), darukiInfo.end (), compareVectorStringByValue);
+
 	if (plywoodInfo.size () > 0) {
 		sprintf (buffer, "\n합판 규격별 제작 수량은 다음과 같습니다.");
 		fprintf (fp, buffer);
@@ -1249,7 +1302,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		fprintf (fp, "\n");
 	}
 
-	// *합판, 목재 구매 수량 계산
+	// *합판, 각재 구매 수량 계산
 	// 합판 4x8 규격 (1200*2400) 기준으로 총 면적을 나누면 합판 구매 수량이 나옴
 	if (totalAreaOfPlywoods > EPS) {
 		sprintf (buffer, "\n합판 구매 수량은 다음과 같습니다.\n총 면적 (%.2f ㎡) ÷ 합판 4x8 규격 (1200*2400) = %.0f 개 (할증 5퍼센트 적용됨)\n", totalAreaOfPlywoods, ceil ((totalAreaOfPlywoods / 2.88)*1.05));
