@@ -130,6 +130,9 @@
       <AddModuleNamesToAssembly>
       </AddModuleNamesToAssembly>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(OutDir)\$(ProjectName).apx" "C:\Program Files\Graphisoft\ArchiCAD 19\애드온\$(ProjectName).apx"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Src\ACAPinc.h" />
