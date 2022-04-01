@@ -115,7 +115,7 @@ struct LayerNameSystem
 struct StatusOfLayerNameSystem
 {
 	// 공사 구분 (필수)
-	bool	code_state [10];
+	bool	code_state [25];
 
 	// 동 구분 (필수)
 	bool	dong_state [2000];
@@ -124,13 +124,13 @@ struct StatusOfLayerNameSystem
 	bool	floor_state [200];
 
 	// 타설번호 (필수)
-	bool	cast_state [10];
+	bool	cast_state [120];
 
 	// CJ 구간 (필수)
-	bool	CJ_state [10];
+	bool	CJ_state [120];
 
 	// CJ 속 시공순서 (필수)
-	bool	orderInCJ_state [10];
+	bool	orderInCJ_state [120];
 
 	// 부재 구분 (필수)
 	bool	obj_state [500];

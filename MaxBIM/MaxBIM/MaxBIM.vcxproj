@@ -86,7 +86,12 @@
       <AdditionalOptions>/export:GetExportedFuncAddrs,%401 /export:SetImportedFuncAddrs,%402 %(AdditionalOptions)</AdditionalOptions>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
+      <HeapReserveSize>10485760</HeapReserveSize>
+      <StackReserveSize>10485760</StackReserveSize>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(OutDir)\$(ProjectName).apx" "C:\Program Files\Graphisoft\ArchiCAD 19\애드온\$(ProjectName).apx"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -129,6 +134,8 @@
       </AdditionalLibraryDirectories>
       <AddModuleNamesToAssembly>
       </AddModuleNamesToAssembly>
+      <StackReserveSize>10485760</StackReserveSize>
+      <HeapReserveSize>10485760</HeapReserveSize>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(OutDir)\$(ProjectName).apx" "C:\Program Files\Graphisoft\ArchiCAD 19\애드온\$(ProjectName).apx"</Command>

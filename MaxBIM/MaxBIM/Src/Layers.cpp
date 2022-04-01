@@ -227,7 +227,7 @@ GSErrCode	showLayersEasily (void)
 	GSErrCode	err = NoError;
 
 	FILE	*fp;			// 파일 포인터
-	char	line [10240];	// 파일에서 읽어온 라인 하나
+	char	line [20480];	// 파일에서 읽어온 라인 하나
 	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
 	char	*token;			// 읽어온 문자열의 토큰
 	short	lineCount;		// 읽어온 라인 수
@@ -624,19 +624,19 @@ GSErrCode	showLayersEasily (void)
 	}
 
 	short	z;
-	char	code1 [10][32];		// 공사 코드
+	char	code1 [25][32];		// 공사 코드
 	short	LenCode1;
 	char	code2 [1600][32];	// 동 코드
 	short	LenCode2;
 	char	code3 [120][32];	// 층 코드
 	short	LenCode3;
-	char	code4 [100][32];	// 타설번호 코드
+	char	code4 [120][32];	// 타설번호 코드
 	short	LenCode4;
-	char	code5 [100][32];	// CJ 코드
+	char	code5 [120][32];	// CJ 코드
 	short	LenCode5;
-	char	code6 [100][32];	// CJ 속 시공순서 코드
+	char	code6 [120][32];	// CJ 속 시공순서 코드
 	short	LenCode6;
-	char	code7 [90][32];		// 부재 코드
+	char	code7 [120][32];	// 부재 코드
 	short	LenCode7;
 	char	code8 [10][32];		// 제작처 코드
 	short	LenCode8;
@@ -1263,6 +1263,37 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 
 			itmPosY += 30;
 
+			// 라벨: 도면
+			itmPosX = 40;
+			itmPosY += 10;
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, itmPosX, itmPosY, 85, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "*도면");
+			DGShowItem (dialogID, itmIdx);
+
+			// 체크박스: 도면
+			itmPosX = 150;
+			itmPosY -= 5;
+			for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
+				if (strncmp (layerInfo.obj_cat [xx].c_str (), "50-", 3) == 0) {
+					if (layerInfo.obj_state [xx] == true) {
+						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+						DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
+						DGSetItemText (dialogID, itmIdx, layerInfo.obj_desc [xx].c_str ());
+						DGShowItem (dialogID, itmIdx);
+						layerInfo.obj_idx [xx] = itmIdx;
+
+						itmPosX += 100;
+						if (itmPosX >= 600) {
+							itmPosX = 150;
+							itmPosY += 30;
+						}
+					}
+				}
+			}
+
+			itmPosY += 30;
+
 			// 라벨: 제작처 구분
 			itmPosX = 40;
 			itmPosY += 10;
@@ -1678,7 +1709,7 @@ GSErrCode	makeLayersEasily (void)
 	GSErrCode	err = NoError;
 
 	FILE	*fp;			// 파일 포인터
-	char	line [10240];	// 파일에서 읽어온 라인 하나
+	char	line [20480];	// 파일에서 읽어온 라인 하나
 	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
 	char	*token;			// 읽어온 문자열의 토큰
 	short	lineCount;		// 읽어온 라인 수
@@ -1802,19 +1833,19 @@ GSErrCode	makeLayersEasily (void)
 	}
 
 	short	z;
-	char	code1 [10][32];		// 공사 코드
+	char	code1 [25][32];		// 공사 코드
 	short	LenCode1;
 	char	code2 [1600][32];	// 동 코드
 	short	LenCode2;
 	char	code3 [120][32];	// 층 코드
 	short	LenCode3;
-	char	code4 [100][32];	// 타설번호 코드
+	char	code4 [120][32];	// 타설번호 코드
 	short	LenCode4;
-	char	code5 [100][32];	// CJ 코드
+	char	code5 [120][32];	// CJ 코드
 	short	LenCode5;
-	char	code6 [100][32];	// CJ 속 시공순서 코드
+	char	code6 [120][32];	// CJ 속 시공순서 코드
 	short	LenCode6;
-	char	code7 [90][32];		// 부재 코드
+	char	code7 [120][32];	// 부재 코드
 	short	LenCode7;
 	char	code8 [10][32];		// 제작처 코드
 	short	LenCode8;
@@ -2249,7 +2280,7 @@ short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DG
 					// 메인 창 크기
 					if (clickedBtnItemIdx == BUTTON_CODE) {
 						dialogSizeX = 600;
-						dialogSizeY = 90;
+						dialogSizeY = 180;
 					} else if (clickedBtnItemIdx == BUTTON_DONG) {
 						dialogSizeX = 600;
 						dialogSizeY = 250;
@@ -2404,6 +2435,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 
 	char	*token;			// 읽어온 문자열의 토큰
 	short	count;
+	short	nButton;
 
 	switch (message) {
 		case DG_MSG_INIT:
@@ -2595,6 +2627,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 				}
 				count = 0;
 				for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
+					nButton = 0;
 					for (yy = 0 ; yy < layerInfo.obj_name.size () ; ++yy) {
 						if (yy == 0) {
 							itmPosY += 5;
@@ -2617,6 +2650,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 							OBJ_BUTTONS [count] = itmIdx;
 							(layerInfo.obj_state [yy] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 							count ++;
+							nButton ++;
 
 							itmPosX += 100;
 							if (itmPosX >= 1100) {
@@ -2626,7 +2660,12 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 						}
 					}
 					itmPosX = 90;
-					itmPosY += 30;
+					if (nButton == 0) {
+						DGHideItem (dialogID, itmIdx);
+						itmPosY -= 28;
+					} else {
+						itmPosY += 30;
+					}
 				}
 			} else if (clickedBtnItemIdx == BUTTON_PRODUCT_SITE) {
 				itmPosX = 90;
@@ -2900,7 +2939,7 @@ GSErrCode	assignLayerEasily (void)
 	GSErrCode	err = NoError;
 
 	FILE	*fp;			// 파일 포인터
-	char	line [10240];	// 파일에서 읽어온 라인 하나
+	char	line [20480];	// 파일에서 읽어온 라인 하나
 	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
 	char	*token;			// 읽어온 문자열의 토큰
 	short	lineCount;		// 읽어온 라인 수
@@ -3073,19 +3112,19 @@ GSErrCode	assignLayerEasily (void)
 	}
 
 	short	z;
-	char	code1 [10][32];		// 공사 코드
+	char	code1 [25][32];		// 공사 코드
 	short	LenCode1;
 	char	code2 [1600][32];	// 동 코드
 	short	LenCode2;
 	char	code3 [120][32];	// 층 코드
 	short	LenCode3;
-	char	code4 [100][32];	// 타설번호 코드
+	char	code4 [120][32];	// 타설번호 코드
 	short	LenCode4;
-	char	code5 [100][32];	// CJ 코드
+	char	code5 [120][32];	// CJ 코드
 	short	LenCode5;
-	char	code6 [100][32];	// CJ 속 시공순서 코드
+	char	code6 [120][32];	// CJ 속 시공순서 코드
 	short	LenCode6;
-	char	code7 [90][32];		// 부재 코드
+	char	code7 [120][32];	// 부재 코드
 	short	LenCode7;
 	char	code8 [10][32];		// 제작처 코드
 	short	LenCode8;
@@ -3599,7 +3638,7 @@ short DGCALLBACK layerAssignHandler (short message, short dialogID, short item, 
 					// 메인 창 크기
 					if (clickedBtnItemIdx == BUTTON_CODE) {
 						dialogSizeX = 600;
-						dialogSizeY = 90;
+						dialogSizeY = 180;
 					} else if (clickedBtnItemIdx == BUTTON_DONG) {
 						dialogSizeX = 600;
 						dialogSizeY = 250;
@@ -3755,6 +3794,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 	char	*token;			// 읽어온 문자열의 토큰
 	bool	bFirstTok;		// 첫번째 토큰인가?
 	short	count;
+	short	nButton;
 
 	switch (message) {
 		case DG_MSG_INIT:
@@ -3946,6 +3986,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 				}
 				count = 0;
 				for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
+					nButton = 0;
 					for (yy = 0 ; yy < layerInfo.obj_name.size () ; ++yy) {
 						if (yy == 0) {
 							itmPosY += 5;
@@ -3968,6 +4009,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 							OBJ_BUTTONS [count] = itmIdx;
 							(layerInfo.obj_state [yy] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 							count ++;
+							nButton ++;
 
 							itmPosX += 100;
 							if (itmPosX >= 1100) {
@@ -3977,7 +4019,12 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 						}
 					}
 					itmPosX = 90;
-					itmPosY += 30;
+					if (nButton == 0) {
+						DGHideItem (dialogID, itmIdx);
+						itmPosY -= 28;
+					} else {
+						itmPosY += 30;
+					}
 				}
 			} else if (clickedBtnItemIdx == BUTTON_PRODUCT_SITE) {
 				itmPosX = 90;
@@ -4241,7 +4288,7 @@ GSErrCode	inspectLayerNames (void)
 	GSErrCode	err = NoError;
 
 	FILE	*fp;			// 파일 포인터
-	char	line [10240];	// 파일에서 읽어온 라인 하나
+	char	line [20480];	// 파일에서 읽어온 라인 하나
 	char	buffer [256];	// 레이어 이름을 저장할 버퍼
 	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
 	string	insElem2;
@@ -4391,19 +4438,19 @@ GSErrCode	inspectLayerNames (void)
 	//allocateMemory (&layerInfo);
 
 	short	z;
-	char	code1 [10][32];		// 공사 코드
+	char	code1 [25][32];		// 공사 코드
 	short	LenCode1;
 	char	code2 [1600][32];	// 동 코드
 	short	LenCode2;
 	char	code3 [120][32];	// 층 코드
 	short	LenCode3;
-	char	code4 [100][32];	// 타설번호 코드
+	char	code4 [120][32];	// 타설번호 코드
 	short	LenCode4;
-	char	code5 [100][32];	// CJ 코드
+	char	code5 [120][32];	// CJ 코드
 	short	LenCode5;
-	char	code6 [100][32];	// CJ 속 시공순서 코드
+	char	code6 [120][32];	// CJ 속 시공순서 코드
 	short	LenCode6;
-	char	code7 [90][32];		// 부재 코드
+	char	code7 [120][32];	// 부재 코드
 	short	LenCode7;
 	char	code8 [10][32];		// 제작처 코드
 	short	LenCode8;
