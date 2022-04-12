@@ -105,14 +105,14 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Lib\Win\ACAP_STAT.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSRoot\Win\GSRootImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSUtils\Win\GSUtilsImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\InputOutput\Win\InputOutputImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib\Win\DGImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGGraphix\Win\DGGraphixImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UCLib\Win\UCImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\TextEngine\Win\TextEngineImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\Geometry\Win\GeometryImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Lib\Win\ACAP_STAT.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSRoot\Win\GSRootImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSUtils\Win\GSUtilsImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\InputOutput\Win\InputOutputImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib\Win\DGImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGGraphix\Win\DGGraphixImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UCLib\Win\UCImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\TextEngine\Win\TextEngineImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\Geometry\Win\GeometryImp.lib" />
   </ItemGroup>
 </Project>

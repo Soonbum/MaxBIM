@@ -173,48 +173,48 @@
   <ItemGroup>
     <CustomBuild Include="RINT\MaxBIM.grc">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Tools\Win\ResConv.exe" -m r -D WINDOWS -T W -q utf8 1252 -i "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\RINT\MaxBIM.grc" -D _DEBUG -o "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Tools\Win\ResConv.exe" -m r -D WINDOWS -T W -q utf8 1252 -i "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\RINT\MaxBIM.grc" -D _DEBUG -o "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling the localized GRC file...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Tools\Win\ResConv.exe" -m r -D WINDOWS -T W -q utf8 1252 -i "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\RINT\MaxBIM.grc" -o "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Tools\Win\ResConv.exe" -m r -D WINDOWS -T W -q utf8 1252 -i "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\RINT\MaxBIM.grc" -o "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling the localized GRC file...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="RFIX\MaxBIMFix.grc">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Tools\Win\ResConv.exe" -m r -D WINDOWS -T W -q utf8 1252 -i "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\RFIX\MaxBIMFix.grc" -p "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\RFIX\Images" -D _DEBUG -o "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIMFix.grc.rc2"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Tools\Win\ResConv.exe" -m r -D WINDOWS -T W -q utf8 1252 -i "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\RFIX\MaxBIMFix.grc" -p "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\RFIX\Images" -D _DEBUG -o "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIMFix.grc.rc2"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling the non-localized GRC file...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIMFix.grc.rc2;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Tools\Win\ResConv.exe" -m r -D WINDOWS -T W -q utf8 1252 -i "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\RFIX\MaxBIMFix.grc" -p "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\RFIX\Images" -o "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIMFix.grc.rc2"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIMFix.grc.rc2;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Tools\Win\ResConv.exe" -m r -D WINDOWS -T W -q utf8 1252 -i "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\RFIX\MaxBIMFix.grc" -p "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\RFIX\Images" -o "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIMFix.grc.rc2"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling the non-localized GRC file...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIMFix.grc.rc2;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIMFix.grc.rc2;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="RFIX.WIN\MaxBIM.rc2">
       <FileType>RC</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">rc /i "C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Inc" /i "C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib" /i "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)" /d _DEBUG /fo"$(OutDir)MaxBIM.res" "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\RFIX.WIN\MaxBIM.rc2"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">rc /i "C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Inc" /i "C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib" /i "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)" /d _DEBUG /fo"$(OutDir)MaxBIM.res" "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\RFIX.WIN\MaxBIM.rc2"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling the RC2 file...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)MaxBIM.res;%(Outputs)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2;c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIMFix.grc.rc2;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">rc /i "C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Inc" /i "C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib" /i "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)" /fo"$(OutDir)MaxBIM.res" "c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\RFIX.WIN\MaxBIM.rc2"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">rc /i "C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Inc" /i "C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib" /i "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)" /fo"$(OutDir)MaxBIM.res" "C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\RFIX.WIN\MaxBIM.rc2"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling the RC2 file...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)MaxBIM.res;%(Outputs)</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2;c:\users\maxbim\documents\visual studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIMFix.grc.rc2;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\peace\OneDrive\문서\Visual Studio 2010\Projects\MaxBIM\MaxBIM\$(ConfigurationName)\MaxBIM.grc.rc2;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Lib\Win\ACAP_STAT.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGGraphix\Win\DGGraphixImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib\Win\DGImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\Geometry\Win\GeometryImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSRoot\Win\GSRootImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSUtils\Win\GSUtilsImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\InputOutput\Win\InputOutputImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\TextEngine\Win\TextEngineImp.lib" />
-    <Library Include="..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UCLib\Win\UCImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Lib\Win\ACAP_STAT.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGGraphix\Win\DGGraphixImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib\Win\DGImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\Geometry\Win\GeometryImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSRoot\Win\GSRootImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSUtils\Win\GSUtilsImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\InputOutput\Win\InputOutputImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\TextEngine\Win\TextEngineImp.lib" />
+    <Library Include="..\..\..\..\..\..\..\..\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UCLib\Win\UCImp.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
