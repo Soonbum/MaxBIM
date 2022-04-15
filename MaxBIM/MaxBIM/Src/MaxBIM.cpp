@@ -54,7 +54,8 @@ GSErrCode	__ACENV_CALL	RegisterInterface (void)
 	err = ACAPI_Register_Menu (32011, 32012, MenuCode_UserDef, MenuFlag_Default);	// 테이블폼 배치
 	err = ACAPI_Register_Menu (32005, 32006, MenuCode_UserDef, MenuFlag_Default);	// 레이어 유틸
 	err = ACAPI_Register_Menu (32007, 32008, MenuCode_UserDef, MenuFlag_Default);	// 내보내기
-	err = ACAPI_Register_Menu (32009, 32010, MenuCode_UserDef, MenuFlag_Default);	// 물량 산출
+	err = ACAPI_Register_Menu (32009, 32010, MenuCode_UserDef, MenuFlag_Default);	// 반자동 배치
+	err = ACAPI_Register_Menu (32013, 32014, MenuCode_UserDef, MenuFlag_Default);	// 편의 기능
 	err = ACAPI_Register_Menu (32003, 32004, MenuCode_UserDef, MenuFlag_Default);	// 정보
 
 	return err;
@@ -205,6 +206,76 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			}
 			break;
 
+		case 32013:
+			// 편의 기능
+			switch (menuParams->menuItemRef.itemIndex) {
+				case 1:		// 3D 품질/속도 조정하기
+					err = ACAPI_CallUndoableCommand ("3D 품질/속도 조정하기", [&] () -> GSErrCode {
+						bool	suspGrp;
+						short	result;
+						double	gs_resol;
+						long	nElems;
+
+						bool	bSuccess;
+						long	ElemsChanged = 0;
+						long	ElemsUnchanged = 0;
+
+						GS::Array<API_Guid> elemList;
+						API_Element			elem;
+						API_ElementMemo		memo;
+
+						// 그룹화 일시정지
+						ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
+						if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+
+						result = DGAlert (DG_INFORMATION, "3D 품질/속도 조정하기", "3D 품질을 선택하십시오", "", "느림-고품질(32)", "중간(12)", "빠름-저품질(4)");
+
+						if (result == 1)		gs_resol = 32.0;
+						else if (result == 2)	gs_resol = 12.0;
+						else					gs_resol = 4.0;
+
+						result = DGAlert (DG_WARNING, "3D 품질/속도 조정하기", "계속 진행하시겠습니까?", "", "예", "아니오", "");
+
+						if (result == DG_CANCEL)
+							return err;
+
+						// 모든 객체를 불러옴
+						ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer);
+						nElems = elemList.GetSize ();
+
+						for (short xx = 0 ; xx < nElems ; ++xx) {
+							BNZeroMemory (&elem, sizeof (API_Element));
+							BNZeroMemory (&memo, sizeof (API_ElementMemo));
+							elem.header.guid = elemList [xx];
+							err = ACAPI_Element_Get (&elem);
+
+							if (err == NoError && elem.header.hasMemo) {
+								err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+								if (err == NoError) {
+									bSuccess = setParameterByName (&memo, "gs_resol", gs_resol);	// 해상도 값을 변경함
+
+									ACAPI_Element_Change (&elem, NULL, &memo, APIMemoMask_AddPars, true);
+									ACAPI_DisposeElemMemoHdls (&memo);
+
+									if (bSuccess == true)
+										ElemsChanged ++;
+									else
+										ElemsUnchanged ++;
+								}
+							}
+						}
+
+						elemList.Clear ();
+
+						WriteReport_Alert ("변경된 객체 개수: %d\n변경되지 않은 객체 개수: %d", ElemsChanged, ElemsUnchanged);
+
+						return	err;
+					});
+					break;
+			}
+			break;
+
 		case 32003:
 			// 정보
 			switch (menuParams->menuItemRef.itemIndex) {
@@ -305,7 +376,8 @@ GSErrCode __ACENV_CALL	Initialize (void)
 	err = ACAPI_Install_MenuHandler (32011, MenuCommandHandler);	// 테이블폼 배치
 	err = ACAPI_Install_MenuHandler (32005, MenuCommandHandler);	// 레이어 유틸
 	err = ACAPI_Install_MenuHandler (32007, MenuCommandHandler);	// 내보내기
-	err = ACAPI_Install_MenuHandler (32009, MenuCommandHandler);	// 물량 산출
+	err = ACAPI_Install_MenuHandler (32009, MenuCommandHandler);	// 반자동 배치
+	err = ACAPI_Install_MenuHandler (32013, MenuCommandHandler);	// 편의 기능
 	err = ACAPI_Install_MenuHandler (32003, MenuCommandHandler);	// 정보
 
 	// register special help location if needed
