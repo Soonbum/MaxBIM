@@ -579,3 +579,15 @@
 
 /* [ 43] */	Button			300		584		160		 25		LargePlain		"Autoset"
 }
+
+/* ---------------------------------------------------------- Select a layer for an object */
+'GDLG'  32510  Modal | grow	  0		  0		500		200		"Select a layer for an object" {
+/* [  1] */	Button			150		150		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			240		150		 70		 25		LargePlain		"Cancel"
+/* [  3] */	LeftText		 20		 20		450		 50		LargePlain		""
+
+/* [  4] */	Icon			165		 68		 29		 14  	32502
+/* [  5] */	LeftText		200		 70		200		 23		LargePlain		"Layer Settings"
+/* [  6] */	RightText		 90		 95		100		 23		LargePlain		"Object 1"
+/* [  7] */	UserControl		200		 89		160		 25		257	0x0006 0x0000 0		/* Layer Control - OBJECT 1	*/
+}
