@@ -1242,6 +1242,20 @@ GSErrCode	exportSelectedElementInfo (void)
 							sprintf (buffer, "규격(%s) 길이(%.0f) ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0));
 						}
 						fprintf (fp, buffer);
+
+					} else if (objectInfo.keyDesc.at(xx).compare ("창문 개구부 합판거푸집") == 0) {
+						// 너비 X 높이 X 벽 두께
+						length = atof (objectInfo.records.at(yy).at(2).c_str ());
+						length2 = atof (objectInfo.records.at(yy).at(3).c_str ());
+						length3 = atof (objectInfo.records.at(yy).at(4).c_str ());
+						sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
+						fprintf (fp, buffer);
+
+						// 합판 면적
+						totalAreaOfPlywoods += ((atof (objectInfo.records.at(yy).at(5).c_str ())) * count);
+
+						// 다루끼 길이
+						totalLengthOfTimbers_40x50 += ((atof (objectInfo.records.at(yy).at(6).c_str ())) * count);
 						
 					} else {
 						for (zz = 0 ; zz < objectInfo.nInfo.at(xx) ; ++zz) {
@@ -1330,7 +1344,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		}
 	}
 	if ((totalAreaOfPlywoods > EPS) || (totalLengthOfTimbers_40x50 > EPS) || (totalLengthOfTimbers_50x80 > EPS) || (totalLengthOfTimbers_80x80 > EPS) || (totalLengthOfTimbersEtc > EPS)) {
-		sprintf (buffer, "\n주의사항: 합판/목재 구매 수량은 다음 객체에 대해서만 계산되었습니다. 추가될 객체가 있다면 개발자에게 문의하십시오.\n합판 / 합판(다각형) / 목재 / 매직바 / 매직아웃코너 / 매직인코너 / 눈썹보 브라켓 v2\n");
+		sprintf (buffer, "\n주의사항: 합판/목재 구매 수량은 다음 객체에 대해서만 계산되었습니다. 추가될 객체가 있다면 개발자에게 문의하십시오.\n합판 / 합판(다각형) / 목재 / 매직바 / 매직아웃코너 / 매직인코너 / 눈썹보 브라켓 v2 / 창문 개구부 합판거푸집\n");
 		fprintf (fp, buffer);
 	}
 
