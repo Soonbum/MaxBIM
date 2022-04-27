@@ -1,7 +1,7 @@
 # MaxBIM
 * 개발자: 정순범 (canvas84@naver.com)
 
-* 설명: 이것은 (주)맥스BIM, (주)스마트맥스가 소유한 아키캐드(이하 AC) 19용 애드온으로서 업무 보조용 도구입니다.
+* 설명: 이것은 (주)스마트맥스가 소유한 아키캐드(이하 AC) 19용 애드온으로서 업무 보조용 도구입니다.
 
 * 개발환경: Windows 10 64Bit, Visual Studio 2010, ArchiCAD API Development Kit 19
 
