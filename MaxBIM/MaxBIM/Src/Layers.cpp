@@ -17,6 +17,7 @@ short	clickedBtnItemIdx;	// 클릭한 버튼의 항목 인덱스
 
 short	BUTTON_LOAD;
 short	LABEL_CODE;
+short	LABEL_LAYER_NAME;
 short	SELECTALL_1_CONTYPE;
 short	SELECTALL_2_DONG;
 short	SELECTALL_3_FLOOR;
@@ -221,7 +222,7 @@ bool		isFullLayer (LayerNameSystem *layerInfo)
 	}
 }
 
-// 레이어 쉽게 선택하기
+// 레이어 쉽게 선택하기 (레이어 쉽게 보여주기)
 GSErrCode	showLayersEasily (void)
 {
 	GSErrCode	err = NoError;
@@ -599,7 +600,7 @@ GSErrCode	showLayersEasily (void)
 	}
 
 	// [다이얼로그 박스] 레이어 쉽게 선택하기
-	result = DGBlankModalDialog (700, 600, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerShowHandler, 0);
+	result = DGBlankModalDialog (1500, 600, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerShowHandler, 0);
 
 	// OK 버튼이 아니면 메모리 해제하고 종료
 	if (result != DG_OK) {
@@ -882,6 +883,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 	short	xx;
 	char	tempStr [128];
 	short	dialogSizeX, dialogSizeY;
+	short	borderX = 1400;
 
 	GSErrCode err = NoError;
 	API_ModulData  info;
@@ -938,7 +940,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					layerInfo.code_idx [xx] = itmIdx;
 
 					itmPosX += 100;
-					if (itmPosX >= 600) {
+					if (itmPosX >= borderX) {
 						itmPosX = 150;
 						itmPosY += 30;
 					}
@@ -952,7 +954,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				DGShowItem (dialogID, itmIdx);
 				SELECTALL_1_CONTYPE = itmIdx;
 				itmPosX += 100;
-				if (itmPosX >= 600) {
+				if (itmPosX >= borderX) {
 					itmPosX = 150;
 					itmPosY += 30;
 				}
@@ -980,7 +982,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					layerInfo.dong_idx [xx] = itmIdx;
 
 					itmPosX += 100;
-					if (itmPosX >= 600) {
+					if (itmPosX >= borderX) {
 						itmPosX = 150;
 						itmPosY += 30;
 					}
@@ -994,7 +996,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				DGShowItem (dialogID, itmIdx);
 				SELECTALL_2_DONG = itmIdx;
 				itmPosX += 100;
-				if (itmPosX >= 600) {
+				if (itmPosX >= borderX) {
 					itmPosX = 150;
 					itmPosY += 30;
 				}
@@ -1022,7 +1024,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					layerInfo.floor_idx [xx] = itmIdx;
 
 					itmPosX += 100;
-					if (itmPosX >= 600) {
+					if (itmPosX >= borderX) {
 						itmPosX = 150;
 						itmPosY += 30;
 					}
@@ -1036,7 +1038,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				DGShowItem (dialogID, itmIdx);
 				SELECTALL_3_FLOOR = itmIdx;
 				itmPosX += 100;
-				if (itmPosX >= 600) {
+				if (itmPosX >= borderX) {
 					itmPosX = 150;
 					itmPosY += 30;
 				}
@@ -1064,7 +1066,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					layerInfo.cast_idx [xx] = itmIdx;
 
 					itmPosX += 100;
-					if (itmPosX >= 600) {
+					if (itmPosX >= borderX) {
 						itmPosX = 150;
 						itmPosY += 30;
 					}
@@ -1078,7 +1080,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				DGShowItem (dialogID, itmIdx);
 				SELECTALL_4_CAST = itmIdx;
 				itmPosX += 100;
-				if (itmPosX >= 600) {
+				if (itmPosX >= borderX) {
 					itmPosX = 150;
 					itmPosY += 30;
 				}
@@ -1106,7 +1108,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					layerInfo.CJ_idx [xx] = itmIdx;
 
 					itmPosX += 100;
-					if (itmPosX >= 600) {
+					if (itmPosX >= borderX) {
 						itmPosX = 150;
 						itmPosY += 30;
 					}
@@ -1120,7 +1122,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				DGShowItem (dialogID, itmIdx);
 				SELECTALL_5_CJ = itmIdx;
 				itmPosX += 100;
-				if (itmPosX >= 600) {
+				if (itmPosX >= borderX) {
 					itmPosX = 150;
 					itmPosY += 30;
 				}
@@ -1148,7 +1150,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					layerInfo.orderInCJ_idx [xx] = itmIdx;
 
 					itmPosX += 100;
-					if (itmPosX >= 600) {
+					if (itmPosX >= borderX) {
 						itmPosX = 150;
 						itmPosY += 30;
 					}
@@ -1162,7 +1164,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				DGShowItem (dialogID, itmIdx);
 				SELECTALL_6_ORDER = itmIdx;
 				itmPosX += 100;
-				if (itmPosX >= 600) {
+				if (itmPosX >= borderX) {
 					itmPosX = 150;
 					itmPosY += 30;
 				}
@@ -1191,7 +1193,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 						layerInfo.obj_idx [xx] = itmIdx;
 
 						itmPosX += 100;
-						if (itmPosX >= 600) {
+						if (itmPosX >= borderX) {
 							itmPosX = 150;
 							itmPosY += 30;
 						}
@@ -1222,7 +1224,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 						layerInfo.obj_idx [xx] = itmIdx;
 
 						itmPosX += 100;
-						if (itmPosX >= 600) {
+						if (itmPosX >= borderX) {
 							itmPosX = 150;
 							itmPosY += 30;
 						}
@@ -1253,7 +1255,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 						layerInfo.obj_idx [xx] = itmIdx;
 
 						itmPosX += 100;
-						if (itmPosX >= 600) {
+						if (itmPosX >= borderX) {
 							itmPosX = 150;
 							itmPosY += 30;
 						}
@@ -1284,7 +1286,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 						layerInfo.obj_idx [xx] = itmIdx;
 
 						itmPosX += 100;
-						if (itmPosX >= 600) {
+						if (itmPosX >= borderX) {
 							itmPosX = 150;
 							itmPosY += 30;
 						}
@@ -1315,7 +1317,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					layerInfo.productSite_idx [xx] = itmIdx;
 
 					itmPosX += 100;
-					if (itmPosX >= 600) {
+					if (itmPosX >= borderX) {
 						itmPosX = 150;
 						itmPosY += 30;
 					}
@@ -1329,7 +1331,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				DGShowItem (dialogID, itmIdx);
 				SELECTALL_8_PRODUCT_SITE = itmIdx;
 				itmPosX += 100;
-				if (itmPosX >= 600) {
+				if (itmPosX >= borderX) {
 					itmPosX = 150;
 					itmPosY += 30;
 				}
@@ -1350,14 +1352,14 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 			itmPosY -= 5;
 			for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx) {
 				if (layerInfo.productNum_state [xx] == true) {
-					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 45, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
 					DGSetItemText (dialogID, itmIdx, layerInfo.productNum_name [xx].c_str ());
 					DGShowItem (dialogID, itmIdx);
 					layerInfo.productNum_idx [xx] = itmIdx;
 
-					itmPosX += 100;
-					if (itmPosX >= 600) {
+					itmPosX += 50;
+					if (itmPosX >= borderX) {
 						itmPosX = 150;
 						itmPosY += 30;
 					}
@@ -1371,13 +1373,13 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				DGShowItem (dialogID, itmIdx);
 				SELECTALL_9_PRODUCT_NUM = itmIdx;
 				itmPosX += 100;
-				if (itmPosX >= 600) {
+				if (itmPosX >= borderX) {
 					itmPosX = 150;
 					itmPosY += 30;
 				}
 			}
 
-			dialogSizeX = 700;
+			dialogSizeX = 1500;
 			dialogSizeY = itmPosY + 150;
 			DGSetDialogSize (dialogID, DG_FRAME, dialogSizeX, dialogSizeY, DG_TOPLEFT, true);
 
@@ -1585,7 +1587,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 						}
 
 					// 버튼 상태 저장
-					saveButtonStatus ();
+					saveButtonStatus_show ();
 
 					break;
 
@@ -1599,7 +1601,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					// 저장된 버튼 상태를 불러옴
 					if (clickedBtnItemIdx == BUTTON_LOAD) {
 						BNZeroMemory (&info, sizeof (API_ModulData));
-						err = ACAPI_ModulData_Get (&info, "ButtonStatus");
+						err = ACAPI_ModulData_Get (&info, "ButtonStatus_show");
 
 						if (err == NoError && info.dataVersion == 1) {
 							selectedInfoSaved = *(reinterpret_cast<StatusOfLayerNameSystem*> (*info.dataHdl));
@@ -1661,8 +1663,8 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 	return	result;
 }
 
-// 최근 버튼 상태 저장하기
-GSErrCode	saveButtonStatus (void)
+// 최근 버튼 상태 저장하기 (레이어 쉽게 보여주기)
+GSErrCode	saveButtonStatus_show (void)
 {
 	GSErrCode err = NoError;
 
@@ -1671,7 +1673,7 @@ GSErrCode	saveButtonStatus (void)
 	BNZeroMemory (&info, sizeof (API_ModulData));
 	info.dataVersion = 1;
 	info.platformSign = GS::Act_Platform_Sign;
-	info.dataHdl = BMAllocateHandle (sizeof (StatusOfLayerNameSystem), 0, 0);
+	info.dataHdl = BMAllocateHandle (sizeof (selectedInfoSaved), 0, 0);
 	if (info.dataHdl != NULL) {
 
 		for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx)
@@ -1694,7 +1696,7 @@ GSErrCode	saveButtonStatus (void)
 			selectedInfoSaved.productNum_state [xx] = selectedInfo.productNum_state [xx];
 
 		*(reinterpret_cast<StatusOfLayerNameSystem*> (*info.dataHdl)) = selectedInfoSaved;
-		err = ACAPI_ModulData_Store (&info, "ButtonStatus");
+		err = ACAPI_ModulData_Store (&info, "ButtonStatus_show");
 		BMKillHandle (&info.dataHdl);
 	} else {
 		err = APIERR_MEMFULL;
@@ -3101,6 +3103,8 @@ GSErrCode	assignLayerEasily (void)
 
 	// 구조체 초기화
 	allocateMemory (&layerInfo);
+	selectedInfo = layerInfo;	// selectedInfo에는 vector가 비어 있으므로 초기화를 위해 복사해 둠
+	allocateMemory (&selectedInfo);
 
 	// [다이얼로그 박스] 레이어 쉽게 지정하기
 	result = DGBlankModalDialog (1100, 120, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerAssignHandler, 0);
@@ -3108,6 +3112,7 @@ GSErrCode	assignLayerEasily (void)
 	// OK 버튼이 아니면 메모리 해제하고 종료
 	if (result != DG_OK) {
 		deallocateMemory (&layerInfo);
+		deallocateMemory (&selectedInfo);
 		return	err;
 	}
 
@@ -3454,6 +3459,7 @@ GSErrCode	assignLayerEasily (void)
 
 	// 메모리 해제
 	deallocateMemory (&layerInfo);
+	deallocateMemory (&selectedInfo);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -3473,19 +3479,22 @@ short DGCALLBACK layerAssignHandler (short message, short dialogID, short item, 
 	short	xx;
 	short	anyTrue;
 
+	GSErrCode err = NoError;
+	API_ModulData  info;
+
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
 			DGSetDialogTitle (dialogID, "레이어 쉽게 지정하기");
 
 			// 확인 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 1020, 25, 60, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 1020, 10, 60, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_OK, "지정");
 			DGShowItem (dialogID, DG_OK);
 
 			// 취소 버튼
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 1020, 60, 60, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 1020, 45, 60, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, DG_CANCEL, "취소");
 			DGShowItem (dialogID, DG_CANCEL);
@@ -3598,6 +3607,18 @@ short DGCALLBACK layerAssignHandler (short message, short dialogID, short item, 
 			DGShowItem (dialogID, CHECKBOX_PRODUCT_SITE_NUM);
 			DGSetItemValLong (dialogID, CHECKBOX_PRODUCT_SITE_NUM, TRUE);
 
+			// 버튼: 로드
+			BUTTON_LOAD = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 1020, 80, 60, 25);
+			DGSetItemFont (dialogID, BUTTON_LOAD, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_LOAD, "로드");
+			DGShowItem (dialogID, BUTTON_LOAD);
+
+			// 라벨: 레이어 이름
+			LABEL_LAYER_NAME = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 30, 15, 600, 23);
+			DGSetItemFont (dialogID, LABEL_LAYER_NAME, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, LABEL_LAYER_NAME, "레이어 이름을 표시함");
+			DGShowItem (dialogID, LABEL_LAYER_NAME);
+
 			break;
 		
 		case DG_MSG_CHANGE:
@@ -3617,150 +3638,409 @@ short DGCALLBACK layerAssignHandler (short message, short dialogID, short item, 
 			break;
 
 		case DG_MSG_CLICK:
-			switch (item) {
-				case DG_OK:
-					if (DGGetItemValLong (dialogID, CHECKBOX_PRODUCT_SITE_NUM) == TRUE)
-						layerInfo.extendedLayer = true;
-					else
-						layerInfo.extendedLayer = false;
-					break;
+			if (item == DG_OK) {
+				if (DGGetItemValLong (dialogID, CHECKBOX_PRODUCT_SITE_NUM) == TRUE)
+					layerInfo.extendedLayer = true;
+				else
+					layerInfo.extendedLayer = false;
 
-				case DG_CANCEL:
-					break;
+				// 버튼 상태 저장
+				saveButtonStatus_assign ();
 
-				default:
-					clickedBtnItemIdx = item;
-					item = 0;	// 다른 버튼을 눌렀을 때 다이얼로그가 닫히지 않게 함
+			} else if (item == DG_CANCEL) {
 
+			} else if (item == BUTTON_LOAD) {
+				item = 0;	// 다른 버튼을 눌렀을 때 다이얼로그가 닫히지 않게 함
+
+				char	currentLayerName [128] = "";
+				char	fragOfLayer [32] = "";
+
+				// 저장된 버튼 상태를 불러옴
+				BNZeroMemory (&info, sizeof (API_ModulData));
+				err = ACAPI_ModulData_Get (&info, "ButtonStatus_assign");
+
+				if (err == NoError && info.dataVersion == 1) {
+					selectedInfoSaved = *(reinterpret_cast<StatusOfLayerNameSystem*> (*info.dataHdl));
+							
+					strcpy (fragOfLayer, "____");
+					for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
+						if (selectedInfoSaved.code_state [xx] == true) {
+							layerInfo.code_state [xx] = true;
+							strcpy (fragOfLayer, layerInfo.code_name [xx].c_str ());
+						}
+					}
+					strcat (currentLayerName, fragOfLayer);
+					strcat (currentLayerName, " - ");
+					strcpy (fragOfLayer, "____");
+					for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
+						if (selectedInfoSaved.dong_state [xx] == true) {
+							layerInfo.dong_state [xx] = true;
+							strcpy (fragOfLayer, layerInfo.dong_name [xx].c_str ());
+						}
+					}
+					strcat (currentLayerName, fragOfLayer);
+					strcat (currentLayerName, " - ");
+					strcpy (fragOfLayer, "___");
+					for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
+						if (selectedInfoSaved.floor_state [xx] == true) {
+							layerInfo.floor_state [xx] = true;
+							strcpy (fragOfLayer, layerInfo.floor_name [xx].c_str ());
+						}
+					}
+					strcat (currentLayerName, fragOfLayer);
+					strcat (currentLayerName, " - ");
+					strcpy (fragOfLayer, "__");
+					for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx) {
+						if (selectedInfoSaved.cast_state [xx] == true) {
+							layerInfo.cast_state [xx] = true;
+							strcpy (fragOfLayer, layerInfo.cast_name [xx].c_str ());
+						}
+					}
+					strcat (currentLayerName, fragOfLayer);
+					strcat (currentLayerName, " - ");
+					strcpy (fragOfLayer, "__");
+					for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
+						if (selectedInfoSaved.CJ_state [xx] == true) {
+							layerInfo.CJ_state [xx] = true;
+							strcpy (fragOfLayer, layerInfo.CJ_name [xx].c_str ());
+						}
+					}
+					strcat (currentLayerName, fragOfLayer);
+					strcat (currentLayerName, " - ");
+					strcpy (fragOfLayer, "__");
+					for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
+						if (selectedInfoSaved.orderInCJ_state [xx] == true) {
+							layerInfo.orderInCJ_state [xx] = true;
+							strcpy (fragOfLayer, layerInfo.orderInCJ_name [xx].c_str ());
+						}
+					}
+					strcat (currentLayerName, fragOfLayer);
+					strcat (currentLayerName, " - ");
+					strcpy (fragOfLayer, "____");
+					for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
+						if (selectedInfoSaved.obj_state [xx] == true) {
+							layerInfo.obj_state [xx] = true;
+							strcpy (fragOfLayer, layerInfo.obj_name [xx].c_str ());
+						}
+					}
+					strcat (currentLayerName, fragOfLayer);
+					if (DGGetItemValLong (dialogID, CHECKBOX_PRODUCT_SITE_NUM) == TRUE) {
+						strcat (currentLayerName, " - ");
+						strcpy (fragOfLayer, "____");
+						for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx) {
+							if (selectedInfoSaved.productSite_state [xx] == true) {
+								layerInfo.productSite_state [xx] = true;
+								strcpy (fragOfLayer, layerInfo.productSite_name [xx].c_str ());
+							}
+						}
+						strcat (currentLayerName, fragOfLayer);
+						strcat (currentLayerName, " - ");
+						strcpy (fragOfLayer, "___");
+						for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx) {
+							if (selectedInfoSaved.productNum_state [xx] == true) {
+								layerInfo.productNum_state [xx] = true;
+								strcpy (fragOfLayer, layerInfo.productNum_name [xx].c_str ());
+							}
+						}
+						strcat (currentLayerName, fragOfLayer);
+					}
+				}
+
+				BMKillHandle (&info.dataHdl);
+
+				// 레이어 이름 라벨에 현재까지 지정된 레이어의 이름을 표현함
+				DGSetItemText (dialogID, LABEL_LAYER_NAME, currentLayerName);
+
+				// 버튼의 글꼴 설정 (공사 구분)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx)
+					if (layerInfo.code_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (동 구분)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx)
+					if (layerInfo.dong_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (층 구분)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx)
+					if (layerInfo.floor_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (타설 번호)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx)
+					if (layerInfo.cast_state [xx] == true) anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_CAST, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_CAST, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (CJ)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx)
+					if (layerInfo.CJ_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (시공순서)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx)
+					if (layerInfo.orderInCJ_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (부재)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx)
+					if (layerInfo.obj_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (제작처 구분)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx)
+					if (layerInfo.productSite_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_PRODUCT_SITE, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_PRODUCT_SITE, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (제작 번호)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx)
+					if (layerInfo.productNum_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_PRODUCT_NUM, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_PRODUCT_NUM, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+			} else {
+				clickedBtnItemIdx = item;
+				item = 0;	// 다른 버튼을 눌렀을 때 다이얼로그가 닫히지 않게 함
+
+				dialogSizeX = 600;
+				dialogSizeY = 500;
+
+				// 메인 창 크기
+				if (clickedBtnItemIdx == BUTTON_CODE) {
 					dialogSizeX = 600;
-					dialogSizeY = 500;
+					dialogSizeY = 180;
+				} else if (clickedBtnItemIdx == BUTTON_DONG) {
+					dialogSizeX = 600;
+					dialogSizeY = 250;
+				} else if (clickedBtnItemIdx == BUTTON_FLOOR) {
+					dialogSizeX = 1000;
+					dialogSizeY = 550;
+				} else if (clickedBtnItemIdx == BUTTON_CAST) {
+					dialogSizeX = 500;
+					dialogSizeY = 350;
+				} else if (clickedBtnItemIdx == BUTTON_CJ) {
+					dialogSizeX = 500;
+					dialogSizeY = 350;
+				} else if (clickedBtnItemIdx == BUTTON_ORDER) {
+					dialogSizeX = 500;
+					dialogSizeY = 350;
+				} else if (clickedBtnItemIdx == BUTTON_OBJ) {
+					dialogSizeX = 1200;
+					dialogSizeY = 800;
+				} else if (clickedBtnItemIdx == BUTTON_PRODUCT_SITE) {
+					dialogSizeX = 600;
+					dialogSizeY = 90;
+				} else if (clickedBtnItemIdx == BUTTON_PRODUCT_NUM) {
+					dialogSizeX = 600;
+					dialogSizeY = 250;
+				}
 
-					// 메인 창 크기
-					if (clickedBtnItemIdx == BUTTON_CODE) {
-						dialogSizeX = 600;
-						dialogSizeY = 180;
-					} else if (clickedBtnItemIdx == BUTTON_DONG) {
-						dialogSizeX = 600;
-						dialogSizeY = 250;
-					} else if (clickedBtnItemIdx == BUTTON_FLOOR) {
-						dialogSizeX = 1000;
-						dialogSizeY = 550;
-					} else if (clickedBtnItemIdx == BUTTON_CAST) {
-						dialogSizeX = 500;
-						dialogSizeY = 350;
-					} else if (clickedBtnItemIdx == BUTTON_CJ) {
-						dialogSizeX = 500;
-						dialogSizeY = 350;
-					} else if (clickedBtnItemIdx == BUTTON_ORDER) {
-						dialogSizeX = 500;
-						dialogSizeY = 350;
-					} else if (clickedBtnItemIdx == BUTTON_OBJ) {
-						dialogSizeX = 1200;
-						dialogSizeY = 800;
-					} else if (clickedBtnItemIdx == BUTTON_PRODUCT_SITE) {
-						dialogSizeX = 600;
-						dialogSizeY = 90;
-					} else if (clickedBtnItemIdx == BUTTON_PRODUCT_NUM) {
-						dialogSizeX = 600;
-						dialogSizeY = 250;
+				// [다이얼로그 박스] 레이어 쉽게 지정하기 2차
+				result = DGBlankModalDialog (dialogSizeX, dialogSizeY, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerAssignHandler_2, 0);
+
+				// 버튼의 글꼴 설정 (공사 구분)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx)
+					if (layerInfo.code_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (동 구분)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx)
+					if (layerInfo.dong_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (층 구분)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx)
+					if (layerInfo.floor_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (타설 번호)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx)
+					if (layerInfo.cast_state [xx] == true) anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_CAST, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_CAST, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (CJ)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx)
+					if (layerInfo.CJ_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (시공순서)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx)
+					if (layerInfo.orderInCJ_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (부재)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx)
+					if (layerInfo.obj_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (제작처 구분)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx)
+					if (layerInfo.productSite_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_PRODUCT_SITE, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_PRODUCT_SITE, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 버튼의 글꼴 설정 (제작 번호)
+				anyTrue = 0;
+				for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx)
+					if (layerInfo.productNum_state [xx] == true)	anyTrue++;
+				if (anyTrue > 0) {
+					DGSetItemFont (dialogID, BUTTON_PRODUCT_NUM, DG_IS_LARGE | DG_IS_BOLD);
+				} else {
+					DGSetItemFont (dialogID, BUTTON_PRODUCT_NUM, DG_IS_LARGE | DG_IS_PLAIN);
+				}
+
+				// 레이어 이름 라벨에 현재까지 지정된 레이어의 이름을 표현함
+				char	currentLayerName [128] = "";
+				char	fragOfLayer [32] = "";
+
+				strcpy (fragOfLayer, "____");
+				for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
+					if (layerInfo.code_state [xx] == true)
+						strcpy (fragOfLayer, layerInfo.code_name [xx].c_str ());
+				}
+				strcat (currentLayerName, fragOfLayer);
+				strcat (currentLayerName, " - ");
+				strcpy (fragOfLayer, "____");
+				for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
+					if (layerInfo.dong_state [xx] == true)
+						strcpy (fragOfLayer, layerInfo.dong_name [xx].c_str ());
+				}
+				strcat (currentLayerName, fragOfLayer);
+				strcat (currentLayerName, " - ");
+				strcpy (fragOfLayer, "___");
+				for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
+					if (layerInfo.floor_state [xx] == true)
+						strcpy (fragOfLayer, layerInfo.floor_name [xx].c_str ());
+				}
+				strcat (currentLayerName, fragOfLayer);
+				strcat (currentLayerName, " - ");
+				strcpy (fragOfLayer, "__");
+				for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx) {
+					if (layerInfo.cast_state [xx] == true)
+						strcpy (fragOfLayer, layerInfo.cast_name [xx].c_str ());
+				}
+				strcat (currentLayerName, fragOfLayer);
+				strcat (currentLayerName, " - ");
+				strcpy (fragOfLayer, "__");
+				for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
+					if (layerInfo.CJ_state [xx] == true)
+						strcpy (fragOfLayer, layerInfo.CJ_name [xx].c_str ());
+				}
+				strcat (currentLayerName, fragOfLayer);
+				strcat (currentLayerName, " - ");
+				strcpy (fragOfLayer, "__");
+				for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
+					if (layerInfo.orderInCJ_state [xx] == true)
+						strcpy (fragOfLayer, layerInfo.orderInCJ_name [xx].c_str ());
+				}
+				strcat (currentLayerName, fragOfLayer);
+				strcat (currentLayerName, " - ");
+				strcpy (fragOfLayer, "____");
+				for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
+					if (layerInfo.obj_state [xx] == true)
+						strcpy (fragOfLayer, layerInfo.obj_name [xx].c_str ());
+				}
+				strcat (currentLayerName, fragOfLayer);
+				if (DGGetItemValLong (dialogID, CHECKBOX_PRODUCT_SITE_NUM) == TRUE) {
+					strcat (currentLayerName, " - ");
+					strcpy (fragOfLayer, "____");
+					for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx) {
+						if (layerInfo.productSite_state [xx] == true)
+							strcpy (fragOfLayer, layerInfo.productSite_name [xx].c_str ());
 					}
-
-					// [다이얼로그 박스] 레이어 쉽게 지정하기 2차
-					result = DGBlankModalDialog (dialogSizeX, dialogSizeY, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, layerAssignHandler_2, 0);
-
-					// 버튼의 글꼴 설정 (공사 구분)
-					anyTrue = 0;
-					for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx)
-						if (layerInfo.code_state [xx] == true)	anyTrue++;
-					if (anyTrue > 0) {
-						DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_BOLD);
-					} else {
-						DGSetItemFont (dialogID, BUTTON_CODE, DG_IS_LARGE | DG_IS_PLAIN);
+					strcat (currentLayerName, fragOfLayer);
+					strcat (currentLayerName, " - ");
+					strcpy (fragOfLayer, "___");
+					for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx) {
+						if (layerInfo.productNum_state [xx] == true)
+							strcpy (fragOfLayer, layerInfo.productNum_name [xx].c_str ());
 					}
+					strcat (currentLayerName, fragOfLayer);
+				}
 
-					// 버튼의 글꼴 설정 (동 구분)
-					anyTrue = 0;
-					for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx)
-						if (layerInfo.dong_state [xx] == true)	anyTrue++;
-					if (anyTrue > 0) {
-						DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_BOLD);
-					} else {
-						DGSetItemFont (dialogID, BUTTON_DONG, DG_IS_LARGE | DG_IS_PLAIN);
-					}
-
-					// 버튼의 글꼴 설정 (층 구분)
-					anyTrue = 0;
-					for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx)
-						if (layerInfo.floor_state [xx] == true)	anyTrue++;
-					if (anyTrue > 0) {
-						DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_BOLD);
-					} else {
-						DGSetItemFont (dialogID, BUTTON_FLOOR, DG_IS_LARGE | DG_IS_PLAIN);
-					}
-
-					// 버튼의 글꼴 설정 (타설 번호)
-					anyTrue = 0;
-					for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx)
-						if (layerInfo.cast_state [xx] == true) anyTrue++;
-					if (anyTrue > 0) {
-						DGSetItemFont (dialogID, BUTTON_CAST, DG_IS_LARGE | DG_IS_BOLD);
-					} else {
-						DGSetItemFont (dialogID, BUTTON_CAST, DG_IS_LARGE | DG_IS_PLAIN);
-					}
-
-					// 버튼의 글꼴 설정 (CJ)
-					anyTrue = 0;
-					for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx)
-						if (layerInfo.CJ_state [xx] == true)	anyTrue++;
-					if (anyTrue > 0) {
-						DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_BOLD);
-					} else {
-						DGSetItemFont (dialogID, BUTTON_CJ, DG_IS_LARGE | DG_IS_PLAIN);
-					}
-
-					// 버튼의 글꼴 설정 (시공순서)
-					anyTrue = 0;
-					for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx)
-						if (layerInfo.orderInCJ_state [xx] == true)	anyTrue++;
-					if (anyTrue > 0) {
-						DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_BOLD);
-					} else {
-						DGSetItemFont (dialogID, BUTTON_ORDER, DG_IS_LARGE | DG_IS_PLAIN);
-					}
-
-					// 버튼의 글꼴 설정 (부재)
-					anyTrue = 0;
-					for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx)
-						if (layerInfo.obj_state [xx] == true)	anyTrue++;
-					if (anyTrue > 0) {
-						DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_BOLD);
-					} else {
-						DGSetItemFont (dialogID, BUTTON_OBJ, DG_IS_LARGE | DG_IS_PLAIN);
-					}
-
-					// 버튼의 글꼴 설정 (제작처 구분)
-					anyTrue = 0;
-					for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx)
-						if (layerInfo.productSite_state [xx] == true)	anyTrue++;
-					if (anyTrue > 0) {
-						DGSetItemFont (dialogID, BUTTON_PRODUCT_SITE, DG_IS_LARGE | DG_IS_BOLD);
-					} else {
-						DGSetItemFont (dialogID, BUTTON_PRODUCT_SITE, DG_IS_LARGE | DG_IS_PLAIN);
-					}
-
-					// 버튼의 글꼴 설정 (제작 번호)
-					anyTrue = 0;
-					for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx)
-						if (layerInfo.productNum_state [xx] == true)	anyTrue++;
-					if (anyTrue > 0) {
-						DGSetItemFont (dialogID, BUTTON_PRODUCT_NUM, DG_IS_LARGE | DG_IS_BOLD);
-					} else {
-						DGSetItemFont (dialogID, BUTTON_PRODUCT_NUM, DG_IS_LARGE | DG_IS_PLAIN);
-					}
-
-					break;
+				DGSetItemText (dialogID, LABEL_LAYER_NAME, currentLayerName);
 			}
-			break;
 
 		case DG_MSG_CLOSE:
 			switch (item) {
@@ -4280,6 +4560,48 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 	result = item;
 
 	return	result;
+}
+
+// 최근 버튼 상태 저장하기 (레이어 쉽게 지정하기)
+GSErrCode	saveButtonStatus_assign (void)
+{
+	GSErrCode err = NoError;
+
+	short	xx;
+	API_ModulData	info;
+	BNZeroMemory (&info, sizeof (API_ModulData));
+	info.dataVersion = 1;
+	info.platformSign = GS::Act_Platform_Sign;
+	info.dataHdl = BMAllocateHandle (sizeof (selectedInfoSaved), 0, 0);
+	if (info.dataHdl != NULL) {
+
+		for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx)
+			selectedInfoSaved.code_state [xx] = layerInfo.code_state [xx];
+		for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx)
+			selectedInfoSaved.dong_state [xx] = layerInfo.dong_state [xx];
+		for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx)
+			selectedInfoSaved.floor_state [xx] = layerInfo.floor_state [xx];
+		for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx)
+			selectedInfoSaved.cast_state [xx] = layerInfo.cast_state [xx];
+		for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx)
+			selectedInfoSaved.CJ_state [xx] = layerInfo.CJ_state [xx];
+		for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx)
+			selectedInfoSaved.orderInCJ_state [xx] = layerInfo.orderInCJ_state [xx];
+		for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx)
+			selectedInfoSaved.obj_state [xx] = layerInfo.obj_state [xx];
+		for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx)
+			selectedInfoSaved.productSite_state [xx] = layerInfo.productSite_state [xx];
+		for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx)
+			selectedInfoSaved.productNum_state [xx] = layerInfo.productNum_state [xx];
+
+		*(reinterpret_cast<StatusOfLayerNameSystem*> (*info.dataHdl)) = selectedInfoSaved;
+		err = ACAPI_ModulData_Store (&info, "ButtonStatus_assign");
+		BMKillHandle (&info.dataHdl);
+	} else {
+		err = APIERR_MEMFULL;
+	}
+
+	return	err;
 }
 
 // 레이어 이름 검사하기

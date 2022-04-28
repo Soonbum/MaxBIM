@@ -148,7 +148,7 @@ bool		isFullLayer (LayerNameSystem *layerInfo);			// 레이어 필드 코드에 누락이 �
 
 GSErrCode	showLayersEasily (void);		// 레이어 쉽게 선택하기
 short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그 박스] 레이어 쉽게 선택하기
-GSErrCode	saveButtonStatus (void);		// 최근 버튼 상태 저장하기
+GSErrCode	saveButtonStatus_show (void);	// 최근 버튼 상태 저장하기 (레이어 쉽게 보여주기)
 
 GSErrCode	makeLayersEasily (void);		// 레이어 쉽게 만들기
 short DGCALLBACK layerMakeHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그 박스] 레이어 쉽게 만들기
@@ -157,6 +157,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 GSErrCode	assignLayerEasily (void);		// 레이어 쉽게 지정하기
 short DGCALLBACK layerAssignHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그 박스] 레이어 쉽게 지정하기
 short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그 박스] 레이어 쉽게 지정하기 2차
+GSErrCode	saveButtonStatus_assign (void);	// 최근 버튼 상태 저장하기 (레이어 쉽게 지정하기)
 
 GSErrCode	inspectLayerNames (void);		// 레이어 이름 검사하기
 short DGCALLBACK layerNameInspectionHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그 박스] 레이어 이름 검사하기
