@@ -2967,15 +2967,10 @@ GSErrCode	assignLayerEasily (void)
 	bool	suspGrp;
 
 
+	// 그룹화 일시정지 ON
 	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
 	if (suspGrp == false) {
-		result = DGAlert (DG_INFORMATION, "요소들이 그룹화 되어 있습니다.", "그룹화 일시중지를 켜시겠습니까?", "", "예", "아니오", "");
-		if (result != DG_OK) {
-			return	err;
-		} else {
-			// 그룹화 일시정지 ON
-			ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
-		}
+		ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
 	}
 
 	// 선택한 객체가 있는지 확인함
@@ -3460,6 +3455,12 @@ GSErrCode	assignLayerEasily (void)
 	// 메모리 해제
 	deallocateMemory (&layerInfo);
 	deallocateMemory (&selectedInfo);
+
+	// 그룹화 일시정지 OFF
+	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
+	if (suspGrp == true) {
+		ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	}
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
