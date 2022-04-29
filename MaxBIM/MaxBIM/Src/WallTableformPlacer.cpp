@@ -292,7 +292,7 @@ GSErrCode	placeTableformOnWall (void)
 	placingZone.leftBottomZ = infoWall.bottomOffset;
 
 	// 초기 셀 개수 계산
-	placingZone.nCellsInHor = (short)floor (placingZone.horLen / 2.300);
+	placingZone.nCellsInHor = (short)floor (placingZone.horLen / 2.250);
 	placingZone.nCellsInVerBasic = (short)floor (placingZone.verLenBasic / 1.200);
 	placingZone.nCellsInVerExtra = (short)floor (placingZone.verLenExtra / 1.200);
 

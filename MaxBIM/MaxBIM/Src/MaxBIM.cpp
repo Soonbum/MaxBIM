@@ -149,6 +149,9 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 5:		// 보 테이블폼 물량표 작성
 					err = exportBeamTableformInformation ();
 					break;
+				case 6:		// 테이블폼 면적 계산
+					err = calcTableformArea ();
+					break;
 			}
 			break;
 

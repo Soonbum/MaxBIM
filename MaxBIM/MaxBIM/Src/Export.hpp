@@ -265,4 +265,6 @@ short		DGCALLBACK filterSelectionHandler (short message, short dialogID, short i
 
 GSErrCode	exportBeamTableformInformation (void);												// 보 테이블폼 물량 정보 내보내기
 
+GSErrCode	calcTableformArea (void);															// 테이블폼 면적 계산하기
+
 #endif
