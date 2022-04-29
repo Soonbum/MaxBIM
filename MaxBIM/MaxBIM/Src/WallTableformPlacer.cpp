@@ -329,7 +329,7 @@ FIRST:
 		placingZone.fillRestAreas (&placingZone, xx);
 
 	// 나머지 영역에 유로폼이 들어가는 경우, 인코너 윗쪽 코너 합판을 붙임
-	placingZone.fillCornerRestAreas (&placingZone);
+	//placingZone.fillCornerRestAreas (&placingZone);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -2191,28 +2191,49 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	EasyObjectPlacement timber;
 	short	addedPlywood;
 	double	moveZ;
+	bool	bFirstPlywood, bLastPlywood;
 
 	// 채워야 할 전체 너비를 계산해야 함
 	remainLengthIntStored = remainLengthInt = placingZone->cells [idxCell].horLen;
 
 	if (placingZone->marginCellsBasic [idxCell].bFill == true) {
 		if (plywoodMarginBasic > 0.100 + EPS) {
+			bFirstPlywood = true;
+			bLastPlywood = false;
+
 			// 앞면 채우기
 			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsBasic [idxCell].leftBottomX, placingZone->marginCellsBasic [idxCell].leftBottomY, placingZone->marginCellsBasic [idxCell].leftBottomZ, placingZone->marginCellsBasic [idxCell].ang);
 
 			moveIn3D ('z', plywood.radAng, placingZone->marginCellsBasic [idxCell].formWidth1 + placingZone->marginCellsBasic [idxCell].formWidth2, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 			while (remainLengthInt > 0) {
+				if (remainLengthInt <= 2400)
+					bLastPlywood = true;
+
 				if (remainLengthInt >= 2400)
 					lengthInt = 2400;
 				else
 					lengthInt = remainLengthInt;
 
-				if ((plywoodMarginBasic > EPS) && (lengthInt > 0))
-					elemList_Front.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginBasic), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+				if ((plywoodMarginBasic > EPS) && (lengthInt > 0)) {
+					if (idxCell == 0) {
+						if (bFirstPlywood == true)
+							elemList_Front.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginBasic), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.070), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+						else
+							elemList_Front.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginBasic), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+					} else if (idxCell == this->nCellsInHor-1) {
+						if (bLastPlywood == true)
+							elemList_Front.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginBasic), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.070), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+						else
+							elemList_Front.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginBasic), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+					} else {
+						elemList_Front.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginBasic), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+					}
+				}
 				moveIn3D ('x', plywood.radAng, (double)lengthInt / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 				remainLengthInt -= 2400;
+				bFirstPlywood = false;
 			}
 		} else {
 			// 앞면 채우기
@@ -2400,6 +2421,9 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 
 	if (placingZone->marginCellsExtra [idxCell].bFill == true) {
 		if (plywoodMarginExtra > 0.100 + EPS) {
+			bFirstPlywood = true;
+			bLastPlywood = false;
+
 			// 뒷면 채우기
 			if (placingZone->bSingleSide == false) {
 				remainLengthInt = remainLengthIntStored;
@@ -2409,16 +2433,33 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 				moveIn3D ('z', plywood.radAng - DegreeToRad (180.0), placingZone->marginCellsExtra [idxCell].formWidth1 + placingZone->marginCellsExtra [idxCell].formWidth2, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 				while (remainLengthInt > 0) {
+					if (remainLengthInt <= 2400)
+						bLastPlywood = true;
+
 					if (remainLengthInt >= 2400)
 						lengthInt = 2400;
 					else
 						lengthInt = remainLengthInt;
 
 					moveIn3D ('x', plywood.radAng, -(double)lengthInt / 1000.0, &plywood.posX, &plywood.posY, &plywood.posZ);
-					if ((plywoodMarginExtra > EPS) && (lengthInt > 0))
-						elemList_Back.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginExtra), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+					if ((plywoodMarginExtra > EPS) && (lengthInt > 0)) {
+						if (idxCell == 0) {
+							if (bFirstPlywood == true)
+								elemList_Back.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginExtra), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.070), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+							else
+								elemList_Back.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginExtra), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+						} else if (idxCell == this->nCellsInHor-1) {
+							if (bLastPlywood == true)
+								elemList_Back.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginExtra), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.070), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+							else
+								elemList_Back.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginExtra), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+						} else {
+							elemList_Back.Push (plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽눕히기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", plywoodMarginExtra), "p_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0)));
+						}
+					}
 
 					remainLengthInt -= 2400;
+					bFirstPlywood = false;
 				}
 			}
 		} else {
