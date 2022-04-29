@@ -7070,7 +7070,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					_itoa (placingZone.presetWidth_tableform [yy], numbuf, 10);
 					DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
 				}
-				DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP);
+				DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_TOP+1);
 				DGShowItem (dialogID, placingZone.POPUP_WIDTH [xx]);
 
 				// ³Êºñ (ÆË¾÷ÄÁÆ®·Ñ) - Ã³À½¿¡´Â ¼û±è
