@@ -540,10 +540,10 @@ void	WallTableformPlacingZone::initCells (WallTableformPlacingZone* placingZone,
 	if (bVertical == true) {
 		for (xx = 0 ; xx < sizeof (placingZone->cells) / sizeof (CellForWallTableform) ; ++xx) {
 			placingZone->cells [xx].objType = TABLEFORM;
-			placingZone->cells [xx].horLen = 2300;
+			placingZone->cells [xx].horLen = 2250;
 			placingZone->cells [xx].tableInHor [0] = 600;
 			placingZone->cells [xx].tableInHor [1] = 600;
-			placingZone->cells [xx].tableInHor [2] = 500;
+			placingZone->cells [xx].tableInHor [2] = 450;
 			placingZone->cells [xx].tableInHor [3] = 600;
 			placingZone->cells [xx].tableInHor [4] = 0;
 			placingZone->cells [xx].tableInHor [5] = 0;
