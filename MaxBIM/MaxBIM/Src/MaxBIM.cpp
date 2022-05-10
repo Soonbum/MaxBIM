@@ -271,40 +271,48 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
-						API_SelectionInfo		selectionInfo;
-						API_Element				tElem;
-						API_Neig				**selNeigs;
-
+						API_DatabaseUnId*	dbases = NULL;
+						GSSize				nDbases = 0;
+						API_WindowInfo		windowInfo;
+						API_DatabaseInfo	origDB, elevDB;
 						API_Element			elem;
-						API_ElemInfo3D		info3D;
+						GS::Array<API_Guid>	elemList;
 
-						err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-						BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
-						if (err != NoError) {
-							BMKillHandle ((GSHandle *) &selNeigs);
-							return err;
+						err = ACAPI_Database (APIDb_GetElevationDatabasesID, &dbases, NULL);
+						if (err == NoError)
+							nDbases = BMpGetSize (reinterpret_cast<GSPtr>(dbases)) / Sizeof32 (API_DatabaseUnId);
+
+						for (GSIndex i = 0; i < nDbases; i++) {
+							API_DatabaseInfo dbPars;
+							BNZeroMemory (&dbPars, sizeof (API_DatabaseInfo));
+							dbPars.databaseUnId = dbases [i];
+
+							BNZeroMemory (&elevDB, sizeof (API_DatabaseInfo));
+							elevDB.typeID = APIWind_ElevationID;
+
+							ACAPI_Database (APIDb_GetCurrentDatabaseID, &origDB, NULL);
+							ACAPI_Database (APIDb_ChangeCurrentDatabaseID, &elevDB, NULL);
+
+							BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
+							windowInfo.typeID = APIWind_ElevationID;
+							windowInfo.databaseUnId = dbPars.databaseUnId;
+							ACAPI_Automate (APIDo_ChangeWindowID, &windowInfo, NULL);
+
+							//ACAPI_Element_GetElemList (API_ObjectID, &elemList);
+							//for (GS::Array<API_Guid>::ConstIterator it = elemList.Enumerate (); it != NULL; ++it) {
+							//	ACAPI_Database (APIDb_ChangeCurrentDatabaseID, &elevDB, NULL);
+							//	BNZeroMemory (&elem, sizeof (API_Element));
+							//	elem.header.guid = *it;
+
+							//	err = ACAPI_Element_Get (&elem);
+							//	if (err == NoError) {
+							//		BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
+							//	}
+							//}
 						}
 
-						if (selectionInfo.typeID != API_SelEmpty) {
-							long nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-
-							for (short xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-								tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-								tElem.header.guid = (*selNeigs)[xx].guid;
-								if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
-									continue;
-
-								BNZeroMemory (&elem, sizeof (API_Element));
-								elem.header.guid = tElem.header.guid;
-								err = ACAPI_Element_Get (&elem);
-								err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
-
-								placeCoordinateLabel (info3D.bounds.xMin, info3D.bounds.yMin, info3D.bounds.zMin);
-								placeCoordinateLabel (info3D.bounds.xMax, info3D.bounds.yMax, info3D.bounds.zMax);
-								//placeCoordinateLabel (elem.object.pos.x, elem.object.pos.y, elem.object.level);
-							}
-						}
-						BMKillHandle ((GSHandle *) &selNeigs);
+						if (dbases != NULL)
+							BMpFree (reinterpret_cast<GSPtr>(dbases));
 						// *** 원하는 코드를 위에 넣으시오.
 						return err;
 					});

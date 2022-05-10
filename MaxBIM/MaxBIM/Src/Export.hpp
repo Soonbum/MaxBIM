@@ -167,6 +167,10 @@ struct objectInBeamTableform
 	API_Coord3D	minPos, maxPos;	// 최소점, 최대점 위치
 	double	width;				// 객체 너비
 	double	length;				// 객체 길이
+
+	double	beginPos;			// 시작점 위치
+	double	endPos;				// 끝점 위치
+	bool	bUsed;				// 셀에 넣었으면 true, 아직 안 넣었으면 false
 };
 
 // 보 테이블폼 물량표 작성을 위한 구조체에 사용되는 셀 정보
@@ -181,17 +185,19 @@ public:
 	double	plywoodOnly_rightHeight;	// 오른쪽/위쪽 높이 (전체 합판)
 	double	plywoodOnly_bottomWidth;	// 하부 너비 (전체 합판)
 
-	double	length;						// 셀 길이
+	double	length_left;				// 왼쪽/아래쪽 길이
+	double	length_right;				// 오른쪽/위쪽 길이
+	double	length_bottom;				// 하부 길이
 
 public:
 	bool operator == (BeamTableformCell& other) {
 		if (this->euroform_leftHeight > EPS) {
-			if ((abs (this->euroform_leftHeight - other.euroform_leftHeight) < EPS) && (abs (this->euroform_rightHeight - other.euroform_rightHeight) < EPS) && (abs (this->euroform_bottomWidth - other.euroform_bottomWidth) < EPS) && (abs (this->length - other.length) < EPS))
+			if ((abs (this->euroform_leftHeight - other.euroform_leftHeight) < EPS) && (abs (this->euroform_rightHeight - other.euroform_rightHeight) < EPS) && (abs (this->euroform_bottomWidth - other.euroform_bottomWidth) < EPS) && (abs (this->length_left - other.length_left) < EPS) && (abs (this->length_right - other.length_right) < EPS) && (abs (this->length_bottom - other.length_bottom) < EPS))
 				return true;
 			else
 				return false;
 		} else {
-			if ((abs (this->plywoodOnly_leftHeight - other.plywoodOnly_leftHeight) < EPS) && (abs (this->plywoodOnly_rightHeight - other.plywoodOnly_rightHeight) < EPS) && (abs (this->plywoodOnly_bottomWidth - other.plywoodOnly_bottomWidth) < EPS) && (abs (this->length - other.length) < EPS))
+			if ((abs (this->plywoodOnly_leftHeight - other.plywoodOnly_leftHeight) < EPS) && (abs (this->plywoodOnly_rightHeight - other.plywoodOnly_rightHeight) < EPS) && (abs (this->plywoodOnly_bottomWidth - other.plywoodOnly_bottomWidth) < EPS) && (abs (this->length_left - other.length_left) < EPS) && (abs (this->length_right - other.length_right) < EPS) && (abs (this->length_bottom - other.length_bottom) < EPS))
 				return true;
 			else
 				return false;
@@ -199,12 +205,12 @@ public:
 	}
 	bool operator != (BeamTableformCell& other) {
 		if (this->euroform_leftHeight > EPS) {
-			if ((abs (this->euroform_leftHeight - other.euroform_leftHeight) < EPS) && (abs (this->euroform_rightHeight - other.euroform_rightHeight) < EPS) && (abs (this->euroform_bottomWidth - other.euroform_bottomWidth) < EPS) && (abs (this->length - other.length) < EPS))
+			if ((abs (this->euroform_leftHeight - other.euroform_leftHeight) < EPS) && (abs (this->euroform_rightHeight - other.euroform_rightHeight) < EPS) && (abs (this->euroform_bottomWidth - other.euroform_bottomWidth) < EPS) && (abs (this->length_left - other.length_left) < EPS) && (abs (this->length_right - other.length_right) < EPS) && (abs (this->length_bottom - other.length_bottom) < EPS))
 				return false;
 			else
 				return true;
 		} else {
-			if ((abs (this->plywoodOnly_leftHeight - other.plywoodOnly_leftHeight) < EPS) && (abs (this->plywoodOnly_rightHeight - other.plywoodOnly_rightHeight) < EPS) && (abs (this->plywoodOnly_bottomWidth - other.plywoodOnly_bottomWidth) < EPS) && (abs (this->length - other.length) < EPS))
+			if ((abs (this->plywoodOnly_leftHeight - other.plywoodOnly_leftHeight) < EPS) && (abs (this->plywoodOnly_rightHeight - other.plywoodOnly_rightHeight) < EPS) && (abs (this->plywoodOnly_bottomWidth - other.plywoodOnly_bottomWidth) < EPS) && (abs (this->length_left - other.length_left) < EPS) && (abs (this->length_right - other.length_right) < EPS) && (abs (this->length_bottom - other.length_bottom) < EPS))
 				return false;
 			else
 				return true;
@@ -233,9 +239,9 @@ public:
 class BeamTableformInfo
 {
 public:
-	short	iBeamDirection;		// 보 방향 (HORIZONTAL_DIRECTION, VERTICAL_DIRECTION)
-	short	nCells;						// 셀 개수
-	BeamTableformCell	cells [50];		// 셀 정보
+	short	iBeamDirection;			// 보 방향 (HORIZONTAL_DIRECTION, VERTICAL_DIRECTION)
+	short	nCells;					// 셀 개수
+	BeamTableformCell	cells [50];	// 셀 정보
 
 public:
 	BeamTableformInfo ();		// 보 테이블폼 물량표 작성을 위한 클래스 생성자 (초기화)

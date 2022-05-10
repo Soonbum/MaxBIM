@@ -57,6 +57,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 	double			angle1, angle2;
 
 	API_StoryInfo	storyInfo;
+	double			storyLevel;
 	char			floorName [256];
 
 	
@@ -284,6 +285,17 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 							ACAPI_Element_GetDefaults (&elem, &memo);
 							ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
 
+							// 고도 조정
+							BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+							ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+							for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+								if (storyInfo.data [0][xx].index == qElemInfo.floorInd) {
+									storyLevel = storyInfo.data [0][xx].level;
+									break;
+								}
+							}
+							BMKillHandle ((GSHandle *) &storyInfo.data);
+
 							// 라이브러리의 파라미터 값 입력 (공통)
 							elem.header.floorInd = qElemInfo.floorInd;
 							elem.object.reflected = false;
@@ -291,6 +303,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 							elem.object.xRatio = aParam;
 							elem.object.yRatio = bParam;
 							elem.header.layer = qElemInfo.layerInd;
+							elem.object.level = storyLevel;
 
 							setParameterByName (&memo, "m_type", qElemInfo.m_type);
 							setParameterByName (&memo, "PANEL_MAT", qElemInfo.panel_mat);
@@ -310,6 +323,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 							elem.object.pos.x = p1.x;
 							elem.object.pos.y = p1.y;
 							elem.object.level = p1.z;
+							elem.object.level -= storyLevel;
 
 							// 가로길이
 							horLen = GetDistance (p1, p2);
@@ -474,6 +488,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 							elem.object.pos.x = p1.x;
 							elem.object.pos.y = p1.y;
 							elem.object.level = p1.z;
+							elem.object.level -= storyLevel;
 
 							// 가로길이
 							horLen = GetDistance (p1, p2);
@@ -673,6 +688,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 
 	// 층 정보
 	API_StoryInfo	storyInfo;
+	double			storyLevel;
 	char			floorName [256];
 
 	
@@ -830,6 +846,17 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 							ACAPI_Element_GetDefaults (&elem, &memo);
 							ACAPI_LibPart_GetParams (libPart.index, &aParam, &bParam, &addParNum, &memo.params);
 
+							// 고도 조정
+							BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+							ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+							for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+								if (storyInfo.data [0][xx].index == insulElemInfo.floorInd) {
+									storyLevel = storyInfo.data [0][xx].level;
+									break;
+								}
+							}
+							BMKillHandle ((GSHandle *) &storyInfo.data);
+
 							// 라이브러리의 파라미터 값 입력 (공통)
 							elem.header.floorInd = insulElemInfo.floorInd;
 							elem.object.libInd = libPart.index;
@@ -858,6 +885,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -901,6 +929,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -947,6 +976,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -990,6 +1020,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z - insulElemInfo.thk;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1045,6 +1076,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1092,6 +1124,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1142,6 +1175,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1189,6 +1223,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z - insulElemInfo.thk;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1253,6 +1288,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1300,6 +1336,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1350,6 +1387,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1395,6 +1433,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z - insulElemInfo.thk;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1458,6 +1497,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1501,6 +1541,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1547,6 +1588,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1590,6 +1632,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 												elem.object.pos.x = p1.x;
 												elem.object.pos.y = p1.y;
 												elem.object.level = p1.z - insulElemInfo.thk;
+												elem.object.level -= storyLevel;
 												elem.object.angle = DegreeToRad (angle1);
 
 												remainHorLen = GetDistance (p1, p2);
@@ -1647,6 +1690,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 										elem.object.pos.x = p1.x;
 										elem.object.pos.y = p1.y;
 										elem.object.level = p1.z;
+										elem.object.level -= storyLevel;
 										elem.object.angle = DegreeToRad (angle1);
 
 										horLen = GetDistance (p1, p2);
@@ -1674,6 +1718,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 										elem.object.pos.x = p1.x;
 										elem.object.pos.y = p1.y;
 										elem.object.level = p1.z;
+										elem.object.level -= storyLevel;
 										elem.object.angle = DegreeToRad (angle1);
 
 										horLen = GetDistance (p1, p2);
@@ -1704,6 +1749,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 										elem.object.pos.x = p1.x;
 										elem.object.pos.y = p1.y;
 										elem.object.level = p1.z;
+										elem.object.level -= storyLevel;
 										elem.object.angle = DegreeToRad (angle1);
 
 										horLen = GetDistance (p1, p2);
@@ -1731,6 +1777,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 										elem.object.pos.x = p1.x;
 										elem.object.pos.y = p1.y;
 										elem.object.level = p1.z - insulElemInfo.thk;
+										elem.object.level -= storyLevel;
 										elem.object.angle = DegreeToRad (angle1);
 
 										horLen = GetDistance (p1, p2);
