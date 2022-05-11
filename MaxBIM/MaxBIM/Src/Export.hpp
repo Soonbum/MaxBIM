@@ -273,4 +273,7 @@ GSErrCode	exportBeamTableformInformation (void);												// 보 테이블폼 물량 
 
 GSErrCode	calcTableformArea (void);															// 테이블폼 면적 계산하기
 
+GSErrCode	calcConcreteVolumeSingleMode (void);												// 콘크리트 물량 계산 (Single 모드)
+GSErrCode	calcConcreteVolumeMultiMode (void);													// 콘크리트 물량 계산 (Multi 모드)
+
 #endif

@@ -152,6 +152,12 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 6:		// 테이블폼 면적 계산
 					err = calcTableformArea ();
 					break;
+				case 7:		// 콘크리트 물량 계산 (Single 모드)
+					err = calcConcreteVolumeSingleMode ();
+					break;
+				case 8:		// 콘크리트 물량 계산 (Multi 모드)
+					err = calcConcreteVolumeMultiMode ();
+					break;
 			}
 			break;
 
