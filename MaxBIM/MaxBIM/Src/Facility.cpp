@@ -96,9 +96,6 @@ GSErrCode	attach3DLabelOnZone (void)
 	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
 	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
 
-	// 기존 라벨 객체를 모두 제거
-	result = DGAlert (DG_WARNING, "기존 라벨 객체 모두 제거", "기존 라벨 객체를 모두 제거하시겠습니까?", "", "예", "아니오", "");
-
 	ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_InMyWorkspace);
 	nElems = elemList.GetSize ();
 
@@ -132,8 +129,10 @@ GSErrCode	attach3DLabelOnZone (void)
 	// 새로운 라벨 객체를 배치함 (레이어 이름 선택)
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32510, ACAPI_GetOwnResModule (), selectLayerHandler, (DGUserData) &layerInd);
 
-	if (result == DG_CANCEL)
-		goto EXIT;
+	if (result == DG_CANCEL) {
+		WriteReport_Alert ("제거된 라벨 개수: %ld\n추가된 라벨 개수: %ld", ElemsDeleted, ElemsAdded);
+		return err;
+	}
 
 	// 모든 영역(Zone) 객체를 불러옴
 	ACAPI_Element_GetElemList (API_ZoneID , &elemList, APIFilt_InMyWorkspace);
@@ -169,7 +168,6 @@ GSErrCode	attach3DLabelOnZone (void)
 
 	elemList.Clear ();
 
-EXIT:
 	WriteReport_Alert ("제거된 라벨 개수: %ld\n추가된 라벨 개수: %ld", ElemsDeleted, ElemsAdded);
 
 	return	err;
