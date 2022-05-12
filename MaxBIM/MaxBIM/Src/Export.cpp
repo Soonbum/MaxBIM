@@ -719,6 +719,8 @@ GSErrCode	exportSelectedElementInfo (void)
 			if (err == NoError) {
 				// 파라미터 스크립트를 강제로 실행시킴
 				ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+				bool	bForce = true;
+				ACAPI_Database (APIDb_RefreshElementID, &elem.header, &bForce);
 
 				try {
 					for (yy = 0 ; yy < objectInfo.keyName.size () ; ++yy) {
@@ -2162,6 +2164,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 						// 파라미터 스크립트를 강제로 실행시킴
 						ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+						bool	bForce = true;
+						ACAPI_Database (APIDb_RefreshElementID, &elem.header, &bForce);
 
 						try {
 							for (yy = 0 ; yy < objectInfo.keyName.size () ; ++yy) {

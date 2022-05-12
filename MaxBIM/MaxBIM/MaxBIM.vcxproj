@@ -138,7 +138,8 @@
       <HeapReserveSize>10485760</HeapReserveSize>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)\$(ProjectName).apx" "C:\Program Files\Graphisoft\ArchiCAD 19\애드온\$(ProjectName).apx"</Command>
+      <Command>copy "$(OutDir)\$(ProjectName).apx" "C:\Program Files\Graphisoft\ArchiCAD 19\애드온\$(ProjectName).apx"
+copy "$(OutDir)\$(ProjectName).apx" "C:\Program Files\Graphisoft\ArchiCAD 19 INT\Add-Ons\$(ProjectName).apx"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
