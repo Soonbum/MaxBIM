@@ -424,6 +424,24 @@ short	isStringDouble (char *str)
 	return 1;	// 그밖의 경우는 숫자
 }
 
+// 문자열 s가 숫자로 된 문자열인지 알려줌 (숫자는 1, 문자열은 0)
+short	isStringDouble (const char *str)
+{
+	size_t size = strlen (str);
+	
+	if (size == 0)
+		return 0;		// 0바이트 문자열은 숫자가 아님
+	
+	for (size_t i = 0 ; i < size ; i++) {
+		if (str [i] == '.' || str [i] == '-' || str [i] == '+')
+			continue;		// .-+ 문자는 무시함
+		if (str [i] < '0' || str [i] > '9')
+			return 0;		// 알파벳 등이 있으면 숫자 아님
+	}
+	
+	return 1;	// 그밖의 경우는 숫자
+}
+
 ////////////////////////////////////////////////// 객체 배치
 // 좌표 라벨을 배치함
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd)

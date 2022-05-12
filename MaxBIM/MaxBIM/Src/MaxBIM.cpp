@@ -277,32 +277,90 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
+						bool				regenerate = true;
 						API_DatabaseUnId*	dbases = NULL;
 						GSSize				nDbases = 0;
 						API_WindowInfo		windowInfo;
-						API_DatabaseInfo	origDB, elevDB;
+						API_DatabaseInfo	currentDB;
 						API_Element			elem;
 						GS::Array<API_Guid>	elemList;
 
+						API_FileSavePars	fsp;
+						API_SavePars_Pdf	pars_pdf;
+						API_SavePars_Picture	pars_pict;
+
+						API_SpecFolderID	specFolderID = API_ApplicationFolderID;
+						IO::Location		location;
+						GS::UniString		resultString;
+						API_MiscAppInfo		miscAppInfo;
+
+						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+						// 입면 뷰 DB의 ID들을 획득함
 						err = ACAPI_Database (APIDb_GetElevationDatabasesID, &dbases, NULL);
 						if (err == NoError)
 							nDbases = BMpGetSize (reinterpret_cast<GSPtr>(dbases)) / Sizeof32 (API_DatabaseUnId);
 
+						// 입면 뷰들을 하나씩 순회함
 						for (GSIndex i = 0; i < nDbases; i++) {
 							API_DatabaseInfo dbPars;
 							BNZeroMemory (&dbPars, sizeof (API_DatabaseInfo));
 							dbPars.databaseUnId = dbases [i];
 
-							BNZeroMemory (&elevDB, sizeof (API_DatabaseInfo));
-							elevDB.typeID = APIWind_ElevationID;
-
-							ACAPI_Database (APIDb_GetCurrentDatabaseID, &origDB, NULL);
-							ACAPI_Database (APIDb_ChangeCurrentDatabaseID, &elevDB, NULL);
-
+							// 창을 변경함
 							BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
 							windowInfo.typeID = APIWind_ElevationID;
 							windowInfo.databaseUnId = dbPars.databaseUnId;
 							ACAPI_Automate (APIDo_ChangeWindowID, &windowInfo, NULL);
+
+							// 현재 데이터베이스를 가져옴
+							ACAPI_Database (APIDb_GetCurrentDatabaseID, &currentDB, NULL);
+
+							// 객체를 수집함
+							elemList.Clear ();
+							ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음, 객체 타입만
+							// ... 입면 객체는 제외할 것 (아니면 objectInfo 파일을 참조할 것인가?)
+
+							// 창 이름 출력 !!!
+							//WriteReport_Alert ("%s\n%d", GS::UniString(currentDB.name).ToCStr ().Get (), elemList.GetSize ());
+
+							// 층 레벨 숨기기 ON
+							// ...
+
+							// 화면 전체에 Fit하도록 포커싱
+							ACAPI_Automate (APIDo_ZoomID, NULL, NULL);
+
+							// DWG로 저장하기?
+							BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+							//fsp.fileTypeID = APIFType_PdfFile;
+							fsp.fileTypeID = APIFType_PNGFile;
+
+							ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+
+							//ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
+							//sprintf (filename, "%s - 선택한 부재 정보 (통합).csv", miscAppInfo.caption);
+							
+							fsp.file = new IO::Location (location, IO::Name ("test.png"));
+
+							BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
+							pars_pdf.leftMargin = 0.0;
+							pars_pdf.rightMargin = 0.0;
+							pars_pdf.topMargin = 0.0;
+							pars_pdf.bottomMargin = 0.0;
+							pars_pdf.sizeX = 210;
+							pars_pdf.sizeY = 297;
+
+							BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+							pars_pict.colorDepth = APIColorDepth_TC24;
+							pars_pict.dithered = false;
+							pars_pict.view2D = false;
+							pars_pict.crop = false;
+
+							err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);
+
+							delete	fsp.file;
+
 
 							//ACAPI_Element_GetElemList (API_ObjectID, &elemList);
 							//for (GS::Array<API_Guid>::ConstIterator it = elemList.Enumerate (); it != NULL; ++it) {
@@ -319,6 +377,10 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 
 						if (dbases != NULL)
 							BMpFree (reinterpret_cast<GSPtr>(dbases));
+
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+						location.ToDisplayText (&resultString);
+						WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
 						// *** 원하는 코드를 위에 넣으시오.
 						return err;
 					});

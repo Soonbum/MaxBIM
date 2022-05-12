@@ -66,10 +66,21 @@ bool	compareVectorStringByValue (const vector<string>& a, const vector<string>& 
 // vector 내 레코드 내 필드(문자열)를 기준으로 내림차순 정렬을 위한 비교 함수
 bool	compareVectorStringByString (const vector<string>& a, const vector<string>& b)
 {
-	if (a.at(0).compare (b.at(0)) > 0)
-		return true;
-	else
-		return false;
+	const char*	aStr = a.at(0).c_str ();
+	const char*	bStr = b.at(0).c_str ();
+
+	// 숫자로 된 문자열이면,
+	if ((isStringDouble (aStr) == TRUE) && (isStringDouble (bStr) == TRUE)) {
+		if (atof (aStr) > atof (bStr))
+			return true;
+		else
+			return false;
+	} else {
+		if (a.at(0).compare (b.at(0)) > 0)
+			return true;
+		else
+			return false;
+	}
 }
 
 // vector 내 레코드 내 여러 필드들을 기준으로 내림차순 정렬을 위한 비교 함수
@@ -84,10 +95,20 @@ bool	compareVectorStringMultiField (const vector<string>& a, const vector<string
 		size_t recordLen = aLen;
 
 		for (xx = 1 ; xx < recordLen ; ++xx) {
-			if (a.at(xx).compare (b.at(xx)) > 0)
-				return true;
-			else if (a.at(xx).compare (b.at(xx)) < 0)
-				return false;
+			const char*	aStr = a.at(xx).c_str ();
+			const char*	bStr = b.at(xx).c_str ();
+
+			if ((isStringDouble (aStr) == TRUE) && (isStringDouble (bStr) == TRUE)) {
+				if (atof (aStr) > atof (bStr))
+					return true;
+				else
+					return false;
+			} else {
+				if (a.at(xx).compare (b.at(xx)) > 0)
+					return true;
+				else if (a.at(xx).compare (b.at(xx)) < 0)
+					return false;
+			}
 		}
 	} else if (aLen > bLen) {
 		return true;
