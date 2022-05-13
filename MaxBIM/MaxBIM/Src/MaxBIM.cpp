@@ -278,6 +278,8 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
 						bool				regenerate = true;
+						//char				filename [256];
+
 						API_DatabaseUnId*	dbases = NULL;
 						GSSize				nDbases = 0;
 						API_WindowInfo		windowInfo;
@@ -296,6 +298,36 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 
 						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
 						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+						
+						//////////////////////////////////////////////
+						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+
+						//ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
+						//sprintf (filename, "테스트.csv", miscAppInfo.caption);
+							
+						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+						//fsp.fileTypeID = APIFType_PdfFile;
+						fsp.fileTypeID = APIFType_PNGFile;
+						fsp.file = new IO::Location (location, IO::Name ("test.png"));
+
+						BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
+						pars_pdf.leftMargin = 0.0;
+						pars_pdf.rightMargin = 0.0;
+						pars_pdf.topMargin = 0.0;
+						pars_pdf.bottomMargin = 0.0;
+						pars_pdf.sizeX = 210;
+						pars_pdf.sizeY = 297;
+
+						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+						pars_pict.colorDepth = APIColorDepth_256C;
+						pars_pict.dithered = false;
+						pars_pict.view2D = false;
+						pars_pict.crop = false;
+
+						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);
+
+						delete	fsp.file;
+						//////////////////////////////////////////////
 
 						// 입면 뷰 DB의 ID들을 획득함
 						err = ACAPI_Database (APIDb_GetElevationDatabasesID, &dbases, NULL);
@@ -332,15 +364,14 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 							ACAPI_Automate (APIDo_ZoomID, NULL, NULL);
 
 							// DWG로 저장하기?
-							BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-							//fsp.fileTypeID = APIFType_PdfFile;
-							fsp.fileTypeID = APIFType_PNGFile;
-
 							ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
 							//ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
-							//sprintf (filename, "%s - 선택한 부재 정보 (통합).csv", miscAppInfo.caption);
+							//sprintf (filename, "테스트.csv", miscAppInfo.caption);
 							
+							BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+							//fsp.fileTypeID = APIFType_PdfFile;
+							fsp.fileTypeID = APIFType_PNGFile;
 							fsp.file = new IO::Location (location, IO::Name ("test.png"));
 
 							BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));

@@ -4585,18 +4585,21 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 	GS::Array<API_Guid>		beams;
 	GS::Array<API_Guid>		slabs;
 	GS::Array<API_Guid>		morphs;
+	GS::Array<API_Guid>		objects;
 
 	long					nWalls = 0;
 	long					nColumns = 0;
 	long					nBeams = 0;
 	long					nSlabs = 0;
 	long					nMorphs = 0;
+	long					nObjects = 0;
 
 	double					volume_walls = 0.0;
 	double					volume_columns = 0.0;
 	double					volume_beams = 0.0;
 	double					volume_slabs = 0.0;
 	double					volume_morphs = 0.0;
+	double					volume_objects = 0.0;
 
 	double					volume_total = 0.0;
 
@@ -4605,7 +4608,7 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 	API_Quantities		quantities;
 	API_QuantitiesMask	mask;
 	API_QuantityPar		params;
-	char				reportStr [256];
+	char				reportStr [512];
 
 
 	// 그룹화 일시정지 ON
@@ -4625,7 +4628,7 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 		return err;
 	}
 
-	// 벽, 기둥, 보, 슬래브, 모프
+	// 벽, 기둥, 보, 슬래브, 모프, 객체
 	if (selectionInfo.typeID != API_SelEmpty) {
 		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
 		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
@@ -4640,6 +4643,7 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 			if (tElem.header.typeID == API_BeamID)		beams.Push (tElem.header.guid);		// 보 타입 요소인가?
 			if (tElem.header.typeID == API_SlabID)		slabs.Push (tElem.header.guid);		// 슬래브 타입 요소인가?
 			if (tElem.header.typeID == API_MorphID)		morphs.Push (tElem.header.guid);	// 모프 타입 요소인가?
+			if (tElem.header.typeID == API_ObjectID)	objects.Push (tElem.header.guid);	// 객체 타입 요소인가?
 		}
 	}
 	BMKillHandle ((GSHandle *) &selNeigs);
@@ -4649,6 +4653,7 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 	nBeams = beams.GetSize ();
 	nSlabs = slabs.GetSize ();
 	nMorphs = morphs.GetSize ();
+	nObjects = objects.GetSize ();
 
 	params.minOpeningSize = EPS;
 
@@ -4714,15 +4719,28 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 		}
 	}
 
-	// 총 부피 계산
-	volume_total = volume_walls + volume_columns + volume_beams + volume_slabs + volume_morphs;
+	// 객체에 대한 물량 정보 추출
+	ACAPI_ELEMENT_QUANTITY_MASK_CLEAR (mask);
+	ACAPI_ELEMENT_QUANTITY_MASK_SET (mask, symb, volume);
+	for (xx = 0 ; xx < nObjects ; ++xx) {
+		quantities.elements = &quantity;
+		err = ACAPI_Element_GetQuantities (objects [xx], &params, &quantities, &mask);
 
-	sprintf (reportStr, "%12s: %lf ㎥\n%12s: %lf ㎥\n%12s: %lf ㎥\n%12s: %lf ㎥\n%12s: %lf ㎥\n\n%12s: %lf ㎥",
+		if (err == NoError) {
+			volume_objects += quantity.symb.volume;
+		}
+	}
+
+	// 총 부피 계산
+	volume_total = volume_walls + volume_columns + volume_beams + volume_slabs + volume_morphs + volume_objects;
+
+	sprintf (reportStr, "%12s: %lf ㎥\n%12s: %lf ㎥\n%12s: %lf ㎥\n%12s: %lf ㎥\n%12s: %lf ㎥\n%12s: %lf ㎥\n\n%12s: %lf ㎥",
 						"벽 부피", volume_walls,
 						"기둥 부피", volume_columns,
 						"보 부피", volume_beams,
 						"슬래브 부피", volume_slabs,
 						"모프 부피", volume_morphs,
+						"객체 부피", volume_objects,
 						"총 부피", volume_total);
 	WriteReport_Alert (reportStr);
 
@@ -4746,18 +4764,21 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 	GS::Array<API_Guid>		beams;
 	GS::Array<API_Guid>		slabs;
 	GS::Array<API_Guid>		morphs;
+	GS::Array<API_Guid>		objects;
 
 	long					nWalls = 0;
 	long					nColumns = 0;
 	long					nBeams = 0;
 	long					nSlabs = 0;
 	long					nMorphs = 0;
+	long					nObjects = 0;
 
 	double					volume_walls = 0.0;
 	double					volume_columns = 0.0;
 	double					volume_beams = 0.0;
 	double					volume_slabs = 0.0;
 	double					volume_morphs = 0.0;
+	double					volume_objects = 0.0;
 
 	double					volume_total = 0.0;
 
@@ -4766,7 +4787,7 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 	API_Quantities		quantities;
 	API_QuantitiesMask	mask;
 	API_QuantityPar		params;
-	char				reportStr [256];
+	char				reportStr [512];
 
 	// 레이어 관련 변수
 	short			nLayers;
@@ -4908,15 +4929,21 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 				morphs.Push (elemList.Pop ());
 			}
 
+			ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음, 객체 타입만
+			while (elemList.GetSize () > 0) {
+				objects.Push (elemList.Pop ());
+			}
+
 			nWalls = walls.GetSize ();
 			nColumns = columns.GetSize ();
 			nBeams = beams.GetSize ();
 			nSlabs = slabs.GetSize ();
 			nMorphs = morphs.GetSize ();
+			nObjects = objects.GetSize ();
 
 			params.minOpeningSize = EPS;
 
-			if ((nWalls == 0) && (nColumns == 0) && (nBeams == 0) && (nSlabs == 0) && (nMorphs == 0))
+			if ((nWalls == 0) && (nColumns == 0) && (nBeams == 0) && (nSlabs == 0) && (nMorphs == 0) && (nObjects == 0))
 				continue;
 
 			// 레이어 이름 가져옴
@@ -4932,6 +4959,7 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 			volume_beams = 0.0;
 			volume_slabs = 0.0;
 			volume_morphs = 0.0;
+			volume_objects = 0.0;
 			volume_total = 0.0;
 
 			// 벽에 대한 물량 정보 추출
@@ -4996,15 +5024,28 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 				}
 			}
 
-			// 총 부피 계산
-			volume_total = volume_walls + volume_columns + volume_beams + volume_slabs + volume_morphs;
+			// 객체에 대한 물량 정보 추출
+			ACAPI_ELEMENT_QUANTITY_MASK_CLEAR (mask);
+			ACAPI_ELEMENT_QUANTITY_MASK_SET (mask, symb, volume);
+			for (xx = 0 ; xx < nObjects ; ++xx) {
+				quantities.elements = &quantity;
+				err = ACAPI_Element_GetQuantities (objects [xx], &params, &quantities, &mask);
 
-			sprintf (reportStr, "%s,%lf\n%s,%lf\n%s,%lf\n%s,%lf\n%s,%lf\n\n%s,%lf\n\n\n",
+				if (err == NoError) {
+					volume_objects += quantity.symb.volume;
+				}
+			}
+
+			// 총 부피 계산
+			volume_total = volume_walls + volume_columns + volume_beams + volume_slabs + volume_morphs + volume_objects;
+
+			sprintf (reportStr, "%s,%lf\n%s,%lf\n%s,%lf\n%s,%lf\n%s,%lf\n%s,%lf\n\n%s,%lf\n\n\n",
 								"벽 부피", volume_walls,
 								"기둥 부피", volume_columns,
 								"보 부피", volume_beams,
 								"슬래브 부피", volume_slabs,
 								"모프 부피", volume_morphs,
+								"객체 부피", volume_objects,
 								"총 부피", volume_total);
 			fprintf (fp_unite, reportStr);
 

@@ -147,20 +147,23 @@ GSErrCode	attach3DLabelOnZone (void)
 
 		if (err == NoError) {
 			// 영역(Zone) 객체의 정보를 기반으로 라벨 배치
-			label.init (L("라벨v1.0.gsm"), layerInd, elem.header.floorInd, elem.zone.pos.x, elem.zone.pos.y, elem.zone.roomBaseLev + elem.zone.roomHeight/2, DegreeToRad (0.0));
+			label.init (L("라벨v1.0.gsm"), layerInd, elem.header.floorInd, elem.zone.pos.x, elem.zone.pos.y, elem.zone.roomBaseLev + 1.000, DegreeToRad (0.0));
 
 			sprintf (roomName, "%s", (const char *) GS::UniString (elem.zone.roomName).ToCStr ());
 
-			label.placeObject (9,
+			label.placeObject (12,
 				"scaleValues", APIParT_CString, "스케일에 맞게 (모델 크기)",
 				"iScaleValues", APIParT_Integer, "1",
 				"bShowOn2D", APIParT_Boolean, "0",
 				"bShowOn3D", APIParT_Boolean, "1",
 				"bLocalOrigin", APIParT_Boolean, "0",
-				"szFont", APIParT_Length, format_string ("%f", 1.000),
+				"szFont", APIParT_Length, format_string ("%f", 2.000),
 				"bCoords", APIParT_Boolean, "0",
 				"bComment", APIParT_Boolean, "1",
-				"txtComment", APIParT_CString, roomName);
+				"txtComment", APIParT_CString, roomName,
+				"gs_cont_pen", APIParT_PenCol, "20",
+				"textMat", APIParT_Mater, "19",
+				"bBg", APIParT_Boolean, "0");
 
 			ElemsAdded ++;
 		}
