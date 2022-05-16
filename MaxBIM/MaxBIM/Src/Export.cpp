@@ -4321,7 +4321,7 @@ GSErrCode	exportBeamTableformInformation (void)
 	return err;
 }
 
-// 테이블폼 면적 계산하기
+// 테이블폼 면적 계산
 GSErrCode	calcTableformArea (void)
 {
 	GSErrCode	err = NoError;
@@ -4495,6 +4495,11 @@ GSErrCode	calcTableformArea (void)
 
 				if (err == NoError && elem.header.hasMemo) {
 					err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+					// 파라미터 스크립트를 강제로 실행시킴
+					ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+					bool	bForce = true;
+					ACAPI_Database (APIDb_RefreshElementID, &elem.header, &bForce);
 
 					if (err == NoError) {
 						bTargetObject = false;
@@ -5426,6 +5431,11 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 		if (err == NoError && elem.header.hasMemo) {
 			err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 
+			// 파라미터 스크립트를 강제로 실행시킴
+			ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+			bool	bForce = true;
+			ACAPI_Database (APIDb_RefreshElementID, &elem.header, &bForce);
+
 			if (err == NoError) {
 				if (my_strcmp (getParameterStringByName (&memo, "sup_type"), "단열재") == 0) {
 					sprintf (buffer, "%s", getParameterStringByName (&memo, "gs_list_custom2"));
@@ -5619,6 +5629,11 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 
 				if (err == NoError && elem.header.hasMemo) {
 					err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+					// 파라미터 스크립트를 강제로 실행시킴
+					ACAPI_Goodies (APIAny_RunGDLParScriptID, &elem.header, 0);
+					bool	bForce = true;
+					ACAPI_Database (APIDb_RefreshElementID, &elem.header, &bForce);
 
 					if (err == NoError) {
 						bTargetObject = false;
