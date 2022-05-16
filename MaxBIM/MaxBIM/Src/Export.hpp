@@ -276,4 +276,9 @@ GSErrCode	calcTableformArea (void);															// 테이블폼 면적 계산하기
 GSErrCode	calcConcreteVolumeSingleMode (void);												// 콘크리트 물량 계산 (Single 모드)
 GSErrCode	calcConcreteVolumeMultiMode (void);													// 콘크리트 물량 계산 (Multi 모드)
 
+GSErrCode	calcSlabQuantityAndAreaSingleMode (void);											// 슬래브 수량/하부면적 계산 (Single 모드)
+GSErrCode	calcSlabQuantityAndAreaMultiMode (void);											// 슬래브 수량/하부면적 계산 (Multi 모드)
+GSErrCode	calcInsulationQuantityAndAreaSingleMode (void);										// 단열재 수량/면적 계산 (Single 모드)
+GSErrCode	calcInsulationQuantityAndAreaMultiMode (void);										// 단열재 수량/면적 계산 (Multi 모드)
+
 #endif

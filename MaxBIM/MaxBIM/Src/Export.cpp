@@ -4512,6 +4512,7 @@ GSErrCode	calcTableformArea (void)
 						} else if (my_strcmp (getParameterStringByName (&memo, "in_comp"), "인코너M형판넬") == 0) {
 							bTargetObject = true;
 						} else if (my_strcmp (getParameterStringByName (&memo, "w_comp"), "목재") == 0) {
+							bTargetObject = true;
 						}
 
 						if (bTargetObject == true) {
@@ -5054,6 +5055,607 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 			ACAPI_Attribute_Modify (&attrib, NULL);
 		}
 	}
+
+	fclose (fp_unite);
+
+	// 모든 프로세스를 마치면 처음에 수집했던 보이는 레이어들을 다시 켜놓을 것
+	for (xx = 1 ; xx <= nVisibleLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = visLayerList [xx-1];
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+				attrib.layer.head.flags ^= APILay_Hidden;
+				ACAPI_Attribute_Modify (&attrib, NULL);
+			}
+		}
+	}
+
+	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	location.ToDisplayText (&resultString);
+	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
+
+	return err;
+}
+
+// 슬래브 수량/하부면적 계산 (Single 모드)
+GSErrCode	calcSlabQuantityAndAreaSingleMode (void)
+{
+	GSErrCode err = NoError;
+
+	long		nSel;
+	unsigned short		xx;
+	bool		regenerate = true;
+	bool		suspGrp;
+
+	// 선택한 요소가 없으면 오류
+	API_SelectionInfo		selectionInfo;
+	API_Neig				**selNeigs;
+	API_Element				tElem;
+	
+	GS::Array<API_Guid>		slabs;
+
+	long					nSlabs = 0;
+	double					surface_slabs = 0.0;
+
+	// 선택한 요소들의 정보 요약하기
+	API_ElementQuantity	quantity;
+	API_Quantities		quantities;
+	API_QuantitiesMask	mask;
+	API_QuantityPar		params;
+	char				reportStr [512];
+
+	// 그룹화 일시정지 ON
+	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
+	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	// 선택한 요소 가져오기
+	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
+	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	if (err != NoError) {
+		BMKillHandle ((GSHandle *) &selNeigs);
+		WriteReport_Alert ("요소들을 선택해야 합니다.");
+		return err;
+	}
+
+	if (selectionInfo.typeID != API_SelEmpty) {
+		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
+		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
+			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
+			tElem.header.guid = (*selNeigs)[xx].guid;
+
+			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
+				continue;
+
+			if (tElem.header.typeID == API_SlabID)		slabs.Push (tElem.header.guid);		// 슬래브 타입 요소인가?
+		}
+	}
+	BMKillHandle ((GSHandle *) &selNeigs);
+
+	nSlabs = slabs.GetSize ();
+
+	params.minOpeningSize = EPS;
+
+	// 슬래브에 대한 물량 정보 추출
+	ACAPI_ELEMENT_QUANTITY_MASK_CLEAR (mask);
+	ACAPI_ELEMENT_QUANTITY_MASK_SET (mask, slab, bottomSurface);
+	for (xx = 0 ; xx < nSlabs ; ++xx) {
+		quantities.elements = &quantity;
+		err = ACAPI_Element_GetQuantities (slabs [xx], &params, &quantities, &mask);
+
+		if (err == NoError) {
+			surface_slabs += quantity.slab.bottomSurface;
+		}
+	}
+
+	sprintf (reportStr, "슬래브 수량: %d\n슬래브 밑면 넓이(m2): %lf", nSlabs, surface_slabs);
+	WriteReport_Alert (reportStr);
+
+	return	err;
+}
+
+// 슬래브 수량/하부면적 계산 (Multi 모드)
+GSErrCode	calcSlabQuantityAndAreaMultiMode (void)
+{
+	GSErrCode err = NoError;
+	unsigned short		xx;
+	short		mm;
+	bool		regenerate = true;
+	bool		suspGrp;
+	
+	// 슬래브 저장
+	GS::Array<API_Guid>		elemList;
+	GS::Array<API_Guid>		slabs;
+
+	long					nSlabs = 0;
+	double					surface_slabs = 0.0;
+
+	// 선택한 요소들의 정보 요약하기
+	API_ElementQuantity	quantity;
+	API_Quantities		quantities;
+	API_QuantitiesMask	mask;
+	API_QuantityPar		params;
+	char				reportStr [512];
+
+	// 레이어 관련 변수
+	short			nLayers;
+	API_Attribute	attrib;
+	short			nVisibleLayers = 0;
+	short			visLayerList [1024];
+	char			fullLayerName [512];
+	vector<LayerList>	layerList;
+
+	// 기타
+	char			filename [512];
+
+	// 엑셀 파일로 기둥 정보 내보내기
+	// 파일 저장을 위한 변수
+	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
+	IO::Location		location;
+	GS::UniString		resultString;
+	API_MiscAppInfo		miscAppInfo;
+	FILE				*fp_unite;
+
+
+	// 그룹화 일시정지 ON
+	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
+	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+
+	// 프로젝트 내 레이어 개수를 알아냄
+	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	attrib.layer.head.typeID = API_LayerID;
+	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+
+	// 보이는 레이어들의 목록 저장하기
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			if (!((attrib.layer.head.flags & APILay_Hidden) == true)) {
+				visLayerList [nVisibleLayers++] = attrib.layer.head.index;
+			}
+		}
+	}
+
+	// 레이어 이름과 인덱스 저장
+	for (xx = 0 ; xx < nVisibleLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = visLayerList [xx];
+		err = ACAPI_Attribute_Get (&attrib);
+
+		sprintf (fullLayerName, "%s", attrib.layer.head.name);
+		fullLayerName [strlen (fullLayerName)] = '\0';
+
+		LayerList newLayerItem;
+		newLayerItem.layerInd = visLayerList [xx];
+		newLayerItem.layerName = fullLayerName;
+
+		layerList.push_back (newLayerItem);
+	}
+
+	// 레이어 이름 기준으로 정렬하여 레이어 인덱스 순서 변경
+	sort (layerList.begin (), layerList.end (), compareLayerName);		// 레이어 이름 기준 오름차순 정렬
+
+	// 일시적으로 모든 레이어 숨기기
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			attrib.layer.head.flags |= APILay_Hidden;
+			ACAPI_Attribute_Modify (&attrib, NULL);
+		}
+	}
+
+	ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
+	sprintf (filename, "%s - 슬래브 수량 및 면적 정보 (통합).csv", miscAppInfo.caption);
+	fp_unite = fopen (filename, "w+");
+
+	if (fp_unite == NULL) {
+		WriteReport_Alert ("통합 버전 엑셀파일을 만들 수 없습니다.");
+		return	NoError;
+	}
+
+	sprintf (reportStr, "단위: ㎡\n\n");
+	fprintf (fp_unite, reportStr);
+
+	// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 "선택한 부재 정보 내보내기" 루틴 실행
+	for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		//attrib.layer.head.index = visLayerList [mm-1];
+		attrib.layer.head.index = layerList [mm-1].layerInd;
+		err = ACAPI_Attribute_Get (&attrib);
+
+		// 초기화
+		slabs.Clear ();
+
+		if (err == NoError) {
+			// 레이어 보이기
+			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+				attrib.layer.head.flags ^= APILay_Hidden;
+				ACAPI_Attribute_Modify (&attrib, NULL);
+			}
+
+			// 모든 요소 가져오기
+			ACAPI_Element_GetElemList (API_SlabID, &elemList, APIFilt_OnVisLayer);		// 보이는 레이어에 있음, 슬래브 타입만
+			while (elemList.GetSize () > 0) {
+				slabs.Push (elemList.Pop ());
+			}
+
+			nSlabs = slabs.GetSize ();
+
+			params.minOpeningSize = EPS;
+
+			if (nSlabs == 0)
+				continue;
+
+			// 레이어 이름 가져옴
+			sprintf (fullLayerName, "%s", attrib.layer.head.name);
+			fullLayerName [strlen (fullLayerName)] = '\0';
+
+			// 레이어 이름 (통합 버전에만)
+			sprintf (reportStr, "<< 레이어 : %s >>\n\n", fullLayerName);
+			fprintf (fp_unite, reportStr);
+
+			surface_slabs = 0.0;
+
+			// 슬래브에 대한 물량 정보 추출
+			ACAPI_ELEMENT_QUANTITY_MASK_CLEAR (mask);
+			ACAPI_ELEMENT_QUANTITY_MASK_SET (mask, slab, bottomSurface);
+			for (xx = 0 ; xx < nSlabs ; ++xx) {
+				quantities.elements = &quantity;
+				err = ACAPI_Element_GetQuantities (slabs [xx], &params, &quantities, &mask);
+
+				if (err == NoError) {
+					surface_slabs += quantity.slab.bottomSurface;
+				}
+			}
+
+			sprintf (reportStr, "슬래브 수량,%d\n슬래브 밑면 넓이,%lf\n\n", nSlabs, surface_slabs);
+			fprintf (fp_unite, reportStr);
+
+			// 레이어 숨기기
+			attrib.layer.head.flags |= APILay_Hidden;
+			ACAPI_Attribute_Modify (&attrib, NULL);
+		}
+	}
+
+	fclose (fp_unite);
+
+	// 모든 프로세스를 마치면 처음에 수집했던 보이는 레이어들을 다시 켜놓을 것
+	for (xx = 1 ; xx <= nVisibleLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = visLayerList [xx-1];
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+				attrib.layer.head.flags ^= APILay_Hidden;
+				ACAPI_Attribute_Modify (&attrib, NULL);
+			}
+		}
+	}
+
+	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	location.ToDisplayText (&resultString);
+	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
+
+	return	err;
+}
+
+// 단열재 수량/면적 계산 (Single 모드)
+GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
+{
+	GSErrCode err = NoError;
+
+	long		nSel;
+	unsigned short		xx;
+	bool		regenerate = true;
+	bool		suspGrp;
+
+	// 선택한 요소가 없으면 오류
+	API_SelectionInfo		selectionInfo;
+	API_Neig				**selNeigs;
+	API_Element				tElem;
+	
+	GS::Array<API_Guid>		objects;
+
+	long					nObjects = 0;
+	double					surface_objects = 0.0;
+	char					buffer [512];
+
+	// 선택한 요소들의 정보 요약하기
+	API_Element			elem;
+	API_ElementMemo		memo;
+
+	// 그룹화 일시정지 ON
+	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
+	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	// 선택한 요소 가져오기
+	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
+	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	if (err != NoError) {
+		BMKillHandle ((GSHandle *) &selNeigs);
+		WriteReport_Alert ("요소들을 선택해야 합니다.");
+		return err;
+	}
+
+	if (selectionInfo.typeID != API_SelEmpty) {
+		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
+		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
+			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
+			tElem.header.guid = (*selNeigs)[xx].guid;
+
+			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
+				continue;
+
+			if (tElem.header.typeID == API_ObjectID)		objects.Push (tElem.header.guid);		// 객체 타입 요소인가?
+		}
+	}
+	BMKillHandle ((GSHandle *) &selNeigs);
+
+	nObjects = objects.GetSize ();
+
+	for (xx = 0 ; xx < nObjects ; ++xx) {
+		BNZeroMemory (&elem, sizeof (API_Element));
+		BNZeroMemory (&memo, sizeof (API_ElementMemo));
+		elem.header.guid = objects [xx];
+		err = ACAPI_Element_Get (&elem);
+
+		if (err == NoError && elem.header.hasMemo) {
+			err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+			if (err == NoError) {
+				if (my_strcmp (getParameterStringByName (&memo, "sup_type"), "단열재") == 0) {
+					sprintf (buffer, "%s", getParameterStringByName (&memo, "gs_list_custom2"));
+					surface_objects += atof (buffer);
+				}
+			}
+
+			ACAPI_DisposeElemMemoHdls (&memo);
+		}
+	}
+
+	sprintf (buffer, "단열재 수량: %d\n단열재 넓이(m2): %lf", nObjects, surface_objects);
+	WriteReport_Alert (buffer);
+
+	return	err;
+}
+
+// 단열재 수량/면적 계산 (Multi 모드)
+GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
+{
+	GSErrCode	err = NoError;
+	unsigned short		xx;
+	short		mm;
+	bool		regenerate = true;
+	bool		suspGrp;
+
+	// 모든 객체, 보 저장
+	GS::Array<API_Guid>		elemList;
+	GS::Array<API_Guid>		objects;
+	long					nObjects = 0;
+
+	// 선택한 요소들의 정보 요약하기
+	API_Element			elem;
+	API_ElementMemo		memo;
+
+	// 레이어 관련 변수
+	short			nLayers;
+	API_Attribute	attrib;
+	short			nVisibleLayers = 0;
+	short			visLayerList [1024];
+	char			fullLayerName [512];
+	vector<LayerList>	layerList;
+
+	// 기타
+	char			buffer [512];
+	char			filename [512];
+
+	// 진행바를 표현하기 위한 변수
+	GS::UniString       title ("내보내기 진행 상황");
+	GS::UniString       subtitle ("진행중...");
+	short	nPhase;
+	Int32	cur, total;
+
+	// 엑셀 파일로 기둥 정보 내보내기
+	// 파일 저장을 위한 변수
+	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
+	IO::Location		location;
+	GS::UniString		resultString;
+	API_MiscAppInfo		miscAppInfo;
+	FILE				*fp_unite;
+
+	bool	bTargetObject;		// 대상이 되는 객체인가?
+	int		nTarget;			// 총 수량
+	double	totalArea;			// 총 면적값
+
+
+	// 그룹화 일시정지 ON
+	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
+	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+
+	// 화면 새로고침
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+
+	// 프로젝트 내 레이어 개수를 알아냄
+	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	attrib.layer.head.typeID = API_LayerID;
+	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+
+	// 보이는 레이어들의 목록 저장하기
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			if (!((attrib.layer.head.flags & APILay_Hidden) == true)) {
+				visLayerList [nVisibleLayers++] = attrib.layer.head.index;
+			}
+		}
+	}
+
+	// 레이어 이름과 인덱스 저장
+	for (xx = 0 ; xx < nVisibleLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = visLayerList [xx];
+		err = ACAPI_Attribute_Get (&attrib);
+
+		sprintf (fullLayerName, "%s", attrib.layer.head.name);
+		fullLayerName [strlen (fullLayerName)] = '\0';
+
+		LayerList newLayerItem;
+		newLayerItem.layerInd = visLayerList [xx];
+		newLayerItem.layerName = fullLayerName;
+
+		layerList.push_back (newLayerItem);
+	}
+
+	// 레이어 이름 기준으로 정렬하여 레이어 인덱스 순서 변경
+	sort (layerList.begin (), layerList.end (), compareLayerName);		// 레이어 이름 기준 오름차순 정렬
+
+	// 일시적으로 모든 레이어 숨기기
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			attrib.layer.head.flags |= APILay_Hidden;
+			ACAPI_Attribute_Modify (&attrib, NULL);
+		}
+	}
+
+	ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
+	sprintf (filename, "%s - 단열재 수량 및 면적 (통합).csv", miscAppInfo.caption);
+	fp_unite = fopen (filename, "w+");
+
+	if (fp_unite == NULL) {
+		WriteReport_Alert ("통합 버전 엑셀파일을 만들 수 없습니다.");
+		return	NoError;
+	}
+
+	// 진행 상황 표시하는 기능 - 초기화
+	nPhase = 1;
+	cur = 1;
+	total = nVisibleLayers;
+	ACAPI_Interface (APIIo_InitProcessWindowID, &title, &nPhase);
+	ACAPI_Interface (APIIo_SetNextProcessPhaseID, &subtitle, &total);
+
+	sprintf (buffer, "안내: 면적 값의 단위는 m2(제곱미터)입니다.\n고려되는 객체: 단열재\n\n");
+	fprintf (fp_unite, buffer);
+
+	// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 테이블폼의 면적 값을 가진 객체들의 변수 값을 가져와서 계산함
+	for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		//attrib.layer.head.index = visLayerList [mm-1];
+		attrib.layer.head.index = layerList [mm-1].layerInd;
+		err = ACAPI_Attribute_Get (&attrib);
+
+		// 초기화
+		objects.Clear ();
+
+		if (err == NoError) {
+			// 레이어 보이기
+			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+				attrib.layer.head.flags ^= APILay_Hidden;
+				ACAPI_Attribute_Modify (&attrib, NULL);
+			}
+
+			// 모든 요소 가져오기
+			ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음, 객체 타입만
+			while (elemList.GetSize () > 0) {
+				objects.Push (elemList.Pop ());
+			}
+			nObjects = objects.GetSize ();
+
+			if (nObjects == 0)
+				continue;
+
+			// 레이어 이름 가져옴
+			sprintf (fullLayerName, "%s", attrib.layer.head.name);
+			fullLayerName [strlen (fullLayerName)] = '\0';
+
+			// 레이어 이름
+			sprintf (buffer, "<< 레이어 : %s >>\n\n", fullLayerName);
+			fprintf (fp_unite, buffer);
+
+			totalArea = 0.0;
+			nTarget = 0;
+
+			// 객체에서 면적 값 가져와서 합산하기
+			for (xx = 0 ; xx < nObjects ; ++xx) {
+				BNZeroMemory (&elem, sizeof (API_Element));
+				BNZeroMemory (&memo, sizeof (API_ElementMemo));
+				elem.header.guid = objects [xx];
+				err = ACAPI_Element_Get (&elem);
+
+				if (err == NoError && elem.header.hasMemo) {
+					err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
+
+					if (err == NoError) {
+						bTargetObject = false;
+
+						if (my_strcmp (getParameterStringByName (&memo, "sup_type"), "단열재") == 0) {
+							bTargetObject = true;
+						}
+
+						if (bTargetObject == true) {
+							nTarget ++;
+							sprintf (buffer, "%s", getParameterStringByName (&memo, "gs_list_custom2"));
+							totalArea += atof (buffer);
+						}
+					}
+
+					ACAPI_DisposeElemMemoHdls (&memo);
+				}
+			}
+
+			// 면적 값 출력하기
+			sprintf (buffer, "수량,%d\n면적,%lf\n\n", nTarget, totalArea);
+			fprintf (fp_unite, buffer);
+
+			// 레이어 숨기기
+			attrib.layer.head.flags |= APILay_Hidden;
+			ACAPI_Attribute_Modify (&attrib, NULL);
+		}
+
+		// 진행 상황 표시하는 기능 - 진행
+		cur = mm;
+		ACAPI_Interface (APIIo_SetProcessValueID, &cur, NULL);
+		if (ACAPI_Interface (APIIo_IsProcessCanceledID, NULL, NULL) == APIERR_CANCEL)
+			break;
+	}
+
+	// 진행 상황 표시하는 기능 - 마무리
+	ACAPI_Interface (APIIo_CloseProcessWindowID, NULL, NULL);
 
 	fclose (fp_unite);
 

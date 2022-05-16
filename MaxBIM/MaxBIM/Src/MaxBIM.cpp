@@ -158,6 +158,18 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 8:		// 콘크리트 물량 계산 (Multi 모드)
 					err = calcConcreteVolumeMultiMode ();
 					break;
+				case 9:		// 슬래브 수량/하부면적 계산 (Single 모드)
+					err = calcSlabQuantityAndAreaSingleMode ();
+					break;
+				case 10:	// 슬래브 수량/하부면적 계산 (Multi 모드)
+					err = calcSlabQuantityAndAreaMultiMode ();
+					break;
+				case 11:	// 단열재 수량/면적 계산 (Single 모드)
+					err = calcInsulationQuantityAndAreaSingleMode ();
+					break;
+				case 12:	// 단열재 수량/면적 계산 (Multi 모드)
+					err = calcInsulationQuantityAndAreaMultiMode ();
+					break;
 			}
 			break;
 
@@ -277,6 +289,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
+						/*
 						bool				regenerate = true;
 						//char				filename [256];
 
@@ -412,6 +425,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 						location.ToDisplayText (&resultString);
 						WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
+						*/
 						// *** 원하는 코드를 위에 넣으시오.
 						return err;
 					});
