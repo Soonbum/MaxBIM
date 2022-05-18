@@ -251,7 +251,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "배포일: 2022.05.16 - 15:16");
+			DGSetItemText (dialogID, itmIdx, "배포일: 2022.05.18 - 18:00");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
@@ -265,7 +265,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 프로그램 기능
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 255, 320);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "1. 테이블폼 배치\n - 벽에 테이블폼 배치\n - 슬래브 하부에 테이블폼 배치\n - 보에 테이블폼 배치\n - 기둥에 테이블폼 배치\n\n\
+			DGSetItemText (dialogID, itmIdx, "1. 테이블폼 배치\n - 벽에 테이블폼 배치\n - 슬래브 하부에 테이블폼 배치\n - 보에 테이블폼 배치\n - 기둥에 테이블폼 배치\n - 낮은 슬래브 측면에 테이블폼 배치\n\n\
 											 2. 레이어 유틸\n - 레이어 쉽게 선택하기\n - 레이어 쉽게 만들기\n - 레이어 쉽게 지정하기\n - 레이어 이름 검사하기");
 			DGShowItem (dialogID, itmIdx);
 

@@ -9,6 +9,7 @@
 #include "SlabTableformPlacer.hpp"
 #include "BeamTableformPlacer.hpp"
 #include "ColumnTableformPlacer.hpp"
+#include "LowSideTableformPlacer.hpp"
 
 #include "Layers.hpp"
 #include "Export.hpp"
@@ -104,6 +105,13 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					// 기둥에 테이블폼 배치하기
 					err = ACAPI_CallUndoableCommand ("기둥에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnColumn ();
+						return err;
+					});
+					break;
+				case 5:
+					// 낮은 슬래브 측면에 테이블폼 배치
+					err = ACAPI_CallUndoableCommand ("낮은 슬래브 측면에 테이블폼 배치", [&] () -> GSErrCode {
+						err = placeTableformOnLowSide ();
 						return err;
 					});
 					break;
@@ -312,35 +320,26 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
 						ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 						
-						//////////////////////////////////////////////
-						ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+							ACAPI_Automate (APIDo_ShowAllIn3DID, NULL, NULL);
 
-						//ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
-						//sprintf (filename, "테스트.csv", miscAppInfo.caption);
-							
-						BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-						//fsp.fileTypeID = APIFType_PdfFile;
-						fsp.fileTypeID = APIFType_PNGFile;
-						fsp.file = new IO::Location (location, IO::Name ("test.png"));
+							BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+							fsp.fileTypeID = APIFType_JPEGFile;
+							ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+							fsp.file = new IO::Location (location, IO::Name ("test.jpg"));
 
-						BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
-						pars_pdf.leftMargin = 0.0;
-						pars_pdf.rightMargin = 0.0;
-						pars_pdf.topMargin = 0.0;
-						pars_pdf.bottomMargin = 0.0;
-						pars_pdf.sizeX = 210;
-						pars_pdf.sizeY = 297;
+							BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+							pars_pict.colorDepth = APIColorDepth_TC24;
+							pars_pict.dithered = false;
+							pars_pict.view2D = false;
+							pars_pict.crop = false;
 
-						BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-						pars_pict.colorDepth = APIColorDepth_256C;
-						pars_pict.dithered = false;
-						pars_pict.view2D = false;
-						pars_pict.crop = false;
+							err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);
 
-						err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);
+							if (err != NoError) {
+								WriteReport_Err (ErrID_To_Name (err), err);
+							}
 
-						delete	fsp.file;
-						//////////////////////////////////////////////
+							delete	fsp.file;
 
 						// 입면 뷰 DB의 ID들을 획득함
 						err = ACAPI_Database (APIDb_GetElevationDatabasesID, &dbases, NULL);
@@ -376,34 +375,35 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 							// 화면 전체에 Fit하도록 포커싱
 							ACAPI_Automate (APIDo_ZoomID, NULL, NULL);
 
-							// DWG로 저장하기?
-							ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-
-							//ACAPI_Environment (APIEnv_GetMiscAppInfoID, &miscAppInfo);
-							//sprintf (filename, "테스트.csv", miscAppInfo.caption);
-							
+							// 저장하기
 							BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-							//fsp.fileTypeID = APIFType_PdfFile;
-							fsp.fileTypeID = APIFType_PNGFile;
-							fsp.file = new IO::Location (location, IO::Name ("test.png"));
+							fsp.fileTypeID = APIFType_PdfFile;
+							//fsp.fileTypeID = APIFType_JPEGFile;
+							ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+							fsp.file = new IO::Location (location, IO::Name ("test.pdf"));
 
 							BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
-							pars_pdf.leftMargin = 0.0;
-							pars_pdf.rightMargin = 0.0;
-							pars_pdf.topMargin = 0.0;
-							pars_pdf.bottomMargin = 0.0;
+							pars_pdf.leftMargin = 10.0;
+							pars_pdf.rightMargin = 10.0;
+							pars_pdf.topMargin = 10.0;
+							pars_pdf.bottomMargin = 10.0;
 							pars_pdf.sizeX = 210;
 							pars_pdf.sizeY = 297;
 
-							BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-							pars_pict.colorDepth = APIColorDepth_TC24;
-							pars_pict.dithered = false;
-							pars_pict.view2D = false;
-							pars_pict.crop = false;
+							//BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
+							//pars_pict.colorDepth = APIColorDepth_TC24;
+							//pars_pict.dithered = false;
+							//pars_pict.view2D = false;
+							//pars_pict.crop = false;
 
-							err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);
+							err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pdf);
+
+							if (err != NoError) {
+								WriteReport_Err (ErrID_To_Name (err), err);
+							}
 
 							delete	fsp.file;
+
 
 
 							//ACAPI_Element_GetElemList (API_ObjectID, &elemList);

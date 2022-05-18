@@ -100,4 +100,36 @@ struct InfoColumn
 	API_Coord	origoPos;	// 기둥의 위치
 };
 
+// 모프 관련 정보
+struct InfoMorph
+{
+	API_Guid	guid;		// 모프의 GUID
+	short		floorInd;	// 층 인덱스
+
+	double		level;		// 모프의 고도
+	double		height;		// 모프의 높이
+
+	double	leftBottomX;	// 좌하단 좌표 X
+	double	leftBottomY;	// 좌하단 좌표 Y
+	double	leftBottomZ;	// 좌하단 좌표 Z
+
+	double	rightTopX;		// 우상단 좌표 X
+	double	rightTopY;		// 우상단 좌표 Y
+	double	rightTopZ;		// 우상단 좌표 Z
+
+	double	horLen;			// 가로 길이
+	double	verLen;			// 세로 길이
+	double	ang;			// 회전 각도 (단위: Degree, 회전축: Z축)
+};
+
+// 메시 관련 정보
+struct InfoMesh
+{
+	API_Guid	guid;		// 메시의 GUID
+	short		floorInd;	// 층 인덱스
+
+	double		level;		// 메시 베이스 평면의 고도
+	double		skirtLevel;	// 메시 베이스 평면으로부터 메시 밑면의 거리
+};
+
 #endif //__MAXBIM_HPP__

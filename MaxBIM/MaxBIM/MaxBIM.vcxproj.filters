@@ -60,6 +60,9 @@
     <ClInclude Include="Src\Facility.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Src\LowSideTableformPlacer.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\MaxBIM.cpp">
@@ -96,6 +99,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Src\Facility.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\LowSideTableformPlacer.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
