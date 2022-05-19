@@ -48,6 +48,8 @@ sup_type,블루 보 브라켓,1,type,타입,,,,,,,,,,,,,,,,
 sup_type,단열재,6,bRestrictSize,크기 제한,maxHorLen,가로(최대),maxVerLen,세로(가로),A,가로(실제),B,세로(실제),bLShape,ㄱ형상으로 자름,,,,,,
 sup_type,보 장선 클램프,0,,,,,,,,,,,,,,,,,,
 sup_type,Push-Pull Props (기성품 및 당사제작품),4,bBasePlate,베이스 플레이트 유무,mainType,규격(상부),auxType,규격(하부),bAuxSupport,하부 지지대 유무,,,,,,,,,,
+sup_type,Push-Pull Props (기성품),4,bBasePlate,베이스 플레이트 유무,mainType,규격(상부),auxType,규격(하부),bAuxSupport,하부 지지대 유무,,,,,,,,,,
+sup_type,Push-Pull Props (당사제작품),4,bBasePlate,베이스 플레이트 유무,mainType,규격(상부),auxType,규격(하부),bAuxSupport,하부 지지대 유무,,,,,,,,,,
 in_comp,변각인코너판넬,3,wid_s,가로,leng_s,세로,hei_s,높이,,,,,,,,,,,,
 j_comp,잭서포트,2,j_stan,규격,j_leng,길이,,,,,,,,,,,,,,
 sup_type,BASE PLATE,9,baseA,가로(베이스),baseB,세로(베이스),baseZ,높이(베이스),bMortar,모르타르여부,mortarZ,모르타르두께,bPlate,플레이트여부,plateA,가로(플레이트),plateB,세로(플레이트),plateZ,두께(플레이트)

@@ -48,6 +48,7 @@
 // 벽 관련 정보
 struct InfoWall
 {
+	API_Guid	guid;			// 벽의 GUID
 	double	wallThk;			// 벽 두께
 	short	floorInd;			// 층 인덱스
 	double	bottomOffset;		// 벽 하단 오프셋
@@ -61,6 +62,7 @@ struct InfoWall
 // 슬래브 관련 정보
 struct InfoSlab
 {
+	API_Guid	guid;			// 슬래브의 GUID
 	short	floorInd;			// 층 인덱스
 	double	offsetFromTop;		// 슬래브 윗면과 레퍼런스 레벨과의 수직 거리
 	double	thickness;			// 슬래브 두께

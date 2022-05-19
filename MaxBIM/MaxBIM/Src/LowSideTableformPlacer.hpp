@@ -77,61 +77,57 @@ public:
 
 	short	tableformType;		// 테이블폼 타입: 타입A (1), 타입B (2), 타입C (3)
 
-	short	nCellsInHor;		// 수평 방향 셀(유로폼) 개수
+	short	nCellsInHor;		// 수평 방향 셀 개수
 
 	CellForLowSideTableform		cells [50];				// 셀 배열 (인코너 제외)
 
 public:
-	//int	presetWidthVertical_tableform [40];		// 세로 방향 테이블폼의 너비 모음 (3600 ... 200)
-	//int	presetWidthHorizontal_tableform [16];	// 가로 방향 테이블폼의 높이 모음 (3600 ... 1200)
+	int	presetWidthVertical_tableform [65];		// 세로 방향 테이블폼의 너비 모음 (3600 ... 200)
+	int	presetWidthHorizontal_tableform [11];	// 가로 방향 테이블폼의 너비 모음 (3600 ... 600)
 
-	//int	presetWidth_config_vertical [40][5];	// 세로 방향 테이블폼 내 유로폼의 배열 순서
-	//int	presetWidth_config_horizontal [16][6];	// 가로 방향 테이블폼 내 유로폼의 배열 순서
+	int	presetWidthVertical_euroform [7];		// 세로 방향 유로폼의 너비 모음 (600 .. 200)
+	int	presetHeightHorizontal_euroform [4];	// 가로 방향 유로폼의 너비 모음 (1200 ... 600)
+
+	int	presetWidth_config_vertical [65][7];	// 세로 방향 테이블폼 내 유로폼의 배열 순서 !!!
+	int	presetWidth_config_horizontal [11][4];	// 가로 방향 테이블폼 내 유로폼의 배열 순서 !!!
 
 public:
-	//WallTableformPlacingZone ();	// 기본 생성자
-	//void	initCells (WallTableformPlacingZone* placingZone, bool bVertical);				// 셀 정보 초기화
-	//double	getCellPositionLeftBottomX (WallTableformPlacingZone* placingZone, short idx);	// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
-	//void	adjustCellsPosition (WallTableformPlacingZone* placingZone);					// 셀 위치를 바르게 교정함
-	//GSErrCode	placeObjects (WallTableformPlacingZone* placingZone);						// 셀 정보를 기반으로 객체들을 배치함
+	LowSideTableformPlacingZone ();		// 기본 생성자
+	void	initCells (LowSideTableformPlacingZone* placingZone, bool bVertical);					// 셀 정보 초기화
+	double	getCellPositionLeftBottomX (LowSideTableformPlacingZone* placingZone, short idx);		// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
+	void	adjustCellsPosition (LowSideTableformPlacingZone* placingZone);							// 셀 위치를 바르게 교정함
+	GSErrCode	placeObjects (LowSideTableformPlacingZone* placingZone);							// 셀 정보를 기반으로 객체들을 배치함
 
-	//void	placeEuroformsOfTableform (WallTableformPlacingZone* placingZone, short idxCell);	// 테이블폼 내 유로폼 배치 (공통)
-	//void	placeTableformA (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입A 배치 (유로폼 제외) - 각파이프 2줄
-	//void	placeTableformB (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입B 배치 (유로폼 제외) - 각파이프 1줄
-	//void	placeTableformC (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입C 배치 (유로폼 제외) - 각파이프 1줄, 십자 조인트 바 활용
+	void	placeEuroformsOfTableform (LowSideTableformPlacingZone* placingZone, short idxCell);	// 테이블폼 내 유로폼 배치 (공통)
+	void	placeTableformA (LowSideTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입A 배치 (유로폼 제외) - 각파이프 2줄
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
-	//short	EDITCONTROL_GAP;
-	//short	CHECKBOX_SINGLESIDE;
-	//short	POPUP_DIRECTION;
-	//short	POPUP_TABLEFORM_TYPE;
-	//short	EDITCONTROL_REMAIN_WIDTH;
-	//short	EDITCONTROL_REMAIN_HEIGHT_BASIC;
-	//short	EDITCONTROL_REMAIN_HEIGHT_EXTRA;
-	//short	BUTTON_ADD_HOR;
-	//short	BUTTON_DEL_HOR;
-	//short	CHECKBOX_LINCORNER;
-	//short	EDITCONTROL_LINCORNER;
-	//short	CHECKBOX_RINCORNER;
-	//short	EDITCONTROL_RINCORNER;
-	//short	BUTTON_ADD_VER_BASIC;
-	//short	BUTTON_DEL_VER_BASIC;
-	//short	BUTTON_ADD_VER_EXTRA;
-	//short	BUTTON_DEL_VER_EXTRA;
-
-	//short	BUTTON_OBJ [50];
-	//short	POPUP_OBJ_TYPE [50];
-	//short	POPUP_WIDTH [50];
-	//short	EDITCONTROL_WIDTH [50];
-	//short	POPUP_HEIGHT_PRESET;
-	//short	POPUP_HEIGHT_BASIC [10];
-	//short	POPUP_HEIGHT_EXTRA [10];
+	short	POPUP_DIRECTION;
+	short	POPUP_TABLEFORM_TYPE;
+	short	BUTTON_ADD_HOR;
+	short	BUTTON_DEL_HOR;
+	short	EDITCONTROL_REMAIN_WIDTH;
+	short	EDITCONTROL_CURRENT_HEIGHT;
+	short	BUTTON_LCORNER;
+	short	POPUP_OBJ_TYPE_LCORNER;
+	short	EDITCONTROL_WIDTH_LCORNER;
+	short	BUTTON_RCORNER;
+	short	POPUP_OBJ_TYPE_RCORNER;
+	short	EDITCONTROL_WIDTH_RCORNER;
+	short	BUTTON_OBJ [50];
+	short	POPUP_OBJ_TYPE [50];
+	short	POPUP_WIDTH [50];
+	short	EDITCONTROL_WIDTH [50];
 
 	//short	LABEL_TOTAL_WIDTH;
 	//short	POPUP_WIDTH_IN_TABLE [4];
 };
 
 GSErrCode	placeTableformOnLowSide (void);				// 낮은 슬래브 측면에 테이블폼을 배치하는 통합 루틴
+short DGCALLBACK lowSideTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// 테이블폼/유로폼/휠러스페이서/합판/목재 배치를 위한 다이얼로그 (테이블폼 구성, 요소 방향, 개수 및 길이)
+short DGCALLBACK lowSideTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// 객체의 레이어를 선택하기 위한 다이얼로그
+short DGCALLBACK lowSideTableformPlacerHandler3_Vertical (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 세로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
+short DGCALLBACK lowSideTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 가로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
 
 #endif
