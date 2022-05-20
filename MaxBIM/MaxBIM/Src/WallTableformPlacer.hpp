@@ -239,7 +239,7 @@ public:
 	short	POPUP_HEIGHT_EXTRA [10];
 
 	short	LABEL_TOTAL_WIDTH;
-	short	POPUP_WIDTH_IN_TABLE [4];
+	short	POPUP_WIDTH_IN_TABLE [10];
 };
 
 GSErrCode	placeTableformOnWall (void);				// 벽에 테이블폼을 배치하는 통합 루틴 - 전체 통합
