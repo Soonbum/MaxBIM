@@ -85,6 +85,13 @@ namespace wallTableformPlacerDG {
 		PLYWOOD,	// 합판
 		TIMBER		// 각재
 	};
+
+	enum	objCornerType_forWallTableformPlacer {
+		NOCORNER = 1,
+		INCORNER_PANEL,
+		OUTCORNER_PANEL,
+		OUTCORNER_ANGLE
+	};
 }
 
 // 모프 관련 정보
@@ -165,10 +172,10 @@ public:
 
 	bool	bExtra;				// 높은쪽 모프가 있는가?
 
-	bool	bLincorner;			// 왼쪽 인코너 유무
-	bool	bRincorner;			// 오른쪽 인코너 유무
-	double	lenLincorner;		// 왼쪽 인코너 길이
-	double	lenRincorner;		// 오른쪽 인코너 길이
+	short	typeLcorner;		// 왼쪽 코너 타입	: (1) 없음 (2) 인코너판넬 (3) 아웃코너판넬 (4) 아웃코너앵글
+	short	typeRcorner;		// 오른쪽 코너 타입	: (1) 없음 (2) 인코너판넬 (3) 아웃코너판넬 (4) 아웃코너앵글
+	double	lenLcorner;			// 왼쪽 인코너판넬/아웃코너판넬 길이
+	double	lenRcorner;			// 오른쪽 인코너판넬/아웃코너판넬 길이
 
 	short	tableformType;		// 테이블폼 타입: 타입A (1), 타입B (2), 타입C (3)
 
@@ -203,7 +210,6 @@ public:
 	void	adjustMarginCellsPosition (WallTableformPlacingZone* placingZone);				// 상단 여백 셀 위치를 바르게 교정함
 	GSErrCode	placeObjects (WallTableformPlacingZone* placingZone);						// 셀 정보를 기반으로 객체들을 배치함
 	GSErrCode	fillRestAreas (WallTableformPlacingZone* placingZone, short idxCell);		// 상단 여백을 유로폼 또는 합판, 각재 등으로 채움
-	GSErrCode	fillCornerRestAreas (WallTableformPlacingZone* placingZone);				// 상단 여백 코너를 합판으로 채움
 
 	void	placeEuroformsOfTableform (WallTableformPlacingZone* placingZone, short idxCell);	// 테이블폼 내 유로폼 배치 (공통)
 	void	placeTableformA (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입A 배치 (유로폼 제외) - 각파이프 2줄
@@ -221,10 +227,12 @@ public:
 	short	EDITCONTROL_REMAIN_HEIGHT_EXTRA;
 	short	BUTTON_ADD_HOR;
 	short	BUTTON_DEL_HOR;
-	short	CHECKBOX_LINCORNER;
-	short	EDITCONTROL_LINCORNER;
-	short	CHECKBOX_RINCORNER;
-	short	EDITCONTROL_RINCORNER;
+	short	BUTTON_LCORNER;
+	short	POPUP_OBJ_TYPE_LCORNER;
+	short	EDITCONTROL_WIDTH_LCORNER;
+	short	BUTTON_RCORNER;
+	short	POPUP_OBJ_TYPE_RCORNER;
+	short	EDITCONTROL_WIDTH_RCORNER;
 	short	BUTTON_ADD_VER_BASIC;
 	short	BUTTON_DEL_VER_BASIC;
 	short	BUTTON_ADD_VER_EXTRA;

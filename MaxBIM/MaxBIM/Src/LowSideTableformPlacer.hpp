@@ -158,6 +158,7 @@ public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
 	short	POPUP_DIRECTION;
 	short	POPUP_TABLEFORM_TYPE;
+	short	POPUP_TABLEFORM_HEIGHT;
 	short	BUTTON_ADD_HOR;
 	short	BUTTON_DEL_HOR;
 	short	EDITCONTROL_REMAIN_WIDTH;

@@ -328,9 +328,6 @@ FIRST:
 	for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx)
 		placingZone.fillRestAreas (&placingZone, xx);
 
-	// 나머지 영역에 유로폼이 들어가는 경우, 인코너 윗쪽 코너 합판을 붙임
-	//placingZone.fillCornerRestAreas (&placingZone);
-
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
 	bool	regenerate = true;
@@ -575,7 +572,10 @@ void	WallTableformPlacingZone::initCells (WallTableformPlacingZone* placingZone,
 // 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
 double	WallTableformPlacingZone::getCellPositionLeftBottomX (WallTableformPlacingZone* placingZone, short idx)
 {
-	double	distance = (placingZone->bLincorner == true) ? placingZone->lenLincorner : 0;
+	double	distance = 0.0;
+
+	if ((placingZone->typeLcorner == INCORNER_PANEL) || (placingZone->typeLcorner == OUTCORNER_PANEL))
+		distance = placingZone->lenLcorner;
 
 	for (short xx = 0 ; xx < idx ; ++xx)
 		distance += (double)placingZone->cells [xx].horLen / 1000.0;
@@ -640,30 +640,30 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	int		remainLengthInt;
 
 	// ================================================== 인코너 배치
-	// 좌측 인코너 배치
-	if (placingZone->bLincorner == true) {
+	// 좌측 인코너/아웃코너 배치
+	if (placingZone->typeLcorner == INCORNER_PANEL) {
 		// 앞면
-		EasyObjectPlacement incorner;
-		incorner.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang - DegreeToRad (90.0));
+		EasyObjectPlacement incornerPanel;
+		incornerPanel.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang - DegreeToRad (90.0));
 
-		moveIn3D ('y', incorner.radAng + DegreeToRad (90.0), -placingZone->gap, &incorner.posX, &incorner.posY, &incorner.posZ);	// 벽과의 간격만큼 이동
+		moveIn3D ('y', incornerPanel.radAng + DegreeToRad (90.0), -placingZone->gap, &incornerPanel.posX, &incornerPanel.posY, &incornerPanel.posZ);	// 벽과의 간격만큼 이동
 
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
-			elemList_Front.Push (incorner.placeObject (5,
+			elemList_Front.Push (incornerPanel.placeObject (5,
 				"in_comp", APIParT_CString, "인코너판넬",
 				"wid_s", APIParT_Length, format_string ("%f", 0.100),
-				"leng_s", APIParT_Length, format_string ("%f", placingZone->lenLincorner),
+				"leng_s", APIParT_Length, format_string ("%f", placingZone->lenLcorner),
 				"hei_s", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
 				"dir_s", APIParT_CString, "세우기"));
 
-			moveIn3D ('z', incorner.radAng + DegreeToRad (90.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &incorner.posX, &incorner.posY, &incorner.posZ);
+			moveIn3D ('z', incornerPanel.radAng + DegreeToRad (90.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &incornerPanel.posX, &incornerPanel.posY, &incornerPanel.posZ);
 		}
 
 		// 뒷면
 		if (placingZone->bSingleSide == false) {
-			incorner.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+			incornerPanel.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
 
-			moveIn3D ('y', incorner.radAng, infoWall.wallThk + placingZone->gap, &incorner.posX, &incorner.posY, &incorner.posZ);		// 벽과의 간격만큼 이동
+			moveIn3D ('y', incornerPanel.radAng, infoWall.wallThk + placingZone->gap, &incornerPanel.posX, &incornerPanel.posY, &incornerPanel.posZ);		// 벽과의 간격만큼 이동
 
 			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
 
@@ -673,14 +673,90 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				else
 					lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
 
-				elemList_Back.Push (incorner.placeObject (5,
+				elemList_Back.Push (incornerPanel.placeObject (5,
 					"in_comp", APIParT_CString, "인코너판넬",
-					"wid_s", APIParT_Length, format_string ("%f", placingZone->lenLincorner),
+					"wid_s", APIParT_Length, format_string ("%f", placingZone->lenLcorner),
 					"leng_s", APIParT_Length, format_string ("%f", 0.100),
 					"hei_s", APIParT_Length, format_string ("%f", lengthDouble),
 					"dir_s", APIParT_CString, "세우기"));
 
-				moveIn3D ('z', incorner.radAng, lengthDouble, &incorner.posX, &incorner.posY, &incorner.posZ);
+				moveIn3D ('z', incornerPanel.radAng, lengthDouble, &incornerPanel.posX, &incornerPanel.posY, &incornerPanel.posZ);
+			}
+		}
+	} else if (placingZone->typeLcorner == OUTCORNER_PANEL) {
+		// 앞면
+		EasyObjectPlacement outcornerPanel;
+		outcornerPanel.init (L("아웃코너판넬v1.0.gsm"), layerInd_OutcornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+
+		moveIn3D ('y', outcornerPanel.radAng, -placingZone->gap, &outcornerPanel.posX, &outcornerPanel.posY, &outcornerPanel.posZ);	// 벽과의 간격만큼 이동
+
+		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
+			elemList_Front.Push (outcornerPanel.placeObject (4,
+				"wid_s", APIParT_Length, format_string ("%f", placingZone->lenLcorner),
+				"leng_s", APIParT_Length, format_string ("%f", 0.100),
+				"hei_s", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
+				"dir_s", APIParT_CString, "세우기"));
+
+			moveIn3D ('z', outcornerPanel.radAng, (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &outcornerPanel.posX, &outcornerPanel.posY, &outcornerPanel.posZ);
+		}
+
+		// 뒷면
+		if (placingZone->bSingleSide == false) {
+			outcornerPanel.init (L("아웃코너판넬v1.0.gsm"), layerInd_OutcornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang - DegreeToRad (90.0));
+
+			moveIn3D ('y', outcornerPanel.radAng + DegreeToRad (90.0), infoWall.wallThk + placingZone->gap, &outcornerPanel.posX, &outcornerPanel.posY, &outcornerPanel.posZ);		// 벽과의 간격만큼 이동
+
+			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+			for (xx = 0 ; xx < varEnd ; ++xx) {
+				if (placingZone->bExtra == true)
+					lengthDouble = (double)placingZone->cells [0].tableInVerExtra [xx] / 1000.0;
+				else
+					lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+
+				elemList_Back.Push (outcornerPanel.placeObject (4,
+					"wid_s", APIParT_Length, format_string ("%f", 0.100),
+					"leng_s", APIParT_Length, format_string ("%f", placingZone->lenLcorner),
+					"hei_s", APIParT_Length, format_string ("%f", lengthDouble),
+					"dir_s", APIParT_CString, "세우기"));
+
+				moveIn3D ('z', outcornerPanel.radAng, lengthDouble, &outcornerPanel.posX, &outcornerPanel.posY, &outcornerPanel.posZ);
+			}
+		}
+	} else if (placingZone->typeLcorner == OUTCORNER_ANGLE) {
+		// 앞면
+		EasyObjectPlacement outcornerAngle;
+		outcornerAngle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
+
+		moveIn3D ('y', outcornerAngle.radAng - DegreeToRad (180.0), -placingZone->gap, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);	// 벽과의 간격만큼 이동
+
+		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
+			elemList_Front.Push (outcornerAngle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+
+			moveIn3D ('z', outcornerAngle.radAng, (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
+		}
+
+		// 뒷면
+		if (placingZone->bSingleSide == false) {
+			outcornerAngle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (90.0));
+
+			moveIn3D ('y', outcornerAngle.radAng - DegreeToRad (90.0), infoWall.wallThk + placingZone->gap, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);		// 벽과의 간격만큼 이동
+
+			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+			for (xx = 0 ; xx < varEnd ; ++xx) {
+				if (placingZone->bExtra == true)
+					lengthDouble = (double)placingZone->cells [0].tableInVerExtra [xx] / 1000.0;
+				else
+					lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+
+				elemList_Back.Push (outcornerAngle.placeObject (2,
+					"a_leng", APIParT_Length, format_string ("%f", lengthDouble),
+					"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+
+				moveIn3D ('z', outcornerAngle.radAng - DegreeToRad (90.0), lengthDouble, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
 			}
 		}
 	}
@@ -715,32 +791,32 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 		elemList_Back.Clear ();
 	}
 
-	// 우측 인코너 배치
-	if (placingZone->bRincorner == true) {
+	// 우측 인코너/아웃코너 배치
+	if (placingZone->typeRcorner == INCORNER_PANEL) {
 		// 앞면
-		EasyObjectPlacement incorner;
-		incorner.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang - DegreeToRad (180.0));
+		EasyObjectPlacement incornerPanel;
+		incornerPanel.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
 
-		moveIn3D ('y', incorner.radAng + DegreeToRad (180.0), -placingZone->gap, &incorner.posX, &incorner.posY, &incorner.posZ);		// 벽과의 간격만큼 이동
-		moveIn3D ('x', incorner.radAng + DegreeToRad (180.0), placingZone->horLen, &incorner.posX, &incorner.posY, &incorner.posZ);		// 영역 우측으로 이동
+		moveIn3D ('y', incornerPanel.radAng - DegreeToRad (180.0), -placingZone->gap, &incornerPanel.posX, &incornerPanel.posY, &incornerPanel.posZ);		// 벽과의 간격만큼 이동
+		moveIn3D ('x', incornerPanel.radAng - DegreeToRad (180.0), placingZone->horLen, &incornerPanel.posX, &incornerPanel.posY, &incornerPanel.posZ);		// 영역 우측으로 이동
 
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
-			elemList_Front.Push (incorner.placeObject (5,
+			elemList_Front.Push (incornerPanel.placeObject (5,
 				"in_comp", APIParT_CString, "인코너판넬",
-				"wid_s", APIParT_Length, format_string ("%f", placingZone->lenRincorner),
-				"leng_s", APIParT_Length, format_string ("%f", 0.100),
+				"wid_s", APIParT_Length, format_string ("%f", 0.100),
+				"leng_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
 				"hei_s", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
 				"dir_s", APIParT_CString, "세우기"));
 
-			moveIn3D ('z', incorner.radAng + DegreeToRad (180.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &incorner.posX, &incorner.posY, &incorner.posZ);
+			moveIn3D ('z', incornerPanel.radAng - DegreeToRad (180.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &incornerPanel.posX, &incornerPanel.posY, &incornerPanel.posZ);
 		}
 
 		// 뒷면
 		if (placingZone->bSingleSide == false) {
-			incorner.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (90.0));
+			incornerPanel.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (90.0));
 
-			moveIn3D ('y', incorner.radAng - DegreeToRad (90.0), infoWall.wallThk + placingZone->gap, &incorner.posX, &incorner.posY, &incorner.posZ);	// 벽과의 간격만큼 이동
-			moveIn3D ('x', incorner.radAng - DegreeToRad (90.0), placingZone->horLen, &incorner.posX, &incorner.posY, &incorner.posZ);					// 영역 우측으로 이동
+			moveIn3D ('y', incornerPanel.radAng - DegreeToRad (90.0), infoWall.wallThk + placingZone->gap, &incornerPanel.posX, &incornerPanel.posY, &incornerPanel.posZ);	// 벽과의 간격만큼 이동
+			moveIn3D ('x', incornerPanel.radAng - DegreeToRad (90.0), placingZone->horLen, &incornerPanel.posX, &incornerPanel.posY, &incornerPanel.posZ);					// 영역 우측으로 이동
 
 			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
 
@@ -750,14 +826,94 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				else
 					lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
 
-				elemList_Back.Push (incorner.placeObject (5,
+				elemList_Back.Push (incornerPanel.placeObject (5,
 					"in_comp", APIParT_CString, "인코너판넬",
-					"wid_s", APIParT_Length, format_string ("%f", 0.100),
-					"leng_s", APIParT_Length, format_string ("%f", placingZone->lenRincorner),
+					"wid_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
+					"leng_s", APIParT_Length, format_string ("%f", 0.100),
 					"hei_s", APIParT_Length, format_string ("%f", lengthDouble),
 					"dir_s", APIParT_CString, "세우기"));
 
-				moveIn3D ('z', incorner.radAng, lengthDouble, &incorner.posX, &incorner.posY, &incorner.posZ);
+				moveIn3D ('z', incornerPanel.radAng - DegreeToRad (90.0), lengthDouble, &incornerPanel.posX, &incornerPanel.posY, &incornerPanel.posZ);
+			}
+		}
+	} else if (placingZone->typeRcorner == OUTCORNER_PANEL) {
+		// 앞면
+		EasyObjectPlacement outcornerPanel;
+		outcornerPanel.init (L("아웃코너판넬v1.0.gsm"), layerInd_OutcornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (90.0));
+
+		moveIn3D ('y', outcornerPanel.radAng - DegreeToRad (90.0), -placingZone->gap, &outcornerPanel.posX, &outcornerPanel.posY, &outcornerPanel.posZ);		// 벽과의 간격만큼 이동
+		moveIn3D ('x', outcornerPanel.radAng - DegreeToRad (90.0), placingZone->horLen, &outcornerPanel.posX, &outcornerPanel.posY, &outcornerPanel.posZ);	// 영역 우측으로 이동
+
+		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
+			elemList_Front.Push (outcornerPanel.placeObject (4,
+				"wid_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
+				"leng_s", APIParT_Length, format_string ("%f", 0.100),
+				"hei_s", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
+				"dir_s", APIParT_CString, "세우기"));
+
+			moveIn3D ('z', outcornerPanel.radAng - DegreeToRad (90.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &outcornerPanel.posX, &outcornerPanel.posY, &outcornerPanel.posZ);
+		}
+
+		// 뒷면
+		if (placingZone->bSingleSide == false) {
+			outcornerPanel.init (L("아웃코너판넬v1.0.gsm"), layerInd_OutcornerPanel, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
+
+			moveIn3D ('y', outcornerPanel.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &outcornerPanel.posX, &outcornerPanel.posY, &outcornerPanel.posZ);		// 벽과의 간격만큼 이동
+			moveIn3D ('x', outcornerPanel.radAng - DegreeToRad (180.0), placingZone->horLen, &outcornerPanel.posX, &outcornerPanel.posY, &outcornerPanel.posZ);						// 영역 우측으로 이동
+
+			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+			for (xx = 0 ; xx < varEnd ; ++xx) {
+				if (placingZone->bExtra == true)
+					lengthDouble = (double)placingZone->cells [0].tableInVerExtra [xx] / 1000.0;
+				else
+					lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+
+				elemList_Back.Push (outcornerPanel.placeObject (4,
+					"wid_s", APIParT_Length, format_string ("%f", 0.100),
+					"leng_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
+					"hei_s", APIParT_Length, format_string ("%f", lengthDouble),
+					"dir_s", APIParT_CString, "세우기"));
+
+				moveIn3D ('z', outcornerPanel.radAng - DegreeToRad (180.0), lengthDouble, &outcornerPanel.posX, &outcornerPanel.posY, &outcornerPanel.posZ);
+			}
+		}
+	} else if (placingZone->typeRcorner == OUTCORNER_ANGLE) {
+		// 앞면
+		EasyObjectPlacement outcornerAngle;
+		outcornerAngle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
+
+		moveIn3D ('y', outcornerAngle.radAng - DegreeToRad (180.0), -placingZone->gap, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);	// 벽과의 간격만큼 이동
+		moveIn3D ('x', outcornerAngle.radAng - DegreeToRad (180.0), placingZone->horLen, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);	// 영역 우측으로 이동
+
+		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
+			elemList_Front.Push (outcornerAngle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+
+			moveIn3D ('z', outcornerAngle.radAng, (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
+		}
+
+		// 뒷면
+		if (placingZone->bSingleSide == false) {
+			outcornerAngle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang - DegreeToRad (90.0));
+
+			moveIn3D ('y', outcornerAngle.radAng + DegreeToRad (90.0), infoWall.wallThk + placingZone->gap, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);		// 벽과의 간격만큼 이동
+			moveIn3D ('x', outcornerAngle.radAng + DegreeToRad (90.0), placingZone->horLen, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);						// 영역 우측으로 이동
+
+			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
+
+			for (xx = 0 ; xx < varEnd ; ++xx) {
+				if (placingZone->bExtra == true)
+					lengthDouble = (double)placingZone->cells [0].tableInVerExtra [xx] / 1000.0;
+				else
+					lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+
+				elemList_Back.Push (outcornerAngle.placeObject (2,
+					"a_leng", APIParT_Length, format_string ("%f", lengthDouble),
+					"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+
+				moveIn3D ('z', outcornerAngle.radAng + DegreeToRad (90.0), lengthDouble, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
 			}
 		}
 	}
@@ -797,8 +953,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	EasyObjectPlacement euroform;
 	euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
 
-	if (placingZone->bLincorner == true)	moveIn3D ('x', euroform.radAng, placingZone->lenLincorner, &euroform.posX, &euroform.posY, &euroform.posZ);		// 좌측 인코너 있으면 x 이동
-	moveIn3D ('y', euroform.radAng, -placingZone->gap, &euroform.posX, &euroform.posY, &euroform.posZ);														// 벽과의 간격만큼 이동
+	moveIn3D ('x', euroform.radAng, placingZone->lenLcorner, &euroform.posX, &euroform.posY, &euroform.posZ);		// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', euroform.radAng, -placingZone->gap, &euroform.posX, &euroform.posY, &euroform.posZ);				// 벽과의 간격만큼 이동
 
 	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
 		if (placingZone->cells [xx].objType == EUROFORM) {
@@ -853,8 +1009,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	if (placingZone->bSingleSide == false) {
 		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
 
-		if (placingZone->bLincorner == true)	moveIn3D ('x', euroform.radAng - DegreeToRad (180.0), placingZone->lenLincorner, &euroform.posX, &euroform.posY, &euroform.posZ);	// 좌측 인코너 있으면 x 이동
-		moveIn3D ('y', euroform.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &euroform.posX, &euroform.posY, &euroform.posZ);									// 벽과의 간격만큼 이동
+		moveIn3D ('x', euroform.radAng - DegreeToRad (180.0), placingZone->lenLcorner, &euroform.posX, &euroform.posY, &euroform.posZ);					// 좌측 인코너 있으면 x 이동
+		moveIn3D ('y', euroform.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &euroform.posX, &euroform.posY, &euroform.posZ);		// 벽과의 간격만큼 이동
 
 		for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
 			if (placingZone->cells [xx].objType == EUROFORM) {
@@ -918,8 +1074,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	EasyObjectPlacement fillersp;
 	fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
 
-	if (placingZone->bLincorner == true)	moveIn3D ('x', fillersp.radAng, placingZone->lenLincorner, &fillersp.posX, &fillersp.posY, &fillersp.posZ);		// 좌측 인코너 있으면 x 이동
-	moveIn3D ('y', fillersp.radAng, -placingZone->gap, &fillersp.posX, &fillersp.posY, &fillersp.posZ);														// 벽과의 간격만큼 이동
+	moveIn3D ('x', fillersp.radAng, placingZone->lenLcorner, &fillersp.posX, &fillersp.posY, &fillersp.posZ);		// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', fillersp.radAng, -placingZone->gap, &fillersp.posX, &fillersp.posY, &fillersp.posZ);				// 벽과의 간격만큼 이동
 
 	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
 		if (placingZone->cells [xx].objType == FILLERSP) {
@@ -973,8 +1129,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	if (placingZone->bSingleSide == false) {
 		fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
 
-		if (placingZone->bLincorner == true)	moveIn3D ('x', fillersp.radAng - DegreeToRad (180.0), placingZone->lenLincorner, &fillersp.posX, &fillersp.posY, &fillersp.posZ);	// 좌측 인코너 있으면 x 이동
-		moveIn3D ('y', fillersp.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &fillersp.posX, &fillersp.posY, &fillersp.posZ);									// 벽과의 간격만큼 이동
+		moveIn3D ('x', fillersp.radAng - DegreeToRad (180.0), placingZone->lenLcorner, &fillersp.posX, &fillersp.posY, &fillersp.posZ);					// 좌측 인코너 있으면 x 이동
+		moveIn3D ('y', fillersp.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &fillersp.posX, &fillersp.posY, &fillersp.posZ);		// 벽과의 간격만큼 이동
 
 		for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
 			if (placingZone->cells [xx].objType == FILLERSP) {
@@ -1036,8 +1192,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	EasyObjectPlacement plywood;
 	plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
 
-	if (placingZone->bLincorner == true)	moveIn3D ('x', plywood.radAng, placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);		// 좌측 인코너 있으면 x 이동
-	moveIn3D ('y', plywood.radAng, -placingZone->gap, &plywood.posX, &plywood.posY, &plywood.posZ);														// 벽과의 간격만큼 이동
+	moveIn3D ('x', plywood.radAng, placingZone->lenLcorner, &plywood.posX, &plywood.posY, &plywood.posZ);		// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', plywood.radAng, -placingZone->gap, &plywood.posX, &plywood.posY, &plywood.posZ);				// 벽과의 간격만큼 이동
 
 	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
 		if (placingZone->cells [xx].objType == PLYWOOD) {
@@ -1098,8 +1254,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	if (placingZone->bSingleSide == false) {
 		plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
 
-		if (placingZone->bLincorner == true)	moveIn3D ('x', plywood.radAng - DegreeToRad (180.0), placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);		// 좌측 인코너 있으면 x 이동
-		moveIn3D ('y', plywood.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &plywood.posX, &plywood.posY, &plywood.posZ);										// 벽과의 간격만큼 이동
+		moveIn3D ('x', plywood.radAng - DegreeToRad (180.0), placingZone->lenLcorner, &plywood.posX, &plywood.posY, &plywood.posZ);					// 좌측 인코너 있으면 x 이동
+		moveIn3D ('y', plywood.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &plywood.posX, &plywood.posY, &plywood.posZ);		// 벽과의 간격만큼 이동
 
 		for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
 			if (placingZone->cells [xx].objType == PLYWOOD) {
@@ -1172,8 +1328,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	EasyObjectPlacement timber;
 	timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
 
-	if (placingZone->bLincorner == true)	moveIn3D ('x', timber.radAng, placingZone->lenLincorner, &timber.posX, &timber.posY, &timber.posZ);		// 좌측 인코너 있으면 x 이동
-	moveIn3D ('y', timber.radAng, -placingZone->gap, &timber.posX, &timber.posY, &timber.posZ);														// 벽과의 간격만큼 이동
+	moveIn3D ('x', timber.radAng, placingZone->lenLcorner, &timber.posX, &timber.posY, &timber.posZ);		// 좌측 인코너 있으면 x 이동
+	moveIn3D ('y', timber.radAng, -placingZone->gap, &timber.posX, &timber.posY, &timber.posZ);				// 벽과의 간격만큼 이동
 
 	for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
 		if (placingZone->cells [xx].objType == TIMBER) {
@@ -1229,8 +1385,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	if (placingZone->bSingleSide == false) {
 		timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
 
-		if (placingZone->bLincorner == true)	moveIn3D ('x', timber.radAng - DegreeToRad (180.0), placingZone->lenLincorner, &timber.posX, &timber.posY, &timber.posZ);		// 좌측 인코너 있으면 x 이동
-		moveIn3D ('y', timber.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &timber.posX, &timber.posY, &timber.posZ);										// 벽과의 간격만큼 이동
+		moveIn3D ('x', timber.radAng - DegreeToRad (180.0), placingZone->lenLcorner, &timber.posX, &timber.posY, &timber.posZ);					// 좌측 인코너 있으면 x 이동
+		moveIn3D ('y', timber.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap, &timber.posX, &timber.posY, &timber.posZ);		// 벽과의 간격만큼 이동
 
 		for (xx = 0 ; xx < placingZone->nCellsInHor ; ++xx) {
 			if (placingZone->cells [xx].objType == TIMBER) {
@@ -1329,46 +1485,6 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	}
 
 	return err;
-}
-
-// 상단 여백 코너를 합판으로 채움
-GSErrCode	WallTableformPlacingZone::fillCornerRestAreas (WallTableformPlacingZone* placingZone)
-{
-	GSErrCode	err = NoError;
-	EasyObjectPlacement	plywood;
-
-	// 코너 합판 붙이기
-	// 앞면 채우기
-	if (placingZone->marginCellsBasic [0].bFill == true) {
-		plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsBasic [0].leftBottomX, placingZone->marginCellsBasic [0].leftBottomY, placingZone->marginCellsBasic [0].leftBottomZ, placingZone->marginCellsBasic [0].ang);
-			
-		moveIn3D ('x', plywood.radAng, -placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
-
-		if (placingZone->lenLincorner > EPS)
-			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", placingZone->lenLincorner), "p_leng", APIParT_Length, format_string ("%f", placingZone->marginTopBasic), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0));
-
-		moveIn3D ('x', plywood.radAng, placingZone->horLen - placingZone->lenRincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
-
-		if (placingZone->lenRincorner > EPS)
-			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", placingZone->lenRincorner), "p_leng", APIParT_Length, format_string ("%f", placingZone->marginTopBasic), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0));
-	}
-
-	// 뒷면 채우기
-	if (placingZone->marginCellsExtra [0].bFill == true) {
-		plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoWall.floorInd, placingZone->marginCellsExtra [0].leftBottomX, placingZone->marginCellsExtra [0].leftBottomY, placingZone->marginCellsExtra [0].leftBottomZ, placingZone->marginCellsExtra [0].ang + DegreeToRad (180.0));
-
-		moveIn3D ('y', plywood.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2, &plywood.posX, &plywood.posY, &plywood.posZ);
-
-		if (placingZone->lenLincorner > EPS)
-			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", placingZone->lenLincorner), "p_leng", APIParT_Length, format_string ("%f", placingZone->marginTopExtra), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0));
-
-		moveIn3D ('x', plywood.radAng - DegreeToRad (180.0), placingZone->horLen - placingZone->lenLincorner, &plywood.posX, &plywood.posY, &plywood.posZ);
-
-		if (placingZone->lenRincorner > EPS)
-			plywood.placeObject (13, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "벽세우기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", placingZone->lenRincorner), "p_leng", APIParT_Length, format_string ("%f", placingZone->marginTopExtra), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "1.0", "bInverseSogak", APIParT_Boolean, "1.0", "prof", APIParT_CString, "소각", "gap_a", APIParT_Length, format_string ("%f", 0.0), "gap_b", APIParT_Length, format_string ("%f", 0.0), "gap_c", APIParT_Length, format_string ("%f", 0.0), "gap_d", APIParT_Length, format_string ("%f", 0.0));
-	}
-
-	return	err;
 }
 
 // 상단 여백을 유로폼 또는 합판, 각재 등으로 채움
@@ -7064,16 +7180,30 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			placingZone.initCells (&placingZone, true);
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (정면 관련 버튼)
-			// 좌측 인코너 유무 (체크버튼)
-			placingZone.CHECKBOX_LINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, 20, 135, 70, 70);
-			DGSetItemFont (dialogID, placingZone.CHECKBOX_LINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, placingZone.CHECKBOX_LINCORNER, "인코너");
-			DGShowItem (dialogID, placingZone.CHECKBOX_LINCORNER);
-			DGSetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER, TRUE);
-			// 좌측 인코너 길이 (Edit컨트롤)
-			placingZone.EDITCONTROL_LINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 20, 205, 70, 25);
-			DGShowItem (dialogID, placingZone.EDITCONTROL_LINCORNER);
-			DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER, 0.100);
+			// 왼쪽 인코너판넬/아웃코너판넬/아웃코너앵글
+			// 버튼
+			placingZone.BUTTON_LCORNER = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 137, 71, 66);
+			DGSetItemFont (dialogID, placingZone.BUTTON_LCORNER, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, placingZone.BUTTON_LCORNER, "없음");
+			DGShowItem (dialogID, placingZone.BUTTON_LCORNER);
+			DGDisableItem (dialogID, placingZone.BUTTON_LCORNER);
+			// 객체 타입 (팝업컨트롤)
+			placingZone.POPUP_OBJ_TYPE_LCORNER = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 20, 137 - 25, 70, 23);
+			DGSetItemFont (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER, DG_IS_EXTRASMALL | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER, DG_POPUP_BOTTOM, "없음");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER, DG_POPUP_BOTTOM, "인코너판넬");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER, DG_POPUP_BOTTOM, "아웃코너판넬");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER, DG_POPUP_BOTTOM, "아웃코너앵글");
+			DGPopUpSelectItem (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER, DG_POPUP_TOP);
+			DGShowItem (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER);
+			// 너비 (Edit컨트롤)
+			placingZone.EDITCONTROL_WIDTH_LCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 20, 137 + 68, 70, 23);
+			DGShowItem (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
+			DGDisableItem (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
 
 			// 일반 셀: 기본값은 테이블폼
 			itmPosX = 90;
@@ -7121,16 +7251,30 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				itmPosX += 70;
 			}
 
-			// 우측 인코너 유무 (체크버튼)
-			placingZone.CHECKBOX_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 135, 70, 70);
-			DGSetItemFont (dialogID, placingZone.CHECKBOX_RINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, placingZone.CHECKBOX_RINCORNER, "인코너");
-			DGShowItem (dialogID, placingZone.CHECKBOX_RINCORNER);
-			DGSetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER, TRUE);
-			// 우측 인코너 길이 (Edit컨트롤)
-			placingZone.EDITCONTROL_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 205, 70, 25);
-			DGShowItem (dialogID, placingZone.EDITCONTROL_RINCORNER);
-			DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER, 0.100);
+			// 오른쪽 인코너판넬/아웃코너판넬/아웃코너앵글
+			// 버튼
+			placingZone.BUTTON_RCORNER = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, 137, 71, 66);
+			DGSetItemFont (dialogID, placingZone.BUTTON_RCORNER, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, placingZone.BUTTON_RCORNER, "없음");
+			DGShowItem (dialogID, placingZone.BUTTON_RCORNER);
+			DGDisableItem (dialogID, placingZone.BUTTON_RCORNER);
+			// 객체 타입 (팝업컨트롤)
+			placingZone.POPUP_OBJ_TYPE_RCORNER = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, 137 - 25, 70, 23);
+			DGSetItemFont (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_IS_EXTRASMALL | DG_IS_PLAIN);
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "없음");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "인코너판넬");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "아웃코너판넬");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "아웃코너앵글");
+			DGPopUpSelectItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_TOP);
+			DGShowItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER);
+			// 너비 (Edit컨트롤)
+			placingZone.EDITCONTROL_WIDTH_RCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 137 + 68, 70, 23);
+			DGShowItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
+			DGDisableItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (측면 관련 버튼)
 			// 라벨: 측면
@@ -7248,8 +7392,8 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 			// 남은 너비 계산
 			totalWidth = 0.0;
-			if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER);
-			if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER);
+			if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER) != NOCORNER)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
+			if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER) != NOCORNER)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 				if ((DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM))
 					totalWidth += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
@@ -7433,6 +7577,59 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					DGPopUpInsertItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
 					DGPopUpSetItemText (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM, "Free");
 					DGPopUpSelectItem (dialogID, placingZone.POPUP_HEIGHT_PRESET, DG_POPUP_BOTTOM);
+				}
+			}
+
+			// 인코너판넬/아웃코너판넬/아웃코너앵글 변경시
+			if (item == placingZone.POPUP_OBJ_TYPE_LCORNER) {
+				if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER) == NOCORNER) {
+					DGSetItemText (dialogID, placingZone.BUTTON_LCORNER, "없음");
+					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.0);
+					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.0);
+					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.0);
+					DGDisableItem (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
+				} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER) == INCORNER_PANEL) {
+					DGSetItemText (dialogID, placingZone.BUTTON_LCORNER, "인코너판넬");
+					DGEnableItem (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
+					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.080);
+					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.500);
+				} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER) == OUTCORNER_PANEL) {
+					DGSetItemText (dialogID, placingZone.BUTTON_LCORNER, "아웃코너판넬");
+					DGEnableItem (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
+					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.080);
+					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.500);
+				} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER) == OUTCORNER_ANGLE) {
+					DGSetItemText (dialogID, placingZone.BUTTON_LCORNER, "아웃코너앵글");
+					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.0);
+					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.0);
+					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.0);
+					DGDisableItem (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
+				}
+			}
+
+			if (item == placingZone.POPUP_OBJ_TYPE_RCORNER) {
+				if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER) == NOCORNER) {
+					DGSetItemText (dialogID, placingZone.BUTTON_RCORNER, "없음");
+					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.0);
+					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.0);
+					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.0);
+					DGDisableItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
+				} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER) == INCORNER_PANEL) {
+					DGSetItemText (dialogID, placingZone.BUTTON_RCORNER, "인코너판넬");
+					DGEnableItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
+					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.080);
+					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.500);
+				} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER) == OUTCORNER_PANEL) {
+					DGSetItemText (dialogID, placingZone.BUTTON_RCORNER, "아웃코너판넬");
+					DGEnableItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
+					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.080);
+					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.500);
+				} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER) == OUTCORNER_ANGLE) {
+					DGSetItemText (dialogID, placingZone.BUTTON_RCORNER, "아웃코너앵글");
+					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.0);
+					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.0);
+					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.0);
+					DGDisableItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 				}
 			}
 
@@ -7634,8 +7831,8 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 			// 남은 너비 계산
 			totalWidth = 0.0;
-			if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER);
-			if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER);
+			if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER) != NOCORNER)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
+			if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER) != NOCORNER)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 			for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 				if ((DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM))
 					totalWidth += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
@@ -7661,6 +7858,8 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				}
 				DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_REMAIN_HEIGHT_EXTRA, placingZone.verLenExtra - totalHeight);
 			}
+
+			break;
 
 		case DG_MSG_CLICK:
 			// 확인 버튼
@@ -7688,11 +7887,11 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				else if (my_strcmp (buffer, "타입C") == 0)
 					placingZone.tableformType = 3;
 
-				// 인코너 유무 및 길이
-				placingZone.bLincorner = (DGGetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER) == TRUE) ? true : false;
-				placingZone.bRincorner = (DGGetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER) == TRUE) ? true : false;
-				placingZone.lenLincorner = (placingZone.bLincorner == true) ? DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER) : 0.0;
-				placingZone.lenRincorner = (placingZone.bRincorner == true) ? DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER) : 0.0;
+				// 인코너판넬/아웃코너판넬/아웃코너앵글 유무 및 길이
+				placingZone.typeLcorner = DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER);
+				placingZone.lenLcorner = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
+				placingZone.typeRcorner = DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER);
+				placingZone.lenRcorner = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 
 				// 세로 길이, 테이블 내 세로 길이 모두 0으로 초기화
 				for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
@@ -7769,6 +7968,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				bLayerInd_Steelform = false;
 				bLayerInd_Plywood = true;		// 합판 항상 On
 				bLayerInd_Timber = true;		// 각재 항상 On
+				bLayerInd_IncornerPanel = false;
 				bLayerInd_OutcornerAngle = false;
 				bLayerInd_OutcornerPanel = false;
 				bLayerInd_RectpipeHanger = false;
@@ -7784,9 +7984,17 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					}
 				}
 
-				bLayerInd_IncornerPanel = false;
-				if ((placingZone.bLincorner == true) || (placingZone.bRincorner == true))
+				// 인코너판넬
+				if ((placingZone.typeLcorner == INCORNER_PANEL) || (placingZone.typeRcorner == INCORNER_PANEL))
 					bLayerInd_IncornerPanel = true;
+
+				// 아웃코너판넬
+				if ((placingZone.typeLcorner == OUTCORNER_PANEL) || (placingZone.typeRcorner == OUTCORNER_PANEL))
+					bLayerInd_OutcornerPanel = true;
+
+				// 아웃코너앵글
+				if ((placingZone.typeLcorner == OUTCORNER_ANGLE) || (placingZone.typeRcorner == OUTCORNER_ANGLE))
+					bLayerInd_OutcornerAngle = true;
 
 				bLayerInd_BlueClamp = true;			// 블루클램프 항상 On
 				bLayerInd_BlueTimberRail = true;	// 블루목심 항상 On
@@ -7827,8 +8035,9 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					if (item == placingZone.BUTTON_ADD_HOR) {
 						if (placingZone.nCellsInHor < maxCol) {
 							// 우측 인코너 버튼을 지우고
-							DGRemoveDialogItem (dialogID, placingZone.CHECKBOX_RINCORNER);
-							DGRemoveDialogItem (dialogID, placingZone.EDITCONTROL_RINCORNER);
+							DGRemoveDialogItem (dialogID, placingZone.BUTTON_RCORNER);
+							DGRemoveDialogItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER);
+							DGRemoveDialogItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 
 							// 마지막 셀 버튼 오른쪽에 새로운 셀 버튼을 추가하고
 							itmPosX = 90 + (70 * placingZone.nCellsInHor);
@@ -7882,16 +8091,29 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 							itmPosX += 70;
 
 							// 우측 인코너 버튼을 오른쪽 끝에 붙임
-							// 우측 인코너 유무 (체크버튼)
-							placingZone.CHECKBOX_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 135, 70, 70);
-							DGSetItemFont (dialogID, placingZone.CHECKBOX_RINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
-							DGSetItemText (dialogID, placingZone.CHECKBOX_RINCORNER, "인코너");
-							DGShowItem (dialogID, placingZone.CHECKBOX_RINCORNER);
-							DGSetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER, TRUE);
-							// 우측 인코너 길이 (Edit컨트롤)
-							placingZone.EDITCONTROL_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 205, 70, 25);
-							DGShowItem (dialogID, placingZone.EDITCONTROL_RINCORNER);
-							DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER, 0.100);
+							// 버튼
+							placingZone.BUTTON_RCORNER = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, 137, 71, 66);
+							DGSetItemFont (dialogID, placingZone.BUTTON_RCORNER, DG_IS_LARGE | DG_IS_PLAIN);
+							DGSetItemText (dialogID, placingZone.BUTTON_RCORNER, "없음");
+							DGShowItem (dialogID, placingZone.BUTTON_RCORNER);
+							DGDisableItem (dialogID, placingZone.BUTTON_RCORNER);
+							// 객체 타입 (팝업컨트롤)
+							placingZone.POPUP_OBJ_TYPE_RCORNER = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, 137 - 25, 70, 23);
+							DGSetItemFont (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_IS_EXTRASMALL | DG_IS_PLAIN);
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "없음");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "인코너판넬");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "아웃코너판넬");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "아웃코너앵글");
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_TOP);
+							DGShowItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER);
+							// 너비 (Edit컨트롤)
+							placingZone.EDITCONTROL_WIDTH_RCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 137 + 68, 70, 23);
+							DGShowItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
+							DGDisableItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 
 							++placingZone.nCellsInHor;
 						}
@@ -7901,8 +8123,9 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					else if (item == placingZone.BUTTON_DEL_HOR) {
 						if (placingZone.nCellsInHor > 1) {
 							// 우측 인코너 버튼을 지우고
-							DGRemoveDialogItem (dialogID, placingZone.CHECKBOX_RINCORNER);
-							DGRemoveDialogItem (dialogID, placingZone.EDITCONTROL_RINCORNER);
+							DGRemoveDialogItem (dialogID, placingZone.BUTTON_RCORNER);
+							DGRemoveDialogItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER);
+							DGRemoveDialogItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 
 							// 마지막 셀 버튼을 지우고
 							DGRemoveDialogItem (dialogID, placingZone.BUTTON_OBJ [placingZone.nCellsInHor - 1]);
@@ -7910,19 +8133,32 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 							DGRemoveDialogItem (dialogID, placingZone.POPUP_WIDTH [placingZone.nCellsInHor - 1]);
 							DGRemoveDialogItem (dialogID, placingZone.EDITCONTROL_WIDTH [placingZone.nCellsInHor - 1]);
 
-							// 3. 우측 인코너 버튼을 오른쪽 끝에 붙임
+							// 우측 인코너 버튼을 오른쪽 끝에 붙임
 							itmPosX = 90 + (70 * (placingZone.nCellsInHor - 1));
 							itmPosY = 137;
-							// 우측 인코너 유무 (체크버튼)
-							placingZone.CHECKBOX_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 135, 70, 70);
-							DGSetItemFont (dialogID, placingZone.CHECKBOX_RINCORNER, DG_IS_LARGE | DG_IS_PLAIN);
-							DGSetItemText (dialogID, placingZone.CHECKBOX_RINCORNER, "인코너");
-							DGShowItem (dialogID, placingZone.CHECKBOX_RINCORNER);
-							DGSetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER, TRUE);
-							// 우측 인코너 길이 (Edit컨트롤)
-							placingZone.EDITCONTROL_RINCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 205, 70, 25);
-							DGShowItem (dialogID, placingZone.EDITCONTROL_RINCORNER);
-							DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER, 0.100);
+							// 버튼
+							placingZone.BUTTON_RCORNER = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, 137, 71, 66);
+							DGSetItemFont (dialogID, placingZone.BUTTON_RCORNER, DG_IS_LARGE | DG_IS_PLAIN);
+							DGSetItemText (dialogID, placingZone.BUTTON_RCORNER, "없음");
+							DGShowItem (dialogID, placingZone.BUTTON_RCORNER);
+							DGDisableItem (dialogID, placingZone.BUTTON_RCORNER);
+							// 객체 타입 (팝업컨트롤)
+							placingZone.POPUP_OBJ_TYPE_RCORNER = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, 137 - 25, 70, 23);
+							DGSetItemFont (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_IS_EXTRASMALL | DG_IS_PLAIN);
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "없음");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "인코너판넬");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "아웃코너판넬");
+							DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_BOTTOM, "아웃코너앵글");
+							DGPopUpSelectItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER, DG_POPUP_TOP);
+							DGShowItem (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER);
+							// 너비 (Edit컨트롤)
+							placingZone.EDITCONTROL_WIDTH_RCORNER = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, itmPosX, 137 + 68, 70, 23);
+							DGShowItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
+							DGDisableItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 
 							--placingZone.nCellsInHor;
 						}
@@ -8054,8 +8290,8 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 				// 남은 너비 계산
 				totalWidth = 0.0;
-				if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_LINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_LINCORNER);
-				if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_RINCORNER) == TRUE)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_RINCORNER);
+				if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER) != NOCORNER)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
+				if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER) != NOCORNER)	totalWidth += DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 				for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx) {
 					if ((DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == TABLEFORM) || (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE [xx]) == EUROFORM))
 						totalWidth += atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DGPopUpGetSelected (dialogID, placingZone.POPUP_WIDTH [xx])).ToCStr ().Get ()) / 1000;
@@ -8084,6 +8320,8 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 				item = 0;
 			}
+
+			break;
 
 		case DG_MSG_CLOSE:
 			switch (item) {

@@ -672,7 +672,7 @@ GSErrCode	LowSideTableformPlacingZone::placeObjects (LowSideTableformPlacingZone
 	short	xx;
 
 	// ================================================== 인코너 배치
-	// 좌측 인코너 배치
+	// 좌측 인코너/아웃코너 배치
 	if (placingZone->typeLcorner == INCORNER_PANEL) {
 		EasyObjectPlacement incornerPanel;
 		incornerPanel.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang - DegreeToRad (90.0));
@@ -698,7 +698,7 @@ GSErrCode	LowSideTableformPlacingZone::placeObjects (LowSideTableformPlacingZone
 			"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)));
 	}
 
-	// 우측 인코너 배치
+	// 우측 인코너/아웃코너 배치
 	if (placingZone->typeRcorner == INCORNER_PANEL) {
 		EasyObjectPlacement incornerPanel;
 		incornerPanel.init (L("인코너판넬v1.0.gsm"), layerInd_IncornerPanel, floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang - DegreeToRad (180.0));
@@ -1125,7 +1125,7 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 		
 		// 헤드피스
 		EasyObjectPlacement headpiece;
-		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
 
 		moveIn3D ('x', headpiece.radAng, (double)(firstWidth - 150 - 100) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, -0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
@@ -1148,7 +1148,7 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 	//	}
 
 		EasyObjectPlacement rectPipe;
-		rectPipe.init (L("비계파이프v1.0.gsm"), layerInd_RectPipe, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+		rectPipe.init (L("비계파이프v1.0.gsm"), layerInd_RectPipe, floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
 
 		moveIn3D ('z', rectPipe.radAng, sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		moveIn3D ('y', rectPipe.radAng, -(0.0635 + 0.025 + 0.050), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
@@ -1326,6 +1326,39 @@ short DGCALLBACK lowSideTableformPlacerHandler1 (short message, short dialogID, 
 			DGPopUpSelectItem (dialogID, placingZone.POPUP_TABLEFORM_TYPE, DG_POPUP_TOP);
 			DGShowItem (dialogID, placingZone.POPUP_TABLEFORM_TYPE);
 
+			// 라벨: 테이블폼 높이
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 400, 20, 80, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "테이블폼 높이");
+			DGShowItem (dialogID, itmIdx);
+
+			// 팝업컨트롤: 테이블폼 높이
+			placingZone.POPUP_TABLEFORM_HEIGHT = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 480, 15, 80, 23);
+			DGSetItemFont (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_IS_LARGE | DG_IS_PLAIN);
+			if (placingZone.bVertical == true) {
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "1200");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "900");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "600");
+			} else {
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "600");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "500");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "450");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "400");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "300");
+				DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "200");
+			}
+			DGPopUpSelectItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_TOP);
+			DGShowItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT);
+
 			// 버튼: 추가
 			placingZone.BUTTON_ADD_HOR = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 55, 70, 25);
 			DGSetItemFont (dialogID, placingZone.BUTTON_ADD_HOR, DG_IS_LARGE | DG_IS_PLAIN);
@@ -1364,7 +1397,6 @@ short DGCALLBACK lowSideTableformPlacerHandler1 (short message, short dialogID, 
 			placingZone.initCells (&placingZone, placingZone.bVertical);
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (정면 관련 버튼)
-
 			// 왼쪽 인코너판넬/아웃코너판넬/아웃코너앵글
 			// 버튼
 			placingZone.BUTTON_LCORNER = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 137, 71, 66);
@@ -1565,6 +1597,31 @@ short DGCALLBACK lowSideTableformPlacerHandler1 (short message, short dialogID, 
 						}
 					}
 				}
+
+				// 가로, 세로 변경시 테이블폼 높이 팝업컨트롤 내용 변경
+				DGPopUpDeleteItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_ALL_ITEMS);
+				if (placingZone.bVertical == true) {
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "1200");
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "900");
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "600");
+				} else {
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "600");
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "500");
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "450");
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "400");
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "300");
+					DGPopUpInsertItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_BOTTOM, "200");
+				}
+				DGPopUpSelectItem (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DG_POPUP_TOP);
 			}
 
 			// 인코너판넬/아웃코너판넬/아웃코너앵글 변경시
@@ -1812,14 +1869,15 @@ short DGCALLBACK lowSideTableformPlacerHandler1 (short message, short dialogID, 
 				}
 
 				// 유로폼 높이 지정
-				if (placingZone.verLen < 0.200 + EPS)		placingZone.verLen = 0.200;
-				else if (placingZone.verLen < 0.300 + EPS)	placingZone.verLen = 0.300;
-				else if (placingZone.verLen < 0.400 + EPS)	placingZone.verLen = 0.400;
-				else if (placingZone.verLen < 0.450 + EPS)	placingZone.verLen = 0.450;
-				else if (placingZone.verLen < 0.500 + EPS)	placingZone.verLen = 0.500;
-				else if (placingZone.verLen < 0.600 + EPS)	placingZone.verLen = 0.600;
-				else if (placingZone.verLen < 0.900 + EPS)	placingZone.verLen = 0.900;
-				else										placingZone.verLen = 1.200;
+				placingZone.verLen = atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DGPopUpGetSelected (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT)).ToCStr ().Get ()) / 1000;
+				//if (placingZone.verLen < 0.200 + EPS)		placingZone.verLen = 0.200;
+				//else if (placingZone.verLen < 0.300 + EPS)	placingZone.verLen = 0.300;
+				//else if (placingZone.verLen < 0.400 + EPS)	placingZone.verLen = 0.400;
+				//else if (placingZone.verLen < 0.450 + EPS)	placingZone.verLen = 0.450;
+				//else if (placingZone.verLen < 0.500 + EPS)	placingZone.verLen = 0.500;
+				//else if (placingZone.verLen < 0.600 + EPS)	placingZone.verLen = 0.600;
+				//else if (placingZone.verLen < 0.900 + EPS)	placingZone.verLen = 0.900;
+				//else										placingZone.verLen = 1.200;
 
 				// 레이어 설정
 				bLayerInd_Euroform = true;			// 유로폼 항상 On
