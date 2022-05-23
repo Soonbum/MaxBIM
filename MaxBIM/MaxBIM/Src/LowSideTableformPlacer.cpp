@@ -318,12 +318,12 @@ GSErrCode	placeTableformOnLowSide (void)
 	placingZone.leftBottomZ = infoMorph.leftBottomZ;
 	placingZone.horLen = infoMorph.horLen;
 	placingZone.verLen = infoMorph.verLen;
-	placingZone.ang = infoMorph.ang;
+	placingZone.ang = DegreeToRad (infoMorph.ang);
 
-	if (nWall == 1)			placingZone.leftBottomZ = infoWall.bottomOffset + workLevel_structural;
-	else if (nBeam == 1)	placingZone.leftBottomZ = infoBeam.level - infoBeam.height + workLevel_structural;
-	else if (nSlab == 1)	placingZone.leftBottomZ = infoSlab.level + infoSlab.offsetFromTop - infoSlab.thickness + workLevel_structural;
-	else if (nMesh == 1)	placingZone.leftBottomZ = infoMesh.level - infoMesh.skirtLevel + workLevel_structural;
+	if (nWall == 1)			placingZone.leftBottomZ = infoWall.bottomOffset;
+	else if (nBeam == 1)	placingZone.leftBottomZ = infoBeam.level - infoBeam.height;
+	else if (nSlab == 1)	placingZone.leftBottomZ = infoSlab.level + infoSlab.offsetFromTop - infoSlab.thickness;
+	else if (nMesh == 1)	placingZone.leftBottomZ = infoMesh.level - infoMesh.skirtLevel;
 
 	// 테이블폼 방향 결정 (600mm 미만이면 가로, 이상이면 세로)
 	if (placingZone.verLen < 0.600 - EPS) {
