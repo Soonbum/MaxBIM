@@ -803,8 +803,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
 			elemList_Front.Push (incornerPanel.placeObject (5,
 				"in_comp", APIParT_CString, "인코너판넬",
-				"wid_s", APIParT_Length, format_string ("%f", 0.100),
-				"leng_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
+				"wid_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
+				"leng_s", APIParT_Length, format_string ("%f", 0.100),
 				"hei_s", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
 				"dir_s", APIParT_CString, "세우기"));
 
@@ -828,8 +828,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 
 				elemList_Back.Push (incornerPanel.placeObject (5,
 					"in_comp", APIParT_CString, "인코너판넬",
-					"wid_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
-					"leng_s", APIParT_Length, format_string ("%f", 0.100),
+					"wid_s", APIParT_Length, format_string ("%f", 0.100),
+					"leng_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
 					"hei_s", APIParT_Length, format_string ("%f", lengthDouble),
 					"dir_s", APIParT_CString, "세우기"));
 
@@ -846,8 +846,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
 			elemList_Front.Push (outcornerPanel.placeObject (4,
-				"wid_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
-				"leng_s", APIParT_Length, format_string ("%f", 0.100),
+				"wid_s", APIParT_Length, format_string ("%f", 0.100),
+				"leng_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
 				"hei_s", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
 				"dir_s", APIParT_CString, "세우기"));
 
@@ -870,8 +870,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 					lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
 
 				elemList_Back.Push (outcornerPanel.placeObject (4,
-					"wid_s", APIParT_Length, format_string ("%f", 0.100),
-					"leng_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
+					"wid_s", APIParT_Length, format_string ("%f", placingZone->lenRcorner),
+					"leng_s", APIParT_Length, format_string ("%f", 0.100),
 					"hei_s", APIParT_Length, format_string ("%f", lengthDouble),
 					"dir_s", APIParT_CString, "세우기"));
 
@@ -881,25 +881,25 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	} else if (placingZone->typeRcorner == OUTCORNER_ANGLE) {
 		// 앞면
 		EasyObjectPlacement outcornerAngle;
-		outcornerAngle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (180.0));
+		outcornerAngle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang + DegreeToRad (270.0));
 
-		moveIn3D ('y', outcornerAngle.radAng - DegreeToRad (180.0), -placingZone->gap, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);	// 벽과의 간격만큼 이동
-		moveIn3D ('x', outcornerAngle.radAng - DegreeToRad (180.0), placingZone->horLen, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);	// 영역 우측으로 이동
+		moveIn3D ('y', outcornerAngle.radAng - DegreeToRad (270.0), -placingZone->gap, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);	// 벽과의 간격만큼 이동
+		moveIn3D ('x', outcornerAngle.radAng - DegreeToRad (270.0), placingZone->horLen, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);	// 영역 우측으로 이동
 
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
 			elemList_Front.Push (outcornerAngle.placeObject (2,
 				"a_leng", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
 				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 
-			moveIn3D ('z', outcornerAngle.radAng, (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
+			moveIn3D ('z', outcornerAngle.radAng - DegreeToRad (270.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
 		}
 
 		// 뒷면
 		if (placingZone->bSingleSide == false) {
-			outcornerAngle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang - DegreeToRad (90.0));
+			outcornerAngle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoWall.floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
 
-			moveIn3D ('y', outcornerAngle.radAng + DegreeToRad (90.0), infoWall.wallThk + placingZone->gap, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);		// 벽과의 간격만큼 이동
-			moveIn3D ('x', outcornerAngle.radAng + DegreeToRad (90.0), placingZone->horLen, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);						// 영역 우측으로 이동
+			moveIn3D ('y', outcornerAngle.radAng, infoWall.wallThk + placingZone->gap, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);		// 벽과의 간격만큼 이동
+			moveIn3D ('x', outcornerAngle.radAng, placingZone->horLen, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);						// 영역 우측으로 이동
 
 			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
 
@@ -913,7 +913,7 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 					"a_leng", APIParT_Length, format_string ("%f", lengthDouble),
 					"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 
-				moveIn3D ('z', outcornerAngle.radAng + DegreeToRad (90.0), lengthDouble, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
+				moveIn3D ('z', outcornerAngle.radAng, lengthDouble, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
 			}
 		}
 	}
