@@ -134,6 +134,8 @@ public:
 
 	CellForLowSideTableform		cells [50];				// 셀 배열 (인코너 제외)
 
+	double	pipeVerticalLength;	// 수직 파이프 길이
+
 public:
 	int	presetWidthVertical_tableform [65];		// 세로 방향 테이블폼의 너비 모음 (3600 ... 200)
 	int	presetWidthHorizontal_tableform [11];	// 가로 방향 테이블폼의 너비 모음 (3600 ... 600)
@@ -173,6 +175,7 @@ public:
 	short	POPUP_OBJ_TYPE [50];
 	short	POPUP_WIDTH [50];
 	short	EDITCONTROL_WIDTH [50];
+	short	EDITCONTROL_VPIPE_LENGTH;
 
 	short	LABEL_TOTAL_WIDTH;
 	short	POPUP_WIDTH_IN_TABLE [10];

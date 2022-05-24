@@ -1036,7 +1036,8 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 
 		// 수직 파이프 배치
 	//	if (placingZone->cells [idxCell].verLenBasic % 100 == 0) {
-			pipeLength = (int)(placingZone->verLen * 1000) - 100;
+			//pipeLength = (int)(placingZone->verLen * 1000) - 100;
+			pipeLength = (int)(placingZone->pipeVerticalLength * 1000);
 			sideMargin = 0.050;
 	//	} else {
 	//		pipeLength = placingZone->verLen - 50;
@@ -1129,10 +1130,15 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 
 		moveIn3D ('x', headpiece.radAng, (double)(firstWidth - 150 - 100) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, -0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.210, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
 		elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		moveIn3D ('z', headpiece.radAng, (-0.210 + placingZone->verLen - 0.240), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		moveIn3D ('z', headpiece.radAng, -(-0.210 + placingZone->verLen - 0.240), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('x', headpiece.radAng, (double)(-(firstWidth - 150 - 100) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 - 100)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		moveIn3D ('z', headpiece.radAng, (-0.210 + placingZone->verLen - 0.240), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
@@ -1140,7 +1146,8 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 	//	// ================================================== 가로방향
 	//	// 수평 파이프 배치
 	//	if (placingZone->cells [idxCell].verLenBasic % 100 == 0) {
-			pipeLength = (int)(placingZone->verLen * 1000) - 100;
+			//pipeLength = (int)(placingZone->verLen * 1000) - 100;
+			pipeLength = (int)(placingZone->pipeVerticalLength * 1000);
 			sideMargin = 0.050;
 	//	} else {
 	//		pipeLength = placingZone->verLen - 50;
@@ -1154,7 +1161,7 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 		moveIn3D ('y', rectPipe.radAng, -(0.0635 + 0.025 + 0.050), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		moveIn3D ('x', rectPipe.radAng, 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-		moveIn3D ('x', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 하부
+		moveIn3D ('x', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 왼쪽
 		elemList.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('x', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		elemList.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
@@ -1173,7 +1180,7 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 		}
 		moveIn3D ('x', rectPipe.radAng, (double)placingZone->cells [idxCell].tableInHor [realWidthCount - 1] / 1000.0 - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-		moveIn3D ('x', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 상부
+		moveIn3D ('x', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);	// 오른쪽
 		elemList.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('x', rectPipe.radAng, 0.062, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		elemList.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
@@ -1194,11 +1201,22 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 		moveIn3D ('y', rectPipe.radAng, -(0.0635 + 0.025), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		moveIn3D ('x', rectPipe.radAng, sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
-		moveIn3D ('z', rectPipe.radAng, 0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);		// 왼쪽
+		moveIn3D ('z', rectPipe.radAng, 0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);		// 아래쪽
 		elemList.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('z', rectPipe.radAng, -0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		elemList.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
 		moveIn3D ('z', rectPipe.radAng, 0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+
+		// 가로 방향일 때 테이블폼의 높이가 600 이상일 경우에는 파이프 추가 배치
+		if (placingZone->verLen > 0.600 - EPS) {
+			moveIn3D ('z', rectPipe.radAng, -0.150*2 + placingZone->verLen, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+
+			moveIn3D ('z', rectPipe.radAng, 0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);		// 아래쪽
+			elemList.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+			moveIn3D ('z', rectPipe.radAng, -0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+			elemList.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
+			moveIn3D ('z', rectPipe.radAng, 0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+		}
 
 		// 핀볼트 세트
 		EasyObjectPlacement pinbolt;
@@ -1233,15 +1251,30 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 		EasyObjectPlacement headpiece;
 		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
 
-		moveIn3D ('z', headpiece.radAng, 0.250, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('y', headpiece.radAng, -0.1725 + 0.050, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('x', headpiece.radAng, 0.450, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.210, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, -0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('x', headpiece.radAng, 0.050, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
-		elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+		elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
-		moveIn3D ('x', headpiece.radAng, (double)(-450 + placingZone->cells [idxCell].horLen - 650) / 1000, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('x', headpiece.radAng, (double)(-50 + placingZone->cells [idxCell].horLen - 50 - 200) / 1000, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
-		elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+		elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+
+		// 수직 파이프 길이가 600 이상일 경우 상단 헤드피스도 설치할 것
+		if (placingZone->pipeVerticalLength >= 0.600) {
+			headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+
+			moveIn3D ('z', headpiece.radAng, placingZone->verLen - 0.090, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+			moveIn3D ('y', headpiece.radAng, -0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+			moveIn3D ('x', headpiece.radAng, 0.050, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+
+			elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+
+			moveIn3D ('x', headpiece.radAng, (double)(-50 + placingZone->cells [idxCell].horLen - 50 - 200) / 1000, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+
+			elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		}
 
 		// 결과물 전체 그룹화
 		if (!elemList.IsEmpty ()) {
@@ -1392,6 +1425,17 @@ short DGCALLBACK lowSideTableformPlacerHandler1 (short message, short dialogID, 
 			placingZone.EDITCONTROL_CURRENT_HEIGHT = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 480, 55, 80, 25);
 			DGDisableItem (dialogID, placingZone.EDITCONTROL_CURRENT_HEIGHT);
 			DGShowItem (dialogID, placingZone.EDITCONTROL_CURRENT_HEIGHT);
+
+			// 라벨: 수직 파이프 길이
+			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 260, 100, 23);
+			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, itmIdx, "수직 파이프 길이");
+			DGShowItem (dialogID, itmIdx);
+
+			// Edit컨트롤: 수직 파이프 길이
+			placingZone.EDITCONTROL_VPIPE_LENGTH = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 140, 255, 80, 25);
+			DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_VPIPE_LENGTH, placingZone.verLen - 0.100);
+			DGShowItem (dialogID, placingZone.EDITCONTROL_VPIPE_LENGTH);
 
 			//////////////////////////////////////////////////////////// 셀 정보 초기화
 			placingZone.initCells (&placingZone, placingZone.bVertical);
@@ -1870,14 +1914,9 @@ short DGCALLBACK lowSideTableformPlacerHandler1 (short message, short dialogID, 
 
 				// 유로폼 높이 지정
 				placingZone.verLen = atof (DGPopUpGetItemText (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT, DGPopUpGetSelected (dialogID, placingZone.POPUP_TABLEFORM_HEIGHT)).ToCStr ().Get ()) / 1000;
-				//if (placingZone.verLen < 0.200 + EPS)		placingZone.verLen = 0.200;
-				//else if (placingZone.verLen < 0.300 + EPS)	placingZone.verLen = 0.300;
-				//else if (placingZone.verLen < 0.400 + EPS)	placingZone.verLen = 0.400;
-				//else if (placingZone.verLen < 0.450 + EPS)	placingZone.verLen = 0.450;
-				//else if (placingZone.verLen < 0.500 + EPS)	placingZone.verLen = 0.500;
-				//else if (placingZone.verLen < 0.600 + EPS)	placingZone.verLen = 0.600;
-				//else if (placingZone.verLen < 0.900 + EPS)	placingZone.verLen = 0.900;
-				//else										placingZone.verLen = 1.200;
+
+				// 수직 파이프 길이
+				placingZone.pipeVerticalLength = DGGetItemValDouble (dialogID, placingZone.EDITCONTROL_VPIPE_LENGTH);
 
 				// 레이어 설정
 				bLayerInd_Euroform = true;			// 유로폼 항상 On
