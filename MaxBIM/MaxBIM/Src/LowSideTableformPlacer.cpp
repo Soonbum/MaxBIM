@@ -1235,6 +1235,24 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 			}
 		}
 
+		// 가로 방향일 때 테이블폼의 높이가 600 이상일 경우에는 핀볼트 세트 추가 배치
+		if (placingZone->verLen > 0.600 - EPS) {
+			pinbolt.init (L("핀볼트세트v1.0.gsm"), layerInd_PinBolt, floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+
+			moveIn3D ('z', pinbolt.radAng, -0.150 + placingZone->verLen, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+			moveIn3D ('y', pinbolt.radAng, -0.1635 - 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+
+			for (xx = 0 ; xx < realWidthCount - 1 ; ++xx) {
+				if (placingZone->cells [idxCell].tableInHor [xx] > 0) {
+					moveIn3D ('x', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+
+					pinbolt.radAng += DegreeToRad (90.0);
+					elemList.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+					pinbolt.radAng -= DegreeToRad (90.0);
+				}
+			}
+		}
+
 		// 결합철물
 		EasyObjectPlacement join;
 		join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
@@ -1246,6 +1264,19 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 		elemList.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		moveIn3D ('x', join.radAng, (double)(-150 + placingZone->cells [idxCell].horLen - 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
 		elemList.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+
+		// 가로 방향일 때 테이블폼의 높이가 600 이상일 경우에는 결합철물 추가 배치
+		if (placingZone->verLen > 0.600 - EPS) {
+			join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+
+			moveIn3D ('z', join.radAng, -0.150 + placingZone->verLen, &join.posX, &join.posY, &join.posZ);
+			moveIn3D ('y', join.radAng, -0.1815, &join.posX, &join.posY, &join.posZ);
+			moveIn3D ('x', join.radAng, 0.150, &join.posX, &join.posY, &join.posZ);
+
+			elemList.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			moveIn3D ('x', join.radAng, (double)(-150 + placingZone->cells [idxCell].horLen - 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
+			elemList.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "1.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		}
 
 		// 헤드피스
 		EasyObjectPlacement headpiece;
