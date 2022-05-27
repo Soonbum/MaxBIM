@@ -7593,11 +7593,13 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					DGEnableItem (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
 					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.080);
 					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.500);
+					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.100);
 				} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER) == OUTCORNER_PANEL) {
 					DGSetItemText (dialogID, placingZone.BUTTON_LCORNER, "¾Æ¿ôÄÚ³ÊÆÇ³Ú");
 					DGEnableItem (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER);
 					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.080);
 					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.500);
+					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.100);
 				} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER) == OUTCORNER_ANGLE) {
 					DGSetItemText (dialogID, placingZone.BUTTON_LCORNER, "¾Æ¿ôÄÚ³Ê¾Þ±Û");
 					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_LCORNER, 0.0);
@@ -7619,11 +7621,13 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					DGEnableItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.080);
 					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.500);
+					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.100);
 				} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER) == OUTCORNER_PANEL) {
 					DGSetItemText (dialogID, placingZone.BUTTON_RCORNER, "¾Æ¿ôÄÚ³ÊÆÇ³Ú");
 					DGEnableItem (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER);
 					DGSetItemMinDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.080);
 					DGSetItemMaxDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.500);
+					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.100);
 				} else if (DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_RCORNER) == OUTCORNER_ANGLE) {
 					DGSetItemText (dialogID, placingZone.BUTTON_RCORNER, "¾Æ¿ôÄÚ³Ê¾Þ±Û");
 					DGSetItemValDouble (dialogID, placingZone.EDITCONTROL_WIDTH_RCORNER, 0.0);
