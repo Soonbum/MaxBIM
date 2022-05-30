@@ -71,14 +71,10 @@ GSErrCode	placeTableformOnWall (void)
 {
 	GSErrCode	err = NoError;
 	short		result;
-	long		nSel;
 	short		xx;
 	double		dx, dy;
 
 	// Selection Manager 관련 변수
-	API_SelectionInfo		selectionInfo;
-	API_Element				tElem;
-	API_Neig				**selNeigs;
 	GS::Array<API_Guid>		walls;
 	GS::Array<API_Guid>		morphs;
 	long					nWalls = 0;
@@ -95,44 +91,18 @@ GSErrCode	placeTableformOnWall (void)
 	InfoMorphForWallTableform	infoMorph_Extra;
 
 	// 작업 층 정보
-	API_StoryInfo	storyInfo;
 	double			workLevel_wall;		// 벽의 작업 층 높이
 
 
-	// 선택한 요소 가져오기
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	// 선택한 요소 가져오기 (벽 1개, 모프 1~2개 선택해야 함)
+	err = getGuidsOfSelection (&walls, API_WallID, &nWalls);
+	err = getGuidsOfSelection (&morphs, API_MorphID, &nMorphs);
 	if (err == APIERR_NOPLAN) {
 		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
 	}
 	if (err == APIERR_NOSEL) {
 		WriteReport_Alert ("아무 것도 선택하지 않았습니다.\n필수 선택: 벽 (1개), 벽을 덮는 모프 (1개)\n옵션 선택: 벽을 덮는 모프(뒷면 - 1차 모프와 높이가 다름) (1개)");
 	}
-	if (err != NoError) {
-		BMKillHandle ((GSHandle *) &selNeigs);
-		return err;
-	}
-
-	// 벽 1개, 모프 1~2개 선택해야 함
-	if (selectionInfo.typeID != API_SelEmpty) {
-		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-
-			tElem.header.guid = (*selNeigs)[xx].guid;
-			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
-				continue;
-
-			if (tElem.header.typeID == API_WallID)		// 벽인가?
-				walls.Push (tElem.header.guid);
-
-			if (tElem.header.typeID == API_MorphID)		// 모프인가?
-				morphs.Push (tElem.header.guid);
-		}
-	}
-	BMKillHandle ((GSHandle *) &selNeigs);
-	nWalls = walls.GetSize ();
-	nMorphs = morphs.GetSize ();
 
 	// 벽이 1개인가?
 	if (nWalls != 1) {
@@ -277,16 +247,7 @@ GSErrCode	placeTableformOnWall (void)
 		placingZone.verLenExtra		= infoMorph_Extra.verLen;
 	
 	// 작업 층 높이 반영 -- 모프
-	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-	workLevel_wall = 0.0;
-	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
-		if (storyInfo.data [0][xx].index == infoWall.floorInd) {
-			workLevel_wall = storyInfo.data [0][xx].level;
-			break;
-		}
-	}
-	BMKillHandle ((GSHandle *) &storyInfo.data);
+	workLevel_wall = getWorkLevel (infoWall.floorInd);
 
 	// 영역 정보의 고도 정보를 수정
 	placingZone.leftBottomZ = infoWall.bottomOffset;

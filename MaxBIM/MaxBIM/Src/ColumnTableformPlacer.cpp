@@ -57,16 +57,12 @@ static short	EDITCONTROL_EAST_MARGIN;
 GSErrCode	placeTableformOnColumn (void)
 {
 	GSErrCode		err = NoError;
-	long			nSel;
 	short			xx, yy;
 	short			result;
 	double			lowestBeamBottomLevel;
 	API_Coord		axisPoint, rotatedPoint, unrotatedPoint;
 
 	// Selection Manager 관련 변수
-	API_SelectionInfo		selectionInfo;
-	API_Element				tElem;
-	API_Neig				**selNeigs;
 	GS::Array<API_Guid>		morphs;
 	GS::Array<API_Guid>		columns;
 	GS::Array<API_Guid>		beams;
@@ -83,49 +79,20 @@ GSErrCode	placeTableformOnColumn (void)
 	InfoMorphForColumnTableform		infoMorph;
 
 	// 작업 층 정보
-	API_StoryInfo			storyInfo;
 	double					workLevel_column;
 	double					workLevel_beam;
 
 
-	// 선택한 요소 가져오기
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	// 선택한 요소 가져오기 (메인 기둥 1개 선택해야 함)
+	err = getGuidsOfSelection (&columns, API_ColumnID, &nColumns);
+	err = getGuidsOfSelection (&morphs, API_MorphID, &nMorphs);
+	err = getGuidsOfSelection (&beams, API_BeamID, &nBeams);
 	if (err == APIERR_NOPLAN) {
 		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
 	}
 	if (err == APIERR_NOSEL) {
 		WriteReport_Alert ("아무 것도 선택하지 않았습니다.\n필수 선택: 기둥 (1개), 기둥 측면을 덮는 모프 (1개)\n옵션 선택: 기둥과 맞닿는 보 (다수)");
 	}
-	if (err != NoError) {
-		BMKillHandle ((GSHandle *) &selNeigs);
-		return err;
-	}
-
-	// 메인 기둥 1개 선택해야 함
-	if (selectionInfo.typeID != API_SelEmpty) {
-		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-
-			tElem.header.guid = (*selNeigs)[xx].guid;
-			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
-				continue;
-
-			if (tElem.header.typeID == API_ColumnID)	// 기둥인가?
-				columns.Push (tElem.header.guid);
-
-			if (tElem.header.typeID == API_MorphID)		// 모프인가?
-				morphs.Push (tElem.header.guid);
-
-			if (tElem.header.typeID == API_BeamID)		// 보인가?
-				beams.Push (tElem.header.guid);
-		}
-	}
-	BMKillHandle ((GSHandle *) &selNeigs);
-	nColumns = columns.GetSize ();
-	nMorphs = morphs.GetSize ();
-	nBeams = beams.GetSize ();
 
 	// 기둥이 1개인가?
 	if (nColumns != 1) {
@@ -166,16 +133,7 @@ GSErrCode	placeTableformOnColumn (void)
 	ACAPI_DisposeElemMemoHdls (&memo);
 
 	// 작업 층 높이 반영
-	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-	workLevel_column = 0.0;
-	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (yy = 0 ; yy <= (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
-		if (storyInfo.data [0][yy].index == infoColumn.floorInd) {
-			workLevel_column = storyInfo.data [0][yy].level;
-			break;
-		}
-	}
-	BMKillHandle ((GSHandle *) &storyInfo.data);
+	workLevel_column = getWorkLevel (infoColumn.floorInd);
 
 	infoColumn.bottomOffset += workLevel_column;
 	infoColumn.topOffset += workLevel_column;
@@ -204,16 +162,7 @@ GSErrCode	placeTableformOnColumn (void)
 		ACAPI_DisposeElemMemoHdls (&memo);
 
 		// 작업 층 높이 반영
-		BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-		workLevel_beam = 0.0;
-		ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-		for (yy = 0 ; yy <= (storyInfo.lastStory - storyInfo.firstStory) ; ++yy) {
-			if (storyInfo.data [0][yy].index == infoOtherBeams [xx].floorInd) {
-				workLevel_beam = storyInfo.data [0][yy].level;
-				break;
-			}
-		}
-		BMKillHandle ((GSHandle *) &storyInfo.data);
+		workLevel_beam = getWorkLevel (infoOtherBeams [xx].floorInd);
 
 		infoOtherBeams [xx].level += workLevel_beam;
 	}

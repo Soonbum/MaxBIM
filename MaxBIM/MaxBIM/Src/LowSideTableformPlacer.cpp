@@ -75,14 +75,7 @@ GSErrCode	placeTableformOnLowSide (void)
 {
 	GSErrCode	err = NoError;
 	short		result;
-	long		nSel;
-	short		xx;
 	double		dx, dy;
-
-	// Selection Manager 관련 변수
-	API_SelectionInfo		selectionInfo;
-	API_Element				tElem;
-	API_Neig				**selNeigs;
 	
 	GS::Array<API_Guid>		wall;
 	GS::Array<API_Guid>		beam;
@@ -104,49 +97,20 @@ GSErrCode	placeTableformOnLowSide (void)
 	InfoMorphForLowSideTableform	infoMorph;
 
 	// 작업 층 정보
-	API_StoryInfo	storyInfo;
 	double			workLevel_structural;	// 구조 요소의 작업 층 높이
 
-	// 선택한 요소 가져오기
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	// 선택한 요소 가져오기 (구조 요소 1개, 영역 모프 1개 선택해야 함)
+	err = getGuidsOfSelection (&wall, API_WallID, &nWall);
+	err = getGuidsOfSelection (&beam, API_BeamID, &nBeam);
+	err = getGuidsOfSelection (&slab, API_SlabID, &nSlab);
+	err = getGuidsOfSelection (&mesh, API_MeshID, &nMesh);
+	err = getGuidsOfSelection (&morph, API_MorphID, &nMorph);
 	if (err == APIERR_NOPLAN) {
 		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
 	}
 	if (err == APIERR_NOSEL) {
 		WriteReport_Alert ("아무 것도 선택하지 않았습니다.\n필수 선택: 구조 요소 (벽, 보, 슬래브, 메시 중 1개만), 구조 요소 측면을 덮는 모프 (1개)");
 	}
-	if (err != NoError) {
-		BMKillHandle ((GSHandle *) &selNeigs);
-		return err;
-	}
-
-	// 구조 요소 1개, 영역 모프 1개 선택해야 함
-	if (selectionInfo.typeID != API_SelEmpty) {
-		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-
-			tElem.header.guid = (*selNeigs)[xx].guid;
-			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
-				continue;
-
-			if (tElem.header.typeID == API_WallID)		wall.Push (tElem.header.guid);		// 벽인가?
-			if (tElem.header.typeID == API_BeamID)		beam.Push (tElem.header.guid);		// 보인가?
-			if (tElem.header.typeID == API_SlabID)		slab.Push (tElem.header.guid);		// 슬래브인가?
-			if (tElem.header.typeID == API_MeshID)		mesh.Push (tElem.header.guid);		// 메시인가?
-			
-			if (tElem.header.typeID == API_MorphID)		morph.Push (tElem.header.guid);		// 모프인가?
-		}
-	}
-	BMKillHandle ((GSHandle *) &selNeigs);
-
-	nWall = wall.GetSize ();
-	nBeam = beam.GetSize ();
-	nSlab = slab.GetSize ();
-	nMesh = mesh.GetSize ();
-
-	nMorph = morph.GetSize ();
 
 	// 구조 요소가 1개인가?
 	if (nWall + nBeam + nSlab + nMesh != 1) {
@@ -296,21 +260,12 @@ GSErrCode	placeTableformOnLowSide (void)
 	delete headList;
 
 	// 작업 층 높이 반영 -- 모프
-	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-	workLevel_structural = 0.0;
-	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
-		if (nWall == 1)			floorInd = infoWall.floorInd;
-		else if (nBeam == 1)	floorInd = infoBeam.floorInd;
-		else if (nSlab == 1)	floorInd = infoSlab.floorInd;
-		else if (nMesh == 1)	floorInd = infoMesh.floorInd;
+	if (nWall == 1)			floorInd = infoWall.floorInd;
+	else if (nBeam == 1)	floorInd = infoBeam.floorInd;
+	else if (nSlab == 1)	floorInd = infoSlab.floorInd;
+	else if (nMesh == 1)	floorInd = infoMesh.floorInd;
 
-		if (storyInfo.data [0][xx].index == floorInd) {
-			workLevel_structural = storyInfo.data [0][xx].level;
-			break;
-		}
-	}
-	BMKillHandle ((GSHandle *) &storyInfo.data);
+	workLevel_structural = getWorkLevel (floorInd);
 
 	// 영역 정보를 업데이트
 	placingZone.leftBottomX = infoMorph.leftBottomX;

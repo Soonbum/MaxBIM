@@ -1480,3 +1480,58 @@ short	makeTemporaryLayer (API_Guid structurualObject, const char* suffix, char* 
 
 	return 0;
 }
+
+////////////////////////////////////////////////// 정보 수집
+// 선택한 요소들 중에서 요소 ID가 elemType인 객체들의 GUID를 가져옴, 가져온 수량을 리턴함
+GSErrCode	getGuidsOfSelection (GS::Array<API_Guid>* guidList, API_ElemTypeID elemType, long *nElem)
+{
+	short			xx;
+	long			nSel;
+	GSErrCode		err;
+
+	API_SelectionInfo	selectionInfo;
+	API_Element			tElem;
+	API_Neig			**selNeigs;
+
+	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
+	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+
+	if (selectionInfo.typeID != API_SelEmpty) {
+		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
+		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
+			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
+
+			tElem.header.guid = (*selNeigs)[xx].guid;
+			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
+				continue;
+
+			if (tElem.header.typeID == elemType)
+				guidList->Push (tElem.header.guid);
+		}
+	}
+	BMKillHandle ((GSHandle *) &selNeigs);
+
+	*nElem = guidList->GetSize ();
+
+	return	err;
+}
+
+// 해당 층의 작업 층 고도를 가져옴
+double		getWorkLevel (short floorInd)
+{
+	short			xx;
+	API_StoryInfo	storyInfo;
+	double			workLevel = 0.0;
+
+	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
+	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
+	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
+		if (storyInfo.data [0][xx].index == floorInd) {
+			workLevel = storyInfo.data [0][xx].level;
+			break;
+		}
+	}
+	BMKillHandle ((GSHandle *) &storyInfo.data);
+
+	return	workLevel;
+}

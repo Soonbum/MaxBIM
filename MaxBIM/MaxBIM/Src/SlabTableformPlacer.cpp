@@ -36,14 +36,10 @@ short	MAX_IND = 50;
 GSErrCode	placeTableformOnSlabBottom (void)
 {
 	GSErrCode	err = NoError;
-	long		nSel;
 	short		xx, yy;
 	double		dx, dy, ang;
 
 	// Selection Manager 관련 변수
-	API_SelectionInfo		selectionInfo;
-	API_Element				tElem;
-	API_Neig				**selNeigs;
 	GS::Array<API_Guid>		morphs;
 	GS::Array<API_Guid>		slabs;
 	long					nMorphs = 0;
@@ -81,44 +77,18 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	short			result;
 
 	// 작업 층 정보
-	API_StoryInfo	storyInfo;
 	double			workLevel_slab;
 
 
-	// 선택한 요소 가져오기
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	// 선택한 요소 가져오기 (슬래브 1개, 모프 1개 선택해야 함)
+	err = getGuidsOfSelection (&slabs, API_SlabID, &nSlabs);
+	err = getGuidsOfSelection (&morphs, API_MorphID, &nMorphs);
 	if (err == APIERR_NOPLAN) {
 		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
 	}
 	if (err == APIERR_NOSEL) {
 		WriteReport_Alert ("아무 것도 선택하지 않았습니다.\n필수 선택: 슬래브 (1개), 슬래브 하부를 덮는 모프 (1개)");
 	}
-	if (err != NoError) {
-		BMKillHandle ((GSHandle *) &selNeigs);
-		return err;
-	}
-
-	// 슬래브 1개, 모프 1개 선택해야 함
-	if (selectionInfo.typeID != API_SelEmpty) {
-		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-
-			tElem.header.guid = (*selNeigs)[xx].guid;
-			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
-				continue;
-
-			if (tElem.header.typeID == API_MorphID)		// 모프인가?
-				morphs.Push (tElem.header.guid);
-
-			if (tElem.header.typeID == API_SlabID)		// 슬래브인가?
-				slabs.Push (tElem.header.guid);
-		}
-	}
-	BMKillHandle ((GSHandle *) &selNeigs);
-	nMorphs = morphs.GetSize ();
-	nSlabs = slabs.GetSize ();
 
 	// 슬래브가 1개인가?
 	if (nSlabs != 1) {
@@ -314,16 +284,7 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	placingZone.level = nodes_sequential [0].z;
 
 	// 작업 층 높이 반영
-	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
-	workLevel_slab = 0.0;
-	ACAPI_Environment (APIEnv_GetStorySettingsID, &storyInfo);
-	for (xx = 0 ; xx <= (storyInfo.lastStory - storyInfo.firstStory) ; ++xx) {
-		if (storyInfo.data [0][xx].index == infoSlab.floorInd) {
-			workLevel_slab = storyInfo.data [0][xx].level;
-			break;
-		}
-	}
-	BMKillHandle ((GSHandle *) &storyInfo.data);
+	workLevel_slab = getWorkLevel (infoSlab.floorInd);
 
 	// 최외곽 가로, 세로 길이 계산
 	double	xMin, xMax;
