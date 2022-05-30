@@ -151,7 +151,7 @@ GSErrCode	attach3DLabelOnZone (void)
 
 			sprintf (roomName, "%s", (const char *) GS::UniString (elem.zone.roomName).ToCStr ());
 
-			label.placeObject (12,
+			label.placeObject (13,
 				"scaleValues", APIParT_CString, "스케일에 맞게 (모델 크기)",
 				"iScaleValues", APIParT_Integer, "1",
 				"bShowOn2D", APIParT_Boolean, "0",
@@ -163,7 +163,8 @@ GSErrCode	attach3DLabelOnZone (void)
 				"txtComment", APIParT_CString, roomName,
 				"gs_cont_pen", APIParT_PenCol, "20",
 				"textMat", APIParT_Mater, "19",
-				"bBg", APIParT_Boolean, "0");
+				"bBg", APIParT_Boolean, "0",
+				"thkTxt", APIParT_Length, "0.050");
 
 			ElemsAdded ++;
 		}
