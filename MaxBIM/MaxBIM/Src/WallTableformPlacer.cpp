@@ -211,10 +211,9 @@ GSErrCode	placeTableformOnWall (void)
 		infoMorph [xx].verLen = abs (info3D.bounds.zMax - info3D.bounds.zMin);
 
 		// 영역 모프 제거
-		API_Elem_Head* headList = new API_Elem_Head [1];
-		headList [0] = elem.header;
-		err = ACAPI_Element_Delete (&headList, 1);
-		delete headList;
+		GS::Array<API_Element>	elems;
+		elems.Push (elem);
+		deleteElements (elems);
 	}
 
 	if (nMorphs == 1) {
@@ -723,34 +722,12 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	}
 	
 	// 결과물 전체 그룹화 (앞면)
-	if (!elemList_Front.IsEmpty ()) {
-		GSSize nElems = elemList_Front.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Front [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Front.Clear ();
-	}
+	groupElements (elemList_Front);
+	elemList_Front.Clear ();
 
 	// 결과물 전체 그룹화 (뒷면)
-	if (!elemList_Back.IsEmpty ()) {
-		GSSize nElems = elemList_Back.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Back [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Back.Clear ();
-	}
+	groupElements (elemList_Back);
+	elemList_Back.Clear ();
 
 	// 우측 인코너/아웃코너 배치
 	if (placingZone->typeRcorner == INCORNER_PANEL) {
@@ -880,34 +857,12 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 	}
 
 	// 결과물 전체 그룹화 (앞면)
-	if (!elemList_Front.IsEmpty ()) {
-		GSSize nElems = elemList_Front.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Front [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Front.Clear ();
-	}
+	groupElements (elemList_Front);
+	elemList_Front.Clear ();
 
 	// 결과물 전체 그룹화 (뒷면)
-	if (!elemList_Back.IsEmpty ()) {
-		GSSize nElems = elemList_Back.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Back [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Back.Clear ();
-	}
+	groupElements (elemList_Back);
+	elemList_Back.Clear ();
 
 	// ================================================== 유로폼 배치
 	// 앞면 배치
@@ -947,19 +902,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 			moveIn3D ('z', euroform.radAng, -accumDist, &euroform.posX, &euroform.posY, &euroform.posZ);
 
 			// 결과물 전체 그룹화 (앞면)
-			if (!elemList_Front.IsEmpty ()) {
-				GSSize nElems = elemList_Front.GetSize ();
-				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-				if (elemHead != NULL) {
-					for (GSIndex i = 0; i < nElems; i++)
-						(*elemHead)[i].guid = elemList_Front [i];
-
-					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-					BMKillHandle ((GSHandle *) &elemHead);
-				}
-				elemList_Front.Clear ();
-			}
+			groupElements (elemList_Front);
+			elemList_Front.Clear ();
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -1010,19 +954,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				moveIn3D ('z', euroform.radAng, -accumDist, &euroform.posX, &euroform.posY, &euroform.posZ);
 
 				// 결과물 전체 그룹화 (뒷면)
-				if (!elemList_Back.IsEmpty ()) {
-					GSSize nElems = elemList_Back.GetSize ();
-					API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-					if (elemHead != NULL) {
-						for (GSIndex i = 0; i < nElems; i++)
-							(*elemHead)[i].guid = elemList_Back [i];
-
-						ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-						BMKillHandle ((GSHandle *) &elemHead);
-					}
-					elemList_Back.Clear ();
-				}
+				groupElements (elemList_Back);
+				elemList_Back.Clear ();
 			}
 
 			// 무조건 가로 방향으로 이동
@@ -1067,19 +1000,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 			moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 
 			// 결과물 전체 그룹화 (앞면)
-			if (!elemList_Front.IsEmpty ()) {
-				GSSize nElems = elemList_Front.GetSize ();
-				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-				if (elemHead != NULL) {
-					for (GSIndex i = 0; i < nElems; i++)
-						(*elemHead)[i].guid = elemList_Front [i];
-
-					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-					BMKillHandle ((GSHandle *) &elemHead);
-				}
-				elemList_Front.Clear ();
-			}
+			groupElements (elemList_Front);
+			elemList_Front.Clear ();
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -1128,19 +1050,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 
 				// 결과물 전체 그룹화 (뒷면)
-				if (!elemList_Back.IsEmpty ()) {
-					GSSize nElems = elemList_Back.GetSize ();
-					API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-					if (elemHead != NULL) {
-						for (GSIndex i = 0; i < nElems; i++)
-							(*elemHead)[i].guid = elemList_Back [i];
-
-						ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-						BMKillHandle ((GSHandle *) &elemHead);
-					}
-					elemList_Back.Clear ();
-				}
+				groupElements (elemList_Back);
+				elemList_Back.Clear ();
 			}
 
 			// 무조건 가로 방향으로 이동
@@ -1192,19 +1103,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 			moveIn3D ('z', plywood.radAng, -accumDist, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 			// 결과물 전체 그룹화 (앞면)
-			if (!elemList_Front.IsEmpty ()) {
-				GSSize nElems = elemList_Front.GetSize ();
-				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-				if (elemHead != NULL) {
-					for (GSIndex i = 0; i < nElems; i++)
-						(*elemHead)[i].guid = elemList_Front [i];
-
-					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-					BMKillHandle ((GSHandle *) &elemHead);
-				}
-				elemList_Front.Clear ();
-			}
+			groupElements (elemList_Front);
+			elemList_Front.Clear ();
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -1264,19 +1164,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				moveIn3D ('z', plywood.radAng, -accumDist, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 				// 결과물 전체 그룹화 (뒷면)
-				if (!elemList_Back.IsEmpty ()) {
-					GSSize nElems = elemList_Back.GetSize ();
-					API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-					if (elemHead != NULL) {
-						for (GSIndex i = 0; i < nElems; i++)
-							(*elemHead)[i].guid = elemList_Back [i];
-
-						ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-						BMKillHandle ((GSHandle *) &elemHead);
-					}
-					elemList_Back.Clear ();
-				}
+				groupElements (elemList_Back);
+				elemList_Back.Clear ();
 			}
 
 			// 무조건 가로 방향으로 이동
@@ -1323,19 +1212,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 			moveIn3D ('z', timber.radAng, -accumDist, &timber.posX, &timber.posY, &timber.posZ);
 			
 			// 결과물 전체 그룹화 (앞면)
-			if (!elemList_Front.IsEmpty ()) {
-				GSSize nElems = elemList_Front.GetSize ();
-				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-				if (elemHead != NULL) {
-					for (GSIndex i = 0; i < nElems; i++)
-						(*elemHead)[i].guid = elemList_Front [i];
-
-					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-					BMKillHandle ((GSHandle *) &elemHead);
-				}
-				elemList_Front.Clear ();
-			}
+			groupElements (elemList_Front);
+			elemList_Front.Clear ();
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -1386,19 +1264,8 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 				moveIn3D ('z', timber.radAng, -accumDist, &timber.posX, &timber.posY, &timber.posZ);
 
 				// 결과물 전체 그룹화 (뒷면)
-				if (!elemList_Back.IsEmpty ()) {
-					GSSize nElems = elemList_Back.GetSize ();
-					API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-					if (elemHead != NULL) {
-						for (GSIndex i = 0; i < nElems; i++)
-							(*elemHead)[i].guid = elemList_Back [i];
-
-						ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-						BMKillHandle ((GSHandle *) &elemHead);
-					}
-					elemList_Back.Clear ();
-				}
+				groupElements (elemList_Back);
+				elemList_Back.Clear ();
 			}
 
 			// 무조건 가로 방향으로 이동
@@ -1415,34 +1282,12 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 		else if (placingZone->tableformType == 3)	placingZone->placeTableformC (this, xx);
 
 		// 결과물 전체 그룹화 (앞면)
-		if (!elemList_Front.IsEmpty ()) {
-			GSSize nElems = elemList_Front.GetSize ();
-			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-			if (elemHead != NULL) {
-				for (GSIndex i = 0; i < nElems; i++)
-					(*elemHead)[i].guid = elemList_Front [i];
-
-				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-				BMKillHandle ((GSHandle *) &elemHead);
-			}
-			elemList_Front.Clear ();
-		}
+		groupElements (elemList_Front);
+		elemList_Front.Clear ();
 
 		// 결과물 전체 그룹화 (뒷면)
-		if (!elemList_Back.IsEmpty ()) {
-			GSSize nElems = elemList_Back.GetSize ();
-			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-			if (elemHead != NULL) {
-				for (GSIndex i = 0; i < nElems; i++)
-					(*elemHead)[i].guid = elemList_Back [i];
-
-				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-				BMKillHandle ((GSHandle *) &elemHead);
-			}
-			elemList_Back.Clear ();
-		}
+		groupElements (elemList_Back);
+		elemList_Back.Clear ();
 	}
 
 	return err;
@@ -2985,34 +2830,12 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	}
 
 	// 결과물 전체 그룹화 (앞면)
-	if (!elemList_Front.IsEmpty ()) {
-		GSSize nElems = elemList_Front.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Front [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Front.Clear ();
-	}
+	groupElements (elemList_Front);
+	elemList_Front.Clear ();
 
 	// 결과물 전체 그룹화 (뒷면)
-	if (!elemList_Back.IsEmpty ()) {
-		GSSize nElems = elemList_Back.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Back [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Back.Clear ();
-	}
+	groupElements (elemList_Back);
+	elemList_Back.Clear ();
 
 	return err;
 }
@@ -4605,34 +4428,12 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 	}
 
 	// 결과물 전체 그룹화 (앞면)
-	if (!elemList_Front.IsEmpty ()) {
-		GSSize nElems = elemList_Front.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Front [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Front.Clear ();
-	}
+	groupElements (elemList_Front);
+	elemList_Front.Clear ();
 
 	// 결과물 전체 그룹화 (뒷면)
-	if (!elemList_Back.IsEmpty ()) {
-		GSSize nElems = elemList_Back.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Back [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Back.Clear ();
-	}
+	groupElements (elemList_Back);
+	elemList_Back.Clear ();
 }
 
 // 테이블폼 타입B 배치 (유로폼 제외) - 각파이프 1줄
@@ -6028,34 +5829,12 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 	}
 
 	// 결과물 전체 그룹화 (앞면)
-	if (!elemList_Front.IsEmpty ()) {
-		GSSize nElems = elemList_Front.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Front [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Front.Clear ();
-	}
+	groupElements (elemList_Front);
+	elemList_Front.Clear ();
 
 	// 결과물 전체 그룹화 (뒷면)
-	if (!elemList_Back.IsEmpty ()) {
-		GSSize nElems = elemList_Back.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Back [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Back.Clear ();
-	}
+	groupElements (elemList_Back);
+	elemList_Back.Clear ();
 }
 
 // 테이블폼 타입C 배치 (유로폼 제외) - 각파이프 1줄, 십자 조인트 바 활용
@@ -6984,34 +6763,12 @@ void	WallTableformPlacingZone::placeTableformC (WallTableformPlacingZone* placin
 	}
 
 	// 결과물 전체 그룹화 (앞면)
-	if (!elemList_Front.IsEmpty ()) {
-		GSSize nElems = elemList_Front.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Front [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Front.Clear ();
-	}
+	groupElements (elemList_Front);
+	elemList_Front.Clear ();
 
 	// 결과물 전체 그룹화 (뒷면)
-	if (!elemList_Back.IsEmpty ()) {
-		GSSize nElems = elemList_Back.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_Back [i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-		elemList_Back.Clear ();
-	}
+	groupElements (elemList_Back);
+	elemList_Back.Clear ();
 }
 
 // 테이블폼/유로폼/휠러스페이서/합판/목재 배치를 위한 다이얼로그 (테이블폼 구성, 요소 방향, 개수 및 길이)

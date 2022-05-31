@@ -249,10 +249,9 @@ GSErrCode	placeTableformOnBeam (void)
 		coords.Clear ();
 
 		// 영역 모프 제거
-		API_Elem_Head* headList = new API_Elem_Head [1];
-		headList [0] = elem.header;
-		err = ACAPI_Element_Delete (&headList, 1);
-		delete headList;
+		GS::Array<API_Element>	elems;
+		elems.Push (elem);
+		deleteElements (elems);
 	}
 
 	// 영역 높이 저장
@@ -359,58 +358,12 @@ SECOND:
 	err = placingZone.placeAuxObjects (&placingZone);
 
 	// 결과물 전체 그룹화
-	if (!elemList_LeftEnd.IsEmpty ()) {
-		GSSize nElems = elemList_LeftEnd.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_LeftEnd[i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-	}
-
-	if (!elemList_RightEnd.IsEmpty ()) {
-		GSSize nElems = elemList_RightEnd.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_RightEnd[i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-	}
+	groupElements (elemList_LeftEnd);
+	groupElements (elemList_RightEnd);
 
 	for (xx = 0 ; xx < 10 ; ++xx) {
-		if (!elemList_Tableform [xx].IsEmpty ()) {
-			GSSize nElems = elemList_Tableform [xx].GetSize ();
-			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-			if (elemHead != NULL) {
-				for (GSIndex i = 0; i < nElems; i++)
-					(*elemHead)[i].guid = elemList_Tableform [xx][i];
-
-				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-				BMKillHandle ((GSHandle *) &elemHead);
-			}
-		}
-
-		if (!elemList_Plywood [xx].IsEmpty ()) {
-			GSSize nElems = elemList_Plywood [xx].GetSize ();
-			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-			if (elemHead != NULL) {
-				for (GSIndex i = 0; i < nElems; i++)
-					(*elemHead)[i].guid = elemList_Plywood [xx][i];
-
-				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-				BMKillHandle ((GSHandle *) &elemHead);
-			}
-		}
+		groupElements (elemList_Tableform [xx]);
+		groupElements (elemList_Plywood [xx]);
 	}
 
 	// 3번째 다이얼로그에서 OK 버튼을 눌러야만 다음 단계로 넘어감
@@ -419,18 +372,8 @@ SECOND:
 	else
 		err = placingZone.placeSupportingPostPreset (&placingZone);		// 동바리/멍에제 프리셋을 배치함
 
-	if (!elemList_SupportingPost.IsEmpty ()) {
-		GSSize nElems = elemList_SupportingPost.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList_SupportingPost[i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-	}
+	// 동바리 그룹화
+	groupElements (elemList_SupportingPost);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);

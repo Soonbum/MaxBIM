@@ -254,10 +254,9 @@ GSErrCode	placeTableformOnLowSide (void)
 	infoMorph.verLen = abs (info3D.bounds.zMax - info3D.bounds.zMin);
 
 	// 영역 모프 제거
-	API_Elem_Head* headList = new API_Elem_Head [1];
-	headList [0] = elem.header;
-	err = ACAPI_Element_Delete (&headList, 1);
-	delete headList;
+	GS::Array<API_Element>	elems;
+	elems.Push (elem);
+	deleteElements (elems);
 
 	// 작업 층 높이 반영 -- 모프
 	if (nWall == 1)			floorInd = infoWall.floorInd;
@@ -711,19 +710,8 @@ GSErrCode	LowSideTableformPlacingZone::placeObjects (LowSideTableformPlacingZone
 			}
 
 			// 결과물 전체 그룹화
-			if (!elemList.IsEmpty ()) {
-				GSSize nElems = elemList.GetSize ();
-				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-				if (elemHead != NULL) {
-					for (GSIndex i = 0; i < nElems; i++)
-						(*elemHead)[i].guid = elemList [i];
-
-					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-					BMKillHandle ((GSHandle *) &elemHead);
-				}
-				elemList.Clear ();
-			}
+			groupElements (elemList);
+			elemList.Clear ();
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -748,19 +736,8 @@ GSErrCode	LowSideTableformPlacingZone::placeObjects (LowSideTableformPlacingZone
 			moveIn3D ('x', fillersp.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 
 			// 결과물 전체 그룹화
-			if (!elemList.IsEmpty ()) {
-				GSSize nElems = elemList.GetSize ();
-				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-				if (elemHead != NULL) {
-					for (GSIndex i = 0; i < nElems; i++)
-						(*elemHead)[i].guid = elemList [i];
-
-					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-					BMKillHandle ((GSHandle *) &elemHead);
-				}
-				elemList.Clear ();
-			}
+			groupElements (elemList);
+			elemList.Clear ();
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -791,19 +768,8 @@ GSErrCode	LowSideTableformPlacingZone::placeObjects (LowSideTableformPlacingZone
 				"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 
 			// 결과물 전체 그룹화
-			if (!elemList.IsEmpty ()) {
-				GSSize nElems = elemList.GetSize ();
-				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-				if (elemHead != NULL) {
-					for (GSIndex i = 0; i < nElems; i++)
-						(*elemHead)[i].guid = elemList [i];
-
-					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-					BMKillHandle ((GSHandle *) &elemHead);
-				}
-				elemList.Clear ();
-			}
+			groupElements (elemList);
+			elemList.Clear ();
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -829,19 +795,8 @@ GSErrCode	LowSideTableformPlacingZone::placeObjects (LowSideTableformPlacingZone
 			moveIn3D ('x', timber.radAng, -(double)placingZone->cells [xx].horLen / 1000.0, &timber.posX, &timber.posY, &timber.posZ);
 			
 			// 결과물 전체 그룹화
-			if (!elemList.IsEmpty ()) {
-				GSSize nElems = elemList.GetSize ();
-				API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-				if (elemHead != NULL) {
-					for (GSIndex i = 0; i < nElems; i++)
-						(*elemHead)[i].guid = elemList [i];
-
-					ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-					BMKillHandle ((GSHandle *) &elemHead);
-				}
-				elemList.Clear ();
-			}
+			groupElements (elemList);
+			elemList.Clear ();
 		}
 
 		// 무조건 가로 방향으로 이동
@@ -855,19 +810,8 @@ GSErrCode	LowSideTableformPlacingZone::placeObjects (LowSideTableformPlacingZone
 		if (placingZone->tableformType == 1)		placingZone->placeTableformA (this, xx);
 
 		// 결과물 전체 그룹화
-		if (!elemList.IsEmpty ()) {
-			GSSize nElems = elemList.GetSize ();
-			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-			if (elemHead != NULL) {
-				for (GSIndex i = 0; i < nElems; i++)
-					(*elemHead)[i].guid = elemList [i];
-
-				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-				BMKillHandle ((GSHandle *) &elemHead);
-			}
-			elemList.Clear ();
-		}
+		groupElements (elemList);
+		elemList.Clear ();
 	}
 
 	return err;
@@ -1263,19 +1207,8 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 		}
 
 		// 결과물 전체 그룹화
-		if (!elemList.IsEmpty ()) {
-			GSSize nElems = elemList.GetSize ();
-			API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-			if (elemHead != NULL) {
-				for (GSIndex i = 0; i < nElems; i++)
-					(*elemHead)[i].guid = elemList [i];
-
-				ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-				BMKillHandle ((GSHandle *) &elemHead);
-			}
-			elemList.Clear ();
-		}
+		groupElements (elemList);
+		elemList.Clear ();
 	}
 }
 

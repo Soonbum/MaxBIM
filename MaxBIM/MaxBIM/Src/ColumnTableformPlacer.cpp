@@ -180,10 +180,9 @@ GSErrCode	placeTableformOnColumn (void)
 	infoMorph.height	= info3D.bounds.zMax - info3D.bounds.zMin;
 
 	// 영역 모프 제거
-	API_Elem_Head* headList = new API_Elem_Head [1];
-	headList [0] = elem.header;
-	err = ACAPI_Element_Delete (&headList, 1);
-	delete headList;
+	GS::Array<API_Element>	elems;
+	elems.Push (elem);
+	deleteElements (elems);
 
 	// 영역 정보 저장
 	placingZone.bRectangle		= infoColumn.bRectangle;	// 직사각형인가?
@@ -295,19 +294,7 @@ FIRST_SOLE_COLUMN:
 	err = placingZone.fillRestAreas_soleColumn (&placingZone);
 
 	// 그룹화하기
-	if (!elemList.IsEmpty ()) {
-		GSSize nElems = elemList.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList[i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-	}
-	elemList.Clear (false);
+	groupElements (elemList);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);

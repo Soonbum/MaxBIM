@@ -233,10 +233,9 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	}
 
 	// 영역 모프 제거
-	API_Elem_Head* headList = new API_Elem_Head [1];
-	headList [0] = elem.header;
-	err = ACAPI_Element_Delete (&headList, 1);
-	delete headList;
+	GS::Array<API_Element>	elems;
+	elems.Push (elem);
+	deleteElements (elems);
 
 	bufPoint.x = 0.0;
 	bufPoint.y = 0.0;
@@ -364,18 +363,7 @@ FIRST:
 		err = placingZone.fillRestAreas ();
 
 	// 결과물 전체 그룹화
-	if (!elemList.IsEmpty ()) {
-		GSSize nElems = elemList.GetSize ();
-		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-		if (elemHead != NULL) {
-			for (GSIndex i = 0; i < nElems; i++)
-				(*elemHead)[i].guid = elemList[i];
-
-			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-			BMKillHandle ((GSHandle *) &elemHead);
-		}
-	}
+	groupElements (elemList);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);

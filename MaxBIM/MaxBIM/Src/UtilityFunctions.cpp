@@ -1547,3 +1547,36 @@ double		getWorkLevel (short floorInd)
 
 	return	workLevel;
 }
+
+////////////////////////////////////////////////// 요소 조작
+// 리스트에 있는 요소들을 모두 삭제함
+void	deleteElements (GS::Array<API_Element> elemList)
+{
+	short	xx;
+	long	nElems = elemList.GetSize ();
+
+	API_Elem_Head* headList = new API_Elem_Head [nElems];
+	for (xx = 0 ; xx < nElems ; ++xx)
+		headList [xx] = elemList [xx].header;
+
+	ACAPI_Element_Delete (&headList, nElems);
+
+	delete headList;
+}
+
+// 리스트에 있는 요소들을 그룹화
+void	groupElements (GS::Array<API_Guid> elemList)
+{
+	if (!elemList.IsEmpty ()) {
+		GSSize nElems = elemList.GetSize ();
+		API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
+		if (elemHead != NULL) {
+			for (GSIndex i = 0; i < nElems; i++)
+				(*elemHead)[i].guid = elemList[i];
+
+			ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
+
+			BMKillHandle ((GSHandle *) &elemHead);
+		}
+	}
+}

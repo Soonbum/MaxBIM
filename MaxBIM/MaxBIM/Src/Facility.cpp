@@ -111,10 +111,9 @@ GSErrCode	attach3DLabelOnZone (void)
 			if (err == NoError) {
 				foundStr = getParameterStringByName (&memo, "d_comp");
 				if (my_strcmp (foundStr, "ÁÂÇ¥") == 0) {
-					API_Elem_Head* headList = new API_Elem_Head [1];
-					headList [0] = elem.header;
-					ACAPI_Element_Delete (&headList, 1);
-					delete headList;
+					GS::Array<API_Element>	elems;
+					elems.Push (elem);
+					deleteElements (elems);
 
 					ElemsDeleted ++;
 				}

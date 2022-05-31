@@ -142,40 +142,37 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 		case 32007:
 			// 내보내기
 			switch (menuParams->menuItemRef.itemIndex) {
-				case 1:		// 부재(기둥,보,슬래브) 정보 내보내기 (CSV) ... 개발보류
-					err = exportGridElementInfo ();
-					break;
-				case 2:		// 선택한 부재 정보 내보내기 (Single 모드)
+				case 1:		// 선택한 부재 정보 내보내기 (Single 모드)
 					err = exportSelectedElementInfo ();
 					break;
-				case 3:		// 선택한 부재 정보 내보내기 (Multi 모드)
+				case 2:		// 선택한 부재 정보 내보내기 (Multi 모드)
 					err = exportElementInfoOnVisibleLayers ();
 					break;
-				case 4:		// 부재별 선택 후 보여주기
+				case 3:		// 부재별 선택 후 보여주기
 					err = filterSelection ();
 					break;
-				case 5:		// 보 테이블폼 물량표 작성
+				case 4:		// 보 테이블폼 물량표 작성
 					err = exportBeamTableformInformation ();
 					break;
-				case 6:		// 테이블폼 면적 계산
+				case 5:		// 테이블폼 면적 계산
 					err = calcTableformArea ();
 					break;
-				case 7:		// 콘크리트 물량 계산 (Single 모드)
+				case 6:		// 콘크리트 물량 계산 (Single 모드)
 					err = calcConcreteVolumeSingleMode ();
 					break;
-				case 8:		// 콘크리트 물량 계산 (Multi 모드)
+				case 7:		// 콘크리트 물량 계산 (Multi 모드)
 					err = calcConcreteVolumeMultiMode ();
 					break;
-				case 9:		// 슬래브 수량/하부면적 계산 (Single 모드)
+				case 8:		// 슬래브 수량/하부면적 계산 (Single 모드)
 					err = calcSlabQuantityAndAreaSingleMode ();
 					break;
-				case 10:	// 슬래브 수량/하부면적 계산 (Multi 모드)
+				case 9:		// 슬래브 수량/하부면적 계산 (Multi 모드)
 					err = calcSlabQuantityAndAreaMultiMode ();
 					break;
-				case 11:	// 단열재 수량/면적 계산 (Single 모드)
+				case 10:	// 단열재 수량/면적 계산 (Single 모드)
 					err = calcInsulationQuantityAndAreaSingleMode ();
 					break;
-				case 12:	// 단열재 수량/면적 계산 (Multi 모드)
+				case 11:	// 단열재 수량/면적 계산 (Multi 모드)
 					err = calcInsulationQuantityAndAreaMultiMode ();
 					break;
 			}

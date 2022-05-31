@@ -1807,18 +1807,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 							}
 
 							// 그룹화하기
-							if (!elemList.IsEmpty ()) {
-								GSSize nElems = elemList.GetSize ();
-								API_Elem_Head** elemHead = (API_Elem_Head **) BMAllocateHandle (nElems * sizeof (API_Elem_Head), ALLOCATE_CLEAR, 0);
-								if (elemHead != NULL) {
-									for (GSIndex i = 0; i < nElems; i++)
-										(*elemHead)[i].guid = elemList[i];
-
-									ACAPI_Element_Tool (elemHead, nElems, APITool_Group, NULL);
-
-									BMKillHandle ((GSHandle *) &elemHead);
-								}
-							}
+							groupElements (elemList);
 							elemList.Clear (false);
 
 							// 화면 새로고침
