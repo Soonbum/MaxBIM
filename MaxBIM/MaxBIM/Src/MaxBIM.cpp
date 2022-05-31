@@ -296,6 +296,10 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 3:		// 개발자 전용 - 개발자 테스트 메뉴
 					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
+
+						const char*	abc = "11.5T";
+						WriteReport_Alert ("다음은 숫자인가? %s = (%d)", abc, isStringDouble (abc));
+
 						// *** 원하는 코드를 아래 넣으시오.
 						/*
 						bool				regenerate = true;

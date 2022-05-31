@@ -253,9 +253,7 @@ int			compare (const void* first, const void* second);									// 오름차순으로 �
 bool		comparePosX (const objectInBeamTableform& a, const objectInBeamTableform& b);		// vector 내 자재 정보 구조체 정렬을 위한 비교 함수 (좌표값 X 기준)
 bool		comparePosY (const objectInBeamTableform& a, const objectInBeamTableform& b);		// vector 내 자재 정보 구조체 정렬을 위한 비교 함수 (좌표값 Y 기준)
 bool		compareLayerName (const LayerList& a, const LayerList& b);							// vector 내 레이어 정보 구조체 정렬을 위한 비교 함수 (레이어 이름 기준)
-bool		compareVectorStringByValue (const vector<string>& a, const vector<string>& b);		// vector 내 레코드 내 필드(숫자 값)를 기준으로 내림차순 정렬을 위한 비교 함수
-bool		compareVectorStringByString (const vector<string>& a, const vector<string>& b);		// vector 내 레코드 내 필드(문자열)를 기준으로 내림차순 정렬을 위한 비교 함수
-bool		compareVectorStringMultiField (const vector<string>& a, const vector<string>& b);	// vector 내 레코드 내 여러 필드들을 기준으로 내림차순 정렬을 위한 비교 함수
+bool		compareVectorString (const vector<string>& a, const vector<string>& b);				// vector 내 레코드 내 필드를 기준으로 내림차순 정렬을 위한 비교 함수
 
 ColumnInfo	findColumn (ColumnPos* columnPos, short iHor, short iVer, short floorInd);			// 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
 GSErrCode	exportGridElementInfo (void);														// 부재(기둥,보,슬래브)들의 정보를 추출하고 정리해서 엑셀 파일로 내보내기

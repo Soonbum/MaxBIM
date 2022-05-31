@@ -51,6 +51,18 @@ double	distOfPointBetweenLine (API_Coord p, API_Coord a, API_Coord b)
 	return	area / dist_ab;
 }
 
+// 선분 AB와 점 P와의 거리를 구하는 함수
+double	distOfPointBetweenLine (API_Coord3D p, API_Coord a, API_Coord b)
+{
+	double	area;
+	double	dist_ab;
+
+	area = abs ( (a.x - p.x) * (b.y - p.y) - (a.y - p.y) * (b.x - p.x) );
+	dist_ab = sqrt ( (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) );
+
+	return	area / dist_ab;
+}
+
 ////////////////////////////////////////////////// 비교하기
 // 어떤 수가 더 큰지 비교함 : 오류(-100), A<B(-1), A==B(0), A>B(+1)
 long	compareDoubles (const double a, const double b)

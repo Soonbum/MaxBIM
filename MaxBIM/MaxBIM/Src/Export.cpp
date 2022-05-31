@@ -54,69 +54,48 @@ bool compareLayerName (const LayerList& a, const LayerList& b)
 		return false;
 }
 
-// vector 내 레코드 내 필드(숫자 값)를 기준으로 내림차순 정렬을 위한 비교 함수
-bool	compareVectorStringByValue (const vector<string>& a, const vector<string>& b)
+// vector 내 레코드 내 필드를 기준으로 내림차순 정렬을 위한 비교 함수
+bool	compareVectorString (const vector<string>& a, const vector<string>& b)
 {
-	if (atof (a.at(0).c_str ()) > atof (b.at(0).c_str ()))
-		return true;
-	else
-		return false;
-}
+	int	xx;
+	size_t	aLen = a.size ();
+	size_t	bLen = b.size ();
 
-// vector 내 레코드 내 필드(문자열)를 기준으로 내림차순 정렬을 위한 비교 함수
-bool	compareVectorStringByString (const vector<string>& a, const vector<string>& b)
-{
-	const char*	aStr = a.at(0).c_str ();
-	const char*	bStr = b.at(0).c_str ();
+	const char* aStr;
+	const char* bStr;
 
-	// 숫자로 된 문자열이면,
-	if ((isStringDouble (aStr) == TRUE) && (isStringDouble (bStr) == TRUE)) {
-		if (atof (aStr) > atof (bStr))
-			return true;
-		else
-			return false;
-	} else {
-		if (a.at(0).compare (b.at(0)) > 0)
-			return true;
-		else
-			return false;
-	}
-}
-
-// vector 내 레코드 내 여러 필드들을 기준으로 내림차순 정렬을 위한 비교 함수
-bool	compareVectorStringMultiField (const vector<string>& a, const vector<string>& b)
-{
-	int xx;
-	size_t aLen = a.size ();
-	size_t bLen = b.size ();
-
-	// 필드 개수가 같을 경우 본격적으로 정렬
+	// a와 b의 0번째 문자열이 같고, 벡터의 길이도 같을 경우 계속 진행
 	if (aLen == bLen) {
-		size_t recordLen = aLen;
+		// 1번째 문자열부터 n번째 문자열까지 순차적으로 비교함
+		for (xx = 0 ; xx < aLen ; ++xx) {
+			aStr = a.at(xx).c_str ();
+			bStr = b.at(xx).c_str ();
 
-		for (xx = 1 ; xx < recordLen ; ++xx) {
-			const char*	aStr = a.at(xx).c_str ();
-			const char*	bStr = b.at(xx).c_str ();
-
+			// 숫자로 된 문자열이면,
 			if ((isStringDouble (aStr) == TRUE) && (isStringDouble (bStr) == TRUE)) {
-				if (atof (aStr) > atof (bStr))
+				if (atof (aStr) - atof (bStr) > EPS)
 					return true;
+				else if (atof (bStr) - atof (aStr) > EPS)
+					return false;
 				else
-					return false;
+					continue;
 			} else {
-				if (a.at(xx).compare (b.at(xx)) > 0)
+				if (my_strcmp (aStr, bStr) > 0)
 					return true;
-				else if (a.at(xx).compare (b.at(xx)) < 0)
+				else if (my_strcmp (aStr, bStr) < 0)
 					return false;
+				else
+					continue;
 			}
 		}
-	} else if (aLen > bLen) {
-		return true;
 	} else {
-		return false;
+		if (aLen > bLen)
+			return true;
+		else
+			return false;
 	}
 
-	return false;
+	return	true;
 }
 
 // 가로주열, 세로주열, 층 정보를 이용하여 기둥 찾기
@@ -602,19 +581,15 @@ void SummaryOfObjectInfo::clear ()
 GSErrCode	exportSelectedElementInfo (void)
 {
 	GSErrCode	err = NoError;
-	long		nSel;
 	unsigned short		xx, yy, zz;
 	bool		regenerate = true;
 	bool		suspGrp;
 	
 	// 선택한 요소가 없으면 오류
-	API_SelectionInfo		selectionInfo;
-	API_Neig				**selNeigs;
-	API_Element				tElem;
 	GS::Array<API_Guid>		objects;
-	GS::Array<API_Guid>		beams;
+	//GS::Array<API_Guid>		beams;
 	long					nObjects = 0;
-	long					nBeams = 0;
+	//long					nBeams = 0;
 
 	// 선택한 요소들의 정보 요약하기
 	API_Element			elem;
@@ -652,34 +627,10 @@ GSErrCode	exportSelectedElementInfo (void)
 	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 선택한 요소 가져오기
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
-	if (err != NoError) {
-		BMKillHandle ((GSHandle *) &selNeigs);
+	if (getGuidsOfSelection (&objects, API_ObjectID, &nObjects) != NoError) {
 		WriteReport_Alert ("요소들을 선택해야 합니다.");
 		return err;
 	}
-
-	// 객체 타입의 요소 GUID만 저장함
-	if (selectionInfo.typeID != API_SelEmpty) {
-		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-			tElem.header.guid = (*selNeigs)[xx].guid;
-
-			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
-				continue;
-
-			if (tElem.header.typeID == API_ObjectID)	// 객체 타입 요소인가?
-				objects.Push (tElem.header.guid);
-
-			if (tElem.header.typeID == API_BeamID)		// 보 타입 요소인가?
-				beams.Push (tElem.header.guid);
-		}
-	}
-	BMKillHandle ((GSHandle *) &selNeigs);
-	nObjects = objects.GetSize ();
-	nBeams = beams.GetSize ();
 
 	// 엑셀 파일로 기둥 정보 내보내기
 	// 파일 저장을 위한 변수
@@ -812,11 +763,8 @@ GSErrCode	exportSelectedElementInfo (void)
 	double	length, length2, length3;
 	bool	bTitleAppeared;
 
-	// 레코드 1차 정렬 (1번째 필드(객체 이름) 기준으로 내림차순 정렬)
-	sort (objectInfo.records.begin (), objectInfo.records.end (), compareVectorStringByString);
-
-	// 레코드 2차 정렬 (2번째 이후 필드 기준으로 내림차순 정렬)
-	sort (objectInfo.records.begin (), objectInfo.records.end (), compareVectorStringMultiField);
+	// 레코드 정렬 (내림차순 정렬)
+	sort (objectInfo.records.begin (), objectInfo.records.end (), compareVectorString);
 
 	// *합판, 각재 구매 수량을 계산하기 위한 변수
 	double	totalAreaOfPlywoods = 0.0;
@@ -1314,8 +1262,8 @@ GSErrCode	exportSelectedElementInfo (void)
 	}
 
 	// *합판, 다루끼 제작 수량 계산
-	sort (plywoodInfo.begin (), plywoodInfo.end (), compareVectorStringByString);
-	sort (darukiInfo.begin (), darukiInfo.end (), compareVectorStringByValue);
+	sort (plywoodInfo.begin (), plywoodInfo.end (), compareVectorString);
+	sort (darukiInfo.begin (), darukiInfo.end (), compareVectorString);
 
 	if (plywoodInfo.size () > 0) {
 		sprintf (buffer, "\n합판 규격별 제작 수량은 다음과 같습니다.");
@@ -2254,6 +2202,9 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			// APIParT_Boolean인 경우 예/아니오 표현
 			double	length, length2, length3;
 			bool	bTitleAppeared;
+
+			// 레코드 정렬 (내림차순 정렬)
+			sort (objectInfo.records.begin (), objectInfo.records.end (), compareVectorString);
 
 			// 객체 종류별로 수량 출력
 			try {
@@ -4576,15 +4527,9 @@ GSErrCode	calcTableformArea (void)
 GSErrCode	calcConcreteVolumeSingleMode (void)
 {
 	GSErrCode	err = NoError;
-	long		nSel;
 	unsigned short		xx;
 	bool		regenerate = true;
 	bool		suspGrp;
-	
-	// 선택한 요소가 없으면 오류
-	API_SelectionInfo		selectionInfo;
-	API_Neig				**selNeigs;
-	API_Element				tElem;
 	
 	GS::Array<API_Guid>		walls;
 	GS::Array<API_Guid>		columns;
@@ -4625,41 +4570,16 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
 	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
-	// 선택한 요소 가져오기
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
-	if (err != NoError) {
-		BMKillHandle ((GSHandle *) &selNeigs);
+	// 선택한 요소 가져오기 ( 벽, 기둥, 보, 슬래브, 모프, 객체)
+	if ( (getGuidsOfSelection (&walls, API_WallID, &nWalls) != NoError) &&
+		 (getGuidsOfSelection (&columns, API_ColumnID, &nColumns) != NoError) &&
+		 (getGuidsOfSelection (&beams, API_BeamID, &nBeams) != NoError) &&
+		 (getGuidsOfSelection (&slabs, API_SlabID, &nSlabs) != NoError) &&
+		 (getGuidsOfSelection (&morphs, API_MorphID, &nMorphs) != NoError) &&
+		 (getGuidsOfSelection (&objects, API_ObjectID, &nObjects) != NoError) ) {
 		WriteReport_Alert ("요소들을 선택해야 합니다.");
 		return err;
 	}
-
-	// 벽, 기둥, 보, 슬래브, 모프, 객체
-	if (selectionInfo.typeID != API_SelEmpty) {
-		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-			tElem.header.guid = (*selNeigs)[xx].guid;
-
-			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
-				continue;
-
-			if (tElem.header.typeID == API_WallID)		walls.Push (tElem.header.guid);		// 벽 타입 요소인가?
-			if (tElem.header.typeID == API_ColumnID)	columns.Push (tElem.header.guid);	// 기둥 타입 요소인가?
-			if (tElem.header.typeID == API_BeamID)		beams.Push (tElem.header.guid);		// 보 타입 요소인가?
-			if (tElem.header.typeID == API_SlabID)		slabs.Push (tElem.header.guid);		// 슬래브 타입 요소인가?
-			if (tElem.header.typeID == API_MorphID)		morphs.Push (tElem.header.guid);	// 모프 타입 요소인가?
-			if (tElem.header.typeID == API_ObjectID)	objects.Push (tElem.header.guid);	// 객체 타입 요소인가?
-		}
-	}
-	BMKillHandle ((GSHandle *) &selNeigs);
-
-	nWalls = walls.GetSize ();
-	nColumns = columns.GetSize ();
-	nBeams = beams.GetSize ();
-	nSlabs = slabs.GetSize ();
-	nMorphs = morphs.GetSize ();
-	nObjects = objects.GetSize ();
 
 	params.minOpeningSize = EPS;
 
@@ -5089,15 +5009,9 @@ GSErrCode	calcSlabQuantityAndAreaSingleMode (void)
 {
 	GSErrCode err = NoError;
 
-	long		nSel;
 	unsigned short		xx;
 	bool		regenerate = true;
 	bool		suspGrp;
-
-	// 선택한 요소가 없으면 오류
-	API_SelectionInfo		selectionInfo;
-	API_Neig				**selNeigs;
-	API_Element				tElem;
 	
 	GS::Array<API_Guid>		slabs;
 
@@ -5120,29 +5034,11 @@ GSErrCode	calcSlabQuantityAndAreaSingleMode (void)
 	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 선택한 요소 가져오기
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	err = getGuidsOfSelection (&slabs, API_SlabID, &nSlabs);
 	if (err != NoError) {
-		BMKillHandle ((GSHandle *) &selNeigs);
 		WriteReport_Alert ("요소들을 선택해야 합니다.");
 		return err;
 	}
-
-	if (selectionInfo.typeID != API_SelEmpty) {
-		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-			tElem.header.guid = (*selNeigs)[xx].guid;
-
-			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
-				continue;
-
-			if (tElem.header.typeID == API_SlabID)		slabs.Push (tElem.header.guid);		// 슬래브 타입 요소인가?
-		}
-	}
-	BMKillHandle ((GSHandle *) &selNeigs);
-
-	nSlabs = slabs.GetSize ();
 
 	params.minOpeningSize = EPS;
 
@@ -5369,16 +5265,10 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 {
 	GSErrCode err = NoError;
 
-	long		nSel;
 	unsigned short		xx;
 	bool		regenerate = true;
 	bool		suspGrp;
 
-	// 선택한 요소가 없으면 오류
-	API_SelectionInfo		selectionInfo;
-	API_Neig				**selNeigs;
-	API_Element				tElem;
-	
 	GS::Array<API_Guid>		objects;
 
 	long					nObjects = 0;
@@ -5398,29 +5288,11 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 선택한 요소 가져오기
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);
-	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	err = getGuidsOfSelection (&objects, API_ObjectID, &nObjects);
 	if (err != NoError) {
-		BMKillHandle ((GSHandle *) &selNeigs);
 		WriteReport_Alert ("요소들을 선택해야 합니다.");
 		return err;
 	}
-
-	if (selectionInfo.typeID != API_SelEmpty) {
-		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-			tElem.header.guid = (*selNeigs)[xx].guid;
-
-			if (ACAPI_Element_Get (&tElem) != NoError)	// 가져올 수 있는 요소인가?
-				continue;
-
-			if (tElem.header.typeID == API_ObjectID)		objects.Push (tElem.header.guid);		// 객체 타입 요소인가?
-		}
-	}
-	BMKillHandle ((GSHandle *) &selNeigs);
-
-	nObjects = objects.GetSize ();
 
 	for (xx = 0 ; xx < nObjects ; ++xx) {
 		BNZeroMemory (&elem, sizeof (API_Element));
