@@ -11,7 +11,6 @@ GSErrCode	select3DQuality (void)
 {
 	GSErrCode	err = NoError;
 
-	bool	suspGrp;
 	short	result;
 	double	gs_resol;
 	long	nElems;
@@ -24,9 +23,8 @@ GSErrCode	select3DQuality (void)
 	API_Element			elem;
 	API_ElementMemo		memo;
 
-	// 그룹화 일시정지
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	// 그룹화 일시정지 ON
+	suspendGroups (true);
 
 	result = DGAlert (DG_INFORMATION, "3D 품질/속도 조정하기", "3D 품질을 선택하십시오", "", "느림-고품질(32)", "중간(12)", "빠름-저품질(4)");
 
@@ -70,6 +68,9 @@ GSErrCode	select3DQuality (void)
 
 	WriteReport_Alert ("변경된 객체 개수: %d\n변경되지 않은 객체 개수: %d", ElemsChanged, ElemsUnchanged);
 
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
 	return	err;
 }
 
@@ -78,7 +79,6 @@ GSErrCode	attach3DLabelOnZone (void)
 {
 	GSErrCode	err = NoError;
 
-	bool	suspGrp;
 	short	result;
 	long	nElems;
 	short	layerInd;
@@ -92,9 +92,8 @@ GSErrCode	attach3DLabelOnZone (void)
 	API_Element			elem;
 	API_ElementMemo		memo;
 
-	// 그룹화 일시정지
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	// 그룹화 일시정지 ON
+	suspendGroups (true);
 
 	ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_InMyWorkspace);
 	nElems = elemList.GetSize ();
@@ -172,6 +171,9 @@ GSErrCode	attach3DLabelOnZone (void)
 	elemList.Clear ();
 
 	WriteReport_Alert ("제거된 라벨 개수: %ld\n추가된 라벨 개수: %ld", ElemsDeleted, ElemsAdded);
+
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
 
 	return	err;
 }

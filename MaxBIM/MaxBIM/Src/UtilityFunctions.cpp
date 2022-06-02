@@ -1548,6 +1548,19 @@ double		getWorkLevel (short floorInd)
 	return	workLevel;
 }
 
+// 레이어 개수를 가져옴
+short		getLayerCount ()
+{
+	API_Attribute	attrib;
+	short			nLayers = 0;
+
+	BNZeroMemory (&attrib, sizeof (API_Attribute));
+	attrib.layer.head.typeID = API_LayerID;
+	ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+
+	return	nLayers;
+}
+
 ////////////////////////////////////////////////// 요소 조작
 // 리스트에 있는 요소들을 모두 삭제함
 void	deleteElements (GS::Array<API_Element> elemList)
@@ -1579,4 +1592,36 @@ void	groupElements (GS::Array<API_Guid> elemList)
 			BMKillHandle ((GSHandle *) &elemHead);
 		}
 	}
+}
+
+// 리스트에 있는 요소들을 선택함
+void	selectElements (GS::Array<API_Guid> elemList)
+{
+	short		xx;
+
+	short		selCount;
+	API_Neig**	selNeig;
+
+	selCount = (short)elemList.GetSize ();
+	selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
+	for (xx = 0 ; xx < selCount ; ++xx)
+		(*selNeig)[xx].guid = elemList [xx];
+
+	ACAPI_Element_Select (selNeig, selCount, true);
+	BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
+
+	return;
+}
+
+// 그룹화 일시정지 활성화/비활성화
+void		suspendGroups (bool on)
+{
+	bool	suspGrp;
+
+	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);	// 그룹화 일시정지 상태 여부 가져옴
+
+	if (on == true)
+		if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	else
+		if (suspGrp == true)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
 }

@@ -54,7 +54,7 @@ bool compareLayerName (const LayerList& a, const LayerList& b)
 }
 
 // vector 내 레코드 내 필드를 기준으로 내림차순 정렬을 위한 비교 함수
-bool	compareVectorString (const vector<string>& a, const vector<string>& b)
+bool compareVectorString (const vector<string>& a, const vector<string>& b)
 {
 	int	xx;
 	size_t	aLen = a.size ();
@@ -238,7 +238,6 @@ GSErrCode	exportSelectedElementInfo (void)
 	GSErrCode	err = NoError;
 	unsigned short		xx, yy, zz;
 	bool		regenerate = true;
-	bool		suspGrp;
 	
 	// 선택한 요소가 없으면 오류
 	GS::Array<API_Guid>		objects;
@@ -274,8 +273,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -1501,6 +1499,9 @@ GSErrCode	exportSelectedElementInfo (void)
 	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
 	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);
 	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
@@ -1515,7 +1516,6 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	unsigned short		xx, yy, zz;
 	short		mm;
 	bool		regenerate = true;
-	bool		suspGrp;
 
 	// 모든 객체들의 원점 좌표를 전부 저장함
 	vector<API_Coord3D>	vecPos;
@@ -1583,8 +1583,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -1597,9 +1596,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	//result = DG_CANCEL;
 
 	// 프로젝트 내 레이어 개수를 알아냄
-	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	attrib.layer.head.typeID = API_LayerID;
-	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+	nLayers = getLayerCount ();
 
 	// 보이는 레이어들의 목록 저장하기
 	for (xx = 1 ; xx <= nLayers ; ++xx) {
@@ -2784,6 +2781,9 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 		}
 	}
 
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);
 	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
@@ -2848,10 +2848,6 @@ GSErrCode	filterSelection (void)
 	short		result;
 	const char*	tempStr;
 	bool		foundObj;
-	bool		suspGrp;
-
-	short		selCount;
-	API_Neig**	selNeig;
 
 	FILE	*fp;				// 파일 포인터
 	char	line [10240];		// 파일에서 읽어온 라인 하나
@@ -2880,8 +2876,7 @@ GSErrCode	filterSelection (void)
 
 	
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	ACAPI_Element_GetElemList (API_ObjectID, &objects, APIFilt_OnVisLayer);	nObjects = objects.GetSize ();	// 보이는 레이어 상의 객체 타입만 가져오기
 	ACAPI_Element_GetElemList (API_WallID, &walls, APIFilt_OnVisLayer);		nWalls = walls.GetSize ();		// 보이는 레이어 상의 벽 타입만 가져오기
@@ -3042,102 +3037,27 @@ GSErrCode	filterSelection (void)
 		}
 
 		// 알려진 Object 타입 선택
-		selCount = (short)selection_known.GetSize ();
-		selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
-		for (xx = 0 ; xx < selCount ; ++xx)
-			(*selNeig)[xx].guid = selection_known [xx];
-
-		ACAPI_Element_Select (selNeig, selCount, true);
-		BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
+		selectElements (selection_known);
 
 		// 알려지지 않은 Object 타입 선택
-		if (visibleObjInfo.bShow_Unknown == true) {
-			selCount = (short)selection_unknown.GetSize ();
-			selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
-			for (xx = 0 ; xx < selCount ; ++xx)
-				(*selNeig)[xx].guid = selection_unknown [xx];
-
-			ACAPI_Element_Select (selNeig, selCount, true);
-			BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
-		}
+		if (visibleObjInfo.bShow_Unknown == true)	selectElements (selection_unknown);
 
 		// 나머지 타입
-		if (visibleObjInfo.bShow_Walls == true) {
-			selCount = (short)nWalls;
-			selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
-			for (xx = 0 ; xx < selCount ; ++xx)
-				(*selNeig)[xx].guid = walls [xx];
-
-			ACAPI_Element_Select (selNeig, selCount, true);
-			BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
-		}
-		if (visibleObjInfo.bShow_Columns == true) {
-			selCount = (short)nColumns;
-			selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
-			for (xx = 0 ; xx < selCount ; ++xx)
-				(*selNeig)[xx].guid = columns [xx];
-
-			ACAPI_Element_Select (selNeig, selCount, true);
-			BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
-		}
-		if (visibleObjInfo.bShow_Beams == true) {
-			selCount = (short)nBeams;
-			selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
-			for (xx = 0 ; xx < selCount ; ++xx)
-				(*selNeig)[xx].guid = beams [xx];
-
-			ACAPI_Element_Select (selNeig, selCount, true);
-			BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
-		}
-		if (visibleObjInfo.bShow_Slabs == true) {
-			selCount = (short)nSlabs;
-			selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
-			for (xx = 0 ; xx < selCount ; ++xx)
-				(*selNeig)[xx].guid = slabs [xx];
-
-			ACAPI_Element_Select (selNeig, selCount, true);
-			BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
-		}
-		if (visibleObjInfo.bShow_Roofs == true) {
-			selCount = (short)nRoofs;
-			selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
-			for (xx = 0 ; xx < selCount ; ++xx)
-				(*selNeig)[xx].guid = roofs [xx];
-
-			ACAPI_Element_Select (selNeig, selCount, true);
-			BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
-		}
-		if (visibleObjInfo.bShow_Meshes == true) {
-			selCount = (short)nMeshes;
-			selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
-			for (xx = 0 ; xx < selCount ; ++xx)
-				(*selNeig)[xx].guid = meshes [xx];
-
-			ACAPI_Element_Select (selNeig, selCount, true);
-			BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
-		}
-		if (visibleObjInfo.bShow_Morphs == true) {
-			selCount = (short)nMorphs;
-			selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
-			for (xx = 0 ; xx < selCount ; ++xx)
-				(*selNeig)[xx].guid = morphs [xx];
-
-			ACAPI_Element_Select (selNeig, selCount, true);
-			BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
-		}
-		if (visibleObjInfo.bShow_Shells == true) {
-			selCount = (short)nShells;
-			selNeig = (API_Neig**)(BMAllocateHandle (selCount * sizeof (API_Neig), ALLOCATE_CLEAR, 0));
-			for (xx = 0 ; xx < selCount ; ++xx)
-				(*selNeig)[xx].guid = shells [xx];
-
-			ACAPI_Element_Select (selNeig, selCount, true);
-			BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
-		}
+		if (visibleObjInfo.bShow_Walls == true)		selectElements (walls);
+		if (visibleObjInfo.bShow_Columns == true)	selectElements (columns);
+		if (visibleObjInfo.bShow_Beams == true)		selectElements (beams);
+		if (visibleObjInfo.bShow_Slabs == true)		selectElements (slabs);
+		if (visibleObjInfo.bShow_Roofs == true)		selectElements (roofs);
+		if (visibleObjInfo.bShow_Meshes == true)	selectElements (meshes);
+		if (visibleObjInfo.bShow_Morphs == true)	selectElements (morphs);
+		if (visibleObjInfo.bShow_Shells == true)	selectElements (shells);
 		
 		// 선택한 것만 3D로 보여주기
 		ACAPI_Automate (APIDo_ShowSelectionIn3DID, NULL, NULL);
 	}
+
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
 
 	return	err;
 }
@@ -3176,7 +3096,6 @@ GSErrCode	exportBeamTableformInformation (void)
 	unsigned short		xx, yy, zz;
 	short	mm;
 	bool	regenerate = true;
-	bool	suspGrp;
 
 	GS::Array<API_Guid>		objects;
 	long					nObjects = 0;
@@ -3220,8 +3139,7 @@ GSErrCode	exportBeamTableformInformation (void)
 
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -3230,9 +3148,7 @@ GSErrCode	exportBeamTableformInformation (void)
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
 	// 프로젝트 내 레이어 개수를 알아냄
-	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	attrib.layer.head.typeID = API_LayerID;
-	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+	nLayers = getLayerCount ();
 
 	// 보이는 레이어들의 목록 저장하기
 	for (xx = 1 ; xx <= nLayers ; ++xx) {
@@ -3919,6 +3835,9 @@ GSErrCode	exportBeamTableformInformation (void)
 		}
 	}
 
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);
 	sprintf (buffer, "결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
@@ -3934,7 +3853,6 @@ GSErrCode	calcTableformArea (void)
 	unsigned short		xx;
 	short		mm;
 	bool		regenerate = true;
-	bool		suspGrp;
 
 	// 모든 객체, 보 저장
 	GS::Array<API_Guid>		elemList;
@@ -3976,8 +3894,7 @@ GSErrCode	calcTableformArea (void)
 
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -3986,9 +3903,7 @@ GSErrCode	calcTableformArea (void)
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
 	// 프로젝트 내 레이어 개수를 알아냄
-	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	attrib.layer.head.typeID = API_LayerID;
-	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+	nLayers = getLayerCount ();
 
 	// 보이는 레이어들의 목록 저장하기
 	for (xx = 1 ; xx <= nLayers ; ++xx) {
@@ -4171,6 +4086,9 @@ GSErrCode	calcTableformArea (void)
 		}
 	}
 
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);
 	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
@@ -4184,7 +4102,6 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 	GSErrCode	err = NoError;
 	unsigned short		xx;
 	bool		regenerate = true;
-	bool		suspGrp;
 	
 	GS::Array<API_Guid>		walls;
 	GS::Array<API_Guid>		columns;
@@ -4218,8 +4135,7 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -4325,6 +4241,9 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 						"총 부피", volume_total);
 	WriteReport_Alert (reportStr);
 
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
 	return	err;
 }
 
@@ -4335,7 +4254,6 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 	unsigned short		xx;
 	short		mm;
 	bool		regenerate = true;
-	bool		suspGrp;
 	
 	// 모든 객체 및 벽, 기둥, 보, 슬래브, 모프 저장
 	GS::Array<API_Guid>		elemList;
@@ -4391,8 +4309,7 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -4401,9 +4318,7 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
 	// 프로젝트 내 레이어 개수를 알아냄
-	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	attrib.layer.head.typeID = API_LayerID;
-	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+	nLayers = getLayerCount ();
 
 	// 보이는 레이어들의 목록 저장하기
 	for (xx = 1 ; xx <= nLayers ; ++xx) {
@@ -4652,6 +4567,9 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 		}
 	}
 
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);
 	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
@@ -4666,7 +4584,6 @@ GSErrCode	calcSlabQuantityAndAreaSingleMode (void)
 
 	unsigned short		xx;
 	bool		regenerate = true;
-	bool		suspGrp;
 	
 	GS::Array<API_Guid>		slabs;
 
@@ -4681,8 +4598,7 @@ GSErrCode	calcSlabQuantityAndAreaSingleMode (void)
 	char				reportStr [512];
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -4712,6 +4628,9 @@ GSErrCode	calcSlabQuantityAndAreaSingleMode (void)
 	sprintf (reportStr, "슬래브 수량: %d\n슬래브 밑면 넓이(m2): %lf", nSlabs, surface_slabs);
 	WriteReport_Alert (reportStr);
 
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
 	return	err;
 }
 
@@ -4722,7 +4641,6 @@ GSErrCode	calcSlabQuantityAndAreaMultiMode (void)
 	unsigned short		xx;
 	short		mm;
 	bool		regenerate = true;
-	bool		suspGrp;
 	
 	// 슬래브 저장
 	GS::Array<API_Guid>		elemList;
@@ -4759,8 +4677,7 @@ GSErrCode	calcSlabQuantityAndAreaMultiMode (void)
 
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -4769,9 +4686,7 @@ GSErrCode	calcSlabQuantityAndAreaMultiMode (void)
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
 	// 프로젝트 내 레이어 개수를 알아냄
-	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	attrib.layer.head.typeID = API_LayerID;
-	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+	nLayers = getLayerCount ();
 
 	// 보이는 레이어들의 목록 저장하기
 	for (xx = 1 ; xx <= nLayers ; ++xx) {
@@ -4912,6 +4827,9 @@ GSErrCode	calcSlabQuantityAndAreaMultiMode (void)
 	location.ToDisplayText (&resultString);
 	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
 
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
 	return	err;
 }
 
@@ -4922,7 +4840,6 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 
 	unsigned short		xx;
 	bool		regenerate = true;
-	bool		suspGrp;
 
 	GS::Array<API_Guid>		objects;
 
@@ -4935,8 +4852,7 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 	API_ElementMemo		memo;
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -4977,6 +4893,9 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 	sprintf (buffer, "단열재 수량: %d\n단열재 넓이(m2): %lf", nObjects, surface_objects);
 	WriteReport_Alert (buffer);
 
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
 	return	err;
 }
 
@@ -4987,7 +4906,6 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 	unsigned short		xx;
 	short		mm;
 	bool		regenerate = true;
-	bool		suspGrp;
 
 	// 모든 객체, 보 저장
 	GS::Array<API_Guid>		elemList;
@@ -5030,8 +4948,7 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	suspendGroups (true);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -5040,9 +4957,7 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
 	// 프로젝트 내 레이어 개수를 알아냄
-	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	attrib.layer.head.typeID = API_LayerID;
-	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+	nLayers = getLayerCount ();
 
 	// 보이는 레이어들의 목록 저장하기
 	for (xx = 1 ; xx <= nLayers ; ++xx) {
@@ -5218,6 +5133,9 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 	location.ToDisplayText (&resultString);
 	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
+
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
 
 	return err;
 }

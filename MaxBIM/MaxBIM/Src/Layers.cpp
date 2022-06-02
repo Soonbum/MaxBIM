@@ -360,9 +360,7 @@ GSErrCode	showLayersEasily (void)
 	allocateMemory (&selectedInfo);
 
 	// 프로젝트 내 레이어 개수를 알아냄
-	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	attrib.header.typeID = API_LayerID;
-	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+	nLayers = getLayerCount ();
 
 	for (xx = 1; xx <= nLayers && err == NoError ; ++xx) {
 		attrib.header.index = xx;
@@ -2947,13 +2945,8 @@ GSErrCode	assignLayerEasily (void)
 	short	lineCount;		// 읽어온 라인 수
 	short	tokCount;		// 읽어온 토큰 개수
 
-	// Selection Manager 관련 변수
-	API_SelectionInfo		selectionInfo;
-	API_Element				tElem;
-	API_Neig				**selNeigs;
 	GS::Array<API_Guid>		objects;
 	long					nObjects;
-	long					nSel;
 	API_Element				elem, mask;
 
 	API_Attribute	attrib;
@@ -2964,18 +2957,12 @@ GSErrCode	assignLayerEasily (void)
 
 	short	result;
 
-	bool	suspGrp;
-
 
 	// 그룹화 일시정지 ON
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false) {
-		ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
-	}
+	suspendGroups (true);
 
 	// 선택한 객체가 있는지 확인함
-	err = ACAPI_Selection_Get (&selectionInfo, &selNeigs, true);	// 선택한 요소 가져오기
-	BMKillHandle ((GSHandle *) &selectionInfo.marquee.coords);
+	err = getGuidsOfSelection (&objects, API_ZombieElemID, &nObjects);
 	if (err == APIERR_NOPLAN) {
 		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
 	}
@@ -2983,22 +2970,8 @@ GSErrCode	assignLayerEasily (void)
 		WriteReport_Alert ("객체를 아무 것도 선택하지 않았습니다.");
 	}
 	if (err != NoError) {
-		BMKillHandle ((GSHandle *) &selNeigs);
 		return err;
 	}
-
-	if (selectionInfo.typeID != API_SelEmpty) {
-		nSel = BMGetHandleSize ((GSHandle) selNeigs) / sizeof (API_Neig);
-		for (xx = 0 ; xx < nSel && err == NoError ; ++xx) {
-			tElem.header.typeID = Neig_To_ElemID ((*selNeigs)[xx].neigID);
-
-			tElem.header.guid = (*selNeigs)[xx].guid;
-			ACAPI_Element_Get (&tElem);
-			objects.Push (tElem.header.guid);
-		}
-	}
-	BMKillHandle ((GSHandle *) &selNeigs);
-	nObjects = objects.GetSize ();
 
 	// 레이어 정보 파일 가져오기
 	fp = fopen ("C:\\layer.csv", "r");
@@ -3457,10 +3430,7 @@ GSErrCode	assignLayerEasily (void)
 	deallocateMemory (&selectedInfo);
 
 	// 그룹화 일시정지 OFF
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == true) {
-		ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
-	}
+	suspendGroups (false);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
@@ -4647,19 +4617,9 @@ GSErrCode	inspectLayerNames (void)
 
 	short	result;
 
-	bool	suspGrp;
 
-
-	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);
-	if (suspGrp == false) {
-		result = DGAlert (DG_INFORMATION, "요소들이 그룹화 되어 있습니다.", "그룹화 일시중지를 켜시겠습니까?", "", "예", "아니오", "");
-		if (result != DG_OK) {
-			return	err;
-		} else {
-			// 그룹화 일시정지 ON
-			ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
-		}
-	}
+	// 그룹화 일시정지 ON
+	suspendGroups (true);
 
 	// 레이어 정보 파일 가져오기
 	fp = fopen ("C:\\layer.csv", "r");
@@ -4874,9 +4834,7 @@ GSErrCode	inspectLayerNames (void)
 	fclose (fp);
 
 	// 레이어 이름 조합하기
-	BNZeroMemory (&attrib, sizeof (API_Attribute));
-	attrib.header.typeID = API_LayerID;
-	err = ACAPI_Attribute_GetNum (API_LayerID, &nLayers);
+	nLayers = getLayerCount ();
 
 	for (xx = 1 ; xx <= nLayers && err == NoError ; ++xx) {
 		attrib.header.index = xx;
@@ -5123,6 +5081,9 @@ GSErrCode	inspectLayerNames (void)
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
 	bool	regenerate = true;
 	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
 
 	return	err;
 }

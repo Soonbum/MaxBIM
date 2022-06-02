@@ -62,7 +62,6 @@ GSErrCode	placeTableformOnColumn (void)
 	double			lowestBeamBottomLevel;
 	API_Coord		axisPoint, rotatedPoint, unrotatedPoint;
 
-	// Selection Manager 관련 변수
 	GS::Array<API_Guid>		morphs;
 	GS::Array<API_Guid>		columns;
 	GS::Array<API_Guid>		beams;
@@ -135,9 +134,6 @@ GSErrCode	placeTableformOnColumn (void)
 	// 작업 층 높이 반영
 	workLevel_column = getWorkLevel (infoColumn.floorInd);
 
-	//infoColumn.bottomOffset += workLevel_column;
-	//infoColumn.topOffset += workLevel_column;
-
 	// 보 정보 저장
 	nInterfereBeams = (short)nBeams;
 
@@ -163,8 +159,6 @@ GSErrCode	placeTableformOnColumn (void)
 
 		// 작업 층 높이 반영
 		workLevel_beam = getWorkLevel (infoOtherBeams [xx].floorInd);
-
-		//infoOtherBeams [xx].level += workLevel_beam;
 	}
 
 	// 모프 정보를 가져옴
