@@ -222,17 +222,124 @@ bool		isFullLayer (LayerNameSystem *layerInfo)
 	}
 }
 
-// 레이어 쉽게 선택하기 (레이어 쉽게 보여주기)
-GSErrCode	showLayersEasily (void)
+// 레이어 정보 파일 가져오기
+bool		importLayerInfo (LayerNameSystem *layerInfo)
 {
-	GSErrCode	err = NoError;
-
 	FILE	*fp;			// 파일 포인터
 	char	line [20480];	// 파일에서 읽어온 라인 하나
 	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
 	char	*token;			// 읽어온 문자열의 토큰
 	short	lineCount;		// 읽어온 라인 수
 	short	tokCount;		// 읽어온 토큰 개수
+
+	char	tempStr [128];
+
+	// 레이어 정보 파일 가져오기
+	fp = fopen ("C:\\layer.csv", "r");
+
+	for (lineCount = 1 ; lineCount <= 14 ; ++lineCount) {
+		if (fp != NULL) {
+			tokCount = 0;
+			fscanf (fp, "%s\n", line);
+			token = strtok (line, ",");
+			tokCount ++;
+			while (token != NULL) {
+				if (strlen (token) > 0) {
+					if (tokCount > 1) {
+						insElem = token;
+
+						if (lineCount == 1)		layerInfo->code_name.push_back (insElem);		// 공사구분
+						if (lineCount == 2)		layerInfo->code_desc.push_back (insElem);		// 공사구분 설명
+						if (lineCount == 3) {
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%04d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
+							}
+							insElem = tempStr;
+
+							layerInfo->dong_name.push_back (insElem);							// 동
+						}
+						if (lineCount == 4)		layerInfo->dong_desc.push_back (insElem);		// 동 설명
+						if (lineCount == 5)		layerInfo->floor_name.push_back (insElem);		// 층
+						if (lineCount == 6)		layerInfo->floor_desc.push_back (insElem);		// 층 설명
+						if (lineCount == 7) {
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
+							}
+							insElem = tempStr;
+
+							layerInfo->cast_name.push_back (insElem);		// 타설번호
+						}
+						if (lineCount == 8) {
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
+							}
+							insElem = tempStr;
+
+							layerInfo->CJ_name.push_back (insElem);			// CJ
+						}
+						if (lineCount == 9) {
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%02d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
+							}
+							insElem = tempStr;
+
+							layerInfo->orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
+						}
+						if (lineCount == 10)	layerInfo->obj_name.push_back (insElem);			// 부재
+						if (lineCount == 11)	layerInfo->obj_desc.push_back (insElem);			// 부재 설명
+						if (lineCount == 12)	layerInfo->obj_cat.push_back (insElem);				// 부재가 속한 카테고리(공사구분)
+						if (lineCount == 13)	layerInfo->productSite_name.push_back (insElem);	// 제작처 구분
+						if (lineCount == 14) {
+							if (isStringDouble (token) == TRUE) {
+								// 숫자인 경우
+								sprintf (tempStr, "%03d", atoi (token));
+							} else {
+								// 문자열인 경우
+								strcpy (tempStr, token);
+							}
+							insElem = tempStr;
+
+							layerInfo->productNum_name.push_back (insElem);	// 제작 번호
+						}
+					}
+				}
+				token = strtok (NULL, ",");
+				tokCount ++;
+			}
+		} else {
+			WriteReport_Alert ("layer.csv 파일을 C:\\로 복사하십시오.");
+			fclose (fp);
+			return	false;
+		}
+	}
+
+	fclose (fp);
+	return true;
+}
+
+// 레이어 쉽게 선택하기 (레이어 쉽게 보여주기)
+GSErrCode	showLayersEasily (void)
+{
+	GSErrCode	err = NoError;
+
+	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
+	char	*token;			// 읽어온 문자열의 토큰
 
 	API_Attribute	attrib;
 	short			xx, yy, i;
@@ -259,100 +366,7 @@ GSErrCode	showLayersEasily (void)
 
 
 	// 레이어 정보 파일 가져오기
-	fp = fopen ("C:\\layer.csv", "r");
-
-	for (lineCount = 1 ; lineCount <= 14 ; ++lineCount) {
-		if (fp != NULL) {
-			tokCount = 0;
-			fscanf (fp, "%s\n", line);
-			token = strtok (line, ",");
-			tokCount ++;
-			while (token != NULL) {
-				if (strlen (token) > 0) {
-					if (tokCount > 1) {
-						insElem = token;
-
-						if (lineCount == 1)		layerInfo.code_name.push_back (insElem);		// 공사구분
-						if (lineCount == 2)		layerInfo.code_desc.push_back (insElem);		// 공사구분 설명
-						if (lineCount == 3) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%04d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.dong_name.push_back (insElem);							// 동
-						}
-						if (lineCount == 4)		layerInfo.dong_desc.push_back (insElem);		// 동 설명
-						if (lineCount == 5)		layerInfo.floor_name.push_back (insElem);		// 층
-						if (lineCount == 6)		layerInfo.floor_desc.push_back (insElem);		// 층 설명
-						if (lineCount == 7) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.cast_name.push_back (insElem);		// 타설번호
-						}
-						if (lineCount == 8) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.CJ_name.push_back (insElem);			// CJ
-						}
-						if (lineCount == 9) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
-						}
-						if (lineCount == 10)	layerInfo.obj_name.push_back (insElem);			// 부재
-						if (lineCount == 11)	layerInfo.obj_desc.push_back (insElem);			// 부재 설명
-						if (lineCount == 12)	layerInfo.obj_cat.push_back (insElem);			// 부재가 속한 카테고리(공사구분)
-						if (lineCount == 13)	layerInfo.productSite_name.push_back (insElem);	// 제작처 구분
-						if (lineCount == 14) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%03d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.productNum_name.push_back (insElem);	// 제작 번호
-						}
-					}
-				}
-				token = strtok (NULL, ",");
-				tokCount ++;
-			}
-		} else {
-			WriteReport_Alert ("layer.csv 파일을 C:\\로 복사하십시오.");
-			return	err;
-		}
-	}
-
-	fclose (fp);
+	importLayerInfo (&layerInfo);
 
 	// 구조체 초기화
 	allocateMemory (&layerInfo);
@@ -1708,12 +1722,7 @@ GSErrCode	makeLayersEasily (void)
 {
 	GSErrCode	err = NoError;
 
-	FILE	*fp;			// 파일 포인터
-	char	line [20480];	// 파일에서 읽어온 라인 하나
 	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
-	char	*token;			// 읽어온 문자열의 토큰
-	short	lineCount;		// 읽어온 라인 수
-	short	tokCount;		// 읽어온 토큰 개수
 
 	API_Attribute	attrib;
 	API_AttributeDef  defs;
@@ -1725,100 +1734,7 @@ GSErrCode	makeLayersEasily (void)
 
 
 	// 레이어 정보 파일 가져오기
-	fp = fopen ("C:\\layer.csv", "r");
-
-	for (lineCount = 1 ; lineCount <= 14 ; ++lineCount) {
-		if (fp != NULL) {
-			tokCount = 0;
-			fscanf (fp, "%s\n", line);
-			token = strtok (line, ",");
-			tokCount ++;
-			while (token != NULL) {
-				if (strlen (token) > 0) {
-					if (tokCount > 1) {
-						insElem = token;
-
-						if (lineCount == 1)		layerInfo.code_name.push_back (insElem);		// 공사구분
-						if (lineCount == 2)		layerInfo.code_desc.push_back (insElem);		// 공사구분 설명
-						if (lineCount == 3) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%04d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.dong_name.push_back (insElem);							// 동
-						}
-						if (lineCount == 4)		layerInfo.dong_desc.push_back (insElem);		// 동 설명
-						if (lineCount == 5)		layerInfo.floor_name.push_back (insElem);		// 층
-						if (lineCount == 6)		layerInfo.floor_desc.push_back (insElem);		// 층 설명
-						if (lineCount == 7) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.cast_name.push_back (insElem);		// 타설번호
-						}
-						if (lineCount == 8) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.CJ_name.push_back (insElem);			// CJ
-						}
-						if (lineCount == 9) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
-						}
-						if (lineCount == 10)	layerInfo.obj_name.push_back (insElem);			// 부재
-						if (lineCount == 11)	layerInfo.obj_desc.push_back (insElem);			// 부재 설명
-						if (lineCount == 12)	layerInfo.obj_cat.push_back (insElem);			// 부재가 속한 카테고리(공사구분)
-						if (lineCount == 13)	layerInfo.productSite_name.push_back (insElem);	// 제작처 구분
-						if (lineCount == 14) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%03d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.productNum_name.push_back (insElem);	// 제작 번호
-						}
-					}
-				}
-				token = strtok (NULL, ",");
-				tokCount ++;
-			}
-		} else {
-			WriteReport_Alert ("layer.csv 파일을 C:\\로 복사하십시오.");
-			return	err;
-		}
-	}
-
-	fclose (fp);
+	importLayerInfo (&layerInfo);
 
 	// 구조체 초기화
 	allocateMemory (&layerInfo);
@@ -2938,12 +2854,7 @@ GSErrCode	assignLayerEasily (void)
 {
 	GSErrCode	err = NoError;
 
-	FILE	*fp;			// 파일 포인터
-	char	line [20480];	// 파일에서 읽어온 라인 하나
 	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
-	char	*token;			// 읽어온 문자열의 토큰
-	short	lineCount;		// 읽어온 라인 수
-	short	tokCount;		// 읽어온 토큰 개수
 
 	GS::Array<API_Guid>		objects;
 	long					nObjects;
@@ -2974,100 +2885,7 @@ GSErrCode	assignLayerEasily (void)
 	}
 
 	// 레이어 정보 파일 가져오기
-	fp = fopen ("C:\\layer.csv", "r");
-
-	for (lineCount = 1 ; lineCount <= 14 ; ++lineCount) {
-		if (fp != NULL) {
-			tokCount = 0;
-			fscanf (fp, "%s\n", line);
-			token = strtok (line, ",");
-			tokCount ++;
-			while (token != NULL) {
-				if (strlen (token) > 0) {
-					if (tokCount > 1) {
-						insElem = token;
-
-						if (lineCount == 1)		layerInfo.code_name.push_back (insElem);		// 공사구분
-						if (lineCount == 2)		layerInfo.code_desc.push_back (insElem);		// 공사구분 설명
-						if (lineCount == 3) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%04d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.dong_name.push_back (insElem);							// 동
-						}
-						if (lineCount == 4)		layerInfo.dong_desc.push_back (insElem);		// 동 설명
-						if (lineCount == 5)		layerInfo.floor_name.push_back (insElem);		// 층
-						if (lineCount == 6)		layerInfo.floor_desc.push_back (insElem);		// 층 설명
-						if (lineCount == 7) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.cast_name.push_back (insElem);		// 타설번호
-						}
-						if (lineCount == 8) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.CJ_name.push_back (insElem);			// CJ
-						}
-						if (lineCount == 9) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
-						}
-						if (lineCount == 10)	layerInfo.obj_name.push_back (insElem);			// 부재
-						if (lineCount == 11)	layerInfo.obj_desc.push_back (insElem);			// 부재 설명
-						if (lineCount == 12)	layerInfo.obj_cat.push_back (insElem);			// 부재가 속한 카테고리(공사구분)
-						if (lineCount == 13)	layerInfo.productSite_name.push_back (insElem);	// 제작처 구분
-						if (lineCount == 14) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%03d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.productNum_name.push_back (insElem);	// 제작 번호
-						}
-					}
-				}
-				token = strtok (NULL, ",");
-				tokCount ++;
-			}
-		} else {
-			WriteReport_Alert ("layer.csv 파일을 C:\\로 복사하십시오.");
-			return	err;
-		}
-	}
-
-	fclose (fp);
+	importLayerInfo (&layerInfo);
 
 	// 구조체 초기화
 	allocateMemory (&layerInfo);
@@ -4586,8 +4404,6 @@ GSErrCode	inspectLayerNames (void)
 	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
 	string	insElem2;
 	char	*token;			// 읽어온 문자열의 토큰
-	short	lineCount;		// 읽어온 라인 수
-	short	tokCount;		// 읽어온 토큰 개수
 
 	API_Attribute	attrib;
 	short	xx, yy, i;
@@ -4622,103 +4438,10 @@ GSErrCode	inspectLayerNames (void)
 	suspendGroups (true);
 
 	// 레이어 정보 파일 가져오기
-	fp = fopen ("C:\\layer.csv", "r");
-
-	for (lineCount = 1 ; lineCount <= 14 ; ++lineCount) {
-		if (fp != NULL) {
-			tokCount = 0;
-			fscanf (fp, "%s\n", line);
-			token = strtok (line, ",");
-			tokCount ++;
-			while (token != NULL) {
-				if (strlen (token) > 0) {
-					if (tokCount > 1) {
-						insElem = token;
-
-						if (lineCount == 1)		layerInfo.code_name.push_back (insElem);		// 공사구분
-						if (lineCount == 2)		layerInfo.code_desc.push_back (insElem);		// 공사구분 설명
-						if (lineCount == 3) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%04d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.dong_name.push_back (insElem);							// 동
-						}
-						if (lineCount == 4)		layerInfo.dong_desc.push_back (insElem);		// 동 설명
-						if (lineCount == 5)		layerInfo.floor_name.push_back (insElem);		// 층
-						if (lineCount == 6)		layerInfo.floor_desc.push_back (insElem);		// 층 설명
-						if (lineCount == 7) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.cast_name.push_back (insElem);		// 타설번호
-						}
-						if (lineCount == 8) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.CJ_name.push_back (insElem);			// CJ
-						}
-						if (lineCount == 9) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%02d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.orderInCJ_name.push_back (insElem);	// CJ 속 시공순서
-						}
-						if (lineCount == 10)	layerInfo.obj_name.push_back (insElem);			// 부재
-						if (lineCount == 11)	layerInfo.obj_desc.push_back (insElem);			// 부재 설명
-						if (lineCount == 12)	layerInfo.obj_cat.push_back (insElem);			// 부재가 속한 카테고리(공사구분)
-						if (lineCount == 13)	layerInfo.productSite_name.push_back (insElem);	// 제작처 구분
-						if (lineCount == 14) {
-							if (isStringDouble (token) == TRUE) {
-								// 숫자인 경우
-								sprintf (tempStr, "%03d", atoi (token));
-							} else {
-								// 문자열인 경우
-								strcpy (tempStr, token);
-							}
-							insElem = tempStr;
-
-							layerInfo.productNum_name.push_back (insElem);	// 제작 번호
-						}
-					}
-				}
-				token = strtok (NULL, ",");
-				tokCount ++;
-			}
-		} else {
-			WriteReport_Alert ("layer.csv 파일을 C:\\로 복사하십시오.");
-			return	err;
-		}
-	}
-
-	fclose (fp);
+	importLayerInfo (&layerInfo);
 
 	// 구조체 초기화
-	//allocateMemory (&layerInfo);
+	allocateMemory (&layerInfo);
 
 	short	z;
 	char	code1 [25][32];		// 공사 코드
@@ -5070,12 +4793,12 @@ GSErrCode	inspectLayerNames (void)
 
 	// OK 버튼이 아니면 메모리 해제하고 종료
 	if (result != DG_OK) {
-		//deallocateMemory (&layerInfo);
+		deallocateMemory (&layerInfo);
 		return	err;
 	}
 
 	// 메모리 해제
-	//deallocateMemory (&layerInfo);
+	deallocateMemory (&layerInfo);
 
 	// 화면 새로고침
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
