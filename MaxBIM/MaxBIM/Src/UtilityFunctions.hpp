@@ -136,6 +136,7 @@ short		getLayerCount ();																				// 레이어 개수를 가져옴
 
 // 요소 조작
 void		deleteElements (GS::Array<API_Element> elemList);	// 리스트에 있는 요소들을 모두 삭제함
+void		deleteElements (GS::Array<API_Guid> elemList);		// 리스트에 있는 요소들을 모두 삭제함
 void		groupElements (GS::Array<API_Guid> elemList);		// 리스트에 있는 요소들을 그룹화
 void		selectElements (GS::Array<API_Guid> elemList);		// 리스트에 있는 요소들을 선택함
 void		suspendGroups (bool on);							// 그룹화 일시정지 활성화/비활성화

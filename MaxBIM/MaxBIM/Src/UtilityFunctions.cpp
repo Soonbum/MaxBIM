@@ -1577,6 +1577,26 @@ void	deleteElements (GS::Array<API_Element> elemList)
 	delete headList;
 }
 
+// 리스트에 있는 요소들을 모두 삭제함
+void	deleteElements (GS::Array<API_Guid> elemList)
+{
+	short	xx;
+	API_Element		elem;
+	long	nElems = elemList.GetSize ();
+
+	API_Elem_Head* headList = new API_Elem_Head [nElems];
+	for (xx = 0 ; xx < nElems ; ++xx) {
+		BNZeroMemory (&elem, sizeof (API_Element));
+		elem.header.guid = elemList [xx];
+		ACAPI_Element_Get (&elem);
+
+		headList [xx] = elem.header;
+	}
+
+	ACAPI_Element_Delete (&headList, nElems);
+
+	delete headList;
+}
 // 리스트에 있는 요소들을 그룹화
 void	groupElements (GS::Array<API_Guid> elemList)
 {
