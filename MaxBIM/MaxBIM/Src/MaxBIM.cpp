@@ -82,35 +82,35 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:
 					// 벽에 테이블폼 배치하기
-					err = ACAPI_CallUndoableCommand ("벽에 테이블폼 배치", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand (L"벽에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnWall ();
 						return err;
 					});
 					break;
 				case 2:
 					// 슬래브 하부에 테이블폼 배치하기
-					err = ACAPI_CallUndoableCommand ("슬래브 하부에 테이블폼 배치", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand (L"슬래브 하부에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnSlabBottom ();
 						return err;
 					});
 					break;
 				case 3:
 					// 보에 테이블폼 배치하기
-					err = ACAPI_CallUndoableCommand ("보에 테이블폼 배치", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand (L"보에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnBeam ();
 						return err;
 					});
 					break;
 				case 4:
 					// 기둥에 테이블폼 배치하기
-					err = ACAPI_CallUndoableCommand ("기둥에 테이블폼 배치", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand (L"기둥에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnColumn ();
 						return err;
 					});
 					break;
 				case 5:
 					// 낮은 슬래브 측면에 테이블폼 배치
-					err = ACAPI_CallUndoableCommand ("낮은 슬래브 측면에 테이블폼 배치", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand (L"낮은 슬래브 측면에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnLowSide ();
 						return err;
 					});
@@ -128,7 +128,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					err = makeLayersEasily ();
 					break;
 				case 3:		// 레이어 쉽게 지정하기
-					err = ACAPI_CallUndoableCommand ("선택한 객체들의 레이어 속성 변경", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand (L"선택한 객체들의 레이어 속성 변경", [&] () -> GSErrCode {
 						err = assignLayerEasily ();
 						return err;
 					});
@@ -235,7 +235,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 			// 편의 기능
 			switch (menuParams->menuItemRef.itemIndex) {
 				case 1:		// 3D 품질/속도 조정하기
-					err = ACAPI_CallUndoableCommand ("3D 품질/속도 조정하기", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand (L"3D 품질/속도 조정하기", [&] () -> GSErrCode {
 						err = select3DQuality ();
 						return err;
 					});
@@ -243,7 +243,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					break;
 
 				case 2:		// 영역에 3D 라벨 붙이기
-					err = ACAPI_CallUndoableCommand ("영역에 3D 라벨 붙이기", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand (L"영역에 3D 라벨 붙이기", [&] () -> GSErrCode {
 						err = attach3DLabelOnZone ();
 						return err;
 					});
@@ -291,12 +291,8 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 
 					break;
 				case 3:		// 개발자 전용 - 개발자 테스트 메뉴
-					err = ACAPI_CallUndoableCommand ("개발자 테스트", [&] () -> GSErrCode {
+					err = ACAPI_CallUndoableCommand (L"개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
-
-						const char*	abc = "11.5T";
-						WriteReport_Alert ("다음은 숫자인가? %s = (%d)", abc, isStringDouble (abc));
-
 						// *** 원하는 코드를 아래 넣으시오.
 						/*
 						bool				regenerate = true;

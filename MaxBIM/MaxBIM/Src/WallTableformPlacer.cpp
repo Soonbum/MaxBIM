@@ -61,6 +61,8 @@ static bool		bLayerInd_RectpipeHanger;	// 레이어 번호: 각파이프 행거
 
 static GS::Array<API_Guid>	elemList_Front;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함 (앞면)
 static GS::Array<API_Guid>	elemList_Back;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함 (뒷면)
+static GS::Array<API_Guid>	elemList_Front_Add;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함 (앞면)
+static GS::Array<API_Guid>	elemList_Back_Add;	// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함 (뒷면)
 
 static int	clickedIndex;	// 클릭한 버튼의 인덱스
 static int	iMarginSide;	// 벽 상단을 채우고자 하는데 현재 진행되는 쪽이 어느 쪽 면인가? (1-낮은쪽, 2-높은쪽)
@@ -3119,6 +3121,20 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('x', rectPipe.radAng, 0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 		elemList_Front.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 
+		// 테이블폼 너비가 2300을 초과할 경우
+		if (placingZone->cells [idxCell].horLen > 2300) {
+			rectPipe.init (L("비계파이프v1.0.gsm"), layerInd_RectPipe, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+			for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+				moveIn3D ('x', rectPipe.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+			moveIn3D ('y', rectPipe.radAng, -(0.0635 + 0.075), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+			moveIn3D ('z', rectPipe.radAng, sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+
+			moveIn3D ('x', rectPipe.radAng, -0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+			elemList_Front_Add.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+			moveIn3D ('x', rectPipe.radAng, 0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+			elemList_Front_Add.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+		}
+
 		// 수직 파이프 배치 - 뒷면
 		if (placingZone->bSingleSide == false) {
 			if (backHeight % 100 == 0) {
@@ -3146,6 +3162,20 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
 			moveIn3D ('x', rectPipe.radAng, 0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			elemList_Back.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+
+			// 테이블폼 너비가 2300을 초과할 경우
+			if (placingZone->cells [idxCell].horLen > 2300) {
+				rectPipe.init (L("비계파이프v1.0.gsm"), layerInd_RectPipe, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+				for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+					moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+				moveIn3D ('y', rectPipe.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.0635 + 0.075), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+				moveIn3D ('z', rectPipe.radAng - DegreeToRad (180.0), sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+
+				moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), -0.035, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+				elemList_Back_Add.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+				moveIn3D ('x', rectPipe.radAng - DegreeToRad (180.0), 0.070, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+				elemList_Back_Add.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "bPunching", APIParT_Boolean, "0.0"));
+			}
 		}
 
 		// 핀볼트 세트 - 앞면
@@ -3335,6 +3365,23 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 					pinbolt.radAng -= DegreeToRad (90.0);
 
 					--count;
+				}
+			}
+		}
+
+		// 테이블폼 너비가 2300을 초과할 경우
+		if (placingZone->cells [idxCell].horLen > 2300) {
+			pinbolt.init (L("핀볼트세트v1.0.gsm"), layerInd_PinBolt, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+
+			for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+				moveIn3D ('x', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+
+			moveIn3D ('y', pinbolt.radAng, -0.1635 - 0.050, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+
+			for (xx = 0 ; xx < placingZone->nCellsInVerBasic - 1 ; ++xx) {
+				if (placingZone->cells [idxCell].tableInVerBasic [xx] > 0) {
+					moveIn3D ('z', pinbolt.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+					elemList_Front_Add.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 				}
 			}
 		}
@@ -3529,6 +3576,23 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 					}
 				}
 			}
+
+			// 테이블폼 너비가 2300을 초과할 경우
+			if (placingZone->cells [idxCell].horLen > 2300) {
+				pinbolt.init (L("핀볼트세트v1.0.gsm"), layerInd_PinBolt, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+
+				for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+					moveIn3D ('x', pinbolt.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+
+				moveIn3D ('y', pinbolt.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.1635 + 0.050), &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+
+				for (xx = 0 ; xx < varEnd - 1 ; ++xx) {
+					if (intPointer [xx] > 0) {
+						moveIn3D ('z', pinbolt.radAng - DegreeToRad (180.0), (double)intPointer [xx] / 1000.0, &pinbolt.posX, &pinbolt.posY, &pinbolt.posZ);
+						elemList_Back_Add.Push (pinbolt.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.010), "washer_pos", APIParT_Length, format_string ("%f", 0.050), "washer_size", APIParT_Length, format_string ("%f", 0.100), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+					}
+				}
+			}
 		}
 		
 		// 결합철물 - 앞면
@@ -3553,6 +3617,26 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('x', join.radAng, (double)(150 - firstWidth + placingZone->cells [idxCell].horLen - lastWidth + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
 		elemList_Front.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		
+		// 테이블폼 너비가 2300을 초과할 경우
+		if (placingZone->cells [idxCell].horLen > 2300) {
+			join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+			moveIn3D ('y', join.radAng, -0.1815, &join.posX, &join.posY, &join.posZ);
+			moveIn3D ('z', join.radAng, 0.150, &join.posX, &join.posY, &join.posZ);
+
+			for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+				moveIn3D ('x', join.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &join.posX, &join.posY, &join.posZ);
+			elemList_Front_Add.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			
+			moveIn3D ('z', join.radAng, -0.150, &join.posX, &join.posY, &join.posZ);
+
+			for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx)
+				if (placingZone->cells [idxCell].tableInVerBasic [xx] > 0)
+					moveIn3D ('z', join.radAng, (double)placingZone->cells [idxCell].tableInVerBasic [xx] / 1000.0, &join.posX, &join.posY, &join.posZ);
+
+			moveIn3D ('z', join.radAng, -0.150, &join.posX, &join.posY, &join.posZ);
+			elemList_Front_Add.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		}
+
 		// 결합철물 - 뒷면
 		if (placingZone->bSingleSide == false) {
 			join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
@@ -3574,6 +3658,26 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('x', join.radAng, -(double)(150 - firstWidth + placingZone->cells [idxCell].horLen - lastWidth + 150) / 1000.0, &join.posX, &join.posY, &join.posZ);
 			elemList_Back.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+
+			// 테이블폼 너비가 2300을 초과할 경우
+			if (placingZone->cells [idxCell].horLen > 2300) {
+				join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+				moveIn3D ('y', join.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1815, &join.posX, &join.posY, &join.posZ);
+				moveIn3D ('z', join.radAng - DegreeToRad (180.0), 0.150, &join.posX, &join.posY, &join.posZ);
+
+				for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+					moveIn3D ('x', join.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &join.posX, &join.posY, &join.posZ);
+				elemList_Back_Add.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			
+				moveIn3D ('z', join.radAng - DegreeToRad (180.0), -0.150, &join.posX, &join.posY, &join.posZ);
+
+				for (xx = 0 ; xx < varEnd ; ++xx)
+					if (intPointer [xx] > 0)
+						moveIn3D ('z', join.radAng - DegreeToRad (180.0), (double)intPointer [xx] / 1000.0, &join.posX, &join.posY, &join.posZ);
+
+				moveIn3D ('z', join.radAng - DegreeToRad (180.0), -0.150, &join.posX, &join.posY, &join.posZ);
+				elemList_Back_Add.Push (join.placeObject (11, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, format_string ("%f", 0.150), "bolt_dia", APIParT_Length, format_string ("%f", 0.012), "bWasher1", APIParT_Boolean, "1.0", "washer_pos1", APIParT_Length, format_string ("%f", 0.000), "bWasher2", APIParT_Boolean, "1.0", "washer_pos2", APIParT_Length, format_string ("%f", 0.108), "washer_size", APIParT_Length, format_string ("%f", 0.100), "nutType", APIParT_CString, "육각너트", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			}
 		}
 
 		// 헤드피스 - 앞면
@@ -3618,6 +3722,21 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		moveIn3D ('x', headpiece.radAng, (double)(-(firstWidth - 150 - 100) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 - 100)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		elemList_Front.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
+		// 테이블폼 너비가 2300을 초과할 경우
+		if (placingZone->cells [idxCell].horLen > 2300) {
+			headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+			for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+				moveIn3D ('x', headpiece.radAng, (double)(placingZone->cells [idxCell].tableInHor [xx]) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+
+			moveIn3D ('x', headpiece.radAng, -0.100, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+			moveIn3D ('y', headpiece.radAng, -0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+			moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+
+			elemList_Front_Add.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			moveIn3D ('z', headpiece.radAng, -0.300 + (double)headpieceUpPosZ / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+			elemList_Front_Add.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		}
+
 		// 헤드피스 - 뒷면
 		if (placingZone->bSingleSide == false) {
 			headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
@@ -3659,6 +3778,21 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('x', headpiece.radAng - DegreeToRad (180.0), (double)(-(firstWidth - 150 + 100) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 + 100)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+
+			// 테이블폼 너비가 2300을 초과할 경우
+			if (placingZone->cells [idxCell].horLen > 2300) {
+				headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+				for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+					moveIn3D ('x', headpiece.radAng - DegreeToRad (180.0), (double)(placingZone->cells [idxCell].tableInHor [xx]) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+
+				moveIn3D ('x', headpiece.radAng - DegreeToRad (180.0), 0.100, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+				moveIn3D ('y', headpiece.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + 0.1725, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+				moveIn3D ('z', headpiece.radAng - DegreeToRad (180.0), 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+
+				elemList_Back_Add.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+				moveIn3D ('z', headpiece.radAng - DegreeToRad (180.0), -0.300 + (double)headpieceUpPosZ / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+				elemList_Back_Add.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+			}
 		}
 	} else {
 		// ================================================== 가로방향 (세로방향이 오른쪽으로 90도 누웠다고 생각하면 됨)
@@ -4434,6 +4568,14 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 	// 결과물 전체 그룹화 (뒷면)
 	groupElements (elemList_Back);
 	elemList_Back.Clear ();
+
+	// 결과물 전체 그룹화 (앞면)
+	groupElements (elemList_Front_Add);
+	elemList_Front_Add.Clear ();
+
+	// 결과물 전체 그룹화 (뒷면)
+	groupElements (elemList_Back_Add);
+	elemList_Back_Add.Clear ();
 }
 
 // 테이블폼 타입B 배치 (유로폼 제외) - 각파이프 1줄
@@ -7993,11 +8135,21 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 							for (yy = 0 ; yy < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++yy)
 								accumLength += placingZone.cells [xx].tableInHor [yy];
 
+							bool bFoundWidth = false;
+
 							for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, placingZone.POPUP_WIDTH [xx]) ; ++yy) {
 								if (accumLength == atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], yy).ToCStr ().Get ())) {
 									DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], yy);
+									bFoundWidth = true;
 									break;
 								}
+							}
+
+							if (bFoundWidth == false) {
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								_itoa (accumLength, numbuf, 10);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 							}
 						}
 					}
