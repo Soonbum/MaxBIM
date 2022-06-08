@@ -251,7 +251,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, L"배포일: 2022.06.08 - 09:31");
+			DGSetItemText (dialogID, itmIdx, L"배포일: 2022.06.08 - 16:53");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
@@ -271,7 +271,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX + 260, itmPosY, 255, 320);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, L"3. 내보내기\n - 선택한 부재 정보 내보내기 (Single 모드)\n - 선택한 부재 정보 내보내기 (Multi 모드)\n - 부재별 선택 후 보여주기\n - 보 테이블폼 물량표 작성\n - 테이블폼 면적 계산\n - 콘크리트 물량 계산 (Single 모드)\n - 콘크리트 물량 계산 (Multi 모드)\n - 슬래브 수량/하부면적 계산 (Single 모드)\n - 슬래브 수량/하부면적 계산 (Multi 모드)\n - 단열재 수량/면적 계산 (Single 모드)\n - 단열재 수량/면적 계산 (Multi 모드)\n\n\
+			DGSetItemText (dialogID, itmIdx, L"3. 내보내기\n - 선택한 부재 정보 내보내기 (Single 모드)\n - 선택한 부재 정보 내보내기 (Multi 모드)\n - 부재별 선택 후 보여주기\n - 보 테이블폼 물량표 작성\n - 테이블폼 면적 계산\n - 콘크리트 물량 계산 (Single 모드)\n - 콘크리트 물량 계산 (Multi 모드)\n - 슬래브 수량/하부면적 계산 (Single 모드)\n - 슬래브 수량/하부면적 계산 (Multi 모드)\n - 단열재 수량/면적 계산 (Single 모드)\n - 단열재 수량/면적 계산 (Multi 모드)\n - 모든 입면도 PDF로 내보내기 (Single 모드)\n - 모든 입면도 PDF로 내보내기 (Multi 모드)\n\n\
 											 4. 반자동 배치\n - 물량합판 부착하기\n - 단열재 부착하기\n\n\
 											 5. 편의 기능\n - 3D 품질/속도 조정하기\n - 영역에 3D 라벨 붙이기");
 			DGShowItem (dialogID, itmIdx);

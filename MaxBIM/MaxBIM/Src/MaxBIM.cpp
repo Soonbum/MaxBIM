@@ -175,6 +175,12 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 11:	// 단열재 수량/면적 계산 (Multi 모드)
 					err = calcInsulationQuantityAndAreaMultiMode ();
 					break;
+				case 12:	// 모든 입면도 PDF로 내보내기 (Single 모드)
+					err = exportAllElevationsToPDFSingleMode ();
+					break;
+				case 13:	// 모든 입면도 PDF로 내보내기 (Multi 모드)
+					err = exportAllElevationsToPDFMultiMode ();
+					break;
 			}
 			break;
 
@@ -301,11 +307,11 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						GSSize				nDbases = 0;
 						API_WindowInfo		windowInfo;
 						API_DatabaseInfo	currentDB;
-						//GS::Array<API_Guid>	elemList;
 
-						API_FileSavePars	fsp;
-						API_SavePars_Pdf	pars_pdf;
-						API_SavePars_Picture	pars_pict;
+						API_FileSavePars		fsp;
+						API_SavePars_Pdf		pars_pdf;
+
+						API_Box		extent;
 
 						API_SpecFolderID	specFolderID = API_ApplicationFolderID;
 						IO::Location		location;
@@ -335,40 +341,26 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 							// 현재 데이터베이스를 가져옴
 							ACAPI_Database (APIDb_GetCurrentDatabaseID, &currentDB, NULL);
 
-							// 객체를 수집함
-							//elemList.Clear ();
-							//ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음, 객체 타입만
-
-							// 층 레벨 숨기기 ON
-							// ...
-
-							// 화면 전체에 Fit하도록 포커싱
-							ACAPI_Automate (APIDo_ZoomID, NULL, NULL);
+							// 객체가 화면 전체에 꽉 차게 보이도록 함
+							ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
+							ACAPI_Database (APIDb_SetZoomID, &extent, NULL);
 
 							// 저장하기
 							BNZeroMemory (&fsp, sizeof (API_FileSavePars));
-							//fsp.fileTypeID = APIFType_PdfFile;
-							fsp.fileTypeID = APIFType_TIFFFile;
+							fsp.fileTypeID = APIFType_PdfFile;
 							ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
-							sprintf (filename, "test (%d).tiff", i);
+							sprintf (filename, "test (%d).pdf", i);
 							fsp.file = new IO::Location (location, IO::Name (filename));
 
-							//BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
-							//pars_pdf.leftMargin = 0.0;
-							//pars_pdf.rightMargin = 0.0;
-							//pars_pdf.topMargin = 0.0;
-							//pars_pdf.bottomMargin = 0.0;
-							//pars_pdf.sizeX = 10;	//210;
-							//pars_pdf.sizeY = 10;	//297;
+							BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
+							pars_pdf.leftMargin = 5.0;
+							pars_pdf.rightMargin = 5.0;
+							pars_pdf.topMargin = 5.0;
+							pars_pdf.bottomMargin = 5.0;
+							pars_pdf.sizeX = 210.0;
+							pars_pdf.sizeY = 297.0;
 
-							BNZeroMemory (&pars_pict, sizeof (API_SavePars_Picture));
-							pars_pict.colorDepth = APIColorDepth_TC24;
-							pars_pict.dithered = false;
-							pars_pict.view2D = false;
-							pars_pict.crop = false;
-							pars_pict.keepSelectionHighlight = false;
-
-							err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pict);
+							err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pdf);
 
 							delete	fsp.file;
 						}

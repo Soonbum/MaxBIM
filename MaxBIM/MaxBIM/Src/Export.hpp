@@ -244,4 +244,7 @@ GSErrCode	calcSlabQuantityAndAreaMultiMode (void);											// 슬래브 수량/하부
 GSErrCode	calcInsulationQuantityAndAreaSingleMode (void);										// 단열재 수량/면적 계산 (Single 모드)
 GSErrCode	calcInsulationQuantityAndAreaMultiMode (void);										// 단열재 수량/면적 계산 (Multi 모드)
 
+GSErrCode	exportAllElevationsToPDFSingleMode (void);											// 모든 입면도 PDF로 내보내기 (Single 모드)
+GSErrCode	exportAllElevationsToPDFMultiMode (void);											// 모든 입면도 PDF로 내보내기 (Multi 모드)
+
 #endif

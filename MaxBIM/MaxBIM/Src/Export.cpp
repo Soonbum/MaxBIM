@@ -5140,6 +5140,287 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 	return err;
 }
 
+// 모든 입면도 PDF로 내보내기 (Single 모드)
+GSErrCode	exportAllElevationsToPDFSingleMode (void)
+{
+	GSErrCode	err = NoError;
+	bool		regenerate = true;
+	char		filename [256];
+
+	// 입면도 DB를 가져오기 위한 변수
+	API_DatabaseUnId*	dbases = NULL;
+	GSSize				nDbases = 0;
+	API_WindowInfo		windowInfo;
+	API_DatabaseInfo	currentDB;
+
+	// 파일 내보내기를 위한 변수
+	API_FileSavePars	fsp;
+	API_SavePars_Pdf	pars_pdf;
+
+	// 입면도 확대를 위한 변수
+	API_Box		extent;
+
+	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
+	IO::Location		location;
+	GS::UniString		resultString;
+
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+						
+	// 입면 뷰 DB의 ID들을 획득함
+	err = ACAPI_Database (APIDb_GetElevationDatabasesID, &dbases, NULL);
+	if (err == NoError)
+		nDbases = BMpGetSize (reinterpret_cast<GSPtr>(dbases)) / Sizeof32 (API_DatabaseUnId);
+
+	// 입면 뷰들을 하나씩 순회함
+	for (GSIndex i = 0; i < nDbases; i++) {
+		API_DatabaseInfo dbPars;
+		BNZeroMemory (&dbPars, sizeof (API_DatabaseInfo));
+		dbPars.databaseUnId = dbases [i];
+
+		// 창을 변경함
+		BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
+		windowInfo.typeID = APIWind_ElevationID;
+		windowInfo.databaseUnId = dbPars.databaseUnId;
+		ACAPI_Automate (APIDo_ChangeWindowID, &windowInfo, NULL);
+
+		// 현재 데이터베이스를 가져옴
+		ACAPI_Database (APIDb_GetCurrentDatabaseID, &currentDB, NULL);
+
+		// 객체가 화면 전체에 꽉 차게 보이도록 함
+		ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
+		ACAPI_Database (APIDb_SetZoomID, &extent, NULL);
+
+		// 저장하기
+		BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+		fsp.fileTypeID = APIFType_PdfFile;
+		ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+		sprintf (filename, "%s.pdf", GS::UniString (currentDB.title).ToCStr ().Get ());
+		fsp.file = new IO::Location (location, IO::Name (filename));
+
+		BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
+		pars_pdf.leftMargin = 5.0;
+		pars_pdf.rightMargin = 5.0;
+		pars_pdf.topMargin = 5.0;
+		pars_pdf.bottomMargin = 5.0;
+		pars_pdf.sizeX = 210.0;
+		pars_pdf.sizeY = 297.0;
+
+		err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pdf);
+
+		delete	fsp.file;
+	}
+
+	if (dbases != NULL)
+		BMpFree (reinterpret_cast<GSPtr>(dbases));
+
+	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	location.ToDisplayText (&resultString);
+	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
+
+	return err;
+}
+
+// 모든 입면도 PDF로 내보내기 (Multi 모드)
+GSErrCode	exportAllElevationsToPDFMultiMode (void)
+{
+	GSErrCode	err = NoError;
+	short		xx, mm;
+	bool		regenerate = true;
+	char		filename [256];
+
+	// 레이어 관련 변수
+	short			nLayers;
+	API_Attribute	attrib;
+	short			nVisibleLayers = 0;
+	short			visLayerList [1024];
+	char			fullLayerName [512];
+	vector<LayerList>	layerList;
+
+	// 진행바를 표현하기 위한 변수
+	GS::UniString       title ("내보내기 진행 상황");
+	GS::UniString       subtitle ("진행중...");
+	short	nPhase;
+	Int32	cur, total;
+
+	// 입면도 DB를 가져오기 위한 변수
+	API_DatabaseUnId*	dbases = NULL;
+	GSSize				nDbases = 0;
+	API_WindowInfo		windowInfo;
+	API_DatabaseInfo	currentDB;
+
+	// 파일 내보내기를 위한 변수
+	API_FileSavePars	fsp;
+	API_SavePars_Pdf	pars_pdf;
+
+	// 입면도 확대를 위한 변수
+	API_Box		extent;
+
+	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
+	IO::Location		location;
+	GS::UniString		resultString;
+
+	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+						
+	// 프로젝트 내 레이어 개수를 알아냄
+	nLayers = getLayerCount ();
+
+	// 보이는 레이어들의 목록 저장하기
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			if (!((attrib.layer.head.flags & APILay_Hidden) == true)) {
+				visLayerList [nVisibleLayers++] = attrib.layer.head.index;
+			}
+		}
+	}
+
+	// 레이어 이름과 인덱스 저장
+	for (xx = 0 ; xx < nVisibleLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = visLayerList [xx];
+		err = ACAPI_Attribute_Get (&attrib);
+
+		sprintf (fullLayerName, "%s", attrib.layer.head.name);
+		fullLayerName [strlen (fullLayerName)] = '\0';
+
+		LayerList newLayerItem;
+		newLayerItem.layerInd = visLayerList [xx];
+		newLayerItem.layerName = fullLayerName;
+
+		layerList.push_back (newLayerItem);
+	}
+
+	// 레이어 이름 기준으로 정렬하여 레이어 인덱스 순서 변경
+	sort (layerList.begin (), layerList.end (), compareLayerName);		// 레이어 이름 기준 오름차순 정렬
+
+	// 일시적으로 모든 레이어 숨기기
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = xx;
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			attrib.layer.head.flags |= APILay_Hidden;
+			ACAPI_Attribute_Modify (&attrib, NULL);
+		}
+	}
+
+	// 진행 상황 표시하는 기능 - 초기화
+	nPhase = 1;
+	cur = 1;
+	total = nVisibleLayers;
+	ACAPI_Interface (APIIo_InitProcessWindowID, &title, &nPhase);
+	ACAPI_Interface (APIIo_SetNextProcessPhaseID, &subtitle, &total);
+
+	// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 테이블폼의 면적 값을 가진 객체들의 변수 값을 가져와서 계산함
+	for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		//attrib.layer.head.index = visLayerList [mm-1];
+		attrib.layer.head.index = layerList [mm-1].layerInd;
+		err = ACAPI_Attribute_Get (&attrib);
+
+		if (err == NoError) {
+			// 레이어 보이기
+			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+				attrib.layer.head.flags ^= APILay_Hidden;
+				ACAPI_Attribute_Modify (&attrib, NULL);
+			}
+
+			// 레이어 이름 가져옴
+			sprintf (fullLayerName, "%s", attrib.layer.head.name);
+			fullLayerName [strlen (fullLayerName)] = '\0';
+
+			// 입면 뷰 DB의 ID들을 획득함
+			err = ACAPI_Database (APIDb_GetElevationDatabasesID, &dbases, NULL);
+			if (err == NoError)
+				nDbases = BMpGetSize (reinterpret_cast<GSPtr>(dbases)) / Sizeof32 (API_DatabaseUnId);
+
+			// 입면 뷰들을 하나씩 순회함
+			for (GSIndex i = 0; i < nDbases; i++) {
+				API_DatabaseInfo dbPars;
+				BNZeroMemory (&dbPars, sizeof (API_DatabaseInfo));
+				dbPars.databaseUnId = dbases [i];
+
+				// 창을 변경함
+				BNZeroMemory (&windowInfo, sizeof (API_WindowInfo));
+				windowInfo.typeID = APIWind_ElevationID;
+				windowInfo.databaseUnId = dbPars.databaseUnId;
+				ACAPI_Automate (APIDo_ChangeWindowID, &windowInfo, NULL);
+
+				// 현재 데이터베이스를 가져옴
+				ACAPI_Database (APIDb_GetCurrentDatabaseID, &currentDB, NULL);
+
+				// 객체가 화면 전체에 꽉 차게 보이도록 함 !!!
+				ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
+				ACAPI_Database (APIDb_SetZoomID, &extent, NULL);
+				//ACAPI_Automate (APIDo_ZoomID, &extent, NULL);
+
+				// 저장하기
+				BNZeroMemory (&fsp, sizeof (API_FileSavePars));
+				fsp.fileTypeID = APIFType_PdfFile;
+				ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+				sprintf (filename, "%s - %s.pdf", fullLayerName, GS::UniString (currentDB.title).ToCStr ().Get ());
+				fsp.file = new IO::Location (location, IO::Name (filename));
+
+				BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
+				pars_pdf.leftMargin = 5.0;
+				pars_pdf.rightMargin = 5.0;
+				pars_pdf.topMargin = 5.0;
+				pars_pdf.bottomMargin = 5.0;
+				pars_pdf.sizeX = 210.0;
+				pars_pdf.sizeY = 297.0;
+
+				err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pdf);
+
+				delete	fsp.file;
+			}
+
+			if (dbases != NULL)
+				BMpFree (reinterpret_cast<GSPtr>(dbases));
+
+			// 레이어 숨기기
+			attrib.layer.head.flags |= APILay_Hidden;
+			ACAPI_Attribute_Modify (&attrib, NULL);
+		}
+
+		// 진행 상황 표시하는 기능 - 진행
+		cur = mm;
+		ACAPI_Interface (APIIo_SetProcessValueID, &cur, NULL);
+		if (ACAPI_Interface (APIIo_IsProcessCanceledID, NULL, NULL) == APIERR_CANCEL)
+			break;
+	}
+
+	// 진행 상황 표시하는 기능 - 마무리
+	ACAPI_Interface (APIIo_CloseProcessWindowID, NULL, NULL);
+
+	// 모든 프로세스를 마치면 처음에 수집했던 보이는 레이어들을 다시 켜놓을 것
+	for (xx = 1 ; xx <= nVisibleLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.layer.head.typeID = API_LayerID;
+		attrib.layer.head.index = visLayerList [xx-1];
+		err = ACAPI_Attribute_Get (&attrib);
+		if (err == NoError) {
+			if ((attrib.layer.head.flags & APILay_Hidden) == true) {
+				attrib.layer.head.flags ^= APILay_Hidden;
+				ACAPI_Attribute_Modify (&attrib, NULL);
+			}
+		}
+	}
+
+	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
+	location.ToDisplayText (&resultString);
+	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
+
+	return err;
+}
+
 // [다이얼로그] 다이얼로그에서 보이는 레이어 상에 있는 객체들의 종류를 보여주고, 체크한 종류의 객체들만 선택 후 보여줌
 short DGCALLBACK filterSelectionHandler (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
 {
