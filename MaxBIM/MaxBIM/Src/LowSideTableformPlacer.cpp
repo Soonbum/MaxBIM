@@ -2051,11 +2051,21 @@ short DGCALLBACK lowSideTableformPlacerHandler1 (short message, short dialogID, 
 							for (yy = 0 ; yy < sizeof (placingZone.cells [xx].tableInHor) / sizeof (int) ; ++yy)
 								accumLength += placingZone.cells [xx].tableInHor [yy];
 
+							bool bFoundWidth = false;
+
 							for (yy = 1 ; yy <= DGPopUpGetItemCount (dialogID, placingZone.POPUP_WIDTH [xx]) ; ++yy) {
 								if (accumLength == atoi (DGPopUpGetItemText (dialogID, placingZone.POPUP_WIDTH [xx], yy).ToCStr ().Get ())) {
 									DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], yy);
+									bFoundWidth = true;
 									break;
 								}
+							}
+
+							if (bFoundWidth == false) {
+								DGPopUpInsertItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
+								_itoa (accumLength, numbuf, 10);
+								DGPopUpSetItemText (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM, numbuf);
+								DGPopUpSelectItem (dialogID, placingZone.POPUP_WIDTH [xx], DG_POPUP_BOTTOM);
 							}
 						}
 					}
