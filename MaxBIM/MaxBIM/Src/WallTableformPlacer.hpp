@@ -180,6 +180,7 @@ public:
 	double	lenRcorner;			// 오른쪽 인코너판넬/아웃코너판넬 길이
 
 	short	tableformType;		// 테이블폼 타입: 타입A (1), 타입B (2), 타입C (3)
+	short	propsInstallType;	// Push-Pull Props 설치 타입: 안쪽 (1), 바깥쪽 (2), 양쪽 (3)
 
 	short	nCellsInHor;		// 수평 방향 셀(유로폼) 개수
 	short	nCellsInVerBasic;	// 수직 방향 셀(유로폼) 개수 (낮은쪽)
@@ -224,6 +225,7 @@ public:
 	short	CHECKBOX_SINGLESIDE;
 	short	POPUP_DIRECTION;
 	short	POPUP_TABLEFORM_TYPE;
+	short	POPUP_PROPS_INSTALL;
 	short	EDITCONTROL_REMAIN_WIDTH;
 	short	EDITCONTROL_REMAIN_HEIGHT_BASIC;
 	short	EDITCONTROL_REMAIN_HEIGHT_EXTRA;
