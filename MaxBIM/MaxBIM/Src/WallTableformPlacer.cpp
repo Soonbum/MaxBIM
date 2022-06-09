@@ -3746,7 +3746,7 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		double	auxLength, auxRadAng;
 		char	mainNom [16], auxNom [16];
 
-		if ((placingZone->propsInstallType == 1) || (placingZone->propsInstallType == 3)) {
+		if ((placingZone->propsInstallType == 2) || (placingZone->propsInstallType == 4)) {
 			lenH = 1.200 + 0.030 - 0.036;	// 1200: 베이스 플레이트와 헤드피스 플레이트와의 거리, 30: 보조 지지대와 베이스 플레이트 앞쪽과의 거리, 36: 헤드피스 플레이트와 헤드피스 하부 걸쇠와의 거리
 			lenV = 0.200 + 0.060 - 0.056;	// 200: 하부 헤드피스 플레이트의 높이, 60: 하부 헤드피스 플레이트와 하부 걸쇠와의 고도차, 56: 베이스 플레이트와 지지대 간의 고도차
 			auxLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
@@ -3856,7 +3856,7 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 		}
 
 		// Push-Pull Props - 뒷면
-		if ((placingZone->propsInstallType == 2) || (placingZone->propsInstallType == 3)) {
+		if ((placingZone->propsInstallType == 3) || (placingZone->propsInstallType == 4)) {
 			lenH = 1.200 + 0.030 - 0.036;	// 1200: 베이스 플레이트와 헤드피스 플레이트와의 거리, 30: 보조 지지대와 베이스 플레이트 앞쪽과의 거리, 36: 헤드피스 플레이트와 헤드피스 하부 걸쇠와의 거리
 			lenV = 0.200 + 0.060 - 0.056;	// 200: 하부 헤드피스 플레이트의 높이, 60: 하부 헤드피스 플레이트와 하부 걸쇠와의 고도차, 56: 베이스 플레이트와 지지대 간의 고도차
 			auxLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
@@ -4671,12 +4671,6 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('z', headpiece.radAng - DegreeToRad (180.0), (double)(-(bottomHeight - 150) + backHeight + (-topHeight + 150)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 		}
-
-		// Push-Pull Props - 앞면
-		// ...
-
-		// Push-Pull Props - 뒷면
-		// ...
 	}
 
 	// 결과물 전체 그룹화 (앞면)
@@ -7164,6 +7158,8 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 			placingZone.POPUP_PROPS_INSTALL = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 475, 75, 70, 23);
 			DGSetItemFont (dialogID, placingZone.POPUP_PROPS_INSTALL, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, placingZone.POPUP_PROPS_INSTALL, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, placingZone.POPUP_PROPS_INSTALL, DG_POPUP_BOTTOM, "없음");
+			DGPopUpInsertItem (dialogID, placingZone.POPUP_PROPS_INSTALL, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, placingZone.POPUP_PROPS_INSTALL, DG_POPUP_BOTTOM, "안쪽");
 			DGPopUpInsertItem (dialogID, placingZone.POPUP_PROPS_INSTALL, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, placingZone.POPUP_PROPS_INSTALL, DG_POPUP_BOTTOM, "바깥쪽");
@@ -7889,12 +7885,14 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 
 				// 푸시풀프롭스 설치 타입
 				strcpy (buffer, DGPopUpGetItemText (dialogID, placingZone.POPUP_PROPS_INSTALL, DGPopUpGetSelected (dialogID, placingZone.POPUP_PROPS_INSTALL)).ToCStr ().Get ());
-				if (my_strcmp (buffer, "안쪽") == 0)
+				if (my_strcmp (buffer, "없음") == 0)
 					placingZone.propsInstallType = 1;
-				else if (my_strcmp (buffer, "바깥쪽") == 0)
+				else if (my_strcmp (buffer, "안쪽") == 0)
 					placingZone.propsInstallType = 2;
-				else if (my_strcmp (buffer, "양쪽") == 0)
+				else if (my_strcmp (buffer, "바깥쪽") == 0)
 					placingZone.propsInstallType = 3;
+				else if (my_strcmp (buffer, "양쪽") == 0)
+					placingZone.propsInstallType = 4;
 
 				// 인코너판넬/아웃코너판넬/아웃코너앵글 유무 및 길이
 				placingZone.typeLcorner = DGPopUpGetSelected (dialogID, placingZone.POPUP_OBJ_TYPE_LCORNER);
