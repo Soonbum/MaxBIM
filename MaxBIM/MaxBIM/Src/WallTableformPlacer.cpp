@@ -7964,16 +7964,16 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					bLayerInd_Euroform = true;
 					bLayerInd_RectPipe = true;
 					bLayerInd_PinBolt = true;
-					//bLayerInd_HeadPiece = true;
-					bLayerInd_Props = true;
+					bLayerInd_HeadPiece = true;
+					//bLayerInd_Props = true;
 					bLayerInd_Join = true;
 				
 				} else if (placingZone.tableformType == 3) {
 					bLayerInd_Euroform = true;
 					bLayerInd_RectPipe = true;
 					bLayerInd_PinBolt = true;
-					//bLayerInd_HeadPiece = true;
-					bLayerInd_Props = true;
+					bLayerInd_HeadPiece = true;
+					//bLayerInd_Props = true;
 					bLayerInd_Join = true;
 					bLayerInd_CrossJointBar = true;
 				}
