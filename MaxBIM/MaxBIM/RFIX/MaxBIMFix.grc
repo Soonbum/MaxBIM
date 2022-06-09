@@ -161,9 +161,9 @@
 }
 
 /* ---------------------------------------------------------- Layer assignment */
-'GDLG'  32503  Modal | grow	  0		  0		300		780		"Layer assignment" {
-/* [  1] */	Button			 70		740		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			160		740		 70		 25		LargePlain		"Cancel"
+'GDLG'  32503  Modal | grow	  0		  0		300		810		"Layer assignment" {
+/* [  1] */	Button			 70		770		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			160		770		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	Icon			 85		 13		 29		 14  	32502
 /* [  4] */	LeftText		120		 15		200		 23		LargePlain		"Layer Settings"
@@ -177,41 +177,43 @@
 /* [ 11] */	RightText		 10		225		100		 23		LargePlain		"Wall Tie"
 /* [ 12] */	RightText		 10		255		100		 23		LargePlain		"Join"
 /* [ 13] */	RightText		 10		285		100		 23		LargePlain		"Headpiece"
-/* [ 14] */	RightText		 10		315		100		 23		LargePlain		"Steelform"
-/* [ 15] */	RightText		 10		345		100		 23		LargePlain		"Plywood"
-/* [ 16] */	RightText		 10		375		100		 23		LargePlain		"Timber"
-/* [ 17] */	RightText		 10		405		100		 23		LargePlain		"Fillerspacer"
-/* [ 18] */	RightText		 10		435		100		 23		LargePlain		"Outcorner Angle"
-/* [ 19] */	RightText		 10		465		100		 23		LargePlain		"Outcorner Panel"
-/* [ 20] */	RightText		 10		495		100		 23		LargePlain		"Incorner Panel"
-/* [ 21] */	RightText		 10		525		100		 23		LargePlain		"Rectpipe Hanger"
-/* [ 22] */	RightText		 10		555		100		 23		LargePlain		"Euroform Hook"
-/* [ 23] */	RightText		 10		585		100		 23		LargePlain		"Cross Joint Bar"
-/* [ 24] */	RightText		 10		615		100		 23		LargePlain		"Blue Clamp"
-/* [ 25] */	RightText		 10		645		100		 23		LargePlain		"Blue Timber Rail"
-/* [ 26] */	RightText		 10		675		100		 23		LargePlain		"Hidden"
+/* [ 14] */	RightText		 10		315		100		 23		LargePlain		"Push-Pull Props"
+/* [ 15] */	RightText		 10		345		100		 23		LargePlain		"Steelform"
+/* [ 16] */	RightText		 10		375		100		 23		LargePlain		"Plywood"
+/* [ 17] */	RightText		 10		405		100		 23		LargePlain		"Timber"
+/* [ 18] */	RightText		 10		435		100		 23		LargePlain		"Fillerspacer"
+/* [ 19] */	RightText		 10		465		100		 23		LargePlain		"Outcorner Angle"
+/* [ 20] */	RightText		 10		495		100		 23		LargePlain		"Outcorner Panel"
+/* [ 21] */	RightText		 10		525		100		 23		LargePlain		"Incorner Panel"
+/* [ 22] */	RightText		 10		555		100		 23		LargePlain		"Rectpipe Hanger"
+/* [ 23] */	RightText		 10		585		100		 23		LargePlain		"Euroform Hook"
+/* [ 24] */	RightText		 10		615		100		 23		LargePlain		"Cross Joint Bar"
+/* [ 25] */	RightText		 10		645		100		 23		LargePlain		"Blue Clamp"
+/* [ 26] */	RightText		 10		675		100		 23		LargePlain		"Blue Timber Rail"
+/* [ 27] */	RightText		 10		705		100		 23		LargePlain		"Hidden"
 
-/* [ 27] */	UserControl		120		 69		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM (SLAB)	*/
-/* [ 28] */	UserControl		120		 99		160		 25		257	0x0006 0x0000 0		/* Layer Control - PROFILE			*/
-/* [ 29] */	UserControl		120		129		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 30] */	UserControl		120		159		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE		*/
-/* [ 31] */	UserControl		120		189		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
-/* [ 32] */	UserControl		120		219		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE			*/
-/* [ 33] */	UserControl		120		249		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN				*/
-/* [ 34] */	UserControl		120		279		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
-/* [ 35] */	UserControl		120		309		160		 25		257	0x0006 0x0000 0		/* Layer Control - STEELFORM		*/
-/* [ 36] */	UserControl		120		339		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
-/* [ 37] */	UserControl		120		369		160		 25		257	0x0006 0x0000 0		/* Layer Control - TIMBER			*/
-/* [ 38] */	UserControl		120		399		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
-/* [ 39] */	UserControl		120		429		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
-/* [ 40] */	UserControl		120		459		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
-/* [ 41] */	UserControl		120		489		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER PANEL	*/
-/* [ 42] */	UserControl		120		519		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECTPIPE HANGER	*/
-/* [ 43] */	UserControl		120		549		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM HOOK	*/
-/* [ 44] */	UserControl		120		579		160		 25		257	0x0006 0x0000 0		/* Layer Control - CROSS JOINT BAR	*/
-/* [ 45] */	UserControl		120		609		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE CLAMP		*/
-/* [ 46] */	UserControl		120		639		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE TIMBER RAIL	*/
-/* [ 47] */	UserControl		120		669		160		 25		257	0x0006 0x0000 0		/* Layer Control - HIDDEN			*/
+/* [ 28] */	UserControl		120		 69		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM (SLAB)	*/
+/* [ 29] */	UserControl		120		 99		160		 25		257	0x0006 0x0000 0		/* Layer Control - PROFILE			*/
+/* [ 30] */	UserControl		120		129		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 31] */	UserControl		120		159		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECT PIPE		*/
+/* [ 32] */	UserControl		120		189		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
+/* [ 33] */	UserControl		120		219		160		 25		257	0x0006 0x0000 0		/* Layer Control - WALL TIE			*/
+/* [ 34] */	UserControl		120		249		160		 25		257	0x0006 0x0000 0		/* Layer Control - JOIN				*/
+/* [ 35] */	UserControl		120		279		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
+/* [ 36] */	UserControl		120		309		160		 25		257	0x0006 0x0000 0		/* Layer Control - PUSH_PULL PROPS	*/
+/* [ 37] */	UserControl		120		339		160		 25		257	0x0006 0x0000 0		/* Layer Control - STEELFORM		*/
+/* [ 38] */	UserControl		120		369		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 39] */	UserControl		120		399		160		 25		257	0x0006 0x0000 0		/* Layer Control - TIMBER			*/
+/* [ 40] */	UserControl		120		429		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
+/* [ 41] */	UserControl		120		459		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
+/* [ 42] */	UserControl		120		489		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
+/* [ 43] */	UserControl		120		519		160		 25		257	0x0006 0x0000 0		/* Layer Control - INCORNER PANEL	*/
+/* [ 44] */	UserControl		120		549		160		 25		257	0x0006 0x0000 0		/* Layer Control - RECTPIPE HANGER	*/
+/* [ 45] */	UserControl		120		579		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM HOOK	*/
+/* [ 46] */	UserControl		120		609		160		 25		257	0x0006 0x0000 0		/* Layer Control - CROSS JOINT BAR	*/
+/* [ 47] */	UserControl		120		639		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE CLAMP		*/
+/* [ 48] */	UserControl		120		669		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE TIMBER RAIL	*/
+/* [ 49] */	UserControl		120		699		160		 25		257	0x0006 0x0000 0		/* Layer Control - HIDDEN			*/
 }
 
 /* ---------------------------------------------------------- place Quantity Playwood */

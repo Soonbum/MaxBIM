@@ -24,6 +24,7 @@ static short	layerInd_PinBolt;			// 레이어 번호: 핀볼트 세트
 static short	layerInd_WallTie;			// 레이어 번호: 빅체 타이 (더 이상 사용하지 않음)
 static short	layerInd_Clamp;				// 레이어 번호: 직교 클램프 (더 이상 사용하지 않음)
 static short	layerInd_HeadPiece;			// 레이어 번호: 헤드피스
+static short	layerInd_Props;				// 레이어 번호: Push-Pull Props
 static short	layerInd_Join;				// 레이어 번호: 결합철물
 static short	layerInd_Plywood;			// 레이어 번호: 합판 (공통)
 static short	layerInd_Timber;			// 레이어 번호: 각재 (공통)
@@ -47,6 +48,7 @@ static bool		bLayerInd_RectPipe;			// 레이어 번호: 비계 파이프
 static bool		bLayerInd_PinBolt;			// 레이어 번호: 핀볼트 세트
 static bool		bLayerInd_WallTie;			// 레이어 번호: 벽체 타이
 static bool		bLayerInd_HeadPiece;		// 레이어 번호: 헤드피스
+static bool		bLayerInd_Props;			// 레이어 번호: Push-Pull Props
 static bool		bLayerInd_Join;				// 레이어 번호: 결합철물
 static bool		bLayerInd_Plywood;			// 레이어 번호: 합판
 static bool		bLayerInd_Timber;			// 레이어 번호: 각재
@@ -1847,6 +1849,7 @@ short DGCALLBACK lowSideTableformPlacerHandler1 (short message, short dialogID, 
 				bLayerInd_PinBolt = false;
 				bLayerInd_WallTie = false;
 				bLayerInd_HeadPiece = false;
+				bLayerInd_Props = false;
 				bLayerInd_Join = false;
 
 				bLayerInd_SlabTableform = false;
@@ -1890,6 +1893,7 @@ short DGCALLBACK lowSideTableformPlacerHandler1 (short message, short dialogID, 
 					bLayerInd_RectPipe = true;
 					bLayerInd_PinBolt = true;
 					bLayerInd_HeadPiece = true;
+					bLayerInd_Props = true;
 					bLayerInd_Join = true;
 				}
 
@@ -2141,6 +2145,7 @@ short DGCALLBACK lowSideTableformPlacerHandler2 (short message, short dialogID, 
 			DGSetItemText (dialogID, LABEL_LAYER_WALLTIE, "벽체 타이");
 			DGSetItemText (dialogID, LABEL_LAYER_JOIN, "결합철물");
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
+			DGSetItemText (dialogID, LABEL_LAYER_PROPS, "푸시풀프롭스");
 			DGSetItemText (dialogID, LABEL_LAYER_STEELFORM, "스틸폼");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
 			DGSetItemText (dialogID, LABEL_LAYER_TIMBER, "각재");
@@ -2155,7 +2160,7 @@ short DGCALLBACK lowSideTableformPlacerHandler2 (short message, short dialogID, 
 			DGSetItemText (dialogID, LABEL_LAYER_BLUE_TIMBER_RAIL, "블루목심");
 			DGSetItemText (dialogID, LABEL_LAYER_HIDDEN, "숨김");
 
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 700, 160, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 730, 160, 25);
 			DGSetItemFont (dialogID, BUTTON_AUTOSET, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
 			DGShowItem (dialogID, BUTTON_AUTOSET);
@@ -2252,6 +2257,17 @@ short DGCALLBACK lowSideTableformPlacerHandler2 (short message, short dialogID, 
 				DGDisableItem (dialogID, USERCONTROL_LAYER_HEADPIECE);
 			}
 
+			ucb.itemID	 = USERCONTROL_LAYER_PROPS;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROPS, 1);
+			if (bLayerInd_Props == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_PROPS);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_PROPS);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_PROPS);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_PROPS);
+			}
+
 			ucb.itemID	 = USERCONTROL_LAYER_STEELFORM;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, 1);
@@ -2277,7 +2293,7 @@ short DGCALLBACK lowSideTableformPlacerHandler2 (short message, short dialogID, 
 			ucb.itemID	 = USERCONTROL_LAYER_TIMBER;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, 1);
-			if (bLayerInd_Plywood == true) {
+			if (bLayerInd_Timber == true) {
 				DGEnableItem (dialogID, LABEL_LAYER_TIMBER);
 				DGEnableItem (dialogID, USERCONTROL_LAYER_TIMBER);
 			} else {
@@ -2421,6 +2437,7 @@ short DGCALLBACK lowSideTableformPlacerHandler2 (short message, short dialogID, 
 					if (bLayerInd_WallTie == true)			layerInd_WallTie		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE);
 					if (bLayerInd_Join == true)				layerInd_Join			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN);
 					if (bLayerInd_HeadPiece == true)		layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
+					if (bLayerInd_Props == true)			layerInd_Props			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROPS);
 					if (bLayerInd_Steelform == true)		layerInd_Steelform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM);
 					if (bLayerInd_Plywood == true)			layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 					if (bLayerInd_Timber == true)			layerInd_Timber			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER);
@@ -2448,6 +2465,7 @@ short DGCALLBACK lowSideTableformPlacerHandler2 (short message, short dialogID, 
 						layerInd_PinBolt		= makeTemporaryLayer (structuralObject_forTableformLowSide, "PINB", NULL);
 						layerInd_Join			= makeTemporaryLayer (structuralObject_forTableformLowSide, "CLAM", NULL);
 						layerInd_HeadPiece		= makeTemporaryLayer (structuralObject_forTableformLowSide, "HEAD", NULL);
+						layerInd_Props			= makeTemporaryLayer (structuralObject_forTableformLowSide, "PUSH", NULL);
 						layerInd_Plywood		= makeTemporaryLayer (structuralObject_forTableformLowSide, "PLYW", NULL);
 						layerInd_Timber			= makeTemporaryLayer (structuralObject_forTableformLowSide, "TIMB", NULL);
 						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformLowSide, "UFCL", NULL);
@@ -2458,50 +2476,6 @@ short DGCALLBACK lowSideTableformPlacerHandler2 (short message, short dialogID, 
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, layerInd_Timber);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, layerInd_BlueTimberRail);
-
-					} else if (placingZone.tableformType == 2) {
-						layerInd_Euroform		= makeTemporaryLayer (structuralObject_forTableformLowSide, "UFOM", NULL);
-						layerInd_RectPipe		= makeTemporaryLayer (structuralObject_forTableformLowSide, "SPIP", NULL);
-						layerInd_PinBolt		= makeTemporaryLayer (structuralObject_forTableformLowSide, "PINB", NULL);
-						layerInd_Join			= makeTemporaryLayer (structuralObject_forTableformLowSide, "CLAM", NULL);
-						layerInd_HeadPiece		= makeTemporaryLayer (structuralObject_forTableformLowSide, "HEAD", NULL);
-						layerInd_Plywood		= makeTemporaryLayer (structuralObject_forTableformLowSide, "PLYW", NULL);
-						layerInd_Timber			= makeTemporaryLayer (structuralObject_forTableformLowSide, "TIMB", NULL);
-						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformLowSide, "UFCL", NULL);
-						layerInd_BlueTimberRail	= makeTemporaryLayer (structuralObject_forTableformLowSide, "RAIL", NULL);
-
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, layerInd_Timber);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, layerInd_BlueTimberRail);
-
-					} else if (placingZone.tableformType == 3) {
-						layerInd_Euroform		= makeTemporaryLayer (structuralObject_forTableformLowSide, "UFOM", NULL);
-						layerInd_RectPipe		= makeTemporaryLayer (structuralObject_forTableformLowSide, "SPIP", NULL);
-						layerInd_PinBolt		= makeTemporaryLayer (structuralObject_forTableformLowSide, "PINB", NULL);
-						layerInd_Join			= makeTemporaryLayer (structuralObject_forTableformLowSide, "CLAM", NULL);
-						layerInd_HeadPiece		= makeTemporaryLayer (structuralObject_forTableformLowSide, "HEAD", NULL);
-						layerInd_CrossJointBar	= makeTemporaryLayer (structuralObject_forTableformLowSide, "CROS", NULL);
-						layerInd_Plywood		= makeTemporaryLayer (structuralObject_forTableformLowSide, "PLYW", NULL);
-						layerInd_Timber			= makeTemporaryLayer (structuralObject_forTableformLowSide, "TIMB", NULL);
-						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformLowSide, "UFCL", NULL);
-						layerInd_BlueTimberRail	= makeTemporaryLayer (structuralObject_forTableformLowSide, "RAIL", NULL);
-
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_RECTPIPE, layerInd_RectPipe);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
-						DGSetItemValLong (dialogID, USERCONTROL_LAYER_CROSS_JOINT_BAR, layerInd_CrossJointBar);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, layerInd_Timber);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);

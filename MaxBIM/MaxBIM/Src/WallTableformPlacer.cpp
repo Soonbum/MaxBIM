@@ -18,6 +18,7 @@ static short	layerInd_PinBolt;			// 레이어 번호: 핀볼트 세트
 static short	layerInd_WallTie;			// 레이어 번호: 빅체 타이 (더 이상 사용하지 않음)
 static short	layerInd_Clamp;				// 레이어 번호: 직교 클램프 (더 이상 사용하지 않음)
 static short	layerInd_HeadPiece;			// 레이어 번호: 헤드피스
+static short	layerInd_Props;				// 레이어 번호: Push-Pull Props
 static short	layerInd_Join;				// 레이어 번호: 결합철물
 static short	layerInd_Plywood;			// 레이어 번호: 합판 (공통)
 static short	layerInd_Timber;			// 레이어 번호: 각재 (공통)
@@ -41,6 +42,7 @@ static bool		bLayerInd_RectPipe;			// 레이어 번호: 비계 파이프
 static bool		bLayerInd_PinBolt;			// 레이어 번호: 핀볼트 세트
 static bool		bLayerInd_WallTie;			// 레이어 번호: 벽체 타이
 static bool		bLayerInd_HeadPiece;		// 레이어 번호: 헤드피스
+static bool		bLayerInd_Props;			// 레이어 번호: Push-Pull Props
 static bool		bLayerInd_Join;				// 레이어 번호: 결합철물
 static bool		bLayerInd_Plywood;			// 레이어 번호: 합판
 static bool		bLayerInd_Timber;			// 레이어 번호: 각재
@@ -3737,6 +3739,49 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			elemList_Front_Add.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 		}
 
+		// Push-Pull Props - 앞면
+		EasyObjectPlacement props;
+		double	lenV, lenH;
+		double	mainLength, mainRadAng;
+		double	auxLength, auxRadAng;
+		char	mainNom [16], auxNom [16];
+
+		lenH = 1.200 + 0.030 - 0.036;	// 1200: 베이스 플레이트와 헤드피스 플레이트와의 거리, 30: 보조 지지대와 베이스 플레이트 앞쪽과의 거리, 36: 헤드피스 플레이트와 헤드피스 하부 걸쇠와의 거리
+		lenV = 0.200 + 0.060 - 0.056;	// 200: 하부 헤드피스 플레이트의 높이, 60: 하부 헤드피스 플레이트와 하부 걸쇠와의 고도차, 56: 베이스 플레이트와 지지대 간의 고도차
+		auxLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+		auxRadAng = atan2 (lenV, lenH);
+
+		lenH = 1.200 + 0.090 - 0.036;	// 1200: 베이스 플레이트와 헤드피스 플레이트와의 거리, 90: 메인 지지대와 베이스 플레이트 앞쪽과의 거리, 36: 헤드피스 플레이트와 헤드피스 하부 걸쇠와의 거리
+		lenV = (double)headpieceUpPosZ / 1000.0 + 0.060 - 0.056;	// headpieceUpPosZ: 상부 헤드피스 플레이트의 높이, 60: 상부 헤드피스 플레이트와 하부 걸쇠와의 고도차, 56: 베이스 플레이트와 지지대 간의 고도차
+		mainLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+		mainRadAng = atan2 (lenV, lenH);
+
+		if (mainLength >= 0.700 && mainLength < 1.100)			strcpy (mainNom, "700~1100");
+		else if (mainLength >= 1.100 && mainLength < 1.700)		strcpy (mainNom, "1100~1800");
+		else if (mainLength >= 1.700 && mainLength < 2.400)		strcpy (mainNom, "1700~2500");
+		else if (mainLength >= 2.400 && mainLength < 3.100)		strcpy (mainNom, "2400~3200");
+		else if (mainLength >= 3.100 && mainLength < 3.800)		strcpy (mainNom, "3100~3900");
+		else if (mainLength >= 3.800 && mainLength <= 4.600)	strcpy (mainNom, "3800~4600");
+
+		if (auxLength >= 0.700 && auxLength < 1.100)			strcpy (auxNom, "700~1100");
+		else if (auxLength >= 1.100 && auxLength < 1.700)		strcpy (auxNom, "1100~1800");
+		else if (auxLength >= 1.700 && auxLength < 2.400)		strcpy (auxNom, "1700~2500");
+		else if (auxLength >= 2.400 && auxLength < 3.100)		strcpy (auxNom, "2400~3200");
+		else if (auxLength >= 3.100 && auxLength < 3.800)		strcpy (auxNom, "3100~3900");
+		else if (auxLength >= 3.800 && auxLength <= 4.600)		strcpy (auxNom, "3800~4600");
+
+		props.init (L("Push-Pull Props v1.0 (당사제작품).gsm"), layerInd_Props, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+
+		moveIn3D ('x', props.radAng, (double)(firstWidth - 150 + 80) / 1000.0, &props.posX, &props.posY, &props.posZ);
+		moveIn3D ('y', props.radAng, -(0.2525 + 0.080 + 1.200), &props.posX, &props.posY, &props.posZ);
+			props.radAng += DegreeToRad (90.0);
+			elemList_Front.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+			props.radAng -= DegreeToRad (90.0);
+		moveIn3D ('x', props.radAng, (double)(-(firstWidth - 150 + 80) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 + 80)) / 1000.0, &props.posX, &props.posY, &props.posZ);
+			props.radAng += DegreeToRad (90.0);
+			elemList_Front.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+			props.radAng -= DegreeToRad (90.0);
+
 		// 헤드피스 - 뒷면
 		if (placingZone->bSingleSide == false) {
 			headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
@@ -3794,6 +3839,43 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 				elemList_Back_Add.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 A", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			}
 		}
+
+		// Push-Pull Props - 뒷면
+		lenH = 1.200 + 0.030 - 0.036;	// 1200: 베이스 플레이트와 헤드피스 플레이트와의 거리, 30: 보조 지지대와 베이스 플레이트 앞쪽과의 거리, 36: 헤드피스 플레이트와 헤드피스 하부 걸쇠와의 거리
+		lenV = 0.200 + 0.060 - 0.056;	// 200: 하부 헤드피스 플레이트의 높이, 60: 하부 헤드피스 플레이트와 하부 걸쇠와의 고도차, 56: 베이스 플레이트와 지지대 간의 고도차
+		auxLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+		auxRadAng = atan2 (lenV, lenH);
+
+		lenH = 1.200 + 0.090 - 0.036;	// 1200: 베이스 플레이트와 헤드피스 플레이트와의 거리, 90: 메인 지지대와 베이스 플레이트 앞쪽과의 거리, 36: 헤드피스 플레이트와 헤드피스 하부 걸쇠와의 거리
+		lenV = (double)headpieceUpPosZ / 1000.0 + 0.060 - 0.056;	// headpieceUpPosZ: 상부 헤드피스 플레이트의 높이, 60: 상부 헤드피스 플레이트와 하부 걸쇠와의 고도차, 56: 베이스 플레이트와 지지대 간의 고도차
+		mainLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+		mainRadAng = atan2 (lenV, lenH);
+
+		if (mainLength >= 0.700 && mainLength < 1.100)			strcpy (mainNom, "700~1100");
+		else if (mainLength >= 1.100 && mainLength < 1.700)		strcpy (mainNom, "1100~1800");
+		else if (mainLength >= 1.700 && mainLength < 2.400)		strcpy (mainNom, "1700~2500");
+		else if (mainLength >= 2.400 && mainLength < 3.100)		strcpy (mainNom, "2400~3200");
+		else if (mainLength >= 3.100 && mainLength < 3.800)		strcpy (mainNom, "3100~3900");
+		else if (mainLength >= 3.800 && mainLength <= 4.600)	strcpy (mainNom, "3800~4600");
+
+		if (auxLength >= 0.700 && auxLength < 1.100)			strcpy (auxNom, "700~1100");
+		else if (auxLength >= 1.100 && auxLength < 1.700)		strcpy (auxNom, "1100~1800");
+		else if (auxLength >= 1.700 && auxLength < 2.400)		strcpy (auxNom, "1700~2500");
+		else if (auxLength >= 2.400 && auxLength < 3.100)		strcpy (auxNom, "2400~3200");
+		else if (auxLength >= 3.100 && auxLength < 3.800)		strcpy (auxNom, "3100~3900");
+		else if (auxLength >= 3.800 && auxLength <= 4.600)		strcpy (auxNom, "3800~4600");
+
+		props.init (L("Push-Pull Props v1.0 (당사제작품).gsm"), layerInd_Props, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+
+		moveIn3D ('x', props.radAng - DegreeToRad (180.0), (double)(firstWidth - 150 - 80) / 1000.0, &props.posX, &props.posY, &props.posZ);
+		moveIn3D ('y', props.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.2525 + 0.080 + 1.200), &props.posX, &props.posY, &props.posZ);
+			props.radAng += DegreeToRad (90.0);
+			elemList_Front.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+			props.radAng -= DegreeToRad (90.0);
+		moveIn3D ('x', props.radAng - DegreeToRad (180.0), (double)(-(firstWidth - 150 - 80) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 - 80)) / 1000.0, &props.posX, &props.posY, &props.posZ);
+			props.radAng += DegreeToRad (90.0);
+			elemList_Front.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+			props.radAng -= DegreeToRad (90.0);
 	} else {
 		// ================================================== 가로방향 (세로방향이 오른쪽으로 90도 누웠다고 생각하면 됨)
 		// 수평 파이프 배치 - 앞면
@@ -4559,6 +4641,12 @@ void	WallTableformPlacingZone::placeTableformA (WallTableformPlacingZone* placin
 			moveIn3D ('z', headpiece.radAng - DegreeToRad (180.0), (double)(-(bottomHeight - 150) + backHeight + (-topHeight + 150)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 			elemList_Back.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 		}
+
+		// Push-Pull Props - 앞면
+		// ...
+
+		// Push-Pull Props - 뒷면
+		// ...
 	}
 
 	// 결과물 전체 그룹화 (앞면)
@@ -7824,6 +7912,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 				bLayerInd_PinBolt = false;
 				bLayerInd_WallTie = false;
 				bLayerInd_HeadPiece = false;
+				bLayerInd_Props = false;
 				bLayerInd_Join = false;
 
 				bLayerInd_SlabTableform = false;
@@ -7868,20 +7957,23 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					bLayerInd_RectPipe = true;
 					bLayerInd_PinBolt = true;
 					bLayerInd_HeadPiece = true;
+					bLayerInd_Props = true;
 					bLayerInd_Join = true;
 
 				} else if (placingZone.tableformType == 2) {
 					bLayerInd_Euroform = true;
 					bLayerInd_RectPipe = true;
 					bLayerInd_PinBolt = true;
-					bLayerInd_HeadPiece = true;
+					//bLayerInd_HeadPiece = true;
+					bLayerInd_Props = true;
 					bLayerInd_Join = true;
 				
 				} else if (placingZone.tableformType == 3) {
 					bLayerInd_Euroform = true;
 					bLayerInd_RectPipe = true;
 					bLayerInd_PinBolt = true;
-					bLayerInd_HeadPiece = true;
+					//bLayerInd_HeadPiece = true;
+					bLayerInd_Props = true;
 					bLayerInd_Join = true;
 					bLayerInd_CrossJointBar = true;
 				}
@@ -8242,6 +8334,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 			DGSetItemText (dialogID, LABEL_LAYER_WALLTIE, "벽체 타이");
 			DGSetItemText (dialogID, LABEL_LAYER_JOIN, "결합철물");
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
+			DGSetItemText (dialogID, LABEL_LAYER_PROPS, "푸시풀프롭스");
 			DGSetItemText (dialogID, LABEL_LAYER_STEELFORM, "스틸폼");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
 			DGSetItemText (dialogID, LABEL_LAYER_TIMBER, "각재");
@@ -8256,7 +8349,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 			DGSetItemText (dialogID, LABEL_LAYER_BLUE_TIMBER_RAIL, "블루목심");
 			DGSetItemText (dialogID, LABEL_LAYER_HIDDEN, "숨김");
 
-			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 700, 160, 25);
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 730, 160, 25);
 			DGSetItemFont (dialogID, BUTTON_AUTOSET, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
 			DGShowItem (dialogID, BUTTON_AUTOSET);
@@ -8353,6 +8446,17 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 				DGDisableItem (dialogID, USERCONTROL_LAYER_HEADPIECE);
 			}
 
+			ucb.itemID	 = USERCONTROL_LAYER_PROPS;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROPS, 1);
+			if (bLayerInd_Props == true) {
+				DGEnableItem (dialogID, LABEL_LAYER_PROPS);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_PROPS);
+			} else {
+				DGDisableItem (dialogID, LABEL_LAYER_PROPS);
+				DGDisableItem (dialogID, USERCONTROL_LAYER_PROPS);
+			}
+
 			ucb.itemID	 = USERCONTROL_LAYER_STEELFORM;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM, 1);
@@ -8378,7 +8482,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 			ucb.itemID	 = USERCONTROL_LAYER_TIMBER;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, 1);
-			if (bLayerInd_Plywood == true) {
+			if (bLayerInd_Timber == true) {
 				DGEnableItem (dialogID, LABEL_LAYER_TIMBER);
 				DGEnableItem (dialogID, USERCONTROL_LAYER_TIMBER);
 			} else {
@@ -8522,6 +8626,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 					if (bLayerInd_WallTie == true)			layerInd_WallTie		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_WALLTIE);
 					if (bLayerInd_Join == true)				layerInd_Join			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_JOIN);
 					if (bLayerInd_HeadPiece == true)		layerInd_HeadPiece		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
+					if (bLayerInd_Props == true)			layerInd_Props			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PROPS);
 					if (bLayerInd_Steelform == true)		layerInd_Steelform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_STEELFORM);
 					if (bLayerInd_Plywood == true)			layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
 					if (bLayerInd_Timber == true)			layerInd_Timber			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER);
@@ -8549,6 +8654,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						layerInd_PinBolt		= makeTemporaryLayer (structuralObject_forTableformWall, "PINB", NULL);
 						layerInd_Join			= makeTemporaryLayer (structuralObject_forTableformWall, "CLAM", NULL);
 						layerInd_HeadPiece		= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
+						layerInd_Props			= makeTemporaryLayer (structuralObject_forTableformWall, "PUSH", NULL);
 						layerInd_Plywood		= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 						layerInd_Timber			= makeTemporaryLayer (structuralObject_forTableformWall, "TIMB", NULL);
 						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformWall, "UFCL", NULL);
@@ -8559,6 +8665,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROPS, layerInd_Props);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, layerInd_Timber);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);
@@ -8570,6 +8677,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						layerInd_PinBolt		= makeTemporaryLayer (structuralObject_forTableformWall, "PINB", NULL);
 						layerInd_Join			= makeTemporaryLayer (structuralObject_forTableformWall, "CLAM", NULL);
 						layerInd_HeadPiece		= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
+						layerInd_Props			= makeTemporaryLayer (structuralObject_forTableformWall, "PUSH", NULL);
 						layerInd_Plywood		= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 						layerInd_Timber			= makeTemporaryLayer (structuralObject_forTableformWall, "TIMB", NULL);
 						layerInd_BlueClamp		= makeTemporaryLayer (structuralObject_forTableformWall, "UFCL", NULL);
@@ -8580,6 +8688,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROPS, layerInd_Props);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, layerInd_Timber);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_CLAMP, layerInd_BlueClamp);
@@ -8591,6 +8700,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						layerInd_PinBolt		= makeTemporaryLayer (structuralObject_forTableformWall, "PINB", NULL);
 						layerInd_Join			= makeTemporaryLayer (structuralObject_forTableformWall, "CLAM", NULL);
 						layerInd_HeadPiece		= makeTemporaryLayer (structuralObject_forTableformWall, "HEAD", NULL);
+						layerInd_Props			= makeTemporaryLayer (structuralObject_forTableformWall, "PUSH", NULL);
 						layerInd_CrossJointBar	= makeTemporaryLayer (structuralObject_forTableformWall, "CROS", NULL);
 						layerInd_Plywood		= makeTemporaryLayer (structuralObject_forTableformWall, "PLYW", NULL);
 						layerInd_Timber			= makeTemporaryLayer (structuralObject_forTableformWall, "TIMB", NULL);
@@ -8602,6 +8712,7 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PINBOLT, layerInd_PinBolt);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_JOIN, layerInd_Join);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_HeadPiece);
+						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PROPS, layerInd_Props);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_CROSS_JOINT_BAR, layerInd_CrossJointBar);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
 						DGSetItemValLong (dialogID, USERCONTROL_LAYER_TIMBER, layerInd_Timber);
