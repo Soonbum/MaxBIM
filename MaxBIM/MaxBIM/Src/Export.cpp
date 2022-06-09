@@ -5159,6 +5159,8 @@ GSErrCode	exportAllElevationsToPDFSingleMode (void)
 
 	// 입면도 확대를 위한 변수
 	API_Box		extent;
+	double		scale = 100.0;
+	bool		zoom = true;
 
 	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
 	IO::Location		location;
@@ -5167,6 +5169,15 @@ GSErrCode	exportAllElevationsToPDFSingleMode (void)
 	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
 	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 						
+	// PDF 파일 페이지 설정
+	BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
+	pars_pdf.leftMargin = 5.0;
+	pars_pdf.rightMargin = 5.0;
+	pars_pdf.topMargin = 5.0;
+	pars_pdf.bottomMargin = 5.0;
+	pars_pdf.sizeX = 297.0;
+	pars_pdf.sizeY = 210.0;
+
 	// 입면 뷰 DB의 ID들을 획득함
 	err = ACAPI_Database (APIDb_GetElevationDatabasesID, &dbases, NULL);
 	if (err == NoError)
@@ -5190,6 +5201,11 @@ GSErrCode	exportAllElevationsToPDFSingleMode (void)
 		// 객체가 화면 전체에 꽉 차게 보이도록 함
 		ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
 		ACAPI_Database (APIDb_SetZoomID, &extent, NULL);
+		ACAPI_Automate (APIDo_ZoomID, &extent, NULL);
+
+		// 축척 변경하기
+		scale = (abs (extent.xMax - extent.xMin) < abs (extent.yMax - extent.yMin)) ? abs (extent.xMax - extent.xMin) : abs (extent.yMax - extent.yMin);
+		ACAPI_Database (APIDb_ChangeDrawingScaleID, &scale, &zoom);
 
 		// 저장하기
 		BNZeroMemory (&fsp, sizeof (API_FileSavePars));
@@ -5197,14 +5213,6 @@ GSErrCode	exportAllElevationsToPDFSingleMode (void)
 		ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 		sprintf (filename, "%s.pdf", GS::UniString (currentDB.title).ToCStr ().Get ());
 		fsp.file = new IO::Location (location, IO::Name (filename));
-
-		BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
-		pars_pdf.leftMargin = 5.0;
-		pars_pdf.rightMargin = 5.0;
-		pars_pdf.topMargin = 5.0;
-		pars_pdf.bottomMargin = 5.0;
-		pars_pdf.sizeX = 210.0;
-		pars_pdf.sizeY = 297.0;
 
 		err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pdf);
 
@@ -5255,6 +5263,8 @@ GSErrCode	exportAllElevationsToPDFMultiMode (void)
 
 	// 입면도 확대를 위한 변수
 	API_Box		extent;
+	double		scale = 100.0;
+	bool		zoom = true;
 
 	API_SpecFolderID	specFolderID = API_ApplicationFolderID;
 	IO::Location		location;
@@ -5311,6 +5321,20 @@ GSErrCode	exportAllElevationsToPDFMultiMode (void)
 		}
 	}
 
+	// 입면 뷰 DB의 ID들을 획득함
+	err = ACAPI_Database (APIDb_GetElevationDatabasesID, &dbases, NULL);
+	if (err == NoError)
+		nDbases = BMpGetSize (reinterpret_cast<GSPtr>(dbases)) / Sizeof32 (API_DatabaseUnId);
+
+	// PDF 파일 페이지 설정
+	BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
+	pars_pdf.leftMargin = 5.0;
+	pars_pdf.rightMargin = 5.0;
+	pars_pdf.topMargin = 5.0;
+	pars_pdf.bottomMargin = 5.0;
+	pars_pdf.sizeX = 297.0;
+	pars_pdf.sizeY = 210.0;
+
 	// 진행 상황 표시하는 기능 - 초기화
 	nPhase = 1;
 	cur = 1;
@@ -5337,11 +5361,6 @@ GSErrCode	exportAllElevationsToPDFMultiMode (void)
 			sprintf (fullLayerName, "%s", attrib.layer.head.name);
 			fullLayerName [strlen (fullLayerName)] = '\0';
 
-			// 입면 뷰 DB의 ID들을 획득함
-			err = ACAPI_Database (APIDb_GetElevationDatabasesID, &dbases, NULL);
-			if (err == NoError)
-				nDbases = BMpGetSize (reinterpret_cast<GSPtr>(dbases)) / Sizeof32 (API_DatabaseUnId);
-
 			// 입면 뷰들을 하나씩 순회함
 			for (GSIndex i = 0; i < nDbases; i++) {
 				API_DatabaseInfo dbPars;
@@ -5357,10 +5376,14 @@ GSErrCode	exportAllElevationsToPDFMultiMode (void)
 				// 현재 데이터베이스를 가져옴
 				ACAPI_Database (APIDb_GetCurrentDatabaseID, &currentDB, NULL);
 
-				// 객체가 화면 전체에 꽉 차게 보이도록 함 !!!
+				// 객체가 화면 전체에 꽉 차게 보이도록 함
 				ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
 				ACAPI_Database (APIDb_SetZoomID, &extent, NULL);
-				//ACAPI_Automate (APIDo_ZoomID, &extent, NULL);
+				ACAPI_Automate (APIDo_ZoomID, &extent, NULL);
+
+				// 축척 변경하기
+				scale = (abs (extent.xMax - extent.xMin) < abs (extent.yMax - extent.yMin)) ? abs (extent.xMax - extent.xMin) : abs (extent.yMax - extent.yMin);
+				ACAPI_Database (APIDb_ChangeDrawingScaleID, &scale, &zoom);
 
 				// 저장하기
 				BNZeroMemory (&fsp, sizeof (API_FileSavePars));
@@ -5369,21 +5392,10 @@ GSErrCode	exportAllElevationsToPDFMultiMode (void)
 				sprintf (filename, "%s - %s.pdf", fullLayerName, GS::UniString (currentDB.title).ToCStr ().Get ());
 				fsp.file = new IO::Location (location, IO::Name (filename));
 
-				BNZeroMemory (&pars_pdf, sizeof (API_SavePars_Pdf));
-				pars_pdf.leftMargin = 5.0;
-				pars_pdf.rightMargin = 5.0;
-				pars_pdf.topMargin = 5.0;
-				pars_pdf.bottomMargin = 5.0;
-				pars_pdf.sizeX = 210.0;
-				pars_pdf.sizeY = 297.0;
-
 				err = ACAPI_Automate (APIDo_SaveID, &fsp, &pars_pdf);
 
 				delete	fsp.file;
 			}
-
-			if (dbases != NULL)
-				BMpFree (reinterpret_cast<GSPtr>(dbases));
 
 			// 레이어 숨기기
 			attrib.layer.head.flags |= APILay_Hidden;
@@ -5399,6 +5411,9 @@ GSErrCode	exportAllElevationsToPDFMultiMode (void)
 
 	// 진행 상황 표시하는 기능 - 마무리
 	ACAPI_Interface (APIIo_CloseProcessWindowID, NULL, NULL);
+
+	if (dbases != NULL)
+		BMpFree (reinterpret_cast<GSPtr>(dbases));
 
 	// 모든 프로세스를 마치면 처음에 수집했던 보이는 레이어들을 다시 켜놓을 것
 	for (xx = 1 ; xx <= nVisibleLayers ; ++xx) {
