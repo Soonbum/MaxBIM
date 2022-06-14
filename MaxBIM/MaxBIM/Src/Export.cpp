@@ -4142,12 +4142,14 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 선택한 요소 가져오기 ( 벽, 기둥, 보, 슬래브, 모프, 객체)
-	if ( (getGuidsOfSelection (&walls, API_WallID, &nWalls) != NoError) &&
-		 (getGuidsOfSelection (&columns, API_ColumnID, &nColumns) != NoError) &&
-		 (getGuidsOfSelection (&beams, API_BeamID, &nBeams) != NoError) &&
-		 (getGuidsOfSelection (&slabs, API_SlabID, &nSlabs) != NoError) &&
-		 (getGuidsOfSelection (&morphs, API_MorphID, &nMorphs) != NoError) &&
-		 (getGuidsOfSelection (&objects, API_ObjectID, &nObjects) != NoError) ) {
+	getGuidsOfSelection (&walls, API_WallID, &nWalls);
+	getGuidsOfSelection (&columns, API_ColumnID, &nColumns);
+	getGuidsOfSelection (&beams, API_BeamID, &nBeams);
+	getGuidsOfSelection (&slabs, API_SlabID, &nSlabs);
+	getGuidsOfSelection (&morphs, API_MorphID, &nMorphs);
+	getGuidsOfSelection (&objects, API_ObjectID, &nObjects);
+
+	if ( (nWalls == 0) && (nColumns == 0) && (nBeams == 0) && (nSlabs == 0) && (nMorphs == 0) && (nObjects == 0) ) {
 		WriteReport_Alert ("요소들을 선택해야 합니다.");
 		return err;
 	}

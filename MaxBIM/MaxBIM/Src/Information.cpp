@@ -251,7 +251,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, L"배포일: 2022.06.09 - 17:43");
+			DGSetItemText (dialogID, itmIdx, L"배포일: 2022.06.14 - 09:41");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 
@@ -302,12 +302,16 @@ static GSErrCode __ACENV_CALL	APIHelpPaletteAPIControlCallBack (Int32 referenceI
 		switch (messageID) {
 			case APIPalMsg_ClosePalette:		DGModelessClose (modelessDialogID);
 												break;
-
-			case APIPalMsg_HidePalette_Begin:	break;
-			case APIPalMsg_HidePalette_End:		break;
-
-			case APIPalMsg_DisableItems_Begin:	break;
-			case APIPalMsg_DisableItems_End:	break;
+			case APIPalMsg_HidePalette_Begin:	DGHideModelessDialog (modelessDialogID);
+												break;
+			case APIPalMsg_HidePalette_End:		DGShowModelessDialog (modelessDialogID, DG_DF_FIRST);
+												break;
+			case APIPalMsg_DisableItems_Begin:	EnablePaletteControls (modelessDialogID, false);
+												break;
+			case APIPalMsg_DisableItems_End:	EnablePaletteControls (modelessDialogID, true);
+												break;
+			case APIPalMsg_IsPaletteVisible:	DGModelessClose (modelessDialogID);
+												break;
 			case APIPalMsg_OpenPalette:			break;
 			default:							break;
 		}

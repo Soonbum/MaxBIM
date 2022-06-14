@@ -45,6 +45,19 @@
 #define FALSE	0
 
 
+// 팔레트 창 제어를 위한 함수
+static void	EnablePaletteControls (short dialogID, bool enable)
+{
+	if (dialogID != 0 && DGIsDialogOpen (dialogID)) {
+		if (enable == true)
+			DGEnableItem (dialogID, DG_ALL_ITEMS);
+		else
+			DGDisableItem (dialogID, DG_ALL_ITEMS);
+	}
+
+	return;
+}
+
 // 벽 관련 정보
 struct InfoWall
 {

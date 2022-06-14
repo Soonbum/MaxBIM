@@ -178,6 +178,16 @@ GSErrCode	attach3DLabelOnZone (void)
 	return	err;
 }
 
+// 현재 평면도의 테이블폼에 버블 자동 배치
+GSErrCode	attachBubbleOnCurrentFloorPlan (void)
+{
+	GSErrCode	err = NoError;
+
+	//
+
+	return	err;
+}
+
 // [다이얼로그 박스] 레이어 선택
 short DGCALLBACK selectLayerHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData /* msgData */)
 {

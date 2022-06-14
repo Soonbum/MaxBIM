@@ -626,12 +626,16 @@ static GSErrCode __ACENV_CALL	qElemPaletteAPIControlCallBack (Int32 referenceID,
 		switch (messageID) {
 			case APIPalMsg_ClosePalette:		DGModelessClose (qElemInfo.dialogID);
 												break;
-
-			case APIPalMsg_HidePalette_Begin:	break;
-			case APIPalMsg_HidePalette_End:		break;
-
-			case APIPalMsg_DisableItems_Begin:	break;
-			case APIPalMsg_DisableItems_End:	break;
+			case APIPalMsg_HidePalette_Begin:	DGHideModelessDialog (qElemInfo.dialogID);
+												break;
+			case APIPalMsg_HidePalette_End:		DGShowModelessDialog (qElemInfo.dialogID, DG_DF_FIRST);
+												break;
+			case APIPalMsg_DisableItems_Begin:	EnablePaletteControls (qElemInfo.dialogID, false);
+												break;
+			case APIPalMsg_DisableItems_End:	EnablePaletteControls (qElemInfo.dialogID, true);
+												break;
+			case APIPalMsg_IsPaletteVisible:	DGModelessClose (qElemInfo.dialogID);
+												break;
 			case APIPalMsg_OpenPalette:			break;
 			default:							break;
 		}
@@ -1845,12 +1849,16 @@ static GSErrCode __ACENV_CALL	insulElemPaletteAPIControlCallBack (Int32 referenc
 		switch (messageID) {
 			case APIPalMsg_ClosePalette:		DGModelessClose (insulElemInfo.dialogID);
 												break;
-
-			case APIPalMsg_HidePalette_Begin:	break;
-			case APIPalMsg_HidePalette_End:		break;
-
-			case APIPalMsg_DisableItems_Begin:	break;
-			case APIPalMsg_DisableItems_End:	break;
+			case APIPalMsg_HidePalette_Begin:	DGHideModelessDialog (insulElemInfo.dialogID);
+												break;
+			case APIPalMsg_HidePalette_End:		DGShowModelessDialog (insulElemInfo.dialogID, DG_DF_FIRST);
+												break;
+			case APIPalMsg_DisableItems_Begin:	EnablePaletteControls (insulElemInfo.dialogID, false);
+												break;
+			case APIPalMsg_DisableItems_End:	EnablePaletteControls (insulElemInfo.dialogID, true);
+												break;
+			case APIPalMsg_IsPaletteVisible:	DGModelessClose (insulElemInfo.dialogID);
+												break;
 			case APIPalMsg_OpenPalette:			break;
 			default:							break;
 		}

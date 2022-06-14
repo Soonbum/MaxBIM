@@ -255,6 +255,14 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					});
 
 					break;
+
+				case 3:		// 현재 평면도의 테이블폼에 버블 자동 배치
+					err = ACAPI_CallUndoableCommand (L"현재 평면도의 테이블폼에 버블 자동 배치", [&] () -> GSErrCode {
+						//err = attachBubbleOnCurrentFloorPlan ();
+						return err;
+					});
+
+					break;
 			}
 			break;
 
@@ -347,6 +355,24 @@ GSErrCode __ACENV_CALL	Initialize (void)
 GSErrCode __ACENV_CALL	FreeData (void)
 {
 	DG::UnregisterAdditionalHelpLocation (MDID_DEVELOPER_ID, MDID_LOCAL_ID);
+
+	extern qElem qElemInfo;
+	if ((qElemInfo.dialogID != 0) || DGIsDialogOpen (qElemInfo.dialogID)) {
+		DGModelessClose (qElemInfo.dialogID);
+		qElemInfo.dialogID = 0;
+	}
+
+	extern insulElem insulElemInfo;
+	if ((insulElemInfo.dialogID != 0) || DGIsDialogOpen (insulElemInfo.dialogID)) {
+		DGModelessClose (insulElemInfo.dialogID);
+		insulElemInfo.dialogID = 0;
+	}
+
+	extern short modelessDialogID;
+	if ((modelessDialogID != 0) || DGIsDialogOpen (modelessDialogID)) {
+		DGModelessClose (modelessDialogID);
+		modelessDialogID = 0;
+	}
 
 	return NoError;
 }		// FreeData ()
