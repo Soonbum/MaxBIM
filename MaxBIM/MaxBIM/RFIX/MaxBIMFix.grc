@@ -593,3 +593,27 @@
 /* [  6] */	RightText		 90		 95		100		 23		LargePlain		"Object 1"
 /* [  7] */	UserControl		200		 89		160		 25		257	0x0006 0x0000 0		/* Layer Control - OBJECT 1	*/
 }
+
+/* ---------------------------------------------------------- Set Circular Bubble Object */
+'GDLG'  32511  Modal | grow	  0		  0		500		300		"Set Circular Bubble Object" {
+/* [  1] */	Button			170		250		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			260		250		 70		 25		LargePlain		"Cancel"
+
+/* [  3] */	LeftText		150		 20		 80		 25		LargePlain		"Diameter"
+/* [  4] */	LengthEdit		240		 15		100		 25		LargePlain		"0" "100"
+/* [  5] */	LeftText		150		 50		 80		 25		LargePlain		"Letter Size"
+/* [  6] */	LengthEdit		240		 45		100		 25		LargePlain		"0" "100"
+/* [  7] */	LeftText		150		 80		 80		 25		LargePlain		"Withdrawal Length"
+/* [  8] */	LengthEdit		240		 75		100		 25		LargePlain		"0" "100"
+/* [  9] */ LeftText		150		110		 80		 25		LargePlain		"Bubble Position"
+/* [ 10] */	PopupControl	240		105		100		 25		200		10
+							NoIcon	"UP"
+							NoIcon	"DOWN"
+							NoIcon	"LEFT"
+							NoIcon	"RIGHT"
+
+/* [ 11] */	Icon			165		168		 29		 14  	32502
+/* [ 12] */	LeftText		200		170		200		 23		LargePlain		"Layer Settings"
+/* [ 13] */	RightText		 90		195		100		 23		LargePlain		"Circular Bubble"
+/* [ 14] */	UserControl		200		189		160		 25		257	0x0006 0x0000 0		/* Layer Control - CIRCULAR BUBBLE	*/
+}

@@ -258,7 +258,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 
 				case 3:		// 현재 평면도의 테이블폼에 버블 자동 배치
 					err = ACAPI_CallUndoableCommand (L"현재 평면도의 테이블폼에 버블 자동 배치", [&] () -> GSErrCode {
-						//err = attachBubbleOnCurrentFloorPlan ();
+						err = attachBubbleOnCurrentFloorPlan ();
 						return err;
 					});
 
