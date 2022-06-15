@@ -250,7 +250,7 @@ GSErrCode	attachBubbleOnCurrentFloorPlan (void)
 {
 	GSErrCode	err = NoError;
 	short	result;
-	short	xx, mm;
+	short	xx, yy, mm;
 	API_StoryInfo	storyInfo;
 	CircularBubble	cbInfo;		// 원형 버블에 대한 정보
 	double	xMin, xMax;
@@ -274,6 +274,10 @@ GSErrCode	attachBubbleOnCurrentFloorPlan (void)
 	char			fullLayerName [512];
 	vector<LayerList>	layerList;
 
+	// 선택한 객체들의 레이어 인덱스들을 저장함
+	bool	bIndexFound;
+	vector<short>	selectedLayerIndex;
+
 	// 레이어 이름에서 접미사를 가져오기 위한 변수
 	char	bubbleText [64];
 	char	strEnd [32];
@@ -289,6 +293,24 @@ GSErrCode	attachBubbleOnCurrentFloorPlan (void)
 
 	// [1차 다이얼로그] 원형 버블 설정
 	result = DGModalDialog (ACAPI_GetOwnResModule (), 32511, ACAPI_GetOwnResModule (), setBubbleHandler, (DGUserData) &cbInfo);
+
+	// 선택한 객체들이 있다면 객체들의 레이어 인덱스들을 수집함
+	getGuidsOfSelection (&elemList, API_ObjectID, &nElems);
+	for (xx = 0 ; xx < nElems ; ++xx) {
+		BNZeroMemory (&elem, sizeof (API_Element));
+		elem.header.guid = elemList.Pop ();
+		err = ACAPI_Element_Get (&elem);
+
+		bIndexFound = false;
+		for (yy = 0 ; yy < selectedLayerIndex.size () ; ++yy) {
+			if (selectedLayerIndex [yy] == elem.header.layer)
+				bIndexFound = true;
+		}
+		if (bIndexFound == false)
+			selectedLayerIndex.push_back (elem.header.layer);
+	}
+	elemList.Clear ();
+	nElems = 0;
 
 	// 현재 활성 층의 인덱스를 가져옴
 	BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
@@ -380,14 +402,21 @@ GSErrCode	attachBubbleOnCurrentFloorPlan (void)
 			ACAPI_Element_GetElemList (API_ObjectID, &elemList, APIFilt_OnVisLayer);	// 보이는 레이어에 있음, 객체 타입만
 			nElems = elemList.GetSize ();
 
-			// 현재 층에 속한 객체들만 걸러냄
+			// 현재 층, 선택한 객체에 속한 객체들만 걸러냄
 			for (xx = 0 ; xx < nElems ; ++xx) {
 				BNZeroMemory (&elem, sizeof (API_Element));
 				elem.header.guid = elemList.Pop ();
 				err = ACAPI_Element_Get (&elem);
 
-				if ((elem.header.floorInd == cbInfo.floorInd) && (elem.header.layer == attrib.layer.head.index))
-					objects.Push (elem.header.guid);
+				if ((elem.header.floorInd == cbInfo.floorInd) && (elem.header.layer == attrib.layer.head.index)) {
+					bIndexFound = false;
+					for (yy = 0 ; yy < selectedLayerIndex.size () ; ++yy) {
+						if (elem.header.layer == selectedLayerIndex [yy])
+							bIndexFound = true;
+					}
+					if (bIndexFound == true)
+						objects.Push (elem.header.guid);
+				}
 			}
 			nObjects = objects.GetSize ();
 
