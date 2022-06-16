@@ -469,7 +469,7 @@ GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bCom
 	Int32	addParNum;
 
 	// 라이브러리 이름 선택
-	gsmName = L("좌표 19.gsm");
+	gsmName = L("라벨v1.0.gsm");
 
 	// 객체 로드
 	BNZeroMemory (&libPart, sizeof (libPart));
@@ -501,8 +501,14 @@ GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bCom
 	element.object.yRatio = bParam;
 	element.header.layer = layerInd;
 	element.header.floorInd = floorInd;
-	memo.params [0][15].value.real = bComment;
-	GS::ucscpy (memo.params [0][16].value.uStr, GS::UniString (comment.c_str ()).ToUStr ().Get ());
+	if (bComment == true)
+		setParameterByName (&memo, "bComment", "1");
+	else
+		setParameterByName (&memo, "bComment", "0");
+	
+	char txtComment [256];
+	strcpy (txtComment, comment.c_str ());
+	setParameterByName (&memo, "txtComment", txtComment);
 
 	// 객체 배치
 	ACAPI_Element_Create (&element, &memo);

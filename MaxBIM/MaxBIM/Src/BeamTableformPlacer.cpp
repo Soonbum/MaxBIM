@@ -71,10 +71,9 @@ GSErrCode	placeTableformOnBeam (void)
 
 	// 모프 객체 정보
 	InfoMorphForBeamTableform	infoMorph [2];
-	API_Coord3D					morph1_point [2];
-	API_Coord3D					morph2_point [2];
-	double						morph1_height = 0.0;
-	double						morph2_height = 0.0;
+	API_Coord3D					morph_p1 [2][2];
+	API_Coord3D					morph_p2 [2][2];
+	double						morph_height [2];
 
 	// 작업 층 정보
 	double					workLevel_beam;
@@ -121,6 +120,7 @@ GSErrCode	placeTableformOnBeam (void)
 	infoBeam.level		= elem.beam.level;
 	infoBeam.begC		= elem.beam.begC;
 	infoBeam.endC		= elem.beam.endC;
+	infoBeam.slantAngle	= elem.beam.slantAngle;
 
 	ACAPI_DisposeElemMemoHdls (&memo);
 
@@ -158,41 +158,35 @@ GSErrCode	placeTableformOnBeam (void)
 				trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
 				trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
 				trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
+				// 단위 벡터 생략
+				if ( ((abs (trCoord.x - 0) < EPS) && (abs (trCoord.y - 0) < EPS) && (abs (trCoord.z - 0) < EPS)) ||
+					 ((abs (trCoord.x - 1) < EPS) && (abs (trCoord.y - 0) < EPS) && (abs (trCoord.z - 0) < EPS)) ||
+					 ((abs (trCoord.x - 0) < EPS) && (abs (trCoord.y - 1) < EPS) && (abs (trCoord.z - 0) < EPS)) ||
+					 ((abs (trCoord.x - 0) < EPS) && (abs (trCoord.y - 0) < EPS) && (abs (trCoord.z - 1) < EPS)) )
+					 continue;
 				coords.Push (trCoord);
 			}
 		}
 		nNodes = coords.GetSize ();
 
-		// 1번째 모프의 양 끝점 추출
-		if (xx == 0) {
-			morph1_point [0] = coords [0];	// 모프의 1번째 점 저장
+		// 영역 모프의 길이와 높이를 알아냄
+		short ind = 0;
+		if (xx < 2) {
+			// 1, 2번째 모프
+			morph_p1 [xx][0] = coords [0];
 			for (yy = 1 ; yy < nNodes ; ++yy) {
-				// x, y 좌표 값이 같으면 통과하고, 다르면 2번째 점으로 저장
-				if ( (abs (morph1_point [0].x - coords [yy].x) < EPS) && (abs (morph1_point [0].y - coords [yy].y) < EPS) ) {
-					continue;
-				} else {
-					morph1_point [1] = coords [yy];
-					break;
+				// x, y 좌표 값이 같으면 p1에 저장하고, 다르면 p2에 저장
+				if ( (abs (morph_p1 [xx][0].x - coords [yy].x) < EPS) && (abs (morph_p1 [xx][0].y - coords [yy].y) < EPS) )
+					morph_p1 [xx][1] = coords [yy];
+				else {
+					if (ind < 2) {
+						morph_p2 [xx][ind] = coords [yy];
+						ind ++;
+					}
 				}
 			}
 
-			morph1_height = info3D.bounds.zMax - info3D.bounds.zMin;
-		}
-
-		// 2번째 모프의 양 끝점 추출
-		if (xx == 1) {
-			morph2_point [0] = coords [0];	// 모프의 1번째 점 저장
-			for (yy = 1 ; yy < nNodes ; ++yy) {
-				// x, y 좌표 값이 같으면 통과하고, 다르면 2번째 점으로 저장
-				if ( (abs (morph2_point [0].x - coords [yy].x) < EPS) && (abs (morph2_point [0].y - coords [yy].y) < EPS) ) {
-					continue;
-				} else {
-					morph2_point [1] = coords [yy];
-					break;
-				}
-			}
-
-			morph2_height = info3D.bounds.zMax - info3D.bounds.zMin;
+			morph_height [xx] = abs (morph_p1 [0][1].z - morph_p1 [0][0].z);
 		}
 
 		// 1번째 모프를 기반으로 좌하단, 우상단 점 가져오기
@@ -255,32 +249,20 @@ GSErrCode	placeTableformOnBeam (void)
 
 	// 영역 높이 저장
 	if (nMorphs == 2) {
-		if (morph1_height > morph2_height) {
-			placingZone.areaHeight_Left = morph1_height;
-			placingZone.areaHeight_Right = morph2_height;
+		if (morph_height [0] > morph_height [1]) {
+			placingZone.areaHeight_Left = morph_height [0];
+			placingZone.areaHeight_Right = morph_height [1];
 		} else {
-			placingZone.areaHeight_Left = morph2_height;
-			placingZone.areaHeight_Right = morph1_height;
+			placingZone.areaHeight_Left = morph_height [1];
+			placingZone.areaHeight_Right = morph_height [0];
 		}
 	} else {
-		placingZone.areaHeight_Left = morph1_height;
-		placingZone.areaHeight_Right = morph1_height;
+		placingZone.areaHeight_Left = morph_height [0];
+		placingZone.areaHeight_Right = morph_height [0];
 	}
 
-	// 보 길이, 단 길이를 100mm 단위로 끊을 것
-	placingZone.beamLength = round (GetDistance (morph1_point [0], morph1_point [1]) * 1000 / 1000.0, 1);
-
-	// 보 너비
-	placingZone.areaWidth_Bottom = infoBeam.width;
-
-	// 보 오프셋
-	placingZone.offset = infoBeam.offset;
-
-	// 보 윗면 고도
-	placingZone.level = infoBeam.level;
-
 	// 배치 기준 시작점, 끝점 (영역 모프의 높이가 높은쪽이 기준이 됨)
-	if (morph1_height > morph2_height) {
+	if (morph_height [0] > morph_height [1]) {
 		placingZone.begC.x = infoMorph [0].leftBottomX;
 		placingZone.begC.y = infoMorph [0].leftBottomY;
 		placingZone.begC.z = infoMorph [0].leftBottomZ;
@@ -301,6 +283,26 @@ GSErrCode	placeTableformOnBeam (void)
 
 		placingZone.ang = infoMorph [1].ang;
 	}
+
+	// 보 길이
+	API_Coord3D	p1 = (morph_p1 [0][0].z < morph_p1 [0][1].z) ? morph_p1 [0][0] : morph_p1 [0][1];
+	API_Coord3D	p2 = (morph_p2 [0][0].z < morph_p2 [0][1].z) ? morph_p2 [0][0] : morph_p2 [0][1];
+	placingZone.beamLength = GetDistance (p1, p2);
+
+	// 보 너비
+	placingZone.areaWidth_Bottom = infoBeam.width;
+
+	// 보 오프셋
+	placingZone.offset = infoBeam.offset;
+
+	// 보 윗면 고도
+	placingZone.level = infoBeam.level;
+
+	// 경사 각도 보정
+	if (GetDistance (placingZone.begC.x, placingZone.begC.y, infoBeam.begC.x, infoBeam.begC.y) < GetDistance (placingZone.endC.x, placingZone.endC.y, infoBeam.endC.x, infoBeam.endC.y))
+		placingZone.slantAngle = infoBeam.slantAngle;
+	else
+		placingZone.slantAngle = -infoBeam.slantAngle;
 
 	// 작업 층 높이 반영
 	workLevel_beam = getWorkLevel (infoBeam.floorInd);

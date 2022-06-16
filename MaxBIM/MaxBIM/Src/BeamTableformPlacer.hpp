@@ -225,6 +225,7 @@ public:
 
 	double	beamLength;			// 보 길이
 	double	offset;				// 보 오프셋
+	double	slantAngle;			// 기울어진 각도 (경사 보)
 
 	// 보와의 간격
 	double	gapSide;			// 보와의 간격 (측면)
