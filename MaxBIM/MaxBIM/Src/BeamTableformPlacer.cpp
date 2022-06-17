@@ -71,9 +71,12 @@ GSErrCode	placeTableformOnBeam (void)
 
 	// 모프 객체 정보
 	InfoMorphForBeamTableform	infoMorph [2];
-	API_Coord3D					morph_p1 [2][2];
-	API_Coord3D					morph_p2 [2][2];
-	double						morph_height [2];
+	API_Coord3D					morph_p1 [2][2];	// 모프 2개의 윗쪽/아래쪽 시작점
+	API_Coord3D					morph_p2 [2][2];	// 모프 2개의 윗쪽/아래쪽 끝점
+	double						morph_height [2];	// 모프 2개의 높이
+
+	// 포인트 임시 변수
+	API_Coord3D	pT;
 
 	// 작업 층 정보
 	double					workLevel_beam;
@@ -169,73 +172,94 @@ GSErrCode	placeTableformOnBeam (void)
 		}
 		nNodes = coords.GetSize ();
 
-		// 영역 모프의 길이와 높이를 알아냄
+		// 영역 모프의 시작점/끝점과 높이를 알아냄
 		short ind = 0;
-		if (xx < 2) {
-			// 1, 2번째 모프
-			morph_p1 [xx][0] = coords [0];
-			for (yy = 1 ; yy < nNodes ; ++yy) {
-				// x, y 좌표 값이 같으면 p1에 저장하고, 다르면 p2에 저장
-				if ( (abs (morph_p1 [xx][0].x - coords [yy].x) < EPS) && (abs (morph_p1 [xx][0].y - coords [yy].y) < EPS) )
-					morph_p1 [xx][1] = coords [yy];
-				else {
-					if (ind < 2) {
-						morph_p2 [xx][ind] = coords [yy];
-						ind ++;
-					}
+		morph_p1 [xx][0] = coords [0];		// 1번째 노드는 무조건 저장
+
+		for (yy = 1 ; yy < nNodes ; ++yy) {
+			// x, y 좌표 값이 같으면 p1에 저장하고, 다르면 p2에 저장
+			if ( (abs (morph_p1 [xx][0].x - coords [yy].x) < EPS) && (abs (morph_p1 [xx][0].y - coords [yy].y) < EPS) )
+				morph_p1 [xx][1] = coords [yy];
+			else {
+				if (ind < 2) {
+					morph_p2 [xx][ind] = coords [yy];
+					ind ++;
 				}
 			}
-
-			morph_height [xx] = abs (morph_p1 [0][1].z - morph_p1 [0][0].z);
 		}
 
-		// 1번째 모프를 기반으로 좌하단, 우상단 점 가져오기
-		if (xx == 0) {
-			// 모프의 좌하단, 우상단 점 지정
-			if (abs (elem.morph.tranmat.tmx [11] - info3D.bounds.zMin) < EPS) {
-				// 좌하단 좌표 결정
-				infoMorph [xx].leftBottomX = elem.morph.tranmat.tmx [3];
-				infoMorph [xx].leftBottomY = elem.morph.tranmat.tmx [7];
-				infoMorph [xx].leftBottomZ = elem.morph.tranmat.tmx [11];
+		// 점 고도 조정
+		// morph_p1, morph_p2의 [xx][0]: 낮은 점
+		// morph_p1, morph_p2의 [xx][1]: 높은 점
+		if (morph_p1 [xx][0].z > morph_p1 [xx][1].z) {
+			pT = morph_p1 [xx][0];
+			morph_p1 [xx][0] = morph_p1 [xx][1];
+			morph_p1 [xx][1] = pT;
+		}
 
-				// 우상단 좌표는?
-				if (abs (infoMorph [xx].leftBottomX - info3D.bounds.xMin) < EPS)
-					infoMorph [xx].rightTopX = info3D.bounds.xMax;
-				else
-					infoMorph [xx].rightTopX = info3D.bounds.xMin;
-				if (abs (infoMorph [xx].leftBottomY - info3D.bounds.yMin) < EPS)
-					infoMorph [xx].rightTopY = info3D.bounds.yMax;
-				else
-					infoMorph [xx].rightTopY = info3D.bounds.yMin;
-				if (abs (infoMorph [xx].leftBottomZ - info3D.bounds.zMin) < EPS)
-					infoMorph [xx].rightTopZ = info3D.bounds.zMax;
-				else
-					infoMorph [xx].rightTopZ = info3D.bounds.zMin;
-			} else {
-				// 우상단 좌표 결정
-				infoMorph [xx].rightTopX = elem.morph.tranmat.tmx [3];
-				infoMorph [xx].rightTopY = elem.morph.tranmat.tmx [7];
-				infoMorph [xx].rightTopZ = elem.morph.tranmat.tmx [11];
+		if (morph_p2 [xx][0].z > morph_p2 [xx][1].z) {
+			pT = morph_p2 [xx][0];
+			morph_p2 [xx][0] = morph_p2 [xx][1];
+			morph_p2 [xx][1] = pT;
+		}
 
-				// 좌하단 좌표는?
-				if (abs (infoMorph [xx].rightTopX - info3D.bounds.xMin) < EPS)
-					infoMorph [xx].leftBottomX = info3D.bounds.xMax;
-				else
-					infoMorph [xx].leftBottomX = info3D.bounds.xMin;
-				if (abs (infoMorph [xx].rightTopY - info3D.bounds.yMin) < EPS)
-					infoMorph [xx].leftBottomY = info3D.bounds.yMax;
-				else
-					infoMorph [xx].leftBottomY = info3D.bounds.yMin;
-				if (abs (infoMorph [xx].rightTopZ - info3D.bounds.zMin) < EPS)
-					infoMorph [xx].leftBottomZ = info3D.bounds.zMax;
-				else
-					infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
-			}
+		morph_height [xx] = abs (morph_p1 [xx][1].z - morph_p1 [xx][0].z);
 
-			// 모프의 Z축 회전 각도
-			dx = infoMorph [xx].rightTopX - infoMorph [xx].leftBottomX;
-			dy = infoMorph [xx].rightTopY - infoMorph [xx].leftBottomY;
-			infoMorph [xx].ang = atan2 (dy, dx);
+		// 모프의 좌하단/우상단 점 가져오기
+		if (abs (elem.morph.tranmat.tmx [11] - info3D.bounds.zMin) < EPS) {
+			// 좌하단 좌표 결정
+			infoMorph [xx].leftBottomX = elem.morph.tranmat.tmx [3];
+			infoMorph [xx].leftBottomY = elem.morph.tranmat.tmx [7];
+			infoMorph [xx].leftBottomZ = elem.morph.tranmat.tmx [11];
+
+			// 우상단 좌표는?
+			if (abs (infoMorph [xx].leftBottomX - info3D.bounds.xMin) < EPS)
+				infoMorph [xx].rightTopX = info3D.bounds.xMax;
+			else
+				infoMorph [xx].rightTopX = info3D.bounds.xMin;
+			if (abs (infoMorph [xx].leftBottomY - info3D.bounds.yMin) < EPS)
+				infoMorph [xx].rightTopY = info3D.bounds.yMax;
+			else
+				infoMorph [xx].rightTopY = info3D.bounds.yMin;
+			if (abs (infoMorph [xx].leftBottomZ - info3D.bounds.zMin) < EPS)
+				infoMorph [xx].rightTopZ = info3D.bounds.zMax;
+			else
+				infoMorph [xx].rightTopZ = info3D.bounds.zMin;
+		} else {
+			// 우상단 좌표 결정
+			infoMorph [xx].rightTopX = elem.morph.tranmat.tmx [3];
+			infoMorph [xx].rightTopY = elem.morph.tranmat.tmx [7];
+			infoMorph [xx].rightTopZ = elem.morph.tranmat.tmx [11];
+
+			// 좌하단 좌표는?
+			if (abs (infoMorph [xx].rightTopX - info3D.bounds.xMin) < EPS)
+				infoMorph [xx].leftBottomX = info3D.bounds.xMax;
+			else
+				infoMorph [xx].leftBottomX = info3D.bounds.xMin;
+			if (abs (infoMorph [xx].rightTopY - info3D.bounds.yMin) < EPS)
+				infoMorph [xx].leftBottomY = info3D.bounds.yMax;
+			else
+				infoMorph [xx].leftBottomY = info3D.bounds.yMin;
+			if (abs (infoMorph [xx].rightTopZ - info3D.bounds.zMin) < EPS)
+				infoMorph [xx].leftBottomZ = info3D.bounds.zMax;
+			else
+				infoMorph [xx].leftBottomZ = info3D.bounds.zMin;
+		}
+
+		// 모프의 Z축 회전 각도 (벽의 설치 각도)
+		dx = infoMorph [xx].rightTopX - infoMorph [xx].leftBottomX;
+		dy = infoMorph [xx].rightTopY - infoMorph [xx].leftBottomY;
+		infoMorph [xx].ang = RadToDegree (atan2 (dy, dx));
+
+		// 모프의 좌하단 점과 가까운 점을 시작점, 먼 점을 끝점으로 지정함
+		if ( GetDistance (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].leftBottomZ, morph_p1 [xx][0].x, morph_p1 [xx][0].y, morph_p1 [xx][0].z)
+		   > GetDistance (infoMorph [xx].leftBottomX, infoMorph [xx].leftBottomY, infoMorph [xx].leftBottomZ, morph_p2 [xx][0].x, morph_p2 [xx][0].y, morph_p2 [xx][0].z)) {
+
+			   for (yy = 0 ; yy < 2 ; ++yy) {
+				   pT = morph_p1 [xx][yy];
+				   morph_p1 [xx][yy] = morph_p2 [xx][yy];
+				   morph_p2 [xx][yy] = pT;
+			   }
 		}
 
 		// 저장된 좌표값 버리기
@@ -247,7 +271,14 @@ GSErrCode	placeTableformOnBeam (void)
 		deleteElements (elems);
 	}
 
-	// 영역 높이 저장
+	// 아래쪽 좌하단 좌표를 시작점, 아래쪽 끝점을 끝점으로 지정
+	placingZone.begC = morph_p1 [0][0];
+	placingZone.endC = morph_p2 [0][0];
+
+	// 영역 회전 각도를 저장함
+	placingZone.ang = DegreeToRad (infoMorph [0].ang);
+
+	// 영역 높이를 저장함
 	if (nMorphs == 2) {
 		if (morph_height [0] > morph_height [1]) {
 			placingZone.areaHeight_Left = morph_height [0];
@@ -262,26 +293,32 @@ GSErrCode	placeTableformOnBeam (void)
 	}
 
 	// 배치 기준 시작점, 끝점 (영역 모프의 높이가 높은쪽이 기준이 됨)
-	if (morph_height [0] > morph_height [1]) {
-		placingZone.begC.x = infoMorph [0].leftBottomX;
-		placingZone.begC.y = infoMorph [0].leftBottomY;
-		placingZone.begC.z = infoMorph [0].leftBottomZ;
+	if (nMorphs == 2) {
+		if (morph_height [0] > morph_height [1]) {
+			placingZone.begC.x = morph_p1 [0][0].x;
+			placingZone.begC.y = morph_p1 [0][0].y;
+			placingZone.begC.z = morph_p1 [0][0].z;
 
-		placingZone.endC.x = infoMorph [0].rightTopX;
-		placingZone.endC.y = infoMorph [0].rightTopY;
-		placingZone.endC.z = infoMorph [0].leftBottomZ;
+			placingZone.endC.x = morph_p2 [0][0].x;
+			placingZone.endC.y = morph_p2 [0][0].y;
+			placingZone.endC.z = morph_p2 [0][0].z;
+		} else {
+			placingZone.begC.x = morph_p1 [1][0].x;
+			placingZone.begC.y = morph_p1 [1][0].y;
+			placingZone.begC.z = morph_p1 [1][0].z;
 
-		placingZone.ang = infoMorph [0].ang;
+			placingZone.endC.x = morph_p2 [1][0].x;
+			placingZone.endC.y = morph_p2 [1][0].y;
+			placingZone.endC.z = morph_p2 [1][0].z;
+		}
 	} else {
-		placingZone.begC.x = infoMorph [1].leftBottomX;
-		placingZone.begC.y = infoMorph [1].leftBottomY;
-		placingZone.begC.z = infoMorph [1].leftBottomZ;
+		placingZone.begC.x = morph_p1 [0][0].x;
+		placingZone.begC.y = morph_p1 [0][0].y;
+		placingZone.begC.z = morph_p1 [0][0].z;
 
-		placingZone.endC.x = infoMorph [1].rightTopX;
-		placingZone.endC.y = infoMorph [1].rightTopY;
-		placingZone.endC.z = infoMorph [1].leftBottomZ;
-
-		placingZone.ang = infoMorph [1].ang;
+		placingZone.endC.x = morph_p2 [0][0].x;
+		placingZone.endC.y = morph_p2 [0][0].y;
+		placingZone.endC.z = morph_p2 [0][0].z;
 	}
 
 	// 보 길이
@@ -298,11 +335,8 @@ GSErrCode	placeTableformOnBeam (void)
 	// 보 윗면 고도
 	placingZone.level = infoBeam.level;
 
-	// 경사 각도 보정
-	if (GetDistance (placingZone.begC.x, placingZone.begC.y, infoBeam.begC.x, infoBeam.begC.y) < GetDistance (placingZone.endC.x, placingZone.endC.y, infoBeam.endC.x, infoBeam.endC.y))
-		placingZone.slantAngle = infoBeam.slantAngle;
-	else
-		placingZone.slantAngle = -infoBeam.slantAngle;
+	// 경사 각도 저장
+	placingZone.slantAngle = infoBeam.slantAngle;
 
 	// 작업 층 높이 반영
 	workLevel_beam = getWorkLevel (infoBeam.floorInd);

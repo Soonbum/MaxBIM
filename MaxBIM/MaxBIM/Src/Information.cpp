@@ -181,6 +181,10 @@ short DGCALLBACK helpHandler (short message, short dialogID, short item, DGUserD
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					DGSetItemText (dialogID, itmIdx, L"다음 요소를 선택한 후 실행하십시오: 보, 모프, (높이가 다른 모프)");
 					DGShowItem (dialogID, itmIdx);
+					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 110, 350, 300, 23);
+					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
+					DGSetItemText (dialogID, itmIdx, L"단, 경사 보의 경우 영역 모프는 왼쪽이 낮아야 합니다. (단일 모프만 가능)");
+					DGShowItem (dialogID, itmIdx);
 
 					break;
 
@@ -251,7 +255,7 @@ short DGCALLBACK aboutHandler (short message, short dialogID, short item, DGUser
 			// 라벨: 버전 (최근 배포일)
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 250, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, L"배포일: 2022.06.16 - 14:29");
+			DGSetItemText (dialogID, itmIdx, L"배포일: 2022.06.17 - 10:26");
 			DGShowItem (dialogID, itmIdx);
 			itmPosY += 30;
 

@@ -5201,9 +5201,8 @@ GSErrCode	exportAllElevationsToPDFSingleMode (void)
 		ACAPI_Database (APIDb_GetCurrentDatabaseID, &currentDB, NULL);
 
 		// 객체가 화면 전체에 꽉 차게 보이도록 함
-		ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
 		ACAPI_Database (APIDb_SetZoomID, &extent, NULL);
-		ACAPI_Automate (APIDo_ZoomID, &extent, NULL);
+		ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
 
 		// 축척 변경하기
 		scale = (abs (extent.xMax - extent.xMin) < abs (extent.yMax - extent.yMin)) ? abs (extent.xMax - extent.xMin) : abs (extent.yMax - extent.yMin);
@@ -5379,9 +5378,8 @@ GSErrCode	exportAllElevationsToPDFMultiMode (void)
 				ACAPI_Database (APIDb_GetCurrentDatabaseID, &currentDB, NULL);
 
 				// 객체가 화면 전체에 꽉 차게 보이도록 함
-				ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
 				ACAPI_Database (APIDb_SetZoomID, &extent, NULL);
-				ACAPI_Automate (APIDo_ZoomID, &extent, NULL);
+				ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
 
 				// 축척 변경하기
 				scale = (abs (extent.xMax - extent.xMin) < abs (extent.yMax - extent.yMin)) ? abs (extent.xMax - extent.xMin) : abs (extent.yMax - extent.yMin);
