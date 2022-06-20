@@ -9,7 +9,8 @@
 
 using namespace exportDG;
 
-VisibleObjectInfo	visibleObjInfo;	// 보이는 레이어 상의 객체별 명칭, 존재 여부, 보이기 여부
+VisibleObjectInfo	visibleObjInfo;			// 보이는 레이어 상의 객체별 명칭, 존재 여부, 보이기 여부
+static short	EDITCONTROL_SCALE_VALUE;	// 축척 값을 입력하는 Edit컨트롤의 ID 값
 
 
 // 배열 초기화 함수
@@ -5151,6 +5152,7 @@ GSErrCode	exportAllElevationsToPDFSingleMode (void)
 	GSErrCode	err = NoError;
 	bool		regenerate = true;
 	char		filename [256];
+	bool		bAsked = false;
 
 	// 입면도 DB를 가져오기 위한 변수
 	API_DatabaseUnId*	dbases = NULL;
@@ -5203,12 +5205,16 @@ GSErrCode	exportAllElevationsToPDFSingleMode (void)
 		// 현재 데이터베이스를 가져옴
 		ACAPI_Database (APIDb_GetCurrentDatabaseID, &currentDB, NULL);
 
-		// 객체가 화면 전체에 꽉 차게 보이도록 함
-		ACAPI_Database (APIDb_SetZoomID, &extent, NULL);
-		ACAPI_Database (APIDb_GetZoomID, &extent, NULL);
+		// 현재 도면의 드로잉 범위를 가져옴
+		ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
 
 		// 축척 변경하기
-		scale = (abs (extent.xMax - extent.xMin) < abs (extent.yMax - extent.yMin)) ? abs (extent.xMax - extent.xMin) : abs (extent.yMax - extent.yMin);
+		if (bAsked == false) {
+			scale = (abs (extent.xMax - extent.xMin) < abs (extent.yMax - extent.yMin)) ? abs (extent.xMax - extent.xMin) : abs (extent.yMax - extent.yMin);
+			scale *= 2;
+			DGBlankModalDialog (300, 150, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, scaleQuestionHandler, (DGUserData) &scale);
+			bAsked = true;
+		}
 		ACAPI_Database (APIDb_ChangeDrawingScaleID, &scale, &zoom);
 
 		// 저장하기
@@ -5240,6 +5246,7 @@ GSErrCode	exportAllElevationsToPDFMultiMode (void)
 	short		xx, mm;
 	bool		regenerate = true;
 	char		filename [256];
+	bool		bAsked = false;
 
 	// 레이어 관련 변수
 	short			nLayers;
@@ -5380,12 +5387,16 @@ GSErrCode	exportAllElevationsToPDFMultiMode (void)
 				// 현재 데이터베이스를 가져옴
 				ACAPI_Database (APIDb_GetCurrentDatabaseID, &currentDB, NULL);
 
-				// 객체가 화면 전체에 꽉 차게 보이도록 함
-				ACAPI_Database (APIDb_SetZoomID, &extent, NULL);
-				ACAPI_Database (APIDb_GetZoomID, &extent, NULL);
+				// 현재 도면의 드로잉 범위를 가져옴
+				ACAPI_Database (APIDb_GetExtentID, &extent, NULL);
 
 				// 축척 변경하기
-				scale = (abs (extent.xMax - extent.xMin) < abs (extent.yMax - extent.yMin)) ? abs (extent.xMax - extent.xMin) : abs (extent.yMax - extent.yMin);
+				if (bAsked == false) {
+					scale = (abs (extent.xMax - extent.xMin) < abs (extent.yMax - extent.yMin)) ? abs (extent.xMax - extent.xMin) : abs (extent.yMax - extent.yMin);
+					scale *= 2;
+					DGBlankModalDialog (300, 150, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, scaleQuestionHandler, (DGUserData) &scale);
+					bAsked = true;
+				}
 				ACAPI_Database (APIDb_ChangeDrawingScaleID, &scale, &zoom);
 
 				// 저장하기
@@ -5642,6 +5653,70 @@ short DGCALLBACK filterSelectionHandler (short message, short dialogID, short it
 
 				default:
 					item = 0;
+					break;
+			}
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+	}
+
+	result = item;
+
+	return	result;
+}
+
+// [다이얼로그] 사용자가 축척 값을 직접 입력할 수 있도록 함
+short DGCALLBACK scaleQuestionHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData /* msgData */)
+{
+	short	result;
+	short	idxItem;
+	double	*scale = (double*) userData;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, "입면도 축척값 입력하기");
+
+			// 적용 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 70, 110, 70, 25);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, "예");
+			DGShowItem (dialogID, DG_OK);
+
+			// 종료 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 160, 110, 70, 25);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, "아니오");
+			DGShowItem (dialogID, DG_CANCEL);
+
+			// 라벨: 안내문
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 30, 15, 200, 25);
+			DGSetItemFont (dialogID, idxItem, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, idxItem, "입면도의 축척을 변경하시겠습니까?\n값이 작아질수록 도면이 확대됩니다.");
+			DGShowItem (dialogID, idxItem);
+
+			// 라벨: 축척
+			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 130, 60, 30, 23);
+			DGSetItemFont (dialogID, idxItem, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, idxItem, "1 : ");
+			DGShowItem (dialogID, idxItem);
+
+			// Edit 컨트롤: 축척
+			EDITCONTROL_SCALE_VALUE = DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 161, 54, 60, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_SCALE_VALUE, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemValDouble (dialogID, EDITCONTROL_SCALE_VALUE, *scale);
+			DGShowItem (dialogID, EDITCONTROL_SCALE_VALUE);
+
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					*scale = DGGetItemValDouble (dialogID, EDITCONTROL_SCALE_VALUE);
+					break;
+				case DG_CANCEL:
 					break;
 			}
 		case DG_MSG_CLOSE:
