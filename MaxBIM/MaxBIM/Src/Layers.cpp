@@ -875,9 +875,9 @@ GSErrCode	showLayersEasily (void)
 	}
 	
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	bool	regenerate = true;
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//bool	regenerate = true;
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 메모리 해제
 	deallocateMemory (&layerInfo);
@@ -2011,9 +2011,9 @@ GSErrCode	makeLayersEasily (void)
 	deallocateMemory (&layerInfo);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	bool	regenerate = true;
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//bool	regenerate = true;
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 생성된 레이어 개수 보여주기
 	WriteReport_Alert ("총 %d 개의 레이어가 생성되었습니다.", madeLayers);
@@ -2873,7 +2873,7 @@ GSErrCode	assignLayerEasily (void)
 	suspendGroups (true);
 
 	// 선택한 객체가 있는지 확인함
-	err = getGuidsOfSelection (&objects, API_ZombieElemID, &nObjects);
+	err = getGuidsOfSelection (&objects, API_ObjectID, &nObjects);
 	if (err == APIERR_NOPLAN) {
 		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
 	}
@@ -3251,9 +3251,9 @@ GSErrCode	assignLayerEasily (void)
 	suspendGroups (false);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	bool	regenerate = true;
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//bool	regenerate = true;
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	return	err;
 }
@@ -4801,9 +4801,9 @@ GSErrCode	inspectLayerNames (void)
 	deallocateMemory (&layerInfo);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	bool	regenerate = true;
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//bool	regenerate = true;
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 그룹화 일시정지 OFF
 	suspendGroups (false);

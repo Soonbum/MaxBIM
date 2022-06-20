@@ -237,7 +237,7 @@ GSErrCode	exportSelectedElementInfo (void)
 {
 	GSErrCode	err = NoError;
 	unsigned short		xx, yy, zz;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 	
 	// 선택한 요소가 없으면 오류
 	GS::Array<API_Guid>		objects;
@@ -276,8 +276,8 @@ GSErrCode	exportSelectedElementInfo (void)
 	suspendGroups (true);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 선택한 요소 가져오기
 	if (getGuidsOfSelection (&objects, API_ObjectID, &nObjects) != NoError) {
@@ -1515,7 +1515,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	GSErrCode	err = NoError;
 	unsigned short		xx, yy, zz;
 	short		mm;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 
 	// 모든 객체들의 원점 좌표를 전부 저장함
 	vector<API_Coord3D>	vecPos;
@@ -1586,8 +1586,8 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	suspendGroups (true);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -3095,7 +3095,7 @@ GSErrCode	exportBeamTableformInformation (void)
 	GSErrCode	err = NoError;
 	unsigned short		xx, yy, zz;
 	short	mm;
-	bool	regenerate = true;
+	//bool	regenerate = true;
 
 	GS::Array<API_Guid>		objects;
 	long					nObjects = 0;
@@ -3142,8 +3142,8 @@ GSErrCode	exportBeamTableformInformation (void)
 	suspendGroups (true);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -3852,7 +3852,7 @@ GSErrCode	calcTableformArea (void)
 	GSErrCode	err = NoError;
 	unsigned short		xx;
 	short		mm;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 
 	// 모든 객체, 보 저장
 	GS::Array<API_Guid>		elemList;
@@ -3897,8 +3897,8 @@ GSErrCode	calcTableformArea (void)
 	suspendGroups (true);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -4043,6 +4043,7 @@ GSErrCode	calcTableformArea (void)
 
 						if (bTargetObject == true) {
 							sprintf (buffer, "%s", getParameterStringByName (&memo, "gs_list_custom04"));
+							removeCharInStr (buffer, ',');
 							totalArea += atof (buffer);
 						}
 					}
@@ -4101,7 +4102,7 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 {
 	GSErrCode	err = NoError;
 	unsigned short		xx;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 	
 	GS::Array<API_Guid>		walls;
 	GS::Array<API_Guid>		columns;
@@ -4138,8 +4139,8 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 	suspendGroups (true);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 선택한 요소 가져오기 ( 벽, 기둥, 보, 슬래브, 모프, 객체)
 	getGuidsOfSelection (&walls, API_WallID, &nWalls);
@@ -4255,7 +4256,7 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 	GSErrCode	err = NoError;
 	unsigned short		xx;
 	short		mm;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 	
 	// 모든 객체 및 벽, 기둥, 보, 슬래브, 모프 저장
 	GS::Array<API_Guid>		elemList;
@@ -4314,8 +4315,8 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 	suspendGroups (true);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -4585,7 +4586,7 @@ GSErrCode	calcSlabQuantityAndAreaSingleMode (void)
 	GSErrCode err = NoError;
 
 	unsigned short		xx;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 	
 	GS::Array<API_Guid>		slabs;
 
@@ -4603,8 +4604,8 @@ GSErrCode	calcSlabQuantityAndAreaSingleMode (void)
 	suspendGroups (true);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 선택한 요소 가져오기
 	err = getGuidsOfSelection (&slabs, API_SlabID, &nSlabs);
@@ -4642,7 +4643,7 @@ GSErrCode	calcSlabQuantityAndAreaMultiMode (void)
 	GSErrCode err = NoError;
 	unsigned short		xx;
 	short		mm;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 	
 	// 슬래브 저장
 	GS::Array<API_Guid>		elemList;
@@ -4682,8 +4683,8 @@ GSErrCode	calcSlabQuantityAndAreaMultiMode (void)
 	suspendGroups (true);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -4841,7 +4842,7 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 	GSErrCode err = NoError;
 
 	unsigned short		xx;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 
 	GS::Array<API_Guid>		objects;
 
@@ -4857,8 +4858,8 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 	suspendGroups (true);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 선택한 요소 가져오기
 	err = getGuidsOfSelection (&objects, API_ObjectID, &nObjects);
@@ -4884,6 +4885,7 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 			if (err == NoError) {
 				if (my_strcmp (getParameterStringByName (&memo, "sup_type"), "단열재") == 0) {
 					sprintf (buffer, "%s", getParameterStringByName (&memo, "gs_list_custom2"));
+					removeCharInStr (buffer, ',');
 					surface_objects += atof (buffer);
 				}
 			}
@@ -4907,7 +4909,7 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 	GSErrCode	err = NoError;
 	unsigned short		xx;
 	short		mm;
-	bool		regenerate = true;
+	//bool		regenerate = true;
 
 	// 모든 객체, 보 저장
 	GS::Array<API_Guid>		elemList;
@@ -4953,8 +4955,8 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 	suspendGroups (true);
 
 	// 화면 새로고침
-	ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -5089,6 +5091,7 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 						if (bTargetObject == true) {
 							nTarget ++;
 							sprintf (buffer, "%s", getParameterStringByName (&memo, "gs_list_custom2"));
+							removeCharInStr (buffer, ',');
 							totalArea += atof (buffer);
 						}
 					}

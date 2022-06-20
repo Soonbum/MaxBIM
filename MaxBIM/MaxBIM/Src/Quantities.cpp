@@ -33,7 +33,7 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 	API_UCCallbackType	ucb;
 	GSErrCode	err = NoError;
 	GSErrCode	inputErr;
-	bool	regenerate = true;
+	//bool	regenerate = true;
 	short	xx;
 
 	API_Element			elem;
@@ -397,8 +397,8 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 							ACAPI_DisposeElemMemoHdls (&memo);
 
 							// 화면 새로고침
-							ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-							ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+							//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+							//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 						} while (inputErr != APIERR_CANCEL);
 
@@ -592,8 +592,8 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 							ACAPI_DisposeElemMemoHdls (&memo);
 
 							// 화면 새로고침
-							ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-							ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+							//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+							//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 						} while (inputErr != APIERR_CANCEL);
 
@@ -666,7 +666,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 	API_UCCallbackType	ucb;
 	GSErrCode	err = NoError;
 	GSErrCode	inputErr;
-	bool	regenerate = true;
+	//bool	regenerate = true;
 
 	API_Element			elem;
 	API_ElementMemo		memo;
@@ -1815,8 +1815,8 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 							elemList.Clear (false);
 
 							// 화면 새로고침
-							ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-							ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
+							//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
+							//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 						} while (inputErr != APIERR_CANCEL);
 

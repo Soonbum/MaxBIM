@@ -454,6 +454,36 @@ short	isStringDouble (const char *str)
 	return 1;	// 그밖의 경우는 숫자
 }
 
+// 문자열 str에서 특정 문자 ch를 제거함 (제거되면 true, 그대로이면 false)
+bool	removeCharInStr (char *str, const char ch)
+{
+	int count = 0;
+	int curIndex;
+
+	int len = (int)strlen (str);
+
+	curIndex = 0;
+	while (curIndex < len) {
+		if (str [curIndex] == ch)
+			count ++;
+
+		// 제거할 문자를 찾으면 하나씩 앞으로 당김
+		if (count > 0)
+			str [curIndex] = str [curIndex + 1];
+
+		curIndex ++;
+
+		// 만약 제거할 문자가 1개보다 많으면 루프를 처음부터 다시 순회할 것
+		if ((curIndex == len-1) && (count > 1))
+			curIndex = 0;
+	}
+
+	if (count > 0)
+		return true;
+	else
+		return false;
+}
+
 ////////////////////////////////////////////////// 객체 배치
 // 좌표 라벨을 배치함
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd)
@@ -1646,8 +1676,6 @@ void		suspendGroups (bool on)
 
 	ACAPI_Environment (APIEnv_IsSuspendGroupOnID, &suspGrp);	// 그룹화 일시정지 상태 여부 가져옴
 
-	if (on == true)
-		if (suspGrp == false)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
-	else
-		if (suspGrp == true)	ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	if ((suspGrp == false) && (on == true))		ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+	if ((suspGrp == true) && (on == false))		ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
 }
