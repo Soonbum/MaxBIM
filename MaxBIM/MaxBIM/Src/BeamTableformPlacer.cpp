@@ -376,7 +376,6 @@ SECOND:
 	// 객체 위치 재조정
 	placingZone.alignPlacingZone (&placingZone);
 
-
 	// [DIALOG] 동바리/멍에제 프리셋을 배치할지 여부를 물어봄
 	clickedOKButton = false;
 	clickedPrevButton = false;

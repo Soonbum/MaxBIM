@@ -126,6 +126,9 @@ void		moveIn3D (char direction, double ang, double offset, double* curX, double*
 void		moveIn2D (char direction, double ang, double offset, API_Coord* curPos);							// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
 void		moveIn2D (char direction, double ang, double offset, double* curX, double* curY);					// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (각도 고려, 단위: radian)
 
+void		moveIn3DSlope (char direction, double plainAng, double slopeAng, double offset, API_Coord3D* curPos);							// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (평면 상에서의 회전각도 plainAng, 평면의 경사각도 slopeAng, 단위: radian)
+void		moveIn3DSlope (char direction, double plainAng, double slopeAng, double offset, double* curX, double* curY, double* curZ);		// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (평면 상에서의 회전각도 plainAng, 평면의 경사각도 slopeAng, 단위: radian)
+
 // 레이어
 short		findLayerIndex (const char* layerName);																	// 레이어 이름으로 레이어 인덱스 찾기
 short		makeTemporaryLayer (API_Guid structurualObject, const char* suffix, char* returnedLayerName = NULL);	// 객체의 레이어 이름이 01-S로 시작하는 경우 접두사를 05-T로 바꾸고, 하이픈 + 접미사 문자열을 붙인 레이어 이름을 생성한 후 레이어 인덱스와 이름을 리턴함

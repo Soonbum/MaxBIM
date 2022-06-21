@@ -1426,6 +1426,42 @@ void		moveIn2D (char direction, double ang, double offset, double* curX, double*
 	}
 }
 
+// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (평면 상에서의 회전각도 plainAng, 평면의 경사각도 slopeAng, 단위: radian)
+void		moveIn3DSlope (char direction, double plainAng, double slopeAng, double offset, API_Coord3D* curPos)
+{
+	double projOffset = offset * cos (slopeAng);
+
+	if (direction == 'x' || direction == 'X') {
+		curPos->x = curPos->x + (projOffset * cos(plainAng));
+		curPos->y = curPos->y + (projOffset * sin(plainAng));
+	}
+
+	if (direction == 'y' || direction == 'Y') {
+		curPos->x = curPos->x - (projOffset * sin(plainAng));
+		curPos->y = curPos->y + (projOffset * cos(plainAng));
+	}
+
+	curPos->z = curPos->z + offset * sin (slopeAng);
+}
+
+// X, Y축 방향을 선택하고, 해당 방향으로 거리를 이동한 좌표를 리턴함 (평면 상에서의 회전각도 plainAng, 평면의 경사각도 slopeAng, 단위: radian)
+void		moveIn3DSlope (char direction, double plainAng, double slopeAng, double offset, double* curX, double* curY, double* curZ)
+{
+	double projOffset = offset * cos (slopeAng);
+
+	if (direction == 'x' || direction == 'X') {
+		*curX = *curX + (projOffset * cos(plainAng));
+		*curY = *curY + (projOffset * sin(plainAng));
+	}
+
+	if (direction == 'y' || direction == 'Y') {
+		*curX = *curX - (projOffset * sin(plainAng));
+		*curY = *curY + (projOffset * cos(plainAng));
+	}
+
+	*curZ = *curZ + offset * sin (slopeAng);
+}
+
 ////////////////////////////////////////////////// 레이어
 // 레이어 이름으로 레이어 인덱스 찾기
 short findLayerIndex (const char* layerName)
