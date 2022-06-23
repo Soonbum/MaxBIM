@@ -340,6 +340,10 @@ GSErrCode	placeTableformOnBeam (void)
 	if (morph_p1 [0][0].z > morph_p2 [0][0].z)
 		placingZone.slantAngle = -placingZone.slantAngle;
 
+	// 영역 높이 보정
+	placingZone.areaHeight_Left *= cos (placingZone.slantAngle);
+	placingZone.areaHeight_Right *= cos (placingZone.slantAngle);
+
 	// 작업 층 높이 반영
 	workLevel_beam = getWorkLevel (infoBeam.floorInd);
 
@@ -390,8 +394,8 @@ SECOND:
 	// 기본 객체 배치하기
 	err = placingZone.placeBasicObjects (&placingZone);
 
-	// 부자재 배치하기 !!!
-	//err = placingZone.placeAuxObjects (&placingZone);
+	// 부자재 배치하기
+	err = placingZone.placeAuxObjects (&placingZone);
 
 	// 결과물 전체 그룹화
 	groupElements (elemList_LeftEnd);
@@ -624,8 +628,8 @@ void	BeamTableformPlacingZone::alignPlacingZone (BeamTableformPlacingZone* placi
 		placingZone->cellsAtLSide [3][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
 		placingZone->cellsAtLSide [3][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
 		placingZone->cellsAtLSide [3][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
-		//moveIn3D ('z', placingZone->cellsAtLSide [3][xx].ang, (placingZone->cellsAtLSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen + placingZone->cellsAtLSide [2][xx].perLen) * cos (placingZone->slantAngle), &placingZone->cellsAtLSide [3][xx].leftBottomX, &placingZone->cellsAtLSide [3][xx].leftBottomY, &placingZone->cellsAtLSide [3][xx].leftBottomZ);
-		//moveIn3D ('x', placingZone->cellsAtLSide [3][xx].ang, -(placingZone->cellsAtLSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen + placingZone->cellsAtLSide [2][xx].perLen) * sin (placingZone->slantAngle), &placingZone->cellsAtLSide [3][xx].leftBottomX, &placingZone->cellsAtLSide [3][xx].leftBottomY, &placingZone->cellsAtLSide [3][xx].leftBottomZ);
+		moveIn3D ('z', placingZone->cellsAtLSide [3][xx].ang, (placingZone->cellsAtLSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen + placingZone->cellsAtLSide [2][xx].perLen) * cos (placingZone->slantAngle), &placingZone->cellsAtLSide [3][xx].leftBottomX, &placingZone->cellsAtLSide [3][xx].leftBottomY, &placingZone->cellsAtLSide [3][xx].leftBottomZ);
+		moveIn3D ('x', placingZone->cellsAtLSide [3][xx].ang, -(placingZone->cellsAtLSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen + placingZone->cellsAtLSide [2][xx].perLen) * sin (placingZone->slantAngle), &placingZone->cellsAtLSide [3][xx].leftBottomX, &placingZone->cellsAtLSide [3][xx].leftBottomY, &placingZone->cellsAtLSide [3][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtLSide [3][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtLSide [3][xx].leftBottomX, &placingZone->cellsAtLSide [3][xx].leftBottomY, &placingZone->cellsAtLSide [3][xx].leftBottomZ);
 
 		placingZone->cellsAtRSide [3][xx].ang = placingZone->ang;
@@ -633,8 +637,8 @@ void	BeamTableformPlacingZone::alignPlacingZone (BeamTableformPlacingZone* placi
 		placingZone->cellsAtRSide [3][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
 		placingZone->cellsAtRSide [3][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 		moveIn3D ('y', placingZone->cellsAtRSide [3][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
-		//moveIn3D ('z', placingZone->cellsAtRSide [3][xx].ang, (placingZone->cellsAtRSide [0][xx].perLen + placingZone->cellsAtRSide [1][xx].perLen + placingZone->cellsAtRSide [2][xx].perLen) * cos (placingZone->slantAngle), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
-		//moveIn3D ('x', placingZone->cellsAtRSide [3][xx].ang, -(placingZone->cellsAtRSide [0][xx].perLen + placingZone->cellsAtRSide [1][xx].perLen + placingZone->cellsAtRSide [2][xx].perLen) * sin (placingZone->slantAngle), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
+		moveIn3D ('z', placingZone->cellsAtRSide [3][xx].ang, (placingZone->cellsAtRSide [0][xx].perLen + placingZone->cellsAtRSide [1][xx].perLen + placingZone->cellsAtRSide [2][xx].perLen) * cos (placingZone->slantAngle), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
+		moveIn3D ('x', placingZone->cellsAtRSide [3][xx].ang, -(placingZone->cellsAtRSide [0][xx].perLen + placingZone->cellsAtRSide [1][xx].perLen + placingZone->cellsAtRSide [2][xx].perLen) * sin (placingZone->slantAngle), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtRSide [3][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
 
 		// 하부 (유로폼, 휠러, 유로폼)
@@ -678,6 +682,10 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 	bool	bTimberMove;
 	double	moveZ;
 	short	addedPlywood;
+
+	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
+	double	slantAngle = (placingZone->slantAngle >= 0) ? placingZone->slantAngle : DegreeToRad (360.0) + placingZone->slantAngle;
+	double	minusSlantAngle = (placingZone->slantAngle >= 0) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
 
 	EasyObjectPlacement euroform, fillersp, plywood, timber;
 	EasyObjectPlacement plywood1, plywood2, plywood3;
@@ -959,14 +967,22 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 					// 각재 설치
 					if (bTimberMove == true) {
 						moveIn3D ('y', timber.radAng, -0.067, &timber.posX, &timber.posY, &timber.posZ);
-						moveIn3D ('z', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('z', timber.radAng, -0.080 * cos (placingZone->slantAngle), &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('x', timber.radAng, 0.080 * sin (placingZone->slantAngle), &timber.posX, &timber.posY, &timber.posZ);
 					}
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (timber.placeObject (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", horLen), "w_h", APIParT_Length, format_string ("%f", verLen), "w_leng", APIParT_Length, format_string ("%f", lengthDouble), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (timber.placeObject (6,
+						"w_ins", APIParT_CString, "벽세우기",
+						"w_w", APIParT_Length, format_string ("%f", horLen),
+						"w_h", APIParT_Length, format_string ("%f", verLen),
+						"w_leng", APIParT_Length, format_string ("%f", lengthDouble),
+						"w_ang", APIParT_Angle, format_string ("%f", slantAngle),
+						"torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 					if (bTimberMove == true) {
 						moveIn3D ('y', timber.radAng, 0.067, &timber.posX, &timber.posY, &timber.posZ);
-						moveIn3D ('z', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('z', timber.radAng, 0.080 * cos (placingZone->slantAngle), &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('x', timber.radAng, -0.080 * sin (placingZone->slantAngle), &timber.posX, &timber.posY, &timber.posZ);
 					}
-					moveIn3D ('x', timber.radAng, lengthDouble, &timber.posX, &timber.posY, &timber.posZ);
+					moveIn3DSlope ('x', timber.radAng, placingZone->slantAngle, lengthDouble, &timber.posX, &timber.posY, &timber.posZ);
 
 					remainLengthDouble -= 3.600;
 				}
@@ -977,8 +993,8 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 					remainLengthDouble += placingZone->cellsAtLSide [3][yy].dirLen;
 
 				plywood1.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ, placingZone->cellsAtLSide [3][beginIndex].ang);
-				plywood2.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ + 0.0115, placingZone->cellsAtLSide [3][beginIndex].ang);
-				plywood3.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ + 0.0115*2, placingZone->cellsAtLSide [3][beginIndex].ang);
+				plywood2.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ, placingZone->cellsAtLSide [3][beginIndex].ang);
+				plywood3.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtLSide [3][beginIndex].leftBottomX, placingZone->cellsAtLSide [3][beginIndex].leftBottomY, placingZone->cellsAtLSide [3][beginIndex].leftBottomZ, placingZone->cellsAtLSide [3][beginIndex].ang);
 
 				while (remainLengthDouble > EPS) {
 					if (remainLengthDouble > 2.400)
@@ -988,27 +1004,33 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 						
 					if (addedPlywood >= 1) {
 						moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-						moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood1.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						moveIn3D ('z', plywood1.radAng, moveZ * cos (placingZone->slantAngle), &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('x', plywood1.radAng, -moveZ * sin (placingZone->slantAngle), &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood1.placeObject (8, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "p_rot", APIParT_Angle, format_string ("%f", minusSlantAngle), "sogak", APIParT_Boolean, "0.0"));
 						moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-						moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-						moveIn3D ('x', plywood1.radAng, lengthDouble, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('z', plywood1.radAng, -moveZ * cos (placingZone->slantAngle), &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('x', plywood1.radAng, moveZ * sin (placingZone->slantAngle), &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3DSlope ('x', plywood1.radAng, placingZone->slantAngle, lengthDouble, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 					}
 					if (addedPlywood >= 2) {
 						moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-						moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood2.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						moveIn3D ('z', plywood2.radAng, (moveZ + 0.0115) * cos (placingZone->slantAngle), &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('x', plywood2.radAng, -(moveZ + 0.0115) * sin (placingZone->slantAngle), &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood2.placeObject (8, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "p_rot", APIParT_Angle, format_string ("%f", minusSlantAngle), "sogak", APIParT_Boolean, "0.0"));
 						moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-						moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-						moveIn3D ('x', plywood2.radAng, lengthDouble, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('z', plywood2.radAng, -(moveZ + 0.0115) * cos (placingZone->slantAngle), &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('x', plywood2.radAng, (moveZ + 0.0115) * sin (placingZone->slantAngle), &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3DSlope ('x', plywood2.radAng, placingZone->slantAngle, lengthDouble, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 					}
 					if (addedPlywood >= 3) {
 						moveIn3D ('y', plywood3.radAng, -0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-						moveIn3D ('z', plywood3.radAng, moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood3.placeObject (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						moveIn3D ('z', plywood3.radAng, (moveZ + 0.0115*2) * cos (placingZone->slantAngle), &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('x', plywood3.radAng, -(moveZ + 0.0115*2) * sin (placingZone->slantAngle), &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood3.placeObject (8, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "p_rot", APIParT_Angle, format_string ("%f", minusSlantAngle), "sogak", APIParT_Boolean, "0.0"));
 						moveIn3D ('y', plywood3.radAng, 0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-						moveIn3D ('z', plywood3.radAng, -moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-						moveIn3D ('x', plywood3.radAng, lengthDouble, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('z', plywood3.radAng, -(moveZ + 0.0115*2) * cos (placingZone->slantAngle), &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('x', plywood3.radAng, (moveZ + 0.0115*2) * sin (placingZone->slantAngle), &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3DSlope ('x', plywood3.radAng, placingZone->slantAngle, lengthDouble, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 					}
 
 					remainLengthDouble -= 2.400;
@@ -1043,13 +1065,14 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 						lengthDouble = remainLengthDouble;
 
 					// 합판 설치
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood.placeObject (13,
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood.placeObject (14,
 						"p_stan", APIParT_CString, "비규격",
 						"w_dir", APIParT_CString, "벽눕히기",
 						"p_thk", APIParT_CString, "11.5T",
 						"p_wid", APIParT_Length, format_string ("%f", placingZone->cellsAtLSide [3][beginIndex].perLen),
 						"p_leng", APIParT_Length, format_string ("%f", lengthDouble),
 						"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+						"p_rot", APIParT_Angle, format_string ("%f", DegreeToRad (360.0) - placingZone->slantAngle).c_str (),
 						"sogak", APIParT_Boolean, "1.0",
 						"bInverseSogak", APIParT_Boolean, "1.0",
 						"prof", APIParT_CString, "소각",
@@ -1057,7 +1080,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 						"gap_b", APIParT_Length, format_string ("%f", 0.0),
 						"gap_c", APIParT_Length, format_string ("%f", 0.0),
 						"gap_d", APIParT_Length, format_string ("%f", 0.0)));
-					moveIn3D ('x', plywood.radAng, lengthDouble, &plywood.posX, &plywood.posY, &plywood.posZ);
+					moveIn3DSlope ('x', plywood.radAng, placingZone->slantAngle, lengthDouble, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 					remainLengthDouble -= 2.400;
 				}
@@ -1210,15 +1233,23 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 					// 각재 설치
 					if (bTimberMove == true) {
 						moveIn3D ('y', timber.radAng, 0.067, &timber.posX, &timber.posY, &timber.posZ);
-						moveIn3D ('z', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('z', timber.radAng, -0.080 * cos (placingZone->slantAngle), &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('x', timber.radAng, 0.080 * sin (placingZone->slantAngle), &timber.posX, &timber.posY, &timber.posZ);
 					}
 					timber.radAng += DegreeToRad (180.0);
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (timber.placeObjectMirrored (6, "w_ins", APIParT_CString, "벽세우기", "w_w", APIParT_Length, format_string ("%f", horLen), "w_h", APIParT_Length, format_string ("%f", verLen), "w_leng", APIParT_Length, format_string ("%f", lengthDouble), "w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (timber.placeObjectMirrored (6,
+						"w_ins", APIParT_CString, "벽세우기",
+						"w_w", APIParT_Length, format_string ("%f", horLen),
+						"w_h", APIParT_Length, format_string ("%f", verLen),
+						"w_leng", APIParT_Length, format_string ("%f", lengthDouble),
+						"w_ang", APIParT_Angle, format_string ("%f", slantAngle),
+						"torsion_ang", APIParT_Angle, format_string ("%f", 0.0)));
 					timber.radAng -= DegreeToRad (180.0);
-					moveIn3D ('x', timber.radAng, lengthDouble, &timber.posX, &timber.posY, &timber.posZ);
+					moveIn3DSlope ('x', timber.radAng, placingZone->slantAngle, lengthDouble, &timber.posX, &timber.posY, &timber.posZ);
 					if (bTimberMove == true) {
 						moveIn3D ('y', timber.radAng, -0.067, &timber.posX, &timber.posY, &timber.posZ);
-						moveIn3D ('z', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('z', timber.radAng, 0.080 * cos (placingZone->slantAngle), &timber.posX, &timber.posY, &timber.posZ);
+						moveIn3D ('x', timber.radAng, -0.080 * sin (placingZone->slantAngle), &timber.posX, &timber.posY, &timber.posZ);
 					}
 
 					remainLengthDouble -= 3.600;
@@ -1230,8 +1261,8 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 					remainLengthDouble += placingZone->cellsAtRSide [3][yy].dirLen;
 
 				plywood1.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ, placingZone->cellsAtRSide [3][beginIndex].ang);
-				plywood2.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ + 0.0115, placingZone->cellsAtRSide [3][beginIndex].ang);
-				plywood3.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ + 0.0115*2, placingZone->cellsAtRSide [3][beginIndex].ang);
+				plywood2.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ, placingZone->cellsAtRSide [3][beginIndex].ang);
+				plywood3.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->cellsAtRSide [3][beginIndex].leftBottomX, placingZone->cellsAtRSide [3][beginIndex].leftBottomY, placingZone->cellsAtRSide [3][beginIndex].leftBottomZ, placingZone->cellsAtRSide [3][beginIndex].ang);
 
 				while (remainLengthDouble > EPS) {
 					if (remainLengthDouble > 2.400)
@@ -1241,33 +1272,39 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 						
 					if (addedPlywood >= 1) {
 						moveIn3D ('y', plywood1.radAng, 0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-						moveIn3D ('z', plywood1.radAng, moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('z', plywood1.radAng, moveZ * cos (placingZone->slantAngle), &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('x', plywood1.radAng, -moveZ * sin (placingZone->slantAngle), &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 						plywood1.radAng += DegreeToRad (180.0);
-						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood1.placeObjectMirrored (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood1.placeObjectMirrored (8, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "p_rot", APIParT_Angle, format_string ("%f", minusSlantAngle), "sogak", APIParT_Boolean, "0.0"));
 						plywood1.radAng -= DegreeToRad (180.0);
-						moveIn3D ('x', plywood1.radAng, lengthDouble, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3DSlope ('x', plywood1.radAng, placingZone->slantAngle, lengthDouble, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 						moveIn3D ('y', plywood1.radAng, -0.070, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
-						moveIn3D ('z', plywood1.radAng, -moveZ, &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('z', plywood1.radAng, -moveZ * cos (placingZone->slantAngle), &plywood1.posX, &plywood1.posY, &plywood1.posZ);
+						moveIn3D ('x', plywood1.radAng, moveZ * sin (placingZone->slantAngle), &plywood1.posX, &plywood1.posY, &plywood1.posZ);
 					}
 					if (addedPlywood >= 2) {
 						moveIn3D ('y', plywood2.radAng, 0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-						moveIn3D ('z', plywood2.radAng, moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('z', plywood2.radAng, (moveZ + 0.0115) * cos (placingZone->slantAngle), &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('x', plywood2.radAng, -(moveZ + 0.0115) * sin (placingZone->slantAngle), &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 						plywood2.radAng += DegreeToRad (180.0);
-						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood2.placeObjectMirrored (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood2.placeObjectMirrored (8, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "p_rot", APIParT_Angle, format_string ("%f", minusSlantAngle), "sogak", APIParT_Boolean, "0.0"));
 						plywood2.radAng -= DegreeToRad (180.0);
-						moveIn3D ('x', plywood2.radAng, lengthDouble, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3DSlope ('x', plywood2.radAng, placingZone->slantAngle, lengthDouble, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 						moveIn3D ('y', plywood2.radAng, -0.070, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
-						moveIn3D ('z', plywood2.radAng, -moveZ, &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('z', plywood2.radAng, -(moveZ + 0.0115) * cos (placingZone->slantAngle), &plywood2.posX, &plywood2.posY, &plywood2.posZ);
+						moveIn3D ('x', plywood2.radAng, (moveZ + 0.0115) * sin (placingZone->slantAngle), &plywood2.posX, &plywood2.posY, &plywood2.posZ);
 					}
 					if (addedPlywood >= 3) {
 						moveIn3D ('y', plywood3.radAng, 0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-						moveIn3D ('z', plywood3.radAng, moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('z', plywood3.radAng, (moveZ + 0.0115*2) * cos (placingZone->slantAngle), &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('x', plywood3.radAng, -(moveZ + 0.0115*2) * sin (placingZone->slantAngle), &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 						plywood3.radAng += DegreeToRad (180.0);
-						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood3.placeObjectMirrored (7, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "sogak", APIParT_Boolean, "0.0"));
+						elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood3.placeObjectMirrored (8, "p_stan", APIParT_CString, "비규격", "w_dir", APIParT_CString, "바닥덮기", "p_thk", APIParT_CString, "11.5T", "p_wid", APIParT_Length, format_string ("%f", 0.070), "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", 0.0), "p_rot", APIParT_Angle, format_string ("%f", minusSlantAngle), "sogak", APIParT_Boolean, "0.0"));
 						plywood3.radAng -= DegreeToRad (180.0);
-						moveIn3D ('x', plywood3.radAng, lengthDouble, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3DSlope ('x', plywood3.radAng, placingZone->slantAngle, lengthDouble, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 						moveIn3D ('y', plywood3.radAng, -0.070, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
-						moveIn3D ('z', plywood3.radAng, -moveZ, &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('z', plywood3.radAng, -(moveZ + 0.0115*2) * cos (placingZone->slantAngle), &plywood3.posX, &plywood3.posY, &plywood3.posZ);
+						moveIn3D ('x', plywood3.radAng, (moveZ + 0.0115*2) * sin (placingZone->slantAngle), &plywood3.posX, &plywood3.posY, &plywood3.posZ);
 					}
 
 					remainLengthDouble -= 2.400;
@@ -1303,13 +1340,14 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 
 					// 합판 설치
 					plywood.radAng += DegreeToRad (180.0);
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood.placeObjectMirrored (13,
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (plywood.placeObjectMirrored (14,
 						"p_stan", APIParT_CString, "비규격",
 						"w_dir", APIParT_CString, "벽눕히기",
 						"p_thk", APIParT_CString, "11.5T",
 						"p_wid", APIParT_Length, format_string ("%f", placingZone->cellsAtRSide [3][beginIndex].perLen),
 						"p_leng", APIParT_Length, format_string ("%f", lengthDouble),
 						"p_ang", APIParT_Angle, format_string ("%f", 0.0),
+						"p_rot", APIParT_Angle, format_string ("%f", DegreeToRad (360.0) - placingZone->slantAngle).c_str (),
 						"sogak", APIParT_Boolean, "1.0",
 						"bInverseSogak", APIParT_Boolean, "1.0",
 						"prof", APIParT_CString, "소각",
@@ -1318,7 +1356,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 						"gap_c", APIParT_Length, format_string ("%f", 0.0),
 						"gap_d", APIParT_Length, format_string ("%f", 0.0)));
 					plywood.radAng -= DegreeToRad (180.0);
-					moveIn3D ('x', plywood.radAng, lengthDouble, &plywood.posX, &plywood.posY, &plywood.posZ);
+					moveIn3DSlope ('x', plywood.radAng, placingZone->slantAngle, lengthDouble, &plywood.posX, &plywood.posY, &plywood.posZ);
 
 					remainLengthDouble -= 2.400;
 				}
@@ -1480,6 +1518,10 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 	double	lengthDouble;
 	double	tempLengthDouble;
 
+	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
+	double	slantAngle = (placingZone->slantAngle >= 0) ? placingZone->slantAngle : DegreeToRad (360.0) + placingZone->slantAngle;
+	double	minusSlantAngle = (placingZone->slantAngle >= 0) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
+
 	EasyObjectPlacement outangle, hanger, blueClamp, blueTimberRail;
 	EasyObjectPlacement pipe1, pipe2;
 	EasyObjectPlacement pinbolt1, pinbolt2;
@@ -1512,9 +1554,9 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 				else
 					lengthDouble = remainLengthDouble;
 
-				moveIn3D ('x', outangle.radAng, lengthDouble, &outangle.posX, &outangle.posY, &outangle.posZ);
+				moveIn3DSlope ('x', outangle.radAng, placingZone->slantAngle, lengthDouble, &outangle.posX, &outangle.posY, &outangle.posZ);
 				outangle.radAng += DegreeToRad (180.0);
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (outangle.placeObject (2, "a_leng", APIParT_Length, format_string ("%f", lengthDouble), "a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (outangle.placeObject (2, "a_leng", APIParT_Length, format_string ("%f", lengthDouble), "a_ang", APIParT_Angle, format_string ("%f", minusSlantAngle)));
 				outangle.radAng -= DegreeToRad (180.0);
 
 				remainLengthDouble -= 2.400;
@@ -1552,8 +1594,8 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 				else
 					lengthDouble = remainLengthDouble;
 
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (outangle.placeObject (2, "a_leng", APIParT_Length, format_string ("%f", lengthDouble), "a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
-				moveIn3D ('x', outangle.radAng, lengthDouble, &outangle.posX, &outangle.posY, &outangle.posZ);
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (outangle.placeObject (2, "a_leng", APIParT_Length, format_string ("%f", lengthDouble), "a_ang", APIParT_Angle, format_string ("%f", slantAngle)));
+				moveIn3DSlope ('x', outangle.radAng, placingZone->slantAngle, lengthDouble, &outangle.posX, &outangle.posY, &outangle.posZ);
 
 				remainLengthDouble -= 2.400;
 			}
@@ -1584,33 +1626,45 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 
 			// 1번 파이프
 			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
-			moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('y', pipe1.radAng, -0.0635 - 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.050 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.050 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			}
 
 			// 2번 파이프
 			pipe2.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
-			moveIn3D ('x', pipe2.radAng, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			moveIn3DSlope ('x', pipe2.radAng, placingZone->slantAngle, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
 			moveIn3D ('y', pipe2.radAng, -0.0635 - 0.025, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.600 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.500 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.450 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.400 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.600 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.600 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.500 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.500 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.450 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.450 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.400 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.400 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			}
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 6.000)
@@ -1619,12 +1673,12 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 					lengthDouble = remainLengthDouble;
 
 				// 1번 파이프
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
-				moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", slantAngle), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				// 2번 파이프
 				if ((abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS)) {
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
-					moveIn3D ('x', pipe2.radAng, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", slantAngle), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					moveIn3DSlope ('x', pipe2.radAng, placingZone->slantAngle, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
 				}
 
 				remainLengthDouble -= 6.000;
@@ -1656,33 +1710,45 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 
 			// 1번 파이프
 			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [2][beginIndex].leftBottomX, placingZone->cellsAtLSide [2][beginIndex].leftBottomY, placingZone->cellsAtLSide [2][beginIndex].leftBottomZ, placingZone->cellsAtLSide [2][beginIndex].ang);
-			moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('y', pipe1.radAng, -0.0635 - 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.050 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.050 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			}
 
 			// 2번 파이프
 			pipe2.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [2][beginIndex].leftBottomX, placingZone->cellsAtLSide [2][beginIndex].leftBottomY, placingZone->cellsAtLSide [2][beginIndex].leftBottomZ, placingZone->cellsAtLSide [2][beginIndex].ang);
-			moveIn3D ('x', pipe2.radAng, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			moveIn3DSlope ('x', pipe2.radAng, placingZone->slantAngle, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
 			moveIn3D ('y', pipe2.radAng, -0.0635 - 0.025, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.600 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.500 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.450 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.400 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.600 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.600 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.500 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.500 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.450 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.450 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.400 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.400 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			}
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 6.000)
@@ -1691,12 +1757,12 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 					lengthDouble = remainLengthDouble;
 
 				// 1번 파이프
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
-				moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", slantAngle), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				// 2번 파이프
 				if ((abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS)) {
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
-					moveIn3D ('x', pipe2.radAng, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", slantAngle), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					moveIn3DSlope ('x', pipe2.radAng, placingZone->slantAngle, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
 				}
 
 				remainLengthDouble -= 6.000;
@@ -1728,33 +1794,45 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 
 			// 1번 파이프
 			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
-			moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('y', pipe1.radAng, 0.0635 + 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.050 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.050 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			}
 
 			// 2번 파이프
 			pipe2.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
-			moveIn3D ('x', pipe2.radAng, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			moveIn3DSlope ('x', pipe2.radAng, placingZone->slantAngle, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
 			moveIn3D ('y', pipe2.radAng, 0.0635 + 0.025, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.600 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.500 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.450 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.400 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.600 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.600 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.500 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.500 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.450 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.450 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.400 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.400 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			}
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 6.000)
@@ -1763,15 +1841,15 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 					lengthDouble = remainLengthDouble;
 
 				// 1번 파이프
-				moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				pipe1.radAng += DegreeToRad (180.0);
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", minusSlantAngle), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 				pipe1.radAng -= DegreeToRad (180.0);
 				// 2번 파이프
 				if ((abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS)) {
-					moveIn3D ('x', pipe2.radAng, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+					moveIn3DSlope ('x', pipe2.radAng, placingZone->slantAngle, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
 					pipe2.radAng += DegreeToRad (180.0);
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", minusSlantAngle), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 					pipe2.radAng -= DegreeToRad (180.0);
 				}
 
@@ -1804,33 +1882,45 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 
 			// 1번 파이프
 			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [2][beginIndex].leftBottomX, placingZone->cellsAtRSide [2][beginIndex].leftBottomY, placingZone->cellsAtRSide [2][beginIndex].leftBottomZ, placingZone->cellsAtRSide [2][beginIndex].ang);
-			moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('y', pipe1.radAng, 0.0635 + 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.150, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', pipe1.radAng, 0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.150 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.150 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', pipe1.radAng, 0.050 * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -0.050 * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			}
 
 			// 2번 파이프
 			pipe2.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [2][beginIndex].leftBottomX, placingZone->cellsAtRSide [2][beginIndex].leftBottomY, placingZone->cellsAtRSide [2][beginIndex].leftBottomZ, placingZone->cellsAtRSide [2][beginIndex].ang);
-			moveIn3D ('x', pipe2.radAng, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			moveIn3DSlope ('x', pipe2.radAng, placingZone->slantAngle, -0.050, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
 			moveIn3D ('y', pipe2.radAng, 0.0635 + 0.025, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.600 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.500 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.450 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', pipe2.radAng, 0.400 - 0.150, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.600 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.600 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.500 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.500 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.450 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.450 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', pipe2.radAng, (0.400 - 0.150) * cos (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+				moveIn3D ('x', pipe2.radAng, -(0.400 - 0.150) * sin (placingZone->slantAngle), &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+			}
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 6.000)
@@ -1839,15 +1929,15 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 					lengthDouble = remainLengthDouble;
 
 				// 1번 파이프
-				moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				pipe1.radAng += DegreeToRad (180.0);
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", minusSlantAngle), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 				pipe1.radAng -= DegreeToRad (180.0);
 				// 2번 파이프
 				if ((abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS)) {
-					moveIn3D ('x', pipe2.radAng, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
+					moveIn3DSlope ('x', pipe2.radAng, placingZone->slantAngle, lengthDouble, &pipe2.posX, &pipe2.posY, &pipe2.posZ);
 					pipe2.radAng += DegreeToRad (180.0);
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe2.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", minusSlantAngle), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 					pipe2.radAng -= DegreeToRad (180.0);
 				}
 
@@ -1879,8 +1969,9 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 				remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
 
 			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
-			moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			moveIn3D ('z', pipe1.radAng, -0.0635 - 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3D ('z', pipe1.radAng, (-0.0635 - 0.025) * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 6.000)
@@ -1888,8 +1979,8 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 				else
 					lengthDouble = remainLengthDouble;
 
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
-				moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", slantAngle), "bPunching", APIParT_Boolean, "0.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 
 				remainLengthDouble -= 6.000;
 			}
@@ -1919,8 +2010,9 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 				remainLengthDouble += placingZone->cellsAtRSide [0][yy].dirLen;
 
 			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
-			moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-			moveIn3D ('z', pipe1.radAng, -0.0635 - 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3D ('z', pipe1.radAng, (-0.0635 - 0.025) * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 6.000)
@@ -1928,9 +2020,9 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 				else
 					lengthDouble = remainLengthDouble;
 
-				moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				pipe1.radAng += DegreeToRad (180.0);
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", minusSlantAngle), "bPunching", APIParT_Boolean, "0.0", "holeDir", APIParT_CString, "정면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
 				pipe1.radAng -= DegreeToRad (180.0);
 
 				remainLengthDouble -= 6.000;
@@ -1962,8 +2054,9 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 					remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
 
 				pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
-				moveIn3D ('x', pipe1.radAng, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-				moveIn3D ('z', pipe1.radAng, -0.0635 - 0.025, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('z', pipe1.radAng, (-0.0635 - 0.025) * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				if (placingZone->cellsAtBottom [2][0].objType == EUROFORM)
 					moveIn3D ('y', pipe1.radAng, placingZone->cellsAtBottom [0][0].perLen, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				else
@@ -1975,8 +2068,8 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 					else
 						lengthDouble = remainLengthDouble;
 
-					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "측면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
-					moveIn3D ('x', pipe1.radAng, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+					elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pipe1.placeObject (7, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", lengthDouble), "p_ang", APIParT_Angle, format_string ("%f", slantAngle), "bPunching", APIParT_Boolean, "1.0", "holeDir", APIParT_CString, "측면", "holeDia", APIParT_Length, "0.013", "holeDist", APIParT_Length, "0.050"));
+					moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, lengthDouble, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 
 					remainLengthDouble -= 6.000;
 				}
@@ -1993,43 +2086,55 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 
 		// 1번 파이프에 체결할 핀볼트
 		moveIn3D ('y', pinbolt1.radAng, -0.1635, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.600) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.500) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.450) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.400) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.300) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.200) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.050, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.600) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.500) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.450) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.400) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.300) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.200) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.050 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.050 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		}
 
 		// 2번 파이프에 체결할 핀볼트
 		moveIn3D ('y', pinbolt2.radAng, -0.1635, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.600) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.600 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.500) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.500 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.450) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.450 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.400) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.400 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.600) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.600 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.600 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.500) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.500 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.500 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.450) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.450 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.450 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.400) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.400 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.400 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		}
 
 		// 현재 셀이 유로폼, 다음 셀이 유로폼일 경우
 		if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > EPS) && (placingZone->cellsAtLSide [0][xx].dirLen > EPS) && (placingZone->cellsAtLSide [0][xx+1].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx+1].perLen > EPS) && (placingZone->cellsAtLSide [0][xx+1].dirLen > EPS)) {
 			// 1번 파이프에 체결할 핀볼트
-			moveIn3D ('x', pinbolt1.radAng, placingZone->cellsAtLSide [0][xx].dirLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3DSlope ('x', pinbolt1.radAng, placingZone->slantAngle, placingZone->cellsAtLSide [0][xx].dirLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
 			pinbolt1.radAng += DegreeToRad (90.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt1.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt1.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 			pinbolt1.radAng -= DegreeToRad (90.0);
 
 			// 2번 파이프에 체결할 핀볼트
 			if ((abs (placingZone->cellsAtLSide [0][xx].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtLSide [0][xx].perLen - 0.400) < EPS)) {
-				moveIn3D ('x', pinbolt2.radAng, placingZone->cellsAtLSide [0][xx].dirLen, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+				moveIn3DSlope ('x', pinbolt2.radAng, placingZone->slantAngle, placingZone->cellsAtLSide [0][xx].dirLen, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
 				pinbolt2.radAng += DegreeToRad (90.0);
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt2.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt2.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 				pinbolt2.radAng -= DegreeToRad (90.0);
 			}
 		}
@@ -2042,43 +2147,55 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 
 		// 1번 파이프에 체결할 핀볼트
 		moveIn3D ('y', pinbolt1.radAng, -0.1635, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.600) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.500) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.450) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.400) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.300) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.200) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.050, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.600) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.500) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.450) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.400) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.300) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.200) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.050 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.050 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		}
 
 		// 2번 파이프에 체결할 핀볼트
 		moveIn3D ('y', pinbolt2.radAng, -0.1635, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.600) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.600 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.500) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.500 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.450) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.450 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.400) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.400 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.600) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.600 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.600 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.500) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.500 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.500 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.450) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.450 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.450 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.400) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.400 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.400 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		}
 
 		// 현재 셀이 유로폼, 다음 셀이 유로폼일 경우
 		if ((placingZone->cellsAtLSide [2][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [2][xx].perLen > EPS) && (placingZone->cellsAtLSide [2][xx].dirLen > EPS) && (placingZone->cellsAtLSide [2][xx+1].objType == EUROFORM) && (placingZone->cellsAtLSide [2][xx+1].perLen > EPS) && (placingZone->cellsAtLSide [2][xx+1].dirLen > EPS)) {
 			// 1번 파이프에 체결할 핀볼트
-			moveIn3D ('x', pinbolt1.radAng, placingZone->cellsAtLSide [0][xx].dirLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3DSlope ('x', pinbolt1.radAng, placingZone->slantAngle, placingZone->cellsAtLSide [0][xx].dirLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
 			pinbolt1.radAng += DegreeToRad (90.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt1.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt1.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 			pinbolt1.radAng -= DegreeToRad (90.0);
 
 			// 2번 파이프에 체결할 핀볼트
 			if ((abs (placingZone->cellsAtLSide [2][xx].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtLSide [2][xx].perLen - 0.400) < EPS)) {
-				moveIn3D ('x', pinbolt2.radAng, placingZone->cellsAtLSide [2][xx].dirLen, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+				moveIn3DSlope ('x', pinbolt2.radAng, placingZone->slantAngle, placingZone->cellsAtLSide [2][xx].dirLen, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
 				pinbolt2.radAng += DegreeToRad (90.0);
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt2.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt2.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 				pinbolt2.radAng -= DegreeToRad (90.0);
 			}
 		}
@@ -2091,43 +2208,55 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 
 		// 1번 파이프에 체결할 핀볼트
 		moveIn3D ('y', pinbolt1.radAng, 0.1635, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.600) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.500) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.450) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.400) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.300) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.200) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.050, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.600) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.500) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.450) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.400) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.300) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.200) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.050 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.050 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		}
 
 		// 2번 파이프에 체결할 핀볼트
 		moveIn3D ('y', pinbolt2.radAng, 0.1635, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.600) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.600 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.500) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.500 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.450) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.450 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.400) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.400 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.600) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.600 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.600 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.500) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.500 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.500 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.450) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.450 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.450 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.400) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.400 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.400 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		}
 
 		// 현재 셀이 유로폼, 다음 셀이 유로폼일 경우
 		if ((placingZone->cellsAtRSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx].perLen > EPS) && (placingZone->cellsAtRSide [0][xx].dirLen > EPS) && (placingZone->cellsAtRSide [0][xx+1].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx+1].perLen > EPS) && (placingZone->cellsAtRSide [0][xx+1].dirLen > EPS)) {
 			// 1번 파이프에 체결할 핀볼트
-			moveIn3D ('x', pinbolt1.radAng, placingZone->cellsAtRSide [0][xx].dirLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3DSlope ('x', pinbolt1.radAng, placingZone->slantAngle, placingZone->cellsAtRSide [0][xx].dirLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
 			pinbolt1.radAng += DegreeToRad (90.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt1.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt1.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str ()));
 			pinbolt1.radAng -= DegreeToRad (90.0);
 
 			// 2번 파이프에 체결할 핀볼트
 			if ((abs (placingZone->cellsAtRSide [0][xx].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtRSide [0][xx].perLen - 0.400) < EPS)) {
-				moveIn3D ('x', pinbolt2.radAng, placingZone->cellsAtRSide [0][xx].dirLen, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+				moveIn3DSlope ('x', pinbolt2.radAng, placingZone->slantAngle, placingZone->cellsAtRSide [0][xx].dirLen, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
 				pinbolt2.radAng += DegreeToRad (90.0);
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt2.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt2.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str ()));
 				pinbolt2.radAng -= DegreeToRad (90.0);
 			}
 		}
@@ -2140,43 +2269,55 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 
 		// 1번 파이프에 체결할 핀볼트
 		moveIn3D ('y', pinbolt1.radAng, 0.1635, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.600) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.500) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.450) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.400) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.300) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.150, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-		else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.200) < EPS)
-			moveIn3D ('z', pinbolt1.radAng, 0.050, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.600) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.500) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.450) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.400) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.300) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.150 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.150 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		} else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.200) < EPS) {
+			moveIn3D ('z', pinbolt1.radAng, 0.050 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, -0.050 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+		}
 
 		// 2번 파이프에 체결할 핀볼트
 		moveIn3D ('y', pinbolt2.radAng, 0.1635, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.600) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.600 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.500) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.500 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.450) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.450 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
-		else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.400) < EPS)
-			moveIn3D ('z', pinbolt2.radAng, 0.400 - 0.150, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.600) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.600 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.600 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.500) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.500 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.500 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.450) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.450 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.450 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		} else if (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.400) < EPS) {
+			moveIn3D ('z', pinbolt2.radAng, (0.400 - 0.150) * cos (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+			moveIn3D ('x', pinbolt2.radAng, -(0.400 - 0.150) * sin (placingZone->slantAngle), &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+		}
 
 		// 현재 셀이 유로폼, 다음 셀이 유로폼일 경우
 		if ((placingZone->cellsAtRSide [2][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [2][xx].perLen > EPS) && (placingZone->cellsAtRSide [2][xx].dirLen > EPS) && (placingZone->cellsAtRSide [2][xx+1].objType == EUROFORM) && (placingZone->cellsAtRSide [2][xx+1].perLen > EPS) && (placingZone->cellsAtRSide [2][xx+1].dirLen > EPS)) {
 			// 1번 파이프에 체결할 핀볼트
-			moveIn3D ('x', pinbolt1.radAng, placingZone->cellsAtRSide [2][xx].dirLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3DSlope ('x', pinbolt1.radAng, placingZone->slantAngle, placingZone->cellsAtRSide [2][xx].dirLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
 			pinbolt1.radAng += DegreeToRad (90.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt1.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt1.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str ()));
 			pinbolt1.radAng -= DegreeToRad (90.0);
 
 			// 2번 파이프에 체결할 핀볼트
 			if ((abs (placingZone->cellsAtRSide [2][xx].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.500) < EPS) || (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.450) < EPS) || (abs (placingZone->cellsAtRSide [2][xx].perLen - 0.400) < EPS)) {
-				moveIn3D ('x', pinbolt2.radAng, placingZone->cellsAtRSide [2][xx].dirLen, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
+				moveIn3DSlope ('x', pinbolt2.radAng, placingZone->slantAngle, placingZone->cellsAtRSide [2][xx].dirLen, &pinbolt2.posX, &pinbolt2.posY, &pinbolt2.posZ);
 				pinbolt2.radAng += DegreeToRad (90.0);
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt2.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt2.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str ()));
 				pinbolt2.radAng -= DegreeToRad (90.0);
 			}
 		}
@@ -2187,7 +2328,8 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 		for (xx = 0 ; xx < placingZone->nCells - 1 ; ++xx) {
 			pinbolt1.init (L("핀볼트세트v1.0.gsm"), layerInd_Pinbolt, infoBeam.floorInd, placingZone->cellsAtBottom [0][xx].leftBottomX, placingZone->cellsAtBottom [0][xx].leftBottomY, placingZone->cellsAtBottom [0][xx].leftBottomZ, placingZone->cellsAtBottom [0][xx].ang);
 
-			moveIn3D ('z', pinbolt1.radAng, -0.1635, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('z', pinbolt1.radAng, -0.1635 * cos (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			moveIn3D ('x', pinbolt1.radAng, 0.1635 * sin (placingZone->slantAngle), &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
 
 			if (placingZone->cellsAtBottom [2][0].objType == EUROFORM)
 				moveIn3D ('y', pinbolt1.radAng, placingZone->cellsAtBottom [0][0].perLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
@@ -2196,9 +2338,9 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 
 			// 현재 셀이 유로폼, 다음 셀이 유로폼일 경우
 			if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > EPS) && (placingZone->cellsAtBottom [0][xx].dirLen > EPS) && (placingZone->cellsAtBottom [0][xx+1].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx+1].perLen > EPS) && (placingZone->cellsAtBottom [0][xx+1].dirLen > EPS)) {
-				moveIn3D ('x', pinbolt1.radAng, placingZone->cellsAtBottom [0][xx].dirLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+				moveIn3DSlope ('x', pinbolt1.radAng, placingZone->slantAngle, placingZone->cellsAtBottom [0][xx].dirLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
 				pinbolt1.radAng += DegreeToRad (90.0);
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt1.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (pinbolt1.placeObject (7, "bRotated", APIParT_Boolean, "0.0", "bolt_len", APIParT_Length, "0.100", "bolt_dia", APIParT_Length, "0.010", "washer_pos", APIParT_Length, "0.050", "washer_size", APIParT_Length, "0.100", "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 				pinbolt1.radAng -= DegreeToRad (90.0);
 			}
 		}
@@ -2225,22 +2367,23 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 				remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
 
 			hanger.init (L("각파이프행거.gsm"), layerInd_RectpipeHanger, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
-			moveIn3D ('z', hanger.radAng, -0.0635, &hanger.posX, &hanger.posY, &hanger.posZ);
-			moveIn3D ('x', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3D ('z', hanger.radAng, -0.0635 * cos (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3D ('x', hanger.radAng, 0.0635 * sin (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (90.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (90.0);
-			moveIn3D ('x', hanger.radAng, -0.150 + remainLengthDouble - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, -0.150 + remainLengthDouble - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (90.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (90.0);
 			tempLengthDouble = 0.0;
 			for (zz = beginIndex ; zz <= beginIndex + round ((endIndex - beginIndex) / 2, 0) ; ++zz) {
 				tempLengthDouble += placingZone->cellsAtLSide [0][zz].dirLen;
 			}
-			moveIn3D ('x', hanger.radAng, 0.150 - remainLengthDouble + tempLengthDouble - 0.450, &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150 - remainLengthDouble + tempLengthDouble - 0.450, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (90.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", minusSlantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (90.0);
 
 			bBeginFound = false;
@@ -2268,22 +2411,23 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 				remainLengthDouble += placingZone->cellsAtRSide [0][yy].dirLen;
 
 			hanger.init (L("각파이프행거.gsm"), layerInd_RectpipeHanger, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
-			moveIn3D ('z', hanger.radAng, -0.0635, &hanger.posX, &hanger.posY, &hanger.posZ);
-			moveIn3D ('x', hanger.radAng, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3D ('z', hanger.radAng, -0.0635 * cos (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3D ('x', hanger.radAng, 0.0635 * sin (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (270.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", slantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (270.0);
-			moveIn3D ('x', hanger.radAng, -0.150 + remainLengthDouble - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, -0.150 + remainLengthDouble - 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (270.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", slantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (270.0);
 			tempLengthDouble = 0.0;
 			for (zz = beginIndex ; zz <= beginIndex + round ((endIndex - beginIndex) / 2, 0) ; ++zz) {
 				tempLengthDouble += placingZone->cellsAtRSide [0][zz].dirLen;
 			}
-			moveIn3D ('x', hanger.radAng, 0.150 - remainLengthDouble + tempLengthDouble - 0.450, &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150 - remainLengthDouble + tempLengthDouble - 0.450, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (270.0);
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", slantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			hanger.radAng -= DegreeToRad (270.0);
 
 			bBeginFound = false;
@@ -2313,76 +2457,104 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			// 시작 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 			moveIn3D ('y', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
-			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.500, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.400, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.350, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.500 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.500 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.400 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.400 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.350 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.350 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.300 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.300 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.200 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.200 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
 			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) > EPS)
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			// 끝 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 			moveIn3D ('y', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
-			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.500, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.400, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.350, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.500 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.500 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.400 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.400 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.350 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.350 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.300 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.300 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.200 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.200 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
 			if (abs (placingZone->cellsAtLSide [0][beginIndex].perLen - 0.200) > EPS)
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			bBeginFound = false;
 		}
@@ -2411,76 +2583,104 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			// 시작 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtLSide [2][beginIndex].leftBottomX, placingZone->cellsAtLSide [2][beginIndex].leftBottomY, placingZone->cellsAtLSide [2][beginIndex].leftBottomZ, placingZone->cellsAtLSide [2][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 			moveIn3D ('y', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
-			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.500, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.400, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.350, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.500 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.500 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.400 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.400 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.350 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.350 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.300 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.300 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.200 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.200 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
 			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) > EPS)
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			// 끝 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtLSide [2][beginIndex].leftBottomX, placingZone->cellsAtLSide [2][beginIndex].leftBottomY, placingZone->cellsAtLSide [2][beginIndex].leftBottomZ, placingZone->cellsAtLSide [2][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 			moveIn3D ('y', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
-			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.500, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.400, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.350, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.500 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.500 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.400 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.400 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.350 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.350 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.300 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.300 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.200 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.200 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
 			if (abs (placingZone->cellsAtLSide [2][beginIndex].perLen - 0.200) > EPS)
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			bBeginFound = false;
 		}
@@ -2509,76 +2709,104 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			// 시작 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 			moveIn3D ('y', blueClamp.radAng, 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
-			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.500, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.400, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.350, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.500 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.500 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.400 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.400 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.350 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.350 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.300 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.300 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.200 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.200 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
 			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) > EPS)
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			// 끝 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 			moveIn3D ('y', blueClamp.radAng, 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
-			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.500, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.400, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.350, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.500 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.500 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.400 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.400 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.350 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.350 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.300 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.300 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.200 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.200 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
 			if (abs (placingZone->cellsAtRSide [0][beginIndex].perLen - 0.200) > EPS)
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			bBeginFound = false;
 		}
@@ -2607,76 +2835,104 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			// 시작 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtRSide [2][beginIndex].leftBottomX, placingZone->cellsAtRSide [2][beginIndex].leftBottomY, placingZone->cellsAtRSide [2][beginIndex].leftBottomZ, placingZone->cellsAtRSide [2][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 			moveIn3D ('y', blueClamp.radAng, 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
-			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.500, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.400, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.350, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.500 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.500 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.400 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.400 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.350 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.350 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.300 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.300 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.200 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.200 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
 			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) > EPS)
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (270.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			// 끝 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtRSide [2][beginIndex].leftBottomX, placingZone->cellsAtRSide [2][beginIndex].leftBottomY, placingZone->cellsAtRSide [2][beginIndex].leftBottomZ, placingZone->cellsAtRSide [2][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 			moveIn3D ('y', blueClamp.radAng, 0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.050, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.050 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.050 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
-			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.500, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.400, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.350, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.200, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS)
-				moveIn3D ('z', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.600) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.500 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.500 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.500) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.400 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.400 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.450) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.350 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.350 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.400) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.300 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.300 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.300) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.200 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.200 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			} else if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) < EPS) {
+				moveIn3D ('z', blueClamp.radAng, 0.150 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, -0.150 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			}
 
 			if (abs (placingZone->cellsAtRSide [2][beginIndex].perLen - 0.200) > EPS)
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			bBeginFound = false;
 		}
@@ -2705,32 +2961,34 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			// 시작 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('z', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('z', blueClamp.radAng, -0.0659 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, 0.0659 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			moveIn3D ('y', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			moveIn3D ('y', blueClamp.radAng, placingZone->cellsAtBottom [0][beginIndex].perLen - 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 			
 			if ( !((abs (placingZone->cellsAtBottom [0][beginIndex].perLen - 0.300) < EPS) || (abs (placingZone->cellsAtBottom [0][beginIndex].perLen - 0.200) < EPS)) )
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			// 끝 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('z', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('z', blueClamp.radAng, -0.0659 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, 0.0659 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			moveIn3D ('y', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			moveIn3D ('y', blueClamp.radAng, placingZone->cellsAtBottom [0][beginIndex].perLen - 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if ( !((abs (placingZone->cellsAtBottom [0][beginIndex].perLen - 0.300) < EPS) || (abs (placingZone->cellsAtBottom [0][beginIndex].perLen - 0.200) < EPS)) )
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			bBeginFound = false;
 		}
@@ -2759,32 +3017,34 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjects (BeamTableformPlacingZone* p
 			// 시작 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtBottom [2][beginIndex].leftBottomX, placingZone->cellsAtBottom [2][beginIndex].leftBottomY, placingZone->cellsAtBottom [2][beginIndex].leftBottomZ, placingZone->cellsAtBottom [2][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('z', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, -0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('z', blueClamp.radAng, -0.0659 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, 0.0659 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			moveIn3D ('y', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			moveIn3D ('y', blueClamp.radAng, placingZone->cellsAtBottom [2][beginIndex].perLen - 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if ( !((abs (placingZone->cellsAtBottom [2][beginIndex].perLen - 0.300) < EPS) || (abs (placingZone->cellsAtBottom [2][beginIndex].perLen - 0.200) < EPS)) )
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			// 끝 부분
 			blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoBeam.floorInd, placingZone->cellsAtBottom [2][beginIndex].leftBottomX, placingZone->cellsAtBottom [2][beginIndex].leftBottomY, placingZone->cellsAtBottom [2][beginIndex].leftBottomZ, placingZone->cellsAtBottom [2][beginIndex].ang);
 
-			moveIn3D ('x', blueClamp.radAng, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('z', blueClamp.radAng, -0.0659, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3DSlope ('x', blueClamp.radAng, placingZone->slantAngle, remainLengthDouble + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('z', blueClamp.radAng, -0.0659 * cos (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, 0.0659 * sin (placingZone->slantAngle), &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			moveIn3D ('y', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
-			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			moveIn3D ('y', blueClamp.radAng, placingZone->cellsAtBottom [2][beginIndex].perLen - 0.300, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
 
 			if ( !((abs (placingZone->cellsAtBottom [2][beginIndex].perLen - 0.300) < EPS) || (abs (placingZone->cellsAtBottom [2][beginIndex].perLen - 0.200) < EPS)) )
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (4, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str ()));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (blueClamp.placeObject (5, "type", APIParT_CString, "유로목재클램프(제작품v1)", "openingWidth", APIParT_Length, "0.047", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)).c_str (), "bReverseRotation", APIParT_Boolean, "1.0"));
 
 			bBeginFound = false;
 		}
