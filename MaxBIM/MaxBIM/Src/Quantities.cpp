@@ -396,10 +396,6 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 
 							ACAPI_DisposeElemMemoHdls (&memo);
 
-							// 화면 새로고침
-							//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-							//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
 						} while (inputErr != APIERR_CANCEL);
 
 						break;
@@ -590,10 +586,6 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 							}
 
 							ACAPI_DisposeElemMemoHdls (&memo);
-
-							// 화면 새로고침
-							//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-							//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 						} while (inputErr != APIERR_CANCEL);
 
@@ -1813,10 +1805,6 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 							// 그룹화하기
 							groupElements (elemList);
 							elemList.Clear (false);
-
-							// 화면 새로고침
-							//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-							//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 						} while (inputErr != APIERR_CANCEL);
 

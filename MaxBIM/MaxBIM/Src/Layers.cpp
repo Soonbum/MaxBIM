@@ -874,11 +874,6 @@ GSErrCode	showLayersEasily (void)
 		}
 	}
 	
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//bool	regenerate = true;
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
 	// 메모리 해제
 	deallocateMemory (&layerInfo);
 	deallocateMemory (&selectedInfo);
@@ -2009,11 +2004,6 @@ GSErrCode	makeLayersEasily (void)
 
 	// 메모리 해제
 	deallocateMemory (&layerInfo);
-
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//bool	regenerate = true;
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 생성된 레이어 개수 보여주기
 	WriteReport_Alert ("총 %d 개의 레이어가 생성되었습니다.", madeLayers);
@@ -3249,11 +3239,6 @@ GSErrCode	assignLayerEasily (void)
 
 	// 그룹화 일시정지 OFF
 	suspendGroups (false);
-
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//bool	regenerate = true;
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	return	err;
 }
@@ -4799,11 +4784,6 @@ GSErrCode	inspectLayerNames (void)
 
 	// 메모리 해제
 	deallocateMemory (&layerInfo);
-
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//bool	regenerate = true;
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	// 그룹화 일시정지 OFF
 	suspendGroups (false);

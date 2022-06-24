@@ -109,6 +109,8 @@ namespace beamTableformPlacerDG {
 		EDITCONTROL_TOTAL_LENGTH,
 		LABEL_REMAIN_LENGTH,
 		EDITCONTROL_REMAIN_LENGTH,
+		LABEL_TABLEFORM_TYPE,
+		POPUP_TABLEFORM_TYPE,
 		BUTTON_ADD_COL,
 		BUTTON_DEL_COL,
 
@@ -123,9 +125,6 @@ namespace beamTableformPlacerDG {
 
 		LABEL_NUM_OF_POST_SET_PERI,
 		POPUP_NUM_OF_POST_SET_PERI,
-
-		LABEL_BEAM_ELEVATION_PERI,
-		EDITCONTROL_BEAM_ELEVATION_PERI,
 
 		LABEL_PLAN_VIEW_PERI,
 
@@ -213,6 +212,8 @@ struct CellForBeamTableform
 class BeamTableformPlacingZone
 {
 public:
+	short	tableformType;		// 테이블폼 타입: 타입A (1), 타입B (2)
+
 	// 보 기하 정보
 	double	level;				// 보 윗면 고도
 	double	ang;				// 보 회전 각도 (단위: Radian, 회전축: Z축)
@@ -260,7 +261,6 @@ public:
 	// 동바리/멍에제 프리셋 정보
 	short	typeOfSupportingPost;	// 타입
 	short	numOfSupportingPostSet;	// 동바리 세트 개수
-	double	beamElevation;			// 보 하부면 고도
 	double	postStartOffset;		// 시작 위치
 	double	postGapWidth;			// 너비
 	double	postGapLength;			// 길이
@@ -270,7 +270,8 @@ public:
 	double		getCellPositionLeftBottomX (BeamTableformPlacingZone* placingZone, short idx);				// 셀(0-기반 인덱스 번호)의 좌하단 점 위치 X 좌표를 구함
 	void		alignPlacingZone (BeamTableformPlacingZone* placingZone);									// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
 	GSErrCode	placeBasicObjects (BeamTableformPlacingZone* placingZone);									// 유로폼/휠러/합판/각재를 배치함
-	GSErrCode	placeAuxObjects (BeamTableformPlacingZone* placingZone);									// 유로폼/휠러/합판/각재를 채운 후 부자재 설치 (아웃코너앵글, 비계파이프, 핀볼트, 각파이프행거, 블루클램프, 블루목심)
+	GSErrCode	placeAuxObjectsA (BeamTableformPlacingZone* placingZone);									// 유로폼/휠러/합판/각재를 채운 후 부자재 설치 (아웃코너앵글, 비계파이프, 핀볼트, 각파이프행거, 블루클램프, 블루목심) - 타입A
+	GSErrCode	placeAuxObjectsB (BeamTableformPlacingZone* placingZone);									// 유로폼/휠러/합판/각재를 채운 후 부자재 설치 (아웃코너앵글, 비계파이프, 핀볼트, 각파이프행거, 블루클램프, 블루목심) - 타입B
 	GSErrCode	placeSupportingPostPreset (BeamTableformPlacingZone* placingZone);							// 동바리/멍에제 프리셋을 배치함
 	short		getObjectType (BeamTableformPlacingZone* placingZone, bool bLeft, short idx);				// 왼쪽 혹은 오른쪽 면의 idx 번째 셀에 배치되는 객체의 타입을 조사함
 	short		getAreaSeqNumOfCell (BeamTableformPlacingZone* placingZone, bool bLeft, bool bTableform, short idx);	// idx 번째 셀은 몇 번째 연속적인 테이블폼 혹은 합판 영역인가?

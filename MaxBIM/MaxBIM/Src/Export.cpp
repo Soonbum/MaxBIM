@@ -276,10 +276,6 @@ GSErrCode	exportSelectedElementInfo (void)
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
 
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
 	// 선택한 요소 가져오기
 	if (getGuidsOfSelection (&objects, API_ObjectID, &nObjects) != NoError) {
 		WriteReport_Alert ("요소들을 선택해야 합니다.");
@@ -1496,10 +1492,6 @@ GSErrCode	exportSelectedElementInfo (void)
 
 	fclose (fp_interReport);
 
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
 	// 그룹화 일시정지 OFF
 	suspendGroups (false);
 
@@ -1585,10 +1577,6 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
-
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -3142,10 +3130,6 @@ GSErrCode	exportBeamTableformInformation (void)
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
 
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
 	// 프로젝트 내 레이어 개수를 알아냄
@@ -3897,10 +3881,6 @@ GSErrCode	calcTableformArea (void)
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
 
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
 	// 프로젝트 내 레이어 개수를 알아냄
@@ -4139,10 +4119,6 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
 
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
 	// 선택한 요소 가져오기 ( 벽, 기둥, 보, 슬래브, 모프, 객체)
 	getGuidsOfSelection (&walls, API_WallID, &nWalls);
 	getGuidsOfSelection (&columns, API_ColumnID, &nColumns);
@@ -4314,10 +4290,6 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
-
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -4604,10 +4576,6 @@ GSErrCode	calcSlabQuantityAndAreaSingleMode (void)
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
 
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
 	// 선택한 요소 가져오기
 	err = getGuidsOfSelection (&slabs, API_SlabID, &nSlabs);
 	if (err != NoError) {
@@ -4682,10 +4650,6 @@ GSErrCode	calcSlabQuantityAndAreaMultiMode (void)
 
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
-
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
@@ -4858,10 +4822,6 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
 
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
-
 	// 선택한 요소 가져오기
 	err = getGuidsOfSelection (&objects, API_ObjectID, &nObjects);
 	if (err != NoError) {
@@ -4954,10 +4914,6 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
-
-	// 화면 새로고침
-	//ACAPI_Automate (APIDo_RedrawID, NULL, NULL);
-	//ACAPI_Automate (APIDo_RebuildID, &regenerate, NULL);
 
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specFolderID, &location);
 
