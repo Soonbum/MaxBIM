@@ -46,6 +46,9 @@ namespace columnTableformPlacerDG {
 		LABEL_COLUMN_BAND_TYPE,
 		RADIO_COLUMN_BAND_1,
 		RADIO_COLUMN_BAND_2,
+
+		LABEL_TABLEFORM_TYPE,
+		POPUP_TABLEFORM_TYPE,
 		
 		EDITCONTROL_TOP_1,
 		EDITCONTROL_TOP_2,
@@ -165,6 +168,8 @@ struct CellForColumnTableform
 class ColumnTableformPlacingZone
 {
 public:
+	short	tableformType;	// 테이블폼 타입: 타입A (1), 타입B (2)
+
 	// 기둥 기하 정보
 	bool	bRectangle;		// 직사각형인가?
 	short	coreAnchor;		// 코어의 앵커 포인트

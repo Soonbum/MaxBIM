@@ -2246,6 +2246,7 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 {
 	short		result;
 	short		xx;
+	char		buffer [256];
 	API_UCCallbackType	ucb;
 
 	API_Coord	rotatedPoint;
@@ -2272,12 +2273,13 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 			DGSetItemText (dialogID, RADIO_COLUMN_BAND_1, "기둥밴드");
 			DGSetItemText (dialogID, RADIO_COLUMN_BAND_2, "웰라");
 
-			// 라벨 및 체크박스
+			// 라벨 및 체크박스/팝업컨트롤
 			DGSetItemText (dialogID, LABEL_COLUMN_SECTION, "기둥 단면");
 			DGSetItemText (dialogID, LABEL_COLUMN_DEPTH, "세로");
 			DGSetItemText (dialogID, LABEL_COLUMN_WIDTH, "가로");
 			DGSetItemText (dialogID, LABEL_OUTCORNER, "아웃코너 처리");
 			DGSetItemText (dialogID, LABEL_COLUMN_BAND_TYPE, "기둥밴드 타입");
+			DGSetItemText (dialogID, LABEL_TABLEFORM_TYPE, "테이블폼 타입");
 
 			// 라벨: 레이어 설정
 			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
@@ -2290,6 +2292,13 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
 			DGSetItemText (dialogID, LABEL_LAYER_COLUMN_BAND, "기둥밴드");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
+
+			// 팝업컨트롤: 테이블폼 타입
+			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "타입A");
+			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "타입B");
+			DGPopUpSelectItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_TOP);
 
 			// 체크박스: 레이어 묶음
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
@@ -2845,6 +2854,13 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 					} else {
 						placingZone.typeOfColumnBand = 2;	// 웰라
 					}
+
+					// 테이블폼 타입
+					strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_TABLEFORM_TYPE, DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_TYPE)).ToCStr ().Get ());
+					if (my_strcmp (buffer, "타입A") == 0)
+						placingZone.tableformType = 1;
+					else if (my_strcmp (buffer, "타입B") == 0)
+						placingZone.tableformType = 2;
 
 					// 레이어 번호 저장
 					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
