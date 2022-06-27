@@ -9,7 +9,8 @@ namespace columnTableformPlacerDG {
 		NONE,			// 없음
 		EUROFORM,		// 유로폼v2.0
 		OUTPANEL,		// 아웃코너판넬v1.0
-		OUTANGLE		// 아웃코너앵글v1.0
+		OUTANGLE,		// 아웃코너앵글v1.0
+		FILLERSP		// 휠러스페이서v1.0
 	};
 
 	// 부재가 부착되는 곳에 해당하는 기둥의 앵커 포인트
@@ -54,18 +55,22 @@ namespace columnTableformPlacerDG {
 		EDITCONTROL_TOP_2,
 		EDITCONTROL_TOP_3,
 		EDITCONTROL_TOP_4,
+		EDITCONTROL_TOP_5,
 		EDITCONTROL_LEFT_1,
 		EDITCONTROL_LEFT_2,
 		EDITCONTROL_LEFT_3,
 		EDITCONTROL_LEFT_4,
+		EDITCONTROL_LEFT_5,
 		EDITCONTROL_RIGHT_1,
 		EDITCONTROL_RIGHT_2,
 		EDITCONTROL_RIGHT_3,
 		EDITCONTROL_RIGHT_4,
+		EDITCONTROL_RIGHT_5,
 		EDITCONTROL_BOTTOM_1,
 		EDITCONTROL_BOTTOM_2,
 		EDITCONTROL_BOTTOM_3,
 		EDITCONTROL_BOTTOM_4,
+		EDITCONTROL_BOTTOM_5,
 
 		CHECKBOX_TOP_ADDITIONAL_FORM,
 		CHECKBOX_LEFT_ADDITIONAL_FORM,
@@ -81,6 +86,7 @@ namespace columnTableformPlacerDG {
 		LABEL_LAYER_SETTINGS,
 		CHECKBOX_LAYER_COUPLING,
 		LABEL_LAYER_EUROFORM,
+		LABEL_LAYER_FILLERSP,
 		LABEL_LAYER_OUTCORNER_PANEL,
 		LABEL_LAYER_OUTCORNER_ANGLE,
 		LABEL_LAYER_SQUARE_PIPE,
@@ -91,6 +97,7 @@ namespace columnTableformPlacerDG {
 		LABEL_LAYER_PLYWOOD,
 
 		USERCONTROL_LAYER_EUROFORM,
+		USERCONTROL_LAYER_FILLERSP,
 		USERCONTROL_LAYER_OUTCORNER_PANEL,
 		USERCONTROL_LAYER_OUTCORNER_ANGLE,
 		USERCONTROL_LAYER_SQUARE_PIPE,
@@ -209,13 +216,17 @@ public:
 	CellForColumnTableform	cellsLB [20];		// 좌하단 셀
 	CellForColumnTableform	cellsRB [20];		// 우하단 셀
 	CellForColumnTableform	cellsT1 [20];		// 상단1 셀 (왼쪽)
-	CellForColumnTableform	cellsT2 [20];		// 상단2 셀 (오른쪽)
+	CellForColumnTableform	cellsT2 [20];		// 상단2 셀 (가운데)
+	CellForColumnTableform	cellsT3 [20];		// 상단3 셀 (오른쪽)
 	CellForColumnTableform	cellsL1 [20];		// 좌측1 셀 (위)
-	CellForColumnTableform	cellsL2 [20];		// 좌측2 셀 (아래)
+	CellForColumnTableform	cellsL2 [20];		// 좌측2 셀 (가운데)
+	CellForColumnTableform	cellsL3 [20];		// 좌측3 셀 (아래)
 	CellForColumnTableform	cellsR1 [20];		// 우측1 셀 (위)
-	CellForColumnTableform	cellsR2 [20];		// 우측2 셀 (아래)
+	CellForColumnTableform	cellsR2 [20];		// 우측2 셀 (가운데)
+	CellForColumnTableform	cellsR3 [20];		// 우측3 셀 (아래)
 	CellForColumnTableform	cellsB1 [20];		// 하단1 셀 (왼쪽)
-	CellForColumnTableform	cellsB2 [20];		// 하단2 셀 (오른쪽)
+	CellForColumnTableform	cellsB2 [20];		// 하단2 셀 (가운데)
+	CellForColumnTableform	cellsB3 [20];		// 하단3 셀 (오른쪽)
 
 	// 아웃코너판넬/아웃코너앵글
 	bool	bUseOutcornerPanel;		// true이면 아웃코너판넬, false이면 아웃코너앵글
@@ -231,8 +242,9 @@ public:
 	void		addTopCell (ColumnTableformPlacingZone* target_zone);					// 꼭대기에 셀 추가
 	void		delTopCell (ColumnTableformPlacingZone* target_zone);					// 꼭대기의 셀 삭제
 	void		alignPlacingZone_soleColumn (ColumnTableformPlacingZone* placingZone);	// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-	GSErrCode	placeBasicObjects_soleColumn (ColumnTableformPlacingZone* placingZone);	// 유로폼/아웃코너판넬/아웃코너앵글 배치
-	GSErrCode	placeRestObjects_soleColumn (ColumnTableformPlacingZone* placingZone);	// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스 배치
+	GSErrCode	placeBasicObjects_soleColumn (ColumnTableformPlacingZone* placingZone);	// 유로폼/아웃코너판넬/아웃코너앵글/휠러스페이서 배치
+	GSErrCode	placeRestObjectsA_soleColumn (ColumnTableformPlacingZone* placingZone);	// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스 배치 (타입A)
+	GSErrCode	placeRestObjectsB_soleColumn (ColumnTableformPlacingZone* placingZone);	// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스 배치 (타입B)
 	GSErrCode	fillRestAreas_soleColumn (ColumnTableformPlacingZone* placingZone);		// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)
 };
 
