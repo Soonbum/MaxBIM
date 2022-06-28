@@ -659,6 +659,130 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 	short	xx;
 	EasyObjectPlacement	euroform, outpanel, outangle, fillersp;
 
+	double	accumDist;
+	double	remainLength;
+	double	length;
+
+	// 휠러스페이서 배치 (위쪽 2)
+	fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoColumn.floorInd, placingZone->cellsT2 [0].leftBottomX, placingZone->cellsT2 [0].leftBottomY, placingZone->cellsT2 [0].leftBottomZ, placingZone->cellsT2 [0].ang);
+	if ((placingZone->cellsT2 [0].horLen > EPS) && (placingZone->cellsT2 [0].height > EPS)) {
+		accumDist = 0.0;
+		remainLength = 0.0;
+		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+			remainLength += placingZone->cellsT2 [xx].height;
+			accumDist += placingZone->cellsT2 [xx].height;
+		}
+
+		moveIn3D ('x', fillersp.radAng, placingZone->cellsT2 [0].horLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+		while (remainLength > EPS) {
+			if (remainLength >= 2.400)
+				length = 2.400;
+			else
+				length = remainLength;
+
+			elemList.Push (fillersp.placeObject (4,
+				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsT2 [0].horLen),
+				"f_leng", APIParT_Length, format_string ("%f", remainLength),
+				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			moveIn3D ('z', fillersp.radAng, length, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+
+			remainLength -= 2.400;
+		}
+		moveIn3D ('x', fillersp.radAng, -placingZone->cellsT2 [0].horLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+		moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+	}
+
+	// 휠러스페이서 배치 (아래쪽 2)
+	fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoColumn.floorInd, placingZone->cellsB2 [0].leftBottomX, placingZone->cellsB2 [0].leftBottomY, placingZone->cellsB2 [0].leftBottomZ, placingZone->cellsB2 [0].ang);
+	if ((placingZone->cellsB2 [0].horLen > EPS) && (placingZone->cellsB2 [0].height > EPS)) {
+		accumDist = 0.0;
+		remainLength = 0.0;
+		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+			remainLength += placingZone->cellsB2 [xx].height;
+			accumDist += placingZone->cellsB2 [xx].height;
+		}
+
+		moveIn3D ('x', fillersp.radAng, placingZone->cellsB2 [0].horLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+		while (remainLength > EPS) {
+			if (remainLength >= 2.400)
+				length = 2.400;
+			else
+				length = remainLength;
+
+			elemList.Push (fillersp.placeObject (4,
+				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsB2 [0].horLen),
+				"f_leng", APIParT_Length, format_string ("%f", remainLength),
+				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			moveIn3D ('z', fillersp.radAng, length, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+
+			remainLength -= 2.400;
+		}
+		moveIn3D ('x', fillersp.radAng, -placingZone->cellsB2 [0].horLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+		moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+	}
+
+	// 휠러스페이서 배치 (좌측 2)
+	fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoColumn.floorInd, placingZone->cellsL2 [0].leftBottomX, placingZone->cellsL2 [0].leftBottomY, placingZone->cellsL2 [0].leftBottomZ, placingZone->cellsL2 [0].ang);
+	if ((placingZone->cellsL2 [0].verLen > EPS) && (placingZone->cellsL2 [0].height > EPS)) {
+		accumDist = 0.0;
+		remainLength = 0.0;
+		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+			remainLength += placingZone->cellsL2 [xx].height;
+			accumDist += placingZone->cellsL2 [xx].height;
+		}
+
+		moveIn3D ('x', fillersp.radAng, placingZone->cellsL2 [0].verLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+		while (remainLength > EPS) {
+			if (remainLength >= 2.400)
+				length = 2.400;
+			else
+				length = remainLength;
+
+			elemList.Push (fillersp.placeObject (4,
+				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsL2 [0].verLen),
+				"f_leng", APIParT_Length, format_string ("%f", remainLength),
+				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			moveIn3D ('z', fillersp.radAng, length, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+
+			remainLength -= 2.400;
+		}
+		moveIn3D ('x', fillersp.radAng, -placingZone->cellsL2 [0].verLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+		moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+	}
+
+	// 휠러스페이서 배치 (우측 2)
+	fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoColumn.floorInd, placingZone->cellsR2 [0].leftBottomX, placingZone->cellsR2 [0].leftBottomY, placingZone->cellsR2 [0].leftBottomZ, placingZone->cellsR2 [0].ang);
+	if ((placingZone->cellsR2 [0].verLen > EPS) && (placingZone->cellsR2 [0].height > EPS)) {
+		accumDist = 0.0;
+		remainLength = 0.0;
+		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+			remainLength += placingZone->cellsR2 [xx].height;
+			accumDist += placingZone->cellsR2 [xx].height;
+		}
+
+		moveIn3D ('x', fillersp.radAng, placingZone->cellsR2 [0].verLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+		while (remainLength > EPS) {
+			if (remainLength >= 2.400)
+				length = 2.400;
+			else
+				length = remainLength;
+
+			elemList.Push (fillersp.placeObject (4,
+				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsR2 [0].verLen),
+				"f_leng", APIParT_Length, format_string ("%f", remainLength),
+				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
+			moveIn3D ('z', fillersp.radAng, length, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+
+			remainLength -= 2.400;
+		}
+		moveIn3D ('x', fillersp.radAng, -placingZone->cellsR2 [0].verLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+		moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+	}
+
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
 		// 1. 유로폼 배치
 		// 위쪽 1
@@ -681,18 +805,6 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
 					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 			}
-		}
-
-		// 위쪽 2
-		fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoColumn.floorInd, placingZone->cellsT2 [xx].leftBottomX, placingZone->cellsT2 [xx].leftBottomY, placingZone->cellsT2 [xx].leftBottomZ, placingZone->cellsT2 [xx].ang);
-		if ((placingZone->cellsT2 [xx].horLen > EPS) && (placingZone->cellsT2 [xx].height > EPS)) {
-			moveIn3D ('x', fillersp.radAng, placingZone->cellsT2 [xx].horLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
-			elemList.Push (fillersp.placeObject (4,
-				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsT2 [xx].horLen),
-				"f_leng", APIParT_Length, format_string ("%f", placingZone->cellsT2 [xx].height),
-				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
-			moveIn3D ('x', fillersp.radAng, -placingZone->cellsT2 [xx].horLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 		}
 
 		// 위쪽 3
@@ -739,18 +851,6 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 			}
 		}
 
-		// 아래쪽 2
-		fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoColumn.floorInd, placingZone->cellsB2 [xx].leftBottomX, placingZone->cellsB2 [xx].leftBottomY, placingZone->cellsB2 [xx].leftBottomZ, placingZone->cellsB2 [xx].ang);
-		if ((placingZone->cellsB2 [xx].horLen > EPS) && (placingZone->cellsB2 [xx].height > EPS)) {
-			moveIn3D ('x', fillersp.radAng, placingZone->cellsB2 [xx].horLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
-			elemList.Push (fillersp.placeObject (4,
-				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsB2 [xx].horLen),
-				"f_leng", APIParT_Length, format_string ("%f", placingZone->cellsB2 [xx].height),
-				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
-			moveIn3D ('x', fillersp.radAng, -placingZone->cellsB2 [xx].horLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
-		}
-
 		// 아래쪽 3
 		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoColumn.floorInd, placingZone->cellsB3 [xx].leftBottomX, placingZone->cellsB3 [xx].leftBottomY, placingZone->cellsB3 [xx].leftBottomZ, placingZone->cellsB3 [xx].ang);
 		if ((placingZone->cellsB3 [xx].horLen > EPS) && (placingZone->cellsB3 [xx].height > EPS)) {
@@ -795,18 +895,6 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 			}
 		}
 
-		// 좌측 2
-		fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoColumn.floorInd, placingZone->cellsL2 [xx].leftBottomX, placingZone->cellsL2 [xx].leftBottomY, placingZone->cellsL2 [xx].leftBottomZ, placingZone->cellsL2 [xx].ang);
-		if ((placingZone->cellsL2 [xx].verLen > EPS) && (placingZone->cellsL2 [xx].height > EPS)) {
-			moveIn3D ('x', fillersp.radAng, placingZone->cellsL2 [xx].verLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
-			elemList.Push (fillersp.placeObject (4,
-				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsL2 [xx].verLen),
-				"f_leng", APIParT_Length, format_string ("%f", placingZone->cellsL2 [xx].height),
-				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
-			moveIn3D ('x', fillersp.radAng, -placingZone->cellsL2 [xx].verLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
-		}
-
 		// 좌측 3
 		euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoColumn.floorInd, placingZone->cellsL3 [xx].leftBottomX, placingZone->cellsL3 [xx].leftBottomY, placingZone->cellsL3 [xx].leftBottomZ, placingZone->cellsL3 [xx].ang);
 		if ((placingZone->cellsL3 [xx].verLen > EPS) && (placingZone->cellsL3 [xx].height > EPS)) {
@@ -849,18 +937,6 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 					"ang_x", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
 					"ang_y", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 			}
-		}
-
-		// 우측 2
-		fillersp.init (L("휠러스페이서v1.0.gsm"), layerInd_Fillersp, infoColumn.floorInd, placingZone->cellsR2 [xx].leftBottomX, placingZone->cellsR2 [xx].leftBottomY, placingZone->cellsR2 [xx].leftBottomZ, placingZone->cellsR2 [xx].ang);
-		if ((placingZone->cellsR2 [xx].verLen > EPS) && (placingZone->cellsR2 [xx].height > EPS)) {
-			moveIn3D ('x', fillersp.radAng, placingZone->cellsR2 [xx].verLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
-			elemList.Push (fillersp.placeObject (4,
-				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsR2 [xx].verLen),
-				"f_leng", APIParT_Length, format_string ("%f", placingZone->cellsR2 [xx].height),
-				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
-			moveIn3D ('x', fillersp.radAng, -placingZone->cellsR2 [xx].verLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 		}
 
 		// 우측 3
