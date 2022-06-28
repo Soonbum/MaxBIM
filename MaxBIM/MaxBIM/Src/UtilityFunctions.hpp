@@ -137,6 +137,7 @@ short		makeTemporaryLayer (API_Guid structurualObject, const char* suffix, char*
 GSErrCode	getGuidsOfSelection (GS::Array<API_Guid>* guidList, API_ElemTypeID elemType, long *nElem);		// 선택한 요소들 중에서 요소 ID가 elemType인 객체들의 GUID를 가져옴, 가져온 수량을 리턴함
 double		getWorkLevel (short floorInd);																	// 해당 층의 작업 층 고도를 가져옴
 short		getLayerCount ();																				// 레이어 개수를 가져옴
+long		getVerticesOfMorph (API_Guid guid, GS::Array<API_Coord3D>* coords);								// 모프의 꼭지점들을 수집하고 꼭지점 개수를 리턴함
 
 // 요소 조작
 void		deleteElements (GS::Array<API_Element> elemList);	// 리스트에 있는 요소들을 모두 삭제함

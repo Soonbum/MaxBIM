@@ -51,11 +51,6 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	API_ElemInfo3D			info3D;
 
 	// 모프 3D 구성요소 가져오기
-	API_Component3D			component;
-	API_Tranmat				tm;
-	Int32					nVert, nEdge, nPgon;
-	Int32					elemIdx, bodyIdx;
-	API_Coord3D				trCoord;
 	GS::Array<API_Coord3D>	coords;
 
 	// 모프 객체 정보
@@ -137,48 +132,15 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	infoMorph.floorInd	= elem.header.floorInd;
 	infoMorph.level		= info3D.bounds.zMin;
 
-	// 모프의 3D 바디를 가져옴
-	BNZeroMemory (&component, sizeof (API_Component3D));
-	component.header.typeID = API_BodyID;
-	component.header.index = info3D.fbody;
-	err = ACAPI_3D_GetComponent (&component);
-
 	// 모프의 3D 모델을 가져오지 못하면 종료
 	if (err != NoError) {
 		WriteReport_Alert ("모프의 3D 모델을 가져오지 못했습니다.");
 		return err;
 	}
 
-	nVert = component.body.nVert;
-	nEdge = component.body.nEdge;
-	nPgon = component.body.nPgon;
-	tm = component.body.tranmat;
-	elemIdx = component.body.head.elemIndex - 1;
-	bodyIdx = component.body.head.bodyIndex - 1;
+	// 모프의 꼭지점들을 수집함
+	nNodes = getVerticesOfMorph (infoMorph.guid, &coords);
 	
-	// 정점 좌표를 임의 순서대로 저장함
-	for (xx = 1 ; xx <= nVert ; ++xx) {
-		component.header.typeID	= API_VertID;
-		component.header.index	= xx;
-		err = ACAPI_3D_GetComponent (&component);
-		if (err == NoError) {
-			trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
-			trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
-			trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
-			if ( (abs (trCoord.x - 1.0) < EPS) || (abs (trCoord.y - 0.0) < EPS) || (abs (trCoord.z - 0.0) < EPS) )
-				;
-			else if ( (abs (trCoord.x - 0.0) < EPS) || (abs (trCoord.y - 1.0) < EPS) || (abs (trCoord.z - 0.0) < EPS) )
-				;
-			else if ( (abs (trCoord.x - 0.0) < EPS) || (abs (trCoord.y - 0.0) < EPS) || (abs (trCoord.z - 1.0) < EPS) )
-				;
-			else if ( (abs (trCoord.x - 0.0) < EPS) || (abs (trCoord.y - 0.0) < EPS) || (abs (trCoord.z - 0.0) < EPS) )
-				;
-			else
-				coords.Push (trCoord);
-		}
-	}
-	nNodes = coords.GetSize ();
-
 	// 하단 점 2개를 클릭
 	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
 	CHCopyC ("모프의 하단 라인의 왼쪽 점을 클릭하십시오.", pointInfo.prompt);

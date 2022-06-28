@@ -61,11 +61,6 @@ GSErrCode	placeTableformOnBeam (void)
 	API_ElemInfo3D			info3D;
 
 	// 모프 3D 구성요소 가져오기
-	API_Component3D			component;
-	API_Tranmat				tm;
-	Int32					nVert, nEdge, nPgon;
-	Int32					elemIdx, bodyIdx;
-	API_Coord3D				trCoord;
 	GS::Array<API_Coord3D>	coords;
 	long					nNodes;
 
@@ -139,38 +134,7 @@ GSErrCode	placeTableformOnBeam (void)
 		infoMorph [xx].floorInd	= elem.header.floorInd;
 		infoMorph [xx].level	= info3D.bounds.zMin;
 
-		// 모프의 3D 바디를 가져옴
-		BNZeroMemory (&component, sizeof (API_Component3D));
-		component.header.typeID = API_BodyID;
-		component.header.index = info3D.fbody;
-		err = ACAPI_3D_GetComponent (&component);
-
-		nVert = component.body.nVert;
-		nEdge = component.body.nEdge;
-		nPgon = component.body.nPgon;
-		tm = component.body.tranmat;
-		elemIdx = component.body.head.elemIndex - 1;
-		bodyIdx = component.body.head.bodyIndex - 1;
-		
-		// 정점 좌표를 임의 순서대로 저장함
-		for (yy = 1 ; yy <= nVert ; ++yy) {
-			component.header.typeID	= API_VertID;
-			component.header.index	= yy;
-			err = ACAPI_3D_GetComponent (&component);
-			if (err == NoError) {
-				trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
-				trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
-				trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
-				// 단위 벡터 생략
-				if ( ((abs (trCoord.x - 0) < EPS) && (abs (trCoord.y - 0) < EPS) && (abs (trCoord.z - 0) < EPS)) ||
-					 ((abs (trCoord.x - 1) < EPS) && (abs (trCoord.y - 0) < EPS) && (abs (trCoord.z - 0) < EPS)) ||
-					 ((abs (trCoord.x - 0) < EPS) && (abs (trCoord.y - 1) < EPS) && (abs (trCoord.z - 0) < EPS)) ||
-					 ((abs (trCoord.x - 0) < EPS) && (abs (trCoord.y - 0) < EPS) && (abs (trCoord.z - 1) < EPS)) )
-					 continue;
-				coords.Push (trCoord);
-			}
-		}
-		nNodes = coords.GetSize ();
+		nNodes = getVerticesOfMorph (elem.header.guid, &coords);
 
 		// 영역 모프의 시작점/끝점과 높이를 알아냄
 		short ind = 0;

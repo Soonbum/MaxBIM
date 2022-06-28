@@ -1633,6 +1633,63 @@ short		getLayerCount ()
 	return	nLayers;
 }
 
+// 모프의 꼭지점들을 수집하고 꼭지점 개수를 리턴함
+long		getVerticesOfMorph (API_Guid guid, GS::Array<API_Coord3D>* coords)
+{
+	GSErrCode		err;
+	API_Element		elem;
+	API_ElemInfo3D	info3D;
+
+	API_Component3D	component;
+	API_Tranmat		tm;
+	Int32			nVert, nEdge, nPgon;
+	Int32			elemIdx, bodyIdx;
+	API_Coord3D		trCoord;
+
+	BNZeroMemory (&elem, sizeof (API_Element));
+	elem.header.guid = guid;
+	err = ACAPI_Element_Get (&elem);
+	err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
+
+	// 모프가 아니면 종료
+	if (elem.header.typeID != API_MorphID)
+		return	0;
+
+	// 모프의 3D 바디를 가져옴
+	BNZeroMemory (&component, sizeof (API_Component3D));
+	component.header.typeID = API_BodyID;
+	component.header.index = info3D.fbody;
+	err = ACAPI_3D_GetComponent (&component);
+
+	nVert = component.body.nVert;
+	nEdge = component.body.nEdge;
+	nPgon = component.body.nPgon;
+	tm = component.body.tranmat;
+	elemIdx = component.body.head.elemIndex - 1;
+	bodyIdx = component.body.head.bodyIndex - 1;
+
+	// 정점 좌표를 임의 순서대로 저장함
+	for (short xx = 1 ; xx <= nVert ; ++xx) {
+		component.header.typeID	= API_VertID;
+		component.header.index	= xx;
+		err = ACAPI_3D_GetComponent (&component);
+		if (err == NoError) {
+			trCoord.x = tm.tmx[0]*component.vert.x + tm.tmx[1]*component.vert.y + tm.tmx[2]*component.vert.z + tm.tmx[3];
+			trCoord.y = tm.tmx[4]*component.vert.x + tm.tmx[5]*component.vert.y + tm.tmx[6]*component.vert.z + tm.tmx[7];
+			trCoord.z = tm.tmx[8]*component.vert.x + tm.tmx[9]*component.vert.y + tm.tmx[10]*component.vert.z + tm.tmx[11];
+			// 단위 벡터 생략
+			if ( ((abs (trCoord.x - 0) < EPS) && (abs (trCoord.y - 0) < EPS) && (abs (trCoord.z - 0) < EPS)) ||
+					((abs (trCoord.x - 1) < EPS) && (abs (trCoord.y - 0) < EPS) && (abs (trCoord.z - 0) < EPS)) ||
+					((abs (trCoord.x - 0) < EPS) && (abs (trCoord.y - 1) < EPS) && (abs (trCoord.z - 0) < EPS)) ||
+					((abs (trCoord.x - 0) < EPS) && (abs (trCoord.y - 0) < EPS) && (abs (trCoord.z - 1) < EPS)) )
+					continue;
+			coords->Push (trCoord);
+		}
+	}
+
+	return	coords->GetSize ();
+}
+
 ////////////////////////////////////////////////// 요소 조작
 // 리스트에 있는 요소들을 모두 삭제함
 void	deleteElements (GS::Array<API_Element> elemList)
