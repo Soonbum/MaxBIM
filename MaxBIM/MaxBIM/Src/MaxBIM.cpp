@@ -308,9 +308,6 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					//err = ACAPI_CallUndoableCommand (L"개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
-						char str [256];
-						ACAPI_Resource_GetLocStr (str, 32001, 1, ACAPI_GetOwnResModule ());
-						WriteReport_Alert (str);
 						// *** 원하는 코드를 위에 넣으시오.
 						return err;
 					//});

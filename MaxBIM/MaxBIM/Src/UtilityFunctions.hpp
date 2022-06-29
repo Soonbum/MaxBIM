@@ -52,6 +52,7 @@ std::string	format_string (const std::string fmt, ...);														// std::str
 short	isStringDouble (char *str);																			// 문자열 s가 숫자로 된 문자열인지 알려줌 (숫자는 1, 문자열은 0)
 short	isStringDouble (const char *str);																	// 문자열 s가 숫자로 된 문자열인지 알려줌 (숫자는 1, 문자열은 0)
 bool	removeCharInStr (char *str, const char ch);															// 문자열 str에서 특정 문자 ch를 제거함 (제거되면 true, 그대로이면 false)
+char*	getResourceStr (short resID, short index);															// 리소스 resID의 (1-기반) index번째 문자열을 가져옴
 
 // 객체 배치
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment = false, std::string comment = "", short layerInd = 1, short floorInd = 0);		// 좌표 라벨을 배치함

@@ -484,6 +484,16 @@ bool	removeCharInStr (char *str, const char ch)
 		return false;
 }
 
+// 리소스 resID의 (1-기반) index번째 문자열을 가져옴
+char*	getResourceStr (short resID, short index)
+{
+	static char str [512];
+
+	ACAPI_Resource_GetLocStr (str, resID, index, ACAPI_GetOwnResModule ());
+
+	return str;
+}
+
 ////////////////////////////////////////////////// 객체 배치
 // 좌표 라벨을 배치함
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd)
