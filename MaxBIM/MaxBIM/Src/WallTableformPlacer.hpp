@@ -108,6 +108,7 @@ namespace wallTableformPlacerDG {
 	};
 }
 
+// 단열재
 struct insulElemForWallTableform
 {
 	short	layerInd;		// 레이어 인덱스
@@ -115,7 +116,7 @@ struct insulElemForWallTableform
 	bool	bLimitSize;		// 가로/세로 크기 제한
 	double	maxHorLen;		// 가로 최대 길이
 	double	maxVerLen;		// 세로 최대 길이
-};	// 단열재
+};
 
 // 모프 관련 정보
 struct InfoMorphForWallTableform

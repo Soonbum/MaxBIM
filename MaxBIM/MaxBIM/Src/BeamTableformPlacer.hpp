@@ -172,7 +172,29 @@ namespace beamTableformPlacerDG {
 
 		BUTTON_AUTOSET_PERI
 	};
+
+	enum insulationDialog {
+		LABEL_EXPLANATION_INS = 3,
+		USERCONTROL_INSULATION_LAYER,
+		LABEL_INSULATION_THK,
+		EDITCONTROL_INSULATION_THK,
+		CHECKBOX_INS_LIMIT_SIZE,
+		LABEL_INS_HORLEN,
+		EDITCONTROL_INS_HORLEN,
+		LABEL_INS_VERLEN,
+		EDITCONTROL_INS_VERLEN,
+	};
 }
+
+// 단열재
+struct insulElemForBeamTableform
+{
+	short	layerInd;		// 레이어 인덱스
+	double	thk;			// 두께
+	bool	bLimitSize;		// 가로/세로 크기 제한
+	double	maxHorLen;		// 가로 최대 길이
+	double	maxVerLen;		// 세로 최대 길이
+};
 
 // 모프 관련 정보
 struct InfoMorphForBeamTableform
@@ -272,6 +294,8 @@ public:
 	GSErrCode	placeBasicObjects (BeamTableformPlacingZone* placingZone);									// 유로폼/휠러/합판/각재를 배치함
 	GSErrCode	placeAuxObjectsA (BeamTableformPlacingZone* placingZone);									// 유로폼/휠러/합판/각재를 채운 후 부자재 설치 (아웃코너앵글, 비계파이프, 핀볼트, 각파이프행거, 블루클램프, 블루목심) - 타입A
 	GSErrCode	placeAuxObjectsB (BeamTableformPlacingZone* placingZone);									// 유로폼/휠러/합판/각재를 채운 후 부자재 설치 (아웃코너앵글, 비계파이프, 핀볼트, 각파이프행거, 블루클램프, 블루목심) - 타입B
+	GSErrCode	placeInsulationsSide (BeamTableformPlacingZone* placingZone, InfoBeam* infoBeam, insulElemForBeamTableform* insulElem, bool bMoreWider);		// 벽과 테이블폼 사이에 단열재를 배치함 (보 측면)
+	GSErrCode	placeInsulationsBottom (BeamTableformPlacingZone* placingZone, InfoBeam* infoBeam, insulElemForBeamTableform* insulElem, bool bMoreWider);		// 벽과 테이블폼 사이에 단열재를 배치함 (보 하부)
 	GSErrCode	placeSupportingPostPreset (BeamTableformPlacingZone* placingZone);							// 동바리/멍에제 프리셋을 배치함
 	short		getObjectType (BeamTableformPlacingZone* placingZone, bool bLeft, short idx);				// 왼쪽 혹은 오른쪽 면의 idx 번째 셀에 배치되는 객체의 타입을 조사함
 	short		getAreaSeqNumOfCell (BeamTableformPlacingZone* placingZone, bool bLeft, bool bTableform, short idx);	// idx 번째 셀은 몇 번째 연속적인 테이블폼 혹은 합판 영역인가?
@@ -293,5 +317,5 @@ GSErrCode	placeTableformOnBeam (void);		// 보에 테이블폼을 배치하는 통합 루틴
 short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 동바리/멍에제 프리셋을 배치할지 여부를 물어봄
-
+short DGCALLBACK beamTableformPlacerHandler4_Insulation (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 보과 테이블폼 사이에 단열재를 넣을지 여부를 물어보는 다이얼로그
 #endif

@@ -10,6 +10,7 @@ using namespace beamTableformPlacerDG;
 
 static BeamTableformPlacingZone		placingZone;			// 기본 보 영역 정보
 static InfoBeam			infoBeam;							// 보 객체 정보
+static insulElemForBeamTableform	insulElem;				// 단열재 정보
 API_Guid				structuralObject_forTableformBeam;	// 구조 객체의 GUID
 
 static short	layerInd_Euroform;			// 레이어 번호: 유로폼
@@ -40,6 +41,7 @@ static GS::Array<API_Guid>	elemList_RightEnd;			// 그룹화 (우측 끝)
 static GS::Array<API_Guid>	elemList_Plywood [10];		// 그룹화 (합판 셀 및 잭 서포트)
 static GS::Array<API_Guid>	elemList_Tableform [10];	// 그룹화 (테이블폼)
 static GS::Array<API_Guid>	elemList_SupportingPost;	// 그룹화 (동바리/멍에제)
+static GS::Array<API_Guid>	elemList_Insulation;		// 그룹화 (단열재)
 
 
 // 보에 테이블폼을 배치하는 통합 루틴
@@ -375,13 +377,29 @@ SECOND:
 	}
 
 	// 3번째 다이얼로그에서 OK 버튼을 눌러야만 다음 단계로 넘어감
-	if (clickedOKButton != true)
-		return err;
-	else
+	if (clickedOKButton == true) {
 		err = placingZone.placeSupportingPostPreset (&placingZone);		// 동바리/멍에제 프리셋을 배치함
+		groupElements (elemList_SupportingPost);						// 동바리 그룹화
+	}
 
-	// 동바리 그룹화
-	groupElements (elemList_SupportingPost);
+	// 단열재 채우기
+	std::string title;
+
+	if (placingZone.gapSide > EPS) {
+		title = "단열재 배치 (보 측면)";
+		result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), beamTableformPlacerHandler4_Insulation, (DGUserData) &title);
+		
+		if (result == DG_OK)
+			placingZone.placeInsulationsSide (&placingZone, &infoBeam, &insulElem, false);
+	}
+
+	if (placingZone.gapBottom > EPS) {
+		title = "단열재 배치 (보 하부)";
+		result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), beamTableformPlacerHandler4_Insulation, (DGUserData) &title);
+		
+		if (result == DG_OK)
+			placingZone.placeInsulationsBottom (&placingZone, &infoBeam, &insulElem, true);
+	}
 
 	return	err;
 }
@@ -5225,6 +5243,250 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	return	err;
 }
 
+// 벽과 테이블폼 사이에 단열재를 배치함 (보 측면)
+GSErrCode	BeamTableformPlacingZone::placeInsulationsSide (BeamTableformPlacingZone* placingZone, InfoBeam* infoBeam, insulElemForBeamTableform* insulElem, bool bMoreWider)
+{
+	GSErrCode	err = NoError;
+
+	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
+	double	minusSlantAngle = (placingZone->slantAngle >= 0) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
+
+	short	xx, yy;
+	short	totalXX, totalYY;
+	double	horLen, verLen;
+	double	remainHorLen, remainVerLen;
+
+	EasyObjectPlacement insul;
+
+	if (insulElem->bLimitSize == true) {
+		// 가로/세로 크기 제한이 true일 때
+		// 높은쪽
+		// bMoreWider가 true이면 측면 단열재가 하부 단열재를 덮고, false이면 하부 단열재가 측면 단열재를 떠받침
+		if (bMoreWider == true)
+			remainHorLen = placingZone->areaHeight_Left + placingZone->gapBottom;
+		else
+			remainHorLen = placingZone->areaHeight_Left;
+		remainVerLen = placingZone->beamLength;
+		totalXX = (short)floor (remainHorLen / insulElem->maxHorLen);
+		totalYY = (short)floor (remainVerLen / insulElem->maxVerLen);
+
+		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+		moveIn3D ('y', insul.radAng, placingZone->gapSide, &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+
+		for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+			for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+				(remainHorLen > insulElem->maxHorLen) ? horLen = insulElem->maxHorLen : horLen = remainHorLen;
+				(remainVerLen > insulElem->maxVerLen) ? verLen = insulElem->maxVerLen : verLen = remainVerLen;
+
+				elemList_Insulation.Push (insul.placeObject (10,
+					"A", APIParT_Length, format_string ("%f", horLen),
+					"B", APIParT_Length, format_string ("%f", verLen),
+					"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
+					"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+					"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+					"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+					"bLShape", APIParT_Boolean, "0.0",
+					"bVerticalCut", APIParT_Boolean, "0.0"));
+
+				remainVerLen -= insulElem->maxVerLen;
+				moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, verLen, &insul.posX, &insul.posY, &insul.posZ);
+			}
+			remainHorLen -= insulElem->maxHorLen;
+			remainVerLen = placingZone->beamLength;
+			moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, -placingZone->beamLength, &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('z', insul.radAng, -horLen * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('x', insul.radAng, horLen * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+		}
+
+		// 낮은쪽
+		if (bMoreWider == true)
+			remainHorLen = placingZone->areaHeight_Left + placingZone->gapBottom;
+		else
+			remainHorLen = placingZone->areaHeight_Left;
+		remainVerLen = placingZone->beamLength;
+		totalXX = (short)floor (remainHorLen / insulElem->maxHorLen);
+		totalYY = (short)floor (remainVerLen / insulElem->maxVerLen);
+
+		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+		moveIn3D ('y', insul.radAng, placingZone->areaWidth_Bottom + placingZone->gapSide*2, &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+
+		for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+			for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+				(remainHorLen > insulElem->maxHorLen) ? horLen = insulElem->maxHorLen : horLen = remainHorLen;
+				(remainVerLen > insulElem->maxVerLen) ? verLen = insulElem->maxVerLen : verLen = remainVerLen;
+
+				elemList_Insulation.Push (insul.placeObject (10,
+					"A", APIParT_Length, format_string ("%f", horLen),
+					"B", APIParT_Length, format_string ("%f", verLen),
+					"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
+					"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+					"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+					"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+					"bLShape", APIParT_Boolean, "0.0",
+					"bVerticalCut", APIParT_Boolean, "0.0"));
+
+				remainVerLen -= insulElem->maxVerLen;
+				moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, verLen, &insul.posX, &insul.posY, &insul.posZ);
+			}
+			remainHorLen -= insulElem->maxHorLen;
+			remainVerLen = placingZone->beamLength;
+			moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, -placingZone->beamLength, &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('z', insul.radAng, -horLen * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('x', insul.radAng, horLen * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+		}
+	} else {
+		// 가로/세로 크기 제한이 false일 때
+		// 높은쪽
+		// bMoreWider가 true이면 측면 단열재가 하부 단열재를 덮고, false이면 하부 단열재가 측면 단열재를 떠받침
+		if (bMoreWider == true)
+			horLen = placingZone->areaHeight_Left + placingZone->gapBottom;
+		else
+			horLen = placingZone->areaHeight_Left;
+		verLen = placingZone->beamLength;
+
+		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+		moveIn3D ('y', insul.radAng, placingZone->gapSide, &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+
+		elemList_Insulation.Push (insul.placeObject (10,
+			"A", APIParT_Length, format_string ("%f", horLen),
+			"B", APIParT_Length, format_string ("%f", verLen),
+			"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
+			"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+			"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+			"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+			"bLShape", APIParT_Boolean, "0.0",
+			"bVerticalCut", APIParT_Boolean, "0.0"));
+
+		// 낮은쪽
+		if (bMoreWider == true)
+			horLen = placingZone->areaHeight_Left + placingZone->gapBottom;
+		else
+			horLen = placingZone->areaHeight_Left;
+		verLen = placingZone->beamLength;
+
+		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+		moveIn3D ('y', insul.radAng, placingZone->areaWidth_Bottom + placingZone->gapSide*2, &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+
+		elemList_Insulation.Push (insul.placeObject (10,
+			"A", APIParT_Length, format_string ("%f", horLen),
+			"B", APIParT_Length, format_string ("%f", verLen),
+			"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
+			"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+			"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+			"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+			"bLShape", APIParT_Boolean, "0.0",
+			"bVerticalCut", APIParT_Boolean, "0.0"));
+	}
+
+	return	err;
+}
+
+// 벽과 테이블폼 사이에 단열재를 배치함 (보 하부)
+GSErrCode	BeamTableformPlacingZone::placeInsulationsBottom (BeamTableformPlacingZone* placingZone, InfoBeam* infoBeam, insulElemForBeamTableform* insulElem, bool bMoreWider)
+{
+	GSErrCode	err = NoError;
+
+	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
+	double	minusSlantAngle = (placingZone->slantAngle >= 0) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
+
+	short	xx, yy;
+	short	totalXX, totalYY;
+	double	horLen, verLen;
+	double	remainHorLen, remainVerLen;
+
+	EasyObjectPlacement insul;
+
+	if (insulElem->bLimitSize == true) {
+		// 가로/세로 크기 제한이 true일 때
+		if (bMoreWider == true)
+			remainHorLen = placingZone->areaWidth_Bottom + placingZone->gapSide*2;
+		else
+			remainHorLen = placingZone->areaWidth_Bottom;
+		remainVerLen = placingZone->beamLength;
+		totalXX = (short)floor (remainHorLen / insulElem->maxHorLen);
+		totalYY = (short)floor (remainVerLen / insulElem->maxVerLen);
+
+		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+		if (bMoreWider == false)
+			moveIn3D ('y', insul.radAng, placingZone->gapSide, &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('z', insul.radAng, placingZone->gapBottom * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('x', insul.radAng, -placingZone->gapBottom * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+
+		for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+			for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+				(remainHorLen > insulElem->maxHorLen) ? horLen = insulElem->maxHorLen : horLen = remainHorLen;
+				(remainVerLen > insulElem->maxVerLen) ? verLen = insulElem->maxVerLen : verLen = remainVerLen;
+
+				insul.radAng += DegreeToRad (90.0);
+				elemList_Insulation.Push (insul.placeObject (10,
+					"A", APIParT_Length, format_string ("%f", horLen),
+					"B", APIParT_Length, format_string ("%f", verLen),
+					"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0) + minusSlantAngle),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+					"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+					"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+					"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+					"bLShape", APIParT_Boolean, "0.0",
+					"bVerticalCut", APIParT_Boolean, "0.0"));
+				insul.radAng -= DegreeToRad (90.0);
+
+				remainVerLen -= insulElem->maxVerLen;
+				moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, verLen, &insul.posX, &insul.posY, &insul.posZ);
+			}
+			remainHorLen -= insulElem->maxHorLen;
+			remainVerLen = placingZone->beamLength;
+			moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, -placingZone->beamLength, &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('y', insul.radAng, horLen, &insul.posX, &insul.posY, &insul.posZ);
+		}
+	} else {
+		// 가로/세로 크기 제한이 false일 때
+		if (bMoreWider == true)
+			horLen = placingZone->areaWidth_Bottom + placingZone->gapSide*2;
+		else
+			horLen = placingZone->areaWidth_Bottom;
+		verLen = placingZone->beamLength;
+
+		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+		if (bMoreWider == false)
+			moveIn3D ('y', insul.radAng, placingZone->gapSide, &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('z', insul.radAng, placingZone->gapBottom * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+		moveIn3D ('x', insul.radAng, -placingZone->gapBottom * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+
+		insul.radAng += DegreeToRad (90.0);
+		elemList_Insulation.Push (insul.placeObject (10,
+			"A", APIParT_Length, format_string ("%f", horLen),
+			"B", APIParT_Length, format_string ("%f", verLen),
+			"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (180.0) + minusSlantAngle),
+			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+			"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+			"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+			"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+			"bLShape", APIParT_Boolean, "0.0",
+			"bVerticalCut", APIParT_Boolean, "0.0"));
+		insul.radAng -= DegreeToRad (90.0);
+	}
+
+	return	err;
+}
+
 // 동바리/멍에제 프리셋을 배치함
 GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlacingZone* placingZone)
 {
@@ -7045,6 +7307,99 @@ short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, sho
 				case DG_CLOSEBOX:
 					break;
 			}
+	}
+
+	result = item;
+
+	return	result;
+}
+
+// 보과 테이블폼 사이에 단열재를 넣을지 여부를 물어보는 다이얼로그
+short DGCALLBACK beamTableformPlacerHandler4_Insulation (short message, short dialogID, short item, DGUserData userData, DGMessageData /* msgData */)
+{
+	std::string*	title = (std::string*) userData;
+	short	result;
+	API_UCCallbackType	ucb;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 타이틀
+			DGSetDialogTitle (dialogID, title->c_str ());
+
+			// 라벨
+			DGSetItemText (dialogID, LABEL_EXPLANATION_INS, "단열재 규격을 입력하십시오.");
+			DGSetItemText (dialogID, LABEL_INSULATION_THK, "두께");
+			DGSetItemText (dialogID, LABEL_INS_HORLEN, "가로");
+			DGSetItemText (dialogID, LABEL_INS_VERLEN, "세로");
+
+			// 체크박스
+			DGSetItemText (dialogID, CHECKBOX_INS_LIMIT_SIZE, "가로/세로 크기 제한");
+			DGSetItemValLong (dialogID, CHECKBOX_INS_LIMIT_SIZE, TRUE);
+
+			// Edit 컨트롤
+			DGSetItemValDouble (dialogID, EDITCONTROL_INS_HORLEN, 0.900);
+			DGSetItemValDouble (dialogID, EDITCONTROL_INS_VERLEN, 1.800);
+
+			// 레이어
+			BNZeroMemory (&ucb, sizeof (ucb));
+			ucb.dialogID = dialogID;
+			ucb.type	 = APIUserControlType_Layer;
+			ucb.itemID	 = USERCONTROL_INSULATION_LAYER;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_INSULATION_LAYER, 1);
+
+			// 버튼
+			DGSetItemText (dialogID, DG_OK, "확인");
+			DGSetItemText (dialogID, DG_CANCEL, "취소");
+
+			// 두께는 자동
+			if (title->compare ("단열재 배치 (보 측면)") == 0) {
+				DGSetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK, placingZone.gapSide);
+			} else {
+				DGSetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK, placingZone.gapBottom);
+			}
+			DGDisableItem (dialogID, EDITCONTROL_INSULATION_THK);
+ 
+			break;
+
+		case DG_MSG_CHANGE:
+			switch (item) {
+				case CHECKBOX_INS_LIMIT_SIZE:
+					if (DGGetItemValLong (dialogID, CHECKBOX_INS_LIMIT_SIZE) == TRUE) {
+						DGEnableItem (dialogID, EDITCONTROL_INS_HORLEN);
+						DGEnableItem (dialogID, EDITCONTROL_INS_VERLEN);
+					} else {
+						DGDisableItem (dialogID, EDITCONTROL_INS_HORLEN);
+						DGDisableItem (dialogID, EDITCONTROL_INS_VERLEN);
+					}
+					break;
+			}
+ 
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					// 레이어 정보 저장
+					insulElem.layerInd = (short)DGGetItemValLong (dialogID, USERCONTROL_INSULATION_LAYER);
+
+					// 두께, 가로, 세로 저장
+					insulElem.thk = DGGetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK);
+					insulElem.maxHorLen = DGGetItemValDouble (dialogID, EDITCONTROL_INS_HORLEN);
+					insulElem.maxVerLen = DGGetItemValDouble (dialogID, EDITCONTROL_INS_VERLEN);
+					if (DGGetItemValLong (dialogID, CHECKBOX_INS_LIMIT_SIZE) == TRUE)
+						insulElem.bLimitSize = true;
+					else
+						insulElem.bLimitSize = false;
+
+					break;
+				case DG_CANCEL:
+					break;
+			}
+			break;
+
+		case DG_MSG_CLOSE:
+			break;
 	}
 
 	result = item;
