@@ -94,7 +94,28 @@ namespace wallTableformPlacerDG {
 		OUTCORNER_PANEL,
 		OUTCORNER_ANGLE
 	};
+
+	enum insulationDialog {
+		LABEL_EXPLANATION_INS = 3,
+		USERCONTROL_INSULATION_LAYER,
+		LABEL_INSULATION_THK,
+		EDITCONTROL_INSULATION_THK,
+		CHECKBOX_INS_LIMIT_SIZE,
+		LABEL_INS_HORLEN,
+		EDITCONTROL_INS_HORLEN,
+		LABEL_INS_VERLEN,
+		EDITCONTROL_INS_VERLEN,
+	};
 }
+
+struct insulElemForWallTableform
+{
+	short	layerInd;		// 레이어 인덱스
+	double	thk;			// 두께
+	bool	bLimitSize;		// 가로/세로 크기 제한
+	double	maxHorLen;		// 가로 최대 길이
+	double	maxVerLen;		// 세로 최대 길이
+};	// 단열재
 
 // 모프 관련 정보
 struct InfoMorphForWallTableform
@@ -213,6 +234,7 @@ public:
 	void	adjustMarginCellsPosition (WallTableformPlacingZone* placingZone);				// 상단 여백 셀 위치를 바르게 교정함
 	GSErrCode	placeObjects (WallTableformPlacingZone* placingZone);						// 셀 정보를 기반으로 객체들을 배치함
 	GSErrCode	fillRestAreas (WallTableformPlacingZone* placingZone, short idxCell);		// 상단 여백을 유로폼 또는 합판, 각재 등으로 채움
+	GSErrCode	placeInsulations (WallTableformPlacingZone* placingZone, InfoWall* infoWall, insulElemForWallTableform* insulElem);		// 벽과 테이블폼 사이에 단열재를 배치함
 
 	void	placeEuroformsOfTableform (WallTableformPlacingZone* placingZone, short idxCell);	// 테이블폼 내 유로폼 배치 (공통)
 	void	placeTableformA (WallTableformPlacingZone* placingZone, short idxCell);				// 테이블폼 타입A 배치 (유로폼 제외) - 각파이프 2줄
@@ -260,5 +282,6 @@ short DGCALLBACK wallTableformPlacerHandler2 (short message, short dialogID, sho
 short DGCALLBACK wallTableformPlacerHandler3_Vertical (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// 테이블폼 세로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
 short DGCALLBACK wallTableformPlacerHandler3_Horizontal (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 테이블폼 가로방향에 대하여 유로폼의 수평 배열을 변경하기 위한 다이얼로그
 short DGCALLBACK wallTableformPlacerHandler4 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// 벽 상단의 나머지 영역을 유로폼 또는 합판/각재로 채울지 물어보는 다이얼로그
+short DGCALLBACK wallTableformPlacerHandler5_Insulation (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 벽과 테이블폼 사이에 단열재를 넣을지 여부를 물어보는 다이얼로그
 
 #endif

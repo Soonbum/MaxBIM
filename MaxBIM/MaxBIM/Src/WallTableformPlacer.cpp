@@ -10,6 +10,7 @@ using namespace wallTableformPlacerDG;
 
 static WallTableformPlacingZone		placingZone;		// 기본 벽면 영역 정보
 static InfoWall						infoWall;			// 벽 객체 정보
+static insulElemForWallTableform	insulElem;			// 단열재 정보
 API_Guid		structuralObject_forTableformWall;		// 구조 객체의 GUID
 
 static short	layerInd_Euroform;			// 레이어 번호: 유로폼 (공통)
@@ -102,22 +103,22 @@ GSErrCode	placeTableformOnWall (void)
 	err = getGuidsOfSelection (&walls, API_WallID, &nWalls);
 	err = getGuidsOfSelection (&morphs, API_MorphID, &nMorphs);
 	if (err == APIERR_NOPLAN) {
-		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
+		DGAlert (DG_ERROR, L"경고", L"열린 프로젝트 창이 없습니다.", "", L"확인", "", "");
 	}
 	if (err == APIERR_NOSEL) {
-		WriteReport_Alert ("아무 것도 선택하지 않았습니다.\n필수 선택: 벽 (1개), 벽을 덮는 모프 (1개)\n옵션 선택: 벽을 덮는 모프(뒷면 - 1차 모프와 높이가 다름) (1개)");
+		DGAlert (DG_ERROR, L"경고", L"아무 것도 선택하지 않았습니다.\n필수 선택: 벽 (1개), 벽을 덮는 모프 (1개)\n옵션 선택: 벽을 덮는 모프(뒷면 - 1차 모프와 높이가 다름) (1개)", "", L"확인", "", "");
 	}
 
 	// 벽이 1개인가?
 	if (nWalls != 1) {
-		WriteReport_Alert ("벽을 1개 선택해야 합니다.");
+		DGAlert (DG_ERROR, L"경고", L"벽을 1개 선택해야 합니다.", "", L"확인", "", "");
 		err = APIERR_GENERAL;
 		return err;
 	}
 
 	// 모프가 1개 또는 2개인가?
 	if ((nMorphs < 1) || (nMorphs > 2)) {
-		WriteReport_Alert ("벽을 덮는 모프를 1개 또는 2개를 선택하셔야 합니다.");
+		DGAlert (DG_ERROR, L"경고", L"벽을 덮는 모프를 1개 또는 2개를 선택하셔야 합니다.", "", L"확인", "", "");
 		err = APIERR_GENERAL;
 		return err;
 	}
@@ -131,7 +132,7 @@ GSErrCode	placeTableformOnWall (void)
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);	// memo.coords : 폴리곤 좌표를 가져올 수 있음
 	
 	if (elem.wall.thickness != elem.wall.thickness1) {
-		WriteReport_Alert ("벽의 두께는 균일해야 합니다.");
+		DGAlert (DG_ERROR, L"경고", L"벽의 두께는 균일해야 합니다.", "", L"확인", "", "");
 		err = APIERR_GENERAL;
 		return err;
 	}
@@ -154,7 +155,7 @@ GSErrCode	placeTableformOnWall (void)
 
 		// 만약 모프가 누워 있으면(세워져 있지 않으면) 중단
 		if (abs (info3D.bounds.zMax - info3D.bounds.zMin) < EPS) {
-			WriteReport_Alert ("모프가 세워져 있지 않습니다.");
+			DGAlert (DG_ERROR, L"경고", L"모프가 세워져 있지 않습니다.", "", L"확인", "", "");
 			err = APIERR_GENERAL;
 			return err;
 		}
@@ -291,6 +292,14 @@ FIRST:
 	// 상단 여백 채우기
 	for (xx = 0 ; xx < placingZone.nCellsInHor ; ++xx)
 		placingZone.fillRestAreas (&placingZone, xx);
+
+	// 단열재 채우기
+	if (placingZone.gap > EPS) {
+		result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), wallTableformPlacerHandler5_Insulation, 0);
+		
+		if (result == DG_OK)
+			placingZone.placeInsulations (&placingZone, &infoWall, &insulElem);
+	}
 
 	return	err;
 }
@@ -2837,6 +2846,197 @@ GSErrCode	WallTableformPlacingZone::fillRestAreas (WallTableformPlacingZone* pla
 	elemList_Back.Clear ();
 
 	return err;
+}
+
+// 벽과 테이블폼 사이에 단열재를 배치함
+GSErrCode	WallTableformPlacingZone::placeInsulations (WallTableformPlacingZone* placingZone, InfoWall* infoWall, insulElemForWallTableform* insulElem)
+{
+	GSErrCode	err = NoError;
+
+	short	xx, yy;
+	short	totalXX, totalYY;
+	double	horLen, verLen;
+	double	remainHorLen, remainVerLen;
+
+	EasyObjectPlacement insul;
+
+	if (insulElem->bLimitSize == true) {
+		// 가로/세로 크기 제한이 true일 때
+		if (placingZone->bSingleSide == false) {
+			// 양면 (앞면)
+			insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoWall->floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+
+			remainHorLen = placingZone->horLen;
+			remainVerLen = placingZone->verLenBasic;
+			totalXX = (short)floor (remainHorLen / insulElem->maxHorLen);
+			totalYY = (short)floor (remainVerLen / insulElem->maxVerLen);
+
+			for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+				for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+					(remainHorLen > insulElem->maxHorLen) ? horLen = insulElem->maxHorLen : horLen = remainHorLen;
+					(remainVerLen > insulElem->maxVerLen) ? verLen = insulElem->maxVerLen : verLen = remainVerLen;
+
+					elemList_Front.Push (insul.placeObject (10,
+						"A", APIParT_Length, format_string ("%f", horLen),
+						"B", APIParT_Length, format_string ("%f", verLen),
+						"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+						"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+						"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+						"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+						"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+						"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+						"bLShape", APIParT_Boolean, "0.0",
+						"bVerticalCut", APIParT_Boolean, "0.0"));
+
+					remainVerLen -= insulElem->maxVerLen;
+					moveIn3D ('z', insul.radAng, verLen, &insul.posX, &insul.posY, &insul.posZ);
+				}
+				remainHorLen -= insulElem->maxHorLen;
+				remainVerLen = placingZone->verLenBasic;
+				moveIn3D ('z', insul.radAng, -placingZone->verLenBasic, &insul.posX, &insul.posY, &insul.posZ);
+				moveIn3D ('x', insul.radAng, horLen, &insul.posX, &insul.posY, &insul.posZ);
+			}
+
+			// 양면 (뒷면)
+			insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoWall->floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+			moveIn3D ('y', insul.radAng, infoWall->wallThk + placingZone->gap*2 - insulElem->thk, &insul.posX, &insul.posY, &insul.posZ);
+
+			remainHorLen = placingZone->horLen;
+			remainVerLen = placingZone->verLenBasic;
+			totalXX = (short)floor (remainHorLen / insulElem->maxHorLen);
+			totalYY = (short)floor (remainVerLen / insulElem->maxVerLen);
+
+			for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+				for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+					(remainHorLen > insulElem->maxHorLen) ? horLen = insulElem->maxHorLen : horLen = remainHorLen;
+					(remainVerLen > insulElem->maxVerLen) ? verLen = insulElem->maxVerLen : verLen = remainVerLen;
+
+					moveIn3D ('x', insul.radAng, horLen, &insul.posX, &insul.posY, &insul.posZ);
+					elemList_Back.Push (insul.placeObjectMirrored (10,
+						"A", APIParT_Length, format_string ("%f", horLen),
+						"B", APIParT_Length, format_string ("%f", verLen),
+						"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+						"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+						"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+						"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+						"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+						"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+						"bLShape", APIParT_Boolean, "0.0",
+						"bVerticalCut", APIParT_Boolean, "0.0"));
+					moveIn3D ('x', insul.radAng, -horLen, &insul.posX, &insul.posY, &insul.posZ);
+
+					remainVerLen -= insulElem->maxVerLen;
+					moveIn3D ('z', insul.radAng, verLen, &insul.posX, &insul.posY, &insul.posZ);
+				}
+				remainHorLen -= insulElem->maxHorLen;
+				remainVerLen = placingZone->verLenBasic;
+				moveIn3D ('z', insul.radAng, -placingZone->verLenBasic, &insul.posX, &insul.posY, &insul.posZ);
+				moveIn3D ('x', insul.radAng, horLen, &insul.posX, &insul.posY, &insul.posZ);
+			}
+		} else {
+			// 단면 (앞면)
+			insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoWall->floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+
+			remainHorLen = placingZone->horLen;
+			remainVerLen = placingZone->verLenExtra;
+			totalXX = (short)floor (remainHorLen / insulElem->maxHorLen);
+			totalYY = (short)floor (remainVerLen / insulElem->maxVerLen);
+
+			for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+				for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+					(remainHorLen > insulElem->maxHorLen) ? horLen = insulElem->maxHorLen : horLen = remainHorLen;
+					(remainVerLen > insulElem->maxVerLen) ? verLen = insulElem->maxVerLen : verLen = remainVerLen;
+
+					elemList_Front.Push (insul.placeObject (10,
+						"A", APIParT_Length, format_string ("%f", horLen),
+						"B", APIParT_Length, format_string ("%f", verLen),
+						"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+						"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+						"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+						"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+						"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+						"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+						"bLShape", APIParT_Boolean, "0.0",
+						"bVerticalCut", APIParT_Boolean, "0.0"));
+
+					remainVerLen -= insulElem->maxVerLen;
+					moveIn3D ('z', insul.radAng, verLen, &insul.posX, &insul.posY, &insul.posZ);
+				}
+				remainHorLen -= insulElem->maxHorLen;
+				remainVerLen = placingZone->verLenExtra;
+				moveIn3D ('z', insul.radAng, -placingZone->verLenBasic, &insul.posX, &insul.posY, &insul.posZ);
+				moveIn3D ('x', insul.radAng, horLen, &insul.posX, &insul.posY, &insul.posZ);
+			}
+		}
+	} else {
+		// 가로/세로 크기 제한이 false일 때
+		if (placingZone->bSingleSide == false) {
+			// 양면 (앞면)
+			insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoWall->floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+
+			horLen = placingZone->horLen;
+			verLen = placingZone->verLenBasic;
+
+			elemList_Front.Push (insul.placeObject (10,
+				"A", APIParT_Length, format_string ("%f", horLen),
+				"B", APIParT_Length, format_string ("%f", verLen),
+				"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+				"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+				"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+				"bLShape", APIParT_Boolean, "0.0",
+				"bVerticalCut", APIParT_Boolean, "0.0"));
+
+			// 양면 (뒷면)
+			insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoWall->floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+			moveIn3D ('y', insul.radAng, infoWall->wallThk + placingZone->gap*2 - insulElem->thk, &insul.posX, &insul.posY, &insul.posZ);
+
+			horLen = placingZone->horLen;
+			verLen = placingZone->verLenExtra;
+
+			moveIn3D ('x', insul.radAng, horLen, &insul.posX, &insul.posY, &insul.posZ);
+			elemList_Front.Push (insul.placeObjectMirrored (10,
+				"A", APIParT_Length, format_string ("%f", horLen),
+				"B", APIParT_Length, format_string ("%f", verLen),
+				"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+				"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+				"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+				"bLShape", APIParT_Boolean, "0.0",
+				"bVerticalCut", APIParT_Boolean, "0.0"));
+			moveIn3D ('x', insul.radAng, -horLen, &insul.posX, &insul.posY, &insul.posZ);
+		} else {
+			// 단면 (앞면)
+			insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoWall->floorInd, placingZone->leftBottomX, placingZone->leftBottomY, placingZone->leftBottomZ, placingZone->ang);
+
+			horLen = placingZone->horLen;
+			verLen = placingZone->verLenBasic;
+
+			elemList_Front.Push (insul.placeObject (10,
+				"A", APIParT_Length, format_string ("%f", horLen),
+				"B", APIParT_Length, format_string ("%f", verLen),
+				"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+				"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+				"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+				"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+				"bLShape", APIParT_Boolean, "0.0",
+				"bVerticalCut", APIParT_Boolean, "0.0"));
+		}
+	}
+
+	// 그룹화하기
+	groupElements (elemList_Front);
+	groupElements (elemList_Back);
+	elemList_Front.Clear ();
+	elemList_Back.Clear ();
+
+	return	err;
 }
 
 // 테이블폼 내 유로폼 배치 (공통)
@@ -9450,6 +9650,94 @@ short DGCALLBACK wallTableformPlacerHandler4 (short message, short dialogID, sho
 				case DG_CLOSEBOX:
 					break;
 			}
+	}
+
+	result = item;
+
+	return	result;
+}
+
+// 벽과 테이블폼 사이에 단열재를 넣을지 여부를 물어보는 다이얼로그
+short DGCALLBACK wallTableformPlacerHandler5_Insulation (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	short	result;
+	API_UCCallbackType	ucb;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 타이틀
+			DGSetDialogTitle (dialogID, "단열재 배치");
+
+			// 라벨
+			DGSetItemText (dialogID, LABEL_EXPLANATION_INS, "단열재 규격을 입력하십시오.");
+			DGSetItemText (dialogID, LABEL_INSULATION_THK, "두께");
+			DGSetItemText (dialogID, LABEL_INS_HORLEN, "가로");
+			DGSetItemText (dialogID, LABEL_INS_VERLEN, "세로");
+
+			// 체크박스
+			DGSetItemText (dialogID, CHECKBOX_INS_LIMIT_SIZE, "가로/세로 크기 제한");
+			DGSetItemValLong (dialogID, CHECKBOX_INS_LIMIT_SIZE, TRUE);
+
+			// Edit 컨트롤
+			DGSetItemValDouble (dialogID, EDITCONTROL_INS_HORLEN, 0.900);
+			DGSetItemValDouble (dialogID, EDITCONTROL_INS_VERLEN, 1.800);
+
+			// 레이어
+			BNZeroMemory (&ucb, sizeof (ucb));
+			ucb.dialogID = dialogID;
+			ucb.type	 = APIUserControlType_Layer;
+			ucb.itemID	 = USERCONTROL_INSULATION_LAYER;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_INSULATION_LAYER, 1);
+
+			// 버튼
+			DGSetItemText (dialogID, DG_OK, "확인");
+			DGSetItemText (dialogID, DG_CANCEL, "취소");
+
+			// 두께는 자동
+			DGSetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK, placingZone.gap);
+			DGDisableItem (dialogID, EDITCONTROL_INSULATION_THK);
+ 
+			break;
+
+		case DG_MSG_CHANGE:
+			switch (item) {
+				case CHECKBOX_INS_LIMIT_SIZE:
+					if (DGGetItemValLong (dialogID, CHECKBOX_INS_LIMIT_SIZE) == TRUE) {
+						DGEnableItem (dialogID, EDITCONTROL_INS_HORLEN);
+						DGEnableItem (dialogID, EDITCONTROL_INS_VERLEN);
+					} else {
+						DGDisableItem (dialogID, EDITCONTROL_INS_HORLEN);
+						DGDisableItem (dialogID, EDITCONTROL_INS_VERLEN);
+					}
+					break;
+			}
+ 
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:
+					// 레이어 정보 저장
+					insulElem.layerInd = (short)DGGetItemValLong (dialogID, USERCONTROL_INSULATION_LAYER);
+
+					// 두께, 가로, 세로 저장
+					insulElem.thk = DGGetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK);
+					insulElem.maxHorLen = DGGetItemValDouble (dialogID, EDITCONTROL_INS_HORLEN);
+					insulElem.maxVerLen = DGGetItemValDouble (dialogID, EDITCONTROL_INS_VERLEN);
+					if (DGGetItemValLong (dialogID, CHECKBOX_INS_LIMIT_SIZE) == TRUE)
+						insulElem.bLimitSize = true;
+					else
+						insulElem.bLimitSize = false;
+
+					break;
+				case DG_CANCEL:
+					break;
+			}
+			break;
+
+		case DG_MSG_CLOSE:
+			break;
 	}
 
 	result = item;

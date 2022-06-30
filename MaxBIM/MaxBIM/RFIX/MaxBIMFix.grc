@@ -623,3 +623,19 @@
 /* [ 13] */	RightText		 90		195		100		 23		LargePlain		"Circular Bubble"
 /* [ 14] */	UserControl		200		189		160		 25		257	0x0006 0x0000 0		/* Layer Control - CIRCULAR BUBBLE	*/
 }
+
+/* ---------------------------------------------------------- place additional Insulation */
+'GDLG'	32512  Modal | grow	  0		  0		250		180		"place additional Insulation" {
+/* [  1] */	Button			120		150		 50		 25		LargePlain		"OK"
+/* [  2] */	Button			180		150		 50		 25		LargePlain		"Cancel"
+
+/* [  3] */	LeftText		  0		  5		200		 20		LargePlain		"Explanation for usage"
+/* [  4] */	UserControl		  0		 24		249		 25		257	0x0006 0x0000 0		/* Layer Control - Insulation	*/
+/* [  5] */	LeftText		  0		 55		 50		 20		LargePlain		"Thk"
+/* [  6] */	LengthEdit		 51		 50		 70		 25		LargePlain		"0.001"	"1.0"
+/* [  7] */	CheckBox		  0		 75		200		 23		LargePlain		"Limit Size"
+/* [  8] */	CenterText		  0		105		 50		 20		LargePlain		"Hor. Length"
+/* [  9] */	LengthEdit		 50		100		 70		 25		LargePlain		"0.001" "10"
+/* [ 10] */	CenterText		120		105		 50		 20		LargePlain		"Ver. Length"
+/* [ 11] */	LengthEdit		170		100		 70		 25		LargePlain		"0.001" "10"
+}
