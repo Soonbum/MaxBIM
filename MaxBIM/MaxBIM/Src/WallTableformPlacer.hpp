@@ -79,6 +79,11 @@ namespace wallTableformPlacerDG {
 		EDITCONTROL_PLYWOOD_TOPREST
 	};
 
+	enum	tableformOrientation_forWallTableformPlacer {
+		VERTICAL = 1,
+		HORIZONTAL
+	};
+
 	enum	objType_forWallTableformPlacer {
 		NONE = 1,	// 없음
 		TABLEFORM,	// 테이블폼
@@ -93,6 +98,13 @@ namespace wallTableformPlacerDG {
 		INCORNER_PANEL,
 		OUTCORNER_PANEL,
 		OUTCORNER_ANGLE
+	};
+
+	enum	PushPullProps_InstallationType_forWallTableformPlacer {
+		PUSHPULLPROPS_NONE = 1,
+		PUSHPULLPROPS_INNER,
+		PUSHPULLPROPS_OUTER,
+		PUSHPULLPROPS_INOUT
 	};
 
 	enum insulationDialog {

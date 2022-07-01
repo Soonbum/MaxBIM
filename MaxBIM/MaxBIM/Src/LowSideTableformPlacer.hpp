@@ -59,6 +59,11 @@ namespace lowSideTableformPlacerDG {
 		BUTTON_AUTOSET
 	};
 
+	enum	tableformOrientation_forLowSideTableformPlacer {
+		VERTICAL = 1,
+		HORIZONTAL
+	};
+
 	enum	objCellType_forLowSideTableformPlacer {
 		NONE = 1,	// 없음
 		TABLEFORM,	// 테이블폼

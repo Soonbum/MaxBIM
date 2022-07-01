@@ -83,22 +83,22 @@ GSErrCode	placeTableformOnBeam (void)
 	err = getGuidsOfSelection (&morphs, API_MorphID, &nMorphs);
 	err = getGuidsOfSelection (&beams, API_BeamID, &nBeams);
 	if (err == APIERR_NOPLAN) {
-		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
+		DGAlert (DG_ERROR, L"오류", L"열린 프로젝트 창이 없습니다.", "", L"확인", "", "");
 	}
 	if (err == APIERR_NOSEL) {
-		WriteReport_Alert ("아무 것도 선택하지 않았습니다.\n필수 선택: 보 (1개), 보 측면(전체/일부)을 덮는 모프 (1개)\n옵션 선택 (1): 보 반대쪽 측면을 덮는 모프 (1개)");
+		DGAlert (DG_ERROR, L"오류", L"아무 것도 선택하지 않았습니다.\n필수 선택: 보 (1개), 보 측면(전체/일부)을 덮는 모프 (1개)\n옵션 선택 (1): 보 반대쪽 측면을 덮는 모프 (1개)", "", L"확인", "", "");
 	}
 
 	// 보가 1개인가?
 	if (nBeams != 1) {
-		WriteReport_Alert ("보를 1개 선택해야 합니다.");
+		DGAlert (DG_ERROR, L"오류", L"보를 1개 선택해야 합니다.", "", L"확인", "", "");
 		err = APIERR_GENERAL;
 		return err;
 	}
 
 	// 모프가 1~2개인가?
 	if ( !((nMorphs >= 1) && (nMorphs <= 2)) ) {
-		WriteReport_Alert ("보 측면(전체/일부)을 덮는 모프를 1개 선택하셔야 합니다.\n덮는 높이가 비대칭이면 보 반대쪽 측면을 덮는 모프도 있어야 합니다.");
+		DGAlert (DG_ERROR, L"오류", L"보 측면(전체/일부)을 덮는 모프를 1개 선택하셔야 합니다.\n덮는 높이가 비대칭이면 보 반대쪽 측면을 덮는 모프도 있어야 합니다.", "", L"확인", "", "");
 		err = APIERR_GENERAL;
 		return err;
 	}
@@ -383,10 +383,10 @@ SECOND:
 	}
 
 	// 단열재 채우기
-	std::string title;
+	std::wstring title;
 
 	if (placingZone.gapSide > EPS) {
-		title = "단열재 배치 (보 측면)";
+		title = L"단열재 배치 (보 측면)";
 		result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), beamTableformPlacerHandler4_Insulation, (DGUserData) &title);
 		
 		if (result == DG_OK)
@@ -394,7 +394,7 @@ SECOND:
 	}
 
 	if (placingZone.gapBottom > EPS) {
-		title = "단열재 배치 (보 하부)";
+		title = L"단열재 배치 (보 하부)";
 		result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), beamTableformPlacerHandler4_Insulation, (DGUserData) &title);
 		
 		if (result == DG_OK)
@@ -5966,62 +5966,62 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "보에 배치 - 보 단면");
+			DGSetDialogTitle (dialogID, L"보에 배치 - 보 단면");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 확인 버튼
-			DGSetItemText (dialogID, DG_OK, "확 인");
+			DGSetItemText (dialogID, DG_OK, L"확 인");
 
 			// 취소 버튼
-			DGSetItemText (dialogID, DG_CANCEL, "취 소");
+			DGSetItemText (dialogID, DG_CANCEL, L"취 소");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (유로폼)
 			// 라벨 및 체크박스
-			DGSetItemText (dialogID, LABEL_BEAM_SECTION, "보 단면");
-			DGSetItemText (dialogID, LABEL_BEAM_LEFT_HEIGHT, "보 높이 (L)");
-			DGSetItemText (dialogID, LABEL_BEAM_RIGHT_HEIGHT, "보 높이 (R)");
-			DGSetItemText (dialogID, LABEL_BEAM_WIDTH, "보 너비");
-			DGSetItemText (dialogID, LABEL_TOTAL_LEFT_HEIGHT, "총 높이 (L)");
-			DGSetItemText (dialogID, LABEL_TOTAL_RIGHT_HEIGHT, "총 높이 (R)");
-			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, "총 너비");
+			DGSetItemText (dialogID, LABEL_BEAM_SECTION, L"보 단면");
+			DGSetItemText (dialogID, LABEL_BEAM_LEFT_HEIGHT, L"보 높이 (L)");
+			DGSetItemText (dialogID, LABEL_BEAM_RIGHT_HEIGHT, L"보 높이 (R)");
+			DGSetItemText (dialogID, LABEL_BEAM_WIDTH, L"보 너비");
+			DGSetItemText (dialogID, LABEL_TOTAL_LEFT_HEIGHT, L"총 높이 (L)");
+			DGSetItemText (dialogID, LABEL_TOTAL_RIGHT_HEIGHT, L"총 높이 (R)");
+			DGSetItemText (dialogID, LABEL_TOTAL_WIDTH, L"총 너비");
 
-			DGSetItemText (dialogID, LABEL_REST_LSIDE, "나머지");
-			DGSetItemText (dialogID, CHECKBOX_TIMBER_LSIDE, "합판/각재");
-			DGSetItemText (dialogID, CHECKBOX_T_FORM_LSIDE, "유로폼");
-			DGSetItemText (dialogID, CHECKBOX_FILLER_LSIDE, "휠러");
-			DGSetItemText (dialogID, CHECKBOX_B_FORM_LSIDE, "유로폼");
+			DGSetItemText (dialogID, LABEL_REST_LSIDE, L"나머지");
+			DGSetItemText (dialogID, CHECKBOX_TIMBER_LSIDE, L"합판/각재");
+			DGSetItemText (dialogID, CHECKBOX_T_FORM_LSIDE, L"유로폼");
+			DGSetItemText (dialogID, CHECKBOX_FILLER_LSIDE, L"휠러");
+			DGSetItemText (dialogID, CHECKBOX_B_FORM_LSIDE, L"유로폼");
 
-			DGSetItemText (dialogID, LABEL_REST_RSIDE, "나머지");
-			DGSetItemText (dialogID, CHECKBOX_TIMBER_RSIDE, "합판/각재");
-			DGSetItemText (dialogID, CHECKBOX_T_FORM_RSIDE, "유로폼");
-			DGSetItemText (dialogID, CHECKBOX_FILLER_RSIDE, "휠러");
-			DGSetItemText (dialogID, CHECKBOX_B_FORM_RSIDE, "유로폼");
+			DGSetItemText (dialogID, LABEL_REST_RSIDE, L"나머지");
+			DGSetItemText (dialogID, CHECKBOX_TIMBER_RSIDE, L"합판/각재");
+			DGSetItemText (dialogID, CHECKBOX_T_FORM_RSIDE, L"유로폼");
+			DGSetItemText (dialogID, CHECKBOX_FILLER_RSIDE, L"휠러");
+			DGSetItemText (dialogID, CHECKBOX_B_FORM_RSIDE, L"유로폼");
 
-			DGSetItemText (dialogID, CHECKBOX_L_FORM_BOTTOM, "유로폼");
-			DGSetItemText (dialogID, CHECKBOX_FILLER_BOTTOM, "휠러");
-			DGSetItemText (dialogID, CHECKBOX_R_FORM_BOTTOM, "유로폼");
+			DGSetItemText (dialogID, CHECKBOX_L_FORM_BOTTOM, L"유로폼");
+			DGSetItemText (dialogID, CHECKBOX_FILLER_BOTTOM, L"휠러");
+			DGSetItemText (dialogID, CHECKBOX_R_FORM_BOTTOM, L"유로폼");
 
-			DGSetItemText (dialogID, BUTTON_COPY_TO_RIGHT, "복사\n→");
+			DGSetItemText (dialogID, BUTTON_COPY_TO_RIGHT, L"복사\n→");
 
 			// 라벨: 레이어 설정
-			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
-			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
-			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
-			DGSetItemText (dialogID, LABEL_LAYER_TIMBER, "각재");
-			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_ANGLE, "아웃코너앵글");
-			DGSetItemText (dialogID, LABEL_LAYER_FILLERSPACER, "휠러스페이서");
-			DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE, "비계파이프");
-			DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE_HANGER, "각파이프행거");
-			DGSetItemText (dialogID, LABEL_LAYER_PINBOLT, "핀볼트세트");
-			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM_HOOK, "유로폼 후크");
-			DGSetItemText (dialogID, LABEL_LAYER_BLUE_CLAMP, "블루클램프");
-			DGSetItemText (dialogID, LABEL_LAYER_BLUE_TIMBER_RAIL, "블루목심");
+			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, L"부재별 레이어 설정");
+			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, L"유로폼");
+			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, L"합판");
+			DGSetItemText (dialogID, LABEL_LAYER_TIMBER, L"각재");
+			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_ANGLE, L"아웃코너앵글");
+			DGSetItemText (dialogID, LABEL_LAYER_FILLERSPACER, L"휠러스페이서");
+			DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE, L"비계파이프");
+			DGSetItemText (dialogID, LABEL_LAYER_RECTPIPE_HANGER, L"각파이프행거");
+			DGSetItemText (dialogID, LABEL_LAYER_PINBOLT, L"핀볼트세트");
+			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM_HOOK, L"유로폼 후크");
+			DGSetItemText (dialogID, LABEL_LAYER_BLUE_CLAMP, L"블루클램프");
+			DGSetItemText (dialogID, LABEL_LAYER_BLUE_TIMBER_RAIL, L"블루목심");
 
 			// 체크박스: 레이어 묶음
-			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
+			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, L"레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
 
-			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
+			DGSetItemText (dialogID, BUTTON_AUTOSET, L"레이어 자동 설정");
 
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
@@ -6482,59 +6482,44 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 	short	xx;
 	short	itmPosX, itmPosY;
 	double	lengthDouble;
-	char	buffer [256];
 	const short		maxCol = 50;		// 열 최대 개수
 	static short	dialogSizeX = 500;	// 현재 다이얼로그 크기 X
 	static short	dialogSizeY = 360;	// 현재 다이얼로그 크기 Y
 
-	//double	preset [11][6] = {
-	//	1.800, 3.0,		0.600, 0.600, 0.600, 0.000,
-	//	2.100, 3.0,		0.600, 0.900, 0.600, 0.000,
-	//	2.400, 3.0,		0.600, 1.200, 0.600, 0.000,
-	//	2.700, 3.0,		0.600, 1.200, 0.900, 0.000,
-	//	3.000, 3.0,		1.200, 0.600, 1.200, 0.000,
-	//	3.300, 3.0,		1.200, 0.900, 1.200, 0.000,
-	//	3.600, 3.0,		1.200, 1.200, 1.200, 0.000,
-	//	3.900, 4.0,		0.600, 1.200, 1.200, 0.900,
-	//	4.200, 4.0,		0.900, 1.200, 1.200, 0.900,
-	//	4.500, 4.0,		1.200, 1.200, 1.200, 0.900,
-	//	4.800, 4.0,		1.200, 1.200, 1.200, 1.200
-	//};
-
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "보에 배치 - 보 측면");
+			DGSetDialogTitle (dialogID, L"보에 배치 - 보 측면");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 확인 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 230, 70, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_OK, "확인");
+			DGSetItemText (dialogID, DG_OK, L"확인");
 			DGShowItem (dialogID, DG_OK);
 
 			// 취소 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 270, 70, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGSetItemText (dialogID, DG_CANCEL, L"취소");
 			DGShowItem (dialogID, DG_CANCEL);
 
 			// 이전 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 310, 70, 25);
 			DGSetItemFont (dialogID, DG_PREV, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_PREV, "이전");
+			DGSetItemText (dialogID, DG_PREV, L"이전");
 			DGShowItem (dialogID, DG_PREV);
 
 			// 라벨: 보 측면
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 10, 10, 100, 23);
 			DGSetItemFont (dialogID, LABEL_BEAM_SIDE, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_BEAM_SIDE, "보 측면");
+			DGSetItemText (dialogID, LABEL_BEAM_SIDE, L"보 측면");
 			DGShowItem (dialogID, LABEL_BEAM_SIDE);
 
 			// 라벨: 총 길이
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 100, 12, 60, 23);
 			DGSetItemFont (dialogID, LABEL_TOTAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_TOTAL_LENGTH, "총 길이");
+			DGSetItemText (dialogID, LABEL_TOTAL_LENGTH, L"총 길이");
 			DGShowItem (dialogID, LABEL_TOTAL_LENGTH);
 
 			// Edit컨트롤: 총 길이
@@ -6545,7 +6530,7 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 			// 라벨: 남은 길이
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 230, 12, 60, 23);
 			DGSetItemFont (dialogID, LABEL_REMAIN_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_REMAIN_LENGTH, "남은 길이");
+			DGSetItemText (dialogID, LABEL_REMAIN_LENGTH, L"남은 길이");
 			DGShowItem (dialogID, LABEL_REMAIN_LENGTH);
 
 			// Edit컨트롤: 남은 길이
@@ -6556,35 +6541,35 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 			// 라벨: 테이블폼 타입
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 420, 12, 80, 23);
 			DGSetItemFont (dialogID, LABEL_TABLEFORM_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_TABLEFORM_TYPE, "테이블폼 타입");
+			DGSetItemText (dialogID, LABEL_TABLEFORM_TYPE, L"테이블폼 타입");
 			DGShowItem (dialogID, LABEL_TABLEFORM_TYPE);
 
 			// 팝업컨트롤: 테이블폼 타입
 			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, 505, 7, 70, 23);
 			DGSetItemFont (dialogID, POPUP_TABLEFORM_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "타입A");
+			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, L"타입A");
 			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "타입B");
+			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, L"타입B");
 			DGPopUpSelectItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_TOP);
 			DGShowItem (dialogID, POPUP_TABLEFORM_TYPE);
 
 			// 버튼: 추가
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 70, 70, 25);
 			DGSetItemFont (dialogID, BUTTON_ADD_COL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, BUTTON_ADD_COL, "추가");
+			DGSetItemText (dialogID, BUTTON_ADD_COL, L"추가");
 			DGShowItem (dialogID, BUTTON_ADD_COL);
 
 			// 버튼: 삭제
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 105, 70, 25);
 			DGSetItemFont (dialogID, BUTTON_DEL_COL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, BUTTON_DEL_COL, "삭제");
+			DGSetItemText (dialogID, BUTTON_DEL_COL, L"삭제");
 			DGShowItem (dialogID, BUTTON_DEL_COL);
 
 			// 왼쪽 끝 여백 채우기 여부 (체크박스)
 			placingZone.CHECKBOX_MARGIN_LEFT_END = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, 120, 70, 70, 70);
 			DGSetItemFont (dialogID, placingZone.CHECKBOX_MARGIN_LEFT_END, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, placingZone.CHECKBOX_MARGIN_LEFT_END, "합판\n채우기");
+			DGSetItemText (dialogID, placingZone.CHECKBOX_MARGIN_LEFT_END, L"합판\n채우기");
 			DGShowItem (dialogID, placingZone.CHECKBOX_MARGIN_LEFT_END);
 			DGSetItemValLong (dialogID, placingZone.CHECKBOX_MARGIN_LEFT_END, TRUE);
 			// 왼쪽 끝 여백 길이 (Edit컨트롤)
@@ -6601,7 +6586,7 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 				// 버튼
 				placingZone.BUTTON_OBJ [xx] = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 71, 66);
 				DGSetItemFont (dialogID, placingZone.BUTTON_OBJ [xx], DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, placingZone.BUTTON_OBJ [xx], "유로폼");
+				DGSetItemText (dialogID, placingZone.BUTTON_OBJ [xx], L"유로폼");
 				DGShowItem (dialogID, placingZone.BUTTON_OBJ [xx]);
 				DGDisableItem (dialogID, placingZone.BUTTON_OBJ [xx]);
 
@@ -6609,11 +6594,11 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 				placingZone.POPUP_OBJ_TYPE [xx] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY - 25, 70, 23);
 				DGSetItemFont (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_IS_EXTRASMALL | DG_IS_PLAIN);
 				DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "없음");
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, L"없음");
 				DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "유로폼");
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, L"유로폼");
 				DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, "합판");
+				DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_BOTTOM, L"합판");
 				DGPopUpSelectItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx], DG_POPUP_TOP+1);
 				DGShowItem (dialogID, placingZone.POPUP_OBJ_TYPE [xx]);
 
@@ -6644,7 +6629,7 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 			// 오른쪽 끝 여백 채우기 여부 (체크박스)
 			placingZone.CHECKBOX_MARGIN_RIGHT_END = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 70, 70, 70);
 			DGSetItemFont (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, "합판\n채우기");
+			DGSetItemText (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, L"합판\n채우기");
 			DGShowItem (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END);
 			DGSetItemValLong (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, TRUE);
 			// 오른쪽 끝 여백 길이 (Edit컨트롤)
@@ -6735,11 +6720,7 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 					clickedOKButton = true;
 
 					// 테이블폼 타입
-					strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_TABLEFORM_TYPE, DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_TYPE)).ToCStr ().Get ());
-					if (my_strcmp (buffer, "타입A") == 0)
-						placingZone.tableformType = 1;
-					else if (my_strcmp (buffer, "타입B") == 0)
-						placingZone.tableformType = 2;
+					placingZone.tableformType = DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_TYPE);
 
 					// 합판 채우기 정보 저장
 					if (DGGetItemValLong (dialogID, placingZone.CHECKBOX_MARGIN_LEFT_END) == TRUE) {
@@ -6882,7 +6863,7 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 						// 버튼
 						placingZone.BUTTON_OBJ [placingZone.nCells] = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, itmPosX, itmPosY, 71, 66);
 						DGSetItemFont (dialogID, placingZone.BUTTON_OBJ [placingZone.nCells], DG_IS_LARGE | DG_IS_PLAIN);
-						DGSetItemText (dialogID, placingZone.BUTTON_OBJ [placingZone.nCells], "유로폼");
+						DGSetItemText (dialogID, placingZone.BUTTON_OBJ [placingZone.nCells], L"유로폼");
 						DGShowItem (dialogID, placingZone.BUTTON_OBJ [placingZone.nCells]);
 						DGDisableItem (dialogID, placingZone.BUTTON_OBJ [placingZone.nCells]);
 
@@ -6890,11 +6871,11 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 						placingZone.POPUP_OBJ_TYPE [placingZone.nCells] = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 50, 1, itmPosX, itmPosY - 25, 70, 23);
 						DGSetItemFont (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_IS_EXTRASMALL | DG_IS_PLAIN);
 						DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_POPUP_BOTTOM);
-						DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_POPUP_BOTTOM, "없음");
+						DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_POPUP_BOTTOM, L"없음");
 						DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_POPUP_BOTTOM);
-						DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_POPUP_BOTTOM, "유로폼");
+						DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_POPUP_BOTTOM, L"유로폼");
 						DGPopUpInsertItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_POPUP_BOTTOM);
-						DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_POPUP_BOTTOM, "합판");
+						DGPopUpSetItemText (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_POPUP_BOTTOM, L"합판");
 						DGPopUpSelectItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells], DG_POPUP_TOP+1);
 						DGShowItem (dialogID, placingZone.POPUP_OBJ_TYPE [placingZone.nCells]);
 
@@ -6924,7 +6905,7 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 						// 오른쪽 끝 여백 채우기 여부 (체크버튼)
 						placingZone.CHECKBOX_MARGIN_RIGHT_END = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 70, 70, 70);
 						DGSetItemFont (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, DG_IS_LARGE | DG_IS_PLAIN);
-						DGSetItemText (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, "합판\n채우기");
+						DGSetItemText (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, L"합판\n채우기");
 						DGShowItem (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END);
 						DGSetItemValLong (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, TRUE);
 						// 오른쪽 끝 여백 길이 (Edit컨트롤)
@@ -6978,7 +6959,7 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 						// 오른쪽 끝 여백 채우기 여부 (체크버튼)
 						placingZone.CHECKBOX_MARGIN_RIGHT_END = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, 70, 70, 70);
 						DGSetItemFont (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, DG_IS_LARGE | DG_IS_PLAIN);
-						DGSetItemText (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, "합판\n채우기");
+						DGSetItemText (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, L"합판\n채우기");
 						DGShowItem (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END);
 						DGSetItemValLong (dialogID, placingZone.CHECKBOX_MARGIN_RIGHT_END, TRUE);
 						// 오른쪽 끝 여백 길이 (Edit컨트롤)
@@ -7035,46 +7016,46 @@ short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, sho
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "동바리/멍에제 프리셋 배치");
+			DGSetDialogTitle (dialogID, L"동바리/멍에제 프리셋 배치");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 확인 버튼
-			DGSetItemText (dialogID, DG_OK, "확 인");
+			DGSetItemText (dialogID, DG_OK, L"확 인");
 
 			// 취소 버튼
-			DGSetItemText (dialogID, DG_CANCEL, "취 소");
+			DGSetItemText (dialogID, DG_CANCEL, L"취 소");
 
 			// 이전 버튼
-			DGSetItemText (dialogID, DG_PREV_PERI, "이 전");
+			DGSetItemText (dialogID, DG_PREV_PERI, L"이 전");
 
 			// 라벨
-			DGSetItemText (dialogID, LABEL_TYPE_SUPPORTING_POST_PERI, "타입");
-			DGSetItemText (dialogID, LABEL_NUM_OF_POST_SET_PERI, "동바리 세트 개수");
-			DGSetItemText (dialogID, LABEL_PLAN_VIEW_PERI, "평면도");
-			DGSetItemText (dialogID, LABEL_BEAM_WIDTH_PERI, "보 너비");
-			DGSetItemText (dialogID, LABEL_BEAM_LENGTH_PERI, "보 길이");
-			DGSetItemText (dialogID, LABEL_OFFSET_1_PERI, "시작 위치");
-			DGSetItemText (dialogID, LABEL_GAP_WIDTH_DIRECTION_1_PERI, "너비");
-			DGSetItemText (dialogID, LABEL_GAP_LENGTH_DIRECTION_1_PERI, "길이");
-			DGSetItemText (dialogID, LABEL_OFFSET_2_PERI, "시작 위치");
-			DGSetItemText (dialogID, LABEL_GAP_WIDTH_DIRECTION_2_PERI, "너비");
-			DGSetItemText (dialogID, LABEL_GAP_LENGTH_DIRECTION_2_PERI, "길이");
+			DGSetItemText (dialogID, LABEL_TYPE_SUPPORTING_POST_PERI, L"타입");
+			DGSetItemText (dialogID, LABEL_NUM_OF_POST_SET_PERI, L"동바리 세트 개수");
+			DGSetItemText (dialogID, LABEL_PLAN_VIEW_PERI, L"평면도");
+			DGSetItemText (dialogID, LABEL_BEAM_WIDTH_PERI, L"보 너비");
+			DGSetItemText (dialogID, LABEL_BEAM_LENGTH_PERI, L"보 길이");
+			DGSetItemText (dialogID, LABEL_OFFSET_1_PERI, L"시작 위치");
+			DGSetItemText (dialogID, LABEL_GAP_WIDTH_DIRECTION_1_PERI, L"너비");
+			DGSetItemText (dialogID, LABEL_GAP_LENGTH_DIRECTION_1_PERI, L"길이");
+			DGSetItemText (dialogID, LABEL_OFFSET_2_PERI, L"시작 위치");
+			DGSetItemText (dialogID, LABEL_GAP_WIDTH_DIRECTION_2_PERI, L"너비");
+			DGSetItemText (dialogID, LABEL_GAP_LENGTH_DIRECTION_2_PERI, L"길이");
 
 			// 라벨: 레이어 설정
-			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS_PERI, "부재별 레이어 설정");
-			DGSetItemText (dialogID, LABEL_LAYER_VERTICAL_POST_PERI, "PERI 수직재");
-			DGSetItemText (dialogID, LABEL_LAYER_HORIZONTAL_POST_PERI, "PERI 수평재");
-			DGSetItemText (dialogID, LABEL_LAYER_GIRDER_PERI, "GT24 거더");
-			DGSetItemText (dialogID, LABEL_LAYER_BEAM_BRACKET_PERI, "보 브라켓");
-			DGSetItemText (dialogID, LABEL_LAYER_YOKE_PERI, "보 멍에제");
-			DGSetItemText (dialogID, LABEL_LAYER_TIMBER_PERI, "각재");
-			DGSetItemText (dialogID, LABEL_LAYER_JACK_SUPPORT_PERI, "잭 서포트");
+			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS_PERI, L"부재별 레이어 설정");
+			DGSetItemText (dialogID, LABEL_LAYER_VERTICAL_POST_PERI, L"PERI 수직재");
+			DGSetItemText (dialogID, LABEL_LAYER_HORIZONTAL_POST_PERI, L"PERI 수평재");
+			DGSetItemText (dialogID, LABEL_LAYER_GIRDER_PERI, L"GT24 거더");
+			DGSetItemText (dialogID, LABEL_LAYER_BEAM_BRACKET_PERI, L"보 브라켓");
+			DGSetItemText (dialogID, LABEL_LAYER_YOKE_PERI, L"보 멍에제");
+			DGSetItemText (dialogID, LABEL_LAYER_TIMBER_PERI, L"각재");
+			DGSetItemText (dialogID, LABEL_LAYER_JACK_SUPPORT_PERI, L"잭 서포트");
 
 			// 체크박스: 레이어 묶음
-			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING_PERI, "레이어 묶음");
+			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING_PERI, L"레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING_PERI, TRUE);
 
-			DGSetItemText (dialogID, BUTTON_AUTOSET_PERI, "레이어 자동 설정");
+			DGSetItemText (dialogID, BUTTON_AUTOSET_PERI, L"레이어 자동 설정");
 
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
@@ -7110,9 +7091,9 @@ short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, sho
 
 			// 팝업 컨트롤 항목 추가
 			DGPopUpInsertItem (dialogID, POPUP_TYPE_SUPPORTING_POST_PERI, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_TYPE_SUPPORTING_POST_PERI, DG_POPUP_BOTTOM, "PERI 동바리 + GT24 거더");
+			DGPopUpSetItemText (dialogID, POPUP_TYPE_SUPPORTING_POST_PERI, DG_POPUP_BOTTOM, L"PERI 동바리 + GT24 거더");
 			DGPopUpInsertItem (dialogID, POPUP_TYPE_SUPPORTING_POST_PERI, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_TYPE_SUPPORTING_POST_PERI, DG_POPUP_BOTTOM, "PERI 동바리 + 보 멍에제");
+			DGPopUpSetItemText (dialogID, POPUP_TYPE_SUPPORTING_POST_PERI, DG_POPUP_BOTTOM, L"PERI 동바리 + 보 멍에제");
 			DGPopUpSelectItem (dialogID, POPUP_TYPE_SUPPORTING_POST_PERI, DG_POPUP_TOP);
 
 			DGPopUpInsertItem (dialogID, POPUP_NUM_OF_POST_SET_PERI, DG_POPUP_BOTTOM);
@@ -7317,7 +7298,7 @@ short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, sho
 // 보과 테이블폼 사이에 단열재를 넣을지 여부를 물어보는 다이얼로그
 short DGCALLBACK beamTableformPlacerHandler4_Insulation (short message, short dialogID, short item, DGUserData userData, DGMessageData /* msgData */)
 {
-	std::string*	title = (std::string*) userData;
+	std::wstring*	title = (std::wstring*) userData;
 	short	result;
 	API_UCCallbackType	ucb;
 
@@ -7327,13 +7308,13 @@ short DGCALLBACK beamTableformPlacerHandler4_Insulation (short message, short di
 			DGSetDialogTitle (dialogID, title->c_str ());
 
 			// 라벨
-			DGSetItemText (dialogID, LABEL_EXPLANATION_INS, "단열재 규격을 입력하십시오.");
-			DGSetItemText (dialogID, LABEL_INSULATION_THK, "두께");
-			DGSetItemText (dialogID, LABEL_INS_HORLEN, "가로");
-			DGSetItemText (dialogID, LABEL_INS_VERLEN, "세로");
+			DGSetItemText (dialogID, LABEL_EXPLANATION_INS, L"단열재 규격을 입력하십시오.");
+			DGSetItemText (dialogID, LABEL_INSULATION_THK, L"두께");
+			DGSetItemText (dialogID, LABEL_INS_HORLEN, L"가로");
+			DGSetItemText (dialogID, LABEL_INS_VERLEN, L"세로");
 
 			// 체크박스
-			DGSetItemText (dialogID, CHECKBOX_INS_LIMIT_SIZE, "가로/세로 크기 제한");
+			DGSetItemText (dialogID, CHECKBOX_INS_LIMIT_SIZE, L"가로/세로 크기 제한");
 			DGSetItemValLong (dialogID, CHECKBOX_INS_LIMIT_SIZE, TRUE);
 
 			// Edit 컨트롤
@@ -7349,11 +7330,11 @@ short DGCALLBACK beamTableformPlacerHandler4_Insulation (short message, short di
 			DGSetItemValLong (dialogID, USERCONTROL_INSULATION_LAYER, 1);
 
 			// 버튼
-			DGSetItemText (dialogID, DG_OK, "확인");
-			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGSetItemText (dialogID, DG_OK, L"확인");
+			DGSetItemText (dialogID, DG_CANCEL, L"취소");
 
 			// 두께는 자동
-			if (title->compare ("단열재 배치 (보 측면)") == 0) {
+			if (title->compare (L"단열재 배치 (보 측면)") == 0) {
 				DGSetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK, placingZone.gapSide);
 			} else {
 				DGSetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK, placingZone.gapBottom);

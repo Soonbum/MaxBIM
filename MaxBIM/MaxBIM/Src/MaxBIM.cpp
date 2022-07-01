@@ -344,6 +344,8 @@ GSErrCode __ACENV_CALL	Initialize (void)
 	ACAPI_Environment (APIEnv_GetSpecFolderID, &specID, (void*) &helpLoc);
 	DG::RegisterAdditionalHelpLocation (MDID_DEVELOPER_ID, MDID_LOCAL_ID, &helpLoc);
 
+	setlocale (LC_ALL, "Korean");	// 한국어 로케일 설정 (유니코드 문자열)
+
 	return err;
 }		// Initialize ()
 

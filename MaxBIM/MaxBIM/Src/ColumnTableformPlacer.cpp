@@ -88,22 +88,22 @@ GSErrCode	placeTableformOnColumn (void)
 	err = getGuidsOfSelection (&beams, API_BeamID, &nBeams);
 	err = getGuidsOfSelection (&morphs, API_MorphID, &nMorphs);
 	if (err == APIERR_NOPLAN) {
-		WriteReport_Alert ("열린 프로젝트 창이 없습니다.");
+		DGAlert (DG_ERROR, L"오류", L"열린 프로젝트 창이 없습니다.", "", L"확인", "", "");
 	}
 	if (err == APIERR_NOSEL) {
-		WriteReport_Alert ("아무 것도 선택하지 않았습니다.\n필수 선택: 기둥 (1개), 기둥 측면을 덮는 모프 (1개)\n옵션 선택: 기둥과 맞닿는 보 (다수)");
+		DGAlert (DG_ERROR, L"오류", L"아무 것도 선택하지 않았습니다.\n필수 선택: 기둥 (1개), 기둥 측면을 덮는 모프 (1개)\n옵션 선택: 기둥과 맞닿는 보 (다수)", "", L"확인", "", "");
 	}
 
 	// 기둥이 1개인가?
 	if (nColumns != 1) {
-		WriteReport_Alert ("기둥을 1개 선택해야 합니다.");
+		DGAlert (DG_ERROR, L"오류", L"기둥을 1개 선택해야 합니다.", "", L"확인", "", "");
 		err = APIERR_GENERAL;
 		return err;
 	}
 
 	// 모프가 1개인가?
 	if (nMorphs != 1) {
-		WriteReport_Alert ("기둥 측면을 덮는 모프를 1개 선택하셔야 합니다.");
+		DGAlert (DG_ERROR, L"오류", L"기둥 측면을 덮는 모프를 1개 선택하셔야 합니다.", "", L"확인", "", "");
 		err = APIERR_GENERAL;
 		return err;
 	}
@@ -282,7 +282,7 @@ FIRST_SOLE_COLUMN:
 	// 1, 2번째 다이얼로그를 통해 입력된 데이터를 기반으로 객체를 배치
 	err = placingZone.placeBasicObjects_soleColumn (&placingZone);
 
-	// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스 배치
+	// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스, 기둥밴드/웰라 배치
 	if (placingZone.tableformType == 1)
 		err = placingZone.placeRestObjectsA_soleColumn (&placingZone);
 	else if (placingZone.tableformType == 2)
@@ -652,7 +652,7 @@ void	ColumnTableformPlacingZone::alignPlacingZone_soleColumn (ColumnTableformPla
 	}
 }
 
-// 유로폼/아웃코너판넬/아웃코너앵글/휠러스페이서 배치 !!!
+// 유로폼/아웃코너판넬/아웃코너앵글/휠러스페이서 배치
 GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTableformPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
@@ -1033,7 +1033,7 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 	return	err;
 }
 
-// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스 배치 (타입A)
+// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스, 기둥밴드/웰라 배치 (타입A)
 GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTableformPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
@@ -1055,23 +1055,23 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 
 	// 헤드피스의 높이 기준
 	if (heightOfFormArea >= 5.300) {
-		elev_headpiece = 4.200;
-	} else if ((heightOfFormArea >= 4.600) && (heightOfFormArea < 5.300)) {
-		elev_headpiece = 3.800;
-	} else if ((heightOfFormArea >= 3.500) && (heightOfFormArea < 4.600)) {
-		elev_headpiece = 2.800;
-	} else if ((heightOfFormArea >= 3.000) && (heightOfFormArea < 3.500)) {
+		elev_headpiece = 2.500;
+	} else if (heightOfFormArea >= 4.600) {
+		elev_headpiece = 2.500;
+	} else if (heightOfFormArea >= 3.500) {
+		elev_headpiece = 2.500;
+	} else if (heightOfFormArea >= 3.000) {
 		elev_headpiece = 2.200;
-	} else if ((heightOfFormArea >= 2.500) && (heightOfFormArea < 3.000)) {
+	} else if (heightOfFormArea >= 2.500) {
 		elev_headpiece = 1.900;
-	} else if ((heightOfFormArea >= 2.000) && (heightOfFormArea < 2.500)) {
+	} else if (heightOfFormArea >= 2.000) {
 		elev_headpiece = 1.500;
-	} else if ((heightOfFormArea >= 1.500) && (heightOfFormArea < 2.000)) {
+	} else if (heightOfFormArea >= 1.500) {
 		elev_headpiece = 1.100;
-	} else if ((heightOfFormArea >= 1.000) && (heightOfFormArea < 1.500)) {
+	} else if (heightOfFormArea >= 1.000) {
 		elev_headpiece = 0.800;
 	} else {
-		elev_headpiece = heightOfFormArea - 0.150;
+		elev_headpiece = 0.150;
 	}
 
 	// 1. 비계파이프 배치
@@ -1789,11 +1789,11 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 	if (placingZone->bUseOutcornerPanel == true) {
 		// 아웃코너판넬의 경우, 아웃코너판넬의 너비를 고려함
 		// 위쪽
-		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
+		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', headpiece.radAng, -xLen + placingZone->cellsLT [0].horLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('y', headpiece.radAng, yLen + 0.0635 + 0.155, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('x', headpiece.radAng, -xLen + placingZone->cellsLT [0].horLen + 0.0475 + 0.050, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, yLen + 0.0635 + 0.155 - 0.096, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.100, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng += DegreeToRad (180);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -1828,11 +1828,11 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 		headpiece.radAng -= DegreeToRad (180);
 
 		// 아래쪽
-		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
+		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', headpiece.radAng, -xLen + placingZone->cellsLT [0].horLen - 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('y', headpiece.radAng, -(yLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('x', headpiece.radAng, -xLen + placingZone->cellsLT [0].horLen - 0.0475 - 0.050, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, -(yLen + 0.0635 + 0.155 - 0.096), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.100, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
 			"plateThk", APIParT_Length, format_string ("%f", 0.009),
@@ -1859,11 +1859,11 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		// 왼쪽
-		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
+		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', headpiece.radAng, -(xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('y', headpiece.radAng, yLen - placingZone->cellsLT [0].verLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('x', headpiece.radAng, -(xLen + 0.0635 + 0.155 - 0.096), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, yLen - placingZone->cellsLT [0].verLen + 0.0475 + 0.050, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.100, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng -= DegreeToRad (90);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -1898,11 +1898,11 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 		headpiece.radAng += DegreeToRad (90);
 
 		// 오른쪽
-		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
+		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('x', headpiece.radAng, (xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('y', headpiece.radAng, yLen - placingZone->cellsLT [0].verLen - 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('x', headpiece.radAng, (xLen + 0.0635 + 0.155 - 0.096), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('y', headpiece.radAng, yLen - placingZone->cellsLT [0].verLen - 0.0475 - 0.050, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.100, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng += DegreeToRad (90);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -1938,11 +1938,11 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 	} else {
 		// 아웃코너앵글의 경우, 아웃코너판넬의 너비를 고려하지 않음
 		// 위쪽
-		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
+		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
 		moveIn3D ('x', headpiece.radAng, -xLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, yLen + 0.0635 + 0.155, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.100, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng += DegreeToRad (180);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -1977,11 +1977,11 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 		headpiece.radAng -= DegreeToRad (180);
 
 		// 아래쪽
-		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
+		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
 		moveIn3D ('x', headpiece.radAng, -xLen- 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, -(yLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.100, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
 			"plateThk", APIParT_Length, format_string ("%f", 0.009),
@@ -2008,11 +2008,11 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
 		// 왼쪽
-		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
+		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
 		moveIn3D ('x', headpiece.radAng, -(xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, yLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.100, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng -= DegreeToRad (90);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -2047,11 +2047,11 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 		headpiece.radAng += DegreeToRad (90);
 
 		// 오른쪽
-		headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
+		headpiece.init (L("RS Push-Pull Props 헤드피스 v2.0 (인양고리 포함).gsm"), layerInd_Head, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
 		moveIn3D ('x', headpiece.radAng, (xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, yLen - 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.100, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng += DegreeToRad (90);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -2092,7 +2092,13 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 
 		moveIn3D ('x', columnBand1.radAng, -0.0035 + (placingZone->coreWidth + placingZone->venThick*2)/2, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
 		moveIn3D ('y', columnBand1.radAng, -0.1535 - (placingZone->coreDepth + placingZone->venThick*2)/2, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
-		moveIn3D ('z', columnBand1.radAng, heightOfFormArea/2 - 0.900, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
+		moveIn3D ('z', columnBand1.radAng, 0.500, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
+		elemList.Push (columnBand1.placeObject (4,
+			"band_size", APIParT_CString, "80x40x1270",
+			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
+			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
+			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
+		moveIn3D ('z', columnBand1.radAng, -0.500 + heightOfFormArea/2 - 0.900, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
 		elemList.Push (columnBand1.placeObject (4,
 			"band_size", APIParT_CString, "80x40x1270",
 			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
@@ -2113,18 +2119,31 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 	} else if (placingZone->typeOfColumnBand == 2) {
 		columnBand2.init (L("웰라v1.0.gsm"), layerInd_ColumnBand, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('z', columnBand2.radAng, heightOfFormArea/2 - 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
-		elemList.Push (columnBand2.placeObject (3,
+		moveIn3D ('z', columnBand2.radAng, 0.500, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
+		elemList.Push (columnBand2.placeObject (5,
+			"gap", APIParT_Length, "0.100",
+			"nutType", APIParT_CString, "윙너트",
+			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
+			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
+			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
+		moveIn3D ('z', columnBand2.radAng, -0.500 + heightOfFormArea/2 - 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
+		elemList.Push (columnBand2.placeObject (5,
+			"gap", APIParT_Length, "0.100",
+			"nutType", APIParT_CString, "윙너트",
 			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
 			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
 			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
 		moveIn3D ('z', columnBand2.radAng, 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
-		elemList.Push (columnBand2.placeObject (3,
+		elemList.Push (columnBand2.placeObject (5,
+			"gap", APIParT_Length, "0.100",
+			"nutType", APIParT_CString, "윙너트",
 			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
 			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
 			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
 		moveIn3D ('z', columnBand2.radAng, 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
-		elemList.Push (columnBand2.placeObject (3,
+		elemList.Push (columnBand2.placeObject (5,
+			"gap", APIParT_Length, "0.100",
+			"nutType", APIParT_CString, "윙너트",
 			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
 			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
 			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
@@ -2133,7 +2152,7 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsA_soleColumn (ColumnTablef
 	return	err;
 }
 
-// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스 배치 (타입B)
+// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스, 기둥밴드/웰라 배치 (타입B)
 GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTableformPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
@@ -2155,23 +2174,23 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 
 	// 헤드피스의 높이 기준
 	if (heightOfFormArea >= 5.300) {
-		elev_headpiece = 4.200;
-	} else if ((heightOfFormArea >= 4.600) && (heightOfFormArea < 5.300)) {
-		elev_headpiece = 3.800;
-	} else if ((heightOfFormArea >= 3.500) && (heightOfFormArea < 4.600)) {
-		elev_headpiece = 2.800;
-	} else if ((heightOfFormArea >= 3.000) && (heightOfFormArea < 3.500)) {
+		elev_headpiece = 2.500;
+	} else if (heightOfFormArea >= 4.600) {
+		elev_headpiece = 2.500;
+	} else if (heightOfFormArea >= 3.500) {
+		elev_headpiece = 2.500;
+	} else if (heightOfFormArea >= 3.000) {
 		elev_headpiece = 2.200;
-	} else if ((heightOfFormArea >= 2.500) && (heightOfFormArea < 3.000)) {
+	} else if (heightOfFormArea >= 2.500) {
 		elev_headpiece = 1.900;
-	} else if ((heightOfFormArea >= 2.000) && (heightOfFormArea < 2.500)) {
+	} else if (heightOfFormArea >= 2.000) {
 		elev_headpiece = 1.500;
-	} else if ((heightOfFormArea >= 1.500) && (heightOfFormArea < 2.000)) {
+	} else if (heightOfFormArea >= 1.500) {
 		elev_headpiece = 1.100;
-	} else if ((heightOfFormArea >= 1.000) && (heightOfFormArea < 1.500)) {
+	} else if (heightOfFormArea >= 1.000) {
 		elev_headpiece = 0.800;
 	} else {
-		elev_headpiece = heightOfFormArea - 0.150;
+		elev_headpiece = 0.150;
 	}
 
 	// 1. 비계파이프 배치
@@ -2792,7 +2811,7 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 
 		moveIn3D ('x', headpiece.radAng, -xLen + placingZone->cellsLT [0].horLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, yLen + 0.0635 + 0.155, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.040, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng += DegreeToRad (180);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -2831,7 +2850,7 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 
 		moveIn3D ('x', headpiece.radAng, -xLen + placingZone->cellsLT [0].horLen - 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, -(yLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.040, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
 			"plateThk", APIParT_Length, format_string ("%f", 0.009),
@@ -2862,7 +2881,7 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 
 		moveIn3D ('x', headpiece.radAng, -(xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, yLen - placingZone->cellsLT [0].verLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.040, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng -= DegreeToRad (90);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -2901,7 +2920,7 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 
 		moveIn3D ('x', headpiece.radAng, (xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, yLen - placingZone->cellsLT [0].verLen - 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.040, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng += DegreeToRad (90);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -2941,7 +2960,7 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 
 		moveIn3D ('x', headpiece.radAng, -xLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, yLen + 0.0635 + 0.155, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.040, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng += DegreeToRad (180);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -2980,7 +2999,7 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 
 		moveIn3D ('x', headpiece.radAng, -xLen- 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, -(yLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.040, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
 			"plateThk", APIParT_Length, format_string ("%f", 0.009),
@@ -3011,7 +3030,7 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 
 		moveIn3D ('x', headpiece.radAng, -(xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, yLen + 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.040, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng -= DegreeToRad (90);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -3050,7 +3069,7 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 
 		moveIn3D ('x', headpiece.radAng, (xLen + 0.0635 + 0.155), &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		moveIn3D ('y', headpiece.radAng, yLen - 0.0475, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-		moveIn3D ('z', headpiece.radAng, 0.300, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+		moveIn3D ('z', headpiece.radAng, 0.300 - 0.040, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		headpiece.radAng += DegreeToRad (90);
 		elemList.Push (headpiece.placeObject (4,
 			"type", APIParT_CString, "타입 A",
@@ -3091,7 +3110,13 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 
 		moveIn3D ('x', columnBand1.radAng, -0.0035 + (placingZone->coreWidth + placingZone->venThick*2)/2, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
 		moveIn3D ('y', columnBand1.radAng, -0.1535 - (placingZone->coreDepth + placingZone->venThick*2)/2, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
-		moveIn3D ('z', columnBand1.radAng, heightOfFormArea/2 - 0.900, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
+		moveIn3D ('z', columnBand1.radAng, 0.500, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
+		elemList.Push (columnBand1.placeObject (4,
+			"band_size", APIParT_CString, "80x40x1270",
+			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
+			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
+			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
+		moveIn3D ('z', columnBand1.radAng, -0.500 + heightOfFormArea/2 - 0.900, &columnBand1.posX, &columnBand1.posY, &columnBand1.posZ);
 		elemList.Push (columnBand1.placeObject (4,
 			"band_size", APIParT_CString, "80x40x1270",
 			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
@@ -3112,18 +3137,31 @@ GSErrCode	ColumnTableformPlacingZone::placeRestObjectsB_soleColumn (ColumnTablef
 	} else if (placingZone->typeOfColumnBand == 2) {
 		columnBand2.init (L("웰라v1.0.gsm"), layerInd_ColumnBand, infoColumn.floorInd, placingZone->origoPos.x, placingZone->origoPos.y, placingZone->bottomOffset, placingZone->angle);
 
-		moveIn3D ('z', columnBand2.radAng, heightOfFormArea/2 - 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
-		elemList.Push (columnBand2.placeObject (3,
+		moveIn3D ('z', columnBand2.radAng, 0.500, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
+		elemList.Push (columnBand2.placeObject (5,
+			"gap", APIParT_Length, "0.100",
+			"nutType", APIParT_CString, "윙너트",
+			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
+			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
+			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
+		moveIn3D ('z', columnBand2.radAng, -0.500 + heightOfFormArea/2 - 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
+		elemList.Push (columnBand2.placeObject (5,
+			"gap", APIParT_Length, "0.100",
+			"nutType", APIParT_CString, "윙너트",
 			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
 			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
 			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
 		moveIn3D ('z', columnBand2.radAng, 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
-		elemList.Push (columnBand2.placeObject (3,
+		elemList.Push (columnBand2.placeObject (5,
+			"gap", APIParT_Length, "0.100",
+			"nutType", APIParT_CString, "윙너트",
 			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
 			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
 			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
 		moveIn3D ('z', columnBand2.radAng, 0.900, &columnBand2.posX, &columnBand2.posY, &columnBand2.posZ);
-		elemList.Push (columnBand2.placeObject (3,
+		elemList.Push (columnBand2.placeObject (5,
+			"gap", APIParT_Length, "0.100",
+			"nutType", APIParT_CString, "윙너트",
 			"c_w", APIParT_Length, format_string ("%f", placingZone->coreWidth + placingZone->venThick*2),
 			"c_h", APIParT_Length, format_string ("%f", placingZone->coreDepth + placingZone->venThick*2),
 			"addOffset", APIParT_Length, format_string ("%f", 0.050)));
@@ -3542,7 +3580,6 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 {
 	short		result;
 	short		xx;
-	char		buffer [256];
 	API_UCCallbackType	ucb;
 
 	API_Coord	rotatedPoint;
@@ -3553,55 +3590,55 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "기둥에 배치 - 기둥 단면");
+			DGSetDialogTitle (dialogID, L"기둥에 배치 - 기둥 단면");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 확인 버튼
-			DGSetItemText (dialogID, DG_OK, "확 인");
+			DGSetItemText (dialogID, DG_OK, L"확 인");
 
 			// 취소 버튼
-			DGSetItemText (dialogID, DG_CANCEL, "취 소");
+			DGSetItemText (dialogID, DG_CANCEL, L"취 소");
 			
 			//////////////////////////////////////////////////////////// 아이템 배치 (유로폼)
 			// 라디오 버튼
-			DGSetItemText (dialogID, RADIO_OUTCORNER_PANEL, "아웃코너\n판넬");
-			DGSetItemText (dialogID, RADIO_OUTCORNER_ANGLE, "아웃코너\n앵글");
-			DGSetItemText (dialogID, RADIO_COLUMN_BAND_1, "기둥밴드");
-			DGSetItemText (dialogID, RADIO_COLUMN_BAND_2, "웰라");
+			DGSetItemText (dialogID, RADIO_OUTCORNER_PANEL, L"아웃코너\n판넬");
+			DGSetItemText (dialogID, RADIO_OUTCORNER_ANGLE, L"아웃코너\n앵글");
+			DGSetItemText (dialogID, RADIO_COLUMN_BAND_1, L"기둥밴드");
+			DGSetItemText (dialogID, RADIO_COLUMN_BAND_2, L"웰라");
 
 			// 라벨 및 체크박스/팝업컨트롤
-			DGSetItemText (dialogID, LABEL_COLUMN_SECTION, "기둥 단면");
-			DGSetItemText (dialogID, LABEL_COLUMN_DEPTH, "세로");
-			DGSetItemText (dialogID, LABEL_COLUMN_WIDTH, "가로");
-			DGSetItemText (dialogID, LABEL_OUTCORNER, "아웃코너 처리");
-			DGSetItemText (dialogID, LABEL_COLUMN_BAND_TYPE, "기둥밴드 타입");
-			DGSetItemText (dialogID, LABEL_TABLEFORM_TYPE, "테이블폼 타입");
+			DGSetItemText (dialogID, LABEL_COLUMN_SECTION, L"기둥 단면");
+			DGSetItemText (dialogID, LABEL_COLUMN_DEPTH, L"세로");
+			DGSetItemText (dialogID, LABEL_COLUMN_WIDTH, L"가로");
+			DGSetItemText (dialogID, LABEL_OUTCORNER, L"아웃코너 처리");
+			DGSetItemText (dialogID, LABEL_COLUMN_BAND_TYPE, L"기둥밴드 타입");
+			DGSetItemText (dialogID, LABEL_TABLEFORM_TYPE, L"테이블폼 타입");
 
 			// 라벨: 레이어 설정
-			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "부재별 레이어 설정");
-			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, "유로폼");
-			DGSetItemText (dialogID, LABEL_LAYER_FILLERSP, "휠러스페이서");
-			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_PANEL, "아웃코너판넬");
-			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_ANGLE, "아웃코너앵글");
-			DGSetItemText (dialogID, LABEL_LAYER_SQUARE_PIPE, "비계파이프");
-			DGSetItemText (dialogID, LABEL_LAYER_PINBOLT, "핀볼트세트");
-			DGSetItemText (dialogID, LABEL_LAYER_HANGER, "각파이프행거");
-			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, "헤드피스");
-			DGSetItemText (dialogID, LABEL_LAYER_COLUMN_BAND, "기둥밴드");
-			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, "합판");
+			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, L"부재별 레이어 설정");
+			DGSetItemText (dialogID, LABEL_LAYER_EUROFORM, L"유로폼");
+			DGSetItemText (dialogID, LABEL_LAYER_FILLERSP, L"휠러스페이서");
+			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_PANEL, L"아웃코너판넬");
+			DGSetItemText (dialogID, LABEL_LAYER_OUTCORNER_ANGLE, L"아웃코너앵글");
+			DGSetItemText (dialogID, LABEL_LAYER_SQUARE_PIPE, L"비계파이프");
+			DGSetItemText (dialogID, LABEL_LAYER_PINBOLT, L"핀볼트세트");
+			DGSetItemText (dialogID, LABEL_LAYER_HANGER, L"각파이프행거");
+			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, L"헤드피스");
+			DGSetItemText (dialogID, LABEL_LAYER_COLUMN_BAND, L"기둥밴드");
+			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, L"합판");
 
 			// 팝업컨트롤: 테이블폼 타입
 			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "타입A");
+			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, L"타입A");
 			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, "타입B");
+			DGPopUpSetItemText (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM, L"타입B");
 			DGPopUpSelectItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_TOP);
 
 			// 체크박스: 레이어 묶음
-			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, "레이어 묶음");
+			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, L"레이어 묶음");
 			DGSetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING, TRUE);
 
-			DGSetItemText (dialogID, BUTTON_AUTOSET, "레이어 자동 설정");
+			DGSetItemText (dialogID, BUTTON_AUTOSET, L"레이어 자동 설정");
 
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
@@ -3726,6 +3763,8 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 				DGDisableItem (dialogID, LABEL_LAYER_HANGER);
 				DGDisableItem (dialogID, USERCONTROL_LAYER_HANGER);
 
+				DGEnableItem (dialogID, POPUP_TABLEFORM_TYPE);
+
 			} else {
 				// 아웃코너앵글 모드일 경우 (그림 설정, Edit 컨트롤 일부 숨기기)
 				DGHideItem (dialogID, ICON_COLUMN_SECTION_OUTCORNER_PANEL);
@@ -3748,6 +3787,10 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 				DGEnableItem (dialogID, USERCONTROL_LAYER_OUTCORNER_ANGLE);
 				DGEnableItem (dialogID, LABEL_LAYER_HANGER);
 				DGEnableItem (dialogID, USERCONTROL_LAYER_HANGER);
+
+				// 아웃코너앵글의 경우 타입B만 지원함
+				DGPopUpSelectItem (dialogID, POPUP_TABLEFORM_TYPE, 2);
+				DGDisableItem (dialogID, POPUP_TABLEFORM_TYPE);
 			}
 
 			// 부재별 체크박스-규격 설정
@@ -4194,7 +4237,6 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 							placingZone.cellsB1 [xx].bStandardEuroform = false;
 
 						// 아래쪽 2
-						// !!!
 						xLen = -(placingZone.coreWidth/2 + placingZone.venThick);
 						yLen = -(placingZone.coreDepth/2 + placingZone.venThick);
 						lineLen = sqrt (xLen*xLen + yLen*yLen);
@@ -4254,11 +4296,7 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 					}
 
 					// 테이블폼 타입
-					strcpy (buffer, DGPopUpGetItemText (dialogID, POPUP_TABLEFORM_TYPE, DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_TYPE)).ToCStr ().Get ());
-					if (my_strcmp (buffer, "타입A") == 0)
-						placingZone.tableformType = 1;
-					else if (my_strcmp (buffer, "타입B") == 0)
-						placingZone.tableformType = 2;
+					placingZone.tableformType = DGPopUpGetSelected (dialogID, POPUP_TABLEFORM_TYPE);
 
 					// 레이어 번호 저장
 					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
@@ -4332,38 +4370,38 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "기둥에 배치 - 기둥 측면");
+			DGSetDialogTitle (dialogID, L"기둥에 배치 - 기둥 측면");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 확인 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 30, 100, 100, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_OK, "확인");
+			DGSetItemText (dialogID, DG_OK, L"확인");
 			DGShowItem (dialogID, DG_OK);
 
 			// 취소 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 30, 140, 100, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGSetItemText (dialogID, DG_CANCEL, L"취소");
 			DGShowItem (dialogID, DG_CANCEL);
 
 			// 업데이트 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 30, 60, 100, 25);
 			DGSetItemFont (dialogID, DG_UPDATE_BUTTON, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_UPDATE_BUTTON, "업데이트");
+			DGSetItemText (dialogID, DG_UPDATE_BUTTON, L"업데이트");
 			DGShowItem (dialogID, DG_UPDATE_BUTTON);
 			DGDisableItem (dialogID, DG_UPDATE_BUTTON);
 
 			// 이전 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 30, 180, 100, 25);
 			DGSetItemFont (dialogID, DG_PREV, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_PREV, "이전");
+			DGSetItemText (dialogID, DG_PREV, L"이전");
 			DGShowItem (dialogID, DG_PREV);
 
 			// 라벨: 기둥 측면
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 10, 10, 100, 23);
 			DGSetItemFont (dialogID, LABEL_COLUMN_SIDE, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_COLUMN_SIDE, "기둥 측면");
+			DGSetItemText (dialogID, LABEL_COLUMN_SIDE, L"기둥 측면");
 			DGShowItem (dialogID, LABEL_COLUMN_SIDE);
 
 			// 보를 의미하는 직사각형
@@ -4376,14 +4414,14 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 			DGShowItem (dialogID, itmIdx);
 			DGDisableItem (dialogID, itmIdx);
 			if (placingZone.bInterfereBeam == true)
-				DGSetItemText (dialogID, itmIdx, "보\n있음");
+				DGSetItemText (dialogID, itmIdx, L"보\n있음");
 			else
-				DGSetItemText (dialogID, itmIdx, "보\n없음");
+				DGSetItemText (dialogID, itmIdx, L"보\n없음");
 
 			// 여백 위치
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 235, 110, 40, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "여백");
+			DGSetItemText (dialogID, itmIdx, L"여백");
 			DGShowItem (dialogID, itmIdx);
 
 			// 유로폼 버튼 시작
@@ -4412,17 +4450,17 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 			// 추가/삭제 버튼
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 113, 50, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "추가");
+			DGSetItemText (dialogID, itmIdx, L"추가");
 			DGShowItem (dialogID, itmIdx);
 			ADD_CELLS = itmIdx;
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 142, 50, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "삭제");
+			DGSetItemText (dialogID, itmIdx, L"삭제");
 			DGShowItem (dialogID, itmIdx);
 			DEL_CELLS = itmIdx;
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 290, 134, 20, 20);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "←");
+			DGSetItemText (dialogID, itmIdx, L"←");
 			DGShowItem (dialogID, itmIdx);
 
 			// 보 단면을 의미하는 직사각형
@@ -4432,43 +4470,43 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 			// 라벨: 동서남북
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 105, 25, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "북");
+			DGSetItemText (dialogID, itmIdx, L"북");
 			DGShowItem (dialogID, itmIdx);
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 155, 25, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "남");
+			DGSetItemText (dialogID, itmIdx, L"남");
 			DGShowItem (dialogID, itmIdx);
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 505, 130, 25, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "서");
+			DGSetItemText (dialogID, itmIdx, L"서");
 			DGShowItem (dialogID, itmIdx);
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 550, 130, 25, 23);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "동");
+			DGSetItemText (dialogID, itmIdx, L"동");
 			DGShowItem (dialogID, itmIdx);
 
 			// 체크박스: 동서남북 여백 채움 여부
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 50, 80, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "여백 채움");
+			DGSetItemText (dialogID, itmIdx, L"여백 채움");
 			DGSetItemValLong (dialogID, itmIdx, TRUE);
 			DGShowItem (dialogID, itmIdx);	// 북
 			CHECKBOX_NORTH_MARGIN = itmIdx;
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 210, 80, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "여백 채움");
+			DGSetItemText (dialogID, itmIdx, L"여백 채움");
 			DGSetItemValLong (dialogID, itmIdx, TRUE);
 			DGShowItem (dialogID, itmIdx);	// 남
 			CHECKBOX_SOUTH_MARGIN = itmIdx;
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 420, 115, 80, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "여백 채움");
+			DGSetItemText (dialogID, itmIdx, L"여백 채움");
 			DGSetItemValLong (dialogID, itmIdx, TRUE);
 			DGShowItem (dialogID, itmIdx);	// 서
 			CHECKBOX_WEST_MARGIN = itmIdx;
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 590, 115, 80, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, "여백 채움");
+			DGSetItemText (dialogID, itmIdx, L"여백 채움");
 			DGSetItemValLong (dialogID, itmIdx, TRUE);
 			DGShowItem (dialogID, itmIdx);	// 동
 			CHECKBOX_EAST_MARGIN = itmIdx;
@@ -4585,14 +4623,14 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				DGShowItem (dialogID, itmIdx);
 				DGDisableItem (dialogID, itmIdx);
 				if (placingZone.bInterfereBeam == true)
-					DGSetItemText (dialogID, itmIdx, "보\n있음");
+					DGSetItemText (dialogID, itmIdx, L"보\n있음");
 				else
-					DGSetItemText (dialogID, itmIdx, "보\n없음");
+					DGSetItemText (dialogID, itmIdx, L"보\n없음");
 
 				// 여백 위치
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 235, 110, 40, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백");
+				DGSetItemText (dialogID, itmIdx, L"여백");
 				DGShowItem (dialogID, itmIdx);
 
 				// 유로폼 버튼 시작
@@ -4621,17 +4659,17 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				// 추가/삭제 버튼
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 113, 50, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "추가");
+				DGSetItemText (dialogID, itmIdx, L"추가");
 				DGShowItem (dialogID, itmIdx);
 				ADD_CELLS = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 142, 50, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "삭제");
+				DGSetItemText (dialogID, itmIdx, L"삭제");
 				DGShowItem (dialogID, itmIdx);
 				DEL_CELLS = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 290, 134, 20, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "←");
+				DGSetItemText (dialogID, itmIdx, L"←");
 				DGShowItem (dialogID, itmIdx);
 
 				// 보 단면을 의미하는 직사각형
@@ -4641,43 +4679,43 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				// 라벨: 동서남북
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 105, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "북");
+				DGSetItemText (dialogID, itmIdx, L"북");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 155, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "남");
+				DGSetItemText (dialogID, itmIdx, L"남");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 505, 130, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "서");
+				DGSetItemText (dialogID, itmIdx, L"서");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 550, 130, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "동");
+				DGSetItemText (dialogID, itmIdx, L"동");
 				DGShowItem (dialogID, itmIdx);
 
 				// 체크박스: 동서남북 여백 채움 여부
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 50, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtNorth == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 북
 				CHECKBOX_NORTH_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 210, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtSouth == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 남
 				CHECKBOX_SOUTH_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 420, 115, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtWest == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 서
 				CHECKBOX_WEST_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 590, 115, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtEast == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 동
 				CHECKBOX_EAST_MARGIN = itmIdx;
@@ -4792,14 +4830,14 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				DGShowItem (dialogID, itmIdx);
 				DGDisableItem (dialogID, itmIdx);
 				if (placingZone.bInterfereBeam == true)
-					DGSetItemText (dialogID, itmIdx, "보\n있음");
+					DGSetItemText (dialogID, itmIdx, L"보\n있음");
 				else
-					DGSetItemText (dialogID, itmIdx, "보\n없음");
+					DGSetItemText (dialogID, itmIdx, L"보\n없음");
 
 				// 여백 위치
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 235, 110, 40, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백");
+				DGSetItemText (dialogID, itmIdx, L"여백");
 				DGShowItem (dialogID, itmIdx);
 
 				// 유로폼 버튼 시작
@@ -4828,17 +4866,17 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				// 추가/삭제 버튼
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 113, 50, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "추가");
+				DGSetItemText (dialogID, itmIdx, L"추가");
 				DGShowItem (dialogID, itmIdx);
 				ADD_CELLS = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 142, 50, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "삭제");
+				DGSetItemText (dialogID, itmIdx, L"삭제");
 				DGShowItem (dialogID, itmIdx);
 				DEL_CELLS = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 290, 134, 20, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "←");
+				DGSetItemText (dialogID, itmIdx, L"←");
 				DGShowItem (dialogID, itmIdx);
 
 				// 보 단면을 의미하는 직사각형
@@ -4848,43 +4886,43 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				// 라벨: 동서남북
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 105, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "북");
+				DGSetItemText (dialogID, itmIdx, L"북");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 155, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "남");
+				DGSetItemText (dialogID, itmIdx, L"남");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 505, 130, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "서");
+				DGSetItemText (dialogID, itmIdx, L"서");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 550, 130, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "동");
+				DGSetItemText (dialogID, itmIdx, L"동");
 				DGShowItem (dialogID, itmIdx);
 
 				// 체크박스: 동서남북 여백 채움 여부
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 50, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtNorth == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 북
 				CHECKBOX_NORTH_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 210, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtSouth == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 남
 				CHECKBOX_SOUTH_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 420, 115, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtWest == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 서
 				CHECKBOX_WEST_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 590, 115, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtEast == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 동
 				CHECKBOX_EAST_MARGIN = itmIdx;
@@ -5005,14 +5043,14 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				DGShowItem (dialogID, itmIdx);
 				DGDisableItem (dialogID, itmIdx);
 				if (placingZone.bInterfereBeam == true)
-					DGSetItemText (dialogID, itmIdx, "보\n있음");
+					DGSetItemText (dialogID, itmIdx, L"보\n있음");
 				else
-					DGSetItemText (dialogID, itmIdx, "보\n없음");
+					DGSetItemText (dialogID, itmIdx, L"보\n없음");
 
 				// 여백 위치
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 235, 110, 40, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백");
+				DGSetItemText (dialogID, itmIdx, L"여백");
 				DGShowItem (dialogID, itmIdx);
 
 				// 유로폼 버튼 시작
@@ -5041,17 +5079,17 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				// 추가/삭제 버튼
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 113, 50, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "추가");
+				DGSetItemText (dialogID, itmIdx, L"추가");
 				DGShowItem (dialogID, itmIdx);
 				ADD_CELLS = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 142, 50, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "삭제");
+				DGSetItemText (dialogID, itmIdx, L"삭제");
 				DGShowItem (dialogID, itmIdx);
 				DEL_CELLS = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 290, 134, 20, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "←");
+				DGSetItemText (dialogID, itmIdx, L"←");
 				DGShowItem (dialogID, itmIdx);
 
 				// 보 단면을 의미하는 직사각형
@@ -5061,43 +5099,43 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				// 라벨: 동서남북
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 105, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "북");
+				DGSetItemText (dialogID, itmIdx, L"북");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 155, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "남");
+				DGSetItemText (dialogID, itmIdx, L"남");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 505, 130, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "서");
+				DGSetItemText (dialogID, itmIdx, L"서");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 550, 130, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "동");
+				DGSetItemText (dialogID, itmIdx, L"동");
 				DGShowItem (dialogID, itmIdx);
 
 				// 체크박스: 동서남북 여백 채움 여부
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 50, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtNorth == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 북
 				CHECKBOX_NORTH_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 210, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtSouth == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 남
 				CHECKBOX_SOUTH_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 420, 115, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtWest == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 서
 				CHECKBOX_WEST_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 590, 115, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtEast == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 동
 				CHECKBOX_EAST_MARGIN = itmIdx;
@@ -5210,14 +5248,14 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				DGShowItem (dialogID, itmIdx);
 				DGDisableItem (dialogID, itmIdx);
 				if (placingZone.bInterfereBeam == true)
-					DGSetItemText (dialogID, itmIdx, "보\n있음");
+					DGSetItemText (dialogID, itmIdx, L"보\n있음");
 				else
-					DGSetItemText (dialogID, itmIdx, "보\n없음");
+					DGSetItemText (dialogID, itmIdx, L"보\n없음");
 
 				// 여백 위치
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 235, 110, 40, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백");
+				DGSetItemText (dialogID, itmIdx, L"여백");
 				DGShowItem (dialogID, itmIdx);
 
 				// 유로폼 버튼 시작
@@ -5246,17 +5284,17 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				// 추가/삭제 버튼
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 113, 50, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "추가");
+				DGSetItemText (dialogID, itmIdx, L"추가");
 				DGShowItem (dialogID, itmIdx);
 				ADD_CELLS = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 310, 142, 50, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "삭제");
+				DGSetItemText (dialogID, itmIdx, L"삭제");
 				DGShowItem (dialogID, itmIdx);
 				DEL_CELLS = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 290, 134, 20, 20);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "←");
+				DGSetItemText (dialogID, itmIdx, L"←");
 				DGShowItem (dialogID, itmIdx);
 
 				// 보 단면을 의미하는 직사각형
@@ -5266,43 +5304,43 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_2 (short message, short
 				// 라벨: 동서남북
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 105, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "북");
+				DGSetItemText (dialogID, itmIdx, L"북");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_CENTER, DG_FT_NONE, 530, 155, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "남");
+				DGSetItemText (dialogID, itmIdx, L"남");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 505, 130, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "서");
+				DGSetItemText (dialogID, itmIdx, L"서");
 				DGShowItem (dialogID, itmIdx);
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 550, 130, 25, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "동");
+				DGSetItemText (dialogID, itmIdx, L"동");
 				DGShowItem (dialogID, itmIdx);
 
 				// 체크박스: 동서남북 여백 채움 여부
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 50, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtNorth == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 북
 				CHECKBOX_NORTH_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 505, 210, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtSouth == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 남
 				CHECKBOX_SOUTH_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 420, 115, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtWest == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 서
 				CHECKBOX_WEST_MARGIN = itmIdx;
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 590, 115, 80, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, "여백 채움");
+				DGSetItemText (dialogID, itmIdx, L"여백 채움");
 				DGSetItemValLong (dialogID, itmIdx, (placingZone.bFillMarginTopAtEast == true) ? TRUE : FALSE);
 				DGShowItem (dialogID, itmIdx);	// 동
 				CHECKBOX_EAST_MARGIN = itmIdx;
@@ -5399,46 +5437,46 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_3 (short message, short
 				idx = clickedBtnItemIdx - EUROFORM_BUTTON_BOTTOM;
 
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "셀 설정");
+			DGSetDialogTitle (dialogID, L"셀 설정");
 
 			//////////////////////////////////////////////////////////// 아이템 배치 (기본 버튼)
 			// 저장 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 30, 160, 60, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_OK, "저장");
+			DGSetItemText (dialogID, DG_OK, L"저장");
 			DGShowItem (dialogID, DG_OK);
 
 			// 취소 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 110, 160, 60, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGSetItemText (dialogID, DG_CANCEL, L"취소");
 			DGShowItem (dialogID, DG_CANCEL);
 
 			//////////////////////////////////////////////////////////// 필드 생성 (클릭한 셀)
 			// 라벨: 객체 타입
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 10, 20, 70, 23);
 			DGSetItemFont (dialogID, LABEL_OBJ_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_OBJ_TYPE, "객체 타입");
+			DGSetItemText (dialogID, LABEL_OBJ_TYPE, L"객체 타입");
 			DGShowItem (dialogID, LABEL_OBJ_TYPE);
 
 			// 팝업컨트롤: 객체 타입을 바꿀 수 있는 콤보박스가 맨 위에 나옴
 			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 90, 20-7, 100, 25);
 			DGSetItemFont (dialogID, POPUP_OBJ_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "없음");
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, L"없음");
 			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, "유로폼");
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, L"유로폼");
 			DGShowItem (dialogID, POPUP_OBJ_TYPE);
 
 			// 체크박스: 규격폼
 			DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, 20, 60, 70, 25-5);
 			DGSetItemFont (dialogID, CHECKBOX_SET_STANDARD, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD, "규격폼");
+			DGSetItemText (dialogID, CHECKBOX_SET_STANDARD, L"규격폼");
 
 			// 라벨: 길이
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 20, 90, 50, 23);
 			DGSetItemFont (dialogID, LABEL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_LENGTH, "길이");
+			DGSetItemText (dialogID, LABEL_LENGTH, L"길이");
 
 			// Edit 컨트롤: 길이
 			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 80, 90-6, 50, 25);

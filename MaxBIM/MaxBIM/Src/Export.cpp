@@ -115,7 +115,7 @@ SummaryOfObjectInfo::SummaryOfObjectInfo ()
 	fp = fopen ("C:\\objectInfo.csv", "r");
 
 	if (fp == NULL) {
-		WriteReport_Alert ("objectInfo.csv 파일을 C:\\로 복사하십시오.");
+		DGAlert (DG_ERROR, L"오류", L"objectInfo.csv 파일을 C:\\로 복사하십시오.", "", L"확인", "", "");
 	} else {
 		lineCount = 0;
 
@@ -278,7 +278,7 @@ GSErrCode	exportSelectedElementInfo (void)
 
 	// 선택한 요소 가져오기
 	if (getGuidsOfSelection (&objects, API_ObjectID, &nObjects) != NoError) {
-		WriteReport_Alert ("요소들을 선택해야 합니다.");
+		DGAlert (DG_ERROR, L"오류", L"요소들을 선택해야 합니다.", "", L"확인", "", "");
 		return err;
 	}
 
@@ -299,7 +299,7 @@ GSErrCode	exportSelectedElementInfo (void)
 	fp_interReport = fopen (filename, "w+");
 
 	if ((fp == NULL) || (fp_interReport == NULL)) {
-		WriteReport_Alert ("파일을 열 수 없습니다.");
+		DGAlert (DG_ERROR, L"오류", L"파일을 열 수 없습니다.", "", L"확인", "", "");
 		return err;
 	}
 
@@ -1637,7 +1637,7 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 	fp_unite = fopen (filename, "w+");
 
 	if (fp_unite == NULL) {
-		WriteReport_Alert ("통합 버전 엑셀파일을 만들 수 없습니다.");
+		DGAlert (DG_ERROR, L"오류", L"통합 버전 엑셀파일을 만들 수 없습니다.", "", L"확인", "", "");
 		return	NoError;
 	}
 
@@ -2680,7 +2680,7 @@ GSErrCode	exportBeamTableformInformation (void)
 	fp = fopen (filename, "w+");
 
 	if (fp == NULL) {
-		WriteReport_Alert ("엑셀파일을 만들 수 없습니다.");
+		DGAlert (DG_ERROR, L"오류", L"엑셀파일을 만들 수 없습니다.", "", L"확인", "", "");
 		return	NoError;
 	}
 
@@ -3431,7 +3431,7 @@ GSErrCode	calcTableformArea (void)
 	fp_unite = fopen (filename, "w+");
 
 	if (fp_unite == NULL) {
-		WriteReport_Alert ("통합 버전 엑셀파일을 만들 수 없습니다.");
+		DGAlert (DG_ERROR, L"오류", L"통합 버전 엑셀파일을 만들 수 없습니다.", "", L"확인", "", "");
 		return	NoError;
 	}
 
@@ -3623,7 +3623,7 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 	getGuidsOfSelection (&objects, API_ObjectID, &nObjects);
 
 	if ( (nWalls == 0) && (nColumns == 0) && (nBeams == 0) && (nSlabs == 0) && (nMorphs == 0) && (nObjects == 0) ) {
-		WriteReport_Alert ("요소들을 선택해야 합니다.");
+		DGAlert (DG_ERROR, L"오류", L"요소들을 선택해야 합니다.", "", L"확인", "", "");
 		return err;
 	}
 
@@ -3841,7 +3841,7 @@ GSErrCode	calcConcreteVolumeMultiMode (void)
 	fp_unite = fopen (filename, "w+");
 
 	if (fp_unite == NULL) {
-		WriteReport_Alert ("통합 버전 엑셀파일을 만들 수 없습니다.");
+		DGAlert (DG_ERROR, L"오류", L"통합 버전 엑셀파일을 만들 수 없습니다.", "", L"확인", "", "");
 		return	NoError;
 	}
 
@@ -4074,7 +4074,7 @@ GSErrCode	calcSlabQuantityAndAreaSingleMode (void)
 	// 선택한 요소 가져오기
 	err = getGuidsOfSelection (&slabs, API_SlabID, &nSlabs);
 	if (err != NoError) {
-		WriteReport_Alert ("요소들을 선택해야 합니다.");
+		DGAlert (DG_ERROR, L"오류", L"요소들을 선택해야 합니다.", "", L"확인", "", "");
 		return err;
 	}
 
@@ -4201,7 +4201,7 @@ GSErrCode	calcSlabQuantityAndAreaMultiMode (void)
 	fp_unite = fopen (filename, "w+");
 
 	if (fp_unite == NULL) {
-		WriteReport_Alert ("통합 버전 엑셀파일을 만들 수 없습니다.");
+		DGAlert (DG_ERROR, L"오류", L"통합 버전 엑셀파일을 만들 수 없습니다.", "", L"확인", "", "");
 		return	NoError;
 	}
 
@@ -4320,7 +4320,7 @@ GSErrCode	calcInsulationQuantityAndAreaSingleMode (void)
 	// 선택한 요소 가져오기
 	err = getGuidsOfSelection (&objects, API_ObjectID, &nObjects);
 	if (err != NoError) {
-		WriteReport_Alert ("요소들을 선택해야 합니다.");
+		DGAlert (DG_ERROR, L"오류", L"요소들을 선택해야 합니다.", "", L"확인", "", "");
 		return err;
 	}
 
@@ -4465,7 +4465,7 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void)
 	fp_unite = fopen (filename, "w+");
 
 	if (fp_unite == NULL) {
-		WriteReport_Alert ("통합 버전 엑셀파일을 만들 수 없습니다.");
+		DGAlert (DG_ERROR, L"오류", L"통합 버전 엑셀파일을 만들 수 없습니다.", "", L"확인", "", "");
 		return	NoError;
 	}
 
