@@ -119,15 +119,15 @@ GSErrCode	placeTableformOnColumn (void)
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 	
 	infoColumn.floorInd		= elem.header.floorInd;			// 층 인덱스
-	infoColumn.bRectangle	= !elem.column.circleBased;		// 직사각형인가?
+	infoColumn.bRectangle	= !elem.column.circleBased;		// 직사각형인가?		// !elem.columnSegment.assemblySegmentData.circleBased;
 	infoColumn.coreAnchor	= elem.column.coreAnchor;		// 코어의 앵커 포인트
-	infoColumn.coreWidth	= elem.column.coreWidth;		// 코어의 너비 (X 길이)
-	infoColumn.coreDepth	= elem.column.coreDepth;		// 코어의 깊이 (Y 길이)
-	infoColumn.venThick		= elem.column.venThick;			// 베니어 두께
+	infoColumn.coreWidth	= elem.column.coreWidth;		// 코어의 너비 (X 길이) // elem.columnSegment.assemblySegmentData.nominalWidth;
+	infoColumn.coreDepth	= elem.column.coreDepth;		// 코어의 깊이 (Y 길이)	// elem.columnSegment.assemblySegmentData.nominalHeight;
+	infoColumn.venThick		= elem.column.venThick;			// 베니어 두께			// elem.columnSegment.venThick;
 	infoColumn.height		= elem.column.height;			// 기둥 높이
 	infoColumn.bottomOffset	= elem.column.bottomOffset;		// 바닥 레벨에 대한 기둥 베이스 레벨
 	infoColumn.topOffset	= elem.column.topOffset;		// 만약 기둥이 윗층과 연결되어 있는 경우 윗층으로부터의 오프셋
-	infoColumn.angle		= elem.column.angle + elem.column.slantDirectionAngle;	// 기둥 축을 중심으로 한 회전 각도 (단위: Radian)
+	infoColumn.angle		= elem.column.angle + elem.column.slantDirectionAngle;	// 기둥 축을 중심으로 한 회전 각도 (단위: Radian)	// elem.column.axisRotationAngle + elem.column.slantDirectionAngle;
 	infoColumn.origoPos		= elem.column.origoPos;			// 기둥 중심 위치
 
 	ACAPI_DisposeElemMemoHdls (&memo);
@@ -149,8 +149,8 @@ GSErrCode	placeTableformOnColumn (void)
 
 		infoOtherBeams [xx].valid		= true;						// 정보의 유효성
 		infoOtherBeams [xx].floorInd	= elem.header.floorInd;		// 층 인덱스
-		infoOtherBeams [xx].height		= elem.beam.height;			// 보 높이
-		infoOtherBeams [xx].width		= elem.beam.width;			// 보 너비
+		infoOtherBeams [xx].height		= elem.beam.height;			// 보 높이		// elem.beamSegment.assemblySegmentData.nominalHeight;
+		infoOtherBeams [xx].width		= elem.beam.width;			// 보 너비		// elem.beamSegment.assemblySegmentData.nominalWidth;
 		infoOtherBeams [xx].offset		= elem.beam.offset;			// 보 중심으로부터 보의 레퍼런스 라인의 오프셋입니다.
 		infoOtherBeams [xx].level		= elem.beam.level;			// 바닥 레벨에 대한 보의 위쪽면 높이입니다.
 		infoOtherBeams [xx].begC		= elem.beam.begC;			// 보 시작 좌표

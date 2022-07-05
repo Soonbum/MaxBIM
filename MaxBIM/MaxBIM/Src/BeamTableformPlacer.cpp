@@ -114,8 +114,8 @@ GSErrCode	placeTableformOnBeam (void)
 	err = ACAPI_Element_GetMemo (elem.header.guid, &memo);
 	
 	infoBeam.floorInd	= elem.header.floorInd;
-	infoBeam.height		= elem.beam.height;
-	infoBeam.width		= elem.beam.width;
+	infoBeam.height		= elem.beam.height;		// elem.beamSegment.assemblySegmentData.nominalHeight;
+	infoBeam.width		= elem.beam.width;		// elem.beamSegment.assemblySegmentData.nominalWidth;
 	infoBeam.offset		= elem.beam.offset;
 	infoBeam.level		= elem.beam.level;
 	infoBeam.begC		= elem.beam.begC;
@@ -2094,7 +2094,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 	}
 
 	// 비계파이프 (하부-센터) 배치
-	if ((abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS) || (placingZone->cellsAtBottom [2][0].objType == EUROFORM)) {
+	if (((abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtBottom [0][0].perLen - 0.500) < EPS)) || (placingZone->cellsAtBottom [2][0].objType == EUROFORM)) {
 		bShow = false;
 		bBeginFound = false;
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
@@ -2120,8 +2120,12 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 				moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				if (placingZone->cellsAtBottom [2][0].objType == EUROFORM)
 					moveIn3D ('y', pipe1.radAng, placingZone->cellsAtBottom [0][0].perLen, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-				else
-					moveIn3D ('y', pipe1.radAng, placingZone->cellsAtBottom [0][0].perLen / 2, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				else {
+					if (abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS)
+						moveIn3D ('y', pipe1.radAng, placingZone->cellsAtBottom [0][0].perLen / 2, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+					else if (abs (placingZone->cellsAtBottom [0][0].perLen - 0.500) < EPS)
+						moveIn3D ('y', pipe1.radAng, 0.200, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				}
 
 				while (remainLengthDouble > EPS) {
 					if (remainLengthDouble > 6.000)
@@ -2409,7 +2413,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 	}
 
 	// 핀볼트 (하부-센터) 배치
-	if ((abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS) || (placingZone->cellsAtBottom [2][0].objType == EUROFORM)) {
+	if (((abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtBottom [0][0].perLen - 0.500) < EPS)) || (placingZone->cellsAtBottom [2][0].objType == EUROFORM)) {
 		for (xx = 0 ; xx < placingZone->nCells - 1 ; ++xx) {
 			pinbolt1.init (L("핀볼트세트v1.0.gsm"), layerInd_Pinbolt, infoBeam.floorInd, placingZone->cellsAtBottom [0][xx].leftBottomX, placingZone->cellsAtBottom [0][xx].leftBottomY, placingZone->cellsAtBottom [0][xx].leftBottomZ, placingZone->cellsAtBottom [0][xx].ang);
 
@@ -2418,8 +2422,12 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 
 			if (placingZone->cellsAtBottom [2][0].objType == EUROFORM)
 				moveIn3D ('y', pinbolt1.radAng, placingZone->cellsAtBottom [0][0].perLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-			else
-				moveIn3D ('y', pinbolt1.radAng, placingZone->cellsAtBottom [0][0].perLen / 2, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			else {
+				if (abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS)
+					moveIn3D ('y', pinbolt1.radAng, placingZone->cellsAtBottom [0][0].perLen / 2, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+				else
+					moveIn3D ('y', pinbolt1.radAng, 0.200, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			}
 
 			// 현재 셀이 유로폼, 다음 셀이 유로폼일 경우
 			if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > EPS) && (placingZone->cellsAtBottom [0][xx].dirLen > EPS) && (placingZone->cellsAtBottom [0][xx+1].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx+1].perLen > EPS) && (placingZone->cellsAtBottom [0][xx+1].dirLen > EPS)) {
@@ -3945,7 +3953,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	}
 
 	// 비계파이프 (하부-센터) 배치
-	if ((abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS) || (placingZone->cellsAtBottom [2][0].objType == EUROFORM)) {
+	if (((abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtBottom [0][0].perLen - 0.500) < EPS)) || (placingZone->cellsAtBottom [2][0].objType == EUROFORM)) {
 		bShow = false;
 		bBeginFound = false;
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
@@ -3971,8 +3979,12 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 				moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				if (placingZone->cellsAtBottom [2][0].objType == EUROFORM)
 					moveIn3D ('y', pipe1.radAng, placingZone->cellsAtBottom [0][0].perLen, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
-				else
-					moveIn3D ('y', pipe1.radAng, placingZone->cellsAtBottom [0][0].perLen / 2, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				else {
+					if (abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS)
+						moveIn3D ('y', pipe1.radAng, placingZone->cellsAtBottom [0][0].perLen / 2, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+					else if (abs (placingZone->cellsAtBottom [0][0].perLen - 0.500) < EPS)
+						moveIn3D ('y', pipe1.radAng, 0.200, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+				}
 
 				while (remainLengthDouble > EPS) {
 					if (remainLengthDouble > 6.000)
@@ -4236,7 +4248,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	}
 
 	// 핀볼트 (하부-센터) 배치
-	if ((abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS) || (placingZone->cellsAtBottom [2][0].objType == EUROFORM)) {
+	if (((abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS) || (abs (placingZone->cellsAtBottom [0][0].perLen - 0.500) < EPS)) || (placingZone->cellsAtBottom [2][0].objType == EUROFORM)) {
 		for (xx = 0 ; xx < placingZone->nCells - 1 ; ++xx) {
 			pinbolt1.init (L("핀볼트세트v1.0.gsm"), layerInd_Pinbolt, infoBeam.floorInd, placingZone->cellsAtBottom [0][xx].leftBottomX, placingZone->cellsAtBottom [0][xx].leftBottomY, placingZone->cellsAtBottom [0][xx].leftBottomZ, placingZone->cellsAtBottom [0][xx].ang);
 
@@ -4245,8 +4257,12 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 
 			if (placingZone->cellsAtBottom [2][0].objType == EUROFORM)
 				moveIn3D ('y', pinbolt1.radAng, placingZone->cellsAtBottom [0][0].perLen, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
-			else
-				moveIn3D ('y', pinbolt1.radAng, placingZone->cellsAtBottom [0][0].perLen / 2, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			else {
+				if (abs (placingZone->cellsAtBottom [0][0].perLen - 0.600) < EPS)
+					moveIn3D ('y', pinbolt1.radAng, placingZone->cellsAtBottom [0][0].perLen / 2, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+				else
+					moveIn3D ('y', pinbolt1.radAng, 0.200, &pinbolt1.posX, &pinbolt1.posY, &pinbolt1.posZ);
+			}
 
 			// 현재 셀이 유로폼, 다음 셀이 유로폼일 경우
 			if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > EPS) && (placingZone->cellsAtBottom [0][xx].dirLen > EPS) && (placingZone->cellsAtBottom [0][xx+1].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx+1].perLen > EPS) && (placingZone->cellsAtBottom [0][xx+1].dirLen > EPS)) {

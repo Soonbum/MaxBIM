@@ -156,10 +156,10 @@ GSErrCode	placeTableformOnLowSide (void)
 		infoBeam.floorInd		= elem.header.floorInd;
 		infoBeam.begC			= elem.beam.begC;
 		infoBeam.endC			= elem.beam.endC;
-		infoBeam.height			= elem.beam.height;
+		infoBeam.height			= elem.beam.height;		// elem.beamSegment.assemblySegmentData.nominalHeight;
 		infoBeam.level			= elem.beam.level;
 		infoBeam.offset			= elem.beam.offset;
-		infoBeam.width			= elem.beam.width;
+		infoBeam.width			= elem.beam.width;		// elem.beamSegment.assemblySegmentData.nominalWidth;
 	}
 
 	// 슬래브 정보를 가져옴
