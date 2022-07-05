@@ -30,13 +30,13 @@ GSErrCode	select3DQuality (void)
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
 
-	result = DGAlert (DG_INFORMATION, "3D 품질/속도 조정하기", "3D 품질을 선택하십시오", "", "느림-고품질(32)", "중간(12)", "빠름-저품질(4)");
+	result = DGAlert (DG_INFORMATION, L"3D 품질/속도 조정하기", L"3D 품질을 선택하십시오", "", L"느림-고품질(32)", L"중간(12)", L"빠름-저품질(4)");
 
 	if (result == 1)		gs_resol = 32.0;
 	else if (result == 2)	gs_resol = 12.0;
 	else					gs_resol = 4.0;
 
-	result = DGAlert (DG_WARNING, "3D 품질/속도 조정하기", "계속 진행하시겠습니까?", "", "예", "아니오", "");
+	result = DGAlert (DG_WARNING, L"3D 품질/속도 조정하기", L"계속 진행하시겠습니까?", "", L"예", L"아니오", "");
 
 	if (result == DG_CANCEL)
 		return err;
@@ -192,25 +192,25 @@ short DGCALLBACK selectLayerHandler (short message, short dialogID, short item, 
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "3D 라벨의 레이어 선택하기");
+			DGSetDialogTitle (dialogID, L"3D 라벨의 레이어 선택하기");
 
 			// 확인 버튼
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_OK, "확인");
+			DGSetItemText (dialogID, DG_OK, L"확인");
 
 			// 취소 버튼
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGSetItemText (dialogID, DG_CANCEL, L"취소");
 
 			// 라벨
 			DGSetItemFont (dialogID, 3, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, 3, "모든 영역(Zone)에 라벨 객체를 배치하시겠습니까?");
+			DGSetItemText (dialogID, 3, L"모든 영역(Zone)에 라벨 객체를 배치하시겠습니까?");
 
 			DGSetItemFont (dialogID, 5, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, 5, "부재별 레이어 설정");
+			DGSetItemText (dialogID, 5, L"부재별 레이어 설정");
 
 			DGSetItemFont (dialogID, 6, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, 6, "라벨");
+			DGSetItemText (dialogID, 6, L"라벨");
 
 			// 유저 컨트롤 초기화
 			BNZeroMemory (&ucb, sizeof (ucb));
@@ -582,45 +582,45 @@ short DGCALLBACK setBubbleHandler (short message, short dialogID, short item, DG
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "원형 버블 설정하기");
+			DGSetDialogTitle (dialogID, L"원형 버블 설정하기");
 
 			// 확인 버튼
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_OK, "확인");
+			DGSetItemText (dialogID, DG_OK, L"확인");
 
 			// 취소 버튼
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGSetItemText (dialogID, DG_CANCEL, L"취소");
 
 			// 버블 직경
 			DGSetItemFont (dialogID, LABEL_DIAMETER, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_DIAMETER, "버블 직경");
+			DGSetItemText (dialogID, LABEL_DIAMETER, L"버블 직경");
 			DGSetItemValDouble (dialogID, EDITCONTROL_DIAMETER, 0.550);
 
 			// 글자 크기
 			DGSetItemFont (dialogID, LABEL_LETTER_SIZE, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_LETTER_SIZE, "글자 크기");
+			DGSetItemText (dialogID, LABEL_LETTER_SIZE, L"글자 크기");
 			DGSetItemValDouble (dialogID, EDITCONTROL_LETTER_SIZE, 0.200);
 
 			// 인출선 길이
 			DGSetItemFont (dialogID, LABEL_WITHDRAWAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_WITHDRAWAL_LENGTH, "인출선 길이");
+			DGSetItemText (dialogID, LABEL_WITHDRAWAL_LENGTH, L"인출선 길이");
 			DGSetItemValDouble (dialogID, EDITCONTROL_WITHDRAWAL_LENGTH, 0.700);
 
 			// 버블 위치
 			DGSetItemFont (dialogID, LABEL_BUBBLE_POS, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_BUBBLE_POS, "버블 위치");
+			DGSetItemText (dialogID, LABEL_BUBBLE_POS, L"버블 위치");
 			// 팝업 컨트롤의 항목을 한글로 변환
-			DGPopUpSetItemText (dialogID, POPUPCONTROL_BUBBLE_POS, 1, "상");
-			DGPopUpSetItemText (dialogID, POPUPCONTROL_BUBBLE_POS, 2, "하");
-			DGPopUpSetItemText (dialogID, POPUPCONTROL_BUBBLE_POS, 3, "좌");
-			DGPopUpSetItemText (dialogID, POPUPCONTROL_BUBBLE_POS, 4, "우");
+			DGPopUpSetItemText (dialogID, POPUPCONTROL_BUBBLE_POS, 1, L"상");
+			DGPopUpSetItemText (dialogID, POPUPCONTROL_BUBBLE_POS, 2, L"하");
+			DGPopUpSetItemText (dialogID, POPUPCONTROL_BUBBLE_POS, 3, L"좌");
+			DGPopUpSetItemText (dialogID, POPUPCONTROL_BUBBLE_POS, 4, L"우");
 
 			// 레이어 및 유저 컨트롤 초기화
 			DGSetItemFont (dialogID, LABEL_LAYER_SETTINGS, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, "레이어 설정");
+			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, L"레이어 설정");
 			DGSetItemFont (dialogID, LABEL_LAYER_CIRCULAR_BUBBLE, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_LAYER_CIRCULAR_BUBBLE, "원형 버블");
+			DGSetItemText (dialogID, LABEL_LAYER_CIRCULAR_BUBBLE, L"원형 버블");
 			BNZeroMemory (&ucb, sizeof (ucb));
 			ucb.dialogID = dialogID;
 			ucb.type	 = APIUserControlType_Layer;

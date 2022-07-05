@@ -1608,6 +1608,36 @@ GSErrCode	getGuidsOfSelection (GS::Array<API_Guid>* guidList, API_ElemTypeID ele
 	*nElem = guidList->GetSize ();
 
 	return	err;
+
+	// AC 25
+	//short			xx;
+	//long			nSel;
+	//GSErrCode		err;
+
+	//API_SelectionInfo	selectionInfo;
+	//API_Element			tElem;
+	//GS::Array<API_Neig> selNeigs;
+
+	//err = ACAPI_Selection_Get(&selectionInfo, &selNeigs, true);
+	//BMKillHandle((GSHandle*)&selectionInfo.marquee.coords);
+
+	//if (selectionInfo.typeID != API_SelEmpty) {
+	//	nSel = selNeigs.GetSize();
+	//	for (xx = 0; xx < nSel && err == NoError; ++xx) {
+	//		tElem.header.typeID = Neig_To_ElemID(selNeigs[xx].neigID);
+
+	//		tElem.header.guid = selNeigs[xx].guid;
+	//		if (ACAPI_Element_Get(&tElem) != NoError)	// 가져올 수 있는 요소인가?
+	//			continue;
+
+	//		if (tElem.header.typeID == elemType)
+	//			guidList->Push(tElem.header.guid);
+	//	}
+	//}
+
+	//*nElem = guidList->GetSize();
+
+	//return	err;
 }
 
 // 해당 층의 작업 층 고도를 가져옴
@@ -1714,6 +1744,16 @@ void	deleteElements (GS::Array<API_Element> elemList)
 	ACAPI_Element_Delete (&headList, nElems);
 
 	delete headList;
+
+	// AC 25
+	//short	xx;
+	//long	nElems = elemList.GetSize();
+
+	//GS::Array<API_Guid>	guidList;
+	//for (xx = 0; xx < nElems; ++xx)
+	//	guidList.Push(elemList[xx].header.guid);
+
+	//ACAPI_Element_Delete(guidList);
 }
 
 // 리스트에 있는 요소들을 모두 삭제함
@@ -1735,6 +1775,9 @@ void	deleteElements (GS::Array<API_Guid> elemList)
 	ACAPI_Element_Delete (&headList, nElems);
 
 	delete headList;
+
+	// AC 25
+	// ACAPI_Element_Delete(elemList);
 }
 // 리스트에 있는 요소들을 그룹화
 void	groupElements (GS::Array<API_Guid> elemList)
@@ -1751,6 +1794,9 @@ void	groupElements (GS::Array<API_Guid> elemList)
 			BMKillHandle ((GSHandle *) &elemHead);
 		}
 	}
+
+	// AC 25
+	//ACAPI_Element_Tool(elemList, APITool_Group, NULL);
 }
 
 // 리스트에 있는 요소들을 선택함
@@ -1770,6 +1816,19 @@ void	selectElements (GS::Array<API_Guid> elemList)
 	BMKillHandle (reinterpret_cast<GSHandle*> (&selNeig));
 
 	return;
+
+	// AC 25
+	//short		xx;
+	//short		selCount;
+	//API_Neig	item;
+	//GS::Array<API_Neig> selNeig;
+
+	//for (xx = 0; xx < elemList.GetSize(); ++xx) {
+	//	item.guid = elemList[xx];
+	//	selNeig.Push(item);
+	//}
+
+	//ACAPI_Element_Select(selNeig, true);
 }
 
 // 그룹화 일시정지 활성화/비활성화

@@ -2373,7 +2373,7 @@ GSErrCode	filterSelection (void)
 	ACAPI_Element_GetElemList (API_ShellID, &shells, APIFilt_OnVisLayer);	nShells = shells.GetSize ();	// 보이는 레이어 상의 셸 타입만 가져오기
 
 	if (nObjects == 0 && nWalls == 0 && nColumns == 0 && nBeams == 0 && nSlabs == 0 && nRoofs == 0 && nMeshes == 0 && nMorphs == 0 && nShells == 0) {
-		result = DGAlert (DG_INFORMATION, "종료 알림", "아무 객체도 존재하지 않습니다.", "", "확인", "", "");
+		result = DGAlert (DG_INFORMATION, L"종료 알림", L"아무 객체도 존재하지 않습니다.", "", L"확인", "", "");
 		return	err;
 	}
 
@@ -2381,7 +2381,7 @@ GSErrCode	filterSelection (void)
 	fp = fopen ("C:\\objectInfo.csv", "r");
 
 	if (fp == NULL) {
-		result = DGAlert (DG_WARNING, "파일 오류", "objectInfo.csv 파일을 C:\\로 복사하십시오.", "", "확인", "", "");
+		result = DGAlert (DG_ERROR, L"파일 오류", L"objectInfo.csv 파일을 C:\\로 복사하십시오.", "", L"확인", "", "");
 		return	err;
 	}
 
@@ -3442,7 +3442,7 @@ GSErrCode	calcTableformArea (void)
 	ACAPI_Interface (APIIo_InitProcessWindowID, &title, &nPhase);
 	ACAPI_Interface (APIIo_SetNextProcessPhaseID, &subtitle, &total);
 
-	sprintf (buffer, "안내: 면적 값의 단위는 m2(제곱미터)입니다.\n고려되는 객체: 유로폼, 합판, 아웃코너판넬, 인코너판넬, 변각인코너판넬, 인코너M형판넬, 목재\n\n");
+	sprintf (buffer, "안내: 면적 값의 단위는 m2(제곱미터)입니다.\n고려되는 객체: 유로폼 / 합판 / 아웃코너판넬 / 인코너판넬 / 변각인코너판넬 / 인코너M형판넬 / 목재\n\n");
 	fprintf (fp_unite, buffer);
 
 	// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 테이블폼의 면적 값을 가진 객체들의 변수 값을 가져와서 계산함
@@ -4913,30 +4913,30 @@ short DGCALLBACK filterSelectionHandler (short message, short dialogID, short it
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "선택한 타입의 객체 선택 후 보여주기");
+			DGSetDialogTitle (dialogID, L"선택한 타입의 객체 선택 후 보여주기");
 
 			// 확인 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 10, 80, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_OK, "확인");
+			DGSetItemText (dialogID, DG_OK, L"확인");
 			DGShowItem (dialogID, DG_OK);
 
 			// 취소 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 10, 80, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "취소");
+			DGSetItemText (dialogID, DG_CANCEL, L"취소");
 			DGShowItem (dialogID, DG_CANCEL);
 
 			// 버튼: 전체선택
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 20, 50, 80, 25);
 			DGSetItemFont (dialogID, BUTTON_ALL_SEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, BUTTON_ALL_SEL, "전체선택");
+			DGSetItemText (dialogID, BUTTON_ALL_SEL, L"전체선택");
 			DGShowItem (dialogID, BUTTON_ALL_SEL);
 
 			// 버튼: 전체선택 해제
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 120, 50, 80, 25);
 			DGSetItemFont (dialogID, BUTTON_ALL_UNSEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, BUTTON_ALL_UNSEL, "전체선택\n해제");
+			DGSetItemText (dialogID, BUTTON_ALL_UNSEL, L"전체선택\n해제");
 			DGShowItem (dialogID, BUTTON_ALL_UNSEL);
 
 			// 체크박스: 알려지지 않은 객체 포함
@@ -4960,56 +4960,56 @@ short DGCALLBACK filterSelectionHandler (short message, short dialogID, short it
 			if (visibleObjInfo.bExist_Walls == true) {
 				visibleObjInfo.itmIdx_Walls = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 190, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
-				DGSetItemText (dialogID, itmIdx, "벽");
+				DGSetItemText (dialogID, itmIdx, L"벽");
 				DGShowItem (dialogID, itmIdx);
 				itmPosY += 30;
 			}
 			if (visibleObjInfo.bExist_Columns == true) {
 				visibleObjInfo.itmIdx_Columns = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 190, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
-				DGSetItemText (dialogID, itmIdx, "기둥");
+				DGSetItemText (dialogID, itmIdx, L"기둥");
 				DGShowItem (dialogID, itmIdx);
 				itmPosY += 30;
 			}
 			if (visibleObjInfo.bExist_Beams == true) {
 				visibleObjInfo.itmIdx_Beams = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 190, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
-				DGSetItemText (dialogID, itmIdx, "보");
+				DGSetItemText (dialogID, itmIdx, L"보");
 				DGShowItem (dialogID, itmIdx);
 				itmPosY += 30;
 			}
 			if (visibleObjInfo.bExist_Slabs == true) {
 				visibleObjInfo.itmIdx_Slabs = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 190, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
-				DGSetItemText (dialogID, itmIdx, "슬래브");
+				DGSetItemText (dialogID, itmIdx, L"슬래브");
 				DGShowItem (dialogID, itmIdx);
 				itmPosY += 30;
 			}
 			if (visibleObjInfo.bExist_Roofs == true) {
 				visibleObjInfo.itmIdx_Roofs = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 190, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
-				DGSetItemText (dialogID, itmIdx, "루프");
+				DGSetItemText (dialogID, itmIdx, L"루프");
 				DGShowItem (dialogID, itmIdx);
 				itmPosY += 30;
 			}
 			if (visibleObjInfo.bExist_Meshes == true) {
 				visibleObjInfo.itmIdx_Meshes = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 190, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
-				DGSetItemText (dialogID, itmIdx, "메시");
+				DGSetItemText (dialogID, itmIdx, L"메시");
 				DGShowItem (dialogID, itmIdx);
 				itmPosY += 30;
 			}
 			if (visibleObjInfo.bExist_Morphs == true) {
 				visibleObjInfo.itmIdx_Morphs = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 190, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
-				DGSetItemText (dialogID, itmIdx, "모프");
+				DGSetItemText (dialogID, itmIdx, L"모프");
 				DGShowItem (dialogID, itmIdx);
 				itmPosY += 30;
 			}
 			if (visibleObjInfo.bExist_Shells == true) {
 				visibleObjInfo.itmIdx_Shells = itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_TEXT, 0, itmPosX, itmPosY, 190, 25);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_BOLD);
-				DGSetItemText (dialogID, itmIdx, "셸");
+				DGSetItemText (dialogID, itmIdx, L"셸");
 				DGShowItem (dialogID, itmIdx);
 				itmPosY += 30;
 			}
@@ -5128,30 +5128,30 @@ short DGCALLBACK scaleQuestionHandler (short message, short dialogID, short item
 	switch (message) {
 		case DG_MSG_INIT:
 			// 다이얼로그 타이틀
-			DGSetDialogTitle (dialogID, "입면도 축척값 입력하기");
+			DGSetDialogTitle (dialogID, L"입면도 축척값 입력하기");
 
 			// 적용 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 70, 110, 70, 25);
 			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_OK, "예");
+			DGSetItemText (dialogID, DG_OK, L"예");
 			DGShowItem (dialogID, DG_OK);
 
 			// 종료 버튼
 			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 160, 110, 70, 25);
 			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, DG_CANCEL, "아니오");
+			DGSetItemText (dialogID, DG_CANCEL, L"아니오");
 			DGShowItem (dialogID, DG_CANCEL);
 
 			// 라벨: 안내문
 			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 30, 15, 200, 25);
 			DGSetItemFont (dialogID, idxItem, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, idxItem, "입면도의 축척을 변경하시겠습니까?\n값이 작아질수록 도면이 확대됩니다.");
+			DGSetItemText (dialogID, idxItem, L"입면도의 축척을 변경하시겠습니까?\n값이 작아질수록 도면이 확대됩니다.");
 			DGShowItem (dialogID, idxItem);
 
 			// 라벨: 축척
 			idxItem = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 130, 60, 30, 23);
 			DGSetItemFont (dialogID, idxItem, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, idxItem, "1 : ");
+			DGSetItemText (dialogID, idxItem, L"1 : ");
 			DGShowItem (dialogID, idxItem);
 
 			// Edit 컨트롤: 축척

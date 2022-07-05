@@ -61,11 +61,11 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 	char			floorName [256];
 
 	
-	err = ACAPI_CallUndoableCommand ("물량합판 부착하기", [&] () -> GSErrCode {
+	err = ACAPI_CallUndoableCommand (L"물량합판 부착하기", [&] () -> GSErrCode {
 		switch (message) {
 			case DG_MSG_INIT:
 				// 라벨
-				DGSetItemText (dialID, LABEL_EXPLANATION_QELEM, "3점 클릭: 직사각형, 5점 클릭: 창문형");
+				DGSetItemText (dialID, LABEL_EXPLANATION_QELEM, L"3점 클릭: 직사각형, 5점 클릭: 창문형");
 
 				// 레이어
 				BNZeroMemory (&ucb, sizeof (ucb));
@@ -120,8 +120,8 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 				BMKillHandle ((GSHandle *) &storyInfo.data);
 
 				// 버튼
-				DGSetItemText (dialID, BUTTON_DRAW_RECT_QELEM, "물량합판 그리기\n(직사각형)");
-				DGSetItemText (dialID, BUTTON_DRAW_WINDOW_QELEM, "물량합판 그리기\n(창문형)");
+				DGSetItemText (dialID, BUTTON_DRAW_RECT_QELEM, L"물량합판 그리기\n(직사각형)");
+				DGSetItemText (dialID, BUTTON_DRAW_WINDOW_QELEM, L"물량합판 그리기\n(창문형)");
 
 				// 레이어 정보 저장
 				qElemInfo.layerInd = (short)DGGetItemValLong (dialID, USERCONTROL_QPLYWOOD_LAYER);
@@ -688,18 +688,18 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 	char			floorName [256];
 
 	
-	err = ACAPI_CallUndoableCommand ("단열재 부착하기", [&] () -> GSErrCode {
+	err = ACAPI_CallUndoableCommand (L"단열재 부착하기", [&] () -> GSErrCode {
 		switch (message) {
 			case DG_MSG_INIT:
 				// 라벨
-				DGSetItemText (dialID, LABEL_EXPLANATION_INS, "3점 클릭: 직사각형");
-				DGSetItemText (dialID, LABEL_INSULATION_THK, "두께");
-				DGSetItemText (dialID, LABEL_INS_HORLEN, "가로");
-				DGSetItemText (dialID, LABEL_INS_VERLEN, "세로");
-				DGSetItemText (dialID, LABEL_FLOOR_INS, "층 선택");
+				DGSetItemText (dialID, LABEL_EXPLANATION_INS, L"3점 클릭: 직사각형");
+				DGSetItemText (dialID, LABEL_INSULATION_THK, L"두께");
+				DGSetItemText (dialID, LABEL_INS_HORLEN, L"가로");
+				DGSetItemText (dialID, LABEL_INS_VERLEN, L"세로");
+				DGSetItemText (dialID, LABEL_FLOOR_INS, L"층 선택");
 
 				// 체크박스
-				DGSetItemText (dialID, CHECKBOX_INS_LIMIT_SIZE, "가로/세로 크기 제한");
+				DGSetItemText (dialID, CHECKBOX_INS_LIMIT_SIZE, L"가로/세로 크기 제한");
 				DGSetItemValLong (dialID, CHECKBOX_INS_LIMIT_SIZE, TRUE);
 
 				// Edit 컨트롤
@@ -716,7 +716,7 @@ static short DGCALLBACK insulElemDlgCallBack (short message, short dialID, short
 				DGSetItemValLong (dialID, USERCONTROL_INSULATION_LAYER, 1);
 
 				// 버튼
-				DGSetItemText (dialID, BUTTON_DRAW_INSULATION, "단열재 그리기");
+				DGSetItemText (dialID, BUTTON_DRAW_INSULATION, L"단열재 그리기");
 
 				// 층 정보 저장
 				BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
