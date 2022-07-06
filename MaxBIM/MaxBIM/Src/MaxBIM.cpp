@@ -308,6 +308,10 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					//err = ACAPI_CallUndoableCommand (L"개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
+						wchar_t* str1 = charToWchar ("일반 문자열을 와이드 문자열로");
+						char* str2 = wcharToChar (L"와이드 문자열을 일반 문자열로");
+
+						DGAlert (DG_INFORMATION, "테스트", str1, str2, "확인", "", "");
 						// *** 원하는 코드를 위에 넣으시오.
 						return err;
 					//});

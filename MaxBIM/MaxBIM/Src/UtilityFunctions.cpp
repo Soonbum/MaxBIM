@@ -494,6 +494,30 @@ char*	getResourceStr (short resID, short index)
 	return str;
 }
 
+// char형 문자열을 wchar_t형 문자열로 변환
+wchar_t*	charToWchar (const char *str)
+{
+	static wchar_t retStr [512];
+
+	int strSize = MultiByteToWideChar (CP_ACP, 0, str, -1, NULL, NULL);
+
+	MultiByteToWideChar (CP_ACP, 0, str, strlen(str)+1, retStr, strSize);
+
+	return retStr;
+}
+
+// wchar_t형 문자열을 char형 문자열로 변환
+char*		wcharToChar (const wchar_t *wstr)
+{
+	static char retStr [512];
+
+	int strSize = WideCharToMultiByte (CP_ACP, 0, wstr, -1, NULL, 0, NULL, NULL);
+
+	WideCharToMultiByte (CP_ACP, 0, wstr, -1, retStr, strSize, 0, 0);
+
+	return retStr;
+}
+
 ////////////////////////////////////////////////// 객체 배치
 // 좌표 라벨을 배치함
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment, std::string comment, short layerInd, short floorInd)
