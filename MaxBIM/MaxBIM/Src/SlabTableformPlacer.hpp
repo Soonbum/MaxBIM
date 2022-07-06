@@ -7,25 +7,25 @@ namespace slabTableformPlacerDG {
 	// 객체 타입
 	enum	libPartObjType {
 		NONE,				// 없음
-		EUROFORM,			// 유로폼
-		TABLEFORM,			// 슬래브 테이블폼 (콘판넬)
-		PLYWOOD				// 합판
+		CONPANEL,			// 콘판넬
+		PLYWOOD,			// 합판
+		EUROFORM			// 유로폼
 	};
 
 	// 다이얼로그 항목 인덱스
 	enum	idxItems_1_forSlabBottomTableformPlacer {
 		LABEL_SELECT_TYPE = 3,
-		PUSHRADIO_EUROFORM,
-		PUSHRADIO_TABLEFORM,
+		PUSHRADIO_CONPANEL,
 		PUSHRADIO_PLYWOOD,
+		PUSHRADIO_EUROFORM,
 
-		LABEL_CELL_SETTINGS,
-		LABEL_TABLEFORM_WIDTH,
-		POPUP_TABLEFORM_WIDTH,
-		LABEL_TABLEFORM_HEIGHT,
-		POPUP_TABLEFORM_HEIGHT,
-		LABEL_TABLEFORM_ORIENTATION,
-		POPUP_TABLEFORM_ORIENTATION,
+		LABEL_OTHER_SETTINGS,
+		LABEL_JOIST_DIRECTION,
+		POPUP_JOIST_DIRECTION,
+		LABEL_YOKE_TYPE,
+		POPUP_YOKE_TYPE,
+		LABEL_SUPPORTING_POST_TYPE,
+		POPUP_SUPPORTING_POST_TYPE,
 
 		SEPARATOR_1,
 		LABEL_GAP_LENGTH,
@@ -36,7 +36,7 @@ namespace slabTableformPlacerDG {
 		LABEL_LAYER_SETTINGS,
 		CHECKBOX_LAYER_COUPLING,
 		LABEL_LAYER_EUROFORM,
-		LABEL_LAYER_SLABTABLEFORM,
+		LABEL_LAYER_CONPANEL,
 		LABEL_LAYER_PLYWOOD,
 		LABEL_LAYER_TIMBER,
 		LABEL_LAYER_CPROFILE,
@@ -47,7 +47,7 @@ namespace slabTableformPlacerDG {
 		LABEL_LAYER_STEEL_SUPPORT,
 
 		USERCONTROL_LAYER_EUROFORM,
-		USERCONTROL_LAYER_SLABTABLEFORM,
+		USERCONTROL_LAYER_CONPANEL,
 		USERCONTROL_LAYER_PLYWOOD,
 		USERCONTROL_LAYER_TIMBER,
 		USERCONTROL_LAYER_CPROFILE,
@@ -58,6 +58,21 @@ namespace slabTableformPlacerDG {
 		USERCONTROL_LAYER_STEEL_SUPPORT,
 
 		BUTTON_AUTOSET
+	};
+
+	enum	idxItems_JoistDirection_forSlabBottomTableformPlacer {
+		HORIZONTAL = 1,
+		VERTICAL
+	};
+
+	enum	idxItems_Yoke_forSlabBottomTableformPlacer {
+		GT24_GIRDER = 1,
+		SANSUNGAK
+	};
+
+	enum	idxItems_SupportingPostType_forSlabBottomTableformPlacer {
+		SUPPORT = 1,
+		PERI
 	};
 
 	enum	idxItems_2_forSlabBottomTableformPlacer {
@@ -115,9 +130,12 @@ public:
 	double	level;				// 고도
 	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
 
-	short	iTableformType;		// 테이블폼 타입 (1: 유로폼, 2: 콘판넬 테이블폼, 3: 합판)
+	short	iTableformType;		// 테이블폼 타입 (1: 콘판넬, 2: 합판, 3: 유로폼)
+	short	iJoistDirection;	// 장선방향 (1: 가로, 2: 세로)
+	short	iYokeType;			// 멍에제 종류 (1: GT24 거더, 2: 산승각)
+	short	iSuppPostType;		// 동바리 종류 (1: 서포트(강관동바리), 2: PERI수직재(PERI동바리))
+
 	double	gap;				// 슬래브와의 간격
-	bool	bVertical;			// true이면 세로 방향, false이면 가로 방향
 	bool	bRectangleArea;		// 직사각형 모프이면 true, 꺾인 모서리 모프이면 false
 
 	double	borderHorLen;		// 최외곽 가로 길이

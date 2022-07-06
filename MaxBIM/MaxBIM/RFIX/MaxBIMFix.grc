@@ -115,17 +115,17 @@
 /* [  2] */	Button			210		605		 70		 25		LargePlain		"Cancel"
 
 /* [  3] */	LeftText		 20		 10		100		 23		LargePlain		"Select Type"
-/* [  4] */	PushRadio		 20		 33		100		 25		LargePlain		101		"Euroform"
-/* [  5] */	PushRadio		 20		 63		100		 25		LargePlain		101		"Tableform"
-/* [  6] */	PushRadio		 20		 93		100		 25		LargePlain		101		"Plywood"
+/* [  4] */	PushRadio		 20		 33		100		 25		LargePlain		101		"Con Panel"
+/* [  5] */	PushRadio		 20		 63		100		 25		LargePlain		101		"Plywood"
+/* [  6] */	PushRadio		 20		 93		100		 25		LargePlain		101		"Euroform"
 
-/* [  7] */	LeftText		160		 10		300		 23		LargePlain		"Cell Settings"
-/* [  8] */	LeftText		160		 40		 70		 23		LargePlain		"Width"
-/* [  9] */	PopupControl	250		 33		100		 25		200		10		/* 너비 */
-/* [ 10] */	LeftText		160		 70		 70		 23		LargePlain		"Height"
-/* [ 11] */	PopupControl	250		 63		100		 25		100		10		/* 높이 */
-/* [ 12] */	LeftText		160		100		 70		 23		LargePlain		"Orientation"
-/* [ 13] */	PopupControl	250		 93		100		 25		100		10		/* 설치방향 */
+/* [  7] */	LeftText		160		 10		300		 23		LargePlain		"Other Settings"
+/* [  8] */	LeftText		160		 40		 70		 23		LargePlain		"Joist Direction"
+/* [  9] */	PopupControl	250		 33		110		 25		200		10		/* 장선방향 */
+/* [ 10] */	LeftText		160		 70		 70		 23		LargePlain		"Yoke Type"
+/* [ 11] */	PopupControl	250		 63		110		 25		100		10		/* 멍에제 종류 */
+/* [ 12] */	LeftText		160		100		 70		 23		LargePlain		"Supporting Post Type"
+/* [ 13] */	PopupControl	250		 93		110		 25		100		10		/* 동바리 종류 */
 
 /* [ 14] */	Separator		  5		130		370		  1
 /* [ 15] */	RightText		 10		145		100		 23		LargePlain		"Gap from Slab"
