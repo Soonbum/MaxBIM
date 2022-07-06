@@ -1334,7 +1334,8 @@ bool	setParameterByName (API_ElementMemo* memo, char* pName, char* value)
 		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
 		if (retStr != NULL) {
 			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
-				GS::ucscpy (memo->params [0][xx].value.uStr, GS::UniString (value).ToUStr ().Get ());
+				//GS::ucscpy (memo->params [0][xx].value.uStr, GS::UniString (value).ToUStr ().Get ());
+				GS::ucscpy (memo->params [0][xx].value.uStr, charToWchar (value));
 				return	true;
 			}
 		} else {
@@ -1864,4 +1865,13 @@ void		suspendGroups (bool on)
 
 	if ((suspGrp == false) && (on == true))		ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
 	if ((suspGrp == true) && (on == false))		ACAPI_Element_Tool (NULL, NULL, APITool_SuspendGroups, NULL);
+
+	// AC 25
+	//bool	suspGrp;
+	//GS::Array<API_Guid>	elemList;
+
+	//ACAPI_Environment(APIEnv_IsSuspendGroupOnID, &suspGrp);	// 그룹화 일시정지 상태 여부 가져옴
+
+	//if ((suspGrp == false) && (on == true))		ACAPI_Element_Tool(elemList, APITool_SuspendGroups, NULL);
+	//if ((suspGrp == true) && (on == false))		ACAPI_Element_Tool(elemList, APITool_SuspendGroups, NULL);
 }
