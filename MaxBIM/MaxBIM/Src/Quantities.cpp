@@ -77,31 +77,31 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 
 				// 팝업 컨트롤 (물량합판 타입)
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "보");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"보");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "기둥(독립)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"기둥(독립)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "기둥(벽체)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"기둥(벽체)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(내벽)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"벽체(내벽)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(외벽)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"벽체(외벽)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(합벽)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"벽체(합벽)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(파라펫)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"벽체(파라펫)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "벽체(방수턱)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"벽체(방수턱)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(기초)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"슬래브(기초)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(RC)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"슬래브(RC)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(데크)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"슬래브(데크)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "슬래브(램프)");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"슬래브(램프)");
 				DGPopUpInsertItem (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM);
-				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, "계단");
+				DGPopUpSetItemText (dialID, POPUP_QPLYWOOD_TYPE, DG_POPUP_BOTTOM, L"계단");
 
 				// 층 정보 저장
 				BNZeroMemory (&storyInfo, sizeof (API_StoryInfo));
@@ -127,43 +127,43 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 				qElemInfo.layerInd = (short)DGGetItemValLong (dialID, USERCONTROL_QPLYWOOD_LAYER);
 
 				// 분류 정보 저장
-				if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "보") == 0) {
+				if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_BEAM) {
 					strcpy (qElemInfo.m_type, "보");
 					qElemInfo.panel_mat = 78;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "기둥(독립)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_COLUMN_ISOLATION) {
 					strcpy (qElemInfo.m_type, "기둥(독립)");
 					qElemInfo.panel_mat = 20;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "기둥(벽체)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_COLUMN_IN_WALL) {
 					strcpy (qElemInfo.m_type, "기둥(벽체)");
 					qElemInfo.panel_mat = 77;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(내벽)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_WALL_INSIDE) {
 					strcpy (qElemInfo.m_type, "벽체(내벽)");
 					qElemInfo.panel_mat = 75;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(외벽)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_WALL_OUTSIDE) {
 					strcpy (qElemInfo.m_type, "벽체(외벽)");
 					qElemInfo.panel_mat = 76;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(합벽)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_WALL_DOUBLE) {
 					strcpy (qElemInfo.m_type, "벽체(합벽)");
 					qElemInfo.panel_mat = 72;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(파라펫)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_WALL_PARAPET) {
 					strcpy (qElemInfo.m_type, "벽체(파라펫)");
 					qElemInfo.panel_mat = 32;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(방수턱)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_WALL_WATERBLOCK) {
 					strcpy (qElemInfo.m_type, "벽체(방수턱)");
 					qElemInfo.panel_mat = 12;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(기초)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_SLAB_BASE) {
 					strcpy (qElemInfo.m_type, "스라브(기초)");
 					qElemInfo.panel_mat = 66;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(RC)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_SLAB_RC) {
 					strcpy (qElemInfo.m_type, "스라브(RC)");
 					qElemInfo.panel_mat = 100;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(데크)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_SLAB_DECK) {
 					strcpy (qElemInfo.m_type, "스라브(데크)");
 					qElemInfo.panel_mat = 99;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(램프)") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_SLAB_RAMP) {
 					strcpy (qElemInfo.m_type, "스라브(램프)");
 					qElemInfo.panel_mat = 3;
-				} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "계단") == 0) {
+				} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_STAIR) {
 					strcpy (qElemInfo.m_type, "계단");
 					qElemInfo.panel_mat = 73;
 				}
@@ -184,43 +184,43 @@ static short DGCALLBACK qElemDlgCallBack (short message, short dialID, short ite
 						break;
 
 					case POPUP_QPLYWOOD_TYPE:
-						if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "보") == 0) {
+						if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_BEAM) {
 							strcpy (qElemInfo.m_type, "보");
 							qElemInfo.panel_mat = 78;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "기둥(독립)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_COLUMN_ISOLATION) {
 							strcpy (qElemInfo.m_type, "기둥(독립)");
 							qElemInfo.panel_mat = 20;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "기둥(벽체)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_COLUMN_IN_WALL) {
 							strcpy (qElemInfo.m_type, "기둥(벽체)");
 							qElemInfo.panel_mat = 77;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(내벽)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_WALL_INSIDE) {
 							strcpy (qElemInfo.m_type, "벽체(내벽)");
 							qElemInfo.panel_mat = 75;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(외벽)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_WALL_OUTSIDE) {
 							strcpy (qElemInfo.m_type, "벽체(외벽)");
 							qElemInfo.panel_mat = 76;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(합벽)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_WALL_DOUBLE) {
 							strcpy (qElemInfo.m_type, "벽체(합벽)");
 							qElemInfo.panel_mat = 72;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(파라펫)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_WALL_PARAPET) {
 							strcpy (qElemInfo.m_type, "벽체(파라펫)");
 							qElemInfo.panel_mat = 32;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "벽체(방수턱)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_WALL_WATERBLOCK) {
 							strcpy (qElemInfo.m_type, "벽체(방수턱)");
 							qElemInfo.panel_mat = 12;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(기초)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_SLAB_BASE) {
 							strcpy (qElemInfo.m_type, "스라브(기초)");
 							qElemInfo.panel_mat = 66;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(RC)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_SLAB_RC) {
 							strcpy (qElemInfo.m_type, "스라브(RC)");
 							qElemInfo.panel_mat = 100;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(데크)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_SLAB_DECK) {
 							strcpy (qElemInfo.m_type, "스라브(데크)");
 							qElemInfo.panel_mat = 99;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "슬래브(램프)") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_SLAB_RAMP) {
 							strcpy (qElemInfo.m_type, "스라브(램프)");
 							qElemInfo.panel_mat = 3;
-						} else if (my_strcmp (DGPopUpGetItemText (dialID, POPUP_QPLYWOOD_TYPE, static_cast<short>(DGGetItemValLong (dialID, POPUP_QPLYWOOD_TYPE))).ToCStr ().Get (), "계단") == 0) {
+						} else if (DGPopUpGetSelected (dialID, POPUP_QPLYWOOD_TYPE) == TYPE_STAIR) {
 							strcpy (qElemInfo.m_type, "계단");
 							qElemInfo.panel_mat = 73;
 						}

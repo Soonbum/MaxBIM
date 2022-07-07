@@ -385,8 +385,16 @@ SECOND:
 	// 단열재 채우기
 	std::wstring title;
 
-	if (placingZone.gapSide > EPS) {
-		title = L"단열재 배치 (보 측면)";
+	if (placingZone.gapSideLeft > EPS) {
+		title = L"단열재 배치 (보 좌측면)";
+		result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), beamTableformPlacerHandler4_Insulation, (DGUserData) &title);
+		
+		if (result == DG_OK)
+			placingZone.placeInsulationsSide (&placingZone, &infoBeam, &insulElem, false);
+	}
+
+	if (placingZone.gapSideRight > EPS) {
+		title = L"단열재 배치 (보 우측면)";
 		result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), beamTableformPlacerHandler4_Insulation, (DGUserData) &title);
 		
 		if (result == DG_OK)
@@ -521,124 +529,124 @@ void	BeamTableformPlacingZone::alignPlacingZone (BeamTableformPlacingZone* placi
 
 	// 좌측 합판
 	placingZone->beginCellAtLSide.ang = placingZone->ang;
-	placingZone->beginCellAtLSide.leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-	placingZone->beginCellAtLSide.leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+	placingZone->beginCellAtLSide.leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+	placingZone->beginCellAtLSide.leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 	placingZone->beginCellAtLSide.leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 
 	placingZone->beginCellAtRSide.ang = placingZone->ang;
-	placingZone->beginCellAtRSide.leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-	placingZone->beginCellAtRSide.leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+	placingZone->beginCellAtRSide.leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+	placingZone->beginCellAtRSide.leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 	placingZone->beginCellAtRSide.leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
-	moveIn3D ('y', placingZone->beginCellAtRSide.ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->beginCellAtRSide.leftBottomX, &placingZone->beginCellAtRSide.leftBottomY, &placingZone->beginCellAtRSide.leftBottomZ);
+	moveIn3D ('y', placingZone->beginCellAtRSide.ang, placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight), &placingZone->beginCellAtRSide.leftBottomX, &placingZone->beginCellAtRSide.leftBottomY, &placingZone->beginCellAtRSide.leftBottomZ);
 
 	placingZone->beginCellAtBottom.ang = placingZone->ang;
-	placingZone->beginCellAtBottom.leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-	placingZone->beginCellAtBottom.leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+	placingZone->beginCellAtBottom.leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+	placingZone->beginCellAtBottom.leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 	placingZone->beginCellAtBottom.leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 
 	// 우측 합판
 	placingZone->endCellAtLSide.ang = placingZone->ang;
-	placingZone->endCellAtLSide.leftBottomX = placingZone->endC.x + (placingZone->gapSide * sin(placingZone->ang));
-	placingZone->endCellAtLSide.leftBottomY = placingZone->endC.y - (placingZone->gapSide * cos(placingZone->ang));
+	placingZone->endCellAtLSide.leftBottomX = placingZone->endC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+	placingZone->endCellAtLSide.leftBottomY = placingZone->endC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 	placingZone->endCellAtLSide.leftBottomZ = placingZone->endC.z - placingZone->gapBottom;
 
 	placingZone->endCellAtRSide.ang = placingZone->ang;
-	placingZone->endCellAtRSide.leftBottomX = placingZone->endC.x + (placingZone->gapSide * sin(placingZone->ang));
-	placingZone->endCellAtRSide.leftBottomY = placingZone->endC.y - (placingZone->gapSide * cos(placingZone->ang));
+	placingZone->endCellAtRSide.leftBottomX = placingZone->endC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+	placingZone->endCellAtRSide.leftBottomY = placingZone->endC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 	placingZone->endCellAtRSide.leftBottomZ = placingZone->endC.z - placingZone->gapBottom;
-	moveIn3D ('y', placingZone->endCellAtRSide.ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->endCellAtRSide.leftBottomX, &placingZone->endCellAtRSide.leftBottomY, &placingZone->endCellAtRSide.leftBottomZ);
+	moveIn3D ('y', placingZone->endCellAtRSide.ang, placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight), &placingZone->endCellAtRSide.leftBottomX, &placingZone->endCellAtRSide.leftBottomY, &placingZone->endCellAtRSide.leftBottomZ);
 
 	placingZone->endCellAtBottom.ang = placingZone->ang;
-	placingZone->endCellAtBottom.leftBottomX = placingZone->endC.x + (placingZone->gapSide * sin(placingZone->ang));
-	placingZone->endCellAtBottom.leftBottomY = placingZone->endC.y - (placingZone->gapSide * cos(placingZone->ang));
+	placingZone->endCellAtBottom.leftBottomX = placingZone->endC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+	placingZone->endCellAtBottom.leftBottomY = placingZone->endC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 	placingZone->endCellAtBottom.leftBottomZ = placingZone->endC.z - placingZone->gapBottom;
 
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
 		// 측면 (아래쪽 유로폼 라인)
 		placingZone->cellsAtLSide [0][xx].ang = placingZone->ang;
-		placingZone->cellsAtLSide [0][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtLSide [0][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtLSide [0][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtLSide [0][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtLSide [0][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 		moveIn3DSlope ('x', placingZone->cellsAtLSide [0][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtLSide [0][xx].leftBottomX, &placingZone->cellsAtLSide [0][xx].leftBottomY, &placingZone->cellsAtLSide [0][xx].leftBottomZ);
 
 		placingZone->cellsAtRSide [0][xx].ang = placingZone->ang;
-		placingZone->cellsAtRSide [0][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtRSide [0][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtRSide [0][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtRSide [0][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtRSide [0][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
-		moveIn3D ('y', placingZone->cellsAtRSide [0][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->cellsAtRSide [0][xx].leftBottomX, &placingZone->cellsAtRSide [0][xx].leftBottomY, &placingZone->cellsAtRSide [0][xx].leftBottomZ);
+		moveIn3D ('y', placingZone->cellsAtRSide [0][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight), &placingZone->cellsAtRSide [0][xx].leftBottomX, &placingZone->cellsAtRSide [0][xx].leftBottomY, &placingZone->cellsAtRSide [0][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtRSide [0][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtRSide [0][xx].leftBottomX, &placingZone->cellsAtRSide [0][xx].leftBottomY, &placingZone->cellsAtRSide [0][xx].leftBottomZ);
 
 		// 측면 (휠러스페이서 라인)
 		placingZone->cellsAtLSide [1][xx].ang = placingZone->ang;
-		placingZone->cellsAtLSide [1][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtLSide [1][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtLSide [1][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtLSide [1][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtLSide [1][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 		moveIn3D ('z', placingZone->cellsAtLSide [1][xx].ang, (placingZone->cellsAtLSide [0][xx].perLen) * cos (placingZone->slantAngle), &placingZone->cellsAtLSide [1][xx].leftBottomX, &placingZone->cellsAtLSide [1][xx].leftBottomY, &placingZone->cellsAtLSide [1][xx].leftBottomZ);
 		moveIn3D ('x', placingZone->cellsAtLSide [1][xx].ang, -(placingZone->cellsAtLSide [0][xx].perLen) * sin (placingZone->slantAngle), &placingZone->cellsAtLSide [1][xx].leftBottomX, &placingZone->cellsAtLSide [1][xx].leftBottomY, &placingZone->cellsAtLSide [1][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtLSide [1][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtLSide [1][xx].leftBottomX, &placingZone->cellsAtLSide [1][xx].leftBottomY, &placingZone->cellsAtLSide [1][xx].leftBottomZ);
 
 		placingZone->cellsAtRSide [1][xx].ang = placingZone->ang;
-		placingZone->cellsAtRSide [1][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtRSide [1][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtRSide [1][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtRSide [1][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtRSide [1][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
-		moveIn3D ('y', placingZone->cellsAtRSide [1][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->cellsAtRSide [1][xx].leftBottomX, &placingZone->cellsAtRSide [1][xx].leftBottomY, &placingZone->cellsAtRSide [1][xx].leftBottomZ);
+		moveIn3D ('y', placingZone->cellsAtRSide [1][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight), &placingZone->cellsAtRSide [1][xx].leftBottomX, &placingZone->cellsAtRSide [1][xx].leftBottomY, &placingZone->cellsAtRSide [1][xx].leftBottomZ);
 		moveIn3D ('z', placingZone->cellsAtRSide [1][xx].ang, (placingZone->cellsAtRSide [0][xx].perLen) * cos (placingZone->slantAngle), &placingZone->cellsAtRSide [1][xx].leftBottomX, &placingZone->cellsAtRSide [1][xx].leftBottomY, &placingZone->cellsAtRSide [1][xx].leftBottomZ);
 		moveIn3D ('x', placingZone->cellsAtRSide [1][xx].ang, -(placingZone->cellsAtRSide [0][xx].perLen) * sin (placingZone->slantAngle), &placingZone->cellsAtRSide [1][xx].leftBottomX, &placingZone->cellsAtRSide [1][xx].leftBottomY, &placingZone->cellsAtRSide [1][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtRSide [1][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtRSide [1][xx].leftBottomX, &placingZone->cellsAtRSide [1][xx].leftBottomY, &placingZone->cellsAtRSide [1][xx].leftBottomZ);
 
 		// 측면 (위쪽 유로폼 라인)
 		placingZone->cellsAtLSide [2][xx].ang = placingZone->ang;
-		placingZone->cellsAtLSide [2][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtLSide [2][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtLSide [2][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtLSide [2][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtLSide [2][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 		moveIn3D ('z', placingZone->cellsAtLSide [2][xx].ang, (placingZone->cellsAtLSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen) * cos (placingZone->slantAngle), &placingZone->cellsAtLSide [2][xx].leftBottomX, &placingZone->cellsAtLSide [2][xx].leftBottomY, &placingZone->cellsAtLSide [2][xx].leftBottomZ);
 		moveIn3D ('x', placingZone->cellsAtLSide [2][xx].ang, -(placingZone->cellsAtLSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen) * sin (placingZone->slantAngle), &placingZone->cellsAtLSide [2][xx].leftBottomX, &placingZone->cellsAtLSide [2][xx].leftBottomY, &placingZone->cellsAtLSide [2][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtLSide [2][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtLSide [2][xx].leftBottomX, &placingZone->cellsAtLSide [2][xx].leftBottomY, &placingZone->cellsAtLSide [2][xx].leftBottomZ);
 
 		placingZone->cellsAtRSide [2][xx].ang = placingZone->ang;
-		placingZone->cellsAtRSide [2][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtRSide [2][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtRSide [2][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtRSide [2][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtRSide [2][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
-		moveIn3D ('y', placingZone->cellsAtRSide [2][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->cellsAtRSide [2][xx].leftBottomX, &placingZone->cellsAtRSide [2][xx].leftBottomY, &placingZone->cellsAtRSide [2][xx].leftBottomZ);
+		moveIn3D ('y', placingZone->cellsAtRSide [2][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight), &placingZone->cellsAtRSide [2][xx].leftBottomX, &placingZone->cellsAtRSide [2][xx].leftBottomY, &placingZone->cellsAtRSide [2][xx].leftBottomZ);
 		moveIn3D ('z', placingZone->cellsAtRSide [2][xx].ang, (placingZone->cellsAtRSide [0][xx].perLen + placingZone->cellsAtRSide [1][xx].perLen) * cos (placingZone->slantAngle), &placingZone->cellsAtRSide [2][xx].leftBottomX, &placingZone->cellsAtRSide [2][xx].leftBottomY, &placingZone->cellsAtRSide [2][xx].leftBottomZ);
 		moveIn3D ('x', placingZone->cellsAtRSide [2][xx].ang, -(placingZone->cellsAtRSide [0][xx].perLen + placingZone->cellsAtRSide [1][xx].perLen) * sin (placingZone->slantAngle), &placingZone->cellsAtRSide [2][xx].leftBottomX, &placingZone->cellsAtRSide [2][xx].leftBottomY, &placingZone->cellsAtRSide [2][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtRSide [2][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtRSide [2][xx].leftBottomX, &placingZone->cellsAtRSide [2][xx].leftBottomY, &placingZone->cellsAtRSide [2][xx].leftBottomZ);
 
 		// 측면 (각재 라인)
 		placingZone->cellsAtLSide [3][xx].ang = placingZone->ang;
-		placingZone->cellsAtLSide [3][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtLSide [3][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtLSide [3][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtLSide [3][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtLSide [3][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 		moveIn3D ('z', placingZone->cellsAtLSide [3][xx].ang, (placingZone->cellsAtLSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen + placingZone->cellsAtLSide [2][xx].perLen) * cos (placingZone->slantAngle), &placingZone->cellsAtLSide [3][xx].leftBottomX, &placingZone->cellsAtLSide [3][xx].leftBottomY, &placingZone->cellsAtLSide [3][xx].leftBottomZ);
 		moveIn3D ('x', placingZone->cellsAtLSide [3][xx].ang, -(placingZone->cellsAtLSide [0][xx].perLen + placingZone->cellsAtLSide [1][xx].perLen + placingZone->cellsAtLSide [2][xx].perLen) * sin (placingZone->slantAngle), &placingZone->cellsAtLSide [3][xx].leftBottomX, &placingZone->cellsAtLSide [3][xx].leftBottomY, &placingZone->cellsAtLSide [3][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtLSide [3][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtLSide [3][xx].leftBottomX, &placingZone->cellsAtLSide [3][xx].leftBottomY, &placingZone->cellsAtLSide [3][xx].leftBottomZ);
 
 		placingZone->cellsAtRSide [3][xx].ang = placingZone->ang;
-		placingZone->cellsAtRSide [3][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtRSide [3][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtRSide [3][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtRSide [3][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtRSide [3][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
-		moveIn3D ('y', placingZone->cellsAtRSide [3][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSide * 2), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
+		moveIn3D ('y', placingZone->cellsAtRSide [3][xx].ang, placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
 		moveIn3D ('z', placingZone->cellsAtRSide [3][xx].ang, (placingZone->cellsAtRSide [0][xx].perLen + placingZone->cellsAtRSide [1][xx].perLen + placingZone->cellsAtRSide [2][xx].perLen) * cos (placingZone->slantAngle), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
 		moveIn3D ('x', placingZone->cellsAtRSide [3][xx].ang, -(placingZone->cellsAtRSide [0][xx].perLen + placingZone->cellsAtRSide [1][xx].perLen + placingZone->cellsAtRSide [2][xx].perLen) * sin (placingZone->slantAngle), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtRSide [3][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtRSide [3][xx].leftBottomX, &placingZone->cellsAtRSide [3][xx].leftBottomY, &placingZone->cellsAtRSide [3][xx].leftBottomZ);
 
 		// 하부 (유로폼, 휠러, 유로폼)
 		placingZone->cellsAtBottom [0][xx].ang = placingZone->ang;
-		placingZone->cellsAtBottom [0][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtBottom [0][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtBottom [0][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtBottom [0][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtBottom [0][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 		moveIn3DSlope ('x', placingZone->cellsAtBottom [0][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtBottom [0][xx].leftBottomX, &placingZone->cellsAtBottom [0][xx].leftBottomY, &placingZone->cellsAtBottom [0][xx].leftBottomZ);
 
 		placingZone->cellsAtBottom [1][xx].ang = placingZone->ang;
-		placingZone->cellsAtBottom [1][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtBottom [1][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtBottom [1][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtBottom [1][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtBottom [1][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 		moveIn3D ('y', placingZone->cellsAtBottom [1][xx].ang, placingZone->cellsAtBottom [0][xx].perLen, &placingZone->cellsAtBottom [1][xx].leftBottomX, &placingZone->cellsAtBottom [1][xx].leftBottomY, &placingZone->cellsAtBottom [1][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtBottom [1][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtBottom [1][xx].leftBottomX, &placingZone->cellsAtBottom [1][xx].leftBottomY, &placingZone->cellsAtBottom [1][xx].leftBottomZ);
 
 		placingZone->cellsAtBottom [2][xx].ang = placingZone->ang;
-		placingZone->cellsAtBottom [2][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSide * sin(placingZone->ang));
-		placingZone->cellsAtBottom [2][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSide * cos(placingZone->ang));
+		placingZone->cellsAtBottom [2][xx].leftBottomX = placingZone->begC.x + (placingZone->gapSideLeft * sin(placingZone->ang));
+		placingZone->cellsAtBottom [2][xx].leftBottomY = placingZone->begC.y - (placingZone->gapSideLeft * cos(placingZone->ang));
 		placingZone->cellsAtBottom [2][xx].leftBottomZ = placingZone->begC.z - placingZone->gapBottom;
 		moveIn3D ('y', placingZone->cellsAtBottom [2][xx].ang, placingZone->cellsAtBottom [0][xx].perLen + placingZone->cellsAtBottom [1][xx].perLen, &placingZone->cellsAtBottom [2][xx].leftBottomX, &placingZone->cellsAtBottom [2][xx].leftBottomY, &placingZone->cellsAtBottom [2][xx].leftBottomZ);
 		moveIn3DSlope ('x', placingZone->cellsAtBottom [2][xx].ang, placingZone->slantAngle, placingZone->getCellPositionLeftBottomX (placingZone, xx), &placingZone->cellsAtBottom [2][xx].leftBottomX, &placingZone->cellsAtBottom [2][xx].leftBottomY, &placingZone->cellsAtBottom [2][xx].leftBottomZ);
@@ -5276,138 +5284,148 @@ GSErrCode	BeamTableformPlacingZone::placeInsulationsSide (BeamTableformPlacingZo
 
 	if (insulElem->bLimitSize == true) {
 		// 가로/세로 크기 제한이 true일 때
-		// 높은쪽
-		// bMoreWider가 true이면 측면 단열재가 하부 단열재를 덮고, false이면 하부 단열재가 측면 단열재를 떠받침
-		if (bMoreWider == true)
-			remainHorLen = placingZone->areaHeight_Left + placingZone->gapBottom;
-		else
-			remainHorLen = placingZone->areaHeight_Left;
-		remainVerLen = placingZone->beamLength;
-		totalXX = (short)floor (remainHorLen / insulElem->maxHorLen);
-		totalYY = (short)floor (remainVerLen / insulElem->maxVerLen);
 
-		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
-		moveIn3D ('y', insul.radAng, placingZone->gapSide, &insul.posX, &insul.posY, &insul.posZ);
-		moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
-		moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
-
-		for (xx = 0 ; xx < totalXX+1 ; ++xx) {
-			for (yy = 0 ; yy < totalYY+1 ; ++yy) {
-				(remainHorLen > insulElem->maxHorLen) ? horLen = insulElem->maxHorLen : horLen = remainHorLen;
-				(remainVerLen > insulElem->maxVerLen) ? verLen = insulElem->maxVerLen : verLen = remainVerLen;
-
-				elemList_Insulation.Push (insul.placeObject (10,
-					"A", APIParT_Length, format_string ("%f", horLen),
-					"B", APIParT_Length, format_string ("%f", verLen),
-					"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
-					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
-					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
-					"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
-					"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
-					"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
-					"bLShape", APIParT_Boolean, "0.0",
-					"bVerticalCut", APIParT_Boolean, "0.0"));
-
-				remainVerLen -= insulElem->maxVerLen;
-				moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, verLen, &insul.posX, &insul.posY, &insul.posZ);
-			}
-			remainHorLen -= insulElem->maxHorLen;
+		if (placingZone->gapSideLeft > EPS) {
+			// 높은쪽
+			// bMoreWider가 true이면 측면 단열재가 하부 단열재를 덮고, false이면 하부 단열재가 측면 단열재를 떠받침
+			if (bMoreWider == true)
+				remainHorLen = placingZone->areaHeight_Left + placingZone->gapBottom;
+			else
+				remainHorLen = placingZone->areaHeight_Left;
 			remainVerLen = placingZone->beamLength;
-			moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, -placingZone->beamLength, &insul.posX, &insul.posY, &insul.posZ);
-			moveIn3D ('z', insul.radAng, -horLen * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
-			moveIn3D ('x', insul.radAng, horLen * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+			totalXX = (short)floor (remainHorLen / insulElem->maxHorLen);
+			totalYY = (short)floor (remainVerLen / insulElem->maxVerLen);
+
+			insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+			moveIn3D ('y', insul.radAng, placingZone->gapSideLeft, &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+
+			for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+				for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+					(remainHorLen > insulElem->maxHorLen) ? horLen = insulElem->maxHorLen : horLen = remainHorLen;
+					(remainVerLen > insulElem->maxVerLen) ? verLen = insulElem->maxVerLen : verLen = remainVerLen;
+
+					elemList_Insulation.Push (insul.placeObject (10,
+						"A", APIParT_Length, format_string ("%f", horLen),
+						"B", APIParT_Length, format_string ("%f", verLen),
+						"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+						"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+						"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
+						"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+						"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+						"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+						"bLShape", APIParT_Boolean, "0.0",
+						"bVerticalCut", APIParT_Boolean, "0.0"));
+
+					remainVerLen -= insulElem->maxVerLen;
+					moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, verLen, &insul.posX, &insul.posY, &insul.posZ);
+				}
+				remainHorLen -= insulElem->maxHorLen;
+				remainVerLen = placingZone->beamLength;
+				moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, -placingZone->beamLength, &insul.posX, &insul.posY, &insul.posZ);
+				moveIn3D ('z', insul.radAng, -horLen * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+				moveIn3D ('x', insul.radAng, horLen * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+			}
 		}
 
-		// 낮은쪽
-		if (bMoreWider == true)
-			remainHorLen = placingZone->areaHeight_Left + placingZone->gapBottom;
-		else
-			remainHorLen = placingZone->areaHeight_Left;
-		remainVerLen = placingZone->beamLength;
-		totalXX = (short)floor (remainHorLen / insulElem->maxHorLen);
-		totalYY = (short)floor (remainVerLen / insulElem->maxVerLen);
-
-		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
-		moveIn3D ('y', insul.radAng, placingZone->areaWidth_Bottom + placingZone->gapSide*2, &insul.posX, &insul.posY, &insul.posZ);
-		moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
-		moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
-
-		for (xx = 0 ; xx < totalXX+1 ; ++xx) {
-			for (yy = 0 ; yy < totalYY+1 ; ++yy) {
-				(remainHorLen > insulElem->maxHorLen) ? horLen = insulElem->maxHorLen : horLen = remainHorLen;
-				(remainVerLen > insulElem->maxVerLen) ? verLen = insulElem->maxVerLen : verLen = remainVerLen;
-
-				elemList_Insulation.Push (insul.placeObject (10,
-					"A", APIParT_Length, format_string ("%f", horLen),
-					"B", APIParT_Length, format_string ("%f", verLen),
-					"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
-					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
-					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
-					"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
-					"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
-					"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
-					"bLShape", APIParT_Boolean, "0.0",
-					"bVerticalCut", APIParT_Boolean, "0.0"));
-
-				remainVerLen -= insulElem->maxVerLen;
-				moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, verLen, &insul.posX, &insul.posY, &insul.posZ);
-			}
-			remainHorLen -= insulElem->maxHorLen;
+		if (placingZone->gapSideRight > EPS) {
+			// 낮은쪽
+			if (bMoreWider == true)
+				remainHorLen = placingZone->areaHeight_Left + placingZone->gapBottom;
+			else
+				remainHorLen = placingZone->areaHeight_Left;
 			remainVerLen = placingZone->beamLength;
-			moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, -placingZone->beamLength, &insul.posX, &insul.posY, &insul.posZ);
-			moveIn3D ('z', insul.radAng, -horLen * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
-			moveIn3D ('x', insul.radAng, horLen * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+			totalXX = (short)floor (remainHorLen / insulElem->maxHorLen);
+			totalYY = (short)floor (remainVerLen / insulElem->maxVerLen);
+
+			insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+			moveIn3D ('y', insul.radAng, placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight), &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+
+			for (xx = 0 ; xx < totalXX+1 ; ++xx) {
+				for (yy = 0 ; yy < totalYY+1 ; ++yy) {
+					(remainHorLen > insulElem->maxHorLen) ? horLen = insulElem->maxHorLen : horLen = remainHorLen;
+					(remainVerLen > insulElem->maxVerLen) ? verLen = insulElem->maxVerLen : verLen = remainVerLen;
+
+					elemList_Insulation.Push (insul.placeObject (10,
+						"A", APIParT_Length, format_string ("%f", horLen),
+						"B", APIParT_Length, format_string ("%f", verLen),
+						"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+						"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+						"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
+						"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+						"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+						"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+						"bLShape", APIParT_Boolean, "0.0",
+						"bVerticalCut", APIParT_Boolean, "0.0"));
+
+					remainVerLen -= insulElem->maxVerLen;
+					moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, verLen, &insul.posX, &insul.posY, &insul.posZ);
+				}
+				remainHorLen -= insulElem->maxHorLen;
+				remainVerLen = placingZone->beamLength;
+				moveIn3DSlope ('x', insul.radAng, placingZone->slantAngle, -placingZone->beamLength, &insul.posX, &insul.posY, &insul.posZ);
+				moveIn3D ('z', insul.radAng, -horLen * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+				moveIn3D ('x', insul.radAng, horLen * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+			}
 		}
 	} else {
 		// 가로/세로 크기 제한이 false일 때
-		// 높은쪽
-		// bMoreWider가 true이면 측면 단열재가 하부 단열재를 덮고, false이면 하부 단열재가 측면 단열재를 떠받침
-		if (bMoreWider == true)
-			horLen = placingZone->areaHeight_Left + placingZone->gapBottom;
-		else
-			horLen = placingZone->areaHeight_Left;
-		verLen = placingZone->beamLength;
 
-		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
-		moveIn3D ('y', insul.radAng, placingZone->gapSide, &insul.posX, &insul.posY, &insul.posZ);
-		moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
-		moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+		if (placingZone->gapSideLeft > EPS) {
+			// 높은쪽
+			// bMoreWider가 true이면 측면 단열재가 하부 단열재를 덮고, false이면 하부 단열재가 측면 단열재를 떠받침
+			if (bMoreWider == true)
+				horLen = placingZone->areaHeight_Left + placingZone->gapBottom;
+			else
+				horLen = placingZone->areaHeight_Left;
+			verLen = placingZone->beamLength;
 
-		elemList_Insulation.Push (insul.placeObject (10,
-			"A", APIParT_Length, format_string ("%f", horLen),
-			"B", APIParT_Length, format_string ("%f", verLen),
-			"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
-			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
-			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
-			"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
-			"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
-			"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
-			"bLShape", APIParT_Boolean, "0.0",
-			"bVerticalCut", APIParT_Boolean, "0.0"));
+			insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+			moveIn3D ('y', insul.radAng, placingZone->gapSideLeft, &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
 
-		// 낮은쪽
-		if (bMoreWider == true)
-			horLen = placingZone->areaHeight_Left + placingZone->gapBottom;
-		else
-			horLen = placingZone->areaHeight_Left;
-		verLen = placingZone->beamLength;
+			elemList_Insulation.Push (insul.placeObject (10,
+				"A", APIParT_Length, format_string ("%f", horLen),
+				"B", APIParT_Length, format_string ("%f", verLen),
+				"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
+				"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+				"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+				"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+				"bLShape", APIParT_Boolean, "0.0",
+				"bVerticalCut", APIParT_Boolean, "0.0"));
+		}
 
-		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
-		moveIn3D ('y', insul.radAng, placingZone->areaWidth_Bottom + placingZone->gapSide*2, &insul.posX, &insul.posY, &insul.posZ);
-		moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
-		moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+		if (placingZone->gapSideRight > EPS) {
+			// 낮은쪽
+			if (bMoreWider == true)
+				horLen = placingZone->areaHeight_Left + placingZone->gapBottom;
+			else
+				horLen = placingZone->areaHeight_Left;
+			verLen = placingZone->beamLength;
 
-		elemList_Insulation.Push (insul.placeObject (10,
-			"A", APIParT_Length, format_string ("%f", horLen),
-			"B", APIParT_Length, format_string ("%f", verLen),
-			"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
-			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
-			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
-			"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
-			"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
-			"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
-			"bLShape", APIParT_Boolean, "0.0",
-			"bVerticalCut", APIParT_Boolean, "0.0"));
+			insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
+			moveIn3D ('y', insul.radAng, placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight), &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('z', insul.radAng, (placingZone->areaHeight_Left + placingZone->gapBottom) * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('x', insul.radAng, -(placingZone->areaHeight_Left + placingZone->gapBottom) * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
+
+			elemList_Insulation.Push (insul.placeObject (10,
+				"A", APIParT_Length, format_string ("%f", horLen),
+				"B", APIParT_Length, format_string ("%f", verLen),
+				"ZZYZX", APIParT_Length, format_string ("%f", insulElem->thk),
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0) + minusSlantAngle),
+				"bRestrictSize", APIParT_Boolean, (insulElem->bLimitSize ? "1.0" : "0.0"),
+				"maxHorLen", APIParT_Length, format_string ("%f", insulElem->maxHorLen),
+				"maxVerLen", APIParT_Length, format_string ("%f", insulElem->maxVerLen),
+				"bLShape", APIParT_Boolean, "0.0",
+				"bVerticalCut", APIParT_Boolean, "0.0"));
+		}
 	}
 
 	return	err;
@@ -5431,7 +5449,7 @@ GSErrCode	BeamTableformPlacingZone::placeInsulationsBottom (BeamTableformPlacing
 	if (insulElem->bLimitSize == true) {
 		// 가로/세로 크기 제한이 true일 때
 		if (bMoreWider == true)
-			remainHorLen = placingZone->areaWidth_Bottom + placingZone->gapSide*2;
+			remainHorLen = placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight);
 		else
 			remainHorLen = placingZone->areaWidth_Bottom;
 		remainVerLen = placingZone->beamLength;
@@ -5440,7 +5458,7 @@ GSErrCode	BeamTableformPlacingZone::placeInsulationsBottom (BeamTableformPlacing
 
 		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
 		if (bMoreWider == false)
-			moveIn3D ('y', insul.radAng, placingZone->gapSide, &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('y', insul.radAng, placingZone->gapSideLeft, &insul.posX, &insul.posY, &insul.posZ);
 		moveIn3D ('z', insul.radAng, placingZone->gapBottom * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
 		moveIn3D ('x', insul.radAng, -placingZone->gapBottom * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
 
@@ -5474,14 +5492,14 @@ GSErrCode	BeamTableformPlacingZone::placeInsulationsBottom (BeamTableformPlacing
 	} else {
 		// 가로/세로 크기 제한이 false일 때
 		if (bMoreWider == true)
-			horLen = placingZone->areaWidth_Bottom + placingZone->gapSide*2;
+			horLen = placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight);
 		else
 			horLen = placingZone->areaWidth_Bottom;
 		verLen = placingZone->beamLength;
 
 		insul.init (L("단열재v1.0.gsm"), insulElem->layerInd, infoBeam->floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
 		if (bMoreWider == false)
-			moveIn3D ('y', insul.radAng, placingZone->gapSide, &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('y', insul.radAng, placingZone->gapSideLeft, &insul.posX, &insul.posY, &insul.posZ);
 		moveIn3D ('z', insul.radAng, placingZone->gapBottom * cos (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
 		moveIn3D ('x', insul.radAng, -placingZone->gapBottom * sin (placingZone->slantAngle), &insul.posX, &insul.posY, &insul.posZ);
 
@@ -5530,7 +5548,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		verticalPost.init (L("PERI동바리 수직재 v0.1.gsm"), layerInd_VerticalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 		moveIn3D ('z', verticalPost.radAng, -0.003 - 0.1135 - 0.240 - placingZone->gapBottom, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 		moveIn3D ('x', verticalPost.radAng, placingZone->postStartOffset, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-		moveIn3D ('y', verticalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - placingZone->gapSide, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
+		moveIn3D ('y', verticalPost.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) - placingZone->postGapWidth) / 2 - placingZone->gapSideLeft, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 		elemList_SupportingPost.Push (verticalPost.placeObject (7, "stType", APIParT_CString, postType, "len_current", APIParT_Length, format_string ("%f", 1.950), "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 		moveIn3D ('y', verticalPost.radAng, placingZone->postGapWidth, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 		elemList_SupportingPost.Push (verticalPost.placeObject (7, "stType", APIParT_CString, postType, "len_current", APIParT_Length, format_string ("%f", 1.950), "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
@@ -5543,7 +5561,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		girder.init (L("GT24 거더 v1.0.gsm"), layerInd_Girder, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 		moveIn3D ('z', girder.radAng, -0.1135 - 0.240 - placingZone->gapBottom, &girder.posX, &girder.posY, &girder.posZ);
 		moveIn3D ('x', girder.radAng, placingZone->postStartOffset, &girder.posX, &girder.posY, &girder.posZ);
-		moveIn3D ('y', girder.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - 0.160 - placingZone->gapSide, &girder.posX, &girder.posY, &girder.posZ);
+		moveIn3D ('y', girder.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) - placingZone->postGapWidth) / 2 - 0.160 - placingZone->gapSideLeft, &girder.posX, &girder.posY, &girder.posZ);
 		girder.radAng += DegreeToRad (90.0);
 		if (abs (placingZone->postGapWidth - 0.900) < EPS) {
 			elemList_SupportingPost.Push (girder.placeObject (2, "type", APIParT_CString, "1200", "length", APIParT_Length, format_string ("%f", 1.214)));
@@ -5567,7 +5585,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		// 배치: 보 브라켓
 		beamBracket.init (L("블루 보 브라켓 v1.0.gsm"), layerInd_BeamBracket, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 		moveIn3D ('x', beamBracket.radAng, placingZone->postStartOffset, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
-		moveIn3D ('y', beamBracket.radAng, -0.1135 - placingZone->gapSide, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
+		moveIn3D ('y', beamBracket.radAng, -0.1135 - placingZone->gapSideLeft, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
 		moveIn3D ('z', beamBracket.radAng, -0.1135 - placingZone->gapBottom, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
 		beamBracket.radAng += DegreeToRad (270.0);
 		elemList_SupportingPost.Push (beamBracket.placeObject (2, "type", APIParT_CString, "730", "verticalHeight", APIParT_Length, format_string ("%f", 0.500)));
@@ -5576,7 +5594,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		beamBracket.radAng += DegreeToRad (270.0);
 		elemList_SupportingPost.Push (beamBracket.placeObject (2, "type", APIParT_CString, "730", "verticalHeight", APIParT_Length, format_string ("%f", 0.500)));
 		beamBracket.radAng -= DegreeToRad (270.0);
-		moveIn3D ('y', beamBracket.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2) + (0.1135 * 2), &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
+		moveIn3D ('y', beamBracket.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight)) + (0.1135 * 2), &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
 		beamBracket.radAng += DegreeToRad (90.0);
 		elemList_SupportingPost.Push (beamBracket.placeObject (2, "type", APIParT_CString, "730", "verticalHeight", APIParT_Length, format_string ("%f", 0.500)));
 		beamBracket.radAng -= DegreeToRad (90.0);
@@ -5591,7 +5609,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		verticalPost.init (L("PERI동바리 수직재 v0.1.gsm"), layerInd_VerticalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 		moveIn3D ('z', verticalPost.radAng, -0.1135 - 0.240 + 0.135 - placingZone->gapBottom, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 		moveIn3D ('x', verticalPost.radAng, placingZone->postStartOffset, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-		moveIn3D ('y', verticalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - placingZone->gapSide, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
+		moveIn3D ('y', verticalPost.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) - placingZone->postGapWidth) / 2 - placingZone->gapSideLeft, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 		elemList_SupportingPost.Push (verticalPost.placeObject (7, "stType", APIParT_CString, postType, "len_current", APIParT_Length, format_string ("%f", 1.950), "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 		moveIn3D ('y', verticalPost.radAng, placingZone->postGapWidth, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 		elemList_SupportingPost.Push (verticalPost.placeObject (7, "stType", APIParT_CString, postType, "len_current", APIParT_Length, format_string ("%f", 1.950), "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
@@ -5602,15 +5620,15 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 
 		// 배치: 보 멍에제
 		if (abs (placingZone->postGapWidth - 0.900) < EPS)
-			distance = 0.0015 + (placingZone->gapSide * 2);
+			distance = 0.0015 + (placingZone->gapSideLeft + placingZone->gapSideRight);
 		else if (abs (placingZone->postGapWidth - 1.200) < EPS)
-			distance = 0.0015 + (placingZone->gapSide * 2);
+			distance = 0.0015 + (placingZone->gapSideLeft + placingZone->gapSideRight);
 		else if (abs (placingZone->postGapWidth - 1.500) < EPS)
-			distance = 0.1515 + (placingZone->gapSide * 2);
+			distance = 0.1515 + (placingZone->gapSideLeft + placingZone->gapSideRight);
 
 		yoke.init (L("보 멍에제v1.0.gsm"), layerInd_Yoke, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 		moveIn3D ('x', yoke.radAng, placingZone->postStartOffset + 0.075, &yoke.posX, &yoke.posY, &yoke.posZ);
-		moveIn3D ('y', yoke.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - 0.260 - placingZone->gapSide, &yoke.posX, &yoke.posY, &yoke.posZ);
+		moveIn3D ('y', yoke.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) - placingZone->postGapWidth) / 2 - 0.260 - placingZone->gapSideLeft, &yoke.posX, &yoke.posY, &yoke.posZ);
 		moveIn3D ('z', yoke.radAng, -0.2635 - placingZone->gapBottom, &yoke.posX, &yoke.posY, &yoke.posZ);
 		yoke.radAng += DegreeToRad (90.0);
 		if (abs (placingZone->postGapWidth - 0.900) < EPS) {
@@ -5640,7 +5658,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 
 	horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 	moveIn3D ('x', horizontalPost.radAng, placingZone->postStartOffset, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
-	moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 + placingZone->postGapWidth) / 2 - 0.050 - placingZone->gapSide, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) + placingZone->postGapWidth) / 2 - 0.050 - placingZone->gapSideLeft, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 	moveIn3D ('z', horizontalPost.radAng, distance - placingZone->gapBottom, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 	if (abs (placingZone->postGapWidth - 0.900) < EPS) {
 		horizontalPost.radAng += DegreeToRad (270.0);
@@ -5674,7 +5692,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 	// 배치: PERI동바리 수평재 (길이 방향)
 	horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 	moveIn3D ('x', horizontalPost.radAng, placingZone->postStartOffset + 0.050, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
-	moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - placingZone->gapSide, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+	moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) - placingZone->postGapWidth) / 2 - placingZone->gapSideLeft, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 	moveIn3D ('z', horizontalPost.radAng, distance - placingZone->gapBottom, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 	if (abs (placingZone->postGapLength - 1.200) < EPS) {
 		elemList_SupportingPost.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "120 cm", "lenFrame", APIParT_Length, "1.100"));
@@ -5712,7 +5730,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 			verticalPost.init (L("PERI동바리 수직재 v0.1.gsm"), layerInd_VerticalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 			moveIn3D ('z', verticalPost.radAng, -0.003 - 0.1135 - 0.240 - placingZone->gapBottom, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 			moveIn3D ('x', verticalPost.radAng, placingZone->beamLength - placingZone->postGapLength - placingZone->postStartOffset, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-			moveIn3D ('y', verticalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - placingZone->gapSide, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
+			moveIn3D ('y', verticalPost.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) - placingZone->postGapWidth) / 2 - placingZone->gapSideLeft, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 			elemList_SupportingPost.Push (verticalPost.placeObject (7, "stType", APIParT_CString, postType, "len_current", APIParT_Length, format_string ("%f", 1.950), "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 			moveIn3D ('y', verticalPost.radAng, placingZone->postGapWidth, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 			elemList_SupportingPost.Push (verticalPost.placeObject (7, "stType", APIParT_CString, postType, "len_current", APIParT_Length, format_string ("%f", 1.950), "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
@@ -5725,7 +5743,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 			girder.init (L("GT24 거더 v1.0.gsm"), layerInd_Girder, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 			moveIn3D ('z', girder.radAng, -0.1135 - 0.240 - placingZone->gapBottom, &girder.posX, &girder.posY, &girder.posZ);
 			moveIn3D ('x', girder.radAng, placingZone->beamLength - placingZone->postGapLength - placingZone->postStartOffset, &girder.posX, &girder.posY, &girder.posZ);
-			moveIn3D ('y', girder.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - 0.160 - placingZone->gapSide, &girder.posX, &girder.posY, &girder.posZ);
+			moveIn3D ('y', girder.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) - placingZone->postGapWidth) / 2 - 0.160 - placingZone->gapSideLeft, &girder.posX, &girder.posY, &girder.posZ);
 			girder.radAng += DegreeToRad (90.0);
 			if (abs (placingZone->postGapWidth - 0.900) < EPS) {
 				elemList_SupportingPost.Push (girder.placeObject (2, "type", APIParT_CString, "1200", "length", APIParT_Length, format_string ("%f", 1.214)));
@@ -5749,7 +5767,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 			// 배치: 보 브라켓
 			beamBracket.init (L("블루 보 브라켓 v1.0.gsm"), layerInd_BeamBracket, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 			moveIn3D ('x', beamBracket.radAng, placingZone->beamLength - placingZone->postGapLength - placingZone->postStartOffset, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
-			moveIn3D ('y', beamBracket.radAng, -0.1135 - placingZone->gapSide, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
+			moveIn3D ('y', beamBracket.radAng, -0.1135 - placingZone->gapSideLeft, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
 			moveIn3D ('z', beamBracket.radAng, -0.1135 - placingZone->gapBottom, &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
 			beamBracket.radAng += DegreeToRad (270.0);
 			elemList_SupportingPost.Push (beamBracket.placeObject (2, "type", APIParT_CString, "730", "verticalHeight", APIParT_Length, format_string ("%f", 0.500)));
@@ -5758,7 +5776,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 			beamBracket.radAng += DegreeToRad (270.0);
 			elemList_SupportingPost.Push (beamBracket.placeObject (2, "type", APIParT_CString, "730", "verticalHeight", APIParT_Length, format_string ("%f", 0.500)));
 			beamBracket.radAng -= DegreeToRad (270.0);
-			moveIn3D ('y', beamBracket.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2) + (0.1135 * 2), &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
+			moveIn3D ('y', beamBracket.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight)) + (0.1135 * 2), &beamBracket.posX, &beamBracket.posY, &beamBracket.posZ);
 			beamBracket.radAng += DegreeToRad (90.0);
 			elemList_SupportingPost.Push (beamBracket.placeObject (2, "type", APIParT_CString, "730", "verticalHeight", APIParT_Length, format_string ("%f", 0.500)));
 			beamBracket.radAng -= DegreeToRad (90.0);
@@ -5773,7 +5791,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 			verticalPost.init (L("PERI동바리 수직재 v0.1.gsm"), layerInd_VerticalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 			moveIn3D ('z', verticalPost.radAng, -0.1135 - 0.240 + 0.135 - placingZone->gapBottom, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 			moveIn3D ('x', verticalPost.radAng, placingZone->beamLength - placingZone->postGapLength - placingZone->postStartOffset, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
-			moveIn3D ('y', verticalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - placingZone->gapSide, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
+			moveIn3D ('y', verticalPost.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) - placingZone->postGapWidth) / 2 - placingZone->gapSideLeft, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 			elemList_SupportingPost.Push (verticalPost.placeObject (7, "stType", APIParT_CString, postType, "len_current", APIParT_Length, format_string ("%f", 1.950), "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
 			moveIn3D ('y', verticalPost.radAng, placingZone->postGapWidth, &verticalPost.posX, &verticalPost.posY, &verticalPost.posZ);
 			elemList_SupportingPost.Push (verticalPost.placeObject (7, "stType", APIParT_CString, postType, "len_current", APIParT_Length, format_string ("%f", 1.950), "bCrosshead", APIParT_Boolean, "0.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0))));
@@ -5784,15 +5802,15 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 
 			// 배치: 보 멍에제
 			if (abs (placingZone->postGapWidth - 0.900) < EPS)
-				distance = 0.0015 + (placingZone->gapSide * 2);
+				distance = 0.0015 + (placingZone->gapSideLeft + placingZone->gapSideRight);
 			else if (abs (placingZone->postGapWidth - 1.200) < EPS)
-				distance = 0.0015 + (placingZone->gapSide * 2);
+				distance = 0.0015 + (placingZone->gapSideLeft + placingZone->gapSideRight);
 			else if (abs (placingZone->postGapWidth - 1.500) < EPS)
-				distance = 0.1515 + (placingZone->gapSide * 2);
+				distance = 0.1515 + (placingZone->gapSideLeft + placingZone->gapSideRight);
 
 			yoke.init (L("보 멍에제v1.0.gsm"), layerInd_Yoke, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 			moveIn3D ('x', yoke.radAng, placingZone->beamLength - placingZone->postGapLength - placingZone->postStartOffset + 0.075, &yoke.posX, &yoke.posY, &yoke.posZ);
-			moveIn3D ('y', yoke.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - 0.260 - placingZone->gapSide, &yoke.posX, &yoke.posY, &yoke.posZ);
+			moveIn3D ('y', yoke.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) - placingZone->postGapWidth) / 2 - 0.260 - placingZone->gapSideLeft, &yoke.posX, &yoke.posY, &yoke.posZ);
 			moveIn3D ('z', yoke.radAng, -0.2635 - placingZone->gapBottom, &yoke.posX, &yoke.posY, &yoke.posZ);
 			yoke.radAng += DegreeToRad (90.0);
 			if (abs (placingZone->postGapWidth - 0.900) < EPS) {
@@ -5822,7 +5840,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 
 		horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 		moveIn3D ('x', horizontalPost.radAng, placingZone->beamLength - placingZone->postGapLength - placingZone->postStartOffset, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
-		moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 + placingZone->postGapWidth) / 2 - 0.050 - placingZone->gapSide, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+		moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) + placingZone->postGapWidth) / 2 - 0.050 - placingZone->gapSideLeft, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 		moveIn3D ('z', horizontalPost.radAng, distance - placingZone->gapBottom, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 		if (abs (placingZone->postGapWidth - 0.900) < EPS) {
 			horizontalPost.radAng += DegreeToRad (270.0);
@@ -5856,7 +5874,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		// 배치: PERI동바리 수평재 (길이 방향)
 		horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 		moveIn3D ('x', horizontalPost.radAng, placingZone->beamLength - placingZone->postGapLength - placingZone->postStartOffset + 0.050, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
-		moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + placingZone->gapSide * 2 - placingZone->postGapWidth) / 2 - placingZone->gapSide, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
+		moveIn3D ('y', horizontalPost.radAng, (placingZone->areaWidth_Bottom + (placingZone->gapSideLeft + placingZone->gapSideRight) - placingZone->postGapWidth) / 2 - placingZone->gapSideLeft, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 		moveIn3D ('z', horizontalPost.radAng, distance - placingZone->gapBottom, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
 		if (abs (placingZone->postGapLength - 1.200) < EPS) {
 			elemList_SupportingPost.Push (horizontalPost.placeObject (2, "stType", APIParT_CString, "120 cm", "lenFrame", APIParT_Length, "1.100"));
@@ -6141,7 +6159,6 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 			DGSetItemValDouble (dialogID, EDITCONTROL_REST_RSIDE, hRest_Right);
 
 			// 직접 변경해서는 안 되는 항목 잠그기
-			DGDisableItem (dialogID, EDITCONTROL_GAP_SIDE2);
 			DGDisableItem (dialogID, EDITCONTROL_BEAM_LEFT_HEIGHT);
 			DGDisableItem (dialogID, EDITCONTROL_BEAM_RIGHT_HEIGHT);
 			DGDisableItem (dialogID, EDITCONTROL_BEAM_WIDTH);
@@ -6167,9 +6184,6 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 			break;
 		
 		case DG_MSG_CHANGE:
-			// 왼쪽 간격이 바뀌면 오른쪽 간격도 동일하게 바뀜
-			DGSetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE2, DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1));
-
 			// 보 높이/너비 계산
 			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_LEFT_HEIGHT, placingZone.areaHeight_Left);		// 보 높이 (L)
 			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_RIGHT_HEIGHT, placingZone.areaHeight_Right);		// 보 높이 (R)
@@ -6355,17 +6369,18 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					placingZone.hRest_Right = hRest_Right;
 
 					// 보와의 간격
-					placingZone.gapSide = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1);
+					placingZone.gapSideLeft = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE1);
+					placingZone.gapSideRight = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_SIDE2);
 					placingZone.gapBottom = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM);
 
 					///////////////////////////////////////////////////////////////// 보 양끝
 					placingZone.beginCellAtLSide.perLen = placingZone.areaHeight_Left + placingZone.gapBottom;
 					placingZone.beginCellAtRSide.perLen = placingZone.areaHeight_Right + placingZone.gapBottom;
-					placingZone.beginCellAtBottom.perLen = placingZone.areaWidth_Bottom + (placingZone.gapSide * 2);
+					placingZone.beginCellAtBottom.perLen = placingZone.areaWidth_Bottom + placingZone.gapSideLeft + placingZone.gapSideRight;
 
 					placingZone.endCellAtLSide.perLen = placingZone.areaHeight_Left + placingZone.gapBottom;
 					placingZone.endCellAtRSide.perLen = placingZone.areaHeight_Right + placingZone.gapBottom;
-					placingZone.endCellAtBottom.perLen = placingZone.areaWidth_Bottom + (placingZone.gapSide * 2);
+					placingZone.endCellAtBottom.perLen = placingZone.areaWidth_Bottom + placingZone.gapSideLeft + placingZone.gapSideRight;
 
 					// 레이어 번호 저장
 					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
@@ -6850,7 +6865,7 @@ short DGCALLBACK beamTableformPlacerHandler2 (short message, short dialogID, sho
 
 							placingZone.cellsAtBottom [0][xx].objType = PLYWOOD;
 							placingZone.cellsAtBottom [0][xx].dirLen = lengthDouble;
-							placingZone.cellsAtBottom [0][xx].perLen = placingZone.areaWidth_Bottom + (placingZone.gapSide * 2);
+							placingZone.cellsAtBottom [0][xx].perLen = placingZone.areaWidth_Bottom + placingZone.gapSideLeft + placingZone.gapSideRight;
 							placingZone.cellsAtBottom [1][xx].objType = NONE;
 							placingZone.cellsAtBottom [1][xx].dirLen = 0.0;
 							placingZone.cellsAtBottom [1][xx].perLen = 0.0;
@@ -7155,8 +7170,8 @@ short DGCALLBACK beamTableformPlacerHandler3 (short message, short dialogID, sho
 			DGPopUpSelectItem (dialogID, POPUP_GAP_LENGTH_DIRECTION_2_PERI, DG_POPUP_TOP);
 
 			// 보 너비/길이 계산
-			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_WIDTH_PERI, placingZone.areaWidth_Bottom + placingZone.gapSide * 2);		// 보 너비
-			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_LENGTH_PERI, placingZone.beamLength);									// 보 길이
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_WIDTH_PERI, placingZone.areaWidth_Bottom + placingZone.gapSideLeft + placingZone.gapSideRight);	// 보 너비
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_LENGTH_PERI, placingZone.beamLength);															// 보 길이
 
 			// 직접 변경해서는 안 되는 항목 잠그기
 			DGDisableItem (dialogID, EDITCONTROL_BEAM_WIDTH_PERI);
@@ -7350,8 +7365,10 @@ short DGCALLBACK beamTableformPlacerHandler4_Insulation (short message, short di
 			DGSetItemText (dialogID, DG_CANCEL, L"취소");
 
 			// 두께는 자동
-			if (title->compare (L"단열재 배치 (보 측면)") == 0) {
-				DGSetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK, placingZone.gapSide);
+			if (title->compare (L"단열재 배치 (보 좌측면)") == 0) {
+				DGSetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK, placingZone.gapSideLeft);
+			} else if (title->compare (L"단열재 배치 (보 우측면)") == 0) {
+				DGSetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK, placingZone.gapSideRight);
 			} else {
 				DGSetItemValDouble (dialogID, EDITCONTROL_INSULATION_THK, placingZone.gapBottom);
 			}

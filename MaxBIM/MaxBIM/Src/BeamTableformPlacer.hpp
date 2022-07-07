@@ -251,7 +251,8 @@ public:
 	double	slantAngle;			// 기울어진 각도 (경사 보)
 
 	// 보와의 간격
-	double	gapSide;			// 보와의 간격 (측면)
+	double	gapSideLeft;		// 보와의 간격 (좌측면)
+	double	gapSideRight;		// 보와의 간격 (우측면)
 	double	gapBottom;			// 보와의 간격 (하부)
 
 	// 측면 나머지 여백 길이
