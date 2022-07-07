@@ -376,7 +376,9 @@ GSErrCode	showLayersEasily (void)
 	// 프로젝트 내 레이어 개수를 알아냄
 	nLayers = getLayerCount ();
 
-	for (xx = 1; xx <= nLayers && err == NoError ; ++xx) {
+	for (xx = 1; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.header.typeID = API_LayerID;
 		attrib.header.index = xx;
 		err = ACAPI_Attribute_Get (&attrib);
 		if (err == NoError) {
@@ -4544,7 +4546,9 @@ GSErrCode	inspectLayerNames (void)
 	// 레이어 이름 조합하기
 	nLayers = getLayerCount ();
 
-	for (xx = 1 ; xx <= nLayers && err == NoError ; ++xx) {
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
+		BNZeroMemory (&attrib, sizeof (API_Attribute));
+		attrib.header.typeID = API_LayerID;
 		attrib.header.index = xx;
 		err = ACAPI_Attribute_Get (&attrib);
 		if (err == NoError) {
