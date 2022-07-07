@@ -944,7 +944,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
 					sprintf (tempStr, "%s %s", layerInfo.code_name [xx].c_str (), layerInfo.code_desc [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					layerInfo.code_idx [xx] = itmIdx;
 
@@ -986,7 +986,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				if (layerInfo.dong_state [xx] == true) {
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, layerInfo.dong_desc [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, charToWchar (layerInfo.dong_desc [xx].c_str ()));
 					DGShowItem (dialogID, itmIdx);
 					layerInfo.dong_idx [xx] = itmIdx;
 
@@ -1028,7 +1028,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				if (layerInfo.floor_state [xx] == true) {
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, layerInfo.floor_desc [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, charToWchar (layerInfo.floor_desc [xx].c_str ()));
 					DGShowItem (dialogID, itmIdx);
 					layerInfo.floor_idx [xx] = itmIdx;
 
@@ -1070,7 +1070,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				if (layerInfo.cast_state [xx] == true) {
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, layerInfo.cast_name [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, charToWchar (layerInfo.cast_name [xx].c_str ()));
 					DGShowItem (dialogID, itmIdx);
 					layerInfo.cast_idx [xx] = itmIdx;
 
@@ -1112,7 +1112,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				if (layerInfo.CJ_state [xx] == true) {
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, layerInfo.CJ_name [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, charToWchar (layerInfo.CJ_name [xx].c_str ()));
 					DGShowItem (dialogID, itmIdx);
 					layerInfo.CJ_idx [xx] = itmIdx;
 
@@ -1154,7 +1154,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				if (layerInfo.orderInCJ_state [xx] == true) {
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, layerInfo.orderInCJ_name [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, charToWchar (layerInfo.orderInCJ_name [xx].c_str ()));
 					DGShowItem (dialogID, itmIdx);
 					layerInfo.orderInCJ_idx [xx] = itmIdx;
 
@@ -1197,7 +1197,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					if (layerInfo.obj_state [xx] == true) {
 						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 						DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-						DGSetItemText (dialogID, itmIdx, layerInfo.obj_desc [xx].c_str ());
+						DGSetItemText (dialogID, itmIdx, charToWchar (layerInfo.obj_desc [xx].c_str ()));
 						DGShowItem (dialogID, itmIdx);
 						layerInfo.obj_idx [xx] = itmIdx;
 
@@ -1228,7 +1228,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					if (layerInfo.obj_state [xx] == true) {
 						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 						DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-						DGSetItemText (dialogID, itmIdx, layerInfo.obj_desc [xx].c_str ());
+						DGSetItemText (dialogID, itmIdx, charToWchar (layerInfo.obj_desc [xx].c_str ()));
 						DGShowItem (dialogID, itmIdx);
 						layerInfo.obj_idx [xx] = itmIdx;
 
@@ -1259,7 +1259,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					if (layerInfo.obj_state [xx] == true) {
 						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 						DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-						DGSetItemText (dialogID, itmIdx, layerInfo.obj_desc [xx].c_str ());
+						DGSetItemText (dialogID, itmIdx, charToWchar (layerInfo.obj_desc [xx].c_str ()));
 						DGShowItem (dialogID, itmIdx);
 						layerInfo.obj_idx [xx] = itmIdx;
 
@@ -1290,7 +1290,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					if (layerInfo.obj_state [xx] == true) {
 						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 						DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-						DGSetItemText (dialogID, itmIdx, layerInfo.obj_desc [xx].c_str ());
+						DGSetItemText (dialogID, itmIdx, charToWchar (layerInfo.obj_desc [xx].c_str ()));
 						DGShowItem (dialogID, itmIdx);
 						layerInfo.obj_idx [xx] = itmIdx;
 
@@ -1321,7 +1321,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
 					sprintf (tempStr, "%s", layerInfo.productSite_name [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					layerInfo.productSite_idx [xx] = itmIdx;
 
@@ -1363,7 +1363,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 				if (layerInfo.productNum_state [xx] == true) {
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 45, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
-					DGSetItemText (dialogID, itmIdx, layerInfo.productNum_name [xx].c_str ());
+					DGSetItemText (dialogID, itmIdx, charToWchar (layerInfo.productNum_name [xx].c_str ()));
 					DGShowItem (dialogID, itmIdx);
 					layerInfo.productNum_idx [xx] = itmIdx;
 
@@ -1490,55 +1490,55 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 			for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
 				if ((layerInfo.code_idx [xx] == changedBtnItemIdx) && (layerInfo.code_state [xx] == true)) {
 					sprintf (tempStr, "%s", layerInfo.code_name [xx].c_str ());
-					DGSetItemText (dialogID, LABEL_CODE, tempStr);
+					DGSetItemText (dialogID, LABEL_CODE, charToWchar (tempStr));
 				}
 			}
 			for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
 				if ((layerInfo.dong_idx [xx] == changedBtnItemIdx) && (layerInfo.dong_state [xx] == true)) {
 					sprintf (tempStr, "%s", layerInfo.dong_name [xx].c_str ());
-					DGSetItemText (dialogID, LABEL_CODE, tempStr);
+					DGSetItemText (dialogID, LABEL_CODE, charToWchar (tempStr));
 				}
 			}
 			for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
 				if ((layerInfo.floor_idx [xx] == changedBtnItemIdx) && (layerInfo.floor_state [xx] == true)) {
 					sprintf (tempStr, "%s", layerInfo.floor_name [xx].c_str ());
-					DGSetItemText (dialogID, LABEL_CODE, tempStr);
+					DGSetItemText (dialogID, LABEL_CODE, charToWchar (tempStr));
 				}
 			}
 			for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx) {
 				if ((layerInfo.cast_idx [xx] == changedBtnItemIdx) && (layerInfo.cast_state [xx] == true)) {
 					sprintf (tempStr, "%s", layerInfo.cast_name [xx].c_str ());
-					DGSetItemText (dialogID, LABEL_CODE, tempStr);
+					DGSetItemText (dialogID, LABEL_CODE, charToWchar (tempStr));
 				}
 			}
 			for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
 				if ((layerInfo.CJ_idx [xx] == changedBtnItemIdx) && (layerInfo.CJ_state [xx] == true)) {
 					sprintf (tempStr, "%s", layerInfo.CJ_name [xx].c_str ());
-					DGSetItemText (dialogID, LABEL_CODE, tempStr);
+					DGSetItemText (dialogID, LABEL_CODE, charToWchar (tempStr));
 				}
 			}
 			for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
 				if ((layerInfo.orderInCJ_idx [xx] == changedBtnItemIdx) && (layerInfo.orderInCJ_state [xx] == true)) {
 					sprintf (tempStr, "%s", layerInfo.orderInCJ_name [xx].c_str ());
-					DGSetItemText (dialogID, LABEL_CODE, tempStr);
+					DGSetItemText (dialogID, LABEL_CODE, charToWchar (tempStr));
 				}
 			}
 			for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
 				if ((layerInfo.obj_idx [xx] == changedBtnItemIdx) && (layerInfo.obj_state [xx] == true)) {
 					sprintf (tempStr, "%s", layerInfo.obj_name [xx].c_str ());
-					DGSetItemText (dialogID, LABEL_CODE, tempStr);
+					DGSetItemText (dialogID, LABEL_CODE, charToWchar (tempStr));
 				}
 			}
 			for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx) {
 				if ((layerInfo.productSite_idx [xx] == changedBtnItemIdx) && (layerInfo.productSite_state [xx] == true)) {
 					sprintf (tempStr, "%s", layerInfo.productSite_name [xx].c_str ());
-					DGSetItemText (dialogID, LABEL_CODE, tempStr);
+					DGSetItemText (dialogID, LABEL_CODE, charToWchar (tempStr));
 				}
 			}
 			for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx) {
 				if ((layerInfo.productNum_idx [xx] == changedBtnItemIdx) && (layerInfo.productNum_state [xx] == true)) {
 					sprintf (tempStr, "%s", layerInfo.productNum_name [xx].c_str ());
-					DGSetItemText (dialogID, LABEL_CODE, tempStr);
+					DGSetItemText (dialogID, LABEL_CODE, charToWchar (tempStr));
 				}
 			}
 
@@ -2370,7 +2370,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s %s", layerInfo.code_name [xx].c_str (), layerInfo.code_desc [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.code_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -2423,11 +2423,11 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 				}
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 500, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, dongStr);
+				DGSetItemText (dialogID, itmIdx, charToWchar (dongStr));
 				DGShowItem (dialogID, itmIdx);
 				
 				// 이미 등록된 동 번호를 Edit 컨트롤에도 넣어둘 것
-				DGSetItemText (dialogID, DONG_STRING_EDITCONTROL, dongStr);
+				DGSetItemText (dialogID, DONG_STRING_EDITCONTROL, charToWchar (dongStr));
 
 				itmPosY += 40;
 
@@ -2446,7 +2446,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 35);
 						DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 						sprintf (tempStr, "%s\n%s", layerInfo.dong_name [xx].c_str (), layerInfo.dong_desc [xx].c_str ());
-						DGSetItemText (dialogID, itmIdx, tempStr);
+						DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 						DGShowItem (dialogID, itmIdx);
 						DONG_REST_BUTTONS [restIdx] = itmIdx;
 						restIdx ++;
@@ -2466,7 +2466,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 35);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s\n%s", layerInfo.floor_name [xx].c_str (), layerInfo.floor_desc [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.floor_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -2483,7 +2483,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 35, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s", layerInfo.cast_name [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.cast_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -2500,7 +2500,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 35, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s", layerInfo.CJ_name [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.CJ_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -2517,7 +2517,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 35, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s", layerInfo.orderInCJ_name [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.orderInCJ_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -2543,7 +2543,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 100, 23);
 							DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 							sprintf (tempStr, "%s %s", layerInfo.code_name [xx].c_str (), layerInfo.code_desc [xx].c_str ());
-							DGSetItemText (dialogID, itmIdx, tempStr);
+							DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 							DGShowItem (dialogID, itmIdx);
 
 							itmPosY += 23;
@@ -2553,7 +2553,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 95, 28);
 							DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
 							sprintf (tempStr, "%s\n%s", layerInfo.obj_name [yy].c_str (), layerInfo.obj_desc [yy].c_str ());
-							DGSetItemText (dialogID, itmIdx, tempStr);
+							DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 							DGShowItem (dialogID, itmIdx);
 							OBJ_BUTTONS [count] = itmIdx;
 							(layerInfo.obj_state [yy] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
@@ -2582,7 +2582,7 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_CHECKBOX, DG_BT_PUSHTEXT, 0, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s", layerInfo.productSite_name [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.productSite_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -2664,11 +2664,11 @@ short DGCALLBACK layerMakeHandler_2 (short message, short dialogID, short item, 
 
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 500, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, productNumStr);
+				DGSetItemText (dialogID, itmIdx, charToWchar (productNumStr));
 				DGShowItem (dialogID, itmIdx);
 				
 				// 이미 등록된 제작 번호를 Edit 컨트롤에도 넣어둘 것
-				DGSetItemText (dialogID, PRODUCT_NUM_STRING_EDITCONTROL, productNumStr);
+				DGSetItemText (dialogID, PRODUCT_NUM_STRING_EDITCONTROL, charToWchar (productNumStr));
 			}
 
 			break;
@@ -3525,7 +3525,7 @@ short DGCALLBACK layerAssignHandler (short message, short dialogID, short item, 
 				BMKillHandle (&info.dataHdl);
 
 				// 레이어 이름 라벨에 현재까지 지정된 레이어의 이름을 표현함
-				DGSetItemText (dialogID, LABEL_LAYER_NAME, currentLayerName);
+				DGSetItemText (dialogID, LABEL_LAYER_NAME, charToWchar (currentLayerName));
 
 				// 버튼의 글꼴 설정 (공사 구분)
 				anyTrue = 0;
@@ -3815,7 +3815,7 @@ short DGCALLBACK layerAssignHandler (short message, short dialogID, short item, 
 					strcat (currentLayerName, fragOfLayer);
 				}
 
-				DGSetItemText (dialogID, LABEL_LAYER_NAME, currentLayerName);
+				DGSetItemText (dialogID, LABEL_LAYER_NAME, charToWchar (currentLayerName));
 			}
 
 		case DG_MSG_CLOSE:
@@ -3877,7 +3877,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, BUTTON_CODE, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s %s", layerInfo.code_name [xx].c_str (), layerInfo.code_desc [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.code_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -3930,11 +3930,11 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 				}
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 500, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, dongStr);
+				DGSetItemText (dialogID, itmIdx, charToWchar (dongStr));
 				DGShowItem (dialogID, itmIdx);
 				
 				// 이미 등록된 동 번호를 Edit 컨트롤에도 넣어둘 것
-				DGSetItemText (dialogID, DONG_STRING_EDITCONTROL, dongStr);
+				DGSetItemText (dialogID, DONG_STRING_EDITCONTROL, charToWchar (dongStr));
 
 				itmPosY += 40;
 
@@ -3953,7 +3953,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 						itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, BUTTON_DONG, itmPosX, itmPosY, 90, 35);
 						DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 						sprintf (tempStr, "%s\n%s", layerInfo.dong_name [xx].c_str (), layerInfo.dong_desc [xx].c_str ());
-						DGSetItemText (dialogID, itmIdx, tempStr);
+						DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 						DGShowItem (dialogID, itmIdx);
 						DONG_REST_BUTTONS [restIdx] = itmIdx;
 						restIdx ++;
@@ -3973,7 +3973,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, BUTTON_FLOOR, itmPosX, itmPosY, 90, 35);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s\n%s", layerInfo.floor_name [xx].c_str (), layerInfo.floor_desc [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.floor_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -3990,7 +3990,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, BUTTON_CAST, itmPosX, itmPosY, 35, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s", layerInfo.cast_name [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.cast_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -4007,7 +4007,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, BUTTON_CJ, itmPosX, itmPosY, 35, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s", layerInfo.CJ_name [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.CJ_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -4024,7 +4024,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, BUTTON_ORDER, itmPosX, itmPosY, 35, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s", layerInfo.orderInCJ_name [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.orderInCJ_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -4050,7 +4050,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 100, 23);
 							DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 							sprintf (tempStr, "%s %s", layerInfo.code_name [xx].c_str (), layerInfo.code_desc [xx].c_str ());
-							DGSetItemText (dialogID, itmIdx, tempStr);
+							DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 							DGShowItem (dialogID, itmIdx);
 
 							itmPosY += 23;
@@ -4060,7 +4060,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 							itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, BUTTON_OBJ, itmPosX, itmPosY, 95, 28);
 							DGSetItemFont (dialogID, itmIdx, DG_IS_SMALL | DG_IS_PLAIN);
 							sprintf (tempStr, "%s\n%s", layerInfo.obj_name [yy].c_str (), layerInfo.obj_desc [yy].c_str ());
-							DGSetItemText (dialogID, itmIdx, tempStr);
+							DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 							DGShowItem (dialogID, itmIdx);
 							OBJ_BUTTONS [count] = itmIdx;
 							(layerInfo.obj_state [yy] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
@@ -4089,7 +4089,7 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 					itmIdx = DGAppendDialogItem (dialogID, DG_ITM_RADIOBUTTON, DG_BT_PUSHTEXT, BUTTON_PRODUCT_SITE, itmPosX, itmPosY, 90, 25);
 					DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
 					sprintf (tempStr, "%s", layerInfo.productSite_name [xx].c_str ());
-					DGSetItemText (dialogID, itmIdx, tempStr);
+					DGSetItemText (dialogID, itmIdx, charToWchar (tempStr));
 					DGShowItem (dialogID, itmIdx);
 					(layerInfo.productSite_state [xx] == true) ? DGSetItemValLong (dialogID, itmIdx, TRUE) : DGSetItemValLong (dialogID, itmIdx, FALSE);
 
@@ -4172,11 +4172,11 @@ short DGCALLBACK layerAssignHandler_2 (short message, short dialogID, short item
 
 				itmIdx = DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, itmPosX, itmPosY, 500, 23);
 				DGSetItemFont (dialogID, itmIdx, DG_IS_LARGE | DG_IS_PLAIN);
-				DGSetItemText (dialogID, itmIdx, firstNumStr);
+				DGSetItemText (dialogID, itmIdx, charToWchar (firstNumStr));
 				DGShowItem (dialogID, itmIdx);
 				
 				// 이미 등록된 제작 번호를 Edit 컨트롤에도 넣어둘 것
-				DGSetItemText (dialogID, PRODUCT_NUM_STRING_EDITCONTROL, firstNumStr);
+				DGSetItemText (dialogID, PRODUCT_NUM_STRING_EDITCONTROL, charToWchar (firstNumStr));
 			}
 
 			break;

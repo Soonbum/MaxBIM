@@ -145,22 +145,24 @@ public:
 	API_Coord3D		leftBottom;	// 최외곽 좌하단 점
 	API_Coord3D		rightTop;	// 최외곽 우상단 점
 
-	double	initHorLen;			// 셀 가로 길이 초기값
-	double	initVerLen;			// 셀 세로 길이 초기값
-
-	double	leftBottomX;		// 테이블폼 시작 좌표 X
-	double	leftBottomY;		// 테이블폼 시작 좌표 Y
-	double	leftBottomZ;		// 테이블폼 시작 좌표 Z
-	double	formArrayWidth;		// 테이블폼 배열 전체 너비
-	double	formArrayHeight;	// 테이블폼 배열 전체 높이
-
 	double	marginLeft;			// 왼쪽 여백 길이
 	double	marginRight;		// 오른쪽 여백 길이
 	double	marginTop;			// 위쪽 여백 길이
 	double	marginBottom;		// 아래쪽 여백 길이
 
-	short	nHorCells;			// 가로 방향 셀 개수
-	short	nVerCells;			// 세로 방향 셀 개수
+	// ---------- 여기부터는 추가 연산을 통해 입력 받음
+	//double	initHorLen;			// 셀 가로 길이 초기값
+	//double	initVerLen;			// 셀 세로 길이 초기값
+
+	//double	leftBottomX;		// 테이블폼 시작 좌표 X
+	//double	leftBottomY;		// 테이블폼 시작 좌표 Y
+	//double	leftBottomZ;		// 테이블폼 시작 좌표 Z
+
+	//double	formArrayWidth;		// 테이블폼 배열 전체 너비
+	//double	formArrayHeight;	// 테이블폼 배열 전체 높이
+
+	//short	nHorCells;			// 가로 방향 셀 개수
+	//short	nVerCells;			// 세로 방향 셀 개수
 
 	CellForSlabTableform	cells [50][50];		// 셀 정보 (0행은 하단, 0열은 좌측)
 
