@@ -20,6 +20,8 @@ namespace slabTableformPlacerDG {
 		PUSHRADIO_EUROFORM,
 
 		LABEL_OTHER_SETTINGS,
+		LABEL_CELL_DIRECTION,
+		POPUP_CELL_DIRECTION,
 		LABEL_JOIST_DIRECTION,
 		POPUP_JOIST_DIRECTION,
 		LABEL_YOKE_TYPE,
@@ -60,7 +62,7 @@ namespace slabTableformPlacerDG {
 		BUTTON_AUTOSET
 	};
 
-	enum	idxItems_JoistDirection_forSlabBottomTableformPlacer {
+	enum	idxItems_Direction_forSlabBottomTableformPlacer {
 		HORIZONTAL = 1,
 		VERTICAL
 	};
@@ -90,9 +92,9 @@ namespace slabTableformPlacerDG {
 		LABEL_OBJ_TYPE	= 3,
 		POPUP_OBJ_TYPE,
 		LABEL_WIDTH,
-		POPUP_WIDTH,
+		EDITCONTROL_WIDTH,
 		LABEL_HEIGHT,
-		POPUP_HEIGHT,
+		EDITCONTROL_HEIGHT,
 		LABEL_ORIENTATION,
 		POPUP_ORIENTATION,
 		LABEL_CAUTION
@@ -131,7 +133,8 @@ public:
 	double	ang;				// 회전 각도 (단위: Radian, 회전축: Z축)
 
 	short	iTableformType;		// 테이블폼 타입 (1: 콘판넬, 2: 합판, 3: 유로폼)
-	short	iJoistDirection;	// 장선방향 (1: 가로, 2: 세로)
+	short	iCellDirection;		// 셀 방향 (1: 가로, 2: 세로)
+	short	iJoistDirection;	// 장선 방향 (1: 가로, 2: 세로)
 	short	iYokeType;			// 멍에제 종류 (1: GT24 거더, 2: 산승각)
 	short	iSuppPostType;		// 동바리 종류 (1: 서포트(강관동바리), 2: PERI수직재(PERI동바리))
 
@@ -145,32 +148,32 @@ public:
 	API_Coord3D		leftBottom;	// 최외곽 좌하단 점
 	API_Coord3D		rightTop;	// 최외곽 우상단 점
 
+	double	initCellHorLen;		// 셀 초기 너비
+	double	initCellVerLen;		// 셀 초기 높이
+
+	double	cellArrayWidth;		// 셀 배열 전체 너비
+	double	cellArrayHeight;	// 셀 배열 전체 높이
+
+	short	nHorCells;			// 가로 방향 셀 개수
+	short	nVerCells;			// 세로 방향 셀 개수
+
 	double	marginLeft;			// 왼쪽 여백 길이
 	double	marginRight;		// 오른쪽 여백 길이
 	double	marginTop;			// 위쪽 여백 길이
 	double	marginBottom;		// 아래쪽 여백 길이
 
-	// ---------- 여기부터는 추가 연산을 통해 입력 받음
-	//double	initHorLen;			// 셀 가로 길이 초기값
-	//double	initVerLen;			// 셀 세로 길이 초기값
-
-	//double	leftBottomX;		// 테이블폼 시작 좌표 X
-	//double	leftBottomY;		// 테이블폼 시작 좌표 Y
-	//double	leftBottomZ;		// 테이블폼 시작 좌표 Z
-
-	//double	formArrayWidth;		// 테이블폼 배열 전체 너비
-	//double	formArrayHeight;	// 테이블폼 배열 전체 높이
-
-	//short	nHorCells;			// 가로 방향 셀 개수
-	//short	nVerCells;			// 세로 방향 셀 개수
+	double	leftBottomX;		// 셀 시작 좌표 X
+	double	leftBottomY;		// 셀 시작 좌표 Y
+	double	leftBottomZ;		// 셀 시작 좌표 Z
 
 	CellForSlabTableform	cells [50][50];		// 셀 정보 (0행은 하단, 0열은 좌측)
 
 public:
-	void		initCells (SlabTableformPlacingZone* placingZone);											// Cell 배열을 초기화함
-	void		alignPlacingZone (SlabTableformPlacingZone* placingZone);									// Cell 배열의 위치를 조정함
-	GSErrCode	fillTableformAreas (void);																	// 테이블폼 공간 채우기
-	GSErrCode	fillRestAreas (void);																		// 자투리 공간 채우기 (합판, 각재)
+	void		initCells (SlabTableformPlacingZone* placingZone);			// Cell 배열을 초기화함
+	void		alignPlacingZone (SlabTableformPlacingZone* placingZone);	// Cell 배열의 위치를 조정함
+	GSErrCode	fillCellAreas (void);										// 셀 배열 공간 채우기
+	GSErrCode	fillMarginAreas (void);										// 여백 공간 채우기 (합판)
+	GSErrCode	placeInsulations (void);									// 단열재 배치
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
