@@ -99,7 +99,29 @@ namespace slabTableformPlacerDG {
 		POPUP_ORIENTATION,
 		LABEL_CAUTION
 	};
+
+	enum insulationDialog {
+		LABEL_EXPLANATION_INS = 3,
+		USERCONTROL_INSULATION_LAYER,
+		LABEL_INSULATION_THK,
+		EDITCONTROL_INSULATION_THK,
+		CHECKBOX_INS_LIMIT_SIZE,
+		LABEL_INS_HORLEN,
+		EDITCONTROL_INS_HORLEN,
+		LABEL_INS_VERLEN,
+		EDITCONTROL_INS_VERLEN,
+	};
 }
+
+// 단열재
+struct insulElemForSlabTableform
+{
+	short	layerInd;		// 레이어 인덱스
+	double	thk;			// 두께
+	bool	bLimitSize;		// 가로/세로 크기 제한
+	double	maxHorLen;		// 가로 최대 길이
+	double	maxVerLen;		// 세로 최대 길이
+};
 
 // 모프 관련 정보
 struct InfoMorphForSlabTableform
@@ -174,6 +196,7 @@ public:
 	GSErrCode	fillCellAreas (void);										// 셀 배열 공간 채우기
 	GSErrCode	fillMarginAreas (void);										// 여백 공간 채우기 (합판)
 	GSErrCode	placeInsulations (void);									// 단열재 배치
+	GSErrCode	place_Joist_Yoke_SupportingPost (void);						// 장선, 멍에제, 동바리 배치
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
@@ -189,5 +212,6 @@ GSErrCode	placeTableformOnSlabBottom (void);	// 슬래브 하부에 테이블폼을 배치하�
 short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
 short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 1차 배치 후 수정을 요청하는 2차 다이얼로그
 short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 2차 다이얼로그에서 각 셀의 객체 타입을 변경하기 위한 3차 다이얼로그
+short DGCALLBACK slabBottomTableformPlacerHandler4_Insulation (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// 슬래브 하부의 간격에 단열재를 배치함
 
 #endif
