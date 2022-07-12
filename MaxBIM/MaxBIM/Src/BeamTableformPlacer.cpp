@@ -673,8 +673,8 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 	short	addedPlywood;
 
 	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
-	double	slantAngle = (placingZone->slantAngle >= 0) ? placingZone->slantAngle : DegreeToRad (360.0) + placingZone->slantAngle;
-	double	minusSlantAngle = (placingZone->slantAngle >= 0) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
+	double	slantAngle = (placingZone->slantAngle >= EPS) ? placingZone->slantAngle : DegreeToRad (360.0) + placingZone->slantAngle;
+	double	minusSlantAngle = (placingZone->slantAngle >= EPS) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
 
 	EasyObjectPlacement euroform, fillersp, plywood, timber;
 	EasyObjectPlacement plywood1, plywood2, plywood3;
@@ -1508,8 +1508,8 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 	double	tempLengthDouble;
 
 	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
-	double	slantAngle = (placingZone->slantAngle >= 0) ? placingZone->slantAngle : DegreeToRad (360.0) + placingZone->slantAngle;
-	double	minusSlantAngle = (placingZone->slantAngle >= 0) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
+	double	slantAngle = (placingZone->slantAngle >= EPS) ? placingZone->slantAngle : DegreeToRad (360.0) + placingZone->slantAngle;
+	double	minusSlantAngle = (placingZone->slantAngle >= EPS) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
 
 	EasyObjectPlacement outangle, hanger, blueClamp, blueTimberRail;
 	EasyObjectPlacement pipe1, pipe2;
@@ -3447,8 +3447,8 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	double	tempLengthDouble;
 
 	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
-	double	slantAngle = (placingZone->slantAngle >= 0) ? placingZone->slantAngle : DegreeToRad (360.0) + placingZone->slantAngle;
-	double	minusSlantAngle = (placingZone->slantAngle >= 0) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
+	double	slantAngle = (placingZone->slantAngle >= EPS) ? placingZone->slantAngle : DegreeToRad (360.0) + placingZone->slantAngle;
+	double	minusSlantAngle = (placingZone->slantAngle >= EPS) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
 
 	EasyObjectPlacement outangle, hanger, blueClamp, blueTimberRail;
 	EasyObjectPlacement pipe1, pipe2;
@@ -5273,7 +5273,7 @@ GSErrCode	BeamTableformPlacingZone::placeInsulationsSide (BeamTableformPlacingZo
 	GSErrCode	err = NoError;
 
 	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
-	double	minusSlantAngle = (placingZone->slantAngle >= 0) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
+	double	minusSlantAngle = (placingZone->slantAngle >= EPS) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
 
 	short	xx, yy;
 	short	totalXX, totalYY;
@@ -5437,7 +5437,7 @@ GSErrCode	BeamTableformPlacingZone::placeInsulationsBottom (BeamTableformPlacing
 	GSErrCode	err = NoError;
 
 	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
-	double	minusSlantAngle = (placingZone->slantAngle >= 0) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
+	double	minusSlantAngle = (placingZone->slantAngle >= EPS) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
 
 	short	xx, yy;
 	short	totalXX, totalYY;
@@ -5654,7 +5654,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 	else if (placingZone->typeOfSupportingPost == 2)
 		distance = -0.1135 - 0.240 + 0.135;
 
-	distance -= 0.600;
+	distance -= 1.500;
 
 	horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 	moveIn3D ('x', horizontalPost.radAng, placingZone->postStartOffset, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
@@ -5836,7 +5836,7 @@ GSErrCode	BeamTableformPlacingZone::placeSupportingPostPreset (BeamTableformPlac
 		else if (placingZone->typeOfSupportingPost == 2)
 			distance = -0.1135 - 0.240 + 0.135;
 
-		distance -= 0.600;
+		distance -= 1.500;
 
 		horizontalPost.init (L("PERI동바리 수평재 v0.2.gsm"), layerInd_HorizontalPost, infoBeam.floorInd, placingZone->begC.x, placingZone->begC.y, placingZone->begC.z, placingZone->ang);
 		moveIn3D ('x', horizontalPost.radAng, placingZone->beamLength - placingZone->postGapLength - placingZone->postStartOffset, &horizontalPost.posX, &horizontalPost.posY, &horizontalPost.posZ);
