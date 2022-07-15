@@ -1583,7 +1583,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 				else
 					lengthDouble = remainLengthDouble;
 
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (outangle.placeObject (2, "a_leng", APIParT_Length, format_string ("%f", lengthDouble), "a_ang", APIParT_Angle, format_string ("%f", slantAngle)));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (outangle.placeObject (2, "a_leng", APIParT_Length, format_string ("%f", lengthDouble), "a_ang", APIParT_Angle, format_string ("%f", minusSlantAngle)));
 				moveIn3DSlope ('x', outangle.radAng, placingZone->slantAngle, lengthDouble, &outangle.posX, &outangle.posY, &outangle.posZ);
 
 				remainLengthDouble -= 2.400;
