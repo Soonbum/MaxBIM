@@ -390,7 +390,7 @@ SECOND:
 		result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), beamTableformPlacerHandler4_Insulation, (DGUserData) &title);
 		
 		if (result == DG_OK)
-			placingZone.placeInsulationsSide (&placingZone, &infoBeam, &insulElem, false);
+			placingZone.placeInsulationsSide (&placingZone, &infoBeam, &insulElem, true);
 	}
 
 	if (placingZone.gapSideRight > EPS) {
@@ -398,7 +398,7 @@ SECOND:
 		result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), beamTableformPlacerHandler4_Insulation, (DGUserData) &title);
 		
 		if (result == DG_OK)
-			placingZone.placeInsulationsSide (&placingZone, &infoBeam, &insulElem, false);
+			placingZone.placeInsulationsSide (&placingZone, &infoBeam, &insulElem, true);
 	}
 
 	if (placingZone.gapBottom > EPS) {
@@ -406,7 +406,7 @@ SECOND:
 		result = DGModalDialog (ACAPI_GetOwnResModule (), 32512, ACAPI_GetOwnResModule (), beamTableformPlacerHandler4_Insulation, (DGUserData) &title);
 		
 		if (result == DG_OK)
-			placingZone.placeInsulationsBottom (&placingZone, &infoBeam, &insulElem, true);
+			placingZone.placeInsulationsBottom (&placingZone, &infoBeam, &insulElem, false);
 	}
 
 	return	err;
@@ -1508,8 +1508,8 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 	double	tempLengthDouble;
 
 	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
-	double	slantAngle = (placingZone->slantAngle >= EPS) ? placingZone->slantAngle : DegreeToRad (360.0) + placingZone->slantAngle;
-	double	minusSlantAngle = (placingZone->slantAngle >= EPS) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
+	double	slantAngle = (placingZone->slantAngle >= EPS) ? (placingZone->slantAngle) : (DegreeToRad (360.0) + placingZone->slantAngle);
+	double	minusSlantAngle = (placingZone->slantAngle >= EPS) ? (DegreeToRad (360.0) - placingZone->slantAngle) : (-placingZone->slantAngle);
 
 	EasyObjectPlacement outangle, hanger, blueClamp, blueTimberRail;
 	EasyObjectPlacement pipe1, pipe2;
@@ -1583,7 +1583,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 				else
 					lengthDouble = remainLengthDouble;
 
-				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (outangle.placeObject (2, "a_leng", APIParT_Length, format_string ("%f", lengthDouble), "a_ang", APIParT_Angle, format_string ("%f", minusSlantAngle)));
+				elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (outangle.placeObject (2, "a_leng", APIParT_Length, format_string ("%f", lengthDouble), "a_ang", APIParT_Angle, format_string ("%f", slantAngle)));
 				moveIn3DSlope ('x', outangle.radAng, placingZone->slantAngle, lengthDouble, &outangle.posX, &outangle.posY, &outangle.posZ);
 
 				remainLengthDouble -= 2.400;
@@ -3447,8 +3447,8 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	double	tempLengthDouble;
 
 	// 회전 각도가 양수, 음수에 따라 파라미터에 전달할 경사 각도 변수
-	double	slantAngle = (placingZone->slantAngle >= EPS) ? placingZone->slantAngle : DegreeToRad (360.0) + placingZone->slantAngle;
-	double	minusSlantAngle = (placingZone->slantAngle >= EPS) ? DegreeToRad (360.0) - placingZone->slantAngle : -placingZone->slantAngle;
+	double	slantAngle = (placingZone->slantAngle >= EPS) ? (placingZone->slantAngle) : (DegreeToRad (360.0) + placingZone->slantAngle);
+	double	minusSlantAngle = (placingZone->slantAngle >= EPS) ? (DegreeToRad (360.0) - placingZone->slantAngle) : (-placingZone->slantAngle);
 
 	EasyObjectPlacement outangle, hanger, blueClamp, blueTimberRail;
 	EasyObjectPlacement pipe1, pipe2;
