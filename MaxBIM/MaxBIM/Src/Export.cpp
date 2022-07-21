@@ -489,6 +489,21 @@ GSErrCode	exportSelectedElementInfo (void)
 							totalLengthOfTimbersEtc += (length3 * count);
 						fprintf (fp, buffer);
 
+					} else if (objectInfo.keyDesc.at(xx).compare ("각도목") == 0) {
+						length = atof (objectInfo.records.at(yy).at(1).c_str ());
+						length2 = atof (objectInfo.records.at(yy).at(2).c_str ());
+						length3 = atof (objectInfo.records.at(yy).at(3).c_str ());
+						sprintf (buffer, "%s X %.0f (커팅각도: %s도)", objectInfo.records.at(yy).at(4).c_str (), round (length3*1000, 0), objectInfo.records.at(yy).at(5).c_str ());
+						if ( ((abs (length - 0.040) < EPS) && (abs (length2 - 0.050) < EPS)) || ((abs (length - 0.050) < EPS) && (abs (length2 - 0.040) < EPS)) )
+							totalLengthOfTimbers_40x50 += (length3 * count);
+						else if ( ((abs (length - 0.050) < EPS) && (abs (length2 - 0.080) < EPS)) || ((abs (length - 0.080) < EPS) && (abs (length2 - 0.050) < EPS)) )
+							totalLengthOfTimbers_50x80 += (length3 * count);
+						else if ((abs (length - 0.080) < EPS) && (abs (length2 - 0.080) < EPS))
+							totalLengthOfTimbers_80x80 += (length3 * count);
+						else
+							totalLengthOfTimbersEtc += (length3 * count);
+						fprintf (fp, buffer);
+
 					} else if (my_strcmp (objectInfo.keyDesc.at(xx).c_str (), "콘판넬") == 0) {
 						if (my_strcmp (objectInfo.records.at(yy).at(1).c_str (), "3x6 [910x1820]") == 0) {
 							sprintf (buffer, "910 X 1820 X %s ", objectInfo.records.at(yy).at(2).c_str ());
@@ -974,7 +989,7 @@ GSErrCode	exportSelectedElementInfo (void)
 		}
 	}
 	if ((totalAreaOfPlywoods > EPS) || (totalLengthOfTimbers_40x50 > EPS) || (totalLengthOfTimbers_50x80 > EPS) || (totalLengthOfTimbers_80x80 > EPS) || (totalLengthOfTimbersEtc > EPS)) {
-		sprintf (buffer, "\n주의사항: 합판/목재 구매 수량은 다음 객체에 대해서만 계산되었습니다. 추가될 객체가 있다면 개발자에게 문의하십시오.\n합판 / 합판(다각형) / 목재 / 매직바 / 매직아웃코너 / 매직인코너 / 눈썹보 브라켓 v2 / 창문 개구부 합판거푸집\n");
+		sprintf (buffer, "\n주의사항: 합판/목재 구매 수량은 다음 객체에 대해서만 계산되었습니다. 추가될 객체가 있다면 개발자에게 문의하십시오.\n합판 / 합판(다각형) / 목재 / 각도목 / 매직바 / 매직아웃코너 / 매직인코너 / 눈썹보 브라켓 v2 / 창문 개구부 합판거푸집\n");
 		fprintf (fp, buffer);
 	}
 
@@ -1908,6 +1923,14 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								length2 = atof (objectInfo.records.at(yy).at(2).c_str ());
 								length3 = atof (objectInfo.records.at(yy).at(3).c_str ());
 								sprintf (buffer, "%.0f X %.0f X %.0f ", round (length*1000, 0), round (length2*1000, 0), round (length3*1000, 0));
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+
+							} else if (objectInfo.keyDesc.at(xx).compare ("각도목") == 0) {
+								length = atof (objectInfo.records.at(yy).at(1).c_str ());
+								length2 = atof (objectInfo.records.at(yy).at(2).c_str ());
+								length3 = atof (objectInfo.records.at(yy).at(3).c_str ());
+								sprintf (buffer, "%s X %.0f (커팅각도: %s도)", objectInfo.records.at(yy).at(4).c_str (), round (length3*1000, 0), objectInfo.records.at(yy).at(5).c_str ());
 								fprintf (fp, buffer);
 								fprintf (fp_unite, buffer);
 
