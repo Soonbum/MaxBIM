@@ -864,6 +864,15 @@ GSErrCode	exportSelectedElementInfo (void)
 						}
 						fprintf (fp, buffer);
 
+					} else if (objectInfo.keyDesc.at(xx).compare ("서포트") == 0) {
+						length = atof (objectInfo.records.at(yy).at(2).c_str ());
+						if (atoi (objectInfo.records.at(yy).at(3).c_str ()) == 1) {
+							sprintf (buffer, "규격(%s) 길이(%.0f) 크로스헤드(%s) ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0), objectInfo.records.at(yy).at(4).c_str ());
+						} else {
+							sprintf (buffer, "규격(%s) 길이(%.0f) ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0));
+						}
+						fprintf (fp, buffer);
+
 					} else if (objectInfo.keyDesc.at(xx).compare ("창문 개구부 합판거푸집") == 0) {
 						// 너비 X 높이 X 벽 두께
 						length = atof (objectInfo.records.at(yy).at(2).c_str ());
@@ -2186,6 +2195,16 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 								fprintf (fp_unite, buffer);
 						
 							} else if (objectInfo.keyDesc.at(xx).compare ("PERI동바리 수직재") == 0) {
+								length = atof (objectInfo.records.at(yy).at(2).c_str ());
+								if (atoi (objectInfo.records.at(yy).at(3).c_str ()) == 1) {
+									sprintf (buffer, "규격(%s) 길이(%.0f) 크로스헤드(%s) ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0), objectInfo.records.at(yy).at(4).c_str ());
+								} else {
+									sprintf (buffer, "규격(%s) 길이(%.0f) ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0));
+								}
+								fprintf (fp, buffer);
+								fprintf (fp_unite, buffer);
+
+							} else if (objectInfo.keyDesc.at(xx).compare ("서포트") == 0) {
 								length = atof (objectInfo.records.at(yy).at(2).c_str ());
 								if (atoi (objectInfo.records.at(yy).at(3).c_str ()) == 1) {
 									sprintf (buffer, "규격(%s) 길이(%.0f) 크로스헤드(%s) ", objectInfo.records.at(yy).at(1).c_str (), round (length*1000, 0), objectInfo.records.at(yy).at(4).c_str ());
