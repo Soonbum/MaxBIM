@@ -46,7 +46,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Inc;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSRoot;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSUtils;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\InputOutput;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGGraphix;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UCLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UDLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\TextEngine;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\Geometry;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\VBElemDialogs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Inc;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSRoot;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSUtils;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\InputOutput;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGGraphix;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UCLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UDLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\TextEngine;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\Geometry;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\VBElemDialogs;$(SolutionDir)MaxBIM\Src\sqlite3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
@@ -74,7 +74,7 @@
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).apx</OutputFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <AdditionalDependencies>msvcrtd.lib;msvcprtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcrtd.lib;msvcprtd.lib;sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>NotSet</SubSystem>
@@ -88,6 +88,7 @@
       </ModuleDefinitionFile>
       <HeapReserveSize>10485760</HeapReserveSize>
       <StackReserveSize>10485760</StackReserveSize>
+      <AdditionalLibraryDirectories>$(SolutionDir)MaxBIM\Src\sqlite3;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(OutDir)\$(ProjectName).apx" "C:\Program Files\Graphisoft\ArchiCAD 19\애드온\$(ProjectName).apx"</Command>
@@ -95,7 +96,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Inc;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSRoot;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSUtils;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\InputOutput;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGGraphix;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UCLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UDLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\TextEngine;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\Geometry;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\VBElemDialogs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Inc;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSRoot;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\GSUtils;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\InputOutput;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\DGGraphix;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UCLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\UDLib;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\TextEngine;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\Geometry;C:\Program Files\Graphisoft\API Development Kit 19.3003\Support\Modules\VBElemDialogs;$(SolutionDir)MaxBIM\Src\sqlite3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
@@ -120,7 +121,7 @@
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).apx</OutputFile>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <AdditionalDependencies>msvcrt.lib;msvcprt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcrt.lib;msvcprt.lib;sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -130,8 +131,7 @@
       </ImportLibrary>
       <LinkDLL>true</LinkDLL>
       <AdditionalOptions>/export:GetExportedFuncAddrs,%401 /export:SetImportedFuncAddrs,%402 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)MaxBIM\Src\sqlite3;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AddModuleNamesToAssembly>
       </AddModuleNamesToAssembly>
       <StackReserveSize>10485760</StackReserveSize>
@@ -157,6 +157,8 @@ copy "$(OutDir)\$(ProjectName).apx" "C:\Program Files\Graphisoft\ArchiCAD 19 INT
     <ClInclude Include="Src\MaxBIM.hpp" />
     <ClInclude Include="Src\Quantities.hpp" />
     <ClInclude Include="Src\SlabTableformPlacer.hpp" />
+    <ClInclude Include="Src\sqlite3\sqlite3.h" />
+    <ClInclude Include="Src\sqlite3\sqlite3ext.h" />
     <ClInclude Include="Src\UtilityFunctions.hpp" />
     <ClInclude Include="Src\WallTableformPlacer.hpp" />
   </ItemGroup>

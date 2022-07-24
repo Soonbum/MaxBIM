@@ -63,6 +63,12 @@
     <ClInclude Include="Src\LowSideTableformPlacer.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Src\sqlite3\sqlite3.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\sqlite3\sqlite3ext.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\MaxBIM.cpp">
