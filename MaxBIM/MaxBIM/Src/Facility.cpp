@@ -595,17 +595,14 @@ short DGCALLBACK setBubbleHandler (short message, short dialogID, short item, DG
 			// 버블 직경
 			DGSetItemFont (dialogID, LABEL_DIAMETER, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_DIAMETER, L"버블 직경");
-			DGSetItemValDouble (dialogID, EDITCONTROL_DIAMETER, 0.550);
 
 			// 글자 크기
 			DGSetItemFont (dialogID, LABEL_LETTER_SIZE, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_LETTER_SIZE, L"글자 크기");
-			DGSetItemValDouble (dialogID, EDITCONTROL_LETTER_SIZE, 0.200);
 
 			// 인출선 길이
 			DGSetItemFont (dialogID, LABEL_WITHDRAWAL_LENGTH, DG_IS_LARGE | DG_IS_PLAIN);
 			DGSetItemText (dialogID, LABEL_WITHDRAWAL_LENGTH, L"인출선 길이");
-			DGSetItemValDouble (dialogID, EDITCONTROL_WITHDRAWAL_LENGTH, 0.700);
 
 			// 버블 위치
 			DGSetItemFont (dialogID, LABEL_BUBBLE_POS, DG_IS_LARGE | DG_IS_PLAIN);
@@ -628,6 +625,20 @@ short DGCALLBACK setBubbleHandler (short message, short dialogID, short item, DG
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_CIRCULAR_BUBBLE, 1);
 
+			// 이전에 저장한 값을 로드함
+			if (loadDialogStatus_bubble (cbInfo) == NoError) {
+				// 로드된 값
+				DGSetItemValDouble (dialogID, EDITCONTROL_DIAMETER, cbInfo->szBubbleDia);				// 버블 직경
+				DGSetItemValDouble (dialogID, EDITCONTROL_LETTER_SIZE, cbInfo->szFont);					// 글자 크기
+				DGSetItemValDouble (dialogID, EDITCONTROL_WITHDRAWAL_LENGTH, cbInfo->lenWithdrawal);	// 인출선 길이
+				DGSetItemValLong (dialogID, USERCONTROL_LAYER_CIRCULAR_BUBBLE, cbInfo->layerInd);		// 레이어
+			} else {
+				// 초기값
+				DGSetItemValDouble (dialogID, EDITCONTROL_DIAMETER, 0.550);				// 버블 직경
+				DGSetItemValDouble (dialogID, EDITCONTROL_LETTER_SIZE, 0.200);			// 글자 크기
+				DGSetItemValDouble (dialogID, EDITCONTROL_WITHDRAWAL_LENGTH, 0.700);	// 인출선 길이
+			}
+
 			break;
 
 		case DG_MSG_CLICK:
@@ -638,6 +649,10 @@ short DGCALLBACK setBubbleHandler (short message, short dialogID, short item, DG
 					cbInfo->pos = (short)DGPopUpGetSelected (dialogID, POPUPCONTROL_BUBBLE_POS);
 					cbInfo->szBubbleDia = DGGetItemValDouble (dialogID, EDITCONTROL_DIAMETER);
 					cbInfo->szFont = DGGetItemValDouble (dialogID, EDITCONTROL_LETTER_SIZE);
+
+					// 마지막으로 입력한 값을 저장함
+					saveDialogStatus_bubble (cbInfo);
+
 					break;
 
 				case DG_CANCEL:
@@ -655,4 +670,58 @@ short DGCALLBACK setBubbleHandler (short message, short dialogID, short item, DG
 	result = item;
 
 	return	result;
+}
+
+// 원형 버블 설정 상태 저장
+GSErrCode	saveDialogStatus_bubble (CircularBubble	*cbInfo)
+{
+	GSErrCode err = NoError;
+	CircularBubble	cbInfoSaved;	// cbInfo의 현재 상태를 저장할 변수
+
+	API_ModulData	info;
+	BNZeroMemory (&info, sizeof (API_ModulData));
+	info.dataVersion = 1;
+	info.platformSign = GS::Act_Platform_Sign;
+	info.dataHdl = BMAllocateHandle (sizeof (cbInfoSaved), 0, 0);
+	if (info.dataHdl != NULL) {
+
+		cbInfoSaved.layerInd		= cbInfo->layerInd;
+		cbInfoSaved.lenWithdrawal	= cbInfo->lenWithdrawal;
+		cbInfoSaved.pos				= cbInfo->pos;
+		cbInfoSaved.szBubbleDia		= cbInfo->szBubbleDia;
+		cbInfoSaved.szFont			= cbInfo->szFont;
+
+		*(reinterpret_cast<CircularBubble*> (*info.dataHdl)) = cbInfoSaved;
+		err = ACAPI_ModulData_Store (&info, "DialogStatus_bubble");
+		BMKillHandle (&info.dataHdl);
+	} else {
+		err = APIERR_MEMFULL;
+	}
+
+	return	err;
+}
+
+// 원형 버블 설정 상태 로드
+GSErrCode	loadDialogStatus_bubble (CircularBubble	*cbInfo)
+{
+	GSErrCode err = NoError;
+	CircularBubble	cbInfoSaved;	// cbInfo의 예전 상태가 저장된 변수
+
+	API_ModulData	info;
+	BNZeroMemory (&info, sizeof (API_ModulData));
+	err = ACAPI_ModulData_Get (&info, "DialogStatus_bubble");
+
+	if (err == NoError && info.dataVersion == 1) {
+		cbInfoSaved = *(reinterpret_cast<CircularBubble*> (*info.dataHdl));
+
+		cbInfo->layerInd		= cbInfoSaved.layerInd;
+		cbInfo->lenWithdrawal	= cbInfoSaved.lenWithdrawal;
+		cbInfo->pos				= cbInfoSaved.pos;
+		cbInfo->szBubbleDia		= cbInfoSaved.szBubbleDia;
+		cbInfo->szFont			= cbInfoSaved.szFont;
+	}
+
+	BMKillHandle (&info.dataHdl);
+
+	return	err;
 }

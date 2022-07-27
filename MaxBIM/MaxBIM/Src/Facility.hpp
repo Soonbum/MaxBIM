@@ -46,5 +46,7 @@ short DGCALLBACK selectLayerHandler (short message, short dialogID, short item, 
 
 GSErrCode	attachBubbleOnCurrentFloorPlan (void);	// 현재 평면도의 테이블폼에 버블 자동 배치
 short DGCALLBACK setBubbleHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그 박스] 원형 버블 설정
+GSErrCode	saveDialogStatus_bubble (CircularBubble	*cbInfo);		// 원형 버블 설정 상태 저장
+GSErrCode	loadDialogStatus_bubble (CircularBubble	*cbInfo);		// 원형 버블 설정 상태 로드
 
 #endif
