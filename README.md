@@ -3,21 +3,35 @@
 
 * 설명: 이것은 (주)스마트맥스가 소유한 아키캐드(이하 AC) 19용 애드온으로서 업무 보조용 도구입니다.
 
+* 개발자 ID 획득하기
+
+  - 다음 사이트에 가입(Sign Up)하면 메일을 받게 됩니다. (https://archicadapi.graphisoft.com/)
+  
+  - 메일을 Confirm하면 추후 개발자 등록 승인 메일을 받게 되는데 그 안에 개발자 ID가 있을 것입니다.
+
 * 개발환경: Windows 10 64Bit, Visual Studio 2010, ArchiCAD API Development Kit 19
+
+  - Visual Studio 2010을 설치하십시오. C++ 개발 환경 구축은 필수입니다.
+  
+  - GRAPHISOFT에서 제공하는 API Development Kit 19를 설치하십시오. Visual Studio 2010용 Template Wizard를 이용하여 개발 환경을 구축하십시오.
+  
+  - API Development Kit의 Example 소스를 통해 API 문서에 대한 실제 예제를 볼 수 있습니다.
 
 * 설치 방법
 
-  - 컴파일을 하면 x64 디렉토리에 MaxBIM.apx 파일이 생성되는데 이것을 C:\Program Files\GRAPHISOFT\ArchiCAD 19의 애드온 디렉토리에 복사하시면 됩니다.
-
-  - Doc 디렉토리의 layer.csv 파일은 C:\ 디렉토리에 복사하시면 됩니다.
+  - 컴파일을 하면 x64 디렉토리에 MaxBIM.apx 파일이 생성되는데 이것을 C:\Program Files\GRAPHISOFT\ArchiCAD 19의 애드온 디렉토리에 복사하십시오.
   
-  - Doc 디렉토리의 *.gsm 파일은 AC의 라이브러리 관리자에서 로드하시면 됩니다.
+  - Src\sqlite3 디렉토리의 sqlite3.dll 파일을 C:\Program Files\GRAPHISOFT\ArchiCAD 19 디렉토리에 복사하십시오.
+
+  - Doc 디렉토리의 objectInfo.csv, layer.csv, exceptionLayer.csv 파일은 C:\ 디렉토리에 복사하십시오.
+  
+  - Doc 디렉토리의 *.gsm 파일은 아키캐드의 라이브러리 관리자에서 로드하시면 됩니다.
 
 * 구동 방법
 
   - ArchiCAD 19를 구동하면 도움말 메뉴 좌측에 MaxBIM 메뉴가 나옵니다.
 
-  - 만약 메뉴가 제대로 표시되지 않는다면 옵션 > 작업 환경 > 메뉴를 통해 직접 메뉴를 구성하셔야 됩니다.
+  - 만약 메뉴가 제대로 표시되지 않는다면 "옵션 > 애드온 관리자"에서 MaxBIM 항목을 끈 다음 확인하고 다시 켜서 확인해 보거나, "옵션 > 작업 환경 > 메뉴"를 통해 직접 메뉴를 구성하셔야 됩니다.
 
 * 프로젝트 구성 디렉토리 (2022.03.01 업데이트)
 
@@ -34,6 +48,12 @@
       - RINT : MaxBIM.grc (개발자/애드온 ID, 이미지/아이콘 리소스 ID, 다이얼로그 리소스 ID 등)
 
       - Src : 여러 가지 C/C++ header, source 파일들이 있음
+      
+* 참고 문서
+
+  - 초보자를 위한 ArchiCAD 애드온 개발 가이드: https://docs.google.com/document/d/1QkGUc4PjSOUt_8CU0CLBy9zOgTXiSHmsM8XoMb80Smk/edit?usp=sharing
+  
+  - 아키캐드 애드온 개발 환경 구축하기 (64비트 환경): https://docs.google.com/document/d/1MN-BmUn7pGVzhBGUJiwHW4jsxZ1nxUNN/edit?usp=sharing&ouid=104508791730356351070&rtpof=true&sd=true
 
 * 메뉴 구성 (2022.06.14 업데이트)
 
