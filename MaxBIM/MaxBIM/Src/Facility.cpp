@@ -57,10 +57,10 @@ GSErrCode	select3DQuality (void)
 			if (err == NoError) {
 				bSuccess = setParameterByName (&memo, "gs_resol", gs_resol);	// 해상도 값을 변경함
 
-				ACAPI_Element_Change (&elem, NULL, &memo, APIMemoMask_AddPars, true);
-
-				if (bSuccess == true)
+				if (bSuccess == true) {
 					ElemsChanged ++;
+					ACAPI_Element_Change (&elem, NULL, &memo, APIMemoMask_AddPars, true);
+				}
 				else
 					ElemsUnchanged ++;
 			}
