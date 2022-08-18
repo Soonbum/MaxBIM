@@ -18,8 +18,6 @@
 
 #include "Information.hpp"
 
-#include "sqlite3.h"
-
 #define	MDID_DEVELOPER_ID	829517673
 #define	MDID_LOCAL_ID		3588511626
 
@@ -263,6 +261,9 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						err = attachBubbleOnCurrentFloorPlan ();
 						return err;
 					});
+
+				case 4:		// 카메라 위치 저장하기/불러오기
+					err = manageCameraInfo ();
 
 					break;
 			}

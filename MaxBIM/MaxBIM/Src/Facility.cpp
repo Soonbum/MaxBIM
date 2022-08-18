@@ -725,3 +725,240 @@ GSErrCode	loadDialogStatus_bubble (CircularBubble	*cbInfo)
 
 	return	err;
 }
+
+// 카메라 위치 저장하기/불러오기
+GSErrCode	manageCameraInfo (void)
+{
+	GSErrCode	err = NoError;
+	short	result;
+
+	result = DGBlankModalDialog (500, 540, DG_DLG_VGROW | DG_DLG_HGROW, 0, DG_DLG_THICKFRAME, cameraPosManagerHandler, 0);
+
+	// APIEnv_Get3DProjectionSetsID, APIEnv_Change3DProjectionSetsID
+
+	return	err;
+}
+
+// [다이얼로그 박스] 카메라 위치 관리하기
+short DGCALLBACK cameraPosManagerHandler (short message, short dialogID, short item, DGUserData /* userData */, DGMessageData /* msgData */)
+{
+	short	result;
+
+	sqlite3 *db = NULL;
+	sqlite3_stmt* res;
+	char *err_msg = NULL;
+	int rc = 0;
+	char *sql = NULL;
+	char *comment = NULL;
+	API_3DProjectionInfo	currentCamera;
+
+	switch (message) {
+		case DG_MSG_INIT:
+			// 다이얼로그 타이틀
+			DGSetDialogTitle (dialogID, L"카메라 위치 관리하기");
+
+			// 저장 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 460, 480, 30);
+			DGSetItemFont (dialogID, DG_OK, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_OK, L"카메라 위치 저장하기");
+			DGShowItem (dialogID, DG_OK);
+
+			// 삭제 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 390, 480, 30);
+			DGSetItemFont (dialogID, DG_CANCEL, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, DG_CANCEL, L"카메라 위치 삭제하기");
+			DGShowItem (dialogID, DG_CANCEL);
+
+			// 로드 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 350, 480, 30);
+			DGSetItemFont (dialogID, BUTTON_LOAD, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_LOAD, L"카메라 위치 불러오기");
+			DGShowItem (dialogID, BUTTON_LOAD);
+
+			// 닫기 버튼
+			DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 10, 500, 480, 30);
+			DGSetItemFont (dialogID, BUTTON_CLOSE, DG_IS_LARGE | DG_IS_PLAIN);
+			DGSetItemText (dialogID, BUTTON_CLOSE, L"창 닫기");
+			DGShowItem (dialogID, BUTTON_CLOSE);
+
+			// 리스트 뷰
+			DGAppendDialogItem (dialogID, DG_ITM_LISTVIEW, DG_LVT_SINGLESELECT, DG_LVVM_SINGLECOLUMN, 10, 10, 480, 330);
+			DGSetItemFont (dialogID, LISTVIEW_CAMERA_POS_NAME, DG_IS_LARGE | DG_IS_PLAIN);
+			DGListViewSetImageSize (dialogID, LISTVIEW_CAMERA_POS_NAME, 0, 0);
+			DGShowItem (dialogID, LISTVIEW_CAMERA_POS_NAME);
+
+			// Edit컨트롤 (카메라 위치에 대한 코멘트 입력)
+			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_TEXT, 0, 10, 430, 480, 25);
+			DGSetItemFont (dialogID, EDITCONTROL_CAMERA_POS_NAME, DG_IS_LARGE | DG_IS_PLAIN);
+			DGShowItem (dialogID, EDITCONTROL_CAMERA_POS_NAME);
+
+			// DB로부터 정보를 읽어와서 리스트 뷰에 추가함
+			db = NULL;
+			err_msg = NULL;
+			rc = sqlite3_open ("cameraInfo.db", &db);
+
+			if (rc != SQLITE_OK) {
+				DGAlert (DG_ERROR, L"오류", L"DB 열기 오류.", "", L"확인", "", "");
+				sqlite3_close (db);
+				db = NULL;
+			}
+
+			sql = "SELECT * FROM Cameras;";
+			rc = sqlite3_prepare_v2 (db, sql, -1, &res, 0);
+
+			rc = sqlite3_step (res);
+			while (rc == SQLITE_ROW) {
+				// 1번째 열의 텍스트를 리스트 뷰에 추가
+				DGListViewInsertItem (dialogID, LISTVIEW_CAMERA_POS_NAME, DG_LIST_BOTTOM);
+				DGListViewSetItemText (dialogID, LISTVIEW_CAMERA_POS_NAME, DG_LIST_BOTTOM, sqlite3_column_text (res, 0));
+				
+				// 다음 행을 불러옴
+				rc = sqlite3_step (res);
+			}
+
+			sqlite3_close (db);
+			db = NULL;
+
+			break;
+
+		case DG_MSG_CLICK:
+			switch (item) {
+				case DG_OK:			// 저장 버튼
+					db = NULL;
+					err_msg = NULL;
+					rc = sqlite3_open ("cameraInfo.db", &db);
+
+					if (rc != SQLITE_OK) {
+						DGAlert (DG_ERROR, L"오류", L"DB 열기 오류.", "", L"확인", "", "");
+						sqlite3_close (db);
+						db = NULL;
+					}
+
+					// 테이블이 없으면 새로 생성함
+					sql = "CREATE TABLE IF NOT EXISTS Cameras(Comment TEXT PRIMARY KEY, isPersp INT, camGuid_f01 INT, camGuid_f02 INT, camGuid_f03 INT, camGuid_f04 INT, camGuid_f05 INT, camGuid_f06 INT, camGuid_f07 INT, camGuid_f08 INT, camGuid_f09 INT, camGuid_f10 INT, camGuid_f11 INT, actCamSet_f01 INT, actCamSet_f02 INT, actCamSet_f03 INT, actCamSet_f04 INT, actCamSet_f05 INT, actCamSet_f06 INT, actCamSet_f07 INT, actCamSet_f08 INT, actCamSet_f09 INT, actCamSet_f10 INT, actCamSet_f11 INT, persp_azimuth REAL, persp_SunAzimuth REAL, persp_sunAltitude REAL, persp_viewCone REAL, persp_rollAngle REAL, persp_distance REAL, persp_cameraZ REAL, persp_targetZ REAL, persp_posX REAL, persp_posY REAL, persp_targetX REAL, persp_targetY REAL, axono_azimuth REAL, axono_sunAzimuth REAL, axono_sunAltitude REAL, axono_projMod INT, axono_tranmat_01 REAL, axono_tranmat_02 REAL, axono_tranmat_03 REAL, axono_tranmat_04 REAL, axono_tranmat_05 REAL, axono_tranmat_06 REAL, axono_tranmat_07 REAL, axono_tranmat_08 REAL, axono_tranmat_09 REAL, axono_tranmat_10 REAL, axono_tranmat_11 REAL, axono_tranmat_12 REAL, axono_invtranmat_01 REAL, axono_invtranmat_02 REAL, axono_invtranmat_03 REAL, axono_invtranmat_04 REAL, axono_invtranmat_05 REAL, axono_invtranmat_06 REAL, axono_invtranmat_07 REAL, axono_invtranmat_08 REAL, axono_invtranmat_09 REAL, axono_invtranmat_10 REAL, axono_invtranmat_11 REAL, axono_invtranmat_12 REAL);";
+					rc = sqlite3_exec (db, sql, 0, 0, &err_msg);
+
+					// 테이블에 저장하고자 하는 코멘트 텍스트가 존재하는지 확인함
+					sql = "SELECT * FROM Cameras WHERE Comment = ?;";
+					rc = sqlite3_prepare_v2 (db, sql, -1, &res, 0);
+					sqlite3_bind_text (res, 1, DGGetItemText (dialogID, EDITCONTROL_CAMERA_POS_NAME).ToCStr ().Get (), -1, SQLITE_STATIC);
+					rc = sqlite3_step (res);
+					rc = sqlite3_data_count (res);
+
+					if (rc > 0) {
+						// 만약 존재하면, 이미 존재하고 있다는 메시지를 보여줌
+						DGAlert (DG_WARNING, L"경고", L"해당 코멘트는 이미 존재합니다.", "", L"확인", "", "");
+						sqlite3_finalize (res);
+					} else {
+						// 만약 존재하지 않으면, DB에 필드를 추가하고 리스트 뷰에도 추가함
+						ACAPI_Environment (APIEnv_Get3DProjectionSetsID, &currentCamera);
+						sql = "INSERT INTO Cameras VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+						rc = sqlite3_prepare_v2 (db, sql, -1, &res, 0);
+						sqlite3_bind_text (res, 1, DGGetItemText (dialogID, EDITCONTROL_CAMERA_POS_NAME).ToCStr ().Get (), -1, SQLITE_STATIC);
+						sqlite3_bind_int (res,  2, currentCamera.isPersp);
+						sqlite3_bind_int (res,  3, currentCamera.camGuid.time_low);
+						sqlite3_bind_int (res,  4, currentCamera.camGuid.time_mid);
+						sqlite3_bind_int (res,  5, currentCamera.camGuid.time_hi_and_version);
+						sqlite3_bind_int (res,  6, currentCamera.camGuid.clock_seq_hi_and_reserved);
+						sqlite3_bind_int (res,  7, currentCamera.camGuid.clock_seq_low);
+						sqlite3_bind_int (res,  8, currentCamera.camGuid.node [0]);
+						sqlite3_bind_int (res,  9, currentCamera.camGuid.node [1]);
+						sqlite3_bind_int (res, 10, currentCamera.camGuid.node [2]);
+						sqlite3_bind_int (res, 11, currentCamera.camGuid.node [3]);
+						sqlite3_bind_int (res, 12, currentCamera.camGuid.node [4]);
+						sqlite3_bind_int (res, 13, currentCamera.camGuid.node [5]);
+						sqlite3_bind_int (res, 14, currentCamera.actCamSet.time_low);
+						sqlite3_bind_int (res, 15, currentCamera.actCamSet.time_mid);
+						sqlite3_bind_int (res, 16, currentCamera.actCamSet.time_hi_and_version);
+						sqlite3_bind_int (res, 17, currentCamera.actCamSet.clock_seq_hi_and_reserved);
+						sqlite3_bind_int (res, 18, currentCamera.actCamSet.clock_seq_low);
+						sqlite3_bind_int (res, 19, currentCamera.actCamSet.node [0]);
+						sqlite3_bind_int (res, 20, currentCamera.actCamSet.node [1]);
+						sqlite3_bind_int (res, 21, currentCamera.actCamSet.node [2]);
+						sqlite3_bind_int (res, 22, currentCamera.actCamSet.node [3]);
+						sqlite3_bind_int (res, 23, currentCamera.actCamSet.node [4]);
+						sqlite3_bind_int (res, 24, currentCamera.actCamSet.node [5]);
+						sqlite3_bind_double (res, 25, currentCamera.u.persp.azimuth);
+						sqlite3_bind_double (res, 26, currentCamera.u.persp.sunAzimuth);
+						sqlite3_bind_double (res, 27, currentCamera.u.persp.sunAltitude);
+						sqlite3_bind_double (res, 28, currentCamera.u.persp.viewCone);
+						sqlite3_bind_double (res, 29, currentCamera.u.persp.rollAngle);
+						sqlite3_bind_double (res, 30, currentCamera.u.persp.distance);
+						sqlite3_bind_double (res, 31, currentCamera.u.persp.cameraZ);
+						sqlite3_bind_double (res, 32, currentCamera.u.persp.targetZ);
+						sqlite3_bind_double (res, 33, currentCamera.u.persp.pos.x);
+						sqlite3_bind_double (res, 34, currentCamera.u.persp.pos.y);
+						sqlite3_bind_double (res, 35, currentCamera.u.persp.target.x);
+						sqlite3_bind_double (res, 36, currentCamera.u.persp.target.y);
+						sqlite3_bind_double (res, 37, currentCamera.u.axono.azimuth);
+						sqlite3_bind_double (res, 38, currentCamera.u.axono.sunAzimuth);
+						sqlite3_bind_double (res, 39, currentCamera.u.axono.sunAltitude);
+						sqlite3_bind_int (res, 40, currentCamera.u.axono.projMod);
+						sqlite3_bind_double (res, 41, currentCamera.u.axono.tranmat.tmx [0]);
+						sqlite3_bind_double (res, 42, currentCamera.u.axono.tranmat.tmx [1]);
+						sqlite3_bind_double (res, 43, currentCamera.u.axono.tranmat.tmx [2]);
+						sqlite3_bind_double (res, 44, currentCamera.u.axono.tranmat.tmx [3]);
+						sqlite3_bind_double (res, 45, currentCamera.u.axono.tranmat.tmx [4]);
+						sqlite3_bind_double (res, 46, currentCamera.u.axono.tranmat.tmx [5]);
+						sqlite3_bind_double (res, 47, currentCamera.u.axono.tranmat.tmx [6]);
+						sqlite3_bind_double (res, 48, currentCamera.u.axono.tranmat.tmx [7]);
+						sqlite3_bind_double (res, 49, currentCamera.u.axono.tranmat.tmx [8]);
+						sqlite3_bind_double (res, 50, currentCamera.u.axono.tranmat.tmx [9]);
+						sqlite3_bind_double (res, 51, currentCamera.u.axono.tranmat.tmx [10]);
+						sqlite3_bind_double (res, 52, currentCamera.u.axono.tranmat.tmx [11]);
+						sqlite3_bind_double (res, 53, currentCamera.u.axono.invtranmat.tmx [0]);
+						sqlite3_bind_double (res, 54, currentCamera.u.axono.invtranmat.tmx [1]);
+						sqlite3_bind_double (res, 55, currentCamera.u.axono.invtranmat.tmx [2]);
+						sqlite3_bind_double (res, 56, currentCamera.u.axono.invtranmat.tmx [3]);
+						sqlite3_bind_double (res, 57, currentCamera.u.axono.invtranmat.tmx [4]);
+						sqlite3_bind_double (res, 58, currentCamera.u.axono.invtranmat.tmx [5]);
+						sqlite3_bind_double (res, 59, currentCamera.u.axono.invtranmat.tmx [6]);
+						sqlite3_bind_double (res, 60, currentCamera.u.axono.invtranmat.tmx [7]);
+						sqlite3_bind_double (res, 61, currentCamera.u.axono.invtranmat.tmx [8]);
+						sqlite3_bind_double (res, 62, currentCamera.u.axono.invtranmat.tmx [9]);
+						sqlite3_bind_double (res, 63, currentCamera.u.axono.invtranmat.tmx [10]);
+						sqlite3_bind_double (res, 64, currentCamera.u.axono.invtranmat.tmx [11]);
+						rc = sqlite3_step (res);
+						DGListViewInsertItem (dialogID, LISTVIEW_CAMERA_POS_NAME, DG_LIST_BOTTOM);
+						DGListViewSetItemText (dialogID, LISTVIEW_CAMERA_POS_NAME, DG_LIST_BOTTOM, DGGetItemText (dialogID, EDITCONTROL_CAMERA_POS_NAME));
+					}
+
+					sqlite3_close (db);
+					db = NULL;
+
+					item = 0;
+					break;
+
+				case DG_CANCEL:		// 삭제 버튼
+					// 선택한 항목을 리스트에서 제거함
+					//DGListViewGetItemText --> 리스트 뷰 항목들의 텍스트를 게트
+					//DGListViewDeleteItem --> 항목 삭제 (DB 내에서 제거)
+					//DGListViewGetSelected --> 선택한 항목의 인덱스 가져오기
+					item = 0;
+					break;
+
+				case BUTTON_LOAD:	// 로드 버튼
+					// 선택한 항목의 카메라 설정을 적용함
+					//DGListViewGetSelected --> 선택한 항목의 인덱스 가져오기
+					break;
+
+				case BUTTON_CLOSE:	// 닫기 버튼
+					break;
+
+				default:
+					break;
+			}
+			break;
+
+		case DG_MSG_CLOSE:
+			switch (item) {
+				case DG_CLOSEBOX:
+					break;
+			}
+			break;
+	}
+
+	result = item;
+
+	return	result;
+}

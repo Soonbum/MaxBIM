@@ -37,6 +37,7 @@
 #include "UC.h"
 #include "DG.h"
 #include "APICommon.h"
+#include "sqlite3.h"
 #include <string.h>
 #include <vector>
 #include <exception>

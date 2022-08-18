@@ -27,6 +27,13 @@ namespace FacilityDG {
 		LABEL_LAYER_CIRCULAR_BUBBLE,
 		USERCONTROL_LAYER_CIRCULAR_BUBBLE
 	};
+
+	enum	dgCameraManager {
+		BUTTON_LOAD = 3,
+		BUTTON_CLOSE,
+		LISTVIEW_CAMERA_POS_NAME,
+		EDITCONTROL_CAMERA_POS_NAME
+	};
 }
 
 struct CircularBubble
@@ -48,5 +55,8 @@ GSErrCode	attachBubbleOnCurrentFloorPlan (void);	// 현재 평면도의 테이블폼에 버�
 short DGCALLBACK setBubbleHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);		// [다이얼로그 박스] 원형 버블 설정
 GSErrCode	saveDialogStatus_bubble (CircularBubble	*cbInfo);		// 원형 버블 설정 상태 저장
 GSErrCode	loadDialogStatus_bubble (CircularBubble	*cbInfo);		// 원형 버블 설정 상태 로드
+
+GSErrCode	manageCameraInfo (void);				// 카메라 위치 저장하기/불러오기
+short DGCALLBACK cameraPosManagerHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);	// [다이얼로그 박스] 카메라 위치 관리하기
 
 #endif
