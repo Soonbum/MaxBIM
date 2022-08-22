@@ -247,6 +247,8 @@ GSErrCode	calcInsulationQuantityAndAreaMultiMode (void);										// 단열재 수량
 GSErrCode	exportAllElevationsToPDFSingleMode (void);											// 모든 입면도 PDF로 내보내기 (Single 모드)
 GSErrCode	exportAllElevationsToPDFMultiMode (void);											// 모든 입면도 PDF로 내보내기 (Multi 모드)
 
+GSErrCode	calcMorphAreaSingleMode (void);														// 모프 면적 계산 (Single 모드)
+
 short DGCALLBACK scaleQuestionHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// [다이얼로그] 사용자가 축척 값을 직접 입력할 수 있도록 함
 
 #endif

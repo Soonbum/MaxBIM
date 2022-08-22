@@ -3656,7 +3656,7 @@ GSErrCode	calcConcreteVolumeSingleMode (void)
 	// 그룹화 일시정지 ON
 	suspendGroups (true);
 
-	// 선택한 요소 가져오기 ( 벽, 기둥, 보, 슬래브, 모프, 객체)
+	// 선택한 요소 가져오기 (벽, 기둥, 보, 슬래브, 모프, 객체)
 	getGuidsOfSelection (&walls, API_WallID, &nWalls);
 	getGuidsOfSelection (&columns, API_ColumnID, &nColumns);
 	getGuidsOfSelection (&beams, API_BeamID, &nBeams);
@@ -4941,6 +4941,61 @@ GSErrCode	exportAllElevationsToPDFMultiMode (void)
 	WriteReport_Alert ("결과물을 다음 위치에 저장했습니다.\n\n%s\n또는 프로젝트 파일이 있는 폴더", resultString.ToCStr ().Get ());
 
 	return err;
+}
+
+// 모프 면적 계산 (Single 모드)
+GSErrCode	calcMorphAreaSingleMode (void)
+{
+	GSErrCode	err = NoError;
+	unsigned short		xx;
+	//bool		regenerate = true;
+	
+	GS::Array<API_Guid>		morphs;
+
+	long					nMorphs = 0;
+
+	double					volume_morphs = 0.0;
+
+	// 선택한 요소들의 정보 요약하기
+	API_ElementQuantity	quantity;
+	API_Quantities		quantities;
+	API_QuantitiesMask	mask;
+	API_QuantityPar		params;
+	char				reportStr [512];
+
+
+	// 그룹화 일시정지 ON
+	suspendGroups (true);
+
+	// 선택한 요소 가져오기 (모프)
+	getGuidsOfSelection (&morphs, API_MorphID, &nMorphs);
+
+	if (nMorphs == 0) {
+		DGAlert (DG_ERROR, L"오류", L"요소들을 선택해야 합니다.", "", L"확인", "", "");
+		return err;
+	}
+
+	params.minOpeningSize = EPS;
+
+	// 모프에 대한 물량 정보 추출
+	ACAPI_ELEMENT_QUANTITY_MASK_CLEAR (mask);
+	ACAPI_ELEMENT_QUANTITY_MASK_SET (mask, morph, surface);
+	for (xx = 0 ; xx < nMorphs ; ++xx) {
+		quantities.elements = &quantity;
+		err = ACAPI_Element_GetQuantities (morphs [xx], &params, &quantities, &mask);
+
+		if (err == NoError) {
+			volume_morphs += quantity.morph.surface;
+		}
+	}
+
+	sprintf (reportStr, "%s: %lf ㎡", "모프 부피", volume_morphs);
+	WriteReport_Alert (reportStr);
+
+	// 그룹화 일시정지 OFF
+	suspendGroups (false);
+
+	return	err;
 }
 
 // [다이얼로그] 다이얼로그에서 보이는 레이어 상에 있는 객체들의 종류를 보여주고, 체크한 종류의 객체들만 선택 후 보여줌

@@ -181,6 +181,8 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 13:	// 모든 입면도 PDF로 내보내기 (Multi 모드)
 					err = exportAllElevationsToPDFMultiMode ();
 					break;
+				case 14:	// 모프 면적 계산 (Single 모드)
+					err = calcMorphAreaSingleMode ();
 			}
 			break;
 
@@ -311,24 +313,6 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					//err = ACAPI_CallUndoableCommand (L"개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
-						//wchar_t* str1 = charToWchar ("일반 문자열을 와이드 문자열로");
-						//char* str2 = wcharToChar (L"와이드 문자열을 일반 문자열로");
-
-						//DGAlert (DG_INFORMATION, "테스트", str1, str2, "확인", "", "");
-
-						sqlite3 *db = NULL;
-						int rc = sqlite3_open("test.db", &db);
-
-						if (rc != SQLITE_OK) {
-							WriteReport_Alert ("DB 열기 오류");
-							sqlite3_close (db);
-							db = NULL;
-						} else {
-							WriteReport_Alert ("DB 열기 성공");
-						}
-
-						sqlite3_close (db);
-						db = NULL;
 						// *** 원하는 코드를 위에 넣으시오.
 						return err;
 					//});
