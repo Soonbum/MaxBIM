@@ -38,9 +38,10 @@
 #include "DG.h"
 #include "APICommon.h"
 #include "sqlite3.h"
-#include <string.h>
+#include <string>
 #include <vector>
 #include <exception>
+#include <algorithm>
 
 #define TRUE	1
 #define FALSE	0

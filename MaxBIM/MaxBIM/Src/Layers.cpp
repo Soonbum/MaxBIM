@@ -378,7 +378,7 @@ GSErrCode	showLayersEasily (void)
 	// 프로젝트 내 레이어 개수를 알아냄
 	nLayers = getLayerCount ();
 
-	for (xx = 1; xx <= nLayers ; ++xx) {
+	for (xx = 1 ; xx <= nLayers ; ++xx) {
 		BNZeroMemory (&attrib, sizeof (API_Attribute));
 		attrib.header.typeID = API_LayerID;
 		attrib.header.index = xx;
@@ -891,7 +891,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 	short	result;
 	short	itmIdx;
 	short	itmPosX, itmPosY;
-	short	xx;
+	short	xx, yy;
 	char	tempStr [128];
 	short	dialogSizeX, dialogSizeY;
 	short	borderX = 1400;
@@ -899,7 +899,7 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 	GSErrCode err = NoError;
 	API_ModulData  info;
 
-	// 다이얼로그에서 선택한 코드 버튼의 이름을 저장함
+	// 다이얼로그에서 사용자가 먼저 선택한 코드 버튼의 이름을 저장함
 	vector<string>	selected_code_name;
 	vector<string>	selected_dong_name;
 	vector<string>	selected_floor_name;
@@ -909,6 +909,26 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 	vector<string>	selected_obj_name;
 	vector<string>	selected_productSite_name;
 	vector<string>	selected_productNum_name;
+
+	// 사용자가 선택할 수 있는 코드 종류를 저장함
+	vector<string>	visible_code_name;
+	vector<string>	visible_dong_name;
+	vector<string>	visible_floor_name;
+	vector<string>	visible_cast_name;
+	vector<string>	visible_CJ_name;
+	vector<string>	visible_orderInCJ_name;
+	vector<string>	visible_obj_name;
+	vector<string>	visible_productSite_name;
+	vector<string>	visible_productNum_name;
+
+	short			nLayers;
+	API_Attribute	attrib;
+
+	string	layerName;
+	string	extractedStr;
+	vector<string>	visibleLayerList;
+	char*	token;
+	char	layerNameStr [256];
 
 	switch (message) {
 		case DG_MSG_INIT:
@@ -937,14 +957,14 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 			// 필터 버튼
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 0, 110, 50, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_EXTRASMALL | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, L"LOCK");
+			DGSetItemText (dialogID, itmIdx, L"필터");
 			DGShowItem (dialogID, itmIdx);
 			BUTTON_FILTER = itmIdx;
 
 			// 언필터 버튼
 			itmIdx = DGAppendDialogItem (dialogID, DG_ITM_BUTTON, DG_BT_ICONTEXT, 0, 0, 140, 50, 25);
 			DGSetItemFont (dialogID, itmIdx, DG_IS_EXTRASMALL | DG_IS_PLAIN);
-			DGSetItemText (dialogID, itmIdx, L"UNLOCK");
+			DGSetItemText (dialogID, itmIdx, L"언필터");
 			DGShowItem (dialogID, itmIdx);
 			BUTTON_UNFILTER = itmIdx;
 
@@ -1745,21 +1765,218 @@ short DGCALLBACK layerShowHandler (short message, short dialogID, short item, DG
 						for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx)	if (layerInfo.productNum_state [xx] == true)	DGDisableItem (dialogID, layerInfo.productNum_idx [xx]);
 
 						// 수집한 코드에 한해서만 버튼을 활성화함
-						// ... !!!
+						visibleLayerList.clear ();
+						nLayers = getLayerCount ();
+
+						for (xx = 1 ; xx <= nLayers ; ++xx) {
+							// 기존 레이어 이름에서 선택한 코드 버튼이 포함된 레이어 이름만 추출함
+							BNZeroMemory (&attrib, sizeof (API_Attribute));
+							attrib.header.typeID = API_LayerID;
+							attrib.header.index = xx;
+							err = ACAPI_Attribute_Get (&attrib);
+							if (err == NoError) {
+								layerName = attrib.layer.head.name;
+
+								// 공사 구분 코드 비교
+								token = strtok (attrib.layer.head.name, "-");
+								if (token == NULL)	continue;
+								extractedStr = token;
+								strcpy (tempStr, extractedStr.c_str ());
+								token = strtok (NULL, "-");
+								if (token == NULL)	continue;
+								extractedStr = token;
+								strcat (tempStr, "-");
+								strcat (tempStr, extractedStr.c_str ());
+								extractedStr = tempStr;
+								for (yy = 0 ; yy < selected_code_name.size () ; ++yy)		if (extractedStr.compare (selected_code_name [yy]) == 0)		visibleLayerList.push_back (layerName);
+
+								// 동 구분 코드 비교
+								token = strtok (NULL, "-");
+								if (token == NULL)	continue;
+								extractedStr = token;
+								for (yy = 0 ; yy < selected_dong_name.size () ; ++yy)		if (extractedStr.compare (selected_dong_name [yy]) == 0)		visibleLayerList.push_back (layerName);
+
+								// 층 구분 코드 비교
+								token = strtok (NULL, "-");
+								if (token == NULL)	continue;
+								extractedStr = token;
+								for (yy = 0 ; yy < selected_floor_name.size () ; ++yy)		if (extractedStr.compare (selected_floor_name [yy]) == 0)		visibleLayerList.push_back (layerName);
+
+								// 타설번호 코드 비교
+								token = strtok (NULL, "-");
+								if (token == NULL)	continue;
+								extractedStr = token;
+								for (yy = 0 ; yy < selected_cast_name.size () ; ++yy)		if (extractedStr.compare (selected_cast_name [yy]) == 0)		visibleLayerList.push_back (layerName);
+
+								// CJ 구간 코드 비교
+								token = strtok (NULL, "-");
+								if (token == NULL)	continue;
+								extractedStr = token;
+								for (yy = 0 ; yy < selected_CJ_name.size () ; ++yy)			if (extractedStr.compare (selected_CJ_name [yy]) == 0)			visibleLayerList.push_back (layerName);
+
+								// 시공순서 코드 비교
+								token = strtok (NULL, "-");
+								if (token == NULL)	continue;
+								extractedStr = token;
+								for (yy = 0 ; yy < selected_orderInCJ_name.size () ; ++yy)	if (extractedStr.compare (selected_orderInCJ_name [yy]) == 0)	visibleLayerList.push_back (layerName);
+
+								// 부재 코드 비교
+								token = strtok (NULL, "-");
+								if (token == NULL)	continue;
+								extractedStr = token;
+								for (yy = 0 ; yy < selected_obj_name.size () ; ++yy)		if (extractedStr.compare (selected_obj_name [yy]) == 0)			visibleLayerList.push_back (layerName);
+
+								// 제작처 구분 코드 비교
+								token = strtok (NULL, "-");
+								if (token == NULL)	continue;
+								extractedStr = token;
+								for (yy = 0 ; yy < selected_productSite_name.size () ; ++yy)	if (extractedStr.compare (selected_productSite_name [yy]) == 0)		visibleLayerList.push_back (layerName);
+
+								// 제작 번호 코드 비교
+								token = strtok (NULL, "-");
+								if (token == NULL)	continue;
+								extractedStr = token;
+								for (yy = 0 ; yy < selected_productNum_name.size () ; ++yy)		if (extractedStr.compare (selected_productNum_name [yy]) == 0)		visibleLayerList.push_back (layerName);
+							}
+						}
+
+						// 새로운 레이어 목록에서 중복된 항목 제거
+						visibleLayerList.erase (unique (visibleLayerList.begin (), visibleLayerList.end ()), visibleLayerList.end ());
+
+						// 새로운 레이어 목록을 통해 선택 가능한 코드를 추출함
+						for (xx = 0 ; xx < visibleLayerList.size () ; ++xx) {
+							sprintf (layerNameStr, "%s", visibleLayerList [xx].c_str ());
+							layerName = visibleLayerList [xx];
+
+							// 공사 구분 코드 삽입
+							token = strtok (layerNameStr, "-");
+							if (token == NULL)	continue;
+							sprintf (tempStr, "%s", token);
+							token = strtok (NULL, "-");
+							if (token == NULL)	continue;
+							strcat (tempStr, "-");
+							strcat (tempStr, token);
+							visible_code_name.push_back (tempStr);
+
+							// 동 구분 코드 삽입
+							token = strtok (NULL, "-");
+							if (token == NULL)	continue;
+							visible_dong_name.push_back (token);
+
+							// 층 구분 코드 삽입
+							token = strtok (NULL, "-");
+							if (token == NULL)	continue;
+							visible_floor_name.push_back (token);
+
+							// 타설번호 코드 삽입
+							token = strtok (NULL, "-");
+							if (token == NULL)	continue;
+							visible_cast_name.push_back (token);
+
+							// CJ 구간 코드 삽입
+							token = strtok (NULL, "-");
+							if (token == NULL)	continue;
+							visible_CJ_name.push_back (token);
+
+							// 시공순서 코드 삽입
+							token = strtok (NULL, "-");
+							if (token == NULL)	continue;
+							visible_orderInCJ_name.push_back (token);
+
+							// 부재 코드 삽입
+							token = strtok (NULL, "-");
+							if (token == NULL)	continue;
+							visible_obj_name.push_back (token);
+
+							// 제작처 구분 코드 삽입
+							token = strtok (NULL, "-");
+							if (token == NULL)	continue;
+							visible_productSite_name.push_back (token);
+
+							// 제작 번호 코드 삽입
+							token = strtok (NULL, "-");
+							if (token == NULL)	continue;
+							visible_productNum_name.push_back (token);
+						}
+
+						// 추출된 코드 문자열의 중복을 제거함
+						visible_code_name.erase (unique (visible_code_name.begin (), visible_code_name.end ()), visible_code_name.end ());
+						visible_dong_name.erase (unique (visible_dong_name.begin (), visible_dong_name.end ()), visible_dong_name.end ());
+						visible_floor_name.erase (unique (visible_floor_name.begin (), visible_floor_name.end ()), visible_floor_name.end ());
+						visible_cast_name.erase (unique (visible_cast_name.begin (), visible_cast_name.end ()), visible_cast_name.end ());
+						visible_CJ_name.erase (unique (visible_CJ_name.begin (), visible_CJ_name.end ()), visible_CJ_name.end ());
+						visible_orderInCJ_name.erase (unique (visible_orderInCJ_name.begin (), visible_orderInCJ_name.end ()), visible_orderInCJ_name.end ());
+						visible_obj_name.erase (unique (visible_obj_name.begin (), visible_obj_name.end ()), visible_obj_name.end ());
+						visible_productSite_name.erase (unique (visible_productSite_name.begin (), visible_productSite_name.end ()), visible_productSite_name.end ());
+						visible_productNum_name.erase (unique (visible_productNum_name.begin (), visible_productNum_name.end ()), visible_productNum_name.end ());
+
+						// 공사 구분 코드 버튼 활성화
+						for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx)
+							for (yy = 0 ; yy < visible_code_name.size () ; ++yy)
+								if (layerInfo.code_name [xx].compare (visible_code_name [yy]) == 0)
+									DGEnableItem (dialogID, layerInfo.code_idx [xx]);
+
+						// 동 구분 코드 버튼 활성화
+						for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx)
+							for (yy = 0 ; yy < visible_dong_name.size () ; ++yy)
+								if (layerInfo.dong_name [xx].compare (visible_dong_name [yy]) == 0)
+									DGEnableItem (dialogID, layerInfo.dong_idx [xx]);
+
+						// 층 구분 코드 버튼 활성화
+						for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx)
+							for (yy = 0 ; yy < visible_floor_name.size () ; ++yy)
+								if (layerInfo.floor_name [xx].compare (visible_floor_name [yy]) == 0)
+									DGEnableItem (dialogID, layerInfo.floor_idx [xx]);
+
+						// 타설번호 코드 버튼 활성화
+						for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx)
+							for (yy = 0 ; yy < visible_cast_name.size () ; ++yy)
+								if (layerInfo.cast_name [xx].compare (visible_cast_name [yy]) == 0)
+									DGEnableItem (dialogID, layerInfo.cast_idx [xx]);
+
+						// CJ 구간 코드 버튼 활성화
+						for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx)
+							for (yy = 0 ; yy < visible_CJ_name.size () ; ++yy)
+								if (layerInfo.CJ_name [xx].compare (visible_CJ_name [yy]) == 0)
+									DGEnableItem (dialogID, layerInfo.CJ_idx [xx]);
+
+						// 시공순서 코드 버튼 활성화
+						for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx)
+							for (yy = 0 ; yy < visible_orderInCJ_name.size () ; ++yy)
+								if (layerInfo.orderInCJ_name [xx].compare (visible_orderInCJ_name [yy]) == 0)
+									DGEnableItem (dialogID, layerInfo.orderInCJ_idx [xx]);
+
+						// 부재 코드 버튼 활성화
+						for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx)
+							for (yy = 0 ; yy < visible_obj_name.size () ; ++yy)
+								if (layerInfo.obj_name [xx].compare (visible_obj_name [yy]) == 0)
+									DGEnableItem (dialogID, layerInfo.obj_idx [xx]);
+
+						// 제작처 구분 코드 버튼 활성화
+						for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx)
+							for (yy = 0 ; yy < visible_productSite_name.size () ; ++yy)
+								if (layerInfo.productSite_name [xx].compare (visible_productSite_name [yy]) == 0)
+									DGEnableItem (dialogID, layerInfo.productSite_idx [xx]);
+
+						// 제작 번호 코드 버튼 활성화
+						for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx)
+							for (yy = 0 ; yy < visible_productNum_name.size () ; ++yy)
+								if (layerInfo.productNum_name [xx].compare (visible_productNum_name [yy]) == 0)
+									DGEnableItem (dialogID, layerInfo.productNum_idx [xx]);
 					}
 
 					// 모든 버튼을 다시 누를 수 있는 상태로 복원시킴
 					if (clickedBtnItemIdx == BUTTON_UNFILTER) {
 						// 코드 버튼 전체 활성화
-						for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx)			DGEnableItem (dialogID, layerInfo.code_idx [xx]);
-						for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx)			DGEnableItem (dialogID, layerInfo.dong_idx [xx]);
-						for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx)			DGEnableItem (dialogID, layerInfo.floor_idx [xx]);
-						for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx)			DGEnableItem (dialogID, layerInfo.cast_idx [xx]);
-						for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx)			DGEnableItem (dialogID, layerInfo.CJ_idx [xx]);
-						for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx)		DGEnableItem (dialogID, layerInfo.orderInCJ_idx [xx]);
-						for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx)			DGEnableItem (dialogID, layerInfo.obj_idx [xx]);
-						for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx)	DGEnableItem (dialogID, layerInfo.productSite_idx [xx]);
-						for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx)	DGEnableItem (dialogID, layerInfo.productNum_idx [xx]);
+						for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx)			if (layerInfo.code_state [xx] == true)			DGEnableItem (dialogID, layerInfo.code_idx [xx]);
+						for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx)			if (layerInfo.dong_state [xx] == true)			DGEnableItem (dialogID, layerInfo.dong_idx [xx]);
+						for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx)			if (layerInfo.floor_state [xx] == true)			DGEnableItem (dialogID, layerInfo.floor_idx [xx]);
+						for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx)			if (layerInfo.cast_state [xx] == true)			DGEnableItem (dialogID, layerInfo.cast_idx [xx]);
+						for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx)			if (layerInfo.CJ_state [xx] == true)			DGEnableItem (dialogID, layerInfo.CJ_idx [xx]);
+						for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx)		if (layerInfo.orderInCJ_state [xx] == true)		DGEnableItem (dialogID, layerInfo.orderInCJ_idx [xx]);
+						for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx)			if (layerInfo.obj_state [xx] == true)			DGEnableItem (dialogID, layerInfo.obj_idx [xx]);
+						for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx)	if (layerInfo.productSite_state [xx] == true)	DGEnableItem (dialogID, layerInfo.productSite_idx [xx]);
+						for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx)	if (layerInfo.productNum_state [xx] == true)	DGEnableItem (dialogID, layerInfo.productNum_idx [xx]);
 					}
 
 					break;
