@@ -1735,8 +1735,9 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 				continue;
 			}
 
-			// 레이어 이름 (통합 버전에만)
+			// 레이어 이름
 			sprintf (buffer, "\n\n<< 레이어 : %s >>\n", fullLayerName);
+			fprintf (fp, buffer);
 			fprintf (fp_unite, buffer);
 
 			for (xx = 0 ; xx < nObjects ; ++xx) {
