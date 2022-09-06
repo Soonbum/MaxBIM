@@ -130,7 +130,7 @@ struct VisibleObjectInfo
 // 보 테이블폼 내 자재들에 대한 정보
 struct objectInBeamTableform
 {
-	short	objType;			// EUROFORM, PLYWOOD
+	short	objType;			// NONE, EUROFORM, PLYWOOD
 	short	attachPosition;		// LEFT_SIDE, RIGHT_SIDE, BOTTOM_SIDE
 	API_Coord3D	origin;			// 원점 좌표
 	API_Coord3D	minPos, maxPos;	// 최소점, 최대점 위치
@@ -139,52 +139,25 @@ struct objectInBeamTableform
 
 	double	beginPos;			// 시작점 위치
 	double	endPos;				// 끝점 위치
-	bool	bUsed;				// 셀에 넣었으면 true, 아직 안 넣었으면 false
 };
 
-// 보 테이블폼 물량표 작성을 위한 구조체에 사용되는 셀 정보
-class BeamTableformCell
+// 보 테이블폼 물량표 작성을 위한 구조체에 사용되는 셀 배열 정보
+class BeamTableformCellArray
 {
 public:
-	double	euroform_leftHeight;		// 왼쪽/아래쪽 높이 (유로폼)
-	double	euroform_rightHeight;		// 오른쪽/위쪽 높이 (유로폼)
-	double	euroform_bottomWidth;		// 하부 너비 (유로폼)
-
-	double	plywoodOnly_leftHeight;		// 왼쪽/아래쪽 높이 (전체 합판)
-	double	plywoodOnly_rightHeight;	// 오른쪽/위쪽 높이 (전체 합판)
-	double	plywoodOnly_bottomWidth;	// 하부 너비 (전체 합판)
-
-	double	length_left;				// 왼쪽/아래쪽 길이
-	double	length_right;				// 오른쪽/위쪽 길이
-	double	length_bottom;				// 하부 길이
+	short	iBeamDirection;			// HORIZONTAL_DIRECTION, VERTICAL_DIRECTION
+	double	cellElev [2];			// [n]: n+1단 고도값
+	double	cellPos [2];			// [n]: n+1단 X,Y값
+	short	nCells_Left;			// 사용하는 셀 개수
+	short	nCells_Right;			// 사용하는 셀 개수
+	short	nCells_Bottom;			// 사용하는 셀 개수
+	objectInBeamTableform	cells_Left [30][2];		// 보 테이블폼 자재 배열 (2단까지 가능)
+	objectInBeamTableform	cells_Right [30][2];	// 보 테이블폼 자재 배열 (2단까지 가능)
+	objectInBeamTableform	cells_Bottom [30][2];	// 보 테이블폼 자재 배열 (2단까지 가능)
 
 public:
-	bool operator == (BeamTableformCell& other) {
-		if (this->euroform_leftHeight > EPS) {
-			if ((abs (this->euroform_leftHeight - other.euroform_leftHeight) < EPS) && (abs (this->euroform_rightHeight - other.euroform_rightHeight) < EPS) && (abs (this->euroform_bottomWidth - other.euroform_bottomWidth) < EPS) && (abs (this->length_left - other.length_left) < EPS) && (abs (this->length_right - other.length_right) < EPS) && (abs (this->length_bottom - other.length_bottom) < EPS))
-				return true;
-			else
-				return false;
-		} else {
-			if ((abs (this->plywoodOnly_leftHeight - other.plywoodOnly_leftHeight) < EPS) && (abs (this->plywoodOnly_rightHeight - other.plywoodOnly_rightHeight) < EPS) && (abs (this->plywoodOnly_bottomWidth - other.plywoodOnly_bottomWidth) < EPS) && (abs (this->length_left - other.length_left) < EPS) && (abs (this->length_right - other.length_right) < EPS) && (abs (this->length_bottom - other.length_bottom) < EPS))
-				return true;
-			else
-				return false;
-		}
-	}
-	bool operator != (BeamTableformCell& other) {
-		if (this->euroform_leftHeight > EPS) {
-			if ((abs (this->euroform_leftHeight - other.euroform_leftHeight) < EPS) && (abs (this->euroform_rightHeight - other.euroform_rightHeight) < EPS) && (abs (this->euroform_bottomWidth - other.euroform_bottomWidth) < EPS) && (abs (this->length_left - other.length_left) < EPS) && (abs (this->length_right - other.length_right) < EPS) && (abs (this->length_bottom - other.length_bottom) < EPS))
-				return false;
-			else
-				return true;
-		} else {
-			if ((abs (this->plywoodOnly_leftHeight - other.plywoodOnly_leftHeight) < EPS) && (abs (this->plywoodOnly_rightHeight - other.plywoodOnly_rightHeight) < EPS) && (abs (this->plywoodOnly_bottomWidth - other.plywoodOnly_bottomWidth) < EPS) && (abs (this->length_left - other.length_left) < EPS) && (abs (this->length_right - other.length_right) < EPS) && (abs (this->length_bottom - other.length_bottom) < EPS))
-				return false;
-			else
-				return true;
-		}
-	}
+	BeamTableformCellArray ();
+	void	init ();
 };
 
 // 레이어 이름 및 해당 레이어의 인덱스
@@ -193,28 +166,6 @@ class LayerList
 public:
 	short	layerInd;
 	string	layerName;
-};
-
-// 보 테이블폼의 유로폼 셀 타입 정보
-class BeamTableformEuroformCellType
-{
-public:
-	short				nCells;
-	BeamTableformCell	cells [50];
-	vector<string>		layerNames [50];
-};
-
-// 보 테이블폼 물량표 작성을 위한 클래스
-class BeamTableformInfo
-{
-public:
-	short	iBeamDirection;			// 보 방향 (HORIZONTAL_DIRECTION, VERTICAL_DIRECTION)
-	short	nCells;					// 셀 개수
-	BeamTableformCell	cells [50];	// 셀 정보
-
-public:
-	BeamTableformInfo ();		// 보 테이블폼 물량표 작성을 위한 클래스 생성자 (초기화)
-	void init ();				// 초기화
 };
 
 void		initArray (double arr [], short arrSize);											// 배열 초기화 함수

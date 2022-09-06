@@ -2589,30 +2589,64 @@ GSErrCode	filterSelection (void)
 	return	err;
 }
 
-// 보 테이블폼 물량표 작성을 위한 클래스 생성자 (초기화)
-BeamTableformInfo::BeamTableformInfo ()
-{
-	this->init ();
+// 셀 배열 정보 생성자
+BeamTableformCellArray::BeamTableformCellArray () {
+	objectInBeamTableform	initCell;
+	initCell.objType = NONE;
+	initCell.attachPosition = LEFT_SIDE;
+	initCell.origin.x = 0.0;	initCell.origin.y = 0.0;	initCell.origin.z = 0.0;
+	initCell.minPos.x = 0.0;	initCell.minPos.y = 0.0;	initCell.minPos.z = 0.0;
+	initCell.maxPos.x = 0.0;	initCell.maxPos.y = 0.0;	initCell.maxPos.z = 0.0;
+	initCell.width = 0.0;
+	initCell.length = 0.0;
+	initCell.beginPos = 0.0;
+	initCell.endPos = 0.0;
+
+	this->iBeamDirection = HORIZONTAL_DIRECTION;
+	this->nCells_Left = 0;
+	this->nCells_Right = 0;
+	this->nCells_Bottom = 0;
+
+	for (short xx = 0 ; xx < 2 ; ++xx) {
+		this->cellElev [xx] = 0.0;
+		this->cellPos [xx] = 0.0;
+
+		for (short yy = 0 ; yy < 30 ; ++yy) {
+			this->cells_Left [yy][xx] = initCell;
+			this->cells_Right [yy][xx] = initCell;
+			this->cells_Bottom [yy][xx] = initCell;
+		}
+	}
 }
 
-// 초기화
-void BeamTableformInfo::init ()
+// 셀 배열 정보 초기화
+void BeamTableformCellArray::init ()
 {
-	this->iBeamDirection = 0;
-	this->nCells = 0;
+	objectInBeamTableform	initCell;
+	initCell.objType = NONE;
+	initCell.attachPosition = LEFT_SIDE;
+	initCell.origin.x = 0.0;	initCell.origin.y = 0.0;	initCell.origin.z = 0.0;
+	initCell.minPos.x = 0.0;	initCell.minPos.y = 0.0;	initCell.minPos.z = 0.0;
+	initCell.maxPos.x = 0.0;	initCell.maxPos.y = 0.0;	initCell.maxPos.z = 0.0;
+	initCell.width = 0.0;
+	initCell.length = 0.0;
+	initCell.beginPos = 0.0;
+	initCell.endPos = 0.0;
 
-	for (short xx = 0 ; xx < 50 ; ++xx) {
-		this->cells [xx].euroform_leftHeight = 0.0;
-		this->cells [xx].euroform_rightHeight = 0.0;
-		this->cells [xx].euroform_bottomWidth = 0.0;
+	this->iBeamDirection = HORIZONTAL_DIRECTION;
+	this->nCells_Left = 0;
+	this->nCells_Right = 0;
+	this->nCells_Bottom = 0;
 
-		this->cells [xx].plywoodOnly_leftHeight = 0.0;
-		this->cells [xx].plywoodOnly_rightHeight = 0.0;
-		this->cells [xx].plywoodOnly_bottomWidth = 0.0;
+	for (short xx = 0 ; xx < 2 ; ++xx) {
+		this->cellElev [xx] = 0.0;
+		this->cellPos [xx] = 0.0;
 
-		this->cells [xx].length_left = 0.0;
-		this->cells [xx].length_right = 0.0;
-		this->cells [xx].length_bottom = 0.0;
+		for (short yy = 0 ; yy < 30 ; ++yy) {
+			this->cells_Left [yy][xx] = initCell;
+			this->cells_Right [yy][xx] = initCell;
+			this->cells_Bottom [yy][xx] = initCell;
+		}
 	}
 }
 
@@ -2620,22 +2654,27 @@ void BeamTableformInfo::init ()
 GSErrCode	exportBeamTableformInformation (void)
 {
 	GSErrCode	err = NoError;
-	unsigned short		xx, yy, zz;
+	unsigned short		xx;
 	short	mm;
 	//bool	regenerate = true;
 
 	GS::Array<API_Guid>		objects;
 	long					nObjects = 0;
+	long					nObjects_Left = 0;
+	long					nObjects_Right = 0;
+	long					nObjects_Bottom = 0;
 
 	API_Element			elem;
 	API_ElementMemo		memo;
 	API_ElemInfo3D		info3D;
 
-	vector<objectInBeamTableform>	objectList;				// 객체 리스트
+	vector<objectInBeamTableform>	objectList;
+	vector<objectInBeamTableform>	objectList_Left;
+	vector<objectInBeamTableform>	objectList_Right;
+	vector<objectInBeamTableform>	objectList_Bottom;
+
 	objectInBeamTableform			newObject;
-	BeamTableformInfo				tableformInfo;			// 보 테이블폼 정보
-	BeamTableformInfo				tableformInfoSummary;	// 보 테이블폼 정보 (요약판)
-	BeamTableformEuroformCellType	euroformCellType;		// 유로폼 셀 타입 정보
+	BeamTableformCellArray			tableformInfo;
 
 	double				xmin, xmax, ymin, ymax;
 	int					ang_x, ang_y;
@@ -2646,14 +2685,14 @@ GSErrCode	exportBeamTableformInformation (void)
 	short			nLayers;
 	API_Attribute	attrib;
 	short			nVisibleLayers = 0;
-	short			visLayerList [1024];
+	short			visLayerList [2048];
 	char			fullLayerName [512];
 	vector<LayerList>	layerList;
 
 	// 기타
 	char			tempStr [512];
-	char			buffer [512];
-	char			tempBuffer [512];
+	char			buffer_s [512];
+	char			buffer [1024];
 	char			filename [512];
 
 	// 엑셀 파일로 기둥 정보 내보내기
@@ -2727,9 +2766,6 @@ GSErrCode	exportBeamTableformInformation (void)
 		return	NoError;
 	}
 
-	// 유로폼 셀 타입 정보 초기화
-	euroformCellType.nCells = 0;
-
 	// 보이는 레이어들을 하나씩 순회하면서 전체 요소들을 선택한 후 "보 테이블폼 물량표" 루틴 실행
 	for (mm = 1 ; mm <= nVisibleLayers ; ++mm) {
 		BNZeroMemory (&attrib, sizeof (API_Attribute));
@@ -2746,9 +2782,11 @@ GSErrCode	exportBeamTableformInformation (void)
 			}
 
 			// 초기화
-			tableformInfo.init ();
-			tableformInfoSummary.init ();
 			objectList.clear ();
+			objectList_Left.clear ();
+			objectList_Right.clear ();
+			objectList_Bottom.clear ();
+			tableformInfo.init ();
 
 			// 모든 요소 가져오기
 			ACAPI_Element_GetElemList (API_ObjectID, &objects, APIFilt_OnVisLayer);	// 보이는 레이어에 있음, 객체 타입만
@@ -2802,9 +2840,6 @@ GSErrCode	exportBeamTableformInformation (void)
 						newObject.maxPos.x = info3D.bounds.xMax;
 						newObject.maxPos.y = info3D.bounds.yMax;
 						newObject.maxPos.z = info3D.bounds.zMax;
-
-						// 셀에 넣기 전에는 false 값을 넣어둠
-						newObject.bUsed = false;
 						
 						// 객체의 타입, 너비와 길이를 저장
 						if (my_strcmp (getParameterStringByName (&memo, "u_comp"), "유로폼") == 0) {
@@ -2853,46 +2888,46 @@ GSErrCode	exportBeamTableformInformation (void)
 						}
 
 						else if (my_strcmp (getParameterStringByName (&memo, "g_comp"), "합판") == 0) {
-							if (abs (getParameterValueByName (&memo, "sogak") - 1.0) < EPS) {
-								newObject.objType = PLYWOOD;
+							newObject.objType = PLYWOOD;
 
-								ang_x = (int)round (RadToDegree (getParameterValueByName (&memo, "p_ang")), 0);
+							ang_x = (int)round (RadToDegree (getParameterValueByName (&memo, "p_ang")), 0);
 
-								if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "벽눕히기") == 0) {
-									newObject.width = getParameterValueByName (&memo, "p_wid");
-									newObject.length = getParameterValueByName (&memo, "p_leng");
-									if ( (ang_x == 0) || (ang_x == 180) )
-										newObject.attachPosition = LEFT_SIDE;
-									else
-										newObject.attachPosition = BOTTOM_SIDE;
-								} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "벽세우기") == 0) {
-									newObject.width = getParameterValueByName (&memo, "p_leng");
-									newObject.length = getParameterValueByName (&memo, "p_wid");
-									if ( (ang_x == 0) || (ang_x == 180) )
-										newObject.attachPosition = LEFT_SIDE;
-									else
-										newObject.attachPosition = BOTTOM_SIDE;
-								} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "바닥깔기") == 0) {
-									newObject.width = getParameterValueByName (&memo, "p_wid");
-									newObject.length = getParameterValueByName (&memo, "p_leng");
-									if ( (ang_x == 90) || (ang_x == 270) )
-										newObject.attachPosition = LEFT_SIDE;
-									else
-										newObject.attachPosition = BOTTOM_SIDE;
-								} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "바닥덮기") == 0) {
-									newObject.width = getParameterValueByName (&memo, "p_wid");
-									newObject.length = getParameterValueByName (&memo, "p_leng");
-									if ( (ang_x == 90) || (ang_x == 270) )
-										newObject.attachPosition = LEFT_SIDE;
-									else
-										newObject.attachPosition = BOTTOM_SIDE;
-								}
-
-								// 단, 전체를 덮는 합판은 너비가 200mm 이상이어야 함
-								if (newObject.width > 0.200 - EPS)
-									bValid = true;
+							if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "벽눕히기") == 0) {
+								newObject.width = getParameterValueByName (&memo, "p_wid");
+								newObject.length = getParameterValueByName (&memo, "p_leng");
+								if ( (ang_x == 0) || (ang_x == 180) )
+									newObject.attachPosition = LEFT_SIDE;
 								else
-									bValid = false;
+									newObject.attachPosition = BOTTOM_SIDE;
+
+								bValid = true;
+							} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "벽세우기") == 0) {
+								newObject.width = getParameterValueByName (&memo, "p_leng");
+								newObject.length = getParameterValueByName (&memo, "p_wid");
+								if ( (ang_x == 0) || (ang_x == 180) )
+									newObject.attachPosition = LEFT_SIDE;
+								else
+									newObject.attachPosition = BOTTOM_SIDE;
+
+								bValid = true;
+							} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "바닥깔기") == 0) {
+								newObject.width = getParameterValueByName (&memo, "p_wid");
+								newObject.length = getParameterValueByName (&memo, "p_leng");
+								if ( (ang_x == 90) || (ang_x == 270) )
+									newObject.attachPosition = LEFT_SIDE;
+								else
+									newObject.attachPosition = BOTTOM_SIDE;
+
+								bValid = true;
+							} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "바닥덮기") == 0) {
+								newObject.width = getParameterValueByName (&memo, "p_wid");
+								newObject.length = getParameterValueByName (&memo, "p_leng");
+								if ( (ang_x == 90) || (ang_x == 270) )
+									newObject.attachPosition = LEFT_SIDE;
+								else
+									newObject.attachPosition = BOTTOM_SIDE;
+
+								bValid = true;
 							}
 						}
 
@@ -2968,316 +3003,420 @@ GSErrCode	exportBeamTableformInformation (void)
 				}
 			}
 
-			// 시작점/끝점 위치와 일치하는 객체들을 묶어서 셀로 저장함 (유로폼 또는 유로폼을 3개 또는 2개씩 그룹화)
-			short nCells_left = 0;
-			short nCells_right = 0;
-			short nCells_bottom = 0;
+			// 자재들의 최소점을 기준으로 고도점을 스캔 (가장 작은 값을 1단 기준, 가장 큰 값을 2단 기준으로 정함)
+			double	lowElev, highElev;
+			lowElev = highElev = objectList [0].minPos.z;
 
 			for (xx = 0 ; xx < nObjects ; ++xx) {
-				// 연속된 3개의 객체가 유로폼인가?
-				if ((objectList [xx].objType == EUROFORM) && (objectList [xx+1].objType == EUROFORM) && (objectList [xx+2].objType == EUROFORM) &&
-					(objectList [xx].bUsed == false) && (objectList [xx+1].bUsed == false) && (objectList [xx+2].bUsed == false)) {
+				if (objectList [xx].minPos.z < lowElev)		lowElev = objectList [xx].minPos.z;
+				if (objectList [xx].minPos.z > highElev)	highElev = objectList [xx].minPos.z;
+			}
 
-					for (yy = 0 ; yy < 3 ; ++yy) {
-						if (objectList [xx + yy].objType == EUROFORM) {
-							if (objectList [xx + yy].attachPosition == LEFT_SIDE) {
-								tableformInfo.cells [nCells_left].euroform_leftHeight = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_left].length_left = objectList [xx + yy].length;
-								++ nCells_left;
-							}
-							else if (objectList [xx + yy].attachPosition == RIGHT_SIDE) {
-								tableformInfo.cells [nCells_right].euroform_rightHeight = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_right].length_right = objectList [xx + yy].length;
-								++ nCells_right;
-							}
-							else if (objectList [xx + yy].attachPosition == BOTTOM_SIDE) {
-								tableformInfo.cells [nCells_bottom].euroform_bottomWidth = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_bottom].length_bottom = objectList [xx + yy].length;
-								++ nCells_bottom;
-							}
-						}
-							
-						objectList [xx + yy].bUsed = true;
-					}
-					continue;
+			tableformInfo.cellElev [0] = lowElev;
+			tableformInfo.cellElev [1] = highElev;
+
+			// 자재들의 최소점을 기준으로 X,Y점을 스캔
+			if (tableformInfo.iBeamDirection == VERTICAL_DIRECTION) {
+				lowElev = highElev = objectList [0].minPos.x;
+
+				for (xx = 0 ; xx < nObjects ; ++xx) {
+					if (objectList [xx].minPos.x < lowElev)		lowElev = objectList [xx].minPos.x;
+					if (objectList [xx].minPos.x > highElev)	highElev = objectList [xx].minPos.x;
 				}
+			} else {
+				lowElev = highElev = objectList [0].minPos.y;
 
-				// 연속된 2개의 객체가 유로폼인가?
-				else if ((objectList [xx].objType == EUROFORM) && (objectList [xx+1].objType == EUROFORM) &&
-					(objectList [xx].bUsed == false) && (objectList [xx+1].bUsed == false)) {
-
-					for (yy = 0 ; yy < 2 ; ++yy) {
-						if (objectList [xx + yy].objType == EUROFORM) {
-							if (objectList [xx + yy].attachPosition == LEFT_SIDE) {
-								tableformInfo.cells [nCells_left].euroform_leftHeight = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_left].length_left = objectList [xx + yy].length;
-								++ nCells_left;
-							}
-							else if (objectList [xx + yy].attachPosition == RIGHT_SIDE) {
-								tableformInfo.cells [nCells_right].euroform_rightHeight = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_right].length_right = objectList [xx + yy].length;
-								++ nCells_right;
-							}
-							else if (objectList [xx + yy].attachPosition == BOTTOM_SIDE) {
-								tableformInfo.cells [nCells_bottom].euroform_bottomWidth = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_bottom].length_bottom = objectList [xx + yy].length;
-								++ nCells_bottom;
-							}
-						}
-							
-						objectList [xx + yy].bUsed = true;
-					}
-					continue;
-				}
-
-				// 연속된 3개의 객체가 합판인가?
-				else if ((objectList [xx].objType == PLYWOOD) && (objectList [xx+1].objType == PLYWOOD) && (objectList [xx+2].objType == PLYWOOD) &&
-					(objectList [xx].bUsed == false) && (objectList [xx+1].bUsed == false) && (objectList [xx+2].bUsed == false)) {
-
-					for (yy = 0 ; yy < 3 ; ++yy) {
-						if (objectList [xx + yy].objType == PLYWOOD) {
-							if (objectList [xx + yy].attachPosition == LEFT_SIDE) {
-								tableformInfo.cells [nCells_left].plywoodOnly_leftHeight = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_left].length_left = objectList [xx + yy].length;
-								++ nCells_left;
-							}
-							else if (objectList [xx + yy].attachPosition == RIGHT_SIDE) {
-								tableformInfo.cells [nCells_right].plywoodOnly_rightHeight = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_right].length_right = objectList [xx + yy].length;
-								++ nCells_right;
-							}
-							else if (objectList [xx + yy].attachPosition == BOTTOM_SIDE) {
-								tableformInfo.cells [nCells_bottom].plywoodOnly_bottomWidth = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_bottom].length_bottom = objectList [xx + yy].length;
-								++ nCells_bottom;
-							}
-						}
-							
-						objectList [xx + yy].bUsed = true;
-					}
-					continue;
-				}
-
-				// 연속된 2개의 객체가 합판인가?
-				else if ((objectList [xx].objType == PLYWOOD) && (objectList [xx+1].objType == PLYWOOD) &&
-					(objectList [xx].bUsed == false) && (objectList [xx+1].bUsed == false)) {
-
-					for (yy = 0 ; yy < 2 ; ++yy) {
-						if (objectList [xx + yy].objType == PLYWOOD) {
-							if (objectList [xx + yy].attachPosition == LEFT_SIDE) {
-								tableformInfo.cells [nCells_left].plywoodOnly_leftHeight = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_left].length_left = objectList [xx + yy].length;
-								++ nCells_left;
-							}
-							else if (objectList [xx + yy].attachPosition == RIGHT_SIDE) {
-								tableformInfo.cells [nCells_right].plywoodOnly_rightHeight = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_right].length_right = objectList [xx + yy].length;
-								++ nCells_right;
-							}
-							else if (objectList [xx + yy].attachPosition == BOTTOM_SIDE) {
-								tableformInfo.cells [nCells_bottom].plywoodOnly_bottomWidth = objectList [xx + yy].width;
-								tableformInfo.cells [nCells_bottom].length_bottom = objectList [xx + yy].length;
-								++ nCells_bottom;
-							}
-						}
-							
-						objectList [xx + yy].bUsed = true;
-					}
-					continue;
+				for (xx = 0 ; xx < nObjects ; ++xx) {
+					if (objectList [xx].minPos.y > lowElev)		lowElev = objectList [xx].minPos.y;
+					if (objectList [xx].minPos.y < highElev)	highElev = objectList [xx].minPos.y;
 				}
 			}
 
-			// 보 테이블폼 정보 (요약판) 만들기
-			tableformInfoSummary.iBeamDirection = tableformInfo.iBeamDirection;
-			bool	bBeforeCellEuroform;	// 이전 셀이 유로폼입니까?
+			tableformInfo.cellPos [0] = lowElev;
+			tableformInfo.cellPos [1] = highElev;
 
-			if (nObjects != 0) {
-				// 성공한 경우
-				tableformInfo.nCells = nCells_left;
-				tableformInfoSummary.nCells = 0;
+			// 자재들을 위치별로 분류함
+			for (xx = 0 ; xx < nObjects ; ++xx) {
+				if (objectList [xx].attachPosition == LEFT_SIDE)	objectList_Left.push_back (objectList [xx]);
+				if (objectList [xx].attachPosition == RIGHT_SIDE)	objectList_Right.push_back (objectList [xx]);
+				if (objectList [xx].attachPosition == BOTTOM_SIDE)	objectList_Bottom.push_back (objectList [xx]);
+			}
+			nObjects_Left = (long)objectList_Left.size ();
+			nObjects_Right = (long)objectList_Right.size ();
+			nObjects_Bottom = (long)objectList_Bottom.size ();
 
-				for (xx = 0 ; xx < tableformInfo.nCells ; ++xx) {
-					if (xx == 0) {
-						// 0번 셀은 무조건 저장
-						tableformInfoSummary.cells [0] = tableformInfo.cells [0];
-						++ tableformInfoSummary.nCells;
-							
-						// 이전 셀 정보 저장함
-						if (tableformInfo.cells [0].euroform_leftHeight > EPS)
-							bBeforeCellEuroform = true;
-						else
-							bBeforeCellEuroform = false;
-					} else {
-						if (tableformInfo.cells [xx].euroform_leftHeight > EPS) {
-							// 현재 셀이 유로폼이면,
-							if (bBeforeCellEuroform == true) {
-								// 이전 셀이 유로폼인 경우, 이전 셀에 현재 셀의 길이 합산
-								tableformInfoSummary.cells [tableformInfoSummary.nCells - 1].length_left += tableformInfo.cells [xx].length_left;
-								tableformInfoSummary.cells [tableformInfoSummary.nCells - 1].length_right += tableformInfo.cells [xx].length_right;
-								tableformInfoSummary.cells [tableformInfoSummary.nCells - 1].length_bottom += tableformInfo.cells [xx].length_bottom;
-							} else {
-								// 이전 셀이 합판인 경우, 새로운 셀 추가
-								tableformInfoSummary.cells [tableformInfoSummary.nCells] = tableformInfo.cells [xx];
-								++ tableformInfoSummary.nCells;
-							}
+			// 셀 배열 정보 구축 - 좌측면
+			double	curCell, adjCell;
+			xx = 0;
+			while (xx < nObjects_Left) {
+				// 마지막 셀이 아닌 경우
+				if (xx < nObjects_Left - 1) {
+					curCell = objectList_Left [xx].minPos.z;
+					adjCell = objectList_Left [xx+1].minPos.z;
 
-							bBeforeCellEuroform = true;
+					if ((objectList_Left [xx].objType == objectList_Left [xx+1].objType) && ((abs (objectList_Left [xx].beginPos - objectList_Left [xx+1].beginPos) < 0.080) || (abs (objectList_Left [xx].endPos - objectList_Left [xx+1].endPos) < 0.080))) {
+						// 현재/다음 셀의 시작점-끝점이 일치할 경우
+						if (curCell < adjCell) {
+							tableformInfo.cells_Left [tableformInfo.nCells_Left][0] = objectList_Left [xx];
+							tableformInfo.cells_Left [tableformInfo.nCells_Left][1] = objectList_Left [xx+1];
 						} else {
-							// 현재 셀이 합판이면,
-							if (bBeforeCellEuroform == true) {
-								// 이전 셀이 유로폼인 경우, 새로운 셀 추가
-								tableformInfoSummary.cells [tableformInfoSummary.nCells] = tableformInfo.cells [xx];
-								++ tableformInfoSummary.nCells;
+							tableformInfo.cells_Left [tableformInfo.nCells_Left][0] = objectList_Left [xx+1];
+							tableformInfo.cells_Left [tableformInfo.nCells_Left][1] = objectList_Left [xx];
+						}
+
+						xx += 2;
+						tableformInfo.nCells_Left ++;
+					} else {
+						// 현재/다음 셀의 시작점-끝점이 일치하지 않을 경우
+						if (abs (tableformInfo.cellElev [0] - curCell) < abs (tableformInfo.cellElev [1] - curCell))
+							tableformInfo.cells_Left [tableformInfo.nCells_Left][0] = objectList_Left [xx];
+						else
+							tableformInfo.cells_Left [tableformInfo.nCells_Left][1] = objectList_Left [xx];
+
+						xx ++;
+						tableformInfo.nCells_Left ++;
+					}
+
+				// 마지막 셀인 경우
+				} else {
+					curCell = objectList_Left [xx].minPos.z;
+					adjCell = objectList_Left [xx-1].minPos.z;
+
+					if ((objectList_Left [xx].objType == objectList_Left [xx-1].objType) && ((abs (objectList_Left [xx].beginPos - objectList_Left [xx-1].beginPos) < 0.080) || (abs (objectList_Left [xx].endPos - objectList_Left [xx-1].endPos) < 0.080))) {
+						// 이전/현재 셀의 시작점-끝점이 일치할 경우
+						if (abs (tableformInfo.cellElev [0] - curCell) < abs (tableformInfo.cellElev [1] - curCell))
+							tableformInfo.cells_Left [tableformInfo.nCells_Left - 1][0] = objectList_Left [xx];
+						else
+							tableformInfo.cells_Left [tableformInfo.nCells_Left - 1][1] = objectList_Left [xx];
+
+						xx ++;
+					} else {
+						// 현재/다음 셀의 시작점-끝점이 일치하지 않을 경우
+						if (abs (tableformInfo.cellElev [0] - curCell) < abs (tableformInfo.cellElev [1] - curCell))
+							tableformInfo.cells_Left [tableformInfo.nCells_Left][0] = objectList_Left [xx];
+						else
+							tableformInfo.cells_Left [tableformInfo.nCells_Left][1] = objectList_Left [xx];
+
+						xx ++;
+						tableformInfo.nCells_Left ++;
+					}
+				}
+			}
+
+			// 셀 배열 정보 구축 - 우측면
+			xx = 0;
+			while (xx < nObjects_Right) {
+				// 마지막 셀이 아닌 경우
+				if (xx < nObjects_Right - 1) {
+					curCell = objectList_Right [xx].minPos.z;
+					adjCell = objectList_Right [xx+1].minPos.z;
+
+					if ((objectList_Right [xx].objType == objectList_Right [xx+1].objType) && ((abs (objectList_Right [xx].beginPos - objectList_Right [xx+1].beginPos) < 0.080) || (abs (objectList_Right [xx].endPos - objectList_Right [xx+1].endPos) < 0.080))) {
+						// 현재/다음 셀의 시작점-끝점이 일치할 경우
+						if (curCell < adjCell) {
+							tableformInfo.cells_Right [tableformInfo.nCells_Right][0] = objectList_Right [xx];
+							tableformInfo.cells_Right [tableformInfo.nCells_Right][1] = objectList_Right [xx+1];
+						} else {
+							tableformInfo.cells_Right [tableformInfo.nCells_Right][0] = objectList_Right [xx+1];
+							tableformInfo.cells_Right [tableformInfo.nCells_Right][1] = objectList_Right [xx];
+						}
+
+						xx += 2;
+						tableformInfo.nCells_Right ++;
+					} else {
+						// 현재/다음 셀의 시작점-끝점이 일치하지 않을 경우
+						if (abs (tableformInfo.cellElev [0] - curCell) < abs (tableformInfo.cellElev [1] - curCell))
+							tableformInfo.cells_Right [tableformInfo.nCells_Right][0] = objectList_Right [xx];
+						else
+							tableformInfo.cells_Right [tableformInfo.nCells_Right][1] = objectList_Right [xx];
+
+						xx ++;
+						tableformInfo.nCells_Right ++;
+					}
+
+				// 마지막 셀인 경우
+				} else {
+					curCell = objectList_Right [xx].minPos.z;
+					adjCell = objectList_Right [xx-1].minPos.z;
+
+					if ((objectList_Right [xx].objType == objectList_Right [xx-1].objType) && ((abs (objectList_Right [xx].beginPos - objectList_Right [xx-1].beginPos) < 0.080) || (abs (objectList_Right [xx].endPos - objectList_Right [xx-1].endPos) < 0.080))) {
+						// 이전/현재 셀의 시작점-끝점이 일치할 경우
+						if (abs (tableformInfo.cellElev [0] - curCell) < abs (tableformInfo.cellElev [1] - curCell))
+							tableformInfo.cells_Right [tableformInfo.nCells_Right - 1][0] = objectList_Right [xx];
+						else
+							tableformInfo.cells_Right [tableformInfo.nCells_Right - 1][1] = objectList_Right [xx];
+
+						xx ++;
+					} else {
+						// 현재/다음 셀의 시작점-끝점이 일치하지 않을 경우
+						if (abs (tableformInfo.cellElev [0] - curCell) < abs (tableformInfo.cellElev [1] - curCell))
+							tableformInfo.cells_Right [tableformInfo.nCells_Right][0] = objectList_Right [xx];
+						else
+							tableformInfo.cells_Right [tableformInfo.nCells_Right][1] = objectList_Right [xx];
+
+						xx ++;
+						tableformInfo.nCells_Right ++;
+					}
+				}
+			}
+
+			// 셀 배열 정보 구축 - 하부면
+			xx = 0;
+			if (tableformInfo.iBeamDirection == VERTICAL_DIRECTION) {
+				while (xx < nObjects_Bottom) {
+					// 마지막 셀이 아닌 경우
+					if (xx < nObjects_Bottom - 1) {
+						curCell = objectList_Bottom [xx].minPos.x;
+						adjCell = objectList_Bottom [xx+1].minPos.x;
+
+						if ((objectList_Bottom [xx].objType == objectList_Bottom [xx+1].objType) && ((abs (objectList_Bottom [xx].beginPos - objectList_Bottom [xx+1].beginPos) < 0.080) || (abs (objectList_Bottom [xx].endPos - objectList_Bottom [xx+1].endPos) < 0.080))) {
+							// 현재/다음 셀의 시작점-끝점이 일치할 경우
+							if (curCell < adjCell) {
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][0] = objectList_Bottom [xx];
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][1] = objectList_Bottom [xx+1];
 							} else {
-								// 이전 셀이 합판인 경우, 이전 셀에 현재 셀의 길이 합산
-								tableformInfoSummary.cells [tableformInfoSummary.nCells - 1].length_left += tableformInfo.cells [xx].length_left;
-								tableformInfoSummary.cells [tableformInfoSummary.nCells - 1].length_right += tableformInfo.cells [xx].length_right;
-								tableformInfoSummary.cells [tableformInfoSummary.nCells - 1].length_bottom += tableformInfo.cells [xx].length_bottom;
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][0] = objectList_Bottom [xx+1];
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][1] = objectList_Bottom [xx];
 							}
 
-							bBeforeCellEuroform = false;
+							xx += 2;
+							tableformInfo.nCells_Bottom ++;
+						} else {
+							// 현재/다음 셀의 시작점-끝점이 일치하지 않을 경우
+							if (abs (tableformInfo.cellPos [0] - curCell) < abs (tableformInfo.cellPos [1] - curCell))
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][0] = objectList_Bottom [xx];
+							else
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][1] = objectList_Bottom [xx];
+
+							xx ++;
+							tableformInfo.nCells_Bottom ++;
+						}
+
+					// 마지막 셀인 경우
+					} else {
+						curCell = objectList_Bottom [xx].minPos.x;
+						adjCell = objectList_Bottom [xx-1].minPos.x;
+
+						if ((objectList_Bottom [xx].objType == objectList_Bottom [xx-1].objType) && ((abs (objectList_Bottom [xx].beginPos - objectList_Bottom [xx-1].beginPos) < 0.080) || (abs (objectList_Bottom [xx].endPos - objectList_Bottom [xx-1].endPos) < 0.080))) {
+							// 이전/현재 셀의 시작점-끝점이 일치할 경우
+							if (abs (tableformInfo.cellPos [0] - curCell) < abs (tableformInfo.cellPos [1] - curCell))
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom - 1][0] = objectList_Bottom [xx];
+							else
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom - 1][1] = objectList_Bottom [xx];
+
+							xx ++;
+						} else {
+							// 현재/다음 셀의 시작점-끝점이 일치하지 않을 경우
+							if (abs (tableformInfo.cellPos [0] - curCell) < abs (tableformInfo.cellPos [1] - curCell))
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][0] = objectList_Bottom [xx];
+							else
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][1] = objectList_Bottom [xx];
+
+							xx ++;
+							tableformInfo.nCells_Bottom ++;
 						}
 					}
 				}
-			}
+			} else {
+				while (xx < nObjects_Bottom) {
+					// 마지막 셀이 아닌 경우
+					if (xx < nObjects_Bottom - 1) {
+						curCell = objectList_Bottom [xx].minPos.y;
+						adjCell = objectList_Bottom [xx+1].minPos.y;
 
-			// 유일한 유로폼 셀을 저장함
-			bool	bFoundSameCell = false;		// 동일한 셀을 찾았는지 여부를 체크함
-			for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-				if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS) {
-					// euroformCellType 내부에 현재 셀(유로폼 셀만)과 일치하는 셀이 있는지 확인할 것
-					for (yy = 0 ; yy < euroformCellType.nCells ; ++yy) {
-						if (tableformInfoSummary.cells [xx] == euroformCellType.cells [yy])
-							bFoundSameCell = true;
-					}
-
-					// 동일한 타입의 유로폼 셀 타입을 찾지 못했을 경우,
-					if (bFoundSameCell == false) {
-						// 새로운 유로폼 셀 타입 추가
-						euroformCellType.cells [euroformCellType.nCells] = tableformInfoSummary.cells [xx];
-						++ euroformCellType.nCells;
-					}
-				}
-			}
-
-			// 유로폼 셀 타입별 레이어 이름 저장하기
-			bool	bDuplicatedLayername = false;
-			for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-				if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS) {
-					for (yy = 0 ; yy < euroformCellType.nCells ; ++yy) {
-						if (tableformInfoSummary.cells [xx] == euroformCellType.cells [yy]) {
-							// 레이어 이름이 중복된 것은 없는지 확인할 것
-							for (zz = 0 ; zz < euroformCellType.layerNames [yy].size () ; ++zz) {
-								if (euroformCellType.layerNames [yy].at (zz).compare (fullLayerName) == 0)
-									bDuplicatedLayername = true;
+						if ((objectList_Bottom [xx].objType == objectList_Bottom [xx+1].objType) && ((abs (objectList_Bottom [xx].beginPos - objectList_Bottom [xx+1].beginPos) < 0.080) || (abs (objectList_Bottom [xx].endPos - objectList_Bottom [xx+1].endPos) < 0.080))) {
+							// 현재/다음 셀의 시작점-끝점이 일치할 경우
+							if (curCell < adjCell) {
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][1] = objectList_Bottom [xx];
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][0] = objectList_Bottom [xx+1];
+							} else {
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][1] = objectList_Bottom [xx+1];
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][0] = objectList_Bottom [xx];
 							}
 
-							if (bDuplicatedLayername == false)
-								euroformCellType.layerNames [yy].push_back (fullLayerName);
+							xx += 2;
+							tableformInfo.nCells_Bottom ++;
+						} else {
+							// 현재/다음 셀의 시작점-끝점이 일치하지 않을 경우
+							if (abs (tableformInfo.cellPos [0] - curCell) < abs (tableformInfo.cellPos [1] - curCell))
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][1] = objectList_Bottom [xx];
+							else
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][0] = objectList_Bottom [xx];
+
+							xx ++;
+							tableformInfo.nCells_Bottom ++;
+						}
+
+					// 마지막 셀인 경우
+					} else {
+						curCell = objectList_Bottom [xx].minPos.x;
+						adjCell = objectList_Bottom [xx-1].minPos.x;
+
+						if ((objectList_Bottom [xx].objType == objectList_Bottom [xx-1].objType) && ((abs (objectList_Bottom [xx].beginPos - objectList_Bottom [xx-1].beginPos) < 0.080) || (abs (objectList_Bottom [xx].endPos - objectList_Bottom [xx-1].endPos) < 0.080))) {
+							// 이전/현재 셀의 시작점-끝점이 일치할 경우
+							if (abs (tableformInfo.cellPos [0] - curCell) < abs (tableformInfo.cellPos [1] - curCell))
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom - 1][1] = objectList_Bottom [xx];
+							else
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom - 1][0] = objectList_Bottom [xx];
+
+							xx ++;
+						} else {
+							// 현재/다음 셀의 시작점-끝점이 일치하지 않을 경우
+							if (abs (tableformInfo.cellPos [0] - curCell) < abs (tableformInfo.cellPos [1] - curCell))
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][1] = objectList_Bottom [xx];
+							else
+								tableformInfo.cells_Bottom [tableformInfo.nCells_Bottom][0] = objectList_Bottom [xx];
+
+							xx ++;
+							tableformInfo.nCells_Bottom ++;
 						}
 					}
 				}
 			}
 
 			// 정보 출력
-			if (tableformInfoSummary.nCells > 0) {
-				sprintf (buffer, ",,<< 레이어 : %s >>\n", fullLayerName);
+			if (tableformInfo.nCells_Left + tableformInfo.nCells_Right + tableformInfo.nCells_Bottom > 0) {
+				sprintf (buffer, "<< 레이어 : %s >>\n\n", fullLayerName);
 				fprintf (fp, buffer);
 
-				// 해당 레이어에 적용된 타입 코드를 1번째 필드에 출력
-				strcpy (buffer, "");
-				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-					if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS) {
-						for (yy = 0 ; yy < euroformCellType.nCells ; ++yy) {
-							if (tableformInfoSummary.cells [xx] == euroformCellType.cells [yy]) {
-								sprintf (tempBuffer, "%.0f x %.0f x %.0f x %.0f ", euroformCellType.cells [yy].euroform_bottomWidth * 1000, euroformCellType.cells [yy].euroform_leftHeight * 1000, euroformCellType.cells [yy].euroform_rightHeight * 1000, euroformCellType.cells [yy].length_left * 1000);
-								strcat (buffer, tempBuffer);
-							}
+				if (tableformInfo.nCells_Left > 0) {
+					fprintf (fp, "측면1\n");
+					// 헤더
+					strcpy (buffer, "");
+					for (xx = 0 ; xx < tableformInfo.nCells_Left ; ++xx) {
+						if (tableformInfo.cells_Left [xx][0].objType != NONE) {
+							if (tableformInfo.cells_Left [xx][0].objType == EUROFORM)
+								strcat (buffer, "유로폼,");
+							if (tableformInfo.cells_Left [xx][0].objType == PLYWOOD)
+								strcat (buffer, "합판,");
+						} else if (tableformInfo.cells_Left [xx][1].objType != NONE) {
+							if (tableformInfo.cells_Left [xx][1].objType == EUROFORM)
+								strcat (buffer, "유로폼,");
+							if (tableformInfo.cells_Left [xx][1].objType == PLYWOOD)
+								strcat (buffer, "합판,");
 						}
 					}
-				}
-				strcat (buffer, ",");
-				fprintf (fp, buffer);
-
-				// 레이어 이름 끝에 2개 혹은 1개 필드가 숫자로 되어 있으면 2번째 필드에 출력 (숫자 필드가 없으면 빈 필드로 둠)
-				strcpy (tempBuffer, fullLayerName);
-
-				char* token = strtok (tempBuffer, "-");
-				string insElem;
-				vector<string> layerNameComp;
-
-				while (token != NULL) {
-					if (strlen (token) > 0) {
-						insElem = token;
-						layerNameComp.push_back (insElem);
+					// 2단
+					strcat (buffer, "\n");
+					for (xx = 0 ; xx < tableformInfo.nCells_Left ; ++xx) {
+						if (tableformInfo.cells_Left [xx][1].objType != NONE) {
+							sprintf (buffer_s, "%.0f x %.0f,", tableformInfo.cells_Left [xx][1].width * 1000, tableformInfo.cells_Left [xx][1].length * 1000);
+							strcat (buffer, buffer_s);
+						} else {
+							sprintf (buffer_s, "↑,");
+							strcat (buffer, buffer_s);
+						}
 					}
-					token = strtok (NULL, "-");
-				}
-
-				sprintf (buffer, ",");
-				if (layerNameComp.size () >= 2) {
-					// 마지막 요소와 마지막 직전 요소가 모두 숫자일 경우
-					int lastNum = atoi (layerNameComp.at (layerNameComp.size () - 1).c_str ());
-					int lastBeforeNum = atoi (layerNameComp.at (layerNameComp.size () - 2).c_str ());
-
-					if ((lastNum != 0) && (lastBeforeNum != 0)) {
-						sprintf (buffer, "%s-%s,", layerNameComp.at (layerNameComp.size () - 2).c_str (), layerNameComp.at (layerNameComp.size () - 1).c_str ());
-					} else if (lastNum != 0) {
-						sprintf (buffer, "\'%s,", layerNameComp.at (layerNameComp.size () - 1).c_str ());
-					} else {
-						sprintf (buffer, ",");
+					// 1단
+					strcat (buffer, "\n");
+					for (xx = 0 ; xx < tableformInfo.nCells_Left ; ++xx) {
+						if (tableformInfo.cells_Left [xx][0].objType != NONE) {
+							sprintf (buffer_s, "%.0f x %.0f,", tableformInfo.cells_Left [xx][0].width * 1000, tableformInfo.cells_Left [xx][0].length * 1000);
+							strcat (buffer, buffer_s);
+						} else {
+							sprintf (buffer_s, "→,");
+							strcat (buffer, buffer_s);
+						}
 					}
+					strcat (buffer, "\n\n");
+					fprintf (fp, buffer);
 				}
-				fprintf (fp, buffer);
 
-				// 레이어에 배치된 보 테이블폼 정보를 출력함
-				strcpy (buffer, "");
-				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-					if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS)
-						strcat (buffer, "유로폼,,,,");
-					else
-						strcat (buffer, "합판,,,,");
+				if (tableformInfo.nCells_Right > 0) {
+					fprintf (fp, "측면2\n");
+					// 헤더
+					strcpy (buffer, "");
+					for (xx = 0 ; xx < tableformInfo.nCells_Right ; ++xx) {
+						if (tableformInfo.cells_Right [xx][0].objType != NONE) {
+							if (tableformInfo.cells_Right [xx][0].objType == EUROFORM)
+								strcat (buffer, "유로폼,");
+							if (tableformInfo.cells_Right [xx][0].objType == PLYWOOD)
+								strcat (buffer, "합판,");
+						} else if (tableformInfo.cells_Right [xx][1].objType != NONE) {
+							if (tableformInfo.cells_Right [xx][1].objType == EUROFORM)
+								strcat (buffer, "유로폼,");
+							if (tableformInfo.cells_Right [xx][1].objType == PLYWOOD)
+								strcat (buffer, "합판,");
+						}
+					}
+					// 2단
+					strcat (buffer, "\n");
+					for (xx = 0 ; xx < tableformInfo.nCells_Right ; ++xx) {
+						if (tableformInfo.cells_Right [xx][1].objType != NONE) {
+							sprintf (buffer_s, "%.0f x %.0f,", tableformInfo.cells_Right [xx][1].width * 1000, tableformInfo.cells_Right [xx][1].length * 1000);
+							strcat (buffer, buffer_s);
+						} else {
+							sprintf (buffer_s, "↑,");
+							strcat (buffer, buffer_s);
+						}
+					}
+					// 1단
+					strcat (buffer, "\n");
+					for (xx = 0 ; xx < tableformInfo.nCells_Right ; ++xx) {
+						if (tableformInfo.cells_Right [xx][0].objType != NONE) {
+							sprintf (buffer_s, "%.0f x %.0f,", tableformInfo.cells_Right [xx][0].width * 1000, tableformInfo.cells_Right [xx][0].length * 1000);
+							strcat (buffer, buffer_s);
+						} else {
+							sprintf (buffer_s, "→,");
+							strcat (buffer, buffer_s);
+						}
+					}
+					strcat (buffer, "\n\n");
+					fprintf (fp, buffer);
 				}
-				fprintf (fp, buffer);
 
-				strcpy (buffer, "\n,,");
-				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-					strcat (buffer, "밑면,측면1,측면2,,");
+				if (tableformInfo.nCells_Bottom > 0) {
+					fprintf (fp, "하부면\n");
+					// 헤더
+					strcpy (buffer, "");
+					for (xx = 0 ; xx < tableformInfo.nCells_Bottom ; ++xx) {
+						if (tableformInfo.cells_Bottom [xx][0].objType != NONE) {
+							if (tableformInfo.cells_Bottom [xx][0].objType == EUROFORM)
+								strcat (buffer, "유로폼,");
+							if (tableformInfo.cells_Bottom [xx][0].objType == PLYWOOD)
+								strcat (buffer, "합판,");
+						} else if (tableformInfo.cells_Bottom [xx][1].objType != NONE) {
+							if (tableformInfo.cells_Bottom [xx][1].objType == EUROFORM)
+								strcat (buffer, "유로폼,");
+							if (tableformInfo.cells_Bottom [xx][1].objType == PLYWOOD)
+								strcat (buffer, "합판,");
+						}
+					}
+					// 2단
+					strcat (buffer, "\n");
+					for (xx = 0 ; xx < tableformInfo.nCells_Bottom ; ++xx) {
+						if (tableformInfo.cells_Bottom [xx][1].objType != NONE) {
+							sprintf (buffer_s, "%.0f x %.0f,", tableformInfo.cells_Bottom [xx][1].width * 1000, tableformInfo.cells_Bottom [xx][1].length * 1000);
+							strcat (buffer, buffer_s);
+						} else {
+							sprintf (buffer_s, "↑,");
+							strcat (buffer, buffer_s);
+						}
+					}
+					// 1단
+					strcat (buffer, "\n");
+					for (xx = 0 ; xx < tableformInfo.nCells_Bottom ; ++xx) {
+						if (tableformInfo.cells_Bottom [xx][0].objType != NONE) {
+							sprintf (buffer_s, "%.0f x %.0f,", tableformInfo.cells_Bottom [xx][0].width * 1000, tableformInfo.cells_Bottom [xx][0].length * 1000);
+							strcat (buffer, buffer_s);
+						} else {
+							sprintf (buffer_s, "→,");
+							strcat (buffer, buffer_s);
+						}
+					}
+					strcat (buffer, "\n\n");
+					fprintf (fp, buffer);
 				}
-				fprintf (fp, buffer);
-
-				strcpy (buffer, "\n,,");
-				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-					if (tableformInfoSummary.cells [xx].euroform_leftHeight > EPS)
-						sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfoSummary.cells [xx].euroform_bottomWidth * 1000, tableformInfoSummary.cells [xx].euroform_leftHeight * 1000, tableformInfoSummary.cells [xx].euroform_rightHeight * 1000);
-					else
-						sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfoSummary.cells [xx].plywoodOnly_bottomWidth * 1000, tableformInfoSummary.cells [xx].plywoodOnly_leftHeight * 1000, tableformInfoSummary.cells [xx].plywoodOnly_rightHeight * 1000);
-					strcat (buffer, tempBuffer);
-				}
-				fprintf (fp, buffer);
-
-				strcpy (buffer, "\n,,");
-				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-					strcat (buffer, "길이,길이,길이,,");
-				}
-				fprintf (fp, buffer);
-
-				strcpy (buffer, "\n,,");
-				for (xx = 0 ; xx < tableformInfoSummary.nCells ; ++xx) {
-					sprintf (tempBuffer, "%.0f,%.0f,%.0f,,", tableformInfoSummary.cells [xx].length_bottom * 1000, tableformInfoSummary.cells [xx].length_left * 1000, tableformInfoSummary.cells [xx].length_right * 1000);
-					strcat (buffer, tempBuffer);
-				}
-				fprintf (fp, buffer);
 
 				strcpy (buffer, "\n\n");
 				fprintf (fp, buffer);
 
 			} else {
 				// 실패한 경우
-				sprintf (buffer, ",,<< 레이어 : %s >>\n", fullLayerName);
+				sprintf (buffer, "<< 레이어 : %s >>\n", fullLayerName);
 				fprintf (fp, buffer);
 
-				sprintf (buffer, "\n,,정규화된 보 테이블폼 레이어가 아닙니다.\n");
+				sprintf (buffer, "\n정규화된 보 테이블폼 레이어가 아닙니다.\n");
 				fprintf (fp, buffer);
 
 				strcpy (buffer, "\n\n");
@@ -3285,60 +3424,15 @@ GSErrCode	exportBeamTableformInformation (void)
 			}
 
 			// 객체 비우기
-			if (!objects.IsEmpty ())
-				objects.Clear ();
-			if (!objectList.empty ())
-				objectList.clear ();
+			objects.Clear ();
+			objectList.clear ();
+			objectList_Left.clear ();
+			objectList_Right.clear ();
+			objectList_Bottom.clear ();
 
 			// 레이어 숨기기
 			attrib.layer.head.flags |= APILay_Hidden;
 			ACAPI_Attribute_Modify (&attrib, NULL);
-		}
-	}
-
-	// 유로폼 셀 타입 정보를 파일 끝 부분에 기록할 것
-	if (euroformCellType.nCells > 0) {
-		sprintf (buffer, "\n\n,,========== 테이블폼(유로폼) 타입 ==========\n");
-		fprintf (fp, buffer);
-
-		for (xx = 0 ; xx < euroformCellType.nCells ; ++xx) {
-			sprintf (buffer, ",,순번,밑면,측면1,측면2,길이\n");
-			fprintf (fp, buffer);
-
-			sprintf (buffer, ",,%d,%.0f,%.0f,%.0f,%.0f\n", xx+1, euroformCellType.cells [xx].euroform_bottomWidth * 1000, euroformCellType.cells [xx].euroform_leftHeight * 1000, euroformCellType.cells [xx].euroform_rightHeight * 1000, euroformCellType.cells [xx].length_left * 1000);
-			fprintf (fp, buffer);
-
-			for (yy = 0 ; yy < euroformCellType.layerNames [xx].size () ; ++yy) {
-				strcpy (tempBuffer, euroformCellType.layerNames [xx].at (yy).c_str ());
-				char* token = strtok (tempBuffer, "-");
-				string insElem;
-				vector<string> layerNameComp;
-
-				while (token != NULL) {
-					if (strlen (token) > 0) {
-						insElem = token;
-						layerNameComp.push_back (insElem);
-					}
-					token = strtok (NULL, "-");
-				}
-
-				if (layerNameComp.size () >= 2) {
-					// 마지막 요소와 마지막 직전 요소가 모두 숫자일 경우
-					int lastNum = atoi (layerNameComp.at (layerNameComp.size () - 1).c_str ());
-					int lastBeforeNum = atoi (layerNameComp.at (layerNameComp.size () - 2).c_str ());
-
-					if ((lastNum != 0) && (lastBeforeNum != 0)) {
-						sprintf (buffer, ",,,%s-%s,%s\n", layerNameComp.at (layerNameComp.size () - 2).c_str (), layerNameComp.at (layerNameComp.size () - 1).c_str (), euroformCellType.layerNames [xx].at (yy).c_str ());
-					} else if (lastNum != 0) {
-						sprintf (buffer, ",,,\'%s,%s\n", layerNameComp.at (layerNameComp.size () - 1).c_str (), euroformCellType.layerNames [xx].at (yy).c_str ());
-					} else {
-						sprintf (buffer, ",,,%s\n", euroformCellType.layerNames [xx].at (yy).c_str ());
-					}
-				} else {
-					sprintf (buffer, ",,,%s\n", euroformCellType.layerNames [xx].at (yy).c_str ()); 
-				}
-				fprintf (fp, buffer);
-			}
 		}
 	}
 

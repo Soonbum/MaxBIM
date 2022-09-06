@@ -921,7 +921,7 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 
 			moveIn3D ('x', rectPipe.radAng, sideMargin, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			moveIn3D ('y', rectPipe.radAng, -(0.0635 + 0.025), &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
-			moveIn3D ('z', rectPipe.radAng, placingZone->verLen - 0.300, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
+			moveIn3D ('z', rectPipe.radAng, placingZone->verLen - 0.150, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 
 			moveIn3D ('z', rectPipe.radAng, -0.031, &rectPipe.posX, &rectPipe.posY, &rectPipe.posZ);
 			elemList.Push (rectPipe.placeObject (4, "p_comp", APIParT_CString, "사각파이프", "p_leng", APIParT_Length, format_string ("%f", (double)pipeLength / 1000.0), "p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "bPunching", APIParT_Boolean, "0.0"));
@@ -1047,7 +1047,7 @@ void	LowSideTableformPlacingZone::placeTableformA (LowSideTableformPlacingZone* 
 
 			moveIn3D ('x', headpiece.radAng, (double)(firstWidth - 150 - 100) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 			moveIn3D ('y', headpiece.radAng, -0.1725 + 0.050, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
-			moveIn3D ('z', headpiece.radAng, 0.210 + 0.040, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
+			moveIn3D ('z', headpiece.radAng, 0.210 + 0.040 + 0.150, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 
 			elemList.Push (headpiece.placeObject (4, "type", APIParT_CString, "타입 B", "plateThk", APIParT_Length, format_string ("%f", 0.009), "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
 			moveIn3D ('z', headpiece.radAng, (-0.210 + placingZone->verLen - 0.240), &headpiece.posX, &headpiece.posY, &headpiece.posZ);

@@ -1804,6 +1804,7 @@ void	deleteElements (GS::Array<API_Guid> elemList)
 	// AC 25
 	// ACAPI_Element_Delete(elemList);
 }
+
 // 리스트에 있는 요소들을 그룹화
 void	groupElements (GS::Array<API_Guid> elemList)
 {
