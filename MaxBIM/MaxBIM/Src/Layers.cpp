@@ -579,7 +579,7 @@ GSErrCode	showLayersEasily (void)
 				}
 
 				// 7단계. CJ 속 시공순서
-				for (yy = 0 ; yy < layerInfo.CJ_name.size () ; ++yy) {
+				for (yy = 0 ; yy < layerInfo.orderInCJ_name.size () ; ++yy) {
 					if (my_strcmp (tok7, layerInfo.orderInCJ_name [yy].c_str ()) == 0) {
 						layerInfo.orderInCJ_state [yy] = true;
 					}

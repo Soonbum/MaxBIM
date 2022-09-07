@@ -1,4 +1,5 @@
 #include "UtilityFunctions.hpp"
+#include "Layers.hpp"
 
 
 ////////////////////////////////////////////////// 각도 변환
@@ -1598,6 +1599,385 @@ short	makeTemporaryLayer (API_Guid structurualObject, const char* suffix, char* 
 	}
 
 	return 0;
+}
+
+// 레이어 코드에 대한 설명을 리턴함
+char*	getExplanationOfLayerCode (char *layerName, bool bConstructionCode, bool bDong, bool bFloor, bool bCastNum, bool bCJ, bool bOrderInCJ, bool bObjName, bool bProductSite, bool bProductNum)
+{
+	static char retStr [512] = "\0";
+	char layerNameM [256];
+
+	LayerNameSystem	layerInfo;	// layer.csv 파일로부터 레이어 코드 정보 입력
+
+	short	i, xx, yy;
+	string	insElem;		// 토큰을 string으로 변환해서 vector로 넣음
+	char	*token;			// 읽어온 문자열의 토큰
+
+	short	nBaseFields;
+	short	nExtendFields;
+	bool	success;
+	bool	extSuccess;
+	char	tempStr [128];
+	char	tok1 [32];
+	char	tok2 [32];
+	char	tok3 [32];
+	char	tok4 [32];
+	char	tok5 [32];
+	char	tok6 [32];
+	char	tok7 [32];
+	char	tok8 [32];
+	char	tok9 [32];
+	char	tok10 [32];
+	char	constructionCode [8];
+
+	strcpy (layerNameM, layerName);
+
+	// 레이어 정보 파일 가져오기
+	importLayerInfo (&layerInfo);
+
+	// 구조체 초기화
+	allocateMemory (&layerInfo);
+
+	strcpy (tok1, "");
+	strcpy (tok2, "");
+	strcpy (tok3, "");
+	strcpy (tok4, "");
+	strcpy (tok5, "");
+	strcpy (tok6, "");
+	strcpy (tok7, "");
+	strcpy (tok8, "");
+	strcpy (tok9, "");
+	i = 1;
+	success = false;
+	extSuccess = false;
+	nBaseFields = 0;
+	nExtendFields = 0;
+	// 예시(기본): 05-T-0000-F01-01-01-01-WALL
+	// 예시(확장): 05-T-0000-F01-01-01-01-WALL-현장제작-001
+	// 레이어 이름을 "-" 문자 기준으로 쪼개기
+	token = strtok (layerNameM, "-");
+	while (token != NULL) {
+		// 내용 및 길이 확인
+		// 1차 (일련번호) - 필수 (2글자, 숫자)
+		if (i == 1) {
+			strcpy (tempStr, token);
+			if (strlen (tempStr) == 2) {
+				strcpy (tok1, tempStr);
+				success = true;
+				nBaseFields ++;
+			} else {
+				i = 100;
+				success = false;
+			}
+		}
+		// 2차 (공사 구분) - 필수 (1글자, 문자)
+		else if (i == 2) {
+			strcpy (tempStr, token);
+			if (strlen (tempStr) == 1) {
+				strcpy (tok2, tempStr);
+				success = true;
+				nBaseFields ++;
+			} else {
+				i = 100;
+				success = false;
+			}
+		}
+		// 3차 (동 구분) - 필수 (4글자)
+		else if (i == 3) {
+			strcpy (tempStr, token);
+			if (isStringDouble (tempStr) == TRUE) {
+				// 숫자인 경우
+				sprintf (tok3, "%04d", atoi (tempStr));
+			} else {
+				// 문자열인 경우
+				strcpy (tok3, tempStr);
+			}
+			success = true;
+			nBaseFields ++;
+		}
+		// 4차 (층 구분) - 필수 (3글자)
+		else if (i == 4) {
+			strcpy (tempStr, token);
+			if (strlen (tempStr) == 3) {
+				strcpy (tok4, tempStr);
+				success = true;
+				nBaseFields ++;
+			} else {
+				i = 100;
+				success = false;
+			}
+		}
+		// 5차 (타설번호) - 필수 (2글자, 숫자)
+		else if (i == 5) {
+			strcpy (tempStr, token);
+			if (isStringDouble (tempStr) == TRUE) {
+				// 숫자인 경우
+				sprintf (tok5, "%02d", atoi (tempStr));
+			} else {
+				// 문자열인 경우
+				strcpy (tok5, tempStr);
+			}
+			success = true;
+			nBaseFields ++;
+		}
+		// 6차 (CJ 구간) - 필수 (2글자, 숫자)
+		else if (i == 6) {
+			strcpy (tempStr, token);
+			if (isStringDouble (tempStr) == TRUE) {
+				// 숫자인 경우
+				sprintf (tok6, "%02d", atoi (tempStr));
+			} else {
+				// 문자열인 경우
+				strcpy (tok6, tempStr);
+			}
+			success = true;
+			nBaseFields ++;
+		}
+		// 7차 (CJ 속 시공순서) - 필수 (2글자, 숫자)
+		else if (i == 7) {
+			strcpy (tempStr, token);
+			if (isStringDouble (tempStr) == TRUE) {
+				// 숫자인 경우
+				sprintf (tok7, "%02d", atoi (tempStr));
+			} else {
+				// 문자열인 경우
+				strcpy (tok7, tempStr);
+			}
+			success = true;
+			nBaseFields ++;
+		}
+		// 8차 (부재 구분) - 필수 (3글자 이상)
+		else if (i == 8) {
+			strcpy (tempStr, token);
+			if (strlen (tempStr) >= 3) {
+				strcpy (tok8, tempStr);
+				success = true;
+				nBaseFields ++;
+			} else {
+				i = 100;
+				success = false;
+			}
+		}
+		// 9차 (제작처 구분) - 선택 (한글 4글자..)
+		else if (i == 9) {
+			strcpy (tempStr, token);
+			if (strlen (tempStr) >= 4) {
+				strcpy (tok9, tempStr);
+				extSuccess = true;
+				nExtendFields ++;
+			} else {
+				i = 100;
+				extSuccess = false;
+			}
+		}
+		// 10차 (제작 번호) - 필수 (3글자, 숫자)
+		else if (i == 10) {
+			strcpy (tempStr, token);
+			if (isStringDouble (tempStr) == TRUE) {
+				// 숫자인 경우
+				sprintf (tok10, "%03d", atoi (tempStr));
+			} else {
+				// 문자열인 경우
+				strcpy (tok10, tempStr);
+			}
+			extSuccess = true;
+			nExtendFields ++;
+		}
+		++i;
+		token = strtok (NULL, "-");
+	}
+
+	// 8단계 또는 10단계까지 성공적으로 완료되면 구조체에 적용
+	if ((success == true) && (nBaseFields == 8)) {
+		// 일련 번호와 공사 구분 문자를 먼저 합침
+		sprintf (constructionCode, "%s-%s", tok1, tok2);
+				
+		// 1,2단계. 공사 구분 확인
+		for (yy = 0 ; yy < layerInfo.code_name.size () ; ++yy) {
+			if (strncmp (constructionCode, layerInfo.code_name [yy].c_str (), 4) == 0) {
+				layerInfo.code_state [yy] = true;
+			}
+			layerInfo.bCodeAllShow = true;
+		}
+
+		// 3단계. 동 구분
+		for (yy = 0 ; yy < layerInfo.dong_name.size () ; ++yy) {
+			if (strncmp (tok3, layerInfo.dong_name [yy].c_str (), 4) == 0) {
+				layerInfo.dong_state [yy] = true;
+			}
+			layerInfo.bDongAllShow = true;
+		}
+
+		// 4단계. 층 구분
+		for (yy = 0 ; yy < layerInfo.floor_name.size () ; ++yy) {
+			if (strncmp (tok4, layerInfo.floor_name [yy].c_str (), 3) == 0) {
+				layerInfo.floor_state [yy] = true;
+			}
+			layerInfo.bFloorAllShow = true;
+		}
+
+		// 5단계. 타설번호
+		for (yy = 0 ; yy < layerInfo.cast_name.size () ; ++yy) {
+			if (my_strcmp (tok5, layerInfo.cast_name [yy].c_str ()) == 0) {
+				layerInfo.cast_state [yy] = true;
+			}
+			layerInfo.bCastAllShow = true;
+		}
+
+		// 6단계. CJ 구간
+		for (yy = 0 ; yy < layerInfo.CJ_name.size () ; ++yy) {
+			if (my_strcmp (tok6, layerInfo.CJ_name [yy].c_str ()) == 0) {
+				layerInfo.CJ_state [yy] = true;
+			}
+			layerInfo.bCJAllShow = true;
+		}
+
+		// 7단계. CJ 속 시공순서
+		for (yy = 0 ; yy < layerInfo.orderInCJ_name.size () ; ++yy) {
+			if (my_strcmp (tok7, layerInfo.orderInCJ_name [yy].c_str ()) == 0) {
+				layerInfo.orderInCJ_state [yy] = true;
+			}
+			layerInfo.bOrderInCJAllShow = true;
+		}
+
+		// 8단계. 부재 구분
+		for (yy = 0 ; yy < layerInfo.obj_name.size () ; ++yy) {
+			if ((strncmp (constructionCode, layerInfo.obj_cat [yy].c_str (), 4) == 0) && (strncmp (tok8, layerInfo.obj_name [yy].c_str (), 5) == 0)) {
+				layerInfo.obj_state [yy] = true;
+			}
+		}
+
+		if ((extSuccess == true) && (nExtendFields == 2)) {
+			// 9단계. 제작처 구분
+			for (yy = 0 ; yy < layerInfo.productSite_name.size () ; ++yy) {
+				if (my_strcmp (tok9, layerInfo.productSite_name [yy].c_str ()) == 0) {
+					layerInfo.productSite_state [yy] = true;
+				}
+			}
+
+			// 10단계. 제작 번호
+			for (yy = 0 ; yy < layerInfo.productNum_name.size () ; ++yy) {
+				if (strncmp (tok10, layerInfo.productNum_name [yy].c_str (), 3) == 0) {
+					layerInfo.productNum_state [yy] = true;
+				}
+				layerInfo.bProductNumAllShow = true;
+			}
+		}
+	}
+
+	if ((success == false) || (extSuccess == false)) {
+		sprintf (retStr, "");
+		return retStr;
+	}
+
+	if (success == true) {
+		// 공사구분
+		if (bConstructionCode == true) {
+			for (xx = 0 ; xx < layerInfo.code_name.size () ; ++xx) {
+				sprintf (tempStr, "%s-%s", tok1, tok2);
+				if (my_strcmp (layerInfo.code_name [xx].c_str (), tempStr) == 0) {
+					sprintf (tempStr, "%s ", layerInfo.code_desc [xx].c_str ());
+					strcat (retStr, tempStr);
+					break;
+				}
+			}
+		}
+
+		// 동
+		if (bDong == true) {
+			for (xx = 0 ; xx < layerInfo.dong_name.size () ; ++xx) {
+				if (my_strcmp (layerInfo.dong_name [xx].c_str (), tok3) == 0) {
+					sprintf (tempStr, "[%s]동 ", layerInfo.dong_desc [xx].c_str ());
+					strcat (retStr, tempStr);
+					break;
+				}
+			}
+		}
+
+		// 층
+		if (bFloor == true) {
+			for (xx = 0 ; xx < layerInfo.floor_name.size () ; ++xx) {
+				if (my_strcmp (layerInfo.floor_name [xx].c_str (), tok4) == 0) {
+					sprintf (tempStr, "%s ", layerInfo.floor_desc [xx].c_str ());
+					strcat (retStr, tempStr);
+					break;
+				}
+			}
+		}
+
+		// 타설번호
+		if (bCastNum == true) {
+			for (xx = 0 ; xx < layerInfo.cast_name.size () ; ++xx) {
+				if (my_strcmp (layerInfo.cast_name [xx].c_str (), tok5) == 0) {
+					sprintf (tempStr, "타설번호[%s] ", layerInfo.cast_name [xx].c_str ());
+					strcat (retStr, tempStr);
+					break;
+				}
+			}
+		}
+
+		// CJ
+		if (bCJ == true) {
+			for (xx = 0 ; xx < layerInfo.CJ_name.size () ; ++xx) {
+				if (my_strcmp (layerInfo.CJ_name [xx].c_str (), tok6) == 0) {
+					sprintf (tempStr, "CJ[%s] ", layerInfo.CJ_name [xx].c_str ());
+					strcat (retStr, tempStr);
+					break;
+				}
+			}
+		}
+
+		// 시공순서
+		if (bOrderInCJ == true) {
+			for (xx = 0 ; xx < layerInfo.orderInCJ_name.size () ; ++xx) {
+				if (my_strcmp (layerInfo.orderInCJ_name [xx].c_str (), tok7) == 0) {
+					sprintf (tempStr, "시공순서[%s] ", layerInfo.orderInCJ_name [xx].c_str ());
+					strcat (retStr, tempStr);
+					break;
+				}
+			}
+		}
+
+		// 부재
+		if (bObjName == true) {
+			for (xx = 0 ; xx < layerInfo.obj_name.size () ; ++xx) {
+				if (my_strcmp (layerInfo.obj_name [xx].c_str (), tok8) == 0) {
+					sprintf (tempStr, "%s ", layerInfo.obj_desc [xx].c_str ());
+					strcat (retStr, tempStr);
+					break;
+				}
+			}
+		}
+	}
+
+	if (extSuccess == true) {
+		// 제작처
+		if (bProductSite == true) {
+			for (xx = 0 ; xx < layerInfo.productSite_name.size () ; ++xx) {
+				if (my_strcmp (layerInfo.productSite_name [xx].c_str (), tok9) == 0) {
+					sprintf (tempStr, "제작처[%s] ", layerInfo.productSite_name [xx].c_str ());
+					strcat (retStr, tempStr);
+					break;
+				}
+			}
+		}
+
+		// 제작번호
+		if (bProductNum == true) {
+			for (xx = 0 ; xx < layerInfo.productNum_name.size () ; ++xx) {
+				if (my_strcmp (layerInfo.productNum_name [xx].c_str (), tok10) == 0) {
+					sprintf (tempStr, "제작번호[%s] ", layerInfo.productNum_name [xx].c_str ());
+					strcat (retStr, tempStr);
+					break;
+				}
+			}
+		}
+	}
+
+	// 메모리 해제
+	deallocateMemory (&layerInfo);
+
+	return retStr;
 }
 
 ////////////////////////////////////////////////// 정보 수집

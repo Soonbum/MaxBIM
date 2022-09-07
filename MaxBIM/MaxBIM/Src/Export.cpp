@@ -1740,6 +1740,10 @@ GSErrCode	exportElementInfoOnVisibleLayers (void)
 			fprintf (fp, buffer);
 			fprintf (fp_unite, buffer);
 
+			sprintf (buffer, "%s\n", getExplanationOfLayerCode (fullLayerName));
+			fprintf (fp, buffer);
+			fprintf (fp_unite, buffer);
+
 			for (xx = 0 ; xx < nObjects ; ++xx) {
 				foundObject = false;
 
@@ -3276,7 +3280,10 @@ GSErrCode	exportBeamTableformInformation (void)
 
 			// 정보 출력
 			if (tableformInfo.nCells_Left + tableformInfo.nCells_Right + tableformInfo.nCells_Bottom > 0) {
-				sprintf (buffer, "<< 레이어 : %s >>\n\n", fullLayerName);
+				sprintf (buffer, "<< 레이어 : %s >>\n", fullLayerName);
+				fprintf (fp, buffer);
+
+				sprintf (buffer, "%s\n\n", getExplanationOfLayerCode (fullLayerName));
 				fprintf (fp, buffer);
 
 				if (tableformInfo.nCells_Left > 0) {

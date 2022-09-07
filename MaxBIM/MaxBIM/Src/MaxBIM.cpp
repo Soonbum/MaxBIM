@@ -313,6 +313,8 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					//err = ACAPI_CallUndoableCommand (L"개발자 테스트", [&] () -> GSErrCode {
 						GSErrCode	err = NoError;
 						// *** 원하는 코드를 아래 넣으시오.
+						char layerName [256] = "01-S-기타-F01-01-01-01-WALL-공장제작-001";
+						WriteReport_Alert ("%s", getExplanationOfLayerCode (layerName));
 						// *** 원하는 코드를 위에 넣으시오.
 						return err;
 					//});
