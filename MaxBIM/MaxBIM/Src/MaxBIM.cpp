@@ -263,6 +263,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 						err = attachBubbleOnCurrentFloorPlan ();
 						return err;
 					});
+					break;
 
 				case 4:		// 카메라 위치 저장하기/불러오기
 					err = manageCameraInfo ();
