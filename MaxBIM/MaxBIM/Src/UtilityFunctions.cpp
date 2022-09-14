@@ -1604,7 +1604,7 @@ short	makeTemporaryLayer (API_Guid structurualObject, const char* suffix, char* 
 // 레이어 코드에 대한 설명을 리턴함
 char*	getExplanationOfLayerCode (char *layerName, bool bConstructionCode, bool bDong, bool bFloor, bool bCastNum, bool bCJ, bool bOrderInCJ, bool bObjName, bool bProductSite, bool bProductNum)
 {
-	static char retStr [512] = "\0";
+	static char retStr [512];
 	char layerNameM [256];
 
 	LayerNameSystem	layerInfo;	// layer.csv 파일로부터 레이어 코드 정보 입력
@@ -1629,6 +1629,8 @@ char*	getExplanationOfLayerCode (char *layerName, bool bConstructionCode, bool b
 	char	tok9 [32];
 	char	tok10 [32];
 	char	constructionCode [8];
+
+	strcpy (retStr, "");
 
 	strcpy (layerNameM, layerName);
 

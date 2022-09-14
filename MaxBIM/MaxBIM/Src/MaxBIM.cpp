@@ -183,6 +183,7 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					break;
 				case 14:	// 모프 면적 계산 (Single 모드)
 					err = calcMorphAreaSingleMode ();
+					break;
 			}
 			break;
 
