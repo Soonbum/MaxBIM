@@ -35,7 +35,8 @@ namespace exportDG {
 	enum	BEAMTABLEFORM_OBJECT_TYPE {
 		NONE,
 		EUROFORM,
-		PLYWOOD
+		PLYWOOD,
+		PLYWOOD_POLY
 	};
 
 	enum	ATTACH_POSITION {

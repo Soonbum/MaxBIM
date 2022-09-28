@@ -2935,6 +2935,30 @@ GSErrCode	exportBeamTableformInformation (void)
 							}
 						}
 
+						else if (my_strcmp (getParameterStringByName (&memo, "g_comp"), "합판(다각형)") == 0) {
+							newObject.objType = PLYWOOD_POLY;
+
+							if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "벽세우기") == 0) {
+								newObject.width = 0.0;
+								newObject.length = 0.0;
+								newObject.attachPosition = LEFT_SIDE;
+
+								bValid = true;
+							} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "바닥깔기") == 0) {
+								newObject.width = 0.0;
+								newObject.length = 0.0;
+								newObject.attachPosition = BOTTOM_SIDE;
+
+								bValid = true;
+							} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "바닥덮기") == 0) {
+								newObject.width = 0.0;
+								newObject.length = 0.0;
+								newObject.attachPosition = BOTTOM_SIDE;
+
+								bValid = true;
+							}
+						}
+
 						if (bValid == true)
 							objectList.push_back (newObject);
 					}
@@ -3296,11 +3320,15 @@ GSErrCode	exportBeamTableformInformation (void)
 								strcat (buffer, "유로폼,");
 							if (tableformInfo.cells_Left [xx][0].objType == PLYWOOD)
 								strcat (buffer, "합판,");
+							if (tableformInfo.cells_Left [xx][0].objType == PLYWOOD_POLY)
+								strcat (buffer, "합판(다각형),");
 						} else if (tableformInfo.cells_Left [xx][1].objType != NONE) {
 							if (tableformInfo.cells_Left [xx][1].objType == EUROFORM)
 								strcat (buffer, "유로폼,");
 							if (tableformInfo.cells_Left [xx][1].objType == PLYWOOD)
 								strcat (buffer, "합판,");
+							if (tableformInfo.cells_Left [xx][1].objType == PLYWOOD_POLY)
+								strcat (buffer, "합판(다각형),");
 						}
 					}
 					// 2단
@@ -3339,11 +3367,15 @@ GSErrCode	exportBeamTableformInformation (void)
 								strcat (buffer, "유로폼,");
 							if (tableformInfo.cells_Right [xx][0].objType == PLYWOOD)
 								strcat (buffer, "합판,");
+							if (tableformInfo.cells_Right [xx][0].objType == PLYWOOD_POLY)
+								strcat (buffer, "합판(다각형),");
 						} else if (tableformInfo.cells_Right [xx][1].objType != NONE) {
 							if (tableformInfo.cells_Right [xx][1].objType == EUROFORM)
 								strcat (buffer, "유로폼,");
 							if (tableformInfo.cells_Right [xx][1].objType == PLYWOOD)
 								strcat (buffer, "합판,");
+							if (tableformInfo.cells_Right [xx][1].objType == PLYWOOD_POLY)
+								strcat (buffer, "합판(다각형),");
 						}
 					}
 					// 2단
@@ -3382,11 +3414,15 @@ GSErrCode	exportBeamTableformInformation (void)
 								strcat (buffer, "유로폼,");
 							if (tableformInfo.cells_Bottom [xx][0].objType == PLYWOOD)
 								strcat (buffer, "합판,");
+							if (tableformInfo.cells_Bottom [xx][0].objType == PLYWOOD_POLY)
+								strcat (buffer, "합판(다각형),");
 						} else if (tableformInfo.cells_Bottom [xx][1].objType != NONE) {
 							if (tableformInfo.cells_Bottom [xx][1].objType == EUROFORM)
 								strcat (buffer, "유로폼,");
 							if (tableformInfo.cells_Bottom [xx][1].objType == PLYWOOD)
 								strcat (buffer, "합판,");
+							if (tableformInfo.cells_Bottom [xx][1].objType == PLYWOOD_POLY)
+								strcat (buffer, "합판(다각형),");
 						}
 					}
 					// 2단
