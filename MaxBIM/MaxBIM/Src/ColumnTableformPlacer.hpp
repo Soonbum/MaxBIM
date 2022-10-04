@@ -95,6 +95,7 @@ namespace columnTableformPlacerDG {
 		LABEL_LAYER_HEADPIECE,
 		LABEL_LAYER_COLUMN_BAND,
 		LABEL_LAYER_PLYWOOD,
+		LABEL_LAYER_BLUECLAMP,
 
 		USERCONTROL_LAYER_EUROFORM,
 		USERCONTROL_LAYER_FILLERSP,
@@ -106,6 +107,7 @@ namespace columnTableformPlacerDG {
 		USERCONTROL_LAYER_HEADPIECE,
 		USERCONTROL_LAYER_COLUMN_BAND,
 		USERCONTROL_LAYER_PLYWOOD,
+		USERCONTROL_LAYER_BLUECLAMP,
 
 		BUTTON_AUTOSET
 	};
@@ -242,7 +244,7 @@ public:
 	void		addTopCell (ColumnTableformPlacingZone* target_zone);					// 꼭대기에 셀 추가
 	void		delTopCell (ColumnTableformPlacingZone* target_zone);					// 꼭대기의 셀 삭제
 	void		alignPlacingZone_soleColumn (ColumnTableformPlacingZone* placingZone);	// Cell 정보가 변경됨에 따라 파편화된 위치를 재조정함
-	GSErrCode	placeBasicObjects_soleColumn (ColumnTableformPlacingZone* placingZone);	// 유로폼/아웃코너판넬/아웃코너앵글/휠러스페이서 배치
+	GSErrCode	placeBasicObjects_soleColumn (ColumnTableformPlacingZone* placingZone);	// 유로폼/아웃코너판넬/아웃코너앵글/휠러스페이서/블루클램프 배치
 	GSErrCode	placeRestObjectsA_soleColumn (ColumnTableformPlacingZone* placingZone);	// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스, 기둥밴드/웰라 배치 (타입A)
 	GSErrCode	placeRestObjectsB_soleColumn (ColumnTableformPlacingZone* placingZone);	// 비계파이프, 핀볼트세트/각파이프행거, 헤드피스, 기둥밴드/웰라 배치 (타입B)
 	GSErrCode	fillRestAreas_soleColumn (ColumnTableformPlacingZone* placingZone);		// 유로폼/아웃코너판넬을 채운 후 자투리 공간 채우기 (나머지는 합판으로 채움)

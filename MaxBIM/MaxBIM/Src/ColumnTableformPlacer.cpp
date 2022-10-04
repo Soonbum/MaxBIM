@@ -26,6 +26,7 @@ static short			layerInd_Hanger;			// 레이어 번호: 각파이프행거
 static short			layerInd_Head;				// 레이어 번호: 빔조인트용 Push-Pull Props 헤드피스
 static short			layerInd_ColumnBand;		// 레이어 번호: 기둥밴드
 static short			layerInd_Plywood;			// 레이어 번호: 합판
+static short			layerInd_BlueClamp;			// 레이어 번호: 블루클램프
 static short			clickedBtnItemIdx;			// 그리드 버튼에서 클릭한 버튼의 인덱스 번호를 저장
 static bool				clickedOKButton;			// OK 버튼을 눌렀습니까?
 static bool				clickedPrevButton;			// 이전 버튼을 눌렀습니까?
@@ -652,12 +653,12 @@ void	ColumnTableformPlacingZone::alignPlacingZone_soleColumn (ColumnTableformPla
 	}
 }
 
-// 유로폼/아웃코너판넬/아웃코너앵글/휠러스페이서 배치
+// 유로폼/아웃코너판넬/아웃코너앵글/휠러스페이서/블루클램프 배치
 GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTableformPlacingZone* placingZone)
 {
 	GSErrCode	err = NoError;
 	short	xx;
-	EasyObjectPlacement	euroform, outpanel, outangle, fillersp;
+	EasyObjectPlacement	euroform, outpanel, outangle, fillersp, blueClamp;
 
 	double	accumDist;
 	double	remainLength;
@@ -1028,6 +1029,166 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 			elemList.Push (outangle.placeObject (2,
 				"a_leng", APIParT_Length, format_string ("%f", placingZone->cellsRB [xx].height),
 				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+	}
+
+	// 블루클램프 (위쪽 1)
+	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsT1 [0].leftBottomX, placingZone->cellsT1 [0].leftBottomY, placingZone->cellsT1 [0].leftBottomZ, placingZone->cellsT1 [0].ang);
+	if ((placingZone->cellsT1 [0].horLen > EPS) && (placingZone->cellsT1 [0].height > EPS)) {
+		if (placingZone->marginTopAtNorth > EPS) {
+			double formHeight = 0.0;
+			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+				formHeight += placingZone->cellsT1 [xx].height;
+
+			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			elemList.Push (blueClamp.placeObject (5,
+				"type", APIParT_CString, "유로목재클램프(제작품v1)",
+				"bReverseRotation", APIParT_Boolean, "1.0",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"openingWidth", APIParT_Length, "0.047"));
+		}
+	}
+
+	// 블루클램프 (위쪽 3)
+	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsT3 [0].leftBottomX, placingZone->cellsT3 [0].leftBottomY, placingZone->cellsT3 [0].leftBottomZ, placingZone->cellsT3 [0].ang);
+	if ((placingZone->cellsT3 [0].horLen > EPS) && (placingZone->cellsT3 [0].height > EPS)) {
+		if (placingZone->marginTopAtNorth > EPS) {
+			double formHeight = 0.0;
+			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+				formHeight += placingZone->cellsT3 [xx].height;
+
+			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, placingZone->cellsT3 [0].horLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			elemList.Push (blueClamp.placeObject (5,
+				"type", APIParT_CString, "유로목재클램프(제작품v1)",
+				"bReverseRotation", APIParT_Boolean, "1.0",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"openingWidth", APIParT_Length, "0.047"));
+		}
+	}
+
+	// 블루클램프 (아래쪽 1)
+	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsB1 [0].leftBottomX, placingZone->cellsB1 [0].leftBottomY, placingZone->cellsB1 [0].leftBottomZ, placingZone->cellsB1 [0].ang);
+	if ((placingZone->cellsB1 [0].horLen > EPS) && (placingZone->cellsB1 [0].height > EPS)) {
+		if (placingZone->marginTopAtSouth > EPS) {
+			double formHeight = 0.0;
+			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+				formHeight += placingZone->cellsB1 [xx].height;
+
+			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, placingZone->cellsB1 [0].horLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			elemList.Push (blueClamp.placeObject (5,
+				"type", APIParT_CString, "유로목재클램프(제작품v1)",
+				"bReverseRotation", APIParT_Boolean, "1.0",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"openingWidth", APIParT_Length, "0.047"));
+		}
+	}
+
+	// 블루클램프 (아래쪽 3)
+	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsB3 [0].leftBottomX, placingZone->cellsB3 [0].leftBottomY, placingZone->cellsB3 [0].leftBottomZ, placingZone->cellsB3 [0].ang);
+	if ((placingZone->cellsB3 [0].horLen > EPS) && (placingZone->cellsB3 [0].height > EPS)) {
+		if (placingZone->marginTopAtSouth > EPS) {
+			double formHeight = 0.0;
+			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+				formHeight += placingZone->cellsB3 [xx].height;
+
+			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			elemList.Push (blueClamp.placeObject (5,
+				"type", APIParT_CString, "유로목재클램프(제작품v1)",
+				"bReverseRotation", APIParT_Boolean, "1.0",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"openingWidth", APIParT_Length, "0.047"));
+		}
+	}
+
+	// 블루클램프 (좌측 1)
+	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsL1 [0].leftBottomX, placingZone->cellsL1 [0].leftBottomY, placingZone->cellsL1 [0].leftBottomZ, placingZone->cellsL1 [0].ang);
+	if ((placingZone->cellsL1 [0].verLen > EPS) && (placingZone->cellsL1 [0].height > EPS)) {
+		if (placingZone->marginTopAtWest > EPS) {
+			double formHeight = 0.0;
+			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+				formHeight += placingZone->cellsL1 [xx].height;
+
+			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, placingZone->cellsL1 [0].verLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			elemList.Push (blueClamp.placeObject (5,
+				"type", APIParT_CString, "유로목재클램프(제작품v1)",
+				"bReverseRotation", APIParT_Boolean, "1.0",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"openingWidth", APIParT_Length, "0.047"));
+		}
+	}
+
+	// 블루클램프 (좌측 3)
+	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsL3 [0].leftBottomX, placingZone->cellsL3 [0].leftBottomY, placingZone->cellsL3 [0].leftBottomZ, placingZone->cellsL3 [0].ang);
+	if ((placingZone->cellsL3 [0].verLen > EPS) && (placingZone->cellsL3 [0].height > EPS)) {
+		if (placingZone->marginTopAtWest > EPS) {
+			double formHeight = 0.0;
+			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+				formHeight += placingZone->cellsL3 [xx].height;
+
+			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			elemList.Push (blueClamp.placeObject (5,
+				"type", APIParT_CString, "유로목재클램프(제작품v1)",
+				"bReverseRotation", APIParT_Boolean, "1.0",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"openingWidth", APIParT_Length, "0.047"));
+		}
+	}
+
+	// 블루클램프 (우측 1)
+	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsR1 [0].leftBottomX, placingZone->cellsR1 [0].leftBottomY, placingZone->cellsR1 [0].leftBottomZ, placingZone->cellsR1 [0].ang);
+	if ((placingZone->cellsR1 [0].verLen > EPS) && (placingZone->cellsR1 [0].height > EPS)) {
+		if (placingZone->marginTopAtEast > EPS) {
+			double formHeight = 0.0;
+			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+				formHeight += placingZone->cellsR1 [xx].height;
+
+			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			elemList.Push (blueClamp.placeObject (5,
+				"type", APIParT_CString, "유로목재클램프(제작품v1)",
+				"bReverseRotation", APIParT_Boolean, "1.0",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"openingWidth", APIParT_Length, "0.047"));
+		}
+	}
+
+	// 블루클램프 (우측 3)
+	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsR3 [0].leftBottomX, placingZone->cellsR3 [0].leftBottomY, placingZone->cellsR3 [0].leftBottomZ, placingZone->cellsR3 [0].ang);
+	if ((placingZone->cellsR3 [0].verLen > EPS) && (placingZone->cellsR3 [0].height > EPS)) {
+		if (placingZone->marginTopAtEast > EPS) {
+			double formHeight = 0.0;
+			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+				formHeight += placingZone->cellsR3 [xx].height;
+
+			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('x', blueClamp.radAng, placingZone->cellsR3 [0].verLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+			elemList.Push (blueClamp.placeObject (5,
+				"type", APIParT_CString, "유로목재클램프(제작품v1)",
+				"bReverseRotation", APIParT_Boolean, "1.0",
+				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+				"openingWidth", APIParT_Length, "0.047"));
+		}
 	}
 
 	return	err;
@@ -3223,7 +3384,7 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_wid", APIParT_Length, format_string ("%f", leftLenOfBeam),
 				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3241,7 +3402,7 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_wid", APIParT_Length, format_string ("%f", placingZone->beams [NORTH].width),
 				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3256,10 +3417,10 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽세우기",
 				"p_thk", APIParT_CString, "11.5T",
-				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam),
+				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam + 0.0615),
 				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3274,10 +3435,10 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽세우기",
 				"p_thk", APIParT_CString, "11.5T",
-				"p_wid", APIParT_Length, format_string ("%f", columnWidth),
+				"p_wid", APIParT_Length, format_string ("%f", columnWidth + 0.0615),
 				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3318,7 +3479,7 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_wid", APIParT_Length, format_string ("%f", leftLenOfBeam),
 				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3336,7 +3497,7 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_wid", APIParT_Length, format_string ("%f", placingZone->beams [SOUTH].width),
 				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3351,10 +3512,10 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽세우기",
 				"p_thk", APIParT_CString, "11.5T",
-				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam),
+				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam + 0.0615),
 				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3369,10 +3530,10 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽세우기",
 				"p_thk", APIParT_CString, "11.5T",
-				"p_wid", APIParT_Length, format_string ("%f", columnWidth),
+				"p_wid", APIParT_Length, format_string ("%f", columnWidth + 0.0615),
 				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3413,7 +3574,7 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_wid", APIParT_Length, format_string ("%f", leftLenOfBeam),
 				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3431,7 +3592,7 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_wid", APIParT_Length, format_string ("%f", placingZone->beams [WEST].width),
 				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3446,10 +3607,10 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽세우기",
 				"p_thk", APIParT_CString, "11.5T",
-				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam),
+				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam + 0.0615),
 				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3464,10 +3625,10 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽세우기",
 				"p_thk", APIParT_CString, "11.5T",
-				"p_wid", APIParT_Length, format_string ("%f", columnWidth),
+				"p_wid", APIParT_Length, format_string ("%f", columnWidth + 0.0615),
 				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3508,7 +3669,7 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_wid", APIParT_Length, format_string ("%f", leftLenOfBeam),
 				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3526,7 +3687,7 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_wid", APIParT_Length, format_string ("%f", placingZone->beams [EAST].width),
 				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3541,10 +3702,10 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽세우기",
 				"p_thk", APIParT_CString, "11.5T",
-				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam),
+				"p_wid", APIParT_Length, format_string ("%f", rightLenOfBeam + 0.0615),
 				"p_leng", APIParT_Length, format_string ("%f", placingZone->areaHeight - heightOfFormArea),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3559,10 +3720,10 @@ GSErrCode	ColumnTableformPlacingZone::fillRestAreas_soleColumn (ColumnTableformP
 				"p_stan", APIParT_CString, "비규격",
 				"w_dir", APIParT_CString, "벽세우기",
 				"p_thk", APIParT_CString, "11.5T",
-				"p_wid", APIParT_Length, format_string ("%f", columnWidth),
+				"p_wid", APIParT_Length, format_string ("%f", columnWidth + 0.0615),
 				"p_leng", APIParT_Length, format_string ("%f", marginHeight),
 				"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"sogak", APIParT_Boolean, "0.0",
+				"sogak", APIParT_Boolean, "1.0",
 				"bInverseSogak", APIParT_Boolean, "1.0",
 				"prof", APIParT_CString, "소각",
 				"gap_a", APIParT_Length, format_string ("%f", 0.0),
@@ -3626,6 +3787,7 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 			DGSetItemText (dialogID, LABEL_LAYER_HEADPIECE, L"헤드피스");
 			DGSetItemText (dialogID, LABEL_LAYER_COLUMN_BAND, L"기둥밴드");
 			DGSetItemText (dialogID, LABEL_LAYER_PLYWOOD, L"합판");
+			DGSetItemText (dialogID, LABEL_LAYER_BLUECLAMP, L"블루클램프");
 
 			// 팝업컨트롤: 테이블폼 타입
 			DGPopUpInsertItem (dialogID, POPUP_TABLEFORM_TYPE, DG_POPUP_BOTTOM);
@@ -3683,6 +3845,10 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 			ucb.itemID	 = USERCONTROL_LAYER_PLYWOOD;
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, 1);
+
+			ucb.itemID	 = USERCONTROL_LAYER_BLUECLAMP;
+			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
+			DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUECLAMP, 1);
 
 			// 아웃코너앵글 레이어 관련 비활성화
 			DGDisableItem (dialogID, LABEL_LAYER_OUTCORNER_ANGLE);
@@ -4309,6 +4475,7 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 					layerInd_Head			= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE);
 					layerInd_ColumnBand		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_COLUMN_BAND);
 					layerInd_Plywood		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD);
+					layerInd_BlueClamp		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_BLUECLAMP);
 
 					break;
 
@@ -4327,6 +4494,7 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 					layerInd_Head		= makeTemporaryLayer (structuralObject_forTableformColumn, "HEAD", NULL);
 					layerInd_ColumnBand	= makeTemporaryLayer (structuralObject_forTableformColumn, "BDCM", NULL);
 					layerInd_Plywood	= makeTemporaryLayer (structuralObject_forTableformColumn, "PLYW", NULL);
+					layerInd_BlueClamp	= makeTemporaryLayer (structuralObject_forTableformColumn, "UFCL", NULL);
 
 					DGSetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM, layerInd_Euroform);
 					DGSetItemValLong (dialogID, USERCONTROL_LAYER_FILLERSP, layerInd_Fillersp);
@@ -4338,6 +4506,7 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 					DGSetItemValLong (dialogID, USERCONTROL_LAYER_HEADPIECE, layerInd_Head);
 					DGSetItemValLong (dialogID, USERCONTROL_LAYER_COLUMN_BAND, layerInd_ColumnBand);
 					DGSetItemValLong (dialogID, USERCONTROL_LAYER_PLYWOOD, layerInd_Plywood);
+					DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUECLAMP, layerInd_BlueClamp);
 
 					break;
 

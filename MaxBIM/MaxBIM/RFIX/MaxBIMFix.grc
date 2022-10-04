@@ -454,9 +454,9 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Column */
-'GDLG'  32508  Modal | grow	  0		  0		500		810		"기둥에 배치" {
-/* [  1] */	Button			170		760		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			270		760		 70		 25		LargePlain		"Cancel"
+'GDLG'  32508  Modal | grow	  0		  0		500		840		"기둥에 배치" {
+/* [  1] */	Button			170		790		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			270		790		 70		 25		LargePlain		"Cancel"
 /* [  3] */	LeftText		 10		 10		100		 23		LargePlain		"Column Section"
 
 /* [  4] */	Icon    		140		 50		230		230  	32503			/* if use Outcorner Panel */
@@ -517,18 +517,20 @@
 /* [ 52] */	RightText		100		600		100		 23		LargePlain		"Headpiece"
 /* [ 53] */	RightText		100		630		100		 23		LargePlain		"Column Band"
 /* [ 54] */	RightText		100		660		100		 23		LargePlain		"Plywood"
-/* [ 55] */	UserControl		210		384		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 56] */	UserControl		210		414		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
-/* [ 57] */	UserControl		210		444		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
-/* [ 58] */	UserControl		210		474		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
-/* [ 59] */	UserControl		210		504		160		 25		257	0x0006 0x0000 0		/* Layer Control - SQUARE PIPE		*/
-/* [ 60] */	UserControl		210		534		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
-/* [ 61] */	UserControl		210		564		160		 25		257	0x0006 0x0000 0		/* Layer Control - PIPE HANGER		*/
-/* [ 62] */	UserControl		210		594		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
-/* [ 63] */	UserControl		210		624		160		 25		257	0x0006 0x0000 0		/* Layer Control - COLUMN BAND		*/
-/* [ 64] */	UserControl		210		654		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 55] */	RightText		100		690		100		 23		LargePlain		"Blue Clamp"
+/* [ 56] */	UserControl		210		384		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 57] */	UserControl		210		414		160		 25		257	0x0006 0x0000 0		/* Layer Control - FILLERSPACER		*/
+/* [ 58] */	UserControl		210		444		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER PANEL	*/
+/* [ 59] */	UserControl		210		474		160		 25		257	0x0006 0x0000 0		/* Layer Control - OUTCORNER ANGLE	*/
+/* [ 60] */	UserControl		210		504		160		 25		257	0x0006 0x0000 0		/* Layer Control - SQUARE PIPE		*/
+/* [ 61] */	UserControl		210		534		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
+/* [ 62] */	UserControl		210		564		160		 25		257	0x0006 0x0000 0		/* Layer Control - PIPE HANGER		*/
+/* [ 63] */	UserControl		210		594		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
+/* [ 64] */	UserControl		210		624		160		 25		257	0x0006 0x0000 0		/* Layer Control - COLUMN BAND		*/
+/* [ 65] */	UserControl		210		654		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 66] */	UserControl		210		684		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
 
-/* [ 65] */	Button			210		705		160		 25		LargePlain		"Autoset"
+/* [ 67] */	Button			210		735		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- place PERI Supporting Post for Beam Tableform */
