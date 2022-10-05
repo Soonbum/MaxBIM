@@ -528,7 +528,7 @@
 /* [ 63] */	UserControl		210		594		160		 25		257	0x0006 0x0000 0		/* Layer Control - HEADPIECE		*/
 /* [ 64] */	UserControl		210		624		160		 25		257	0x0006 0x0000 0		/* Layer Control - COLUMN BAND		*/
 /* [ 65] */	UserControl		210		654		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
-/* [ 66] */	UserControl		210		684		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 66] */	UserControl		210		684		160		 25		257	0x0006 0x0000 0		/* Layer Control - BLUE CLAMP		*/
 
 /* [ 67] */	Button			210		735		160		 25		LargePlain		"Autoset"
 }

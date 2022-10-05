@@ -3992,13 +3992,13 @@ short DGCALLBACK columnTableformPlacerHandler_soleColumn_1 (short message, short
 			DGSetItemValDouble (dialogID, EDITCONTROL_TOP_5, DGGetItemValDouble (dialogID, EDITCONTROL_BOTTOM_5));
 
 			// 레이어 같이 바뀜
-			if ((item >= USERCONTROL_LAYER_EUROFORM) && (item <= USERCONTROL_LAYER_PLYWOOD)) {
+			if ((item >= USERCONTROL_LAYER_EUROFORM) && (item <= USERCONTROL_LAYER_BLUECLAMP)) {
 				if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
 					long selectedLayer;
 
 					selectedLayer = DGGetItemValLong (dialogID, item);
 
-					for (xx = USERCONTROL_LAYER_EUROFORM ; xx <= USERCONTROL_LAYER_PLYWOOD ; ++xx)
+					for (xx = USERCONTROL_LAYER_EUROFORM ; xx <= USERCONTROL_LAYER_BLUECLAMP ; ++xx)
 						DGSetItemValLong (dialogID, xx, selectedLayer);
 				}
 			}
