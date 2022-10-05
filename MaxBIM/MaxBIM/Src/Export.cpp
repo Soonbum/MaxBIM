@@ -2858,33 +2858,9 @@ GSErrCode	exportBeamTableformInformation (void)
 								ang_x = (int)round (RadToDegree (getParameterValueByName (&memo, "ang_x")), 0);
 								ang_y = (int)round (RadToDegree (getParameterValueByName (&memo, "ang_y")), 0);
 
-								if ( ((ang_x ==   0) && (ang_y ==  0)) ||
-									 ((ang_x ==  90) && (ang_y ==  0)) ||
-									 ((ang_x == 180) && (ang_y ==  0)) ||
-									 ((ang_x ==  90) && (ang_y == 90)) )
+								if (ang_x == 90)
 									newObject.attachPosition = LEFT_SIDE;
-								else if ( ((ang_x ==   0) && (ang_y == 90)) ||
-										  ((ang_x == 180) && (ang_y == 90)) )
-									newObject.attachPosition = BOTTOM_SIDE;
-
-								bValid = true;
-							} else if (my_strcmp (getParameterStringByName (&memo, "u_ins"), "º®¼¼¿ì±â") == 0) {
-								newObject.objType = EUROFORM;
-
-								sprintf (tempStr, "%s", getParameterStringByName (&memo, "eu_wid"));
-								newObject.width = atof (tempStr) / 1000.0;
-								sprintf (tempStr, "%s", getParameterStringByName (&memo, "eu_hei"));
-								newObject.length = atof (tempStr) / 1000.0;
-
-								ang_x = (int)round (RadToDegree (getParameterValueByName (&memo, "ang_x")), 0);
-								ang_y = (int)round (RadToDegree (getParameterValueByName (&memo, "ang_y")), 0);
-
-								if ( ((ang_x ==   0) && (ang_y ==  0)) ||
-									 ((ang_x ==  90) && (ang_y ==  0)) ||
-									 ((ang_x == 180) && (ang_y ==  0)) )
-									newObject.attachPosition = LEFT_SIDE;
-								else if ( ((ang_x ==   0) && (ang_y == 90)) ||
-										  ((ang_x == 180) && (ang_y == 90)) )
+								else if (ang_x == 0)
 									newObject.attachPosition = BOTTOM_SIDE;
 
 								bValid = true;
@@ -2899,37 +2875,19 @@ GSErrCode	exportBeamTableformInformation (void)
 							if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "º®´¯È÷±â") == 0) {
 								newObject.width = getParameterValueByName (&memo, "p_wid");
 								newObject.length = getParameterValueByName (&memo, "p_leng");
-								if ( (ang_x == 0) || (ang_x == 180) )
-									newObject.attachPosition = LEFT_SIDE;
-								else
-									newObject.attachPosition = BOTTOM_SIDE;
+								newObject.attachPosition = LEFT_SIDE;
 
 								bValid = true;
 							} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "º®¼¼¿ì±â") == 0) {
 								newObject.width = getParameterValueByName (&memo, "p_leng");
 								newObject.length = getParameterValueByName (&memo, "p_wid");
-								if ( (ang_x == 0) || (ang_x == 180) )
-									newObject.attachPosition = LEFT_SIDE;
-								else
-									newObject.attachPosition = BOTTOM_SIDE;
+								newObject.attachPosition = LEFT_SIDE;
 
 								bValid = true;
 							} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "¹Ù´Ú±ò±â") == 0) {
 								newObject.width = getParameterValueByName (&memo, "p_wid");
 								newObject.length = getParameterValueByName (&memo, "p_leng");
-								if ( (ang_x == 90) || (ang_x == 270) )
-									newObject.attachPosition = LEFT_SIDE;
-								else
-									newObject.attachPosition = BOTTOM_SIDE;
-
-								bValid = true;
-							} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "¹Ù´Úµ¤±â") == 0) {
-								newObject.width = getParameterValueByName (&memo, "p_wid");
-								newObject.length = getParameterValueByName (&memo, "p_leng");
-								if ( (ang_x == 90) || (ang_x == 270) )
-									newObject.attachPosition = LEFT_SIDE;
-								else
-									newObject.attachPosition = BOTTOM_SIDE;
+								newObject.attachPosition = BOTTOM_SIDE;
 
 								bValid = true;
 							}
@@ -2945,12 +2903,6 @@ GSErrCode	exportBeamTableformInformation (void)
 
 								bValid = true;
 							} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "¹Ù´Ú±ò±â") == 0) {
-								newObject.width = 0.0;
-								newObject.length = 0.0;
-								newObject.attachPosition = BOTTOM_SIDE;
-
-								bValid = true;
-							} else if (my_strcmp (getParameterStringByName (&memo, "w_dir"), "¹Ù´Úµ¤±â") == 0) {
 								newObject.width = 0.0;
 								newObject.length = 0.0;
 								newObject.attachPosition = BOTTOM_SIDE;
