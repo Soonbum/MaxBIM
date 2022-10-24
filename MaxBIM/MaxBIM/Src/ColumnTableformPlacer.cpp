@@ -683,7 +683,7 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 
 			elemList.Push (fillersp.placeObject (4,
 				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsT2 [0].horLen),
-				"f_leng", APIParT_Length, format_string ("%f", remainLength),
+				"f_leng", APIParT_Length, format_string ("%f", length),
 				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
 				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			moveIn3D ('z', fillersp.radAng, length, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
@@ -713,7 +713,7 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 
 			elemList.Push (fillersp.placeObject (4,
 				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsB2 [0].horLen),
-				"f_leng", APIParT_Length, format_string ("%f", remainLength),
+				"f_leng", APIParT_Length, format_string ("%f", length),
 				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
 				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			moveIn3D ('z', fillersp.radAng, length, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
@@ -743,7 +743,7 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 
 			elemList.Push (fillersp.placeObject (4,
 				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsL2 [0].verLen),
-				"f_leng", APIParT_Length, format_string ("%f", remainLength),
+				"f_leng", APIParT_Length, format_string ("%f", length),
 				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
 				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			moveIn3D ('z', fillersp.radAng, length, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
@@ -773,7 +773,7 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 
 			elemList.Push (fillersp.placeObject (4,
 				"f_thk", APIParT_Length, format_string ("%f", placingZone->cellsR2 [0].verLen),
-				"f_leng", APIParT_Length, format_string ("%f", remainLength),
+				"f_leng", APIParT_Length, format_string ("%f", length),
 				"f_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
 				"f_rota", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
 			moveIn3D ('z', fillersp.radAng, length, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
@@ -782,6 +782,111 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 		}
 		moveIn3D ('x', fillersp.radAng, -placingZone->cellsR2 [0].verLen, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
 		moveIn3D ('z', fillersp.radAng, -accumDist, &fillersp.posX, &fillersp.posY, &fillersp.posZ);
+	}
+
+	// ¾Æ¿ôÄÚ³Ê¾Þ±Û ¹èÄ¡
+	// ÁÂ»ó´Ü
+	outangle.init (L("¾Æ¿ôÄÚ³Ê¾Þ±Ûv1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsLT [0].leftBottomX, placingZone->cellsLT [0].leftBottomY, placingZone->cellsLT [0].leftBottomZ, placingZone->cellsLT [0].ang);
+	if ((placingZone->cellsLT [0].objType == OUTANGLE) && (placingZone->cellsLT [0].height > EPS)) {
+		accumDist = 0.0;
+		remainLength = 0.0;
+		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+			remainLength += placingZone->cellsLT [xx].height;
+			accumDist += placingZone->cellsLT [xx].height;
+		}
+
+		while (remainLength > EPS) {
+			if (remainLength >= 2.400)
+				length = 2.400;
+			else
+				length = remainLength;
+
+			elemList.Push (outangle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", length),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			moveIn3D ('z', outangle.radAng, length, &outangle.posX, &outangle.posY, &outangle.posZ);
+
+			remainLength -= 2.400;
+		}
+		moveIn3D ('z', outangle.radAng, -accumDist, &outangle.posX, &outangle.posY, &outangle.posZ);
+	}
+
+	// ¿ì»ó´Ü
+	outangle.init (L("¾Æ¿ôÄÚ³Ê¾Þ±Ûv1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsRT [0].leftBottomX, placingZone->cellsRT [0].leftBottomY, placingZone->cellsRT [0].leftBottomZ, placingZone->cellsRT [0].ang);
+	if ((placingZone->cellsRT [0].objType == OUTANGLE) && (placingZone->cellsRT [0].height > EPS)) {
+		accumDist = 0.0;
+		remainLength = 0.0;
+		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+			remainLength += placingZone->cellsRT [xx].height;
+			accumDist += placingZone->cellsRT [xx].height;
+		}
+
+		while (remainLength > EPS) {
+			if (remainLength >= 2.400)
+				length = 2.400;
+			else
+				length = remainLength;
+
+			elemList.Push (outangle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", length),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			moveIn3D ('z', outangle.radAng, length, &outangle.posX, &outangle.posY, &outangle.posZ);
+
+			remainLength -= 2.400;
+		}
+		moveIn3D ('z', outangle.radAng, -accumDist, &outangle.posX, &outangle.posY, &outangle.posZ);
+	}
+
+	// ÁÂÇÏ´Ü
+	outangle.init (L("¾Æ¿ôÄÚ³Ê¾Þ±Ûv1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsLB [0].leftBottomX, placingZone->cellsLB [0].leftBottomY, placingZone->cellsLB [0].leftBottomZ, placingZone->cellsLB [0].ang);
+	if ((placingZone->cellsLB [0].objType == OUTANGLE) && (placingZone->cellsLB [0].height > EPS)) {
+		accumDist = 0.0;
+		remainLength = 0.0;
+		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+			remainLength += placingZone->cellsLB [xx].height;
+			accumDist += placingZone->cellsLB [xx].height;
+		}
+
+		while (remainLength > EPS) {
+			if (remainLength >= 2.400)
+				length = 2.400;
+			else
+				length = remainLength;
+
+			elemList.Push (outangle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", length),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			moveIn3D ('z', outangle.radAng, length, &outangle.posX, &outangle.posY, &outangle.posZ);
+
+			remainLength -= 2.400;
+		}
+		moveIn3D ('z', outangle.radAng, -accumDist, &outangle.posX, &outangle.posY, &outangle.posZ);
+	}
+
+	// ¿ìÇÏ´Ü
+	outangle.init (L("¾Æ¿ôÄÚ³Ê¾Þ±Ûv1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsRB [0].leftBottomX, placingZone->cellsRB [0].leftBottomY, placingZone->cellsRB [0].leftBottomZ, placingZone->cellsRB [0].ang);
+	if ((placingZone->cellsRB [0].objType == OUTANGLE) && (placingZone->cellsRB [0].height > EPS)) {
+		accumDist = 0.0;
+		remainLength = 0.0;
+		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
+			remainLength += placingZone->cellsRB [xx].height;
+			accumDist += placingZone->cellsRB [xx].height;
+		}
+
+		while (remainLength > EPS) {
+			if (remainLength >= 2.400)
+				length = 2.400;
+			else
+				length = remainLength;
+
+			elemList.Push (outangle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", length),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
+			moveIn3D ('z', outangle.radAng, length, &outangle.posX, &outangle.posY, &outangle.posZ);
+
+			remainLength -= 2.400;
+		}
+		moveIn3D ('z', outangle.radAng, -accumDist, &outangle.posX, &outangle.posY, &outangle.posZ);
 	}
 
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
@@ -999,36 +1104,6 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 				"leng_s", APIParT_Length, format_string ("%f", placingZone->cellsRB [xx].horLen),
 				"hei_s", APIParT_Length, format_string ("%f", placingZone->cellsRB [xx].height),
 				"dir_s", APIParT_CString, "¼¼¿ì±â"));
-
-
-		// 3. ¾Æ¿ôÄÚ³Ê¾Þ±Û ¹èÄ¡
-		// ÁÂ»ó´Ü
-		outangle.init (L("¾Æ¿ôÄÚ³Ê¾Þ±Ûv1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsLT [xx].leftBottomX, placingZone->cellsLT [xx].leftBottomY, placingZone->cellsLT [xx].leftBottomZ, placingZone->cellsLT [xx].ang);
-		if ((placingZone->cellsLT [xx].objType == OUTANGLE) && (placingZone->cellsLT [xx].height > EPS))
-			elemList.Push (outangle.placeObject (2,
-				"a_leng", APIParT_Length, format_string ("%f", placingZone->cellsLT [xx].height),
-				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
-
-		// ¿ì»ó´Ü
-		outangle.init (L("¾Æ¿ôÄÚ³Ê¾Þ±Ûv1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsRT [xx].leftBottomX, placingZone->cellsRT [xx].leftBottomY, placingZone->cellsRT [xx].leftBottomZ, placingZone->cellsRT [xx].ang);
-		if ((placingZone->cellsRT [xx].objType == OUTANGLE) && (placingZone->cellsRT [xx].height > EPS))
-			elemList.Push (outangle.placeObject (2,
-				"a_leng", APIParT_Length, format_string ("%f", placingZone->cellsRT [xx].height),
-				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
-
-		// ÁÂÇÏ´Ü
-		outangle.init (L("¾Æ¿ôÄÚ³Ê¾Þ±Ûv1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsLB [xx].leftBottomX, placingZone->cellsLB [xx].leftBottomY, placingZone->cellsLB [xx].leftBottomZ, placingZone->cellsLB [xx].ang);
-		if ((placingZone->cellsLB [xx].objType == OUTANGLE) && (placingZone->cellsLB [xx].height > EPS))
-			elemList.Push (outangle.placeObject (2,
-				"a_leng", APIParT_Length, format_string ("%f", placingZone->cellsLB [xx].height),
-				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
-
-		// ¿ìÇÏ´Ü
-		outangle.init (L("¾Æ¿ôÄÚ³Ê¾Þ±Ûv1.0.gsm"), layerInd_OutAngle, infoColumn.floorInd, placingZone->cellsRB [xx].leftBottomX, placingZone->cellsRB [xx].leftBottomY, placingZone->cellsRB [xx].leftBottomZ, placingZone->cellsRB [xx].ang);
-		if ((placingZone->cellsRB [xx].objType == OUTANGLE) && (placingZone->cellsRB [xx].height > EPS))
-			elemList.Push (outangle.placeObject (2,
-				"a_leng", APIParT_Length, format_string ("%f", placingZone->cellsRB [xx].height),
-				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str ()));
 	}
 
 	// ºí·çÅ¬·¥ÇÁ (À§ÂÊ 1)
