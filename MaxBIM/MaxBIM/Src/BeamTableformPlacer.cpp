@@ -417,6 +417,21 @@ void	BeamTableformPlacingZone::initCells (BeamTableformPlacingZone* placingZone)
 {
 	short xx, yy;
 
+	// 보 측면/하부 요소 여부 초기화
+	placingZone->bFillBottomFormAtLSide = false;
+	placingZone->bFillFillerAtLSide = false;
+	placingZone->bFillTopFormAtLSide = false;
+	placingZone->bFillWoodAtLSide = false;
+
+	placingZone->bFillBottomFormAtRSide = false;
+	placingZone->bFillFillerAtRSide = false;
+	placingZone->bFillTopFormAtRSide = false;
+	placingZone->bFillWoodAtRSide = false;
+
+	placingZone->bFillLeftFormAtBottom = false;
+	placingZone->bFillFillerAtBottom = false;
+	placingZone->bFillRightFormAtBottom = false;
+
 	// 영역 정보의 여백 채움 여부 초기화
 	placingZone->bFillMarginBegin = false;
 	placingZone->bFillMarginEnd = false;
@@ -681,7 +696,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 
 	if (placingZone->bFillMarginBegin == true) {
 		// 시작 부분 측면(L) 합판 배치
-		if (placingZone->beginCellAtLSide.dirLen > EPS) {
+		if ((placingZone->bFillBottomFormAtLSide == true) && (placingZone->beginCellAtLSide.dirLen > EPS)) {
 			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->beginCellAtLSide.leftBottomX, placingZone->beginCellAtLSide.leftBottomY, placingZone->beginCellAtLSide.leftBottomZ, placingZone->beginCellAtLSide.ang);
 			moveIn3D ('z', plywood.radAng, -0.0615, &plywood.posX, &plywood.posY, &plywood.posZ);
 			moveIn3DSlope ('x', plywood.radAng, placingZone->slantAngle, 0.0615 * sin (placingZone->slantAngle), &plywood.posX, &plywood.posY, &plywood.posZ);
@@ -703,7 +718,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 		}
 
 		// 시작 부분 측면(R) 합판 배치
-		if (placingZone->beginCellAtRSide.dirLen > EPS) {
+		if ((placingZone->bFillBottomFormAtRSide == true) && (placingZone->beginCellAtRSide.dirLen > EPS)) {
 			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->beginCellAtRSide.leftBottomX, placingZone->beginCellAtRSide.leftBottomY, placingZone->beginCellAtRSide.leftBottomZ, placingZone->beginCellAtRSide.ang);
 			moveIn3D ('z', plywood.radAng, -0.0615, &plywood.posX, &plywood.posY, &plywood.posZ);
 			moveIn3DSlope ('x', plywood.radAng, placingZone->slantAngle, 0.0615 * sin (placingZone->slantAngle), &plywood.posX, &plywood.posY, &plywood.posZ);
@@ -748,7 +763,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 
 	if (placingZone->bFillMarginEnd == true) {
 		// 끝 부분 측면(L) 합판 배치
-		if (placingZone->endCellAtLSide.dirLen > EPS) {
+		if ((placingZone->bFillBottomFormAtLSide == true) && (placingZone->endCellAtLSide.dirLen > EPS)) {
 			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->endCellAtLSide.leftBottomX, placingZone->endCellAtLSide.leftBottomY, placingZone->endCellAtLSide.leftBottomZ, placingZone->endCellAtLSide.ang);
 			moveIn3DSlope ('x', plywood.radAng, placingZone->slantAngle, -placingZone->endCellAtLSide.dirLen, &plywood.posX, &plywood.posY, &plywood.posZ);
 			moveIn3D ('z', plywood.radAng, -0.0615, &plywood.posX, &plywood.posY, &plywood.posZ);
@@ -771,7 +786,7 @@ GSErrCode	BeamTableformPlacingZone::placeBasicObjects (BeamTableformPlacingZone*
 		}
 
 		// 끝 부분 측면(R) 합판 배치
-		if (placingZone->endCellAtRSide.dirLen > EPS) {
+		if ((placingZone->bFillBottomFormAtRSide == true) && (placingZone->endCellAtRSide.dirLen > EPS)) {
 			plywood.init (L("합판v1.0.gsm"), layerInd_Plywood, infoBeam.floorInd, placingZone->endCellAtRSide.leftBottomX, placingZone->endCellAtRSide.leftBottomY, placingZone->endCellAtRSide.leftBottomZ, placingZone->endCellAtRSide.ang);
 			moveIn3DSlope ('x', plywood.radAng, placingZone->slantAngle, -placingZone->endCellAtRSide.dirLen, &plywood.posX, &plywood.posY, &plywood.posZ);
 			moveIn3D ('z', plywood.radAng, -0.0615, &plywood.posX, &plywood.posY, &plywood.posZ);
@@ -1519,7 +1534,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > 0) && (placingZone->cellsAtLSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -1529,13 +1544,13 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtLSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.0;
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
+			outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 2.400)
@@ -1559,7 +1574,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtRSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx].perLen > 0) && (placingZone->cellsAtRSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -1569,13 +1584,14 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtRSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.0;
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtRSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
+			outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
+			moveIn3D ('y', outangle.radAng, placingZone->cellsAtBottom [0][xx].perLen + placingZone->cellsAtBottom [1][xx].perLen + placingZone->cellsAtBottom [2][xx].perLen, &outangle.posX, &outangle.posY, &outangle.posZ);
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 2.400)
@@ -2021,7 +2037,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > 0) && (placingZone->cellsAtLSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -2031,13 +2047,13 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtLSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.100;		// 양쪽으로 50mm 튀어나오므로 길이 미리 추가됨
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
+			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 			moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('z', pipe1.radAng, (-0.0635 - 0.025) * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
@@ -2062,7 +2078,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtRSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx].perLen > 0) && (placingZone->cellsAtRSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -2072,16 +2088,17 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtRSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.100;		// 양쪽으로 50mm 튀어나오므로 길이 미리 추가됨
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtRSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
+			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 			moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('z', pipe1.radAng, (-0.0635 - 0.025) * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3D ('y', pipe1.radAng, placingZone->cellsAtBottom [0][xx].perLen + placingZone->cellsAtBottom [1][xx].perLen + placingZone->cellsAtBottom [2][xx].perLen, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 6.000)
@@ -2106,7 +2123,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 		bShow = false;
 		bBeginFound = false;
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > 0) && (placingZone->cellsAtLSide [0][xx].dirLen > 0)) {
+			if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 				// 연속적인 인덱스 범위 찾기
 				if (bBeginFound == false) {
 					beginIndex = xx;
@@ -2116,13 +2133,13 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 				endIndex = xx;
 			}
 
-			if (((placingZone->cellsAtLSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+			if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 				// 원장 사이즈 단위로 끊어서 배치하기
 				remainLengthDouble = 0.100;		// 양쪽으로 50mm 튀어나오므로 길이 미리 추가됨
 				for (yy = beginIndex ; yy <= endIndex ; ++yy)
-					remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
+					remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-				pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
+				pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 				moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				moveIn3D ('z', pipe1.radAng, (-0.0635 - 0.025) * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
@@ -2451,7 +2468,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > 0) && (placingZone->cellsAtLSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -2461,13 +2478,13 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtLSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.0;
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			hanger.init (L("각파이프행거.gsm"), layerInd_RectpipeHanger, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
+			hanger.init (L("각파이프행거.gsm"), layerInd_RectpipeHanger, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 			moveIn3D ('z', hanger.radAng, -0.0635 * cos (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
 			moveIn3D ('x', hanger.radAng, 0.0635 * sin (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
 			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
@@ -2480,7 +2497,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 			hanger.radAng -= DegreeToRad (90.0);
 			tempLengthDouble = 0.0;
 			for (zz = beginIndex ; zz <= beginIndex + round ((endIndex - beginIndex) / 2, 0) ; ++zz) {
-				tempLengthDouble += placingZone->cellsAtLSide [0][zz].dirLen;
+				tempLengthDouble += placingZone->cellsAtBottom [0][zz].dirLen;
 			}
 			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150 - remainLengthDouble + tempLengthDouble - 0.450, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (90.0);
@@ -2495,7 +2512,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtRSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx].perLen > 0) && (placingZone->cellsAtRSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -2505,15 +2522,16 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtRSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.0;
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtRSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			hanger.init (L("각파이프행거.gsm"), layerInd_RectpipeHanger, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
+			hanger.init (L("각파이프행거.gsm"), layerInd_RectpipeHanger, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 			moveIn3D ('z', hanger.radAng, -0.0635 * cos (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
 			moveIn3D ('x', hanger.radAng, 0.0635 * sin (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3D ('y', hanger.radAng, placingZone->cellsAtBottom [0][xx].perLen + placingZone->cellsAtBottom [1][xx].perLen + placingZone->cellsAtBottom [2][xx].perLen, &hanger.posX, &hanger.posY, &hanger.posZ);
 			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (270.0);
 			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", slantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
@@ -2524,7 +2542,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsA (BeamTableformPlacingZone* 
 			hanger.radAng -= DegreeToRad (270.0);
 			tempLengthDouble = 0.0;
 			for (zz = beginIndex ; zz <= beginIndex + round ((endIndex - beginIndex) / 2, 0) ; ++zz) {
-				tempLengthDouble += placingZone->cellsAtRSide [0][zz].dirLen;
+				tempLengthDouble += placingZone->cellsAtBottom [0][zz].dirLen;
 			}
 			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150 - remainLengthDouble + tempLengthDouble - 0.450, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (270.0);
@@ -3458,7 +3476,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > 0) && (placingZone->cellsAtLSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -3468,13 +3486,13 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtLSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.0;
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
+			outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 2.400)
@@ -3498,7 +3516,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtRSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx].perLen > 0) && (placingZone->cellsAtRSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -3508,13 +3526,14 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtRSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.0;
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtRSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
+			outangle.init (L("아웃코너앵글v1.0.gsm"), layerInd_OutcornerAngle, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
+			moveIn3D ('y', outangle.radAng, placingZone->cellsAtBottom [0][xx].perLen + placingZone->cellsAtBottom [1][xx].perLen + placingZone->cellsAtBottom [2][xx].perLen, &outangle.posX, &outangle.posY, &outangle.posZ);
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 2.400)
@@ -3880,7 +3899,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > 0) && (placingZone->cellsAtLSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -3890,13 +3909,13 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtLSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.100;		// 양쪽으로 50mm 튀어나오므로 길이 미리 추가됨
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
+			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 			moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('z', pipe1.radAng, (-0.0635 - 0.025) * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
@@ -3921,7 +3940,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtRSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx].perLen > 0) && (placingZone->cellsAtRSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -3931,16 +3950,17 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtRSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.100;		// 양쪽으로 50mm 튀어나오므로 길이 미리 추가됨
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtRSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
+			pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 			moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('z', pipe1.radAng, (-0.0635 - 0.025) * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 			moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
+			moveIn3D ('y', pipe1.radAng, placingZone->cellsAtBottom [0][xx].perLen + placingZone->cellsAtBottom [1][xx].perLen + placingZone->cellsAtBottom [2][xx].perLen, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 
 			while (remainLengthDouble > EPS) {
 				if (remainLengthDouble > 6.000)
@@ -3965,7 +3985,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 		bShow = false;
 		bBeginFound = false;
 		for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-			if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > 0) && (placingZone->cellsAtLSide [0][xx].dirLen > 0)) {
+			if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 				// 연속적인 인덱스 범위 찾기
 				if (bBeginFound == false) {
 					beginIndex = xx;
@@ -3975,13 +3995,13 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 				endIndex = xx;
 			}
 
-			if (((placingZone->cellsAtLSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+			if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 				// 원장 사이즈 단위로 끊어서 배치하기
 				remainLengthDouble = 0.100;		// 양쪽으로 50mm 튀어나오므로 길이 미리 추가됨
 				for (yy = beginIndex ; yy <= endIndex ; ++yy)
-					remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
+					remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-				pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
+				pipe1.init (L("비계파이프v1.0.gsm"), layerInd_Rectpipe, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 				moveIn3DSlope ('x', pipe1.radAng, placingZone->slantAngle, -0.050, &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				moveIn3D ('z', pipe1.radAng, (-0.0635 - 0.025) * cos (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
 				moveIn3D ('x', pipe1.radAng, -(-0.0635 - 0.025) * sin (placingZone->slantAngle), &pipe1.posX, &pipe1.posY, &pipe1.posZ);
@@ -4286,7 +4306,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtLSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtLSide [0][xx].perLen > 0) && (placingZone->cellsAtLSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -4296,11 +4316,11 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtLSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.0;
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtLSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
 			hanger.init (L("각파이프행거.gsm"), layerInd_RectpipeHanger, infoBeam.floorInd, placingZone->cellsAtLSide [0][beginIndex].leftBottomX, placingZone->cellsAtLSide [0][beginIndex].leftBottomY, placingZone->cellsAtLSide [0][beginIndex].leftBottomZ, placingZone->cellsAtLSide [0][beginIndex].ang);
 			moveIn3D ('z', hanger.radAng, -0.0635 * cos (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
@@ -4315,7 +4335,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 			hanger.radAng -= DegreeToRad (90.0);
 			tempLengthDouble = 0.0;
 			for (zz = beginIndex ; zz <= beginIndex + round ((endIndex - beginIndex) / 2, 0) ; ++zz) {
-				tempLengthDouble += placingZone->cellsAtLSide [0][zz].dirLen;
+				tempLengthDouble += placingZone->cellsAtBottom [0][zz].dirLen;
 			}
 			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150 - remainLengthDouble + tempLengthDouble - 0.450, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (90.0);
@@ -4330,7 +4350,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 	bShow = false;
 	bBeginFound = false;
 	for (xx = 0 ; xx < placingZone->nCells ; ++xx) {
-		if ((placingZone->cellsAtRSide [0][xx].objType == EUROFORM) && (placingZone->cellsAtRSide [0][xx].perLen > 0) && (placingZone->cellsAtRSide [0][xx].dirLen > 0)) {
+		if ((placingZone->cellsAtBottom [0][xx].objType == EUROFORM) && (placingZone->cellsAtBottom [0][xx].perLen > 0) && (placingZone->cellsAtBottom [0][xx].dirLen > 0)) {
 			// 연속적인 인덱스 범위 찾기
 			if (bBeginFound == false) {
 				beginIndex = xx;
@@ -4340,15 +4360,16 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 			endIndex = xx;
 		}
 
-		if (((placingZone->cellsAtRSide [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
+		if (((placingZone->cellsAtBottom [0][xx].objType != EUROFORM) || (xx == placingZone->nCells-1)) && (bShow == true)) {
 			// 원장 사이즈 단위로 끊어서 배치하기
 			remainLengthDouble = 0.0;
 			for (yy = beginIndex ; yy <= endIndex ; ++yy)
-				remainLengthDouble += placingZone->cellsAtRSide [0][yy].dirLen;
+				remainLengthDouble += placingZone->cellsAtBottom [0][yy].dirLen;
 
-			hanger.init (L("각파이프행거.gsm"), layerInd_RectpipeHanger, infoBeam.floorInd, placingZone->cellsAtRSide [0][beginIndex].leftBottomX, placingZone->cellsAtRSide [0][beginIndex].leftBottomY, placingZone->cellsAtRSide [0][beginIndex].leftBottomZ, placingZone->cellsAtRSide [0][beginIndex].ang);
+			hanger.init (L("각파이프행거.gsm"), layerInd_RectpipeHanger, infoBeam.floorInd, placingZone->cellsAtBottom [0][beginIndex].leftBottomX, placingZone->cellsAtBottom [0][beginIndex].leftBottomY, placingZone->cellsAtBottom [0][beginIndex].leftBottomZ, placingZone->cellsAtBottom [0][beginIndex].ang);
 			moveIn3D ('z', hanger.radAng, -0.0635 * cos (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
 			moveIn3D ('x', hanger.radAng, 0.0635 * sin (placingZone->slantAngle), &hanger.posX, &hanger.posY, &hanger.posZ);
+			moveIn3D ('y', hanger.radAng, placingZone->cellsAtBottom [0][xx].perLen + placingZone->cellsAtBottom [1][xx].perLen + placingZone->cellsAtBottom [2][xx].perLen, &hanger.posX, &hanger.posY, &hanger.posZ);
 			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (270.0);
 			elemList_Tableform [getAreaSeqNumOfCell (placingZone, true, true, xx)].Push (hanger.placeObject (4, "m_type", APIParT_CString, "각파이프행거", "c_ag", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str (), "angX", APIParT_Angle, format_string ("%f", slantAngle).c_str (), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)).c_str ()));
@@ -4359,7 +4380,7 @@ GSErrCode	BeamTableformPlacingZone::placeAuxObjectsB (BeamTableformPlacingZone* 
 			hanger.radAng -= DegreeToRad (270.0);
 			tempLengthDouble = 0.0;
 			for (zz = beginIndex ; zz <= beginIndex + round ((endIndex - beginIndex) / 2, 0) ; ++zz) {
-				tempLengthDouble += placingZone->cellsAtRSide [0][zz].dirLen;
+				tempLengthDouble += placingZone->cellsAtBottom [0][zz].dirLen;
 			}
 			moveIn3DSlope ('x', hanger.radAng, placingZone->slantAngle, 0.150 - remainLengthDouble + tempLengthDouble - 0.450, &hanger.posX, &hanger.posY, &hanger.posZ);
 			hanger.radAng += DegreeToRad (270.0);
@@ -6105,6 +6126,11 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_BLUE_TIMBER_RAIL, 1);
 
+			// 기본 유로폼은 초기값 On
+			DGSetItemValLong (dialogID, CHECKBOX_B_FORM_LSIDE, TRUE);
+			DGSetItemValLong (dialogID, CHECKBOX_B_FORM_RSIDE, TRUE);
+			DGSetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM, TRUE);
+
 			// 보 높이/너비 계산
 			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_LEFT_HEIGHT, placingZone.areaHeight_Left);		// 보 높이 (L)
 			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_RIGHT_HEIGHT, placingZone.areaHeight_Right);		// 보 높이 (R)
@@ -6126,14 +6152,6 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 			(DGGetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_TIMBER_RSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_TIMBER_RSIDE);
 			(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_RSIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_RSIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_RSIDE);
 			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_RSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_RSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_RSIDE);
-
-			// 측면 0번, 하부 0번 셀은 무조건 사용해야 함
-			DGSetItemValLong (dialogID, CHECKBOX_B_FORM_LSIDE, TRUE);
-			DGSetItemValLong (dialogID, CHECKBOX_B_FORM_RSIDE, TRUE);
-			DGSetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM, TRUE);
-			DGDisableItem (dialogID, CHECKBOX_B_FORM_LSIDE);
-			DGDisableItem (dialogID, CHECKBOX_B_FORM_RSIDE);
-			DGDisableItem (dialogID, CHECKBOX_L_FORM_BOTTOM);
 
 			// 나머지 값 계산
 			h1 = 0;
@@ -6184,6 +6202,22 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 			break;
 		
 		case DG_MSG_CHANGE:
+			// 기본 유로폼까지 꺼버리면 나머지 요소들도 꺼짐
+			if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_LSIDE) == FALSE) {
+				DGSetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE, FALSE);
+				DGSetItemValLong (dialogID, CHECKBOX_T_FORM_LSIDE, FALSE);
+				DGSetItemValLong (dialogID, CHECKBOX_FILLER_LSIDE, FALSE);
+			}
+			if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_RSIDE) == FALSE) {
+				DGSetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE, FALSE);
+				DGSetItemValLong (dialogID, CHECKBOX_T_FORM_RSIDE, FALSE);
+				DGSetItemValLong (dialogID, CHECKBOX_FILLER_RSIDE, FALSE);
+			}
+			if (DGGetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM) == FALSE) {
+				DGSetItemValLong (dialogID, CHECKBOX_FILLER_BOTTOM, FALSE);
+				DGSetItemValLong (dialogID, CHECKBOX_R_FORM_BOTTOM, FALSE);
+			}
+
 			// 보 높이/너비 계산
 			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_LEFT_HEIGHT, placingZone.areaHeight_Left);		// 보 높이 (L)
 			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_RIGHT_HEIGHT, placingZone.areaHeight_Right);		// 보 높이 (R)
@@ -6195,13 +6229,16 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 			DGSetItemValDouble (dialogID, EDITCONTROL_TOTAL_RIGHT_HEIGHT, placingZone.areaHeight_Right + DGGetItemValDouble (dialogID, EDITCONTROL_GAP_BOTTOM));	// 총 높이 (R)
 
 			// 부재별 체크박스-규격 설정
+			(DGGetItemValLong (dialogID, CHECKBOX_B_FORM_LSIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_B_FORM_LSIDE)			:	DGDisableItem (dialogID, POPUP_B_FORM_LSIDE);
 			(DGGetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_TIMBER_LSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_TIMBER_LSIDE);
 			(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_LSIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_LSIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_LSIDE);
 			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_LSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_LSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_LSIDE);
 
+			(DGGetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_L_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_L_FORM_BOTTOM);
 			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_BOTTOM)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_BOTTOM);
 			(DGGetItemValLong (dialogID, CHECKBOX_R_FORM_BOTTOM) == TRUE) ?	DGEnableItem (dialogID, POPUP_R_FORM_BOTTOM)		:	DGDisableItem (dialogID, POPUP_R_FORM_BOTTOM);
 
+			(DGGetItemValLong (dialogID, CHECKBOX_B_FORM_RSIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_B_FORM_RSIDE)			:	DGDisableItem (dialogID, POPUP_B_FORM_RSIDE);
 			(DGGetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_TIMBER_RSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_TIMBER_RSIDE);
 			(DGGetItemValLong (dialogID, CHECKBOX_T_FORM_RSIDE) == TRUE) ?	DGEnableItem (dialogID, POPUP_T_FORM_RSIDE)			:	DGDisableItem (dialogID, POPUP_T_FORM_RSIDE);
 			(DGGetItemValLong (dialogID, CHECKBOX_FILLER_RSIDE) == TRUE) ?	DGEnableItem (dialogID, EDITCONTROL_FILLER_RSIDE)	:	DGDisableItem (dialogID, EDITCONTROL_FILLER_RSIDE);
@@ -6257,6 +6294,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 				case DG_OK:
 					///////////////////////////////////////////////////////////////// 왼쪽 측면 (높은쪽)
 					if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_LSIDE) == TRUE) {
+						placingZone.bFillBottomFormAtLSide = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							placingZone.cellsAtLSide [0][xx].objType = EUROFORM;
 							placingZone.cellsAtLSide [0][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_B_FORM_LSIDE, DGPopUpGetSelected (dialogID, POPUP_B_FORM_LSIDE)).ToCStr ()) / 1000.0;
@@ -6264,6 +6302,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					}
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_FILLER_LSIDE) == TRUE) {
+						placingZone.bFillFillerAtLSide = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							placingZone.cellsAtLSide [1][xx].objType = FILLERSP;
 							placingZone.cellsAtLSide [1][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_FILLER_LSIDE);
@@ -6271,6 +6310,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					}
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_T_FORM_LSIDE) == TRUE) {
+						placingZone.bFillTopFormAtLSide = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							placingZone.cellsAtLSide [2][xx].objType = EUROFORM;
 							placingZone.cellsAtLSide [2][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_LSIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_LSIDE)).ToCStr ()) / 1000.0;
@@ -6278,6 +6318,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					}
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_TIMBER_LSIDE) == TRUE) {
+						placingZone.bFillWoodAtLSide = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							if (DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_LSIDE) >= 0.100 + EPS)
 								placingZone.cellsAtLSide [3][xx].objType = PLYWOOD;
@@ -6289,6 +6330,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 
 					///////////////////////////////////////////////////////////////// 오른쪽 측면 (낮은쪽)
 					if (DGGetItemValLong (dialogID, CHECKBOX_B_FORM_RSIDE) == TRUE) {
+						placingZone.bFillBottomFormAtRSide = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							placingZone.cellsAtRSide [0][xx].objType = EUROFORM;
 							placingZone.cellsAtRSide [0][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_B_FORM_RSIDE, DGPopUpGetSelected (dialogID, POPUP_B_FORM_RSIDE)).ToCStr ()) / 1000.0;
@@ -6296,6 +6338,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					}
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_FILLER_RSIDE) == TRUE) {
+						placingZone.bFillFillerAtRSide = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							placingZone.cellsAtRSide [1][xx].objType = FILLERSP;
 							placingZone.cellsAtRSide [1][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_FILLER_RSIDE);
@@ -6303,6 +6346,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					}
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_T_FORM_RSIDE) == TRUE) {
+						placingZone.bFillTopFormAtRSide = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							placingZone.cellsAtRSide [2][xx].objType = EUROFORM;
 							placingZone.cellsAtRSide [2][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_T_FORM_RSIDE, DGPopUpGetSelected (dialogID, POPUP_T_FORM_RSIDE)).ToCStr ()) / 1000.0;
@@ -6310,6 +6354,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					}
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_TIMBER_RSIDE) == TRUE) {
+						placingZone.bFillWoodAtRSide = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							if (DGGetItemValDouble (dialogID, EDITCONTROL_TIMBER_RSIDE) >= 0.100 + EPS)
 								placingZone.cellsAtRSide [3][xx].objType = PLYWOOD;
@@ -6321,6 +6366,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 
 					///////////////////////////////////////////////////////////////// 하부
 					if (DGGetItemValLong (dialogID, CHECKBOX_L_FORM_BOTTOM) == TRUE) {
+						placingZone.bFillLeftFormAtBottom = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							placingZone.cellsAtBottom [0][xx].objType = EUROFORM;
 							placingZone.cellsAtBottom [0][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_L_FORM_BOTTOM, DGPopUpGetSelected (dialogID, POPUP_L_FORM_BOTTOM)).ToCStr ()) / 1000.0;
@@ -6328,6 +6374,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					}
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_FILLER_BOTTOM) == TRUE) {
+						placingZone.bFillFillerAtBottom = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							placingZone.cellsAtBottom [1][xx].objType = FILLERSP;
 							placingZone.cellsAtBottom [1][xx].perLen = DGGetItemValDouble (dialogID, EDITCONTROL_FILLER_BOTTOM);
@@ -6335,6 +6382,7 @@ short DGCALLBACK beamTableformPlacerHandler1 (short message, short dialogID, sho
 					}
 
 					if (DGGetItemValLong (dialogID, CHECKBOX_R_FORM_BOTTOM) == TRUE) {
+						placingZone.bFillRightFormAtBottom = true;
 						for (xx = 0 ; xx < 50 ; ++xx) {
 							placingZone.cellsAtBottom [2][xx].objType = EUROFORM;
 							placingZone.cellsAtBottom [2][xx].perLen = atof (DGPopUpGetItemText (dialogID, POPUP_R_FORM_BOTTOM, DGPopUpGetSelected (dialogID, POPUP_R_FORM_BOTTOM)).ToCStr ()) / 1000.0;

@@ -267,6 +267,21 @@ public:
 	bool	bFillMarginBegin;		// 시작 부분 여백 채움
 	bool	bFillMarginEnd;			// 끝 부분 여백 채움
 
+	// 보 측면/하부 요소 여부
+	bool	bFillBottomFormAtLSide;	// 좌측 하부 유로폼
+	bool	bFillFillerAtLSide;		// 좌측 휠러스페이서
+	bool	bFillTopFormAtLSide;	// 좌측 상부 유로폼
+	bool	bFillWoodAtLSide;		// 좌측 합판/각재
+
+	bool	bFillBottomFormAtRSide;	// 우측 하부 유로폼
+	bool	bFillFillerAtRSide;		// 우측 휠러스페이서
+	bool	bFillTopFormAtRSide;	// 우측 상부 유로폼
+	bool	bFillWoodAtRSide;		// 우측 합판/각재
+
+	bool	bFillLeftFormAtBottom;	// 하부 좌측 유로폼
+	bool	bFillFillerAtBottom;	// 하부 휠러스페이서
+	bool	bFillRightFormAtBottom;	// 하부 우측 유로폼
+
 	// 보 양끝 셀
 	CellForBeamTableform	beginCellAtLSide;
 	CellForBeamTableform	beginCellAtRSide;
