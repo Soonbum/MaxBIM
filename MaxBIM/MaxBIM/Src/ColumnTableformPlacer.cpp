@@ -228,24 +228,24 @@ GSErrCode	placeTableformOnColumn (void)
 
 			// 기둥의 동/서/남/북 방향에 있는 보의 하단 레벨을 저장함
 			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick + EPS)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick - EPS)) && (unrotatedPoint.y >= (placingZone.origoPos.y + placingZone.coreWidth/2 + placingZone.venThick - EPS)) ) {
-				placingZone.bottomLevelOfBeams [NORTH] = infoOtherBeams [NORTH].baseElev;
+				placingZone.bottomLevelOfBeams [NORTH] = infoOtherBeams [xx].baseElev;
 				placingZone.bExistBeams [NORTH] = true;
-				placingZone.beams [NORTH] = infoOtherBeams [NORTH];
+				placingZone.beams [NORTH] = infoOtherBeams [xx];
 			}
 			if ( (unrotatedPoint.x <= (placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick + EPS)) && (unrotatedPoint.x >= (placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick - EPS)) && (unrotatedPoint.y <= (placingZone.origoPos.y - placingZone.coreWidth/2 - placingZone.venThick + EPS)) ) {
-				placingZone.bottomLevelOfBeams [SOUTH] = infoOtherBeams [SOUTH].baseElev;
+				placingZone.bottomLevelOfBeams [SOUTH] = infoOtherBeams [xx].baseElev;
 				placingZone.bExistBeams [SOUTH] = true;
-				placingZone.beams [SOUTH] = infoOtherBeams [SOUTH];
+				placingZone.beams [SOUTH] = infoOtherBeams [xx];
 			}
 			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2 + placingZone.venThick + EPS)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2 - placingZone.venThick - EPS)) && (unrotatedPoint.x >= (placingZone.origoPos.x + placingZone.coreWidth/2 + placingZone.venThick - EPS)) ) {
-				placingZone.bottomLevelOfBeams [EAST] = infoOtherBeams [EAST].baseElev;
+				placingZone.bottomLevelOfBeams [EAST] = infoOtherBeams [xx].baseElev;
 				placingZone.bExistBeams [EAST] = true;
-				placingZone.beams [EAST] = infoOtherBeams [EAST];
+				placingZone.beams [EAST] = infoOtherBeams [xx];
 			}
 			if ( (unrotatedPoint.y <= (placingZone.origoPos.y + placingZone.coreDepth/2 + placingZone.venThick + EPS)) && (unrotatedPoint.y >= (placingZone.origoPos.y - placingZone.coreDepth/2 - placingZone.venThick - EPS)) && (unrotatedPoint.x <= (placingZone.origoPos.x - placingZone.coreWidth/2 - placingZone.venThick + EPS)) ) {
-				placingZone.bottomLevelOfBeams [WEST] = infoOtherBeams [WEST].baseElev;
+				placingZone.bottomLevelOfBeams [WEST] = infoOtherBeams [xx].baseElev;
 				placingZone.bExistBeams [WEST] = true;
-				placingZone.beams [WEST] = infoOtherBeams [WEST];
+				placingZone.beams [WEST] = infoOtherBeams [xx];
 			}
 		}
 	}
