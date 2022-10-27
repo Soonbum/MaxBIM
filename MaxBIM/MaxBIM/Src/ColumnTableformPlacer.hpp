@@ -140,9 +140,12 @@ struct InfoBeamForColumnTableform
 	double	width;		// 보 너비
 	double	offset;		// 보 중심으로부터 보의 레퍼런스 라인의 오프셋입니다.
 	double	level;		// 바닥 레벨에 대한 보의 위쪽면 높이입니다.
+	double	baseElev;	// 보의 밑면 고도
 
 	API_Coord	begC;	// 보 시작 좌표
 	API_Coord	endC;	// 보 끝 좌표
+
+	double	workLevel;	// 작업 층 높이
 };
 
 // 모프 관련 정보
@@ -189,6 +192,7 @@ public:
 	double	bottomOffset;	// 바닥 레벨에 대한 기둥 베이스 레벨
 	double	topOffset;		// 만약 기둥이 윗층과 연결되어 있는 경우 윗층으로부터의 오프셋
 	double	angle;			// 기둥 축을 중심으로 한 회전 각도 (단위: Radian, 회전축: Z축)
+	double	baseElev;		// 기둥의 밑면 고도
 	API_Coord	origoPos;	// 기둥의 위치
 
 	double	areaHeight;		// 모프가 지정한 영역의 높이
@@ -238,6 +242,9 @@ public:
 
 	// 수직 방향으로의 셀 개수
 	short	nCells;
+
+	// 작업 층 높이
+	double	workLevel;
 
 public:
 	void		initCells (ColumnTableformPlacingZone* placingZone);					// Cell 배열을 초기화함

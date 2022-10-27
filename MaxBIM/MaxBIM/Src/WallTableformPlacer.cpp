@@ -698,12 +698,25 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 
 		moveIn3D ('y', outcornerAngle.radAng - DegreeToRad (180.0), -placingZone->gap, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);	// 벽과의 간격만큼 이동
 
+		accumDist = 0.0;
+		remainLengthInt = 0;
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
-			elemList_Front.Push (outcornerAngle.placeObject (2,
-				"a_leng", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
-				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+			remainLengthInt += placingZone->cells [0].tableInVerBasic [xx];
+			accumDist += (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+		}
 
-			moveIn3D ('z', outcornerAngle.radAng, (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
+		while (remainLengthInt > 0) {
+			if (remainLengthInt >= 2400)
+				lengthInt = 2400;
+			else
+				lengthInt = remainLengthInt;
+
+			elemList_Front.Push (outcornerAngle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+			moveIn3D ('z', outcornerAngle.radAng, (double)lengthInt / 1000.0, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
+
+			remainLengthInt -= 2400;
 		}
 
 		// 뒷면
@@ -714,17 +727,30 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 
 			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
 
+			accumDist = 0.0;
+			remainLengthInt = 0;
 			for (xx = 0 ; xx < varEnd ; ++xx) {
-				if (placingZone->bExtra == true)
-					lengthDouble = (double)placingZone->cells [0].tableInVerExtra [xx] / 1000.0;
+				if (placingZone->bExtra == true) {
+					remainLengthInt += placingZone->cells [0].tableInVerExtra [xx];
+					accumDist += (double)placingZone->cells [0].tableInVerExtra [xx] / 1000.0;
+				} else {
+					remainLengthInt += placingZone->cells [0].tableInVerBasic [xx];
+					accumDist += (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+				}
+			}
+
+			while (remainLengthInt > 0) {
+				if (remainLengthInt >= 2400)
+					lengthInt = 2400;
 				else
-					lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+					lengthInt = remainLengthInt;
 
 				elemList_Back.Push (outcornerAngle.placeObject (2,
-					"a_leng", APIParT_Length, format_string ("%f", lengthDouble),
+					"a_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0),
 					"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+				moveIn3D ('z', outcornerAngle.radAng - DegreeToRad (90.0), (double)lengthInt / 1000.0, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
 
-				moveIn3D ('z', outcornerAngle.radAng - DegreeToRad (90.0), lengthDouble, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
+				remainLengthInt -= 2400;
 			}
 		}
 	}
@@ -832,12 +858,25 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 		moveIn3D ('y', outcornerAngle.radAng - DegreeToRad (270.0), -placingZone->gap, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);	// 벽과의 간격만큼 이동
 		moveIn3D ('x', outcornerAngle.radAng - DegreeToRad (270.0), placingZone->horLen, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);	// 영역 우측으로 이동
 
+		accumDist = 0.0;
+		remainLengthInt = 0;
 		for (xx = 0 ; xx < placingZone->nCellsInVerBasic ; ++xx) {
-			elemList_Front.Push (outcornerAngle.placeObject (2,
-				"a_leng", APIParT_Length, format_string ("%f", (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0),
-				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+			remainLengthInt += placingZone->cells [0].tableInVerBasic [xx];
+			accumDist += (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+		}
 
-			moveIn3D ('z', outcornerAngle.radAng - DegreeToRad (270.0), (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
+		while (remainLengthInt > 0) {
+			if (remainLengthInt >= 2400)
+				lengthInt = 2400;
+			else
+				lengthInt = remainLengthInt;
+
+			elemList_Front.Push (outcornerAngle.placeObject (2,
+				"a_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0),
+				"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+			moveIn3D ('z', outcornerAngle.radAng - DegreeToRad (270.0), (double)lengthInt / 1000.0, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
+
+			remainLengthInt -= 2400;
 		}
 
 		// 뒷면
@@ -849,17 +888,30 @@ GSErrCode	WallTableformPlacingZone::placeObjects (WallTableformPlacingZone* plac
 
 			varEnd = (placingZone->bExtra == true) ? placingZone->nCellsInVerExtra : placingZone->nCellsInVerBasic;
 
+			accumDist = 0.0;
+			remainLengthInt = 0;
 			for (xx = 0 ; xx < varEnd ; ++xx) {
-				if (placingZone->bExtra == true)
-					lengthDouble = (double)placingZone->cells [0].tableInVerExtra [xx] / 1000.0;
+				if (placingZone->bExtra == true) {
+					remainLengthInt += placingZone->cells [0].tableInVerExtra [xx];
+					accumDist += (double)placingZone->cells [0].tableInVerExtra [xx] / 1000.0;
+				} else {
+					remainLengthInt += placingZone->cells [0].tableInVerBasic [xx];
+					accumDist += (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+				}
+			}
+
+			while (remainLengthInt > 0) {
+				if (remainLengthInt >= 2400)
+					lengthInt = 2400;
 				else
-					lengthDouble = (double)placingZone->cells [0].tableInVerBasic [xx] / 1000.0;
+					lengthInt = remainLengthInt;
 
-				elemList_Back.Push (outcornerAngle.placeObject (2,
-					"a_leng", APIParT_Length, format_string ("%f", lengthDouble),
+				elemList_Front.Push (outcornerAngle.placeObject (2,
+					"a_leng", APIParT_Length, format_string ("%f", (double)lengthInt / 1000.0),
 					"a_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0))));
+				moveIn3D ('z', outcornerAngle.radAng, (double)lengthInt / 1000.0, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
 
-				moveIn3D ('z', outcornerAngle.radAng, lengthDouble, &outcornerAngle.posX, &outcornerAngle.posY, &outcornerAngle.posZ);
+				remainLengthInt -= 2400;
 			}
 		}
 	}
