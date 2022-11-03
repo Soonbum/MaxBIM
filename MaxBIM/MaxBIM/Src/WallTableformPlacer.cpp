@@ -5554,6 +5554,64 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 		moveIn3D ('x', headpiece.radAng, (double)(-(firstWidth - 150) + placingZone->cells [idxCell].horLen + (-lastWidth + 150)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		elemList_Front.Push (headpiece.placeObject (3, "type", APIParT_CString, "타입 A", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
+		// Push-Pull Props - 앞면
+		EasyObjectPlacement props;
+		double	lenV, lenH;
+		double	mainLength, mainRadAng;
+		double	auxLength, auxRadAng;
+		char	mainNom [16], auxNom [16];
+
+		if ((placingZone->propsInstallType == 2) || (placingZone->propsInstallType == 4)) {
+			lenH = 1.156;
+			lenV = 0.284;
+			auxLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+			auxRadAng = atan2 (lenV, lenH);
+
+			lenH = 1.217;
+			lenV = (double)headpieceUpPosZ / 1000.0 - 0.016;
+			mainLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+			mainRadAng = atan2 (lenV, lenH);
+
+			if (mainLength >= 0.700 && mainLength < 1.100)			strcpy (mainNom, "700~1100");
+			else if (mainLength >= 1.100 && mainLength < 1.700)		strcpy (mainNom, "1100~1800");
+			else if (mainLength >= 1.700 && mainLength < 2.400)		strcpy (mainNom, "1700~2500");
+			else if (mainLength >= 2.400 && mainLength < 3.100)		strcpy (mainNom, "2400~3200");
+			else if (mainLength >= 3.100 && mainLength < 3.800)		strcpy (mainNom, "3100~3900");
+			else if (mainLength >= 3.800 && mainLength <= 4.600)	strcpy (mainNom, "3800~4600");
+
+			if (auxLength >= 0.700 && auxLength < 1.100)			strcpy (auxNom, "700~1100");
+			else if (auxLength >= 1.100 && auxLength < 1.700)		strcpy (auxNom, "1100~1800");
+			else if (auxLength >= 1.700 && auxLength < 2.400)		strcpy (auxNom, "1700~2500");
+			else if (auxLength >= 2.400 && auxLength < 3.100)		strcpy (auxNom, "2400~3200");
+			else if (auxLength >= 3.100 && auxLength < 3.800)		strcpy (auxNom, "3100~3900");
+			else if (auxLength >= 3.800 && auxLength <= 4.600)		strcpy (auxNom, "3800~4600");
+
+			props.init (L("Push-Pull Props v1.0 (당사제작품).gsm"), layerInd_Props, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+
+			moveIn3D ('x', props.radAng, (double)(firstWidth - 150 + 80) / 1000.0, &props.posX, &props.posY, &props.posZ);
+			moveIn3D ('y', props.radAng, -(0.2525 + 0.080 + 1.200), &props.posX, &props.posY, &props.posZ);
+				props.radAng += DegreeToRad (90.0);
+				elemList_Front.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+				props.radAng -= DegreeToRad (90.0);
+			moveIn3D ('x', props.radAng, (double)(-(firstWidth - 150 + 80) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 + 80)) / 1000.0, &props.posX, &props.posY, &props.posZ);
+				props.radAng += DegreeToRad (90.0);
+				elemList_Front.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+				props.radAng -= DegreeToRad (90.0);
+
+			// 테이블폼 너비가 2300을 초과할 경우
+			if (placingZone->cells [idxCell].horLen > 2300) {
+				props.init (L("Push-Pull Props v1.0 (당사제작품).gsm"), layerInd_Props, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+				for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+					moveIn3D ('x', props.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &props.posX, &props.posY, &props.posZ);
+
+				moveIn3D ('x', props.radAng, 0.080, &props.posX, &props.posY, &props.posZ);
+				moveIn3D ('y', props.radAng, -(0.2525 + 0.080 + 1.200), &props.posX, &props.posY, &props.posZ);
+					props.radAng += DegreeToRad (90.0);
+					elemList_Front_Add.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+					props.radAng -= DegreeToRad (90.0);
+			}
+		}
+
 		// 헤드피스 - 뒷면
 		if (placingZone->bSingleSide == false) {
 			headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
@@ -5595,6 +5653,58 @@ void	WallTableformPlacingZone::placeTableformB (WallTableformPlacingZone* placin
 			elemList_Back.Push (headpiece.placeObject (3, "type", APIParT_CString, "타입 A", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('x', headpiece.radAng - DegreeToRad (180.0), (double)(-(firstWidth - 150) + placingZone->cells [idxCell].horLen + (-lastWidth + 150)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 			elemList_Back.Push (headpiece.placeObject (3, "type", APIParT_CString, "타입 A", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		}
+
+		// Push-Pull Props - 뒷면
+		if ((placingZone->propsInstallType == 3) || (placingZone->propsInstallType == 4)) {
+			lenH = 1.156;
+			lenV = 0.284;
+			auxLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+			auxRadAng = atan2 (lenV, lenH);
+
+			lenH = 1.217;
+			lenV = (double)headpieceUpPosZ / 1000.0 - 0.016;
+			mainLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+			mainRadAng = atan2 (lenV, lenH);
+
+			if (mainLength >= 0.700 && mainLength < 1.100)			strcpy (mainNom, "700~1100");
+			else if (mainLength >= 1.100 && mainLength < 1.700)		strcpy (mainNom, "1100~1800");
+			else if (mainLength >= 1.700 && mainLength < 2.400)		strcpy (mainNom, "1700~2500");
+			else if (mainLength >= 2.400 && mainLength < 3.100)		strcpy (mainNom, "2400~3200");
+			else if (mainLength >= 3.100 && mainLength < 3.800)		strcpy (mainNom, "3100~3900");
+			else if (mainLength >= 3.800 && mainLength <= 4.600)	strcpy (mainNom, "3800~4600");
+
+			if (auxLength >= 0.700 && auxLength < 1.100)			strcpy (auxNom, "700~1100");
+			else if (auxLength >= 1.100 && auxLength < 1.700)		strcpy (auxNom, "1100~1800");
+			else if (auxLength >= 1.700 && auxLength < 2.400)		strcpy (auxNom, "1700~2500");
+			else if (auxLength >= 2.400 && auxLength < 3.100)		strcpy (auxNom, "2400~3200");
+			else if (auxLength >= 3.100 && auxLength < 3.800)		strcpy (auxNom, "3100~3900");
+			else if (auxLength >= 3.800 && auxLength <= 4.600)		strcpy (auxNom, "3800~4600");
+
+			props.init (L("Push-Pull Props v1.0 (당사제작품).gsm"), layerInd_Props, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+
+			moveIn3D ('x', props.radAng - DegreeToRad (180.0), (double)(firstWidth - 150 - 80) / 1000.0, &props.posX, &props.posY, &props.posZ);
+			moveIn3D ('y', props.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.2525 + 0.080 + 1.200), &props.posX, &props.posY, &props.posZ);
+				props.radAng += DegreeToRad (90.0);
+				elemList_Back.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+				props.radAng -= DegreeToRad (90.0);
+			moveIn3D ('x', props.radAng - DegreeToRad (180.0), (double)(-(firstWidth - 150 - 80) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 - 80)) / 1000.0, &props.posX, &props.posY, &props.posZ);
+				props.radAng += DegreeToRad (90.0);
+				elemList_Back.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+				props.radAng -= DegreeToRad (90.0);
+
+			// 테이블폼 너비가 2300을 초과할 경우
+			if (placingZone->cells [idxCell].horLen > 2300) {
+				props.init (L("Push-Pull Props v1.0 (당사제작품).gsm"), layerInd_Props, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+				for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+					moveIn3D ('x', props.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &props.posX, &props.posY, &props.posZ);
+
+				moveIn3D ('x', props.radAng - DegreeToRad (180.0), -0.080, &props.posX, &props.posY, &props.posZ);
+				moveIn3D ('y', props.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.2525 + 0.080 + 1.200), &props.posX, &props.posY, &props.posZ);
+					props.radAng += DegreeToRad (90.0);
+					elemList_Back_Add.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+					props.radAng -= DegreeToRad (90.0);
+			}
 		}
 	} else {
 		// ================================================== 가로방향 (세로방향이 오른쪽으로 90도 누웠다고 생각하면 됨)
@@ -6723,6 +6833,64 @@ void	WallTableformPlacingZone::placeTableformC (WallTableformPlacingZone* placin
 		moveIn3D ('x', headpiece.radAng, (double)(-(firstWidth - 150) + placingZone->cells [idxCell].horLen + (-lastWidth + 150)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 		elemList_Front.Push (headpiece.placeObject (3, "type", APIParT_CString, "타입 A", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 
+		// Push-Pull Props - 앞면
+		EasyObjectPlacement props;
+		double	lenV, lenH;
+		double	mainLength, mainRadAng;
+		double	auxLength, auxRadAng;
+		char	mainNom [16], auxNom [16];
+
+		if ((placingZone->propsInstallType == 2) || (placingZone->propsInstallType == 4)) {
+			lenH = 1.156;
+			lenV = 0.284;
+			auxLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+			auxRadAng = atan2 (lenV, lenH);
+
+			lenH = 1.217;
+			lenV = (double)headpieceUpPosZ / 1000.0 - 0.016;
+			mainLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+			mainRadAng = atan2 (lenV, lenH);
+
+			if (mainLength >= 0.700 && mainLength < 1.100)			strcpy (mainNom, "700~1100");
+			else if (mainLength >= 1.100 && mainLength < 1.700)		strcpy (mainNom, "1100~1800");
+			else if (mainLength >= 1.700 && mainLength < 2.400)		strcpy (mainNom, "1700~2500");
+			else if (mainLength >= 2.400 && mainLength < 3.100)		strcpy (mainNom, "2400~3200");
+			else if (mainLength >= 3.100 && mainLength < 3.800)		strcpy (mainNom, "3100~3900");
+			else if (mainLength >= 3.800 && mainLength <= 4.600)	strcpy (mainNom, "3800~4600");
+
+			if (auxLength >= 0.700 && auxLength < 1.100)			strcpy (auxNom, "700~1100");
+			else if (auxLength >= 1.100 && auxLength < 1.700)		strcpy (auxNom, "1100~1800");
+			else if (auxLength >= 1.700 && auxLength < 2.400)		strcpy (auxNom, "1700~2500");
+			else if (auxLength >= 2.400 && auxLength < 3.100)		strcpy (auxNom, "2400~3200");
+			else if (auxLength >= 3.100 && auxLength < 3.800)		strcpy (auxNom, "3100~3900");
+			else if (auxLength >= 3.800 && auxLength <= 4.600)		strcpy (auxNom, "3800~4600");
+
+			props.init (L("Push-Pull Props v1.0 (당사제작품).gsm"), layerInd_Props, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+
+			moveIn3D ('x', props.radAng, (double)(firstWidth - 150 + 80) / 1000.0, &props.posX, &props.posY, &props.posZ);
+			moveIn3D ('y', props.radAng, -(0.2525 + 0.080 + 1.200), &props.posX, &props.posY, &props.posZ);
+				props.radAng += DegreeToRad (90.0);
+				elemList_Front.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+				props.radAng -= DegreeToRad (90.0);
+			moveIn3D ('x', props.radAng, (double)(-(firstWidth - 150 + 80) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 + 80)) / 1000.0, &props.posX, &props.posY, &props.posZ);
+				props.radAng += DegreeToRad (90.0);
+				elemList_Front.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+				props.radAng -= DegreeToRad (90.0);
+
+			// 테이블폼 너비가 2300을 초과할 경우
+			if (placingZone->cells [idxCell].horLen > 2300) {
+				props.init (L("Push-Pull Props v1.0 (당사제작품).gsm"), layerInd_Props, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang);
+				for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+					moveIn3D ('x', props.radAng, (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &props.posX, &props.posY, &props.posZ);
+
+				moveIn3D ('x', props.radAng, 0.080, &props.posX, &props.posY, &props.posZ);
+				moveIn3D ('y', props.radAng, -(0.2525 + 0.080 + 1.200), &props.posX, &props.posY, &props.posZ);
+					props.radAng += DegreeToRad (90.0);
+					elemList_Front_Add.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+					props.radAng -= DegreeToRad (90.0);
+			}
+		}
+
 		// 헤드피스 - 뒷면
 		if (placingZone->bSingleSide == false) {
 			headpiece.init (L("빔조인트용 Push-Pull Props 헤드피스 v1.0.gsm"), layerInd_HeadPiece, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
@@ -6764,6 +6932,58 @@ void	WallTableformPlacingZone::placeTableformC (WallTableformPlacingZone* placin
 			elemList_Back.Push (headpiece.placeObject (3, "type", APIParT_CString, "타입 A", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
 			moveIn3D ('x', headpiece.radAng - DegreeToRad (180.0), (double)(-(firstWidth - 150) + placingZone->cells [idxCell].horLen + (-lastWidth + 150)) / 1000.0, &headpiece.posX, &headpiece.posY, &headpiece.posZ);
 			elemList_Back.Push (headpiece.placeObject (3, "type", APIParT_CString, "타입 A", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0))));
+		}
+
+		// Push-Pull Props - 뒷면
+		if ((placingZone->propsInstallType == 3) || (placingZone->propsInstallType == 4)) {
+			lenH = 1.156;
+			lenV = 0.284;
+			auxLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+			auxRadAng = atan2 (lenV, lenH);
+
+			lenH = 1.217;
+			lenV = (double)headpieceUpPosZ / 1000.0 - 0.016;
+			mainLength = sqrt ( (lenH * lenH) + (lenV * lenV) );
+			mainRadAng = atan2 (lenV, lenH);
+
+			if (mainLength >= 0.700 && mainLength < 1.100)			strcpy (mainNom, "700~1100");
+			else if (mainLength >= 1.100 && mainLength < 1.700)		strcpy (mainNom, "1100~1800");
+			else if (mainLength >= 1.700 && mainLength < 2.400)		strcpy (mainNom, "1700~2500");
+			else if (mainLength >= 2.400 && mainLength < 3.100)		strcpy (mainNom, "2400~3200");
+			else if (mainLength >= 3.100 && mainLength < 3.800)		strcpy (mainNom, "3100~3900");
+			else if (mainLength >= 3.800 && mainLength <= 4.600)	strcpy (mainNom, "3800~4600");
+
+			if (auxLength >= 0.700 && auxLength < 1.100)			strcpy (auxNom, "700~1100");
+			else if (auxLength >= 1.100 && auxLength < 1.700)		strcpy (auxNom, "1100~1800");
+			else if (auxLength >= 1.700 && auxLength < 2.400)		strcpy (auxNom, "1700~2500");
+			else if (auxLength >= 2.400 && auxLength < 3.100)		strcpy (auxNom, "2400~3200");
+			else if (auxLength >= 3.100 && auxLength < 3.800)		strcpy (auxNom, "3100~3900");
+			else if (auxLength >= 3.800 && auxLength <= 4.600)		strcpy (auxNom, "3800~4600");
+
+			props.init (L("Push-Pull Props v1.0 (당사제작품).gsm"), layerInd_Props, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+
+			moveIn3D ('x', props.radAng - DegreeToRad (180.0), (double)(firstWidth - 150 - 80) / 1000.0, &props.posX, &props.posY, &props.posZ);
+			moveIn3D ('y', props.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.2525 + 0.080 + 1.200), &props.posX, &props.posY, &props.posZ);
+				props.radAng += DegreeToRad (90.0);
+				elemList_Back.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+				props.radAng -= DegreeToRad (90.0);
+			moveIn3D ('x', props.radAng - DegreeToRad (180.0), (double)(-(firstWidth - 150 - 80) + placingZone->cells [idxCell].horLen + (-lastWidth + 150 - 80)) / 1000.0, &props.posX, &props.posY, &props.posZ);
+				props.radAng += DegreeToRad (90.0);
+				elemList_Back.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+				props.radAng -= DegreeToRad (90.0);
+
+			// 테이블폼 너비가 2300을 초과할 경우
+			if (placingZone->cells [idxCell].horLen > 2300) {
+				props.init (L("Push-Pull Props v1.0 (당사제작품).gsm"), layerInd_Props, infoWall.floorInd, placingZone->cells [idxCell].leftBottomX, placingZone->cells [idxCell].leftBottomY, placingZone->cells [idxCell].leftBottomZ, placingZone->cells [idxCell].ang + DegreeToRad (180.0));
+				for (xx = 0 ; xx < (short)(realWidthCount / 2) ; ++xx)
+					moveIn3D ('x', props.radAng - DegreeToRad (180.0), (double)placingZone->cells [idxCell].tableInHor [xx] / 1000.0, &props.posX, &props.posY, &props.posZ);
+
+				moveIn3D ('x', props.radAng - DegreeToRad (180.0), -0.080, &props.posX, &props.posY, &props.posZ);
+				moveIn3D ('y', props.radAng - DegreeToRad (180.0), infoWall.wallThk + placingZone->gap * 2 + (0.2525 + 0.080 + 1.200), &props.posX, &props.posY, &props.posZ);
+					props.radAng += DegreeToRad (90.0);
+					elemList_Back_Add.Push (props.placeObject (14, "bBasePlate", APIParT_Boolean, "1.0", "typeBasePlate", APIParT_CString, "당사 제작품", "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "mainType", APIParT_CString, mainNom, "bMainQuickConnect", APIParT_Boolean, "0.0", "mainLength", APIParT_Length, format_string ("%f", mainLength), "mainAng", APIParT_Angle, format_string ("%f", mainRadAng), "bAuxSupport", APIParT_Boolean, "1.0", "auxType", APIParT_CString, auxNom, "bAuxQuickConnect", APIParT_Boolean, "0.0", "auxLength", APIParT_Length, format_string ("%f", auxLength), "auxAng", APIParT_Angle, format_string ("%f", auxRadAng), "bShowHotspotsOnBase", APIParT_Boolean, "0.0"));
+					props.radAng -= DegreeToRad (90.0);
+			}
 		}
 	} else {
 		// ================================================== 가로방향 (세로방향이 오른쪽으로 90도 누웠다고 생각하면 됨)
@@ -8256,7 +8476,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					bLayerInd_RectPipe = true;
 					bLayerInd_PinBolt = true;
 					bLayerInd_HeadPiece = true;
-					//bLayerInd_Props = true;
+					bLayerInd_Props = true;
 					bLayerInd_Join = true;
 				
 				} else if (placingZone.tableformType == 3) {
@@ -8264,7 +8484,7 @@ short DGCALLBACK wallTableformPlacerHandler1 (short message, short dialogID, sho
 					bLayerInd_RectPipe = true;
 					bLayerInd_PinBolt = true;
 					bLayerInd_HeadPiece = true;
-					//bLayerInd_Props = true;
+					bLayerInd_Props = true;
 					bLayerInd_Join = true;
 					bLayerInd_CrossJointBar = true;
 				}
