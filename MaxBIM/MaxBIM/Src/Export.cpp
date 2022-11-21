@@ -3503,6 +3503,7 @@ GSErrCode	calcTableformArea (void)
 
 	bool	bTargetObject;		// 대상이 되는 객체인가?
 	double	totalArea;			// 총 면적값
+	double	totalAreaAll;		// 총 면적값 (모든 레이어 합산)
 
 
 	// 그룹화 일시정지 ON
@@ -3574,6 +3575,7 @@ GSErrCode	calcTableformArea (void)
 	ACAPI_Interface (APIIo_InitProcessWindowID, &title, &nPhase);
 	ACAPI_Interface (APIIo_SetNextProcessPhaseID, &subtitle, &total);
 
+	totalAreaAll = 0.0;
 	sprintf (buffer, "안내: 면적 값의 단위는 m2(제곱미터)입니다.\n고려되는 객체: 유로폼 / 합판 / 아웃코너판넬 / 인코너판넬 / 변각인코너판넬 / 인코너M형판넬 / 목재\n\n");
 	fprintf (fp_unite, buffer);
 
@@ -3653,6 +3655,7 @@ GSErrCode	calcTableformArea (void)
 							sprintf (buffer, "%s", getParameterStringByName (&memo, "gs_list_custom04"));
 							removeCharInStr (buffer, ',');
 							totalArea += atof (buffer);
+							totalAreaAll += totalArea;
 						}
 					}
 
@@ -3675,6 +3678,10 @@ GSErrCode	calcTableformArea (void)
 		if (ACAPI_Interface (APIIo_IsProcessCanceledID, NULL, NULL) == APIERR_CANCEL)
 			break;
 	}
+
+	// 모든 레이어의 면적 값을 합산한 값도 표시함
+	sprintf (buffer, "\n모든 면적 값 합산값: %lf\n", totalAreaAll);
+	fprintf (fp_unite, buffer);
 
 	// 진행 상황 표시하는 기능 - 마무리
 	ACAPI_Interface (APIIo_CloseProcessWindowID, NULL, NULL);
