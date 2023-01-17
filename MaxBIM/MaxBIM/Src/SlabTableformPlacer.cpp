@@ -83,19 +83,19 @@ GSErrCode	placeTableformOnSlabBottom (void)
 		DGAlert (DG_ERROR, L"오류", L"열린 프로젝트 창이 없습니다.", "", L"확인", "", "");
 	}
 	if (err == APIERR_NOSEL) {
-		DGAlert (DG_ERROR, L"오류", L"아무 것도 선택하지 않았습니다.\n필수 선택: 슬래브 (1개), 슬래브 하부를 덮는 모프 (1개)", "", L"확인", "", "");
+		DGAlert (DG_ERROR, L"오류", L"아무 것도 선택하지 않았습니다.\n필수 선택: 바닥 슬래브 (1개), 바닥과 천장에 맞닿는 직육면체 모프 (1개)", "", L"확인", "", "");
 	}
 
 	// 슬래브가 1개인가?
 	if (nSlabs != 1) {
-		DGAlert (DG_ERROR, L"오류", L"슬래브를 1개 선택해야 합니다.", "", L"확인", "", "");
+		DGAlert (DG_ERROR, L"오류", L"바닥 슬래브를 1개 선택해야 합니다.", "", L"확인", "", "");
 		err = APIERR_GENERAL;
 		return err;
 	}
 
 	// 모프가 1개인가?
 	if (nMorphs != 1) {
-		DGAlert (DG_ERROR, L"오류", L"슬래브 하부를 덮는 모프를 1개 선택하셔야 합니다.", "", L"확인", "", "");
+		DGAlert (DG_ERROR, L"오류", L"바닥과 천장에 맞닿는 직육면체 모프를 1개 선택하셔야 합니다.", "", L"확인", "", "");
 		err = APIERR_GENERAL;
 		return err;
 	}
@@ -121,9 +121,9 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	err = ACAPI_Element_Get (&elem);
 	err = ACAPI_Element_Get3DInfo (elem.header, &info3D);
 
-	// 만약 모프가 누워 있어야 함
-	if (abs (info3D.bounds.zMax - info3D.bounds.zMin) > EPS) {
-		DGAlert (DG_ERROR, L"오류", L"모프가 누워 있지 않습니다.", "", L"확인", "", "");
+	// 모프는 직육면체이어야 함
+	if ((abs (info3D.bounds.xMax - info3D.bounds.xMin) < EPS) || (abs (info3D.bounds.yMax - info3D.bounds.yMin) < EPS) || (abs (info3D.bounds.zMax - info3D.bounds.zMin) < EPS)) {
+		DGAlert (DG_ERROR, L"오류", L"모프가 직육면체가 아닙니다.", "", L"확인", "", "");
 		err = APIERR_GENERAL;
 		return err;
 	}
@@ -142,16 +142,16 @@ GSErrCode	placeTableformOnSlabBottom (void)
 	// 모프의 꼭지점들을 수집함
 	nNodes = getVerticesOfMorph (infoMorph.guid, &coords);
 	
-	// 하단 점 2개를 클릭
+	// 천장면의 하단 점 2개를 클릭
 	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
-	CHCopyC ("모프의 하단 라인의 왼쪽 점을 클릭하십시오.", pointInfo.prompt);
+	CHCopyC ("모프의 천장에 맞닿는 하단 라인의 왼쪽 점을 클릭하십시오.", pointInfo.prompt);
 	pointInfo.enableQuickSelection = true;
 	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
 	point1 = pointInfo.pos;
 	firstClickPoint = point1;
 
 	BNZeroMemory (&pointInfo, sizeof (API_GetPointType));
-	CHCopyC ("모프의 하단 라인의 오른쪽 점을 클릭하십시오.", pointInfo.prompt);
+	CHCopyC ("모프의 천장에 맞닿는 하단 라인의 오른쪽 점을 클릭하십시오.", pointInfo.prompt);
 	pointInfo.enableQuickSelection = true;
 	err = ACAPI_Interface (APIIo_GetPointID, &pointInfo, NULL);
 	point2 = pointInfo.pos;
@@ -194,6 +194,9 @@ GSErrCode	placeTableformOnSlabBottom (void)
 		DGAlert (DG_ERROR, L"오류", L"폴리곤에 속하지 않은 점을 클릭했습니다.", "", L"확인", "", "");
 		return err;
 	}
+
+	// 천장-바닥간 거리값 저장
+	placingZone.roomHeight = info3D.bounds.zMax - info3D.bounds.zMin;
 
 	// 영역 모프 제거
 	GS::Array<API_Element>	elems;
@@ -301,7 +304,7 @@ FIRST:
 	workLevel_slab = getWorkLevel (infoSlab.floorInd);
 
 	// 영역 정보의 고도 정보 수정
-	placingZone.level = infoSlab.level + infoSlab.offsetFromTop - infoSlab.thickness - placingZone.gap;
+	placingZone.level = infoSlab.level + infoSlab.offsetFromTop - placingZone.gap + placingZone.roomHeight;
 	placingZone.leftBottom.z = placingZone.level;
 
 	if (result != DG_OK)
@@ -331,8 +334,14 @@ FIRST:
 			err = placingZone.placeInsulations ();
 	}
 	
-	// 장선, 멍에제, 동바리 배치
-	placingZone.place_Joist_Yoke_SupportingPost ();
+	// 장선 배치
+	placingZone.placeBeams ();
+
+	// 멍에제 배치
+	placingZone.placeGirders ();
+
+	// 동바리 배치
+	placingZone.placePosts ();
 
 	// 결과물 전체 그룹화
 	groupElements (elemList);
@@ -349,36 +358,36 @@ void	SlabTableformPlacingZone::initCells (SlabTableformPlacingZone* placingZone)
 	// 초기 셀 설정
 	for (xx = 0 ; xx < MAX_IND ; ++xx) {
 		for (yy = 0 ; yy < MAX_IND ; ++yy) {
-			placingZone->cells [xx][yy].objType = placingZone->iTableformType;
+			placingZone->cells [xx][yy].objType = placingZone->iPanelType;
 			placingZone->cells [xx][yy].leftBottomX = 0.0;
 			placingZone->cells [xx][yy].leftBottomY = 0.0;
 			placingZone->cells [xx][yy].leftBottomZ = placingZone->level;
 			placingZone->cells [xx][yy].ang = placingZone->ang;
 			// 셀 방향에 따라 달라짐
-			if (placingZone->iCellDirection == HORIZONTAL) {
-				if (placingZone->iTableformType == CONPANEL) {
+			if (placingZone->iPanelDirection == HORIZONTAL) {
+				if (placingZone->iPanelType == PANEL_TYPE_CONPANEL) {
 					// 콘판넬 크기: 2x6 [606x1820]
 					placingZone->cells [xx][yy].horLen = 1.820;
 					placingZone->cells [xx][yy].verLen = 0.606;
-				} else if (placingZone->iTableformType == PLYWOOD) {
+				} else if (placingZone->iPanelType == PANEL_TYPE_PLYWOOD) {
 					// 합판 크기: 4x8 [1220x2440]
 					placingZone->cells [xx][yy].horLen = 2.440;
 					placingZone->cells [xx][yy].verLen = 1.220;
-				} else if (placingZone->iTableformType == EUROFORM) {
+				} else if (placingZone->iPanelType == PANEL_TYPE_EUROFORM) {
 					// 유로폼 크기: 600x1200
 					placingZone->cells [xx][yy].horLen = 1.200;
 					placingZone->cells [xx][yy].verLen = 0.600;
 				}
 			} else {
-				if (placingZone->iTableformType == CONPANEL) {
+				if (placingZone->iPanelType == PANEL_TYPE_CONPANEL) {
 					// 콘판넬 크기: 2x6 [606x1820]
 					placingZone->cells [xx][yy].horLen = 0.606;
 					placingZone->cells [xx][yy].verLen = 1.820;
-				} else if (placingZone->iTableformType == PLYWOOD) {
+				} else if (placingZone->iPanelType == PANEL_TYPE_PLYWOOD) {
 					// 합판 크기: 4x8 [1220x2440]
 					placingZone->cells [xx][yy].horLen = 1.220;
 					placingZone->cells [xx][yy].verLen = 2.440;
-				} else if (placingZone->iTableformType == EUROFORM) {
+				} else if (placingZone->iPanelType == PANEL_TYPE_EUROFORM) {
 					// 유로폼 크기: 600x1200
 					placingZone->cells [xx][yy].horLen = 0.600;
 					placingZone->cells [xx][yy].verLen = 1.200;
@@ -388,30 +397,30 @@ void	SlabTableformPlacingZone::initCells (SlabTableformPlacingZone* placingZone)
 	}
 
 	// 셀 초기 너비, 높이 설정
-	if (placingZone->iCellDirection == HORIZONTAL) {
-		if (placingZone->iTableformType == CONPANEL) {
+	if (placingZone->iPanelDirection == HORIZONTAL) {
+		if (placingZone->iPanelType == PANEL_TYPE_CONPANEL) {
 			// 콘판넬 크기: 2x6 [606x1820]
 			placingZone->initCellHorLen = 1.820;
 			placingZone->initCellVerLen = 0.606;
-		} else if (placingZone->iTableformType == PLYWOOD) {
+		} else if (placingZone->iPanelType == PANEL_TYPE_PLYWOOD) {
 			// 합판 크기: 4x8 [1220x2440]
 			placingZone->initCellHorLen = 2.440;
 			placingZone->initCellVerLen = 1.220;
-		} else if (placingZone->iTableformType == EUROFORM) {
+		} else if (placingZone->iPanelType == PANEL_TYPE_EUROFORM) {
 			// 유로폼 크기: 600x1200
 			placingZone->initCellHorLen = 1.200;
 			placingZone->initCellVerLen = 0.600;
 		}
 	} else {
-		if (placingZone->iTableformType == CONPANEL) {
+		if (placingZone->iPanelType == PANEL_TYPE_CONPANEL) {
 			// 콘판넬 크기: 2x6 [606x1820]
 			placingZone->initCellHorLen = 0.606;
 			placingZone->initCellVerLen = 1.820;
-		} else if (placingZone->iTableformType == PLYWOOD) {
+		} else if (placingZone->iPanelType == PANEL_TYPE_PLYWOOD) {
 			// 합판 크기: 4x8 [1220x2440]
 			placingZone->initCellHorLen = 1.220;
 			placingZone->initCellVerLen = 2.440;
-		} else if (placingZone->iTableformType == EUROFORM) {
+		} else if (placingZone->iPanelType == PANEL_TYPE_EUROFORM) {
 			// 유로폼 크기: 600x1200
 			placingZone->initCellHorLen = 0.600;
 			placingZone->initCellVerLen = 1.200;
@@ -474,47 +483,67 @@ GSErrCode	SlabTableformPlacingZone::fillCellAreas (void)
 	short	xx, yy;
 	EasyObjectPlacement	conpanel, plywood, euroform;
 	bool	bStandardForm;
-
+	const char *conpanel_size;
+	const char *panelThkStr = placingZone.panelThkStr;
+	
 	for (xx = 0 ; xx < placingZone.nVerCells ; ++xx) {
 		for (yy = 0 ; yy < placingZone.nHorCells ; ++yy) {
-			if (placingZone.cells [xx][yy].objType == CONPANEL) {
+			if (placingZone.cells [xx][yy].objType == PANEL_TYPE_CONPANEL) {
 				conpanel.init (L("합판v1.0.gsm"), layerInd_ConPanel, infoSlab.floorInd, placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, placingZone.cells [xx][yy].ang);
 
-				if (placingZone.iCellDirection == VERTICAL) {
+				if (placingZone.iPanelDirection == VERTICAL) {
+					if ((abs (placingZone.cells [xx][yy].horLen - 0.910) < EPS) && (abs (placingZone.cells [xx][yy].verLen - 1.820) < EPS))
+						conpanel_size = "3x6 [910x1820]";
+					else if ((abs (placingZone.cells [xx][yy].horLen - 0.910) < EPS) && (abs (placingZone.cells [xx][yy].verLen - 1.520) < EPS))
+						conpanel_size = "3x5 [910x1520]";
+					else if ((abs (placingZone.cells [xx][yy].horLen - 0.606) < EPS) && (abs (placingZone.cells [xx][yy].verLen - 1.820) < EPS))
+						conpanel_size = "2x6 [606x1820]";
+					else if ((abs (placingZone.cells [xx][yy].horLen - 0.606) < EPS) && (abs (placingZone.cells [xx][yy].verLen - 1.520) < EPS))
+						conpanel_size = "2x5 [606x1520]";
+
 					conpanel.radAng -= DegreeToRad (90.0);
 					elemList.Push (conpanel.placeObject (9,
 						"g_comp", APIParT_CString, "콘판넬",
-						"p_stan", APIParT_CString, "2x6 [606x1820]",
+						"p_stan", APIParT_CString, conpanel_size,
 						"w_dir", APIParT_CString, "바닥깔기",
-						"p_thk", APIParT_CString, "11.5T",
+						"p_thk", APIParT_CString, panelThkStr,
 						"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 						"p_ang_alter", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 						"p_rot", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-						"A", APIParT_Length, "0.606",
-						"B", APIParT_Length, "1.820"));
+						"A", APIParT_Length, format_string ("%f", placingZone.cells [xx][yy].horLen),
+						"B", APIParT_Length, format_string ("%f", placingZone.cells [xx][yy].verLen)));
 				} else {
+					if ((abs (placingZone.cells [xx][yy].verLen - 0.910) < EPS) && (abs (placingZone.cells [xx][yy].horLen - 1.820) < EPS))
+						conpanel_size = "3x6 [910x1820]";
+					else if ((abs (placingZone.cells [xx][yy].verLen - 0.910) < EPS) && (abs (placingZone.cells [xx][yy].horLen - 1.520) < EPS))
+						conpanel_size = "3x5 [910x1520]";
+					else if ((abs (placingZone.cells [xx][yy].verLen - 0.606) < EPS) && (abs (placingZone.cells [xx][yy].horLen - 1.820) < EPS))
+						conpanel_size = "2x6 [606x1820]";
+					else if ((abs (placingZone.cells [xx][yy].verLen - 0.606) < EPS) && (abs (placingZone.cells [xx][yy].horLen - 1.520) < EPS))
+						conpanel_size = "2x5 [606x1520]";
+
 					moveIn3D ('y', conpanel.radAng, -placingZone.cells [xx][yy].verLen, &conpanel.posX, &conpanel.posY, &conpanel.posZ);
 					elemList.Push (conpanel.placeObject (9,
 						"g_comp", APIParT_CString, "콘판넬",
-						"p_stan", APIParT_CString, "2x6 [606x1820]",
+						"p_stan", APIParT_CString, conpanel_size,
 						"w_dir", APIParT_CString, "바닥깔기",
-						"p_thk", APIParT_CString, "11.5T",
+						"p_thk", APIParT_CString, panelThkStr,
 						"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 						"p_ang_alter", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 						"p_rot", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-						"A", APIParT_Length, "0.606",
-						"B", APIParT_Length, "1.820"));
+						"A", APIParT_Length, format_string ("%f", placingZone.cells [xx][yy].verLen),
+						"B", APIParT_Length, format_string ("%f", placingZone.cells [xx][yy].horLen)));
 				}
-			} else if (placingZone.cells [xx][yy].objType == PLYWOOD) {
+			} else if (placingZone.cells [xx][yy].objType == PANEL_TYPE_PLYWOOD) {
 				plywood.init (L("합판v1.0.gsm"), layerInd_ConPanel, infoSlab.floorInd, placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, placingZone.cells [xx][yy].ang);
 
-				if (placingZone.iCellDirection == VERTICAL) {
+				if (placingZone.iPanelDirection == VERTICAL) {
 					plywood.radAng -= DegreeToRad (90.0);
 					elemList.Push (plywood.placeObject (12,
 						"g_comp", APIParT_CString, "합판",
 						"p_stan", APIParT_CString, "비규격",
 						"w_dir", APIParT_CString, "바닥깔기",
-						"p_thk", APIParT_CString, "11.5T",
+						"p_thk", APIParT_CString, panelThkStr,
 						"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 						"p_ang_alter", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 						"p_rot", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
@@ -529,7 +558,7 @@ GSErrCode	SlabTableformPlacingZone::fillCellAreas (void)
 						"g_comp", APIParT_CString, "합판",
 						"p_stan", APIParT_CString, "비규격",
 						"w_dir", APIParT_CString, "바닥깔기",
-						"p_thk", APIParT_CString, "11.5T",
+						"p_thk", APIParT_CString, panelThkStr,
 						"p_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 						"p_ang_alter", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
 						"p_rot", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
@@ -539,10 +568,10 @@ GSErrCode	SlabTableformPlacingZone::fillCellAreas (void)
 						"A", APIParT_Length, format_string ("%f", placingZone.cells [xx][yy].verLen),
 						"B", APIParT_Length, format_string ("%f", placingZone.cells [xx][yy].horLen)));
 				}
-			} else if (placingZone.cells [xx][yy].objType == EUROFORM) {
+			} else if (placingZone.cells [xx][yy].objType == PANEL_TYPE_EUROFORM) {
 				euroform.init (L("유로폼v2.0.gsm"), layerInd_Euroform, infoSlab.floorInd, placingZone.cells [xx][yy].leftBottomX, placingZone.cells [xx][yy].leftBottomY, placingZone.cells [xx][yy].leftBottomZ, placingZone.cells [xx][yy].ang);
 
-				if (placingZone.iCellDirection == VERTICAL) {
+				if (placingZone.iPanelDirection == VERTICAL) {
 					bStandardForm = false;
 					if ( ((abs (placingZone.cells [xx][yy].horLen - 0.600) < EPS) || (abs (placingZone.cells [xx][yy].horLen - 0.500) < EPS) ||
 						  (abs (placingZone.cells [xx][yy].horLen - 0.450) < EPS) || (abs (placingZone.cells [xx][yy].horLen - 0.400) < EPS) ||
@@ -800,7 +829,7 @@ GSErrCode	SlabTableformPlacingZone::placeInsulations (void)
 			}
 			remainHorLen -= insulElem.maxHorLen;
 			remainVerLen = placingZone.borderVerLen;
-			moveIn3D ('y', insul.radAng, -placingZone.borderHorLen, &insul.posX, &insul.posY, &insul.posZ);
+			moveIn3D ('y', insul.radAng, -placingZone.borderVerLen, &insul.posX, &insul.posY, &insul.posZ);
 			moveIn3D ('x', insul.radAng, horLen, &insul.posX, &insul.posY, &insul.posZ);
 		}
 	} else {
@@ -827,234 +856,270 @@ GSErrCode	SlabTableformPlacingZone::placeInsulations (void)
 	return err;
 }
 
-// 장선, 멍에제, 동바리 배치
-GSErrCode	SlabTableformPlacingZone::place_Joist_Yoke_SupportingPost (void)
+// 장선 배치
+GSErrCode	SlabTableformPlacingZone::placeBeams (void)
 {
 	GSErrCode	err = NoError;
-	EasyObjectPlacement	timber, yoke, supp;
+	
+	EasyObjectPlacement	beam;
 	double	remainLength, length;
 	bool	bShifted;
 
-	// 장선 배치
-	if (placingZone.iJoistDirection == HORIZONTAL) {
-		// 가로 방향
-		timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-		moveIn3D ('z', timber.radAng, -0.0115, &timber.posX, &timber.posY, &timber.posZ);
-		moveIn3D ('x', timber.radAng, 0.200, &timber.posX, &timber.posY, &timber.posZ);
-		moveIn3D ('y', timber.radAng, -0.200, &timber.posX, &timber.posY, &timber.posZ);
-		
-		bShifted = false;
-		remainLength = placingZone.borderHorLen - 0.400;
-		while (remainLength > EPS) {
-			if (remainLength > 3.600)
-				length = 3.600;
-			else
-				length = remainLength;
+//	//if (placingZone.iJoistDirection == HORIZONTAL) {
+//	//	// 가로 방향
+//	//	timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+//	//	moveIn3D ('z', timber.radAng, -0.0115, &timber.posX, &timber.posY, &timber.posZ);
+//	//	moveIn3D ('x', timber.radAng, 0.200, &timber.posX, &timber.posY, &timber.posZ);
+//	//	moveIn3D ('y', timber.radAng, -0.200, &timber.posX, &timber.posY, &timber.posZ);
+//	//	
+//	//	bShifted = false;
+//	//	remainLength = placingZone.borderHorLen - 0.400;
+//	//	while (remainLength > EPS) {
+//	//		if (remainLength > 3.600)
+//	//			length = 3.600;
+//	//		else
+//	//			length = remainLength;
+//
+//	//		timber.placeObject (6,
+//	//			"w_ins", APIParT_CString, "바닥눕히기",
+//	//			"w_w", APIParT_Length, "0.080",
+//	//			"w_h", APIParT_Length, "0.080",
+//	//			"w_leng", APIParT_Length, format_string ("%f", length),
+//	//			"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+//	//			"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
+//	//		
+//	//		if (length > 1.000)
+//	//			moveIn3D ('x', timber.radAng, length - 1.000, &timber.posX, &timber.posY, &timber.posZ);
+//	//		else
+//	//			moveIn3D ('x', timber.radAng, length, &timber.posX, &timber.posY, &timber.posZ);
+//
+//	//		if (bShifted == false) {
+//	//			moveIn3D ('y', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
+//	//			bShifted = true;
+//	//		} else {
+//	//			moveIn3D ('y', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
+//	//			bShifted = false;
+//	//		}
+//
+//	//		remainLength -= 2.600;
+//	//	}
+//	//} else {
+//	//	// 세로 방향
+//	//	timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+//	//	moveIn3D ('z', timber.radAng, -0.0115, &timber.posX, &timber.posY, &timber.posZ);
+//	//	moveIn3D ('y', timber.radAng, -0.200, &timber.posX, &timber.posY, &timber.posZ);
+//	//	moveIn3D ('x', timber.radAng, 0.200, &timber.posX, &timber.posY, &timber.posZ);
+//	//	
+//	//	bShifted = false;
+//	//	remainLength = placingZone.borderVerLen - 0.400;
+//	//	while (remainLength > EPS) {
+//	//		if (remainLength > 3.600)
+//	//			length = 3.600;
+//	//		else
+//	//			length = remainLength;
+//
+//	//		timber.radAng -= DegreeToRad (90.0);
+//	//		timber.placeObject (6,
+//	//			"w_ins", APIParT_CString, "바닥눕히기",
+//	//			"w_w", APIParT_Length, "0.080",
+//	//			"w_h", APIParT_Length, "0.080",
+//	//			"w_leng", APIParT_Length, format_string ("%f", length),
+//	//			"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+//	//			"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
+//	//		timber.radAng += DegreeToRad (90.0);
+//	//		
+//	//		if (length > 1.000)
+//	//			moveIn3D ('y', timber.radAng, -(length - 1.000), &timber.posX, &timber.posY, &timber.posZ);
+//	//		else
+//	//			moveIn3D ('y', timber.radAng, -length, &timber.posX, &timber.posY, &timber.posZ);
+//
+//	//		if (bShifted == false) {
+//	//			moveIn3D ('x', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
+//	//			bShifted = true;
+//	//		} else {
+//	//			moveIn3D ('x', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
+//	//			bShifted = false;
+//	//		}
+//
+//	//		remainLength -= 2.600;
+//	//	}
+//	//}
 
-			timber.placeObject (6,
-				"w_ins", APIParT_CString, "바닥눕히기",
-				"w_w", APIParT_Length, "0.080",
-				"w_h", APIParT_Length, "0.080",
-				"w_leng", APIParT_Length, format_string ("%f", length),
-				"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
-			
-			if (length > 1.000)
-				moveIn3D ('x', timber.radAng, length - 1.000, &timber.posX, &timber.posY, &timber.posZ);
-			else
-				moveIn3D ('x', timber.radAng, length, &timber.posX, &timber.posY, &timber.posZ);
+	return	err;
+}
 
-			if (bShifted == false) {
-				moveIn3D ('y', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
-				bShifted = true;
-			} else {
-				moveIn3D ('y', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
-				bShifted = false;
-			}
+// 멍에제 배치
+GSErrCode	SlabTableformPlacingZone::placeGirders (void)
+{
+	GSErrCode	err = NoError;
+	
+	EasyObjectPlacement	girder;
+	double	remainLength, length;
+	bool	bShifted;
 
-			remainLength -= 2.600;
-		}
-	} else {
-		// 세로 방향
-		timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-		moveIn3D ('z', timber.radAng, -0.0115, &timber.posX, &timber.posY, &timber.posZ);
-		moveIn3D ('y', timber.radAng, -0.200, &timber.posX, &timber.posY, &timber.posZ);
-		moveIn3D ('x', timber.radAng, 0.200, &timber.posX, &timber.posY, &timber.posZ);
-		
-		bShifted = false;
-		remainLength = placingZone.borderVerLen - 0.400;
-		while (remainLength > EPS) {
-			if (remainLength > 3.600)
-				length = 3.600;
-			else
-				length = remainLength;
+//	//if (placingZone.iYokeType == GT24_GIRDER) {
+//	//	// GT24 거더
+//	//	yoke.init (L("GT24 거더 v1.0.gsm"), layerInd_GT24Girder, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+//	//	moveIn3D ('z', yoke.radAng, -0.0115 - 0.240 - 0.080, &yoke.posX, &yoke.posY, &yoke.posZ);
+//
+//	//	if (placingZone.iJoistDirection == HORIZONTAL) {
+//	//		// 장선은 수평 방향, 멍에제는 수직 방향
+//	//		moveIn3D ('x', yoke.radAng, 0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
+//	//		moveIn3D ('y', yoke.radAng, -0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
+//	//		yoke.radAng -= DegreeToRad (90.0);
+//	//		yoke.placeObject (6,
+//	//			"type", APIParT_CString, "3000",
+//	//			"length", APIParT_Length, format_string ("%f", 2.990),
+//	//			"change_rot_method", APIParT_Boolean, "0.0",
+//	//			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+//	//			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+//	//			"bWood", APIParT_Boolean, "0.0");
+//	//		yoke.radAng += DegreeToRad (90.0);
+//	//	} else {
+//	//		// 장선은 수직 방향, 멍에제는 수평 방향
+//	//		moveIn3D ('y', yoke.radAng, -0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
+//	//		moveIn3D ('x', yoke.radAng, 0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
+//	//		yoke.placeObject (6,
+//	//			"type", APIParT_CString, "3000",
+//	//			"length", APIParT_Length, format_string ("%f", 2.990),
+//	//			"change_rot_method", APIParT_Boolean, "0.0",
+//	//			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+//	//			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+//	//			"bWood", APIParT_Boolean, "0.0");
+//	//	}
+//	//} else if (placingZone.iYokeType == SANSUNGAK) {
+//	//	// 산승각
+//	//	timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+//	//	moveIn3D ('z', timber.radAng, -0.0115 - 0.080, &timber.posX, &timber.posY, &timber.posZ);
+//
+//	//	if (placingZone.iJoistDirection == HORIZONTAL) {
+//	//		// 장선은 수평 방향, 멍에제는 수직 방향
+//	//		moveIn3D ('x', timber.radAng, 0.500, &timber.posX, &timber.posY, &timber.posZ);
+//	//		moveIn3D ('y', timber.radAng, -0.500, &timber.posX, &timber.posY, &timber.posZ);
+//	//		timber.radAng -= DegreeToRad (90.0);
+//	//		timber.placeObject (6,
+//	//			"w_ins", APIParT_CString, "바닥눕히기",
+//	//			"w_w", APIParT_Length, "0.080",
+//	//			"w_h", APIParT_Length, "0.080",
+//	//			"w_leng", APIParT_Length, format_string ("%f", 3.000),
+//	//			"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+//	//			"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
+//	//		timber.radAng += DegreeToRad (90.0);
+//	//	} else {
+//	//		// 장선은 수직 방향, 멍에제는 수평 방향
+//	//		moveIn3D ('y', timber.radAng, -0.500, &timber.posX, &timber.posY, &timber.posZ);
+//	//		moveIn3D ('x', timber.radAng, 0.500, &timber.posX, &timber.posY, &timber.posZ);
+//	//		timber.placeObject (6,
+//	//			"w_ins", APIParT_CString, "바닥눕히기",
+//	//			"w_w", APIParT_Length, "0.080",
+//	//			"w_h", APIParT_Length, "0.080",
+//	//			"w_leng", APIParT_Length, format_string ("%f", 3.000),
+//	//			"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+//	//			"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
+//	//	}
+//	//}
 
-			timber.radAng -= DegreeToRad (90.0);
-			timber.placeObject (6,
-				"w_ins", APIParT_CString, "바닥눕히기",
-				"w_w", APIParT_Length, "0.080",
-				"w_h", APIParT_Length, "0.080",
-				"w_leng", APIParT_Length, format_string ("%f", length),
-				"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
-			timber.radAng += DegreeToRad (90.0);
-			
-			if (length > 1.000)
-				moveIn3D ('y', timber.radAng, -(length - 1.000), &timber.posX, &timber.posY, &timber.posZ);
-			else
-				moveIn3D ('y', timber.radAng, -length, &timber.posX, &timber.posY, &timber.posZ);
+	return	err;
+}
 
-			if (bShifted == false) {
-				moveIn3D ('x', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
-				bShifted = true;
-			} else {
-				moveIn3D ('x', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
-				bShifted = false;
-			}
+// 동바리, MRK 배치
+GSErrCode	SlabTableformPlacingZone::placePosts (void)
+{
+	GSErrCode	err = NoError;
+	
+	EasyObjectPlacement	post, mrk;
+	double	remainLength, length;
+	bool	bShifted;
 
-			remainLength -= 2.600;
-		}
-	}
+//	// 625 -> 62.5 cm
+//	// 750 -> 75 cm
+//	// 900 -> 90 cm
+//	// 1200 -> 120 cm
+//	// 1375 -> 137.5 cm
+//	// 1500 -> 150 cm
+//	// 2015 -> 201.5 cm
+//	// 2250 -> 225 cm
+//	// 2300 -> 230 cm
+//	// 2370 -> 237 cm
+//	// 2660 -> 266 cm
+//	// 2960 -> 296 cm
+//
+//	// 동바리 배치
+//	//if (placingZone.iSuppPostType == SUPPORT) {
+//	//	// 강관 동바리
+//	//	supp.init (L("서포트v1.0.gsm"), layerInd_Steel_Support, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+//	//	moveIn3D ('z', supp.radAng, -2 - 0.0115 - 0.080, &supp.posX, &supp.posY, &supp.posZ);
+//
+//	//	if (placingZone.iYokeType == GT24_GIRDER) {
+//	//		moveIn3D ('z', supp.radAng, -0.240 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
+//	//	} else if (placingZone.iYokeType == SANSUNGAK) {
+//	//		moveIn3D ('z', supp.radAng, -0.080 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
+//	//	}
+//
+//	//	if (placingZone.iJoistDirection == HORIZONTAL) {
+//	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
+//	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
+//	//		supp.placeObject (7,
+//	//			"s_bimj", APIParT_Boolean, "0.0",
+//	//			"s_stan", APIParT_CString, "V0 (2.0m)",
+//	//			"s_leng", APIParT_Length, "2.000",
+//	//			"s_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+//	//			"bCrosshead", APIParT_Boolean, "1.0",
+//	//			"crossheadType", APIParT_CString, "PERI",
+//	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
+//	//	} else {
+//	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
+//	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
+//	//		supp.placeObject (7,
+//	//			"s_bimj", APIParT_Boolean, "0.0",
+//	//			"s_stan", APIParT_CString, "V0 (2.0m)",
+//	//			"s_leng", APIParT_Length, "2.000",
+//	//			"s_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+//	//			"bCrosshead", APIParT_Boolean, "1.0",
+//	//			"crossheadType", APIParT_CString, "PERI",
+//	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)));
+//	//	}
+//	//} else if (placingZone.iSuppPostType == PERI) {
+//	//	// PERI 동바리
+//	//	supp.init (L("PERI동바리 수직재 v0.1.gsm"), layerInd_PERI_Support, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+//	//	moveIn3D ('z', supp.radAng, -0.0115 - 0.080, &supp.posX, &supp.posY, &supp.posZ);
+//
+//	//	if (placingZone.iYokeType == GT24_GIRDER) {
+//	//		moveIn3D ('z', supp.radAng, -0.240 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
+//	//	} else if (placingZone.iYokeType == SANSUNGAK) {
+//	//		moveIn3D ('z', supp.radAng, -0.080 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
+//	//	}
+//
+//	//	if (placingZone.iJoistDirection == HORIZONTAL) {
+//	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
+//	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
+//	//		supp.placeObject (9,
+//	//			"stType", APIParT_CString, "MP 350",
+//	//			"bCrosshead", APIParT_Boolean, "1.0",
+//	//			"posCrosshead", APIParT_CString, "하단",
+//	//			"crossheadType", APIParT_CString, "PERI",
+//	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+//	//			"len_current", APIParT_Length, "2.000",
+//	//			"Z", APIParT_Length, "2.000",
+//	//			"pos_lever", APIParT_Length, "1.750",
+//	//			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)));
+//	//	} else {
+//	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
+//	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
+//	//		supp.placeObject (9,
+//	//			"stType", APIParT_CString, "MP 350",
+//	//			"bCrosshead", APIParT_Boolean, "1.0",
+//	//			"posCrosshead", APIParT_CString, "하단",
+//	//			"crossheadType", APIParT_CString, "PERI",
+//	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+//	//			"len_current", APIParT_Length, "2.000",
+//	//			"Z", APIParT_Length, "2.000",
+//	//			"pos_lever", APIParT_Length, "1.750",
+//	//			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)));
+//	//	}
+//	//}
 
-	// 멍에제 배치
-	if (placingZone.iYokeType == GT24_GIRDER) {
-		// GT24 거더
-		yoke.init (L("GT24 거더 v1.0.gsm"), layerInd_GT24Girder, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-		moveIn3D ('z', yoke.radAng, -0.0115 - 0.240 - 0.080, &yoke.posX, &yoke.posY, &yoke.posZ);
-
-		if (placingZone.iJoistDirection == HORIZONTAL) {
-			// 장선은 수평 방향, 멍에제는 수직 방향
-			moveIn3D ('x', yoke.radAng, 0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
-			moveIn3D ('y', yoke.radAng, -0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
-			yoke.radAng -= DegreeToRad (90.0);
-			yoke.placeObject (6,
-				"type", APIParT_CString, "3000",
-				"length", APIParT_Length, format_string ("%f", 2.990),
-				"change_rot_method", APIParT_Boolean, "0.0",
-				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"bWood", APIParT_Boolean, "0.0");
-			yoke.radAng += DegreeToRad (90.0);
-		} else {
-			// 장선은 수직 방향, 멍에제는 수평 방향
-			moveIn3D ('y', yoke.radAng, -0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
-			moveIn3D ('x', yoke.radAng, 0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
-			yoke.placeObject (6,
-				"type", APIParT_CString, "3000",
-				"length", APIParT_Length, format_string ("%f", 2.990),
-				"change_rot_method", APIParT_Boolean, "0.0",
-				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"bWood", APIParT_Boolean, "0.0");
-		}
-	} else if (placingZone.iYokeType == SANSUNGAK) {
-		// 산승각
-		timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-		moveIn3D ('z', timber.radAng, -0.0115 - 0.080, &timber.posX, &timber.posY, &timber.posZ);
-
-		if (placingZone.iJoistDirection == HORIZONTAL) {
-			// 장선은 수평 방향, 멍에제는 수직 방향
-			moveIn3D ('x', timber.radAng, 0.500, &timber.posX, &timber.posY, &timber.posZ);
-			moveIn3D ('y', timber.radAng, -0.500, &timber.posX, &timber.posY, &timber.posZ);
-			timber.radAng -= DegreeToRad (90.0);
-			timber.placeObject (6,
-				"w_ins", APIParT_CString, "바닥눕히기",
-				"w_w", APIParT_Length, "0.080",
-				"w_h", APIParT_Length, "0.080",
-				"w_leng", APIParT_Length, format_string ("%f", 3.000),
-				"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
-			timber.radAng += DegreeToRad (90.0);
-		} else {
-			// 장선은 수직 방향, 멍에제는 수평 방향
-			moveIn3D ('y', timber.radAng, -0.500, &timber.posX, &timber.posY, &timber.posZ);
-			moveIn3D ('x', timber.radAng, 0.500, &timber.posX, &timber.posY, &timber.posZ);
-			timber.placeObject (6,
-				"w_ins", APIParT_CString, "바닥눕히기",
-				"w_w", APIParT_Length, "0.080",
-				"w_h", APIParT_Length, "0.080",
-				"w_leng", APIParT_Length, format_string ("%f", 3.000),
-				"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
-		}
-	}
-
-	// 동바리 배치
-	if (placingZone.iSuppPostType == SUPPORT) {
-		// 강관 동바리
-		supp.init (L("서포트v1.0.gsm"), layerInd_Steel_Support, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-		moveIn3D ('z', supp.radAng, -2 - 0.0115 - 0.080, &supp.posX, &supp.posY, &supp.posZ);
-
-		if (placingZone.iYokeType == GT24_GIRDER) {
-			moveIn3D ('z', supp.radAng, -0.240 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
-		} else if (placingZone.iYokeType == SANSUNGAK) {
-			moveIn3D ('z', supp.radAng, -0.080 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
-		}
-
-		if (placingZone.iJoistDirection == HORIZONTAL) {
-			moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
-			moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
-			supp.placeObject (7,
-				"s_bimj", APIParT_Boolean, "0.0",
-				"s_stan", APIParT_CString, "V0 (2.0m)",
-				"s_leng", APIParT_Length, "2.000",
-				"s_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
-				"bCrosshead", APIParT_Boolean, "1.0",
-				"crossheadType", APIParT_CString, "PERI",
-				"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
-		} else {
-			moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
-			moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
-			supp.placeObject (7,
-				"s_bimj", APIParT_Boolean, "0.0",
-				"s_stan", APIParT_CString, "V0 (2.0m)",
-				"s_leng", APIParT_Length, "2.000",
-				"s_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
-				"bCrosshead", APIParT_Boolean, "1.0",
-				"crossheadType", APIParT_CString, "PERI",
-				"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)));
-		}
-	} else if (placingZone.iSuppPostType == PERI) {
-		// PERI 동바리
-		supp.init (L("PERI동바리 수직재 v0.1.gsm"), layerInd_PERI_Support, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-		moveIn3D ('z', supp.radAng, -0.0115 - 0.080, &supp.posX, &supp.posY, &supp.posZ);
-
-		if (placingZone.iYokeType == GT24_GIRDER) {
-			moveIn3D ('z', supp.radAng, -0.240 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
-		} else if (placingZone.iYokeType == SANSUNGAK) {
-			moveIn3D ('z', supp.radAng, -0.080 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
-		}
-
-		if (placingZone.iJoistDirection == HORIZONTAL) {
-			moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
-			moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
-			supp.placeObject (9,
-				"stType", APIParT_CString, "MP 350",
-				"bCrosshead", APIParT_Boolean, "1.0",
-				"posCrosshead", APIParT_CString, "하단",
-				"crossheadType", APIParT_CString, "PERI",
-				"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-				"len_current", APIParT_Length, "2.000",
-				"Z", APIParT_Length, "2.000",
-				"pos_lever", APIParT_Length, "1.750",
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)));
-		} else {
-			moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
-			moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
-			supp.placeObject (9,
-				"stType", APIParT_CString, "MP 350",
-				"bCrosshead", APIParT_Boolean, "1.0",
-				"posCrosshead", APIParT_CString, "하단",
-				"crossheadType", APIParT_CString, "PERI",
-				"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
-				"len_current", APIParT_Length, "2.000",
-				"Z", APIParT_Length, "2.000",
-				"pos_lever", APIParT_Length, "1.750",
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)));
-		}
-	}
-
-	return err;
+	return	err;
 }
 
 // 1차 배치를 위한 질의를 요청하는 1차 다이얼로그
@@ -1073,18 +1138,31 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 			DGSetItemText (dialogID, DG_OK, L"확 인");
 			DGSetItemText (dialogID, DG_CANCEL, L"취 소");
 
-			DGSetItemText (dialogID, LABEL_SELECT_TYPE, L"타입 선택");
+			DGSetItemText (dialogID, GROUPBOX_PANEL, L"판넬");
+			DGSetItemText (dialogID, LABEL_PANEL_TYPE, L"타입");
+			DGSetItemText (dialogID, LABEL_PANEL_DIRECTION, L"방향");
+			DGSetItemText (dialogID, LABEL_PANEL_THICKNESS, L"두께");
 
-			DGSetItemText (dialogID, PUSHRADIO_CONPANEL, L"콘판넬");
-			DGSetItemText (dialogID, PUSHRADIO_PLYWOOD, L"합판");
-			DGSetItemText (dialogID, PUSHRADIO_EUROFORM, L"유로폼");
+			DGSetItemText (dialogID, GROUPBOX_BEAM, L"장선");
+			DGSetItemText (dialogID, LABEL_BEAM_TYPE, L"타입");
+			DGSetItemText (dialogID, LABEL_BEAM_DIRECTION, L"방향");
+			DGSetItemText (dialogID, LABEL_BEAM_OFFSET_HORIZONTAL, L"오프셋(가로)");
+			DGSetItemText (dialogID, LABEL_BEAM_OFFSET_VERTICAL, L"오프셋(세로)");
+			DGSetItemText (dialogID, LABEL_BEAM_GAP, L"간격");
 
-			DGSetItemText (dialogID, LABEL_OTHER_SETTINGS, L"기타 설정");
-			DGSetItemText (dialogID, LABEL_CELL_DIRECTION, L"판넬(폼)방향");
-			DGSetItemText (dialogID, LABEL_JOIST_DIRECTION, L"장선방향");
-			DGSetItemText (dialogID, LABEL_YOKE_TYPE, L"멍에제 종류");
-			DGSetItemText (dialogID, LABEL_SUPPORTING_POST_TYPE, L"동바리 종류");
-			DGSetItemText (dialogID, LABEL_GAP_LENGTH, L"슬래브와의 간격");
+			DGSetItemText (dialogID, GROUPBOX_GIRDER, L"멍에제");
+			DGSetItemText (dialogID, LABEL_GIRDER_TYPE, L"타입");
+			DGSetItemText (dialogID, LABEL_GIRDER_QUANTITY, L"수량");
+			DGSetItemText (dialogID, LABEL_GIRDER_OFFSET_HORIZONTAL, L"오프셋(가로)");
+			DGSetItemText (dialogID, LABEL_GIRDER_OFFSET_VERTICAL, L"오프셋(세로)");
+			DGSetItemText (dialogID, LABEL_GIRDER_GAP, L"간격");
+
+			DGSetItemText (dialogID, GROUPBOX_SUPPORTING_POST, L"동바리");
+			DGSetItemText (dialogID, LABEL_POST_TYPE, L"타입");
+			DGSetItemText (dialogID, LABEL_POST_GAP, L"간격");
+
+			DGSetItemText (dialogID, LABEL_GAP_FROM_SLAB, L"천장과의 간격");
+			DGSetItemText (dialogID, LABEL_ROOM_HEIGHT, L"천장-바닥간 거리");
 
 			DGSetItemText (dialogID, LABEL_LAYER_SETTINGS, L"부재별 레이어 설정");
 			DGSetItemText (dialogID, CHECKBOX_LAYER_COUPLING, L"레이어 묶음");
@@ -1147,49 +1225,151 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 			ACAPI_Interface (APIIo_SetUserControlCallbackID, &ucb, NULL);
 			DGSetItemValLong (dialogID, USERCONTROL_LAYER_STEEL_SUPPORT, 1);
 
-			// 1번째 타입 선택
-			DGSetItemValLong (dialogID, PUSHRADIO_CONPANEL, TRUE);
+			// 판넬 설정
+			DGPopUpInsertItem (dialogID, POPUP_PANEL_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PANEL_TYPE, DG_POPUP_BOTTOM, L"콘판넬");
+			DGPopUpInsertItem (dialogID, POPUP_PANEL_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PANEL_TYPE, DG_POPUP_BOTTOM, L"합판");
+			DGPopUpInsertItem (dialogID, POPUP_PANEL_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PANEL_TYPE, DG_POPUP_BOTTOM, L"유로폼");
+			DGPopUpSelectItem (dialogID, POPUP_PANEL_TYPE, DG_POPUP_TOP);				// 판넬 타입 기본값: 콘판넬
 
-			// 셀방향 추가
-			DGPopUpInsertItem (dialogID, POPUP_CELL_DIRECTION, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_CELL_DIRECTION, DG_POPUP_BOTTOM, L"가로");
-			DGPopUpInsertItem (dialogID, POPUP_CELL_DIRECTION, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_CELL_DIRECTION, DG_POPUP_BOTTOM, L"세로");
+			DGPopUpInsertItem (dialogID, POPUP_PANEL_DIRECTION, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PANEL_DIRECTION, DG_POPUP_BOTTOM, L"가로");
+			DGPopUpInsertItem (dialogID, POPUP_PANEL_DIRECTION, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PANEL_DIRECTION, DG_POPUP_BOTTOM, L"세로");
+			DGPopUpSelectItem (dialogID, POPUP_PANEL_DIRECTION, DG_POPUP_TOP);
 
-			// 장선방향 추가
-			DGPopUpInsertItem (dialogID, POPUP_JOIST_DIRECTION, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_JOIST_DIRECTION, DG_POPUP_BOTTOM, L"가로");
-			DGPopUpInsertItem (dialogID, POPUP_JOIST_DIRECTION, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_JOIST_DIRECTION, DG_POPUP_BOTTOM, L"세로");
+			DGPopUpInsertItem (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM, L"11.5T");
+			DGPopUpInsertItem (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM, L"14.5T");
 
-			// 멍에제 종류 추가
-			DGPopUpInsertItem (dialogID, POPUP_YOKE_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_YOKE_TYPE, DG_POPUP_BOTTOM, L"GT24 거더");
-			DGPopUpInsertItem (dialogID, POPUP_YOKE_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_YOKE_TYPE, DG_POPUP_BOTTOM, L"산승각");
+			// 장선 설정
+			DGPopUpInsertItem (dialogID, POPUP_BEAM_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_BEAM_TYPE, DG_POPUP_BOTTOM, L"산승각");
+			DGPopUpInsertItem (dialogID, POPUP_BEAM_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_BEAM_TYPE, DG_POPUP_BOTTOM, L"투바이");
+			DGPopUpInsertItem (dialogID, POPUP_BEAM_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_BEAM_TYPE, DG_POPUP_BOTTOM, L"GT24 거더");
+			DGPopUpSelectItem (dialogID, POPUP_BEAM_TYPE, DG_POPUP_TOP);				// 장선 타입 기본값: 산승각
 
-			// 동바리 종류 추가
-			DGPopUpInsertItem (dialogID, POPUP_SUPPORTING_POST_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_SUPPORTING_POST_TYPE, DG_POPUP_BOTTOM, L"강관 동바리");
-			DGPopUpInsertItem (dialogID, POPUP_SUPPORTING_POST_TYPE, DG_POPUP_BOTTOM);
-			DGPopUpSetItemText (dialogID, POPUP_SUPPORTING_POST_TYPE, DG_POPUP_BOTTOM, L"PERI 동바리");
+			DGPopUpInsertItem (dialogID, POPUP_BEAM_DIRECTION, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_BEAM_DIRECTION, DG_POPUP_BOTTOM, L"가로");
+			DGPopUpInsertItem (dialogID, POPUP_BEAM_DIRECTION, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_BEAM_DIRECTION, DG_POPUP_BOTTOM, L"세로");
+			DGPopUpSelectItem (dialogID, POPUP_BEAM_DIRECTION, DG_POPUP_TOP);
+
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_OFFSET_HORIZONTAL, 0.200);	// 장선 오프셋(가로) 기본값
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_OFFSET_VERTICAL, 0.300);		// 장선 오프셋(세로) 기본값
+			DGSetItemValDouble (dialogID, EDITCONTROL_BEAM_GAP, 0.300);					// 장선 간격 기본값
+
+			// 멍에제 설정
+			DGPopUpInsertItem (dialogID, POPUP_GIRDER_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_GIRDER_TYPE, DG_POPUP_BOTTOM, L"GT24 거더");
+			DGPopUpInsertItem (dialogID, POPUP_GIRDER_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_GIRDER_TYPE, DG_POPUP_BOTTOM, L"산승각");
+			DGPopUpSelectItem (dialogID, POPUP_GIRDER_TYPE, DG_POPUP_TOP);				// 멍에제 타입 기본값: GT24 거더
+
+			DGPopUpInsertItem (dialogID, POPUP_GIRDER_QUANTITY, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_GIRDER_QUANTITY, DG_POPUP_BOTTOM, L"1");
+			DGPopUpInsertItem (dialogID, POPUP_GIRDER_QUANTITY, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_GIRDER_QUANTITY, DG_POPUP_BOTTOM, L"2");
+
+			DGSetItemValDouble (dialogID, EDITCONTROL_GIRDER_OFFSET_HORIZONTAL, 0.250);	// 멍에제 오프셋(가로) 기본값
+			DGSetItemValDouble (dialogID, EDITCONTROL_GIRDER_OFFSET_VERTICAL, 0.600);	// 멍에제 오프셋(세로) 기본값
+			DGSetItemValDouble (dialogID, EDITCONTROL_GIRDER_GAP, 1.200);				// 멍에제 간격 기본값
+
+			// 동바리 설정
+			DGPopUpInsertItem (dialogID, POPUP_POST_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_TYPE, DG_POPUP_BOTTOM, L"PERI 동바리");
+			DGPopUpInsertItem (dialogID, POPUP_POST_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_TYPE, DG_POPUP_BOTTOM, L"강관 동바리");
+			DGPopUpSelectItem (dialogID, POPUP_POST_TYPE, DG_POPUP_TOP);				// 동바리 타입 기본값: PERI 동바리
+
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"625");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"750");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"900");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"1200");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"1375");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"1500");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"2015");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"2250");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"2300");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"2370");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"2660");
+			DGPopUpInsertItem (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_POST_GAP, DG_POPUP_BOTTOM, L"2960");
+			DGPopUpSelectItem (dialogID, POPUP_POST_GAP, 6);							// PERI 동바리 간격 기본값: 1500
+
+			DGSetItemValDouble (dialogID, EDITCONTROL_POST_GAP, 1.500);					// 강관 동바리 간격 기본값: 1500
+			DGHideItem (dialogID, EDITCONTROL_POST_GAP);
+
+			// 천장-바닥간 거리 계산
+			DGSetItemValDouble (dialogID, EDITCONTROL_ROOM_HEIGHT, placingZone.roomHeight);
+			DGDisableItem (dialogID, EDITCONTROL_ROOM_HEIGHT);
 
 			// 레이어 활성화/비활성화
 			DGDisableItem (dialogID, LABEL_LAYER_EUROFORM);
 			DGDisableItem (dialogID, LABEL_LAYER_CPROFILE);
 			DGDisableItem (dialogID, LABEL_LAYER_PINBOLT);
 			DGDisableItem (dialogID, LABEL_LAYER_FITTINGS);
-			DGDisableItem (dialogID, LABEL_LAYER_PERI_SUPPORT);
+			DGDisableItem (dialogID, LABEL_LAYER_STEEL_SUPPORT);
 
 			DGDisableItem (dialogID, USERCONTROL_LAYER_EUROFORM);
 			DGDisableItem (dialogID, USERCONTROL_LAYER_CPROFILE);
 			DGDisableItem (dialogID, USERCONTROL_LAYER_PINBOLT);
 			DGDisableItem (dialogID, USERCONTROL_LAYER_FITTINGS);
-			DGDisableItem (dialogID, USERCONTROL_LAYER_PERI_SUPPORT);
+			DGDisableItem (dialogID, USERCONTROL_LAYER_STEEL_SUPPORT);
 
 			break;
 
 		case DG_MSG_CHANGE:
+			if (item == POPUP_PANEL_TYPE) {
+				// 판넬 두께 옵션은 종류에 따라 달라짐
+				if (DGPopUpGetSelected (dialogID, POPUP_PANEL_TYPE) == PANEL_TYPE_CONPANEL) {
+					DGPopUpDeleteItem (dialogID, POPUP_PANEL_THICKNESS, DG_ALL_ITEMS);
+					DGPopUpInsertItem (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM, L"11.5T");
+					DGPopUpInsertItem (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM, L"14.5T");
+				} else if (DGPopUpGetSelected (dialogID, POPUP_PANEL_TYPE) == PANEL_TYPE_PLYWOOD) {
+					DGPopUpDeleteItem (dialogID, POPUP_PANEL_THICKNESS, DG_ALL_ITEMS);
+					DGPopUpInsertItem (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM, L"11.5T");
+					DGPopUpInsertItem (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM, L"14.5T");
+					DGPopUpInsertItem (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM, L"17.5T");
+				} else if (DGPopUpGetSelected (dialogID, POPUP_PANEL_TYPE) == PANEL_TYPE_EUROFORM) {
+					DGPopUpDeleteItem (dialogID, POPUP_PANEL_THICKNESS, DG_ALL_ITEMS);
+					DGPopUpInsertItem (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_PANEL_THICKNESS, DG_POPUP_BOTTOM, L"63.5T");
+				}
+			}
+
+			if (item == POPUP_POST_TYPE) {
+				// 동바리 종류에 따라 간격 입력하는 컨트롤의 종류가 바뀜
+				if (DGPopUpGetSelected (dialogID, POPUP_POST_TYPE) == POST_TYPE_PERI_SUPPORT) {
+					DGShowItem (dialogID, POPUP_POST_GAP);
+					DGHideItem (dialogID, EDITCONTROL_POST_GAP);
+				} else {
+					DGHideItem (dialogID, POPUP_POST_GAP);
+					DGShowItem (dialogID, EDITCONTROL_POST_GAP);
+				}
+			}
+
 			// 레이어 같이 바뀜
 			if ((item >= USERCONTROL_LAYER_EUROFORM) && (item <= USERCONTROL_LAYER_STEEL_SUPPORT)) {
 				if (DGGetItemValLong (dialogID, CHECKBOX_LAYER_COUPLING) == 1) {
@@ -1208,43 +1388,36 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 			for (xx = USERCONTROL_LAYER_EUROFORM ; xx <= USERCONTROL_LAYER_STEEL_SUPPORT ; ++xx)
 				DGDisableItem (dialogID, xx);
 
-			if (DGGetItemValLong (dialogID, PUSHRADIO_CONPANEL) == TRUE) {
+			// 합판 레이어는 항상 켜져 있음
+			DGEnableItem (dialogID, LABEL_LAYER_PLYWOOD);
+			DGEnableItem (dialogID, USERCONTROL_LAYER_PLYWOOD);
+
+			// 사용자가 선택한 판넬의 타입에 따라 레이어 일부를 켜거나 끔
+			if (DGPopUpGetSelected (dialogID, POPUP_PANEL_TYPE) == PANEL_TYPE_CONPANEL) {
 				DGEnableItem (dialogID, LABEL_LAYER_CONPANEL);
-				DGEnableItem (dialogID, LABEL_LAYER_PLYWOOD);
-				DGEnableItem (dialogID, LABEL_LAYER_TIMBER);
-
 				DGEnableItem (dialogID, USERCONTROL_LAYER_CONPANEL);
-				DGEnableItem (dialogID, USERCONTROL_LAYER_PLYWOOD);
-				DGEnableItem (dialogID, USERCONTROL_LAYER_TIMBER);
-			}
-			if (DGGetItemValLong (dialogID, PUSHRADIO_PLYWOOD) == TRUE) {
-				DGEnableItem (dialogID, LABEL_LAYER_PLYWOOD);
-				DGEnableItem (dialogID, LABEL_LAYER_TIMBER);
-
-				DGEnableItem (dialogID, USERCONTROL_LAYER_PLYWOOD);
-				DGEnableItem (dialogID, USERCONTROL_LAYER_TIMBER);
-			}
-			if (DGGetItemValLong (dialogID, PUSHRADIO_EUROFORM) == TRUE) {
+			} else if (DGPopUpGetSelected (dialogID, POPUP_PANEL_TYPE) == PANEL_TYPE_EUROFORM) {
 				DGEnableItem (dialogID, LABEL_LAYER_EUROFORM);
-				DGEnableItem (dialogID, LABEL_LAYER_PLYWOOD);
-				DGEnableItem (dialogID, LABEL_LAYER_TIMBER);
-
 				DGEnableItem (dialogID, USERCONTROL_LAYER_EUROFORM);
-				DGEnableItem (dialogID, USERCONTROL_LAYER_PLYWOOD);
-				DGEnableItem (dialogID, USERCONTROL_LAYER_TIMBER);
 			}
 
-			if (DGPopUpGetSelected (dialogID, POPUP_YOKE_TYPE) == GT24_GIRDER) {
+			// 사용자가 선택한 장선, 멍에제의 타입에 따라 레이어 일부를 켜거나 끔
+			if ((DGPopUpGetSelected (dialogID, POPUP_BEAM_TYPE) == BEAM_TYPE_SANSEUNGGAK) || (DGPopUpGetSelected (dialogID, POPUP_BEAM_TYPE) == BEAM_TYPE_TUBAI) || (DGPopUpGetSelected (dialogID, POPUP_GIRDER_TYPE) == GIRDER_TYPE_SANSEUNGGAK)) {
+				DGEnableItem (dialogID, LABEL_LAYER_TIMBER);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_TIMBER);
+			}
+			if ((DGPopUpGetSelected (dialogID, POPUP_BEAM_TYPE) == BEAM_TYPE_GT24) || (DGPopUpGetSelected (dialogID, POPUP_GIRDER_TYPE) == GIRDER_TYPE_GT24)) {
 				DGEnableItem (dialogID, LABEL_LAYER_GT24_GIRDER);
 				DGEnableItem (dialogID, USERCONTROL_LAYER_GT24_GIRDER);
 			}
 
-			if (DGPopUpGetSelected (dialogID, POPUP_SUPPORTING_POST_TYPE) == SUPPORT) {
-				DGEnableItem (dialogID, LABEL_LAYER_STEEL_SUPPORT);
-				DGEnableItem (dialogID, USERCONTROL_LAYER_STEEL_SUPPORT);
-			} else if (DGPopUpGetSelected (dialogID, POPUP_SUPPORTING_POST_TYPE) == PERI) {
+			// 사용자가 선택한 동바리의 타입에 따라 레이어 일부를 켜거나 끔
+			if (DGPopUpGetSelected (dialogID, POPUP_POST_TYPE) == POST_TYPE_PERI_SUPPORT) {
 				DGEnableItem (dialogID, LABEL_LAYER_PERI_SUPPORT);
 				DGEnableItem (dialogID, USERCONTROL_LAYER_PERI_SUPPORT);
+			} else if (DGPopUpGetSelected (dialogID, POPUP_POST_TYPE) == POST_TYPE_STEEL_SUPPORT) {
+				DGEnableItem (dialogID, LABEL_LAYER_STEEL_SUPPORT);
+				DGEnableItem (dialogID, USERCONTROL_LAYER_STEEL_SUPPORT);
 			}
 
 			break;
@@ -1253,30 +1426,37 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 			switch (item) {
 				case DG_OK:
 					//////////////////////////////////////// 다이얼로그 창 정보를 입력 받음
-					// 타입 선택
-					if (DGGetItemValLong (dialogID, PUSHRADIO_CONPANEL) == TRUE)
-						placingZone.iTableformType = CONPANEL;
-					else if (DGGetItemValLong (dialogID, PUSHRADIO_PLYWOOD) == TRUE)
-						placingZone.iTableformType = PLYWOOD;
-					else if (DGGetItemValLong (dialogID, PUSHRADIO_EUROFORM) == TRUE)
-						placingZone.iTableformType = EUROFORM;
-					else
-						placingZone.iTableformType = NONE;
+					// 판넬 정보
+					placingZone.iPanelType = DGPopUpGetSelected (dialogID, POPUP_PANEL_TYPE);
+					placingZone.iPanelDirection = DGPopUpGetSelected (dialogID, POPUP_PANEL_DIRECTION);
+					strcpy (placingZone.panelThkStr, DGPopUpGetItemText (dialogID, POPUP_PANEL_THICKNESS, DGPopUpGetSelected (dialogID, POPUP_PANEL_THICKNESS)).ToCStr ());
+					placingZone.panelThk = atof (placingZone.panelThkStr);
 
-					// 셀 방향
-					placingZone.iCellDirection = DGPopUpGetSelected (dialogID, POPUP_CELL_DIRECTION);
+					// 장선 정보
+					placingZone.iBeamType = DGPopUpGetSelected (dialogID, POPUP_BEAM_TYPE);
+					placingZone.iBeamDirection = DGPopUpGetSelected (dialogID, POPUP_BEAM_DIRECTION);
+					placingZone.beamOffsetHorizontal = DGGetItemValDouble (dialogID, EDITCONTROL_BEAM_OFFSET_HORIZONTAL);
+					placingZone.beamOffsetVertical = DGGetItemValDouble (dialogID, EDITCONTROL_BEAM_OFFSET_VERTICAL);
+					placingZone.beamGap = DGGetItemValDouble (dialogID, EDITCONTROL_BEAM_GAP);
 
-					// 장선 방향
-					placingZone.iJoistDirection = DGPopUpGetSelected (dialogID, POPUP_JOIST_DIRECTION);
+					// 멍에제 정보
+					placingZone.iGirderType = DGPopUpGetSelected (dialogID, POPUP_GIRDER_TYPE);
+					placingZone.nGirders = (short)atoi (DGPopUpGetItemText (dialogID, POPUP_GIRDER_QUANTITY, DGPopUpGetSelected (dialogID, POPUP_GIRDER_QUANTITY)).ToCStr ());
+					placingZone.girderOffsetHorizontal = DGGetItemValDouble (dialogID, EDITCONTROL_GIRDER_OFFSET_HORIZONTAL);
+					placingZone.girderOffsetVertical = DGGetItemValDouble (dialogID, EDITCONTROL_GIRDER_OFFSET_VERTICAL);
+					placingZone.girderGap = DGGetItemValDouble (dialogID, EDITCONTROL_GIRDER_GAP);
 
-					// 멍에제 종류
-					placingZone.iYokeType = DGPopUpGetSelected (dialogID, POPUP_YOKE_TYPE);
+					// 동바리 정보
+					placingZone.iSuppPostType = DGPopUpGetSelected (dialogID, POPUP_POST_TYPE);
+					if (placingZone.iSuppPostType == POST_TYPE_PERI_SUPPORT) {
+						placingZone.suppPostGap = atof (DGPopUpGetItemText (dialogID, POPUP_POST_GAP, DGPopUpGetSelected (dialogID, POPUP_POST_GAP)).ToCStr ()) / 1000.0;
+					} else if (placingZone.iSuppPostType == POST_TYPE_STEEL_SUPPORT) {
+						placingZone.suppPostGap = DGGetItemValDouble (dialogID, EDITCONTROL_POST_GAP);
+					}
 
-					// 동바리 종류
-					placingZone.iSuppPostType = DGPopUpGetSelected (dialogID, POPUP_SUPPORTING_POST_TYPE);
-
-					// 슬래브와의 간격값 저장
-					placingZone.gap = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_LENGTH);
+					// 기타 정보
+					placingZone.gap = DGGetItemValDouble (dialogID, EDITCONTROL_GAP_FROM_SLAB);
+					placingZone.roomHeight = DGGetItemValDouble (dialogID, EDITCONTROL_ROOM_HEIGHT);
 
 					// 레이어 번호 저장
 					layerInd_Euroform		= (short)DGGetItemValLong (dialogID, USERCONTROL_LAYER_EUROFORM);
@@ -1414,11 +1594,11 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 					DGSetItemFont (dialogID, placingZone.CELL_BUTTON [xx][yy], DG_IS_SMALL);
 
 					// 타입에 따라 셀 종류가 달라짐
-					if (placingZone.iTableformType == CONPANEL) {
+					if (placingZone.cells [xx][yy].objType == PANEL_TYPE_CONPANEL) {
 						txtButton = format_string ("콘판넬\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-					} else if (placingZone.iTableformType == PLYWOOD) {
+					} else if (placingZone.cells [xx][yy].objType == PANEL_TYPE_PLYWOOD) {
 						txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-					} else if (placingZone.iTableformType == EUROFORM) {
+					} else if (placingZone.cells [xx][yy].objType == PANEL_TYPE_EUROFORM) {
 						txtButton = format_string ("유로폼\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 					} else {
 						txtButton = format_string ("없음");
@@ -1613,11 +1793,11 @@ short DGCALLBACK slabBottomTableformPlacerHandler2 (short message, short dialogI
 						DGSetItemFont (dialogID, placingZone.CELL_BUTTON [xx][yy], DG_IS_SMALL);
 
 						// 타입에 따라 셀 종류가 달라짐
-						if (placingZone.iTableformType == CONPANEL) {
+						if (placingZone.cells [xx][yy].objType == PANEL_TYPE_CONPANEL) {
 							txtButton = format_string ("콘판넬\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-						} else if (placingZone.iTableformType == PLYWOOD) {
+						} else if (placingZone.cells [xx][yy].objType == PANEL_TYPE_PLYWOOD) {
 							txtButton = format_string ("합판\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
-						} else if (placingZone.iTableformType == EUROFORM) {
+						} else if (placingZone.cells [xx][yy].objType == PANEL_TYPE_EUROFORM) {
 							txtButton = format_string ("유로폼\n↔%.0f\n↕%.0f", placingZone.cells [xx][yy].horLen * 1000, placingZone.cells [xx][yy].verLen * 1000);
 						} else {
 							txtButton = format_string ("없음");
@@ -1707,7 +1887,6 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 
 	switch (message) {
 		case DG_MSG_INIT:
-			
 			// 다이얼로그 타이틀
 			DGSetDialogTitle (dialogID, L"셀 값 설정");
 
@@ -1735,19 +1914,22 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100, 20-7, 120, 25);
 			DGSetItemFont (dialogID, POPUP_OBJ_TYPE, DG_IS_LARGE | DG_IS_PLAIN);
 			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
+			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, L"없음");
+			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, L"콘판넬");
 			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, L"합판");
 			DGPopUpInsertItem (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM);
 			DGPopUpSetItemText (dialogID, POPUP_OBJ_TYPE, DG_POPUP_BOTTOM, L"유로폼");
 			DGShowItem (dialogID, POPUP_OBJ_TYPE);
-			if (placingZone.cells [clickedRow][clickedCol].objType == CONPANEL)
-				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, CONPANEL);
-			else if (placingZone.cells [clickedRow][clickedCol].objType == PLYWOOD)
-				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, PLYWOOD);
-			else if (placingZone.cells [clickedRow][clickedCol].objType == EUROFORM)
-				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, EUROFORM);
-			DGDisableItem (dialogID, POPUP_OBJ_TYPE);
+			if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_CONPANEL)
+				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, PANEL_TYPE_CONPANEL+1);
+			else if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_PLYWOOD)
+				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, PANEL_TYPE_PLYWOOD+1);
+			else if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_EUROFORM)
+				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, PANEL_TYPE_EUROFORM+1);
+			else
+				DGPopUpSelectItem (dialogID, POPUP_OBJ_TYPE, PANEL_TYPE_NONE+1);
 
 			// 라벨: 너비
 			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_RIGHT, DG_FT_NONE, 20, 60, 70, 23);
@@ -1758,25 +1940,109 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			// Edit컨트롤: 너비
 			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100, 60-6, 100, 25);
 			DGSetItemFont (dialogID, EDITCONTROL_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
-			DGShowItem (dialogID, EDITCONTROL_WIDTH);
-			DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, placingZone.cells [clickedRow][clickedCol].horLen);
-			if (placingZone.cells [clickedRow][clickedCol].objType == CONPANEL) {
-				// 콘판넬 크기: 2x6 [606x1820] - 크기 고정
-				DGDisableItem (dialogID, EDITCONTROL_WIDTH);
-			} else if (placingZone.cells [clickedRow][clickedCol].objType == PLYWOOD) {
-				DGEnableItem (dialogID, EDITCONTROL_WIDTH);
-				// 합판 크기: 4x8 [1220x2440]
-				if (placingZone.iCellDirection == VERTICAL)
-					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 1.220);
-				else
+
+			// 팝업컨트롤: 너비
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100, 60-6, 100, 25);
+			DGSetItemFont (dialogID, POPUP_WIDTH, DG_IS_LARGE | DG_IS_PLAIN);
+
+			if (placingZone.iPanelDirection == HORIZONTAL) {
+				if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_CONPANEL) {
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"1820");
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"1520");
+					
+					if (placingZone.cells [clickedRow][clickedCol].horLen - 1.820 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 1);
+					else if (placingZone.cells [clickedRow][clickedCol].horLen - 1.520 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 2);
+
+					DGShowItem (dialogID, POPUP_WIDTH);
+
+				} else if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_PLYWOOD) {
 					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 2.440);
-			} else if (placingZone.cells [clickedRow][clickedCol].objType == EUROFORM) {
-				DGEnableItem (dialogID, EDITCONTROL_WIDTH);
-				// 유로폼 크기: 600x1200 (최대 900x1500)
-				if (placingZone.iCellDirection == VERTICAL)
-					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 0.900);
-				else
-					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 1.500);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+					DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, placingZone.cells [clickedRow][clickedCol].horLen);
+					DGShowItem (dialogID, EDITCONTROL_WIDTH);
+
+				} else if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_EUROFORM) {
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"1200");
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"900");
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"600");
+
+					if (placingZone.cells [clickedRow][clickedCol].horLen - 1.200 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 1);
+					else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.900 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 2);
+					else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.600 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 3);
+
+					DGShowItem (dialogID, POPUP_WIDTH);
+
+				} else {
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+					DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+					DGShowItem (dialogID, EDITCONTROL_WIDTH);
+				}
+			} else {
+				if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_CONPANEL) {
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"910");
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"606");
+					
+					if (placingZone.cells [clickedRow][clickedCol].horLen - 0.910 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 1);
+					else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.606 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 2);
+
+					DGShowItem (dialogID, POPUP_WIDTH);
+
+				} else if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_PLYWOOD) {
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 1.220);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+					DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, placingZone.cells [clickedRow][clickedCol].horLen);
+					DGShowItem (dialogID, EDITCONTROL_WIDTH);
+
+				} else if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_EUROFORM) {
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"600");
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"500");
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"450");
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"400");
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"300");
+					DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"200");
+
+					if (placingZone.cells [clickedRow][clickedCol].horLen - 0.600 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 1);
+					else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.500 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 2);
+					else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.450 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 3);
+					else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.400 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 4);
+					else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.300 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 5);
+					else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.200 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_WIDTH, 6);
+
+					DGShowItem (dialogID, POPUP_WIDTH);
+
+				} else {
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+					DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+					DGShowItem (dialogID, EDITCONTROL_WIDTH);
+				}
 			}
 
 			// 라벨: 높이
@@ -1788,25 +2054,109 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			// Edit컨트롤: 높이
 			DGAppendDialogItem (dialogID, DG_ITM_EDITTEXT, DG_ET_LENGTH, 0, 100, 100-6, 100, 25);
 			DGSetItemFont (dialogID, EDITCONTROL_HEIGHT, DG_IS_LARGE | DG_IS_PLAIN);
-			DGShowItem (dialogID, EDITCONTROL_HEIGHT);
-			DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT, placingZone.cells [clickedRow][clickedCol].verLen);
-			if (placingZone.cells [clickedRow][clickedCol].objType == CONPANEL) {
-				// 콘판넬 크기: 2x6 [606x1820] - 크기 고정
-				DGDisableItem (dialogID, EDITCONTROL_HEIGHT);
-			} else if (placingZone.cells [clickedRow][clickedCol].objType == PLYWOOD) {
-				DGEnableItem (dialogID, EDITCONTROL_HEIGHT);
-				// 합판 크기: 4x8 [1220x2440]
-				if (placingZone.iCellDirection == VERTICAL)
-					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 2.440);
-				else
+
+			// 팝업컨트롤: 높이
+			DGAppendDialogItem (dialogID, DG_ITM_POPUPCONTROL, 25, 5, 100, 100-6, 100, 25);
+			DGSetItemFont (dialogID, POPUP_HEIGHT, DG_IS_LARGE | DG_IS_PLAIN);
+
+			if (placingZone.iPanelDirection == HORIZONTAL) {
+				if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_CONPANEL) {
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"910");
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"606");
+					
+					if (placingZone.cells [clickedRow][clickedCol].verLen - 0.910 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 1);
+					else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.606 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 2);
+
+					DGShowItem (dialogID, POPUP_HEIGHT);
+
+				} else if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_PLYWOOD) {
 					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 1.220);
-			} else if (placingZone.cells [clickedRow][clickedCol].objType == EUROFORM) {
-				DGEnableItem (dialogID, EDITCONTROL_HEIGHT);
-				// 유로폼 크기: 600x1200 (최대 900x1500)
-				if (placingZone.iCellDirection == VERTICAL)
-					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 1.500);
-				else
-					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 0.900);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+					DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT, placingZone.cells [clickedRow][clickedCol].verLen);
+					DGShowItem (dialogID, EDITCONTROL_HEIGHT);
+
+				} else if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_EUROFORM) {
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"600");
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"500");
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"450");
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"400");
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"300");
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"200");
+
+					if (placingZone.cells [clickedRow][clickedCol].verLen - 0.600 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 1);
+					else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.500 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 2);
+					else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.450 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 3);
+					else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.400 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 4);
+					else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.300 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 5);
+					else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.200 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 6);
+
+					DGShowItem (dialogID, POPUP_HEIGHT);
+
+				} else {
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+					DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+					DGShowItem (dialogID, EDITCONTROL_HEIGHT);
+				}
+			} else {
+				if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_CONPANEL) {
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"1820");
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"1520");
+					
+					if (placingZone.cells [clickedRow][clickedCol].verLen - 1.820 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 1);
+					else if (placingZone.cells [clickedRow][clickedCol].verLen - 1.520 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 2);
+
+					DGShowItem (dialogID, POPUP_HEIGHT);
+
+				} else if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_PLYWOOD) {
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 2.440);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+					DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT, placingZone.cells [clickedRow][clickedCol].verLen);
+					DGShowItem (dialogID, EDITCONTROL_HEIGHT);
+
+				} else if (placingZone.cells [clickedRow][clickedCol].objType == PANEL_TYPE_EUROFORM) {
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"1200");
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"900");
+					DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+					DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"600");
+
+					if (placingZone.cells [clickedRow][clickedCol].verLen - 1.200 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 1);
+					else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.900 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 2);
+					else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.600 < EPS)
+						DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 3);
+
+					DGShowItem (dialogID, POPUP_HEIGHT);
+
+				} else {
+					DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+					DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+					DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+					DGShowItem (dialogID, EDITCONTROL_HEIGHT);
+				}
 			}
 
 			// 라벨: 설치방향
@@ -1825,15 +2175,242 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			DGShowItem (dialogID, POPUP_ORIENTATION);
 			DGDisableItem (dialogID, POPUP_ORIENTATION);
 
-			// 라벨: 경고 문구
-			DGAppendDialogItem (dialogID, DG_ITM_STATICTEXT, DG_IS_LEFT, DG_FT_NONE, 10, 170, 220, 40);
-			DGSetItemFont (dialogID, LABEL_CAUTION, DG_IS_LARGE | DG_IS_PLAIN);
-			DGSetItemText (dialogID, LABEL_CAUTION, L"비어 있음");
-
-			if (placingZone.iCellDirection == HORIZONTAL)
+			if (placingZone.iPanelDirection == HORIZONTAL)
 				DGPopUpSelectItem (dialogID, POPUP_ORIENTATION, HORIZONTAL);
 			else
 				DGPopUpSelectItem (dialogID, POPUP_ORIENTATION, VERTICAL);
+
+			break;
+
+		case DG_MSG_CHANGE:
+			switch (item) {
+				case POPUP_OBJ_TYPE:
+					if (placingZone.iPanelDirection == HORIZONTAL) {
+						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_CONPANEL+1) {
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH, DG_ALL_ITEMS);
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"1820");
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"1520");
+					
+							if (placingZone.cells [clickedRow][clickedCol].horLen - 1.820 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 1);
+							else if (placingZone.cells [clickedRow][clickedCol].horLen - 1.520 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 2);
+
+							DGShowItem (dialogID, POPUP_WIDTH);
+							DGHideItem (dialogID, EDITCONTROL_WIDTH);
+
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_PLYWOOD+1) {
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 2.440);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+							DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, placingZone.cells [clickedRow][clickedCol].horLen);
+							DGHideItem (dialogID, POPUP_WIDTH);
+							DGShowItem (dialogID, EDITCONTROL_WIDTH);
+
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_EUROFORM+1) {
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH, DG_ALL_ITEMS);
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"1200");
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"900");
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"600");
+
+							if (placingZone.cells [clickedRow][clickedCol].horLen - 1.200 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 1);
+							else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.900 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 2);
+							else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.600 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 3);
+
+							DGShowItem (dialogID, POPUP_WIDTH);
+							DGHideItem (dialogID, EDITCONTROL_WIDTH);
+
+						} else {
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+							DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+							DGHideItem (dialogID, POPUP_WIDTH);
+							DGShowItem (dialogID, EDITCONTROL_WIDTH);
+						}
+					} else {
+						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_CONPANEL+1) {
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH, DG_ALL_ITEMS);
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"910");
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"606");
+					
+							if (placingZone.cells [clickedRow][clickedCol].horLen - 0.910 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 1);
+							else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.606 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 2);
+
+							DGShowItem (dialogID, POPUP_WIDTH);
+							DGHideItem (dialogID, EDITCONTROL_WIDTH);
+
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_PLYWOOD+1) {
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 1.220);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+							DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, placingZone.cells [clickedRow][clickedCol].horLen);
+							DGHideItem (dialogID, POPUP_WIDTH);
+							DGShowItem (dialogID, EDITCONTROL_WIDTH);
+
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_EUROFORM+1) {
+							DGPopUpDeleteItem (dialogID, POPUP_WIDTH, DG_ALL_ITEMS);
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"600");
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"500");
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"450");
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"400");
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"300");
+							DGPopUpInsertItem (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_WIDTH, DG_POPUP_BOTTOM, L"200");
+
+							if (placingZone.cells [clickedRow][clickedCol].horLen - 0.600 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 1);
+							else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.500 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 2);
+							else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.450 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 3);
+							else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.400 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 4);
+							else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.300 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 5);
+							else if (placingZone.cells [clickedRow][clickedCol].horLen - 0.200 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_WIDTH, 6);
+
+							DGShowItem (dialogID, POPUP_WIDTH);
+							DGHideItem (dialogID, EDITCONTROL_WIDTH);
+
+						} else {
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+							DGSetItemValDouble (dialogID, EDITCONTROL_WIDTH, 0.0);
+							DGHideItem (dialogID, POPUP_WIDTH);
+							DGShowItem (dialogID, EDITCONTROL_WIDTH);
+						}
+					}
+
+					if (placingZone.iPanelDirection == HORIZONTAL) {
+						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_CONPANEL+1) {
+							DGPopUpDeleteItem (dialogID, POPUP_HEIGHT, DG_ALL_ITEMS);
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"910");
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"606");
+					
+							if (placingZone.cells [clickedRow][clickedCol].verLen - 0.910 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 1);
+							else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.606 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 2);
+
+							DGShowItem (dialogID, POPUP_HEIGHT);
+							DGHideItem (dialogID, EDITCONTROL_HEIGHT);
+
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_PLYWOOD+1) {
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 1.220);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+							DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT, placingZone.cells [clickedRow][clickedCol].verLen);
+							DGHideItem (dialogID, POPUP_HEIGHT);
+							DGShowItem (dialogID, EDITCONTROL_HEIGHT);
+
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_EUROFORM+1) {
+							DGPopUpDeleteItem (dialogID, POPUP_HEIGHT, DG_ALL_ITEMS);
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"600");
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"500");
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"450");
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"400");
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"300");
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"200");
+
+							if (placingZone.cells [clickedRow][clickedCol].verLen - 0.600 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 1);
+							else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.500 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 2);
+							else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.450 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 3);
+							else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.400 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 4);
+							else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.300 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 5);
+							else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.200 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 6);
+
+							DGShowItem (dialogID, POPUP_HEIGHT);
+							DGHideItem (dialogID, EDITCONTROL_HEIGHT);
+
+						} else {
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+							DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+							DGHideItem (dialogID, POPUP_HEIGHT);
+							DGShowItem (dialogID, EDITCONTROL_HEIGHT);
+						}
+					} else {
+						if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_CONPANEL+1) {
+							DGPopUpDeleteItem (dialogID, POPUP_HEIGHT, DG_ALL_ITEMS);
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"1820");
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"1520");
+					
+							if (placingZone.cells [clickedRow][clickedCol].verLen - 1.820 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 1);
+							else if (placingZone.cells [clickedRow][clickedCol].verLen - 1.520 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 2);
+
+							DGShowItem (dialogID, POPUP_HEIGHT);
+							DGHideItem (dialogID, EDITCONTROL_HEIGHT);
+
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_PLYWOOD+1) {
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 2.440);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+							DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT, placingZone.cells [clickedRow][clickedCol].verLen);
+							DGHideItem (dialogID, POPUP_HEIGHT);
+							DGShowItem (dialogID, EDITCONTROL_HEIGHT);
+
+						} else if (DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) == PANEL_TYPE_EUROFORM+1) {
+							DGPopUpDeleteItem (dialogID, POPUP_HEIGHT, DG_ALL_ITEMS);
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"1200");
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"900");
+							DGPopUpInsertItem (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM);
+							DGPopUpSetItemText (dialogID, POPUP_HEIGHT, DG_POPUP_BOTTOM, L"600");
+
+							if (placingZone.cells [clickedRow][clickedCol].verLen - 1.200 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 1);
+							else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.900 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 2);
+							else if (placingZone.cells [clickedRow][clickedCol].verLen - 0.600 < EPS)
+								DGPopUpSelectItem (dialogID, POPUP_HEIGHT, 3);
+
+							DGShowItem (dialogID, POPUP_HEIGHT);
+							DGHideItem (dialogID, EDITCONTROL_HEIGHT);
+
+						} else {
+							DGSetItemMaxDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+							DGSetItemMinDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+							DGSetItemValDouble (dialogID, EDITCONTROL_HEIGHT, 0.0);
+							DGHideItem (dialogID, POPUP_HEIGHT);
+							DGShowItem (dialogID, EDITCONTROL_HEIGHT);
+						}
+					}
+
+					break;
+			}
 
 			break;
 
@@ -1841,8 +2418,27 @@ short DGCALLBACK slabBottomTableformPlacerHandler3 (short message, short dialogI
 			switch (item) {
 				case DG_OK:
 					for (xx = 0 ; xx < MAX_IND ; ++xx) {
-						placingZone.cells [xx][clickedCol].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH);
-						placingZone.cells [clickedRow][xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT);
+						// 동일한 열 번호를 가진 셀
+						placingZone.cells [xx][clickedCol].objType = DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) - 1;		// 객체 타입 변경
+						// 가로 크기 강제로 변경
+						if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) - 1) == PANEL_TYPE_CONPANEL) {
+							placingZone.cells [xx][clickedCol].horLen = atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH)).ToCStr ()) / 1000.0;
+						} else if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) - 1) == PANEL_TYPE_PLYWOOD) {
+							placingZone.cells [xx][clickedCol].horLen = DGGetItemValDouble (dialogID, EDITCONTROL_WIDTH);
+						} else if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) - 1) == PANEL_TYPE_EUROFORM) {
+							placingZone.cells [xx][clickedCol].horLen = atof (DGPopUpGetItemText (dialogID, POPUP_WIDTH, DGPopUpGetSelected (dialogID, POPUP_WIDTH)).ToCStr ()) / 1000.0;
+						}
+
+						// 동일한 행 번호를 가진 셀
+						placingZone.cells [clickedRow][xx].objType = DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) - 1;		// 객체 타입 변경
+						// 세로 크기 강제로 변경
+						if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) - 1) == PANEL_TYPE_CONPANEL) {
+							placingZone.cells [clickedRow][xx].verLen = atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT, DGPopUpGetSelected (dialogID, POPUP_HEIGHT)).ToCStr ()) / 1000.0;
+						} else if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) - 1) == PANEL_TYPE_PLYWOOD) {
+							placingZone.cells [clickedRow][xx].verLen = DGGetItemValDouble (dialogID, EDITCONTROL_HEIGHT);
+						} else if ((DGPopUpGetSelected (dialogID, POPUP_OBJ_TYPE) - 1) == PANEL_TYPE_EUROFORM) {
+							placingZone.cells [clickedRow][xx].verLen = atof (DGPopUpGetItemText (dialogID, POPUP_HEIGHT, DGPopUpGetSelected (dialogID, POPUP_HEIGHT)).ToCStr ()) / 1000.0;
+						}
 					}
 
 					break;

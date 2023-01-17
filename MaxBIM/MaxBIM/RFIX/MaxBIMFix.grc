@@ -110,56 +110,80 @@
 }
 
 /* ---------------------------------------------------------- place Tableform on Slab Bottom */
-'GDLG'  32502  Modal | grow	  0		  0		380		675		"슬래브 하부에 배치" {
-/* [  1] */	Button			120		635		 70		 25		LargePlain		"OK"
-/* [  2] */	Button			210		635		 70		 25		LargePlain		"Cancel"
+'GDLG'  32502  Modal | grow	  0		  0		660		850		"슬래브 하부에 배치" {
+/* [  1] */	Button			250		805		 70		 25		LargePlain		"OK"
+/* [  2] */	Button			340		805		 70		 25		LargePlain		"Cancel"
 
-/* [  3] */	LeftText		 20		 10		100		 23		LargePlain		"Select Type"
-/* [  4] */	PushRadio		 20		 33		100		 25		LargePlain		101		"Con Panel"
-/* [  5] */	PushRadio		 20		 63		100		 25		LargePlain		101		"Plywood"
-/* [  6] */	PushRadio		 20		 93		100		 25		LargePlain		101		"Euroform"
+/* [  3] */	GroupBox		 10		 10		170		125		LargePlain	Primary	"Panel"
+/* [  4] */	LeftText		 20		 40		 50		 23		LargePlain		"Type"
+/* [  5] */	LeftText		 20		 70		 50		 23		LargePlain		"Direction"
+/* [  6] */	LeftText		 20		100		 50		 23		LargePlain		"Thickness"
+/* [  7] */	PopupControl	 85		 35		 80		 25		200		10		/* 판넬 종류 */
+/* [  8] */	PopupControl	 85		 65		 80		 25		200		10		/* 판넬 방향 */
+/* [  9] */	PopupControl	 85		 95		 80		 25		200		10		/* 판넬 두께 */
 
-/* [  7] */	LeftText		160		 10		300		 23		LargePlain		"Other Settings"
-/* [  8] */	LeftText		160		 40		 70		 23		LargePlain		"Cell Direction"
-/* [  9] */	PopupControl	250		 33		110		 25		200		10		/* 판넬(폼)방향 */
-/* [ 10] */	LeftText		160		 70		 70		 23		LargePlain		"Joist Direction"
-/* [ 11] */	PopupControl	250		 63		110		 25		200		10		/* 장선방향 */
-/* [ 12] */	LeftText		160		100		 70		 23		LargePlain		"Yoke Type"
-/* [ 13] */	PopupControl	250		 93		110		 25		100		10		/* 멍에제 종류 */
-/* [ 14] */	LeftText		160		130		 70		 23		LargePlain		"Supporting Post Type"
-/* [ 15] */	PopupControl	250		123		110		 25		100		10		/* 동바리 종류 */
+/* [ 10] */	GroupBox		200		 10		450		125		LargePlain	Primary	"Beam"
+/* [ 11] */	LeftText		210		 40		 50		 23		LargePlain		"Type"
+/* [ 12] */	LeftText		210		 70		 50		 23		LargePlain		"Direction"
+/* [ 13] */	LeftText		400		 40		 70		 23		LargePlain		"Offset(Hor)"
+/* [ 14] */	LeftText		400		 70		 70		 23		LargePlain		"Offset(Ver)"
+/* [ 15] */	LeftText		400		100		 70		 23		LargePlain		"Gap"
+/* [ 16] */	PopupControl	275		 35		100		 25		200		10		/* 장선 종류 */
+/* [ 17] */	PopupControl	275		 65		100		 25		200		10		/* 장선 방향 */
+/* [ 18] */	LengthEdit		480		 35		 70		 25		LargePlain		"0"	"10.0"
+/* [ 19] */	LengthEdit		480		 65		 70		 25		LargePlain		"0"	"10.0"
+/* [ 20] */	LengthEdit		480		 95		 70		 25		LargePlain		"0"	"10.0"
 
-/* [ 16] */	Separator		  5		160		370		  1
-/* [ 17] */	RightText		 10		175		100		 23		LargePlain		"Gap from Slab"
-/* [ 18] */	LengthEdit		140		168		 50		 25		LargePlain		"0"	"1.0"
-/* [ 19] */	Separator		  5		200		370		  1
+/* [ 21] */	GroupBox		 10		140		400		125		LargePlain	Primary	"Girder"
+/* [ 22] */	LeftText		 20		170		 50		 23		LargePlain		"Type"
+/* [ 23] */	LeftText		 20		200		 50		 23		LargePlain		"Quantity"
+/* [ 24] */	LeftText		220		170		 70		 23		LargePlain		"Offset(Hor)"
+/* [ 25] */	LeftText		220		200		 70		 23		LargePlain		"Offset(Ver)"
+/* [ 26] */	LeftText		220		230		 70		 23		LargePlain		"Gap"
+/* [ 27] */	PopupControl	 85		165		110		 23		200		10		/* 멍에제 종류 */
+/* [ 28] */	PopupControl	 85		195		110		 23		200		10		/* 멍에제 수량 */
+/* [ 29] */	LengthEdit		310		165		 70		 25		LargePlain		"0" "10.0"
+/* [ 30] */	LengthEdit		310		195		 70		 25		LargePlain		"0" "10.0"
+/* [ 31] */	LengthEdit		310		225		 70		 25		LargePlain		"0" "10.0"
 
-/* [ 20] */	Icon			 85		213		 29		 14  	32502
-/* [ 21] */	LeftText		120		215		200		 23		LargePlain		"Layer Settings"
-/* [ 22] */	CheckBox		120		240		100		 23		LargePlain		"Coupling"
-/* [ 23] */	RightText		 10		275		100		 23		LargePlain		"Euroform"
-/* [ 24] */	RightText		 10		305		100		 23		LargePlain		"Tableform"
-/* [ 25] */	RightText		 10		335		100		 23		LargePlain		"Plywood"
-/* [ 26] */	RightText		 10		365		100		 23		LargePlain		"Timber"
-/* [ 27] */	RightText		 10		395		100		 23		LargePlain		"C Profile"
-/* [ 28] */	RightText		 10		425		100		 23		LargePlain		"Pinbolt"
-/* [ 29] */	RightText		 10		455		100		 23		LargePlain		"Fittings"
-/* [ 30] */	RightText		 10		485		100		 23		LargePlain		"GT24 Girder"
-/* [ 31] */	RightText		 10		515		100		 23		LargePlain		"PERI Support"
-/* [ 32] */	RightText		 10		545		100		 23		LargePlain		"Steel Support"
+/* [ 32] */	GroupBox		430		140		220		125		LargePlain	Primary	"Supporting Post"
+/* [ 33] */	LeftText		440		170		 50		 23		LargePlain		"Type"
+/* [ 34] */	LeftText		440		200		 50		 23		LargePlain		"Gap"
+/* [ 35] */	PopupControl	505		165		110		 25		200		10		/* 동바리 종류 */
+/* [ 36] */	PopupControl	505		195		110		 25		200		10		/* 수평재 길이 */
+/* [ 37] */	LengthEdit		505		195		110		 25		LargePlain		"0"	"10.0"
 
-/* [ 33] */	UserControl		120		269		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
-/* [ 34] */	UserControl		120		299		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM		*/
-/* [ 35] */	UserControl		120		329		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
-/* [ 36] */	UserControl		120		359		160		 25		257	0x0006 0x0000 0		/* Layer Control - TIMBER			*/
-/* [ 37] */	UserControl		120		389		160		 25		257	0x0006 0x0000 0		/* Layer Control - C PROFILE		*/
-/* [ 38] */	UserControl		120		419		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
-/* [ 39] */	UserControl		120		449		160		 25		257	0x0006 0x0000 0		/* Layer Control - FITTINGS			*/
-/* [ 40] */	UserControl		120		479		160		 25		257	0x0006 0x0000 0		/* Layer Control - GT24 GIRDER		*/
-/* [ 41] */	UserControl		120		509		160		 25		257	0x0006 0x0000 0		/* Layer Control - PERI SUPPORT		*/
-/* [ 42] */	UserControl		120		539		160		 25		257	0x0006 0x0000 0		/* Layer Control - STEEL SUPPORT	*/
+/* [ 38] */	RightText		 10		295		100		 23		LargePlain		"Gap from Slab"
+/* [ 39] */	LengthEdit		140		288		 70		 25		LargePlain		"0"	"1.0"
+/* [ 40] */	RightText		330		295		100		 23		LargePlain		"Room Height"
+/* [ 41] */	LengthEdit		460		288		 70		 25		LargePlain		"0"	"50.0"
 
-/* [ 43] */	Button			120		590		160		 25		LargePlain		"Autoset"
+/* [ 42] */	Icon			215		363		 29		 14  	32502
+/* [ 43] */	LeftText		250		365		200		 23		LargePlain		"Layer Settings"
+/* [ 44] */	CheckBox		250		390		100		 23		LargePlain		"Coupling"
+/* [ 45] */	RightText		140		425		100		 23		LargePlain		"Euroform"
+/* [ 46] */	RightText		140		455		100		 23		LargePlain		"Tableform"
+/* [ 47] */	RightText		140		485		100		 23		LargePlain		"Plywood"
+/* [ 48] */	RightText		140		515		100		 23		LargePlain		"Timber"
+/* [ 49] */	RightText		140		545		100		 23		LargePlain		"C Profile"
+/* [ 50] */	RightText		140		575		100		 23		LargePlain		"Pinbolt"
+/* [ 51] */	RightText		140		605		100		 23		LargePlain		"Fittings"
+/* [ 52] */	RightText		140		635		100		 23		LargePlain		"GT24 Girder"
+/* [ 53] */	RightText		140		665		100		 23		LargePlain		"PERI Support"
+/* [ 54] */	RightText		140		695		100		 23		LargePlain		"Steel Support"
+
+/* [ 55] */	UserControl		260		419		160		 25		257	0x0006 0x0000 0		/* Layer Control - EUROFORM			*/
+/* [ 56] */	UserControl		260		449		160		 25		257	0x0006 0x0000 0		/* Layer Control - TABLEFORM		*/
+/* [ 57] */	UserControl		260		479		160		 25		257	0x0006 0x0000 0		/* Layer Control - PLYWOOD			*/
+/* [ 58] */	UserControl		260		509		160		 25		257	0x0006 0x0000 0		/* Layer Control - TIMBER			*/
+/* [ 59] */	UserControl		260		539		160		 25		257	0x0006 0x0000 0		/* Layer Control - C PROFILE		*/
+/* [ 60] */	UserControl		260		569		160		 25		257	0x0006 0x0000 0		/* Layer Control - PINBOLT			*/
+/* [ 61] */	UserControl		260		599		160		 25		257	0x0006 0x0000 0		/* Layer Control - FITTINGS			*/
+/* [ 62] */	UserControl		260		629		160		 25		257	0x0006 0x0000 0		/* Layer Control - GT24 GIRDER		*/
+/* [ 63] */	UserControl		260		659		160		 25		257	0x0006 0x0000 0		/* Layer Control - PERI SUPPORT		*/
+/* [ 64] */	UserControl		260		689		160		 25		257	0x0006 0x0000 0		/* Layer Control - STEEL SUPPORT	*/
+
+/* [ 65] */	Button			260		740		160		 25		LargePlain		"Autoset"
 }
 
 /* ---------------------------------------------------------- Layer assignment */
