@@ -192,22 +192,26 @@ public:
 	short	iPanelType;				// 판넬 타입 (1: 콘판넬, 2: 합판, 3: 유로폼)
 	short	iPanelDirection;		// 판넬 방향 (1: 가로, 2: 세로)
 	char	panelThkStr [10];		// 판넬 두께 (문자열 변수, 11.5T 등)
-	double	panelThk;				// 판넬 두께
+	double	panelThk;				// 판넬 두께 -- roomHeight와 연관
 	
 	short	iBeamType;				// 장선 타입 (1: 산승각, 2: 투바이, 3: GT24 거더)
 	short	iBeamDirection;			// 장선 방향 (1: 가로, 2: 세로)
 	double	beamOffsetHorizontal;	// 장선 오프셋(가로)
 	double	beamOffsetVertical;		// 장선 오프셋(세로)
 	double	beamGap;				// 장선 간격
+	double	beamThk;				// 장선 두께 -- roomHeight와 연관
 
 	short	iGirderType;			// 멍에제 타입 (1: GT24 거더, 2: 산승각)
 	short	nGirders;				// 멍에제 개수
-	double	girderOffsetHorizontal;	// 멍에제 오프셋(가로)
-	double	girderOffsetVertical;	// 멍에제 오프셋(세로)
+	double	girderOffsetHorizontal;	// 멍에제 오프셋(가로) - 유효하지 않음
+	double	girderOffsetVertical;	// 멍에제 오프셋(세로) - 유효하지 않음
 	double	girderGap;				// 멍에제 간격
+	double	girderThk;				// 멍에제 두께 -- roomHeight와 연관
 
 	short	iSuppPostType;			// 동바리 타입 (1: PERI수직재(PERI동바리), 2: 서포트(강관동바리))
 	double	suppPostGap;			// 동바리 간격
+	double	crossHeadThk;			// 크로스헤드 두께 -- roomHeight와 연관
+	double	postHeight;				// 동바리 높이 -- roomHeight와 연관
 
 	double	gap;					// 천장 슬래브와의 간격
 	double	roomHeight;				// 천장-바닥간 거리

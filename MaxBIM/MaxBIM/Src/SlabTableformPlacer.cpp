@@ -31,6 +31,8 @@ static API_Coord3D		firstClickPoint;		// 1번째로 클릭한 점
 static GS::Array<API_Guid>	elemList;			// 그룹화를 위해 생성된 결과물들의 GUID를 전부 저장함
 static GS::Array<API_Guid>	elemList_Insulation;	// 그룹화 (단열재)
 short	MAX_IND = 50;
+double	BEAM_OVERLAP = 0.200;
+double	GIRDER_OVERLAP = 0.200;
 
 
 // 슬래브 하부에 테이블폼을 배치하는 통합 루틴
@@ -862,88 +864,148 @@ GSErrCode	SlabTableformPlacingZone::placeBeams (void)
 	GSErrCode	err = NoError;
 	
 	EasyObjectPlacement	beam;
-	double	remainLength, length;
+	short	xx;
+	double	remainHorLength, length;
 	bool	bShifted;
+	int		lineCount = (int)((placingZone.borderVerLen - (placingZone.beamOffsetVertical * 2)) / placingZone.beamGap);
+	
+	const char	*gt24_nomsize;
+	double		gt24_realsize;
 
-//	//if (placingZone.iJoistDirection == HORIZONTAL) {
-//	//	// 가로 방향
-//	//	timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-//	//	moveIn3D ('z', timber.radAng, -0.0115, &timber.posX, &timber.posY, &timber.posZ);
-//	//	moveIn3D ('x', timber.radAng, 0.200, &timber.posX, &timber.posY, &timber.posZ);
-//	//	moveIn3D ('y', timber.radAng, -0.200, &timber.posX, &timber.posY, &timber.posZ);
-//	//	
-//	//	bShifted = false;
-//	//	remainLength = placingZone.borderHorLen - 0.400;
-//	//	while (remainLength > EPS) {
-//	//		if (remainLength > 3.600)
-//	//			length = 3.600;
-//	//		else
-//	//			length = remainLength;
-//
-//	//		timber.placeObject (6,
-//	//			"w_ins", APIParT_CString, "바닥눕히기",
-//	//			"w_w", APIParT_Length, "0.080",
-//	//			"w_h", APIParT_Length, "0.080",
-//	//			"w_leng", APIParT_Length, format_string ("%f", length),
-//	//			"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-//	//			"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
-//	//		
-//	//		if (length > 1.000)
-//	//			moveIn3D ('x', timber.radAng, length - 1.000, &timber.posX, &timber.posY, &timber.posZ);
-//	//		else
-//	//			moveIn3D ('x', timber.radAng, length, &timber.posX, &timber.posY, &timber.posZ);
-//
-//	//		if (bShifted == false) {
-//	//			moveIn3D ('y', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
-//	//			bShifted = true;
-//	//		} else {
-//	//			moveIn3D ('y', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
-//	//			bShifted = false;
-//	//		}
-//
-//	//		remainLength -= 2.600;
-//	//	}
-//	//} else {
-//	//	// 세로 방향
-//	//	timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-//	//	moveIn3D ('z', timber.radAng, -0.0115, &timber.posX, &timber.posY, &timber.posZ);
-//	//	moveIn3D ('y', timber.radAng, -0.200, &timber.posX, &timber.posY, &timber.posZ);
-//	//	moveIn3D ('x', timber.radAng, 0.200, &timber.posX, &timber.posY, &timber.posZ);
-//	//	
-//	//	bShifted = false;
-//	//	remainLength = placingZone.borderVerLen - 0.400;
-//	//	while (remainLength > EPS) {
-//	//		if (remainLength > 3.600)
-//	//			length = 3.600;
-//	//		else
-//	//			length = remainLength;
-//
-//	//		timber.radAng -= DegreeToRad (90.0);
-//	//		timber.placeObject (6,
-//	//			"w_ins", APIParT_CString, "바닥눕히기",
-//	//			"w_w", APIParT_Length, "0.080",
-//	//			"w_h", APIParT_Length, "0.080",
-//	//			"w_leng", APIParT_Length, format_string ("%f", length),
-//	//			"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-//	//			"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
-//	//		timber.radAng += DegreeToRad (90.0);
-//	//		
-//	//		if (length > 1.000)
-//	//			moveIn3D ('y', timber.radAng, -(length - 1.000), &timber.posX, &timber.posY, &timber.posZ);
-//	//		else
-//	//			moveIn3D ('y', timber.radAng, -length, &timber.posX, &timber.posY, &timber.posZ);
-//
-//	//		if (bShifted == false) {
-//	//			moveIn3D ('x', timber.radAng, 0.080, &timber.posX, &timber.posY, &timber.posZ);
-//	//			bShifted = true;
-//	//		} else {
-//	//			moveIn3D ('x', timber.radAng, -0.080, &timber.posX, &timber.posY, &timber.posZ);
-//	//			bShifted = false;
-//	//		}
-//
-//	//		remainLength -= 2.600;
-//	//	}
-//	//}
+	if (placingZone.iBeamDirection == HORIZONTAL) {
+		if (placingZone.iBeamType == BEAM_TYPE_SANSEUNGGAK) {
+			// 산승각 (가로)
+			for (xx = 0 ; xx < lineCount ; ++xx) {
+				beam.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+				moveIn3D ('x', beam.radAng, placingZone.beamOffsetHorizontal, &beam.posX, &beam.posY, &beam.posZ);
+				moveIn3D ('y', beam.radAng, -(placingZone.beamOffsetVertical + placingZone.beamGap * xx), &beam.posX, &beam.posY, &beam.posZ);
+				moveIn3D ('z', beam.radAng, -placingZone.panelThk, &beam.posX, &beam.posY, &beam.posZ);
+
+				remainHorLength = placingZone.borderHorLen - (placingZone.beamOffsetHorizontal * 2);
+				bShifted = false;
+				while (remainHorLength > EPS) {
+					if (remainHorLength > placingZone.girderGap)
+						length = placingZone.girderGap + BEAM_OVERLAP;
+					else
+						length = remainHorLength;
+
+					beam.placeObject (6,
+						"w_ins", APIParT_CString, "바닥눕히기",
+						"w_w", APIParT_Length, "0.080",
+						"w_h", APIParT_Length, "0.080",
+						"w_leng", APIParT_Length, format_string ("%f", length),
+						"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+						"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
+
+					moveIn3D ('x', beam.radAng, length - BEAM_OVERLAP, &beam.posX, &beam.posY, &beam.posZ);
+					if (bShifted == false) {
+						moveIn3D ('y', beam.radAng, -0.080, &beam.posX, &beam.posY, &beam.posZ);
+						bShifted = true;
+					} else {
+						moveIn3D ('y', beam.radAng, 0.080, &beam.posX, &beam.posY, &beam.posZ);
+						bShifted = false;
+					}
+
+					remainHorLength -= placingZone.girderGap;
+				}
+			}
+		} else if (placingZone.iBeamType == BEAM_TYPE_TUBAI) {
+			// 투바이 (가로)
+			for (xx = 0 ; xx < lineCount ; ++xx) {
+				beam.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+				moveIn3D ('x', beam.radAng, placingZone.beamOffsetHorizontal, &beam.posX, &beam.posY, &beam.posZ);
+				moveIn3D ('y', beam.radAng, -(placingZone.beamOffsetVertical + placingZone.beamGap * xx), &beam.posX, &beam.posY, &beam.posZ);
+				moveIn3D ('z', beam.radAng, -placingZone.panelThk, &beam.posX, &beam.posY, &beam.posZ);
+
+				remainHorLength = placingZone.borderHorLen - (placingZone.beamOffsetHorizontal * 2);
+				bShifted = false;
+				while (remainHorLength > EPS) {
+					if (remainHorLength > placingZone.girderGap)
+						length = placingZone.girderGap + BEAM_OVERLAP;
+					else
+						length = remainHorLength;
+
+					beam.placeObject (6,
+						"w_ins", APIParT_CString, "바닥눕히기",
+						"w_w", APIParT_Length, "0.080",
+						"w_h", APIParT_Length, "0.050",
+						"w_leng", APIParT_Length, format_string ("%f", length),
+						"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+						"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
+
+					moveIn3D ('x', beam.radAng, length - BEAM_OVERLAP, &beam.posX, &beam.posY, &beam.posZ);
+					if (bShifted == false) {
+						moveIn3D ('y', beam.radAng, -0.050, &beam.posX, &beam.posY, &beam.posZ);
+						bShifted = true;
+					} else {
+						moveIn3D ('y', beam.radAng, 0.050, &beam.posX, &beam.posY, &beam.posZ);
+						bShifted = false;
+					}
+
+					remainHorLength -= placingZone.girderGap;
+				}
+			}
+		} else if (placingZone.iBeamType == BEAM_TYPE_GT24) {
+			// GT24 거더 (가로)
+			for (xx = 0 ; xx < lineCount ; ++xx) {
+				beam.init (L("GT24 거더 v1.0.gsm"), layerInd_GT24Girder, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+				moveIn3D ('x', beam.radAng, placingZone.beamOffsetHorizontal, &beam.posX, &beam.posY, &beam.posZ);
+				moveIn3D ('y', beam.radAng, -(placingZone.beamOffsetVertical + 0.040 + placingZone.beamGap * xx), &beam.posX, &beam.posY, &beam.posZ);
+				moveIn3D ('z', beam.radAng, -placingZone.panelThk - 0.240, &beam.posX, &beam.posY, &beam.posZ);
+
+				remainHorLength = placingZone.borderHorLen - (placingZone.beamOffsetHorizontal * 2);
+				bShifted = false;
+				while (remainHorLength > EPS) {
+					if (remainHorLength > placingZone.girderGap)
+						length = placingZone.girderGap + BEAM_OVERLAP;
+					else
+						length = remainHorLength;
+
+					if (length > 5.700) { gt24_nomsize = "6000"; gt24_realsize = 5.950; }
+					else if (length > 5.400) { gt24_nomsize = "5700"; gt24_realsize = 5.654; }
+					else if (length > 5.100) { gt24_nomsize = "5400"; gt24_realsize = 5.358; }
+					else if (length > 4.800) { gt24_nomsize = "5100"; gt24_realsize = 5.062; }
+					else if (length > 4.500) { gt24_nomsize = "4800"; gt24_realsize = 4.766; }
+					else if (length > 4.200) { gt24_nomsize = "4500"; gt24_realsize = 4.470; }
+					else if (length > 3.900) { gt24_nomsize = "4200"; gt24_realsize = 4.174; }
+					else if (length > 3.600) { gt24_nomsize = "3900"; gt24_realsize = 3.878; }
+					else if (length > 3.300) { gt24_nomsize = "3600"; gt24_realsize = 3.582; }
+					else if (length > 3.000) { gt24_nomsize = "3300"; gt24_realsize = 3.286; }
+					else if (length > 2.700) { gt24_nomsize = "3000"; gt24_realsize = 2.990; }
+					else if (length > 2.400) { gt24_nomsize = "2700"; gt24_realsize = 2.694; }
+					else if (length > 2.100) { gt24_nomsize = "2400"; gt24_realsize = 2.398; }
+					else if (length > 1.800) { gt24_nomsize = "2100"; gt24_realsize = 2.102; }
+					else if (length > 1.500) { gt24_nomsize = "1800"; gt24_realsize = 1.806; }
+					else if (length > 1.200) { gt24_nomsize = "1500"; gt24_realsize = 1.510; }
+					else if (length > 0.900) { gt24_nomsize = "1200"; gt24_realsize = 1.214; }
+					else { gt24_nomsize = "900"; gt24_realsize = 0.918; }
+
+					beam.placeObject (6,
+						"type", APIParT_CString, gt24_nomsize,
+						"length", APIParT_Length, format_string ("%f", gt24_realsize),
+						"change_rot_method", APIParT_Boolean, "0.0",
+						"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+						"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+						"bWood", APIParT_Boolean, "0.0");
+
+					moveIn3D ('x', beam.radAng, length - BEAM_OVERLAP, &beam.posX, &beam.posY, &beam.posZ);
+					if (bShifted == false) {
+						moveIn3D ('y', beam.radAng, -0.080, &beam.posX, &beam.posY, &beam.posZ);
+						bShifted = true;
+					} else {
+						moveIn3D ('y', beam.radAng, 0.080, &beam.posX, &beam.posY, &beam.posZ);
+						bShifted = false;
+					}
+
+					remainHorLength -= placingZone.girderGap;
+				}
+			}
+		}
+	} else {
+		// 산승각 (세로)
+		// 투바이 (세로)
+		// GT24 거더 (세로)
+	}
 
 	return	err;
 }
@@ -955,69 +1017,20 @@ GSErrCode	SlabTableformPlacingZone::placeGirders (void)
 	
 	EasyObjectPlacement	girder;
 	double	remainLength, length;
-	bool	bShifted;
 
-//	//if (placingZone.iYokeType == GT24_GIRDER) {
-//	//	// GT24 거더
-//	//	yoke.init (L("GT24 거더 v1.0.gsm"), layerInd_GT24Girder, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-//	//	moveIn3D ('z', yoke.radAng, -0.0115 - 0.240 - 0.080, &yoke.posX, &yoke.posY, &yoke.posZ);
-//
-//	//	if (placingZone.iJoistDirection == HORIZONTAL) {
-//	//		// 장선은 수평 방향, 멍에제는 수직 방향
-//	//		moveIn3D ('x', yoke.radAng, 0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
-//	//		moveIn3D ('y', yoke.radAng, -0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
-//	//		yoke.radAng -= DegreeToRad (90.0);
-//	//		yoke.placeObject (6,
-//	//			"type", APIParT_CString, "3000",
-//	//			"length", APIParT_Length, format_string ("%f", 2.990),
-//	//			"change_rot_method", APIParT_Boolean, "0.0",
-//	//			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-//	//			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-//	//			"bWood", APIParT_Boolean, "0.0");
-//	//		yoke.radAng += DegreeToRad (90.0);
-//	//	} else {
-//	//		// 장선은 수직 방향, 멍에제는 수평 방향
-//	//		moveIn3D ('y', yoke.radAng, -0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
-//	//		moveIn3D ('x', yoke.radAng, 0.500, &yoke.posX, &yoke.posY, &yoke.posZ);
-//	//		yoke.placeObject (6,
-//	//			"type", APIParT_CString, "3000",
-//	//			"length", APIParT_Length, format_string ("%f", 2.990),
-//	//			"change_rot_method", APIParT_Boolean, "0.0",
-//	//			"angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-//	//			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-//	//			"bWood", APIParT_Boolean, "0.0");
-//	//	}
-//	//} else if (placingZone.iYokeType == SANSUNGAK) {
-//	//	// 산승각
-//	//	timber.init (L("목재v1.0.gsm"), layerInd_Timber, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-//	//	moveIn3D ('z', timber.radAng, -0.0115 - 0.080, &timber.posX, &timber.posY, &timber.posZ);
-//
-//	//	if (placingZone.iJoistDirection == HORIZONTAL) {
-//	//		// 장선은 수평 방향, 멍에제는 수직 방향
-//	//		moveIn3D ('x', timber.radAng, 0.500, &timber.posX, &timber.posY, &timber.posZ);
-//	//		moveIn3D ('y', timber.radAng, -0.500, &timber.posX, &timber.posY, &timber.posZ);
-//	//		timber.radAng -= DegreeToRad (90.0);
-//	//		timber.placeObject (6,
-//	//			"w_ins", APIParT_CString, "바닥눕히기",
-//	//			"w_w", APIParT_Length, "0.080",
-//	//			"w_h", APIParT_Length, "0.080",
-//	//			"w_leng", APIParT_Length, format_string ("%f", 3.000),
-//	//			"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-//	//			"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
-//	//		timber.radAng += DegreeToRad (90.0);
-//	//	} else {
-//	//		// 장선은 수직 방향, 멍에제는 수평 방향
-//	//		moveIn3D ('y', timber.radAng, -0.500, &timber.posX, &timber.posY, &timber.posZ);
-//	//		moveIn3D ('x', timber.radAng, 0.500, &timber.posX, &timber.posY, &timber.posZ);
-//	//		timber.placeObject (6,
-//	//			"w_ins", APIParT_CString, "바닥눕히기",
-//	//			"w_w", APIParT_Length, "0.080",
-//	//			"w_h", APIParT_Length, "0.080",
-//	//			"w_leng", APIParT_Length, format_string ("%f", 3.000),
-//	//			"w_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-//	//			"torsion_ang", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
-//	//	}
-//	//}
+	if (placingZone.iBeamDirection == HORIZONTAL) {
+		// GT24 거더 (가로)
+			// 원점 기준으로 (장선 오프셋 가로, 장선 오프셋 세로, -(판넬 두께+장선 두께)) 이동
+			// 멍에제가 커버해야 할 총 길이 = (영역 전체 길이 - (멍에제 오프셋 세로 * 2))
+			// 멍에제 단일 최대 길이 = (동바리 간격 + GIRDER_OVERLAP)... 보다 살짝 긴 규격
+		// 산승각 (가로)
+			// 원점 기준으로 (장선 오프셋 가로, 장선 오프셋 세로, -(판넬 두께+장선 두께)) 이동
+			// 멍에제가 커버해야 할 총 길이 = (영역 전체 길이 - (멍에제 오프셋 세로 * 2))
+			// 멍에제 단일 최대 길이 = (동바리 간격 + GIRDER_OVERLAP)
+	} else {
+		// GT24 거더 (세로)
+		// 산승각 (세로)
+	}
 
 	return	err;
 }
@@ -1029,95 +1042,106 @@ GSErrCode	SlabTableformPlacingZone::placePosts (void)
 	
 	EasyObjectPlacement	post, mrk;
 	double	remainLength, length;
-	bool	bShifted;
 
-//	// 625 -> 62.5 cm
-//	// 750 -> 75 cm
-//	// 900 -> 90 cm
-//	// 1200 -> 120 cm
-//	// 1375 -> 137.5 cm
-//	// 1500 -> 150 cm
-//	// 2015 -> 201.5 cm
-//	// 2250 -> 225 cm
-//	// 2300 -> 230 cm
-//	// 2370 -> 237 cm
-//	// 2660 -> 266 cm
-//	// 2960 -> 296 cm
-//
-//	// 동바리 배치
-//	//if (placingZone.iSuppPostType == SUPPORT) {
-//	//	// 강관 동바리
-//	//	supp.init (L("서포트v1.0.gsm"), layerInd_Steel_Support, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-//	//	moveIn3D ('z', supp.radAng, -2 - 0.0115 - 0.080, &supp.posX, &supp.posY, &supp.posZ);
-//
-//	//	if (placingZone.iYokeType == GT24_GIRDER) {
-//	//		moveIn3D ('z', supp.radAng, -0.240 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
-//	//	} else if (placingZone.iYokeType == SANSUNGAK) {
-//	//		moveIn3D ('z', supp.radAng, -0.080 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
-//	//	}
-//
-//	//	if (placingZone.iJoistDirection == HORIZONTAL) {
-//	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
-//	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
-//	//		supp.placeObject (7,
-//	//			"s_bimj", APIParT_Boolean, "0.0",
-//	//			"s_stan", APIParT_CString, "V0 (2.0m)",
-//	//			"s_leng", APIParT_Length, "2.000",
-//	//			"s_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
-//	//			"bCrosshead", APIParT_Boolean, "1.0",
-//	//			"crossheadType", APIParT_CString, "PERI",
-//	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
-//	//	} else {
-//	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
-//	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
-//	//		supp.placeObject (7,
-//	//			"s_bimj", APIParT_Boolean, "0.0",
-//	//			"s_stan", APIParT_CString, "V0 (2.0m)",
-//	//			"s_leng", APIParT_Length, "2.000",
-//	//			"s_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
-//	//			"bCrosshead", APIParT_Boolean, "1.0",
-//	//			"crossheadType", APIParT_CString, "PERI",
-//	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)));
-//	//	}
-//	//} else if (placingZone.iSuppPostType == PERI) {
-//	//	// PERI 동바리
-//	//	supp.init (L("PERI동바리 수직재 v0.1.gsm"), layerInd_PERI_Support, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
-//	//	moveIn3D ('z', supp.radAng, -0.0115 - 0.080, &supp.posX, &supp.posY, &supp.posZ);
-//
-//	//	if (placingZone.iYokeType == GT24_GIRDER) {
-//	//		moveIn3D ('z', supp.radAng, -0.240 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
-//	//	} else if (placingZone.iYokeType == SANSUNGAK) {
-//	//		moveIn3D ('z', supp.radAng, -0.080 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
-//	//	}
-//
-//	//	if (placingZone.iJoistDirection == HORIZONTAL) {
-//	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
-//	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
-//	//		supp.placeObject (9,
-//	//			"stType", APIParT_CString, "MP 350",
-//	//			"bCrosshead", APIParT_Boolean, "1.0",
-//	//			"posCrosshead", APIParT_CString, "하단",
-//	//			"crossheadType", APIParT_CString, "PERI",
-//	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
-//	//			"len_current", APIParT_Length, "2.000",
-//	//			"Z", APIParT_Length, "2.000",
-//	//			"pos_lever", APIParT_Length, "1.750",
-//	//			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)));
-//	//	} else {
-//	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
-//	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
-//	//		supp.placeObject (9,
-//	//			"stType", APIParT_CString, "MP 350",
-//	//			"bCrosshead", APIParT_Boolean, "1.0",
-//	//			"posCrosshead", APIParT_CString, "하단",
-//	//			"crossheadType", APIParT_CString, "PERI",
-//	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
-//	//			"len_current", APIParT_Length, "2.000",
-//	//			"Z", APIParT_Length, "2.000",
-//	//			"pos_lever", APIParT_Length, "1.750",
-//	//			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)));
-//	//	}
-//	//}
+	// 동바리 길이 = 전체 높이 - (합판 두께 + 장선 두께 + 멍에제 두께 + 크로스헤드 두께 (3mm))
+	// 동바리 방향: 노란색이 위로, 하얀색이 아래로
+	// MRK 높이 = 바닥에서 2000mm
+
+	// 625 -> 62.5 cm
+	// 750 -> 75 cm
+	// 900 -> 90 cm
+	// 1200 -> 120 cm
+	// 1375 -> 137.5 cm
+	// 1500 -> 150 cm
+	// 2015 -> 201.5 cm
+	// 2250 -> 225 cm
+	// 2300 -> 230 cm
+	// 2370 -> 237 cm
+	// 2660 -> 266 cm
+	// 2960 -> 296 cm
+
+	if (placingZone.iBeamDirection == HORIZONTAL) {
+		// PERI 동바리 (가로)
+		// 강관 동바리 (가로)
+	} else {
+		// PERI 동바리 (세로)
+		// 강관 동바리 (세로)
+	}
+
+	// 동바리 배치
+	//if (placingZone.iSuppPostType == SUPPORT) {
+	//	// 강관 동바리
+	//	supp.init (L("서포트v1.0.gsm"), layerInd_Steel_Support, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+	//	moveIn3D ('z', supp.radAng, -2 - 0.0115 - 0.080, &supp.posX, &supp.posY, &supp.posZ);
+
+	//	if (placingZone.iYokeType == GT24_GIRDER) {
+	//		moveIn3D ('z', supp.radAng, -0.240 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
+	//	} else if (placingZone.iYokeType == SANSUNGAK) {
+	//		moveIn3D ('z', supp.radAng, -0.080 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
+	//	}
+
+	//	if (placingZone.iJoistDirection == HORIZONTAL) {
+	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
+	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
+	//		supp.placeObject (7,
+	//			"s_bimj", APIParT_Boolean, "0.0",
+	//			"s_stan", APIParT_CString, "V0 (2.0m)",
+	//			"s_leng", APIParT_Length, "2.000",
+	//			"s_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+	//			"bCrosshead", APIParT_Boolean, "1.0",
+	//			"crossheadType", APIParT_CString, "PERI",
+	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)));
+	//	} else {
+	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
+	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
+	//		supp.placeObject (7,
+	//			"s_bimj", APIParT_Boolean, "0.0",
+	//			"s_stan", APIParT_CString, "V0 (2.0m)",
+	//			"s_leng", APIParT_Length, "2.000",
+	//			"s_ang", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+	//			"bCrosshead", APIParT_Boolean, "1.0",
+	//			"crossheadType", APIParT_CString, "PERI",
+	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)));
+	//	}
+	//} else if (placingZone.iSuppPostType == PERI) {
+	//	// PERI 동바리
+	//	supp.init (L("PERI동바리 수직재 v0.1.gsm"), layerInd_PERI_Support, infoSlab.floorInd, placingZone.leftBottom.x, placingZone.leftBottom.y, placingZone.leftBottom.z, placingZone.ang);
+	//	moveIn3D ('z', supp.radAng, -0.0115 - 0.080, &supp.posX, &supp.posY, &supp.posZ);
+
+	//	if (placingZone.iYokeType == GT24_GIRDER) {
+	//		moveIn3D ('z', supp.radAng, -0.240 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
+	//	} else if (placingZone.iYokeType == SANSUNGAK) {
+	//		moveIn3D ('z', supp.radAng, -0.080 - 0.003, &supp.posX, &supp.posY, &supp.posZ);
+	//	}
+
+	//	if (placingZone.iJoistDirection == HORIZONTAL) {
+	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
+	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
+	//		supp.placeObject (9,
+	//			"stType", APIParT_CString, "MP 350",
+	//			"bCrosshead", APIParT_Boolean, "1.0",
+	//			"posCrosshead", APIParT_CString, "하단",
+	//			"crossheadType", APIParT_CString, "PERI",
+	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)),
+	//			"len_current", APIParT_Length, "2.000",
+	//			"Z", APIParT_Length, "2.000",
+	//			"pos_lever", APIParT_Length, "1.750",
+	//			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)));
+	//	} else {
+	//		moveIn3D ('y', supp.radAng, -0.500, &supp.posX, &supp.posY, &supp.posZ);
+	//		moveIn3D ('x', supp.radAng, 0.500, &supp.posX, &supp.posY, &supp.posZ);
+	//		supp.placeObject (9,
+	//			"stType", APIParT_CString, "MP 350",
+	//			"bCrosshead", APIParT_Boolean, "1.0",
+	//			"posCrosshead", APIParT_CString, "하단",
+	//			"crossheadType", APIParT_CString, "PERI",
+	//			"angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)),
+	//			"len_current", APIParT_Length, "2.000",
+	//			"Z", APIParT_Length, "2.000",
+	//			"pos_lever", APIParT_Length, "1.750",
+	//			"angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)));
+	//	}
+	//}
 
 	return	err;
 }
@@ -1279,6 +1303,8 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 			DGSetItemValDouble (dialogID, EDITCONTROL_GIRDER_OFFSET_HORIZONTAL, 0.250);	// 멍에제 오프셋(가로) 기본값
 			DGSetItemValDouble (dialogID, EDITCONTROL_GIRDER_OFFSET_VERTICAL, 0.600);	// 멍에제 오프셋(세로) 기본값
 			DGSetItemValDouble (dialogID, EDITCONTROL_GIRDER_GAP, 1.200);				// 멍에제 간격 기본값
+			DGDisableItem (dialogID, EDITCONTROL_GIRDER_OFFSET_HORIZONTAL);				// 멍에제 오프셋은 필요 없으므로 비활성화
+			DGDisableItem (dialogID, EDITCONTROL_GIRDER_OFFSET_VERTICAL);				// 멍에제 오프셋은 필요 없으므로 비활성화
 
 			// 동바리 설정
 			DGPopUpInsertItem (dialogID, POPUP_POST_TYPE, DG_POPUP_BOTTOM);
@@ -1430,7 +1456,7 @@ short DGCALLBACK slabBottomTableformPlacerHandler1 (short message, short dialogI
 					placingZone.iPanelType = DGPopUpGetSelected (dialogID, POPUP_PANEL_TYPE);
 					placingZone.iPanelDirection = DGPopUpGetSelected (dialogID, POPUP_PANEL_DIRECTION);
 					strcpy (placingZone.panelThkStr, DGPopUpGetItemText (dialogID, POPUP_PANEL_THICKNESS, DGPopUpGetSelected (dialogID, POPUP_PANEL_THICKNESS)).ToCStr ());
-					placingZone.panelThk = atof (placingZone.panelThkStr);
+					placingZone.panelThk = atof (placingZone.panelThkStr) / 1000.0;
 
 					// 장선 정보
 					placingZone.iBeamType = DGPopUpGetSelected (dialogID, POPUP_BEAM_TYPE);
