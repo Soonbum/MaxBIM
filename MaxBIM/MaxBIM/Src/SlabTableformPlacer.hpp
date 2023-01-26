@@ -251,8 +251,7 @@ public:
 	GSErrCode	fillMarginAreas (void);										// 여백 공간 채우기 (합판)
 	GSErrCode	placeInsulations (void);									// 단열재 배치
 	GSErrCode	placeBeams (void);											// 장선 배치
-	GSErrCode	placeGirders (void);										// 멍에제 배치
-	GSErrCode	placePosts (void);											// 동바리, MRK 배치
+	GSErrCode	placeGirdersAndPosts (void);								// 멍에제, 동바리 배치
 
 public:
 	// 다이얼로그 동적 요소 인덱스 번호 저장
