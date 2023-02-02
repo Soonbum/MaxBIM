@@ -188,18 +188,8 @@ GSErrCode	exportBeamTableformInformation (void);												// 보 테이블폼 물량 
 
 GSErrCode	calcTableformArea (void);															// 테이블폼 면적 계산
 
-GSErrCode	calcConcreteVolumeSingleMode (void);												// 콘크리트 물량 계산 (Single 모드)
-GSErrCode	calcConcreteVolumeMultiMode (void);													// 콘크리트 물량 계산 (Multi 모드)
-
-GSErrCode	calcSlabQuantityAndAreaSingleMode (void);											// 슬래브 수량/하부면적 계산 (Single 모드)
-GSErrCode	calcSlabQuantityAndAreaMultiMode (void);											// 슬래브 수량/하부면적 계산 (Multi 모드)
-GSErrCode	calcInsulationQuantityAndAreaSingleMode (void);										// 단열재 수량/면적 계산 (Single 모드)
-GSErrCode	calcInsulationQuantityAndAreaMultiMode (void);										// 단열재 수량/면적 계산 (Multi 모드)
-
 GSErrCode	exportAllElevationsToPDFSingleMode (void);											// 모든 입면도 PDF로 내보내기 (Single 모드)
 GSErrCode	exportAllElevationsToPDFMultiMode (void);											// 모든 입면도 PDF로 내보내기 (Multi 모드)
-
-GSErrCode	calcMorphAreaSingleMode (void);														// 모프 면적 계산 (Single 모드)
 
 short DGCALLBACK scaleQuestionHandler (short message, short dialogID, short item, DGUserData userData, DGMessageData msgData);				// [다이얼로그] 사용자가 축척 값을 직접 입력할 수 있도록 함
 

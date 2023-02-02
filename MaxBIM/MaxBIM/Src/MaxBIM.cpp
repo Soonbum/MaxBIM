@@ -157,32 +157,11 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 				case 5:		// 테이블폼 면적 계산
 					err = calcTableformArea ();
 					break;
-				case 6:		// 콘크리트 물량 계산 (Single 모드)
-					err = calcConcreteVolumeSingleMode ();
-					break;
-				case 7:		// 콘크리트 물량 계산 (Multi 모드)
-					err = calcConcreteVolumeMultiMode ();
-					break;
-				case 8:		// 슬래브 수량/하부면적 계산 (Single 모드)
-					err = calcSlabQuantityAndAreaSingleMode ();
-					break;
-				case 9:		// 슬래브 수량/하부면적 계산 (Multi 모드)
-					err = calcSlabQuantityAndAreaMultiMode ();
-					break;
-				case 10:	// 단열재 수량/면적 계산 (Single 모드)
-					err = calcInsulationQuantityAndAreaSingleMode ();
-					break;
-				case 11:	// 단열재 수량/면적 계산 (Multi 모드)
-					err = calcInsulationQuantityAndAreaMultiMode ();
-					break;
-				case 12:	// 모든 입면도 PDF로 내보내기 (Single 모드)
+				case 6:		// 모든 입면도 PDF로 내보내기 (Single 모드)
 					err = exportAllElevationsToPDFSingleMode ();
 					break;
-				case 13:	// 모든 입면도 PDF로 내보내기 (Multi 모드)
+				case 7:		// 모든 입면도 PDF로 내보내기 (Multi 모드)
 					err = exportAllElevationsToPDFMultiMode ();
-					break;
-				case 14:	// 모프 면적 계산 (Single 모드)
-					err = calcMorphAreaSingleMode ();
 					break;
 			}
 			break;
