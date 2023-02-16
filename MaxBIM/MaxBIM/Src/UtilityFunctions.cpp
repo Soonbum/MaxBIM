@@ -502,7 +502,7 @@ wchar_t*	charToWchar (const char *str)
 
 	int strSize = MultiByteToWideChar (CP_ACP, 0, str, -1, NULL, NULL);
 
-	MultiByteToWideChar (CP_ACP, 0, str, strlen(str)+1, retStr, strSize);
+	MultiByteToWideChar (CP_ACP, 0, str, (int)strlen(str)+1, retStr, strSize);
 
 	return retStr;
 }
@@ -515,6 +515,29 @@ char*		wcharToChar (const wchar_t *wstr)
 	int strSize = WideCharToMultiByte (CP_ACP, 0, wstr, -1, NULL, 0, NULL, NULL);
 
 	WideCharToMultiByte (CP_ACP, 0, wstr, -1, retStr, strSize, 0, 0);
+
+	return retStr;
+}
+
+
+// C 문자열을 GS::UniString 문자열로 변환
+GS::UniString	convertStr(const char* c_str)
+{
+	static GS::UniString	retStr;
+
+	retStr = charToWchar(c_str);
+
+	return retStr;
+}
+
+// GS::UniString 문자열을 C 문자열로 변환
+char* convertStr(const GS::UniString uni_str)
+{
+	static char retStr[512];
+
+	const char* convertedStr = uni_str.ToCStr().Get();
+
+	sprintf(retStr, "%s", convertedStr);
 
 	return retStr;
 }
@@ -538,7 +561,7 @@ GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bCom
 
 	// 객체 로드
 	BNZeroMemory (&libPart, sizeof (libPart));
-	GS::ucscpy (libPart.file_UName, gsmName);
+	GS::ucscpy(libPart.file_UName, GS::UniString(gsmName).ToUStr().Get());
 	err = ACAPI_LibPart_Search (&libPart, false);
 	if (err != NoError)
 		return err;
@@ -663,7 +686,7 @@ API_Guid	EasyObjectPlacement::placeObject (double posX, double posY, double posZ
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
-	GS::ucscpy (libPart.file_UName, this->gsmName);
+	GS::ucscpy(libPart.file_UName, GS::UniString(this->gsmName).ToUStr().Get());
 	err = ACAPI_LibPart_Search (&libPart, false);
 	if (err != NoError)
 		return elem.header.guid;
@@ -743,7 +766,7 @@ API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short nPa
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
 	this->gsmName = gsmName;
-	GS::ucscpy (libPart.file_UName, gsmName);
+	GS::ucscpy(libPart.file_UName, GS::UniString(gsmName).ToUStr().Get());
 	err = ACAPI_LibPart_Search (&libPart, false);
 	if (err != NoError)
 		return elem.header.guid;
@@ -826,7 +849,7 @@ API_Guid	EasyObjectPlacement::placeObject (short nParams, ...)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
-	GS::ucscpy (libPart.file_UName, this->gsmName);
+	GS::ucscpy(libPart.file_UName, GS::UniString(this->gsmName).ToUStr().Get());
 	err = ACAPI_LibPart_Search (&libPart, false);
 	if (err != NoError)
 		return elem.header.guid;
@@ -912,7 +935,7 @@ API_Guid	EasyObjectPlacement::placeObject (const GS::uchar_t* gsmName, short lay
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
-	GS::ucscpy (libPart.file_UName, this->gsmName);
+	GS::ucscpy(libPart.file_UName, GS::UniString(this->gsmName).ToUStr().Get());
 	err = ACAPI_LibPart_Search (&libPart, false);
 	if (err != NoError)
 		return elem.header.guid;
@@ -993,7 +1016,7 @@ API_Guid	EasyObjectPlacement::placeObjectMirrored (double posX, double posY, dou
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
-	GS::ucscpy (libPart.file_UName, this->gsmName);
+	GS::ucscpy(libPart.file_UName, GS::UniString(this->gsmName).ToUStr().Get());
 	err = ACAPI_LibPart_Search (&libPart, false);
 	if (err != NoError)
 		return elem.header.guid;
@@ -1073,7 +1096,7 @@ API_Guid	EasyObjectPlacement::placeObjectMirrored (const GS::uchar_t* gsmName, s
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
 	this->gsmName = gsmName;
-	GS::ucscpy (libPart.file_UName, gsmName);
+	GS::ucscpy(libPart.file_UName, GS::UniString(gsmName).ToUStr().Get());
 	err = ACAPI_LibPart_Search (&libPart, false);
 	if (err != NoError)
 		return elem.header.guid;
@@ -1156,7 +1179,7 @@ API_Guid	EasyObjectPlacement::placeObjectMirrored (short nParams, ...)
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
-	GS::ucscpy (libPart.file_UName, this->gsmName);
+	GS::ucscpy(libPart.file_UName, GS::UniString(this->gsmName).ToUStr().Get());
 	err = ACAPI_LibPart_Search (&libPart, false);
 	if (err != NoError)
 		return elem.header.guid;
@@ -1242,7 +1265,7 @@ API_Guid	EasyObjectPlacement::placeObjectMirrored (const GS::uchar_t* gsmName, s
 	BNZeroMemory (&elem, sizeof (API_Element));
 	BNZeroMemory (&memo, sizeof (API_ElementMemo));
 	BNZeroMemory (&libPart, sizeof (libPart));
-	GS::ucscpy (libPart.file_UName, this->gsmName);
+	GS::ucscpy(libPart.file_UName, GS::UniString(this->gsmName).ToUStr().Get());
 	err = ACAPI_LibPart_Search (&libPart, false);
 	if (err != NoError)
 		return elem.header.guid;
@@ -1335,8 +1358,7 @@ bool	setParameterByName (API_ElementMemo* memo, char* pName, char* value)
 		retStr = GS::UniString (memo->params [0][xx].name).ToCStr ().Get ();
 		if (retStr != NULL) {
 			if (GS::ucscmp (GS::UniString (memo->params [0][xx].name).ToUStr ().Get (), GS::UniString (pName).ToUStr ().Get ()) == 0) {
-				//GS::ucscpy (memo->params [0][xx].value.uStr, GS::UniString (value).ToUStr ().Get ());
-				GS::ucscpy (memo->params [0][xx].value.uStr, charToWchar (value));
+				GS::ucscpy(memo->params[0][xx].value.uStr, GS::UniString(convertStr(value)).ToUStr().Get());
 				return	true;
 			}
 		} else {

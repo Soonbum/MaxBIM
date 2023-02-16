@@ -70,6 +70,9 @@ static GS::Array<API_Guid>	elemList_Back_Add;	// 그룹화를 위해 생성된 결과물들의
 static int	clickedIndex;	// 클릭한 버튼의 인덱스
 static int	iMarginSide;	// 벽 상단을 채우고자 하는데 현재 진행되는 쪽이 어느 쪽 면인가? (1-낮은쪽, 2-높은쪽)
 
+double DEFAULT_TABLEFORM_WIDTH = 2.250;
+double DEFAULT_EUROFORM_HEIGHT = 1.200;
+
 
 // 벽에 테이블폼을 배치하는 통합 루틴
 GSErrCode	placeTableformOnWall (void)
@@ -257,9 +260,9 @@ GSErrCode	placeTableformOnWall (void)
 	placingZone.leftBottomZ = infoWall.bottomOffset;
 
 	// 초기 셀 개수 계산
-	placingZone.nCellsInHor = (short)floor (placingZone.horLen / 2.250);
-	placingZone.nCellsInVerBasic = (short)floor (placingZone.verLenBasic / 1.200);
-	placingZone.nCellsInVerExtra = (short)floor (placingZone.verLenExtra / 1.200);
+	placingZone.nCellsInHor = (short)floor (placingZone.horLen / DEFAULT_TABLEFORM_WIDTH);
+	placingZone.nCellsInVerBasic = (short)floor (placingZone.verLenBasic / DEFAULT_EUROFORM_HEIGHT);
+	placingZone.nCellsInVerExtra = (short)floor (placingZone.verLenExtra / DEFAULT_EUROFORM_HEIGHT);
 
 FIRST:
 

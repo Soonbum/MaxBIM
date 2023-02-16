@@ -55,6 +55,8 @@ bool	removeCharInStr (char *str, const char ch);															// 문자열 str에서
 char*	getResourceStr (short resID, short index);															// 리소스 resID의 (1-기반) index번째 문자열을 가져옴
 wchar_t*	charToWchar (const char *str);																	// char형 문자열을 wchar_t형 문자열로 변환
 char*		wcharToChar (const wchar_t *wstr);																// wchar_t형 문자열을 char형 문자열로 변환
+GS::UniString	convertStr(const char* c_str);																// C 문자열을 GS::UniString 문자열로 변환
+char*			convertStr(const GS::UniString uni_str);													// GS::UniString 문자열을 C 문자열로 변환
 
 // 객체 배치
 GSErrCode	placeCoordinateLabel (double xPos, double yPos, double zPos, bool bComment = false, std::string comment = "", short layerInd = 1, short floorInd = 0);		// 좌표 라벨을 배치함
