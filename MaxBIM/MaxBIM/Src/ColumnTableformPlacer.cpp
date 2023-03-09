@@ -1112,162 +1112,178 @@ GSErrCode	ColumnTableformPlacingZone::placeBasicObjects_soleColumn (ColumnTablef
 	}
 
 	// 블루클램프 (위쪽 1)
-	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsT1 [0].leftBottomX, placingZone->cellsT1 [0].leftBottomY, placingZone->cellsT1 [0].leftBottomZ, placingZone->cellsT1 [0].ang);
-	if ((placingZone->cellsT1 [0].horLen > EPS) && (placingZone->cellsT1 [0].height > EPS)) {
-		if (placingZone->marginTopAtNorth > EPS) {
-			double formHeight = 0.0;
-			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
-				formHeight += placingZone->cellsT1 [xx].height;
+	if (placingZone->bFillMarginTopAtNorth == true) {
+		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsT1 [0].leftBottomX, placingZone->cellsT1 [0].leftBottomY, placingZone->cellsT1 [0].leftBottomZ, placingZone->cellsT1 [0].ang);
+		if ((placingZone->cellsT1 [0].horLen > EPS) && (placingZone->cellsT1 [0].height > EPS)) {
+			if (placingZone->marginTopAtNorth > EPS) {
+				double formHeight = 0.0;
+				for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+					formHeight += placingZone->cellsT1 [xx].height;
 
-			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			elemList.Push (blueClamp.placeObject (5,
-				"type", APIParT_CString, "유로목재클램프(제작품v1)",
-				"bReverseRotation", APIParT_Boolean, "1.0",
-				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"openingWidth", APIParT_Length, "0.047"));
+				moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				elemList.Push (blueClamp.placeObject (5,
+					"type", APIParT_CString, "유로목재클램프(제작품v1)",
+					"bReverseRotation", APIParT_Boolean, "1.0",
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"openingWidth", APIParT_Length, "0.047"));
+			}
 		}
 	}
 
 	// 블루클램프 (위쪽 3)
-	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsT3 [0].leftBottomX, placingZone->cellsT3 [0].leftBottomY, placingZone->cellsT3 [0].leftBottomZ, placingZone->cellsT3 [0].ang);
-	if ((placingZone->cellsT3 [0].horLen > EPS) && (placingZone->cellsT3 [0].height > EPS)) {
-		if (placingZone->marginTopAtNorth > EPS) {
-			double formHeight = 0.0;
-			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
-				formHeight += placingZone->cellsT3 [xx].height;
+	if (placingZone->bFillMarginTopAtNorth == true) {
+		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsT3 [0].leftBottomX, placingZone->cellsT3 [0].leftBottomY, placingZone->cellsT3 [0].leftBottomZ, placingZone->cellsT3 [0].ang);
+		if ((placingZone->cellsT3 [0].horLen > EPS) && (placingZone->cellsT3 [0].height > EPS)) {
+			if (placingZone->marginTopAtNorth > EPS) {
+				double formHeight = 0.0;
+				for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+					formHeight += placingZone->cellsT3 [xx].height;
 
-			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('x', blueClamp.radAng, placingZone->cellsT3 [0].horLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			elemList.Push (blueClamp.placeObject (5,
-				"type", APIParT_CString, "유로목재클램프(제작품v1)",
-				"bReverseRotation", APIParT_Boolean, "1.0",
-				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"openingWidth", APIParT_Length, "0.047"));
+				moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, placingZone->cellsT3 [0].horLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				elemList.Push (blueClamp.placeObject (5,
+					"type", APIParT_CString, "유로목재클램프(제작품v1)",
+					"bReverseRotation", APIParT_Boolean, "1.0",
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"openingWidth", APIParT_Length, "0.047"));
+			}
 		}
 	}
 
 	// 블루클램프 (아래쪽 1)
-	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsB1 [0].leftBottomX, placingZone->cellsB1 [0].leftBottomY, placingZone->cellsB1 [0].leftBottomZ, placingZone->cellsB1 [0].ang);
-	if ((placingZone->cellsB1 [0].horLen > EPS) && (placingZone->cellsB1 [0].height > EPS)) {
-		if (placingZone->marginTopAtSouth > EPS) {
-			double formHeight = 0.0;
-			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
-				formHeight += placingZone->cellsB1 [xx].height;
+	if (placingZone->bFillMarginTopAtSouth == true) {
+		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsB1 [0].leftBottomX, placingZone->cellsB1 [0].leftBottomY, placingZone->cellsB1 [0].leftBottomZ, placingZone->cellsB1 [0].ang);
+		if ((placingZone->cellsB1 [0].horLen > EPS) && (placingZone->cellsB1 [0].height > EPS)) {
+			if (placingZone->marginTopAtSouth > EPS) {
+				double formHeight = 0.0;
+				for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+					formHeight += placingZone->cellsB1 [xx].height;
 
-			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('x', blueClamp.radAng, placingZone->cellsB1 [0].horLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			elemList.Push (blueClamp.placeObject (5,
-				"type", APIParT_CString, "유로목재클램프(제작품v1)",
-				"bReverseRotation", APIParT_Boolean, "1.0",
-				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"openingWidth", APIParT_Length, "0.047"));
+				moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, placingZone->cellsB1 [0].horLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				elemList.Push (blueClamp.placeObject (5,
+					"type", APIParT_CString, "유로목재클램프(제작품v1)",
+					"bReverseRotation", APIParT_Boolean, "1.0",
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"openingWidth", APIParT_Length, "0.047"));
+			}
 		}
 	}
 
 	// 블루클램프 (아래쪽 3)
-	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsB3 [0].leftBottomX, placingZone->cellsB3 [0].leftBottomY, placingZone->cellsB3 [0].leftBottomZ, placingZone->cellsB3 [0].ang);
-	if ((placingZone->cellsB3 [0].horLen > EPS) && (placingZone->cellsB3 [0].height > EPS)) {
-		if (placingZone->marginTopAtSouth > EPS) {
-			double formHeight = 0.0;
-			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
-				formHeight += placingZone->cellsB3 [xx].height;
+	if (placingZone->bFillMarginTopAtSouth == true) {
+		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsB3 [0].leftBottomX, placingZone->cellsB3 [0].leftBottomY, placingZone->cellsB3 [0].leftBottomZ, placingZone->cellsB3 [0].ang);
+		if ((placingZone->cellsB3 [0].horLen > EPS) && (placingZone->cellsB3 [0].height > EPS)) {
+			if (placingZone->marginTopAtSouth > EPS) {
+				double formHeight = 0.0;
+				for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+					formHeight += placingZone->cellsB3 [xx].height;
 
-			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			elemList.Push (blueClamp.placeObject (5,
-				"type", APIParT_CString, "유로목재클램프(제작품v1)",
-				"bReverseRotation", APIParT_Boolean, "1.0",
-				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"openingWidth", APIParT_Length, "0.047"));
+				moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				elemList.Push (blueClamp.placeObject (5,
+					"type", APIParT_CString, "유로목재클램프(제작품v1)",
+					"bReverseRotation", APIParT_Boolean, "1.0",
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"openingWidth", APIParT_Length, "0.047"));
+			}
 		}
 	}
 
 	// 블루클램프 (좌측 1)
-	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsL1 [0].leftBottomX, placingZone->cellsL1 [0].leftBottomY, placingZone->cellsL1 [0].leftBottomZ, placingZone->cellsL1 [0].ang);
-	if ((placingZone->cellsL1 [0].verLen > EPS) && (placingZone->cellsL1 [0].height > EPS)) {
-		if (placingZone->marginTopAtWest > EPS) {
-			double formHeight = 0.0;
-			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
-				formHeight += placingZone->cellsL1 [xx].height;
+	if (placingZone->bFillMarginTopAtWest == true) {
+		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsL1 [0].leftBottomX, placingZone->cellsL1 [0].leftBottomY, placingZone->cellsL1 [0].leftBottomZ, placingZone->cellsL1 [0].ang);
+		if ((placingZone->cellsL1 [0].verLen > EPS) && (placingZone->cellsL1 [0].height > EPS)) {
+			if (placingZone->marginTopAtWest > EPS) {
+				double formHeight = 0.0;
+				for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+					formHeight += placingZone->cellsL1 [xx].height;
 
-			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('x', blueClamp.radAng, placingZone->cellsL1 [0].verLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			elemList.Push (blueClamp.placeObject (5,
-				"type", APIParT_CString, "유로목재클램프(제작품v1)",
-				"bReverseRotation", APIParT_Boolean, "1.0",
-				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"openingWidth", APIParT_Length, "0.047"));
+				moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, placingZone->cellsL1 [0].verLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				elemList.Push (blueClamp.placeObject (5,
+					"type", APIParT_CString, "유로목재클램프(제작품v1)",
+					"bReverseRotation", APIParT_Boolean, "1.0",
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"openingWidth", APIParT_Length, "0.047"));
+			}
 		}
 	}
 
 	// 블루클램프 (좌측 3)
-	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsL3 [0].leftBottomX, placingZone->cellsL3 [0].leftBottomY, placingZone->cellsL3 [0].leftBottomZ, placingZone->cellsL3 [0].ang);
-	if ((placingZone->cellsL3 [0].verLen > EPS) && (placingZone->cellsL3 [0].height > EPS)) {
-		if (placingZone->marginTopAtWest > EPS) {
-			double formHeight = 0.0;
-			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
-				formHeight += placingZone->cellsL3 [xx].height;
+	if (placingZone->bFillMarginTopAtWest == true) {
+		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsL3 [0].leftBottomX, placingZone->cellsL3 [0].leftBottomY, placingZone->cellsL3 [0].leftBottomZ, placingZone->cellsL3 [0].ang);
+		if ((placingZone->cellsL3 [0].verLen > EPS) && (placingZone->cellsL3 [0].height > EPS)) {
+			if (placingZone->marginTopAtWest > EPS) {
+				double formHeight = 0.0;
+				for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+					formHeight += placingZone->cellsL3 [xx].height;
 
-			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			elemList.Push (blueClamp.placeObject (5,
-				"type", APIParT_CString, "유로목재클램프(제작품v1)",
-				"bReverseRotation", APIParT_Boolean, "1.0",
-				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"openingWidth", APIParT_Length, "0.047"));
+				moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				elemList.Push (blueClamp.placeObject (5,
+					"type", APIParT_CString, "유로목재클램프(제작품v1)",
+					"bReverseRotation", APIParT_Boolean, "1.0",
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"openingWidth", APIParT_Length, "0.047"));
+			}
 		}
 	}
 
 	// 블루클램프 (우측 1)
-	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsR1 [0].leftBottomX, placingZone->cellsR1 [0].leftBottomY, placingZone->cellsR1 [0].leftBottomZ, placingZone->cellsR1 [0].ang);
-	if ((placingZone->cellsR1 [0].verLen > EPS) && (placingZone->cellsR1 [0].height > EPS)) {
-		if (placingZone->marginTopAtEast > EPS) {
-			double formHeight = 0.0;
-			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
-				formHeight += placingZone->cellsR1 [xx].height;
+	if (placingZone->bFillMarginTopAtEast == true) {
+		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsR1 [0].leftBottomX, placingZone->cellsR1 [0].leftBottomY, placingZone->cellsR1 [0].leftBottomZ, placingZone->cellsR1 [0].ang);
+		if ((placingZone->cellsR1 [0].verLen > EPS) && (placingZone->cellsR1 [0].height > EPS)) {
+			if (placingZone->marginTopAtEast > EPS) {
+				double formHeight = 0.0;
+				for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+					formHeight += placingZone->cellsR1 [xx].height;
 
-			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			elemList.Push (blueClamp.placeObject (5,
-				"type", APIParT_CString, "유로목재클램프(제작품v1)",
-				"bReverseRotation", APIParT_Boolean, "1.0",
-				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"openingWidth", APIParT_Length, "0.047"));
+				moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				elemList.Push (blueClamp.placeObject (5,
+					"type", APIParT_CString, "유로목재클램프(제작품v1)",
+					"bReverseRotation", APIParT_Boolean, "1.0",
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"openingWidth", APIParT_Length, "0.047"));
+			}
 		}
 	}
 
 	// 블루클램프 (우측 3)
-	blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsR3 [0].leftBottomX, placingZone->cellsR3 [0].leftBottomY, placingZone->cellsR3 [0].leftBottomZ, placingZone->cellsR3 [0].ang);
-	if ((placingZone->cellsR3 [0].verLen > EPS) && (placingZone->cellsR3 [0].height > EPS)) {
-		if (placingZone->marginTopAtEast > EPS) {
-			double formHeight = 0.0;
-			for (xx = 0 ; xx < placingZone->nCells ; ++xx)
-				formHeight += placingZone->cellsR3 [xx].height;
+	if (placingZone->bFillMarginTopAtEast == true) {
+		blueClamp.init (L("블루클램프v1.0.gsm"), layerInd_BlueClamp, infoColumn.floorInd, placingZone->cellsR3 [0].leftBottomX, placingZone->cellsR3 [0].leftBottomY, placingZone->cellsR3 [0].leftBottomZ, placingZone->cellsR3 [0].ang);
+		if ((placingZone->cellsR3 [0].verLen > EPS) && (placingZone->cellsR3 [0].height > EPS)) {
+			if (placingZone->marginTopAtEast > EPS) {
+				double formHeight = 0.0;
+				for (xx = 0 ; xx < placingZone->nCells ; ++xx)
+					formHeight += placingZone->cellsR3 [xx].height;
 
-			moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('x', blueClamp.radAng, placingZone->cellsR3 [0].verLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
-			elemList.Push (blueClamp.placeObject (5,
-				"type", APIParT_CString, "유로목재클램프(제작품v1)",
-				"bReverseRotation", APIParT_Boolean, "1.0",
-				"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
-				"openingWidth", APIParT_Length, "0.047"));
+				moveIn3D ('z', blueClamp.radAng, formHeight + 0.040, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('x', blueClamp.radAng, placingZone->cellsR3 [0].verLen - 0.150, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				moveIn3D ('y', blueClamp.radAng, -0.066, &blueClamp.posX, &blueClamp.posY, &blueClamp.posZ);
+				elemList.Push (blueClamp.placeObject (5,
+					"type", APIParT_CString, "유로목재클램프(제작품v1)",
+					"bReverseRotation", APIParT_Boolean, "1.0",
+					"angX", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"angY", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)).c_str (),
+					"openingWidth", APIParT_Length, "0.047"));
+			}
 		}
 	}
 

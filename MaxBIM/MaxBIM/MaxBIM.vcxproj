@@ -159,6 +159,7 @@ copy "$(OutDir)\$(ProjectName).apx" "C:\Program Files\Graphisoft\ArchiCAD 19 INT
     <ClInclude Include="Src\SlabTableformPlacer.hpp" />
     <ClInclude Include="Src\sqlite3\sqlite3.h" />
     <ClInclude Include="Src\sqlite3\sqlite3ext.h" />
+    <ClInclude Include="Src\SupportingPostForBeam.hpp" />
     <ClInclude Include="Src\UtilityFunctions.hpp" />
     <ClInclude Include="Src\WallTableformPlacer.hpp" />
   </ItemGroup>

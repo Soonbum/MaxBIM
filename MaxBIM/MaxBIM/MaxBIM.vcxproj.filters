@@ -69,6 +69,9 @@
     <ClInclude Include="Src\sqlite3\sqlite3ext.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Src\SupportingPostForBeam.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\MaxBIM.cpp">

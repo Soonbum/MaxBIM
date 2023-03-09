@@ -10,6 +10,7 @@
 #include "BeamTableformPlacer.hpp"
 #include "ColumnTableformPlacer.hpp"
 #include "LowSideTableformPlacer.hpp"
+#include "SupportingPostForBeam.hpp"
 
 #include "Layers.hpp"
 #include "Export.hpp"
@@ -112,6 +113,13 @@ GSErrCode __ACENV_CALL	MenuCommandHandler (const API_MenuParams *menuParams)
 					// 낮은 슬래브 측면에 테이블폼 배치
 					err = ACAPI_CallUndoableCommand (L"낮은 슬래브 측면에 테이블폼 배치", [&] () -> GSErrCode {
 						err = placeTableformOnLowSide ();
+						return err;
+					});
+					break;
+				case 6:
+					// 보 전용 동바리 세트 배치
+					err = ACAPI_CallUndoableCommand (L"보 전용 동바리 세트 배치", [&] () -> GSErrCode {
+						err = placeSupportingPostForBeam ();
 						return err;
 					});
 					break;
