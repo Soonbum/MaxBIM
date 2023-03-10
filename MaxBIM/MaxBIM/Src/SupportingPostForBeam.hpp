@@ -244,70 +244,100 @@ namespace SupportingPostForBeam {
 		occupied_len += (double)(atoi (supportingPostPlacingZone.MRK_Type_3_parallel.ToCStr ().Get ()) * 10) / 1000;
 		gap = (atof (supportingPostPlacingZone.girder_real_length.ToCStr ().Get ()) - occupied_len) / (nMRKSets + 1);
 
-		// !!! MRK 고도 = 2000
+		// MRK 고도 조절
+		moveIn3D ('z', MRK.radAng, -2.300, &MRK.posX, &MRK.posY, &MRK.posZ);
 
 		if (bMRK1 == true) {
 			parallel_len = (double)(atoi (supportingPostPlacingZone.MRK_Type_1_parallel.ToCStr ().Get ()) * 10) / 1000;
 			perpendicular_len = (double)(atoi (supportingPostPlacingZone.MRK_Type_1_perpendicular.ToCStr ().Get ()) * 10) / 1000;
 
-			moveIn3D ('y', MRK.radAng, perpendicular_len / 2, &MRK.posX, &MRK.posY, &MRK.posZ);
+			// 아래쪽
+			moveIn3D ('x', MRK.radAng, gap + 0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, -perpendicular_len / 2, &MRK.posX, &MRK.posY, &MRK.posZ);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", parallel_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_1_parallel.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", parallel_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			// 오른쪽
+			moveIn3D ('x', MRK.radAng, -0.050 + parallel_len, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, 0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			MRK.radAng += DegreeToRad (90.0);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_1_perpendicular.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			MRK.radAng -= DegreeToRad (90.0);
+			// 위쪽
+			moveIn3D ('x', MRK.radAng, -0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, perpendicular_len - 0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			MRK.radAng += DegreeToRad (180.0);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", parallel_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_1_parallel.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", parallel_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			MRK.radAng -= DegreeToRad (180.0);
+			// 왼쪽
+			moveIn3D ('x', MRK.radAng, 0.050 - parallel_len, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, -0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			MRK.radAng += DegreeToRad (270.0);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_1_perpendicular.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			MRK.radAng -= DegreeToRad (270.0);
 
-			moveIn3D ('x', MRK.radAng, gap, &MRK.posX, &MRK.posY, &MRK.posZ);
-			//elemList.Push (MRK.placeObject (9,
-			//	"A", APIParT_Length, ? lenFrame과 동일
-			//	"B", APIParT_Length, "0.100",
-			//	"ZZYZX", APIParT_Length, "0.500",
-			//	"stType", APIParT_CString, ? --> 120 cm ...
-			//	"diaVerticalPipe", APIParT_Length, "0.100",
-			//	"lenFrame", APIParT_Length, ? --> stType을 더블화 * 10 - 0.100
-			//	"angX", APIParT_Angle, "0.0",
-			//	"angY", APIParT_Angle, "0.0",
-			//	"bOnlyCoupler", APIParT_Boolean, "0.0"));
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-			//moveIn3D ('y', PERI.radAng, -perpendicular_len, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-			//moveIn3D ('x', PERI.radAng, parallel_len, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-			//moveIn3D ('y', PERI.radAng, perpendicular_len, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-
-			//moveIn3D ('y', PERI.radAng, -perpendicular_len / 2, &PERI.posX, &PERI.posY, &PERI.posZ);
+			moveIn3D ('x', MRK.radAng, parallel_len, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, 0.050 - perpendicular_len / 2, &MRK.posX, &MRK.posY, &MRK.posZ);
 		}
 
 		if (bMRK2 == true) {
 			parallel_len = (double)(atoi (supportingPostPlacingZone.MRK_Type_2_parallel.ToCStr ().Get ()) * 10) / 1000;
 			perpendicular_len = (double)(atoi (supportingPostPlacingZone.MRK_Type_2_perpendicular.ToCStr ().Get ()) * 10) / 1000;
 
-			//moveIn3D ('y', PERI.radAng, perpendicular_len / 2, &PERI.posX, &PERI.posY, &PERI.posZ);
+			// 아래쪽
+			moveIn3D ('x', MRK.radAng, gap + 0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, -perpendicular_len / 2, &MRK.posX, &MRK.posY, &MRK.posZ);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", parallel_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_2_parallel.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", parallel_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			// 오른쪽
+			moveIn3D ('x', MRK.radAng, -0.050 + parallel_len, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, 0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			MRK.radAng += DegreeToRad (90.0);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_2_perpendicular.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			MRK.radAng -= DegreeToRad (90.0);
+			// 위쪽
+			moveIn3D ('x', MRK.radAng, -0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, perpendicular_len - 0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			MRK.radAng += DegreeToRad (180.0);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", parallel_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_2_parallel.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", parallel_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			MRK.radAng -= DegreeToRad (180.0);
+			// 왼쪽
+			moveIn3D ('x', MRK.radAng, 0.050 - parallel_len, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, -0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			MRK.radAng += DegreeToRad (270.0);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_2_perpendicular.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			MRK.radAng -= DegreeToRad (270.0);
 
-			//moveIn3D ('x', PERI.radAng, gap, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-			//moveIn3D ('y', PERI.radAng, -perpendicular_len, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-			//moveIn3D ('x', PERI.radAng, parallel_len, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-			//moveIn3D ('y', PERI.radAng, perpendicular_len, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-
-			//moveIn3D ('y', PERI.radAng, -perpendicular_len / 2, &PERI.posX, &PERI.posY, &PERI.posZ);
+			moveIn3D ('x', MRK.radAng, parallel_len, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, 0.050 - perpendicular_len / 2, &MRK.posX, &MRK.posY, &MRK.posZ);
 		}
 
 		if (bMRK3 == true) {
 			parallel_len = (double)(atoi (supportingPostPlacingZone.MRK_Type_3_parallel.ToCStr ().Get ()) * 10) / 1000;
 			perpendicular_len = (double)(atoi (supportingPostPlacingZone.MRK_Type_3_perpendicular.ToCStr ().Get ()) * 10) / 1000;
 
-			//moveIn3D ('y', PERI.radAng, perpendicular_len / 2, &PERI.posX, &PERI.posY, &PERI.posZ);
+			// 아래쪽
+			moveIn3D ('x', MRK.radAng, gap + 0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, -perpendicular_len / 2, &MRK.posX, &MRK.posY, &MRK.posZ);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", parallel_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_3_parallel.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", parallel_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			// 오른쪽
+			moveIn3D ('x', MRK.radAng, -0.050 + parallel_len, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, 0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			MRK.radAng += DegreeToRad (90.0);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_3_perpendicular.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			MRK.radAng -= DegreeToRad (90.0);
+			// 위쪽
+			moveIn3D ('x', MRK.radAng, -0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, perpendicular_len - 0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			MRK.radAng += DegreeToRad (180.0);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", parallel_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_3_parallel.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", parallel_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			MRK.radAng -= DegreeToRad (180.0);
+			// 왼쪽
+			moveIn3D ('x', MRK.radAng, 0.050 - parallel_len, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, -0.050, &MRK.posX, &MRK.posY, &MRK.posZ);
+			MRK.radAng += DegreeToRad (270.0);
+			elemList.Push (MRK.placeObject (9, "A", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "B", APIParT_Length, "0.100", "ZZYZX", APIParT_Length, "0.500", "stType", APIParT_CString, supportingPostPlacingZone.MRK_Type_3_perpendicular.ToCStr ().Get (), "diaVerticalPipe", APIParT_Length, "0.100", "lenFrame", APIParT_Length, format_string ("%f", perpendicular_len - 0.100), "angX", APIParT_Angle, "0.0", "angY", APIParT_Angle, "0.0", "bOnlyCoupler", APIParT_Boolean, "0.0"));
+			MRK.radAng -= DegreeToRad (270.0);
 
-			//moveIn3D ('x', PERI.radAng, gap, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-			//moveIn3D ('y', PERI.radAng, -perpendicular_len, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-			//moveIn3D ('x', PERI.radAng, parallel_len, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-			//moveIn3D ('y', PERI.radAng, perpendicular_len, &PERI.posX, &PERI.posY, &PERI.posZ);
-			//elemList.Push (PERI.placeObject (14, "ZZYZX", APIParT_Length, "4.3", "stType", APIParT_CString, "MP 625", "bCrosshead", APIParT_Boolean, "1.0", "posCrosshead", APIParT_CString, "하단", "crossheadType", APIParT_CString, "PERI", "angCrosshead", APIParT_Angle, format_string ("%f", DegreeToRad (90.0)), "len_min", APIParT_Length, "4.3", "len_max", APIParT_Length, "6.25", "len_current", APIParT_Length, "4.3", "pos_lever", APIParT_Length, "4.220", "angX", APIParT_Angle, format_string ("%f", DegreeToRad (0.0)), "angY", APIParT_Angle, format_string ("%f", DegreeToRad (180.0)), "bShowCoords", APIParT_Boolean, "0.0", "text2_onoff", APIParT_Boolean, "0.0"));
-
-			//moveIn3D ('y', PERI.radAng, -perpendicular_len / 2, &PERI.posX, &PERI.posY, &PERI.posZ);
+			moveIn3D ('x', MRK.radAng, parallel_len, &MRK.posX, &MRK.posY, &MRK.posZ);
+			moveIn3D ('y', MRK.radAng, 0.050 - perpendicular_len / 2, &MRK.posX, &MRK.posY, &MRK.posZ);
 		}
 	}
 
@@ -339,7 +369,7 @@ namespace SupportingPostForBeam {
 	{
 		int girder_length = (int)floor (atof (supportingPostPlacingZone.girder_real_length.ToCStr ().Get ()) * 1000);
 		int nBeams = girder_length / BEAM_GAP + 1;
-		int start_offset = (girder_length - ((nBeams - 1) * BEAM_GAP) - (0.080 + 0.012) * 1000) / 2;
+		int start_offset = (girder_length - ((nBeams - 1) * BEAM_GAP) - (int)((0.080 + 0.012) * 1000)) / 2;
 
 		EasyObjectPlacement beam;
 		beam.init (L("목재v1.0.gsm"), layerInd_Sanseunggak, supportingPostPlacingZone.floorInd, supportingPostPlacingZone.oriPos.x, supportingPostPlacingZone.oriPos.y, supportingPostPlacingZone.oriPos.z, supportingPostPlacingZone.radAng);
@@ -365,7 +395,7 @@ namespace SupportingPostForBeam {
 
 		int girder_length = (int)floor (atof (supportingPostPlacingZone.girder_real_length.ToCStr ().Get ()) * 1000);
 		int nBeams = girder_length / BEAM_GAP + 1;
-		int start_offset = (girder_length - ((nBeams - 1) * BEAM_GAP) - (0.080 + 0.012) * 1000) / 2;
+		int start_offset = (girder_length - ((nBeams - 1) * BEAM_GAP) - (int)((0.080 + 0.012) * 1000)) / 2;
 
 		EasyObjectPlacement join;
 		join.init (L("결합철물 (사각와셔활용) v1.0.gsm"), layerInd_Join, supportingPostPlacingZone.floorInd, supportingPostPlacingZone.oriPos.x, supportingPostPlacingZone.oriPos.y, supportingPostPlacingZone.oriPos.z, supportingPostPlacingZone.radAng);
@@ -527,7 +557,7 @@ short DGCALLBACK supportingPostPlacerHandler1 (short message, short dialogID, sh
 				DGPopUpInsertItem (dialogID, POPUP_FLOOR, DG_POPUP_BOTTOM);
 				DGPopUpSetItemText (dialogID, POPUP_FLOOR, DG_POPUP_BOTTOM, convertStr (floorName));
 			}
-			for (int i = 0 ; i <= (storyInfo.lastStory - storyInfo.firstStory) ; ++i) {
+			for (short i = 0 ; i <= (storyInfo.lastStory - storyInfo.firstStory) ; ++i) {
 				if (storyInfo.data [0][i].index == 0) {
 					DGPopUpSelectItem (dialogID, POPUP_FLOOR, i+1);
 				}
